@@ -1,10 +1,10 @@
-import babelParser from "@babel/eslint-parser";
-import js from "@eslint/js";
-import eslintConfigPrettier from "eslint-config-prettier";
-import turboPlugin from "eslint-plugin-turbo";
-import onlyWarn from "eslint-plugin-only-warn";
-import prettierPlugin from "eslint-plugin-prettier";
-import prettierConfig from "@repo/prettier-config";
+import babelParser from '@babel/eslint-parser';
+import js from '@eslint/js';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import turboPlugin from 'eslint-plugin-turbo';
+import onlyWarn from 'eslint-plugin-only-warn';
+import prettierPlugin from 'eslint-plugin-prettier';
+import prettierConfig from '@repo/prettier-config';
 
 /**
  * A shared ESLint configuration for the repository.
@@ -20,7 +20,7 @@ export const config = [
       parserOptions: {
         requireConfigFile: false,
         babelOptions: {
-          presets: ["@babel/preset-typescript"],
+          presets: ['@babel/preset-typescript'],
         },
       },
     },
@@ -29,8 +29,8 @@ export const config = [
       prettier: prettierPlugin,
     },
     rules: {
-      "turbo/no-undeclared-env-vars": "warn",
-      "prettier/prettier": ["warn", prettierConfig]
+      'turbo/no-undeclared-env-vars': 'warn',
+      'prettier/prettier': ['warn', prettierConfig],
     },
   },
   {
@@ -39,6 +39,6 @@ export const config = [
     },
   },
   {
-    ignores: ["dist/**"],
+    ignores: ['dist/**'],
   },
 ];
