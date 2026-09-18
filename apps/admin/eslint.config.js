@@ -21,7 +21,7 @@ export default defineConfig([
       prettier: prettierPlugin,
     },
     rules: {
-      ...prettierConfig,
+      'prettier/prettier': ['warn', prettierConfig],
     },
     languageOptions: {
       globals: globals.browser,
