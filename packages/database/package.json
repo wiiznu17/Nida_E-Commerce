@@ -6,10 +6,14 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio",
-    "postinstall": "prisma skills sync || exit 0"
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
   },
   "devDependencies": {
-    "prisma": "8.0.0-rc.15"
+    "@types/node": "^26.4.1",
+    "prisma": "^6.19.3",
+    "typescript": "^7.0.2"
   }
 }
