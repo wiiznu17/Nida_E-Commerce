@@ -27,6 +27,7 @@ out/
 build
 dist
 packages/database/src/generated/
+*.tsbuildinfo
 
 
 # Debug
