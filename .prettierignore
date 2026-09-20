@@ -1,0 +1,8 @@
+# Generated code
+packages/database/src/generated/
+apps/storefront/next-env.d.ts
+.next/
+dist/
+build/
+node_modules/
+.turbo/
