@@ -1,159 +1,151 @@
-# Turborepo starter
+# Nida (นิดา) — Modern Classic Apparel & Lifestyle Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+Nida คือแพลตฟอร์ม E-Commerce สำหรับแบรนด์แฟชั่นและไลฟ์สไตล์ระดับพรีเมียม (Modern Classic Apparel & Lifestyle) พัฒนาบนสถาปัตยกรรม **Monorepo (Turborepo)** ที่มีทั้งหน้าร้าน (Storefront), ระบบแอดมินหลังบ้าน (Admin Portal), เซิร์ฟเวอร์ API (NestJS), และฐานข้อมูล (Prisma ORM บน PostgreSQL)
 
-## Using this example
+---
 
-Run the following command:
+## 🏗️ โครงสร้าง Monorepo (Workspace Architecture)
 
-```sh
-npx create-turbo@latest
+```
+Nida_Project/
+├── apps/
+│   ├── storefront/     # Next.js 16 (App Router) + React 19 + TailwindCSS v4 (สำหรับลูกค้า)
+│   ├── admin/          # React 19 + Vite + TailwindCSS v4 (สำหรับทีมงานแอดมินหลังบ้าน)
+│   └── api/            # NestJS Backend + Swagger API Documentation (พอร์ต 4000)
+├── packages/
+│   ├── database/       # Prisma Schema & PostgreSQL Client, Migrations, Seed script
+│   ├── ui/             # Shared UI Component Library
+│   ├── validators/     # Shared Zod Schemas & Validation Logic
+│   ├── eslint-config/  # Shared ESLint Configuration
+│   ├── prettier-config/# Shared Prettier Code Style
+│   └── typescript-config/# Shared TypeScript tsconfig
+├── docker-compose.yml  # PostgreSQL 16 + pgAdmin 4 Container Setup
+└── README.md           # คู่มือการติดตั้งและคำสั่งใช้งาน
 ```
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## 🚀 เริ่มต้นใช้งานอย่างรวดเร็ว (Quick Setup Guide)
 
-### Apps and Packages
+### 1. ความต้องการของระบบ (Prerequisites)
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- **Node.js**: v20 ขึ้นไป (แนะนำ v22 หรือ v24)
+- **Docker Desktop**: สำหรับรัน PostgreSQL และ pgAdmin
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### 2. ติดตั้ง Dependencies
 
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+npm install
 ```
 
-Without global `turbo`, use your package manager:
+### 3. ตั้งค่า Environment Variables
 
-```sh
-cd my-turborepo
-npx turbo build
-npm exec turbo build
-npm exec turbo build
+คัดลอกไฟล์ `.env.example` เป็น `.env` ที่ root ของโปรเจกต์:
+
+```bash
+cp .env.example .env
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+_(ค่าเริ่มต้นถูกกำหนดไว้สำหรับ Local Development เรียบร้อยแล้ว)_
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+---
 
-```sh
-turbo build --filter=docs
+## 🗄️ การจัดการฐานข้อมูล (Database & Docker)
+
+### 1. เริ่มต้น PostgreSQL และ pgAdmin ผ่าน Docker
+
+เปิดโปรแกรม **Docker Desktop** แล้วรันคำสั่ง:
+
+```bash
+docker compose up -d
 ```
 
-Without global `turbo`:
+- **PostgreSQL**: ทำงานที่พอร์ต `5432` (`localhost:5432/ecommerce_db`)
+- **pgAdmin 4**: เข้าใช้งานผ่านเว็บเบราว์เซอร์ที่ `http://localhost:5050`
+  - **Email**: `admin@admin.com`
+  - **Password**: `admin`
 
-```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
+### 2. ผลักดัน Schema เข้าฐานข้อมูล (Push Schema)
+
+```bash
+npm run db:push -w @repo/database
 ```
 
-### Develop
+### 3. เติมข้อมูลตัวอย่าง (Run Seed Data)
 
-To develop all apps and packages, run the following command:
+คำสั่งนี้จะสร้างหมวดหมู่, สินค้าพร้อมไซส์และสต็อก, สินค้า Pre-order, คูปองส่วนลด, และบัญชี Super Admin:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+npm run db:seed -w @repo/database
 ```
 
-Without global `turbo`, use your package manager:
+#### 🔑 ข้อมูลบัญชีและคูปองตัวอย่างที่ถูกสร้าง:
 
-```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
+- **Super Admin Login**:
+  - **Email**: `admin@nida-apparel.com`
+  - **Username**: `superadmin`
+  - **Password**: `admin123`
+- **โค้ดคูปองส่วนลด (Sample Coupons)**:
+  - `NIDA20`: ลด 20% (เมื่อซื้อขั้นต่ำ $100 ลดสูงสุด $50)
+  - `FREESHIP`: ยกเว้นค่าจัดส่งฟรี (เมื่อซื้อขั้นต่ำ $50)
+  - `WELCOME50`: ลดทันที $50 (เมื่อซื้อขั้นต่ำ $200)
+
+### 4. เปิดดูตารางฐานข้อมูลผ่าน GUI (Prisma Studio)
+
+```bash
+npm run db:studio -w @repo/database
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+เปิดดูที่ `http://localhost:5555`
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+---
 
-```sh
-turbo dev --filter=web
+## 🖥️ การรัน Application เพื่อพัฒนา (Local Development)
+
+คุณสามารถเลือกรันทีละระบบ หรือรันทั้งหมดพร้อมกันได้:
+
+### รันทุกระบบพร้อมกัน (Turborepo Dev Mode)
+
+```bash
+npm run dev
 ```
 
-Without global `turbo`:
+### หรือเลือกรันเฉพาะระบบที่ต้องการ:
 
-```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
+| ระบบ                               | คำสั่งรัน           | URL ในการเข้าใช้งาน                                              |
+| :--------------------------------- | :------------------ | :--------------------------------------------------------------- |
+| **Storefront (หน้าร้าน)**          | `npm run dev:store` | [http://localhost:3000](http://localhost:3000)                   |
+| **Admin Portal (หลังบ้าน)**        | `npm run dev:admin` | [http://localhost:5173](http://localhost:5173)                   |
+| **API Server (NestJS)**            | `npm run dev:api`   | [http://localhost:4000](http://localhost:4000)                   |
+| **Interactive API Docs (Swagger)** | _(รัน API ก่อน)_    | [http://localhost:4000/api/docs](http://localhost:4000/api/docs) |
+
+---
+
+## 🛠️ คำสั่งตรวจสอบคุณภาพโค้ด (Quality & Verification)
+
+```bash
+# ตรวจสอบ TypeScript Types ทั่วทั้ง Monorepo
+npm run check-types
+
+# ตรวจสอบ Prettier Code Formatting
+npm run format:check
+
+# จัด Format โค้ดทั้งหมดอัตโนมัติ
+npm run format
+
+# Build ทุกโปรเจกต์
+npm run build
 ```
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## 🌟 ฟีเจอร์สำคัญที่รองรับในฐานข้อมูล (Core Database Features)
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+1. **Pre-Order Engine**: รองรับสินค้าสั่งจองล่วงหน้า, กำหนดวันปล่อยสินค้า, และโควตายอดจอง
+2. **Promotion & Coupon Engine**: โค้ดส่วนลด %, บาท, ส่งฟรี, เพดานลดสูงสุด, และระบบป้องกันโกง
+3. **Weight & Dimensions**: คำนวณค่าจัดส่งตามจริงจากน้ำหนักกรัมและขนาดพัสดุ
+4. **Pro-rated Net Price Calculation**: คำนวณยอดเงินที่จ่ายจริงต่อชิ้นสำหรับกรณีขอคืนเงินบางส่วน
+5. **Partial Refund Ledger**: สมุดบันทึกการคืนเงินย่อย พร้อม Audit ผู้ดำเนินการเพื่อตรวจสอบทางบัญชี
+6. **Lightweight Return Request**: ระบบคำขอคืนสินค้าแบบเรียบง่าย ลูกค้าแจ้งขอ แอดมินอนุมัติ/ปฏิเสธ
+7. **Loyalty Points Ledger**: สมุดบันทึกประวัติการได้/ใช้แต้มสะสม ป้องกันแต้มสูญหาย
+8. **Payment Security**: รองรับ Idempotency Key และเกตเวย์ Webhook เพื่อความปลอดภัยสูงสุด
