@@ -1,7 +1,3 @@
-// ====================================================
-// OrdersService — Business Logic สำหรับการสั่งซื้อและการติดตามสถานะ
-// ====================================================
-
 import {
   Injectable,
   NotFoundException,
@@ -11,10 +7,13 @@ import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { CouponsService } from '../coupons/coupons.service.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
 import type {
+  OrderDetailPayload,
+  ShipmentWithLogs,
+} from './types/orders.payloads.js';
+import type {
   ApiOrder,
   ApiOrderItem,
   ApiOrderAddress,
-  ApiPaymentSummary,
   ApiShipment,
   ShipmentTimelineEntry,
   TrackingResult,
@@ -24,7 +23,7 @@ import {
   StockChangeType,
   PaymentStatus,
   ShipmentStatus,
-} from '@repo/types';
+} from '@repo/database';
 
 @Injectable()
 export class OrdersService {
@@ -33,20 +32,15 @@ export class OrdersService {
     private readonly couponsService: CouponsService,
   ) {}
 
-  // -------------------------------------------------------
-  // POST /orders — สร้างคำสั่งซื้อใหม่ (Place Order)
-  // -------------------------------------------------------
   async createOrder(dto: CreateOrderDto): Promise<ApiOrder> {
     const { items, shippingAddress, paymentMethod, couponCode, userId } = dto;
 
-    // 1. คำนวณราคาสินค้า ส่วนลด ค่าส่ง และภาษีผ่าน CouponsService
     const calc = await this.couponsService.calculateCheckout({
       items,
       couponCode,
       userId,
     });
 
-    // 2. ดึงข้อมูล variants เพิ่มเติมเพื่อเช็ค Preorder และ Inventory
     const variantIds = items.map((i) => i.variantId);
     const variants = await this.prisma.productVariant.findMany({
       where: { id: { in: variantIds } },
@@ -57,10 +51,8 @@ export class OrdersService {
     });
     const variantMap = new Map(variants.map((v) => [v.id, v]));
 
-    // ตรวจสอบสินค้าพรีออเดอร์
     const hasPreorderItems = variants.some((v) => v.product.isPreorder);
 
-    // ตรวจสอบสต็อกสำหรับสินค้าที่ไม่ใช่ Preorder
     for (const item of items) {
       const v = variantMap.get(item.variantId)!;
       if (!v.product.isPreorder) {
@@ -73,23 +65,24 @@ export class OrdersService {
       }
     }
 
-    // 3. สร้างเลข Order Number แบบ Unique (Format: NIDA-YYYYMMDD-XXXX)
     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
     const orderNumber = `NIDA-${datePart}-${randomPart}`;
 
-    // 4. ดำเนินการผ่าน Prisma Interactive Transaction เพื่อ Atomic Guarantee
     const createdOrder = await this.prisma.$transaction(async (tx) => {
-      // 4.1 ดึง couponId ถ้ามีการใช้คูปอง
       let couponId: string | null = null;
       if (calc.couponApplied) {
         const c = await tx.promotionCoupon.findUnique({
           where: { code: calc.couponApplied.code },
         });
-        if (c) couponId = c.id;
+        if (c) {
+          if (c.currentUsageCount >= c.totalUsageLimit) {
+            throw new BadRequestException('Coupon usage limit reached');
+          }
+          couponId = c.id;
+        }
       }
 
-      // 4.2 สร้าง Order
       const order = await tx.order.create({
         data: {
           orderNumber,
@@ -108,7 +101,6 @@ export class OrdersService {
         },
       });
 
-      // 4.3 สร้าง OrderItems และปรับปรุงสต็อก
       for (const calcItem of calc.items) {
         const v = variantMap.get(calcItem.variantId)!;
         const isPreorder = v.product.isPreorder;
@@ -129,7 +121,6 @@ export class OrdersService {
           },
         });
 
-        // ปรับปรุง Inventory
         if (isPreorder) {
           if (v.inventoryItem) {
             await tx.inventoryItem.update({
@@ -137,31 +128,40 @@ export class OrdersService {
               data: { preorderBooked: { increment: calcItem.quantity } },
             });
           }
-        } else {
-          if (v.inventoryItem) {
-            const currentQty = v.inventoryItem.quantityAvailable;
-            const newQty = currentQty - calcItem.quantity;
+        } else if (v.inventoryItem) {
+          const updateResult = await tx.inventoryItem.updateMany({
+            where: {
+              id: v.inventoryItem.id,
+              quantityAvailable: { gte: calcItem.quantity },
+            },
+            data: {
+              quantityAvailable: { decrement: calcItem.quantity },
+            },
+          });
 
-            await tx.inventoryItem.update({
-              where: { id: v.inventoryItem.id },
-              data: { quantityAvailable: newQty },
-            });
-
-            // บันทึก StockMovement Audit Trail
-            await tx.stockMovement.create({
-              data: {
-                variantId: v.id,
-                changeType: StockChangeType.ORDER_DEDUCT,
-                quantityChange: -calcItem.quantity,
-                balanceAfter: newQty,
-                reasonNote: `Order #${orderNumber}`,
-              },
-            });
+          if (updateResult.count === 0) {
+            throw new BadRequestException(
+              `Insufficient stock for "${v.product.name} (${v.colorName}/${v.size})"`,
+            );
           }
+
+          const updatedInv = await tx.inventoryItem.findUnique({
+            where: { id: v.inventoryItem.id },
+            select: { quantityAvailable: true },
+          });
+
+          await tx.stockMovement.create({
+            data: {
+              variantId: v.id,
+              changeType: StockChangeType.ORDER_DEDUCT,
+              quantityChange: -calcItem.quantity,
+              balanceAfter: updatedInv?.quantityAvailable ?? 0,
+              reasonNote: `Order #${orderNumber}`,
+            },
+          });
         }
       }
 
-      // 4.4 บันทึก Coupon Redemption และเพิ่ม usage count
       if (couponId && calc.couponApplied) {
         await tx.couponRedemption.create({
           data: {
@@ -178,7 +178,6 @@ export class OrdersService {
         });
       }
 
-      // 4.5 สร้างบันทึก Payment
       await tx.payment.create({
         data: {
           orderId: order.id,
@@ -192,13 +191,9 @@ export class OrdersService {
       return order;
     });
 
-    // 5. ดึงข้อมูลคำสั่งซื้อที่สมบูรณ์กลับมาแสดงผล
     return this.getOrderByNumber(createdOrder.orderNumber);
   }
 
-  // -------------------------------------------------------
-  // GET /orders/:orderNumber — ดึงข้อมูลคำสั่งซื้อตาม Order Number
-  // -------------------------------------------------------
   async getOrderByNumber(orderNumber: string): Promise<ApiOrder> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
@@ -232,9 +227,6 @@ export class OrdersService {
     return this.mapOrder(order);
   }
 
-  // -------------------------------------------------------
-  // GET /shipments/track/:trackingNumber — ติดตามสถานะพัสดุ (Customer Tracking)
-  // -------------------------------------------------------
   async trackShipment(trackingNumber: string): Promise<TrackingResult> {
     const shipment = await this.prisma.shipment.findFirst({
       where: {
@@ -257,21 +249,18 @@ export class OrdersService {
 
     return {
       orderNumber: shipment.order.orderNumber,
-      orderStatus: shipment.order.status,
+      orderStatus: shipment.order.status as OrderStatus,
       shipment: this.mapShipment(shipment),
     };
   }
 
-  // -------------------------------------------------------
-  // Mappers: แปลง Prisma Models เป็น API Types
-  // -------------------------------------------------------
-  private mapOrder(order: any): ApiOrder {
-    const address = order.shippingAddressSnapshot as ApiOrderAddress;
+  private mapOrder(order: OrderDetailPayload): ApiOrder {
+    const address = order.shippingAddressSnapshot as unknown as ApiOrderAddress;
 
     return {
       id: order.id,
       orderNumber: order.orderNumber,
-      status: order.status,
+      status: order.status as OrderStatus,
       hasPreorderItems: order.hasPreorderItems,
       subtotal: Number(order.subtotal),
       discountTotal: Number(order.discountTotal),
@@ -280,7 +269,7 @@ export class OrdersService {
       totalAmount: Number(order.totalAmount),
       currency: order.currency,
       promoCodeUsed: order.promoCodeUsed ?? undefined,
-      items: order.items.map((item: any): ApiOrderItem => ({
+      items: order.items.map((item): ApiOrderItem => ({
         id: item.id,
         productName: item.productNameSnapshot,
         variantInfo: item.variantInfoSnapshot,
@@ -291,9 +280,7 @@ export class OrdersService {
         discountShare: Number(item.discountShare),
         netPrice: Number(item.netPrice),
         isPreorder: item.isPreorder,
-        expectedShipDate: item.expectedShipDate
-          ? item.expectedShipDate.toISOString()
-          : undefined,
+        expectedShipDate: item.expectedShipDate?.toISOString() ?? undefined,
       })),
       shippingAddress: {
         recipientName: address.recipientName ?? '',
@@ -311,40 +298,30 @@ export class OrdersService {
             status: order.payment.status,
             cardLast4: order.payment.cardLast4 ?? undefined,
             cardBrand: order.payment.cardBrand ?? undefined,
-            paidAt: order.payment.paidAt
-              ? order.payment.paidAt.toISOString()
-              : undefined,
+            paidAt: order.payment.paidAt?.toISOString() ?? undefined,
           }
         : undefined,
-      shipments: (order.shipments ?? []).map((s: any) => this.mapShipment(s)),
+      shipments: (order.shipments ?? []).map((s) => this.mapShipment(s)),
       placedAt: order.placedAt.toISOString(),
     };
   }
 
-  private mapShipment(shipment: any): ApiShipment {
+  private mapShipment(shipment: ShipmentWithLogs): ApiShipment {
     return {
       id: shipment.id,
       courierName: shipment.courierName,
       trackingNumber: shipment.trackingNumber,
       status: shipment.status as ShipmentStatus,
-      shippedAt: shipment.shippedAt
-        ? shipment.shippedAt.toISOString()
-        : undefined,
-      estimatedDelivery: shipment.estimatedDelivery
-        ? shipment.estimatedDelivery.toISOString()
-        : undefined,
-      deliveredAt: shipment.deliveredAt
-        ? shipment.deliveredAt.toISOString()
-        : undefined,
-      timeline: (shipment.logs ?? []).map(
-        (log: any): ShipmentTimelineEntry => ({
-          id: log.id,
-          statusTitle: log.statusTitle,
-          statusDescription: log.statusDescription ?? undefined,
-          location: log.location ?? undefined,
-          timestamp: log.logTimestamp.toISOString(),
-        }),
-      ),
+      shippedAt: shipment.shippedAt?.toISOString() ?? undefined,
+      estimatedDelivery: shipment.estimatedDelivery?.toISOString() ?? undefined,
+      deliveredAt: shipment.deliveredAt?.toISOString() ?? undefined,
+      timeline: (shipment.logs ?? []).map((log): ShipmentTimelineEntry => ({
+        id: log.id,
+        statusTitle: log.statusTitle,
+        statusDescription: log.statusDescription ?? undefined,
+        location: log.location ?? undefined,
+        timestamp: log.logTimestamp.toISOString(),
+      })),
     };
   }
 }

@@ -1,6 +1,3 @@
-// ====================================================
-// AdminModule — Feature Module สำหรับระบบหลังบ้าน
-// ====================================================
 
 import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller.js';

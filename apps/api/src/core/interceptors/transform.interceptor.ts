@@ -1,12 +1,3 @@
-// ====================================================
-// TransformInterceptor — Unified Success Response
-// ====================================================
-// ครอบทุก response สำเร็จด้วย { success: true, data: ... }
-// เพื่อให้ Frontend มั่นใจว่าทุก response จะมีรูปแบบเดียวกัน
-//
-// ถ้า Controller return ค่าที่มี `data` + `pagination` อยู่แล้ว
-// จะ pass-through โดยไม่ wrap ซ้ำ (สำหรับ PaginatedResponse)
-
 import {
   Injectable,
   NestInterceptor,

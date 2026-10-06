@@ -1,12 +1,3 @@
-// ====================================================
-// CatalogController — REST Endpoints สำหรับแคตตาล็อก
-// ====================================================
-// Controller มีหน้าที่เฉพาะ:
-// 1. รับ Request + Validate Input
-// 2. เรียก Service ให้ทำงาน
-// 3. กำหนด Swagger Docs
-// ❌ ไม่มี Business Logic ใดๆ
-
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CatalogService } from './catalog.service.js';
@@ -17,9 +8,6 @@ import { QueryProductsDto } from './dto/query-products.dto.js';
 export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}
 
-  // -------------------------------------------------------
-  // GET /api/v1/categories
-  // -------------------------------------------------------
   @Get('categories')
   @ApiOperation({
     summary: 'Get all categories',
@@ -30,9 +18,6 @@ export class CatalogController {
     return this.catalogService.getCategories(department);
   }
 
-  // -------------------------------------------------------
-  // GET /api/v1/products
-  // -------------------------------------------------------
   @Get('products')
   @ApiOperation({
     summary: 'Search & list products',
@@ -43,9 +28,6 @@ export class CatalogController {
     return this.catalogService.getProducts(query);
   }
 
-  // -------------------------------------------------------
-  // GET /api/v1/products/:slug
-  // -------------------------------------------------------
   @Get('products/:slug')
   @ApiOperation({
     summary: 'Get product details',

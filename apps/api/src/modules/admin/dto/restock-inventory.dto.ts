@@ -1,6 +1,3 @@
-// ====================================================
-// RestockInventoryDto — DTO เติมสต็อกสินค้าเข้าคลัง
-// ====================================================
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {

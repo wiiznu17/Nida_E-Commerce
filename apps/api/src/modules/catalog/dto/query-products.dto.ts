@@ -1,6 +1,3 @@
-// ====================================================
-// QueryProductsDto — Query Params สำหรับค้นหาสินค้า
-// ====================================================
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsInt, Min, Max, IsEnum } from 'class-validator';

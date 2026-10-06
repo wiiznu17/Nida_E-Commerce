@@ -1,6 +1,3 @@
-// ====================================================
-// CreateOrderDto — DTO สร้างคำสั่งซื้อใหม่ (Checkout Place Order)
-// ====================================================
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {

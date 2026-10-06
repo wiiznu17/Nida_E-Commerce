@@ -1,9 +1,3 @@
-// ====================================================
-// PrismaService — Database Provider (apps/api)
-// ====================================================
-// Manages Prisma Client lifecycle within NestJS DI container.
-// Uses @repo/database to share the same PrismaClient instance.
-
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@repo/database';
 

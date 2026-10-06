@@ -1,6 +1,3 @@
-// ====================================================
-// UpdateShipmentStatusDto — DTO สำหรับอัปเดตสถานะพัสดุ (Admin หรือ Webhook ขนส่ง)
-// ====================================================
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsString, IsNotEmpty, IsOptional } from 'class-validator';

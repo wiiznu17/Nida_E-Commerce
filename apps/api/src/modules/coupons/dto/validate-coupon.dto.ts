@@ -1,6 +1,3 @@
-// ====================================================
-// ValidateCouponDto — DTO ตรวจสอบความถูกต้องของคูปอง
-// ====================================================
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {

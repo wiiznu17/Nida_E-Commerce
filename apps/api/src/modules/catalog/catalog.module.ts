@@ -1,6 +1,3 @@
-// ====================================================
-// CatalogModule — Feature Module สำหรับแคตตาล็อกสินค้า
-// ====================================================
 
 import { Module } from '@nestjs/common';
 import { CatalogController } from './catalog.controller.js';

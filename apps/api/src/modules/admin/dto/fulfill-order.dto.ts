@@ -1,6 +1,3 @@
-// ====================================================
-// FulfillOrderDto — DTO สำหรับแอดมินยืนยันจัดส่งสินค้า
-// ====================================================
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {

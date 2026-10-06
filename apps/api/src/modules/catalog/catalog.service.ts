@@ -1,10 +1,10 @@
-// ====================================================
-// CatalogService — Business Logic สำหรับแคตตาล็อกสินค้า
-// ====================================================
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { QueryProductsDto, SortByOption } from './dto/query-products.dto.js';
+import type {
+  CategoryWithRelations,
+  ProductListPayload,
+} from './types/catalog.payloads.js';
 import type {
   ApiCategory,
   ApiProduct,
@@ -14,19 +14,16 @@ import type {
   ApiColorSwatch,
   PaginatedResponse,
 } from '@repo/types';
-import type { Department } from '@repo/database';
+import { Prisma, Department } from '@repo/database';
 
 @Injectable()
 export class CatalogService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // -------------------------------------------------------
-  // GET /categories — ดึงหมวดหมู่ทั้งหมด
-  // -------------------------------------------------------
   async getCategories(department?: string): Promise<ApiCategory[]> {
-    const where: Record<string, unknown> = { isActive: true };
-    if (department) {
-      where['department'] = department;
+    const where: Prisma.CategoryWhereInput = { isActive: true };
+    if (department && Object.values(Department).includes(department as Department)) {
+      where.department = department as Department;
     }
 
     const categories = await this.prisma.category.findMany({
@@ -44,9 +41,6 @@ export class CatalogService {
     return categories.map((cat) => this.mapCategory(cat));
   }
 
-  // -------------------------------------------------------
-  // GET /products — ค้นหาสินค้าพร้อม pagination
-  // -------------------------------------------------------
   async getProducts(
     query: QueryProductsDto,
   ): Promise<PaginatedResponse<ApiProduct>> {
@@ -62,29 +56,30 @@ export class CatalogService {
     } = query;
     const skip = (page - 1) * limit;
 
-    // Build dynamic where clause
-    const where: Record<string, unknown> = { isActive: true };
+    const where: Prisma.ProductWhereInput = { isActive: true };
 
     if (search) {
-      where['name'] = { contains: search, mode: 'insensitive' };
-    }
-    if (department) {
-      where['category'] = { department: department as Department };
-    }
-    if (category) {
-      where['category'] = {
-        ...((where['category'] as Record<string, unknown>) ?? {}),
-        slug: category,
-      };
-    }
-    if (tag) {
-      where['tag'] = tag;
-    }
-    if (isPreorder !== undefined) {
-      where['isPreorder'] = isPreorder;
+      where.name = { contains: search, mode: 'insensitive' };
     }
 
-    // Build orderBy
+    if (department || category) {
+      where.category = {};
+      if (department && Object.values(Department).includes(department as Department)) {
+        where.category.department = department as Department;
+      }
+      if (category) {
+        where.category.slug = category;
+      }
+    }
+
+    if (tag) {
+      where.tag = tag;
+    }
+
+    if (isPreorder !== undefined) {
+      where.isPreorder = isPreorder;
+    }
+
     const orderBy = this.buildOrderBy(sortBy);
 
     const [products, total] = await Promise.all([
@@ -117,9 +112,6 @@ export class CatalogService {
     };
   }
 
-  // -------------------------------------------------------
-  // GET /products/:slug — รายละเอียดสินค้า
-  // -------------------------------------------------------
   async getProductBySlug(slug: string): Promise<ApiProductDetail> {
     const product = await this.prisma.product.findUnique({
       where: { slug },
@@ -147,7 +139,6 @@ export class CatalogService {
       throw new NotFoundException(`Product with slug "${slug}" not found`);
     }
 
-    // Calculate average rating
     const avgRating =
       product.reviews.length > 0
         ? product.reviews.reduce((sum, r) => sum + r.rating, 0) /
@@ -202,79 +193,58 @@ export class CatalogService {
     };
   }
 
-  // ====================================================
-  // PRIVATE MAPPERS
-  // ====================================================
-
-  private mapCategory(cat: Record<string, unknown>): ApiCategory {
+  private mapCategory(cat: CategoryWithRelations): ApiCategory {
     return {
-      id: cat['id'] as string,
-      name: cat['name'] as string,
-      slug: cat['slug'] as string,
-      department: cat['department'] as Department,
+      id: cat.id,
+      name: cat.name,
+      slug: cat.slug,
+      department: cat.department,
       description: undefined,
-      bannerTag: (cat['bannerTag'] as string) ?? undefined,
-      bannerImage: (cat['bannerImage'] as string) ?? undefined,
-      displayOrder: cat['displayOrder'] as number,
-      parentId: (cat['parentId'] as string) ?? undefined,
-      children: (cat['children'] as Record<string, unknown>[])?.map((c) =>
-        this.mapCategory(c),
-      ),
-      productCount: (cat['_count'] as Record<string, number>)?.products,
+      bannerTag: cat.bannerTag ?? undefined,
+      bannerImage: cat.bannerImage ?? undefined,
+      displayOrder: cat.displayOrder,
+      parentId: cat.parentId ?? undefined,
+      children: cat.children?.map((c) => this.mapCategory(c)),
+      productCount: cat._count?.products,
     };
   }
 
-  private mapProductListItem(p: Record<string, unknown>): ApiProduct {
-    const category = p['category'] as Record<string, unknown>;
-    const images = p['images'] as Record<string, unknown>[];
-    const variants = p['variants'] as Record<string, unknown>[];
-    const count = p['_count'] as Record<string, number>;
-
-    // Extract unique colors from variants
+  private mapProductListItem(p: ProductListPayload): ApiProduct {
     const colorMap = new Map<string, ApiColorSwatch>();
-    for (const v of variants) {
-      const hex = v['colorHex'] as string;
-      if (!colorMap.has(hex)) {
-        colorMap.set(hex, { name: v['colorName'] as string, hex });
+    for (const v of p.variants) {
+      if (!colorMap.has(v.colorHex)) {
+        colorMap.set(v.colorHex, { name: v.colorName, hex: v.colorHex });
       }
     }
 
-    // Check if any variant is in stock
-    const inStock = variants.some((v) => {
-      const inv = v['inventoryItem'] as Record<string, number> | null;
-      return (inv?.quantityAvailable ?? 0) > 0;
-    });
+    const inStock = p.variants.some((v) => (v.inventoryItem?.quantityAvailable ?? 0) > 0);
 
-    // Calculate average rating from reviews count (simplified — full calc is in detail endpoint)
     return {
-      id: p['id'] as string,
-      name: p['name'] as string,
-      slug: p['slug'] as string,
-      basePrice: Number(p['basePrice']),
-      originalPrice: p['originalPrice']
-        ? Number(p['originalPrice'])
-        : undefined,
-      primaryImage: images[0]?.['imageUrl'] as string | undefined,
-      secondaryImage: images[1]?.['imageUrl'] as string | undefined,
-      department: category['department'] as Department,
-      categoryName: category['name'] as string,
-      categorySlug: category['slug'] as string,
-      tag: (p['tag'] as string) ?? undefined,
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      basePrice: Number(p.basePrice),
+      originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
+      primaryImage: p.images[0]?.imageUrl,
+      secondaryImage: p.images[1]?.imageUrl,
+      department: p.category.department,
+      categoryName: p.category.name,
+      categorySlug: p.category.slug,
+      tag: p.tag ?? undefined,
       colors: Array.from(colorMap.values()),
-      reviewsCount: count?.reviews,
+      reviewsCount: p._count.reviews,
       inStock,
-      isPreorder: p['isPreorder'] as boolean,
+      isPreorder: p.isPreorder,
     };
   }
 
-  private buildOrderBy(sortBy?: SortByOption): Record<string, string>[] {
+  private buildOrderBy(sortBy?: SortByOption): Prisma.ProductOrderByWithRelationInput[] {
     switch (sortBy) {
       case SortByOption.PRICE_ASC:
         return [{ basePrice: 'asc' }];
       case SortByOption.PRICE_DESC:
         return [{ basePrice: 'desc' }];
       case SortByOption.BESTSELLER:
-        return [{ createdAt: 'desc' }]; // Simplified — would use sales count in production
       case SortByOption.NEWEST:
       default:
         return [{ createdAt: 'desc' }];

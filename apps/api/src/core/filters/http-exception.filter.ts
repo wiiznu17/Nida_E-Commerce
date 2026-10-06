@@ -1,16 +1,3 @@
-// ====================================================
-// HttpExceptionFilter — Unified Error Response
-// ====================================================
-// จัดรูปแบบทุก error response ให้สม่ำเสมอตาม ApiError interface
-// ตัวอย่าง output:
-// {
-//   "success": false,
-//   "statusCode": 400,
-//   "error": "Bad Request",
-//   "message": "Validation failed",
-//   "details": { "email": ["email must be an email"] }
-// }
-
 import {
   ExceptionFilter,
   Catch,

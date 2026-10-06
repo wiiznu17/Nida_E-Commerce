@@ -1,6 +1,3 @@
-// ====================================================
-// CalculateCheckoutDto — DTO คำนวณยอดชำระเงิน Checkout
-// ====================================================
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {

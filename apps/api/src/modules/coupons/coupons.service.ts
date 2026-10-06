@@ -1,7 +1,3 @@
-// ====================================================
-// CouponsService — Business Logic สำหรับคูปองและการคำนวณยอด Checkout
-// ====================================================
-
 import {
   Injectable,
   NotFoundException,
@@ -18,17 +14,15 @@ import type {
   CheckoutCouponSummary,
 } from '@repo/types';
 import { DiscountType } from '@repo/types';
+import type { PromotionCoupon } from '@repo/database';
 
-const FREE_SHIPPING_THRESHOLD = 1000; // สั่งซื้อครบ 1,000 บาท ส่งฟรี
-const STANDARD_SHIPPING_FEE = 50; // ค่าส่งมาตรฐาน 50 บาท
+const FREE_SHIPPING_THRESHOLD = 1000;
+const STANDARD_SHIPPING_FEE = 50;
 
 @Injectable()
 export class CouponsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // -------------------------------------------------------
-  // ตรวจสอบความถูกต้องของคูปอง (Coupon Validation)
-  // -------------------------------------------------------
   async validateCoupon(
     dto: ValidateCouponDto,
   ): Promise<CouponValidationResult> {
@@ -59,7 +53,6 @@ export class CouponsService {
       return { valid: false, reason: 'USAGE_LIMIT_REACHED' };
     }
 
-    // ตรวจสอบสิทธิ์การใช้ต่อคน (User quota)
     if (userId && coupon.userUsageLimit > 0) {
       const userRedemptionCount = await this.prisma.couponRedemption.count({
         where: {
@@ -73,13 +66,11 @@ export class CouponsService {
       }
     }
 
-    // ตรวจสอบยอดสั่งซื้อขั้นต่ำ
     const minOrder = Number(coupon.minOrderAmount);
     if (orderAmount < minOrder) {
       return { valid: false, reason: 'MIN_ORDER_NOT_MET' };
     }
 
-    // คำนวณส่วนลด
     let discountAmount = 0;
     const discountVal = Number(coupon.discountValue);
 
@@ -94,7 +85,6 @@ export class CouponsService {
     } else if (coupon.discountType === DiscountType.FIXED_AMOUNT) {
       discountAmount = Math.min(orderAmount, discountVal);
     } else if (coupon.discountType === DiscountType.FREE_SHIPPING) {
-      // คูปองส่งฟรี ส่วนลดจะถูกคิดกับค่าส่งในชั้น checkout
       discountAmount = STANDARD_SHIPPING_FEE;
     }
 
@@ -107,9 +97,6 @@ export class CouponsService {
     };
   }
 
-  // -------------------------------------------------------
-  // คำนวณยอดชำระเงิน Checkout (Checkout Calculation Engine)
-  // -------------------------------------------------------
   async calculateCheckout(
     dto: CalculateCheckoutDto,
   ): Promise<CheckoutCalculation> {
@@ -119,7 +106,6 @@ export class CouponsService {
       throw new BadRequestException('Checkout must contain at least one item');
     }
 
-    // 1. ดึงข้อมูล Variants & Products ทั้งหมดในคำสั่งซื้อ
     const variantIds = items.map((i) => i.variantId);
     const variants = await this.prisma.productVariant.findMany({
       where: { id: { in: variantIds } },
@@ -131,7 +117,6 @@ export class CouponsService {
 
     const variantMap = new Map(variants.map((v) => [v.id, v]));
 
-    // ตรวจสอบว่าสินค้าทุกตัวมีอยู่ในระบบ
     for (const item of items) {
       if (!variantMap.has(item.variantId)) {
         throw new NotFoundException(
@@ -140,7 +125,6 @@ export class CouponsService {
       }
     }
 
-    // 2. คำนวณ Subtotal แต่ละรายการ
     let subtotal = 0;
     const lineItems: CheckoutLineItem[] = [];
 
@@ -163,11 +147,9 @@ export class CouponsService {
       });
     }
 
-    // 3. คำนวณค่าจัดส่ง (Shipping Fee)
     let shippingFee =
       subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
 
-    // 4. ตรวจสอบและคิดส่วนลดคูปอง (ถ้ามี)
     let discountTotal = 0;
     let couponApplied: CheckoutCouponSummary | undefined;
 
@@ -189,10 +171,7 @@ export class CouponsService {
             discountAmount: discountShipping,
           };
         } else {
-          discountTotal = validation.discountAmount ?? 0;
-          // ป้องกันส่วนลดเกินราคาสินค้า
-          discountTotal = Math.min(discountTotal, subtotal);
-
+          discountTotal = Math.min(validation.discountAmount ?? 0, subtotal);
           couponApplied = {
             code: validation.coupon.code,
             discountType: validation.coupon.discountType,
@@ -203,28 +182,9 @@ export class CouponsService {
       }
     }
 
-    // 5. ปันส่วนลดไปยังแต่ละ Item (Pro-rata Discount Distribution) เพื่อความถูกต้องทางบัญชี
-    if (discountTotal > 0 && subtotal > 0) {
-      let allocatedDiscount = 0;
-      for (let i = 0; i < lineItems.length; i++) {
-        const item = lineItems[i]!;
-        if (i === lineItems.length - 1) {
-          // รายการสุดท้ายเก็บเศษปัด
-          item.discountShare =
-            Math.round((discountTotal - allocatedDiscount) * 100) / 100;
-        } else {
-          item.discountShare =
-            Math.round((item.subtotal / subtotal) * discountTotal * 100) / 100;
-          allocatedDiscount += item.discountShare;
-        }
-        item.netPrice = Math.max(0, item.subtotal - item.discountShare);
-      }
-    }
+    this.distributeDiscountProRata(lineItems, subtotal, discountTotal);
 
-    // 6. รวมยอดสุทธิ
     const totalAmount = Math.max(0, subtotal - discountTotal + shippingFee);
-
-    // 7. คำนวณภาษีมูลค่าเพิ่ม VAT 7% (รวมในราคาแล้ว ตามมาตรฐานไทย)
     const taxAmount = Math.round(((totalAmount * 7) / 107) * 100) / 100;
 
     return {
@@ -238,24 +198,30 @@ export class CouponsService {
     };
   }
 
-  // -------------------------------------------------------
-  // Helper: แปลง PromotionCoupon จาก Prisma เป็น ApiCoupon
-  // -------------------------------------------------------
-  private mapCoupon(coupon: {
-    id: string;
-    code: string;
-    discountType: string;
-    discountValue: unknown;
-    minOrderAmount: unknown;
-    maxDiscountAmount: unknown | null;
-    totalUsageLimit: number;
-    userUsageLimit: number;
-    currentUsageCount: number;
-    applicableTier: unknown | null;
-    startsAt: Date;
-    expiresAt: Date;
-    isActive: boolean;
-  }): ApiCoupon {
+  /**
+   * Pro-rata discount distribution across line items with last-item rounding adjustment.
+   */
+  private distributeDiscountProRata(
+    lineItems: CheckoutLineItem[],
+    subtotal: number,
+    discountTotal: number,
+  ): void {
+    if (discountTotal <= 0 || subtotal <= 0) return;
+
+    let allocatedDiscount = 0;
+    for (let i = 0; i < lineItems.length; i++) {
+      const item = lineItems[i]!;
+      if (i === lineItems.length - 1) {
+        item.discountShare = Math.round((discountTotal - allocatedDiscount) * 100) / 100;
+      } else {
+        item.discountShare = Math.round((item.subtotal / subtotal) * discountTotal * 100) / 100;
+        allocatedDiscount += item.discountShare;
+      }
+      item.netPrice = Math.max(0, item.subtotal - item.discountShare);
+    }
+  }
+
+  private mapCoupon(coupon: PromotionCoupon): ApiCoupon {
     return {
       id: coupon.id,
       code: coupon.code,

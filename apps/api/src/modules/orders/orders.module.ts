@@ -1,6 +1,3 @@
-// ====================================================
-// OrdersModule — Feature Module สำหรับคำสั่งซื้อและการติดตาม
-// ====================================================
 
 import { Module } from '@nestjs/common';
 import { CouponsModule } from '../coupons/coupons.module.js';

@@ -1,7 +1,3 @@
-// ====================================================
-// AdminService — Business Logic สำหรับระบบหลังบ้าน (Inventory & Fulfillment)
-// ====================================================
-
 import {
   Injectable,
   NotFoundException,
@@ -11,6 +7,7 @@ import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RestockInventoryDto } from './dto/restock-inventory.dto.js';
 import { FulfillOrderDto } from './dto/fulfill-order.dto.js';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto.js';
+import type { InventoryItemWithRelations } from './types/admin.payloads.js';
 import type {
   ApiInventoryItem,
   ApiShipment,
@@ -21,23 +18,24 @@ import {
   OrderStatus,
   ShipmentStatus,
   Department,
-} from '@repo/types';
+  Prisma,
+} from '@repo/database';
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 @Injectable()
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // -------------------------------------------------------
-  // GET /admin/inventory — รายการสต็อกสินค้าคงคลัง
-  // -------------------------------------------------------
   async getInventory(
     department?: Department,
     lowStockOnly?: boolean,
   ): Promise<ApiInventoryItem[]> {
-    const where: Record<string, unknown> = {};
+    const where: Prisma.InventoryItemWhereInput = {};
 
     if (department) {
-      where['variant'] = {
+      where.variant = {
         product: {
           category: { department },
         },
@@ -70,9 +68,6 @@ export class AdminService {
     return mapped;
   }
 
-  // -------------------------------------------------------
-  // POST /admin/inventory/restock — เติมสต็อกสินค้าเข้าคลัง
-  // -------------------------------------------------------
   async restock(dto: RestockInventoryDto): Promise<ApiInventoryItem> {
     const { variantId, quantity, reasonNote, adminId } = dto;
 
@@ -138,14 +133,12 @@ export class AdminService {
     return this.mapInventoryItem(updated);
   }
 
-  // -------------------------------------------------------
-  // POST /admin/orders/:identifier/fulfill — แอดมินยืนยันจัดส่งสินค้า
-  // -------------------------------------------------------
   async fulfillOrder(identifier: string, dto: FulfillOrderDto) {
+    const isUuid = UUID_REGEX.test(identifier);
     const order = await this.prisma.order.findFirst({
-      where: {
-        OR: [{ id: identifier }, { orderNumber: identifier }],
-      },
+      where: isUuid
+        ? { OR: [{ id: identifier }, { orderNumber: identifier }] }
+        : { orderNumber: identifier },
     });
 
     if (!order) {
@@ -203,9 +196,6 @@ export class AdminService {
     };
   }
 
-  // -------------------------------------------------------
-  // POST /admin/shipments/:id/update-status — อัปเดตสถานะพัสดุ
-  // -------------------------------------------------------
   async updateShipmentStatus(
     shipmentId: string,
     dto: UpdateShipmentStatusDto,
@@ -242,7 +232,6 @@ export class AdminService {
         },
       });
 
-      // ถ้าพัสดุส่งถึงลูกค้าแล้ว อัปเดต Order ให้เป็น DELIVERED อัตโนมัติทันที
       if (isDelivered) {
         await tx.order.update({
           where: { id: shipment.orderId },
@@ -253,7 +242,6 @@ export class AdminService {
       return updatedShipment;
     });
 
-    // ดึง logs ใหม่หลังจากสร้าง
     const freshLogs = await this.prisma.shipmentLog.findMany({
       where: { shipmentId },
       orderBy: { logTimestamp: 'desc' },
@@ -264,15 +252,9 @@ export class AdminService {
       courierName: updated.courierName,
       trackingNumber: updated.trackingNumber,
       status: updated.status as ShipmentStatus,
-      shippedAt: updated.shippedAt
-        ? updated.shippedAt.toISOString()
-        : undefined,
-      estimatedDelivery: updated.estimatedDelivery
-        ? updated.estimatedDelivery.toISOString()
-        : undefined,
-      deliveredAt: updated.deliveredAt
-        ? updated.deliveredAt.toISOString()
-        : undefined,
+      shippedAt: updated.shippedAt?.toISOString() ?? undefined,
+      estimatedDelivery: updated.estimatedDelivery?.toISOString() ?? undefined,
+      deliveredAt: updated.deliveredAt?.toISOString() ?? undefined,
       timeline: freshLogs.map((log): ShipmentTimelineEntry => ({
         id: log.id,
         statusTitle: log.statusTitle,
@@ -283,10 +265,7 @@ export class AdminService {
     };
   }
 
-  // -------------------------------------------------------
-  // Mapper
-  // -------------------------------------------------------
-  private mapInventoryItem(item: any): ApiInventoryItem {
+  private mapInventoryItem(item: InventoryItemWithRelations): ApiInventoryItem {
     const v = item.variant;
     const p = v.product;
     const unitPrice = Number(p.basePrice) + Number(v.priceAdjustment);
@@ -308,9 +287,7 @@ export class AdminService {
       preorderBooked: item.preorderBooked,
       lowStockThreshold: item.lowStockThreshold,
       isLowStock: item.quantityAvailable <= item.lowStockThreshold,
-      lastCountedAt: item.lastCountedAt
-        ? item.lastCountedAt.toISOString()
-        : undefined,
+      lastCountedAt: item.lastCountedAt?.toISOString() ?? undefined,
     };
   }
 }
