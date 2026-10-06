@@ -1,11 +1,33 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
+import { HttpExceptionFilter } from './core/filters/http-exception.filter.js';
+import { TransformInterceptor } from './core/interceptors/transform.interceptor.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
+
+  // Global API Prefix — ทุก endpoint จะเริ่มด้วย /api/v1
+  app.setGlobalPrefix('api/v1');
+
+  // Global Validation Pipe — auto-validate DTO ด้วย class-validator
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // ตัด field ที่ไม่ได้ประกาศใน DTO ออก
+      forbidNonWhitelisted: true, // error ถ้าส่ง field แปลกมา
+      transform: true, // auto-transform query params เป็น type ที่ถูกต้อง
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
+
+  // Global Exception Filter — จัดรูปแบบ error response ให้สม่ำเสมอ
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Global Interceptor — ครอบ response ด้วย { success: true, data: ... }
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   // Configure Swagger OpenAPI Documentation
   const config = new DocumentBuilder()
@@ -16,15 +38,14 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('Catalog', 'Categories, Products, Variants & Pre-order')
     .addTag(
-      'Cart & Checkout',
-      'Cart items, Coupon redemption & Checkout calculations',
+      'Coupons & Checkout',
+      'Coupon validation, Pro-rata discount distribution & Checkout calculations',
     )
-    .addTag('Orders & Fulfillment', 'Order placement, Payments & Tracking')
+    .addTag('Orders & Shipments', 'Order placement, Payments & Tracking')
     .addTag(
-      'Returns & Refunds',
-      'Lightweight return requests & Partial refunds',
+      'Admin Back-Office',
+      'Back-office operations, Inventory restock & Order fulfillment',
     )
-    .addTag('Admin', 'Back-office operations, Inventory restock & Marketing')
     .addBearerAuth()
     .build();
 
