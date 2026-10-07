@@ -59,7 +59,10 @@ export class CatalogService {
     const where: Prisma.ProductWhereInput = { isActive: true };
 
     if (search) {
-      where.name = { contains: search, mode: 'insensitive' };
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { nameTh: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
     if (department || category) {
@@ -148,14 +151,18 @@ export class CatalogService {
     return {
       id: product.id,
       name: product.name,
+      nameTh: product.nameTh ?? undefined,
       slug: product.slug,
       description: product.description ?? undefined,
+      descriptionTh: product.descriptionTh ?? undefined,
       materialsCare: product.materialsCare ?? undefined,
+      materialsCareTh: product.materialsCareTh ?? undefined,
       basePrice: Number(product.basePrice),
       originalPrice: product.originalPrice
         ? Number(product.originalPrice)
         : undefined,
       tag: product.tag ?? undefined,
+      tagTh: product.tagTh ?? undefined,
       department: product.category.department,
       category: this.mapCategory(product.category),
       images: product.images.map((img): ApiProductImage => ({
@@ -169,6 +176,7 @@ export class CatalogService {
         sku: v.skuCode,
         size: v.size,
         colorName: v.colorName,
+        colorNameTh: v.colorNameTh ?? undefined,
         colorHex: v.colorHex,
         price: Number(product.basePrice) + Number(v.priceAdjustment),
         compareAtPrice: product.originalPrice
@@ -197,10 +205,13 @@ export class CatalogService {
     return {
       id: cat.id,
       name: cat.name,
+      nameTh: cat.nameTh ?? undefined,
       slug: cat.slug,
       department: cat.department,
-      description: undefined,
+      description: cat.description ?? undefined,
+      descriptionTh: cat.descriptionTh ?? undefined,
       bannerTag: cat.bannerTag ?? undefined,
+      bannerTagTh: cat.bannerTagTh ?? undefined,
       bannerImage: cat.bannerImage ?? undefined,
       displayOrder: cat.displayOrder,
       parentId: cat.parentId ?? undefined,
@@ -213,7 +224,11 @@ export class CatalogService {
     const colorMap = new Map<string, ApiColorSwatch>();
     for (const v of p.variants) {
       if (!colorMap.has(v.colorHex)) {
-        colorMap.set(v.colorHex, { name: v.colorName, hex: v.colorHex });
+        colorMap.set(v.colorHex, {
+          name: v.colorName,
+          nameTh: v.colorNameTh ?? undefined,
+          hex: v.colorHex,
+        });
       }
     }
 
@@ -222,6 +237,7 @@ export class CatalogService {
     return {
       id: p.id,
       name: p.name,
+      nameTh: p.nameTh ?? undefined,
       slug: p.slug,
       basePrice: Number(p.basePrice),
       originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
@@ -229,8 +245,10 @@ export class CatalogService {
       secondaryImage: p.images[1]?.imageUrl,
       department: p.category.department,
       categoryName: p.category.name,
+      categoryNameTh: p.category.nameTh ?? undefined,
       categorySlug: p.category.slug,
       tag: p.tag ?? undefined,
+      tagTh: p.tagTh ?? undefined,
       colors: Array.from(colorMap.values()),
       reviewsCount: p._count.reviews,
       inStock,

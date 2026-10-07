@@ -9,10 +9,13 @@ import type { Department } from './enums.js';
 export interface ApiCategory {
   id: string;
   name: string;
+  nameTh?: string;
   slug: string;
   department: Department;
   description?: string;
+  descriptionTh?: string;
   bannerTag?: string;
+  bannerTagTh?: string;
   bannerImage?: string;
   displayOrder: number;
   parentId?: string;
@@ -25,6 +28,7 @@ export interface ApiCategory {
 export interface ApiProduct {
   id: string;
   name: string;
+  nameTh?: string;
   slug: string;
   basePrice: number;
   originalPrice?: number;
@@ -32,8 +36,10 @@ export interface ApiProduct {
   secondaryImage?: string;
   department: Department;
   categoryName: string;
+  categoryNameTh?: string;
   categorySlug: string;
   tag?: string;
+  tagTh?: string;
   colors: ApiColorSwatch[];
   rating?: number;
   reviewsCount?: number;
@@ -43,6 +49,7 @@ export interface ApiProduct {
 
 export interface ApiColorSwatch {
   name: string;
+  nameTh?: string;
   hex: string;
 }
 
@@ -51,12 +58,16 @@ export interface ApiColorSwatch {
 export interface ApiProductDetail {
   id: string;
   name: string;
+  nameTh?: string;
   slug: string;
   description?: string;
+  descriptionTh?: string;
   materialsCare?: string;
+  materialsCareTh?: string;
   basePrice: number;
   originalPrice?: number;
   tag?: string;
+  tagTh?: string;
   department: Department;
   category: ApiCategory;
   images: ApiProductImage[];
@@ -83,6 +94,7 @@ export interface ApiProductVariant {
   sku: string;
   size: string;
   colorName: string;
+  colorNameTh?: string;
   colorHex: string;
   price: number;
   compareAtPrice?: number;
