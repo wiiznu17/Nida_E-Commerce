@@ -3,6 +3,8 @@ import { LanguageProvider } from './context/LanguageContext';
 import { AdminProvider } from './context/AdminContext';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
+import AdminProductCreate from './pages/AdminProductCreate';
+import AdminProductEdit from './pages/AdminProductEdit';
 import AdminOrders from './pages/AdminOrders';
 import AdminInventory from './pages/AdminInventory';
 import AdminPromotions from './pages/AdminPromotions';
@@ -20,6 +22,10 @@ function App() {
             {/* Products routes */}
             <Route path="/products" element={<AdminProducts />} />
             <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/products/new" element={<AdminProductCreate />} />
+            <Route path="/admin/products/new" element={<AdminProductCreate />} />
+            <Route path="/products/:id/edit" element={<AdminProductEdit />} />
+            <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />
 
             {/* Orders routes */}
             <Route path="/orders" element={<AdminOrders />} />

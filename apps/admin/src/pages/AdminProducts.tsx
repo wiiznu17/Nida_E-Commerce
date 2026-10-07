@@ -1,73 +1,31 @@
-import { useState, type FormEvent } from 'react';
-import { Plus, Search, Trash2, Check, X, Eye, ShoppingBag } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Plus, Search, Trash2, Check, Eye, ShoppingBag, Edit, X } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
 
 export default function AdminProducts() {
   const { language } = useLanguage();
-  const { productsList, addProduct, deleteProduct } = useAdmin();
+  const location = useLocation();
+  const { productsList, deleteProduct } = useAdmin();
 
   const [selectedDept, setSelectedDept] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // New product form state
-  const [formData, setFormData] = useState({
-    name: '',
-    department: 'women',
-    category: 'apparel',
-    subCategory: 'Sweaters & Knits',
-    price: 120,
-    originalPrice: 160,
-    tag: 'NEW ARRIVAL',
-    image:
-      'https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    colors: '#2B1810, #FFFFFF, #F59E0B',
-  });
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleAddSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const colorsArray = formData.colors
-      .split(',')
-      .map((c) => c.trim())
-      .filter(Boolean);
-
-    addProduct({
-      name: formData.name,
-      department: formData.department,
-      category: formData.category,
-      subCategory: formData.subCategory,
-      price: Number(formData.price),
-      originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
-      tag: formData.tag,
-      image: formData.image,
-      colors: colorsArray.length ? colorsArray : ['#2B1810', '#FFFFFF'],
-      rating: 5.0,
-      reviewsCount: 1,
-    });
-
-    setIsAddModalOpen(false);
-    showToast(language === 'th' ? 'เพิ่มสินค้าใหม่เข้าสู่ระบบเรียบร้อยแล้ว' : 'Product successfully created');
-    setFormData({
-      name: '',
-      department: 'women',
-      category: 'apparel',
-      subCategory: 'Sweaters & Knits',
-      price: 120,
-      originalPrice: 160,
-      tag: 'NEW ARRIVAL',
-      image:
-        'https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      colors: '#2B1810, #FFFFFF, #F59E0B',
-    });
-  };
+  // Listen for toast from navigation redirect (create/edit)
+  useEffect(() => {
+    if (location.state && (location.state as any).toast) {
+      showToast((location.state as any).toast);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleDelete = (id: string, name: string) => {
     if (
@@ -112,13 +70,13 @@ export default function AdminProducts() {
           : `Manage master product listings (${filteredProducts.length} of ${productsList.length} products displayed)`
       }
       actionButton={
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-[#2B1810] hover:bg-[#D97706] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 shadow-xs"
+        <Link
+          to="/admin/products/new"
+          className="bg-[#2B1810] hover:bg-[#D97706] text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 rounded-md shadow-xs"
         >
           <Plus size={16} />
           <span>{language === 'th' ? 'เพิ่มสินค้าใหม่' : 'Add New Product'}</span>
-        </button>
+        </Link>
       }
     >
       <div className="space-y-6">
@@ -252,6 +210,13 @@ export default function AdminProducts() {
                     {/* Actions */}
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
+                        <Link
+                          to={`/admin/products/${product.id}/edit`}
+                          className="p-1.5 text-gray-500 hover:text-[#D97706] hover:bg-amber-50 rounded-xs transition-colors"
+                          title={language === 'th' ? 'แก้ไขสินค้า' : 'Edit Product'}
+                        >
+                          <Edit size={16} />
+                        </Link>
                         <a
                           href={`http://localhost:3000/product/${product.id}`}
                           target="_blank"
@@ -286,159 +251,6 @@ export default function AdminProducts() {
           )}
         </div>
       </div>
-
-      {/* Add Product Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2B1810]/50 backdrop-blur-xs">
-          <div className="bg-white border border-[#EAE3D9] max-w-lg w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl relative">
-            <div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-200">
-              <div>
-                <h3 className="text-lg font-black uppercase text-[#2B1810]">
-                  {language === 'th' ? 'เพิ่มสินค้าใหม่ (New Product)' : 'Add New Product'}
-                </h3>
-                <p className="text-xs text-gray-500">กรอกรายละเอียดสินค้าเพื่อนำขึ้นระบบแคตตาล็อก</p>
-              </div>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-gray-600 p-1">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                  ชื่อสินค้า (Product Name) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="เช่น Signature Cashmere Crewneck"
-                  className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    กลุ่มสินค้า (Department)
-                  </label>
-                  <select
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    className="w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:border-[#2B1810]"
-                  >
-                    <option value="women">Women</option>
-                    <option value="men">Men</option>
-                    <option value="kids">Kids</option>
-                    <option value="bags">Bags & Leather</option>
-                    <option value="shoes">Shoes</option>
-                    <option value="home">Home & Living</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    หมวดย่อย (Sub-Category)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.subCategory}
-                    onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
-                    placeholder="เช่น Sweaters & Knits"
-                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    ราคาขาย ($ Price) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    ราคาเต็มก่อนลด ($ Original)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.originalPrice}
-                    onChange={(e) => setFormData({ ...formData, originalPrice: Number(e.target.value) })}
-                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                  ป้ายแท็ก (Badge Tag)
-                </label>
-                <select
-                  value={formData.tag}
-                  onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                  className="w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:border-[#2B1810]"
-                >
-                  <option value="NEW ARRIVAL">NEW ARRIVAL</option>
-                  <option value="BESTSELLER">BESTSELLER</option>
-                  <option value="TRENDING">TRENDING</option>
-                  <option value="LIMITED EDITION">LIMITED EDITION</option>
-                  <option value="HERITAGE">HERITAGE</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                  ลิงก์รูปภาพ (Image URL)
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                  รหัสสี Hex (คั่นด้วยเครื่องหมายจุลภาค)
-                </label>
-                <input
-                  type="text"
-                  value={formData.colors}
-                  onChange={(e) => setFormData({ ...formData, colors: e.target.value })}
-                  placeholder="#2B1810, #FFFFFF, #F59E0B"
-                  className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 font-bold text-gray-600 hover:bg-gray-100"
-                >
-                  {language === 'th' ? 'ยกเลิก' : 'Cancel'}
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-[#2B1810] hover:bg-[#D97706] text-white font-bold uppercase tracking-wider shadow-xs"
-                >
-                  {language === 'th' ? 'บันทึกสินค้า' : 'Save Product'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </AdminLayout>
   );
 }

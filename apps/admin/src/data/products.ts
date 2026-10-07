@@ -1,6 +1,7 @@
 export type Product = {
   id: string;
   name: string;
+  nameTh?: string;
   price: number;
   originalPrice?: number;
   image: string;
@@ -8,7 +9,13 @@ export type Product = {
   category: string;
   department?: string;
   subCategory?: string;
+  subCategoryTh?: string;
   tag?: string;
+  tagTh?: string;
+  description?: string;
+  descriptionTh?: string;
+  materialsCare?: string;
+  materialsCareTh?: string;
   colors?: string[];
   rating?: number;
   reviewsCount?: number;

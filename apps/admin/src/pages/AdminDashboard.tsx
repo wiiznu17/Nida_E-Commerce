@@ -81,16 +81,16 @@ export default function AdminDashboard() {
         </div>
       }
     >
-      <div className="space-y-8">
+      <div className="space-y-4">
         {/* Timeframe Filter Bar */}
-        <div className="flex items-center justify-between bg-white border border-[#EAE3D9] p-3 px-4 shadow-2xs">
+        <div className="flex items-center justify-between bg-white border border-[#EAE3D9] p-2.5 px-3.5 shadow-2xs">
           <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
             {language === 'th' ? 'ช่วงเวลาที่แสดงข้อมูล:' : 'Timeframe:'}
           </span>
-          <div className="flex items-center space-x-1 bg-gray-100 p-1 rounded-xs">
+          <div className="flex items-center space-x-1 bg-gray-100 p-0.5 rounded-xs">
             <button
               onClick={() => setTimeframe('today')}
-              className={`px-3 py-1 text-xs font-bold rounded-xs transition-colors ${
+              className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
                 timeframe === 'today' ? 'bg-[#2B1810] text-white' : 'text-gray-600 hover:text-[#2B1810]'
               }`}
             >
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
             </button>
             <button
               onClick={() => setTimeframe('week')}
-              className={`px-3 py-1 text-xs font-bold rounded-xs transition-colors ${
+              className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
                 timeframe === 'week' ? 'bg-[#2B1810] text-white' : 'text-gray-600 hover:text-[#2B1810]'
               }`}
             >
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
             </button>
             <button
               onClick={() => setTimeframe('month')}
-              className={`px-3 py-1 text-xs font-bold rounded-xs transition-colors ${
+              className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
                 timeframe === 'month' ? 'bg-[#2B1810] text-white' : 'text-gray-600 hover:text-[#2B1810]'
               }`}
             >
@@ -116,65 +116,65 @@ export default function AdminDashboard() {
         </div>
 
         {/* 4 Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Revenue */}
-          <div className="bg-white border border-[#EAE3D9] p-6 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-white border border-[#EAE3D9] p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                 {language === 'th' ? 'ยอดขายรวม' : 'Total Revenue'}
               </span>
-              <div className="w-8 h-8 rounded-full bg-[#FAF7F2] text-[#D97706] flex items-center justify-center">
-                <DollarSign size={16} />
+              <div className="w-7 h-7 rounded-full bg-[#FAF7F2] text-[#D97706] flex items-center justify-center">
+                <DollarSign size={15} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-[#2B1810] tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-[#2B1810] tracking-tight">
               $
               {(totalRevenue + 12840).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </div>
-            <div className="flex items-center text-xs font-bold text-emerald-600 mt-2">
-              <TrendingUp size={14} className="mr-1" />
+            <div className="flex items-center text-xs font-bold text-emerald-600 mt-1.5">
+              <TrendingUp size={13} className="mr-1" />
               <span>+18.4% {language === 'th' ? 'จากเดือนก่อน' : 'vs last month'}</span>
             </div>
           </div>
 
           {/* Orders */}
-          <div className="bg-white border border-[#EAE3D9] p-6 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-white border border-[#EAE3D9] p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                 {language === 'th' ? 'คำสั่งซื้อทั้งหมด' : 'Total Orders'}
               </span>
-              <div className="w-8 h-8 rounded-full bg-[#FAF7F2] text-[#2B1810] flex items-center justify-center">
-                <ShoppingBag size={16} />
+              <div className="w-7 h-7 rounded-full bg-[#FAF7F2] text-[#2B1810] flex items-center justify-center">
+                <ShoppingBag size={15} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-[#2B1810] tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-[#2B1810] tracking-tight">
               {ordersList.length + 124} {language === 'th' ? 'ออเดอร์' : 'orders'}
             </div>
-            <div className="flex items-center text-xs font-bold text-emerald-600 mt-2">
-              <ArrowUpRight size={14} className="mr-1" />
+            <div className="flex items-center text-xs font-bold text-emerald-600 mt-1.5">
+              <ArrowUpRight size={13} className="mr-1" />
               <span>+12 {language === 'th' ? 'ออเดอร์ใหม่สัปดาห์นี้' : 'new this week'}</span>
             </div>
           </div>
 
           {/* Pending Fulfillment */}
-          <div className="bg-white border border-[#EAE3D9] p-6 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-white border border-[#EAE3D9] p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                 {language === 'th' ? 'ออเดอร์รอจัดส่ง' : 'Pending Shipping'}
               </span>
-              <div className="w-8 h-8 rounded-full bg-amber-50 text-[#D97706] flex items-center justify-center">
-                <Package size={16} />
+              <div className="w-7 h-7 rounded-full bg-amber-50 text-[#D97706] flex items-center justify-center">
+                <Package size={15} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-[#D97706] tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-[#D97706] tracking-tight">
               {pendingOrders.length} {language === 'th' ? 'รายการ' : 'pending'}
             </div>
             <Link
               to="/admin/orders"
-              className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-[#2B1810] mt-2 underline"
+              className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-[#2B1810] mt-1.5 underline"
             >
               <span>{language === 'th' ? 'คลิกเพื่อจัดการพัสดุ' : 'Fulfill orders now'}</span>
               <ArrowUpRight size={12} className="ml-0.5" />
@@ -182,21 +182,21 @@ export default function AdminDashboard() {
           </div>
 
           {/* Low Stock Alerts */}
-          <div className="bg-white border border-[#EAE3D9] p-6 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-white border border-[#EAE3D9] p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                 {language === 'th' ? 'สินค้าสต็อกเหลือน้อย' : 'Low Stock SKUs'}
               </span>
-              <div className="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center">
-                <AlertTriangle size={16} />
+              <div className="w-7 h-7 rounded-full bg-red-50 text-red-600 flex items-center justify-center">
+                <AlertTriangle size={15} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-red-600 tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-red-600 tracking-tight">
               {lowStockItems.length} {language === 'th' ? 'รายการ' : 'SKUs'}
             </div>
             <Link
               to="/admin/inventory"
-              className="inline-flex items-center text-xs font-bold text-red-600 hover:underline mt-2"
+              className="inline-flex items-center text-xs font-bold text-red-600 hover:underline mt-1.5"
             >
               <span>{language === 'th' ? 'ดูและเติมสต็อก' : 'Review & Restock'}</span>
               <ArrowUpRight size={12} className="ml-0.5" />
