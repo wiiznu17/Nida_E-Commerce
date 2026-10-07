@@ -4,31 +4,37 @@ import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Package, Truck, MapPin, CheckCircle2, Phone, ArrowLeft } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function OrderTrackingPage() {
   const params = useParams();
   const orderIdParam = params?.orderId;
   const orderId = Array.isArray(orderIdParam) ? orderIdParam[0] : orderIdParam;
+  const { language, t } = useLanguage();
 
   const [currentStep] = useState(2); // 0: placed, 1: processed, 2: shipped, 3: delivered
 
   const steps = [
-    { title: 'รับคำสั่งซื้อแล้ว', subtitle: 'Order Placed', icon: Package, date: '24 ต.ค. 09:30 น.', completed: true },
     {
-      title: 'กำลังจัดเตรียมสินค้า',
-      subtitle: 'Processing & Packaged',
+      title: t('trackOrder.stepPlaced'),
+      date: language === 'th' ? '24 ต.ค. 09:30 น.' : 'Oct 24, 09:30 AM',
+      icon: Package,
+    },
+    {
+      title: t('trackOrder.stepProcessing'),
+      date: language === 'th' ? '25 ต.ค. 14:15 น.' : 'Oct 25, 02:15 PM',
       icon: CheckCircle2,
-      date: '25 ต.ค. 14:15 น.',
-      completed: true,
     },
     {
-      title: 'ส่งมอบพัสดุให้ขนส่ง',
-      subtitle: 'Shipped (In Transit)',
+      title: t('trackOrder.stepShipped'),
+      date: language === 'th' ? '26 ต.ค. 08:45 น.' : 'Oct 26, 08:45 AM',
       icon: Truck,
-      date: '26 ต.ค. 08:45 น.',
-      completed: true,
     },
-    { title: 'จัดส่งสำเร็จ', subtitle: 'Delivered', icon: MapPin, date: 'ประมาณการ: 28 ต.ค.', completed: false },
+    {
+      title: t('trackOrder.stepDelivered'),
+      date: language === 'th' ? 'ประมาณการ: 28 ต.ค.' : 'Est: Oct 28',
+      icon: MapPin,
+    },
   ];
 
   return (
@@ -39,7 +45,7 @@ export default function OrderTrackingPage() {
           href="/profile"
           className="inline-flex items-center text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#2B1810]"
         >
-          <ArrowLeft size={14} className="mr-1.5" /> กลับสู่หน้าโปรไฟล์ (Back to Account)
+          <ArrowLeft size={14} className="mr-1.5" /> {t('trackOrder.backToProfile')}
         </Link>
       </div>
 
@@ -48,20 +54,24 @@ export default function OrderTrackingPage() {
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
             <span className="text-[10px] uppercase font-black tracking-widest text-[#D97706] block mb-1">
-              สถานะการจัดส่งแบบเรียลไทม์ (Live Tracking)
+              {t('trackOrder.liveStatus')}
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-[#2B1810] uppercase tracking-tight">
-              ออเดอร์ #{orderId || 'NIDA-918274'}
+              {t('trackOrder.order')} #{orderId || 'NIDA-918274'}
             </h1>
             <p className="text-xs text-gray-600 mt-1">
-              ขนส่งโดย: <strong>Kerry Express Express-TH</strong> • หมายเลขพัสดุ: <strong>KER-982147392TH</strong>
+              {t('trackOrder.courier')}{' '}
+              <strong>{language === 'th' ? 'เคอรี่ เอ็กซ์เพรส' : 'Kerry Express Standard'}</strong> •{' '}
+              {t('trackOrder.trackingNumber')} <strong>KER-982147392TH</strong>
             </p>
           </div>
           <div className="text-left sm:text-right">
             <span className="inline-block bg-[#2B1810] text-[#F59E0B] text-xs font-black px-3 py-1 uppercase tracking-wider">
-              กำลังจัดส่ง (In Transit)
+              {t('trackOrder.inTransit')}
             </span>
-            <p className="text-xs text-gray-500 mt-1">กำหนดส่งถึง: 28 ต.ค. 2024</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t('trackOrder.estimatedArrival')} {language === 'th' ? '28 ต.ค. 2026' : 'Oct 28, 2026'}
+            </p>
           </div>
         </div>
       </div>
@@ -69,7 +79,7 @@ export default function OrderTrackingPage() {
       {/* Tracking Stepper */}
       <div className="border border-gray-200 bg-white p-6 sm:p-10 mb-8 shadow-xs">
         <h2 className="text-sm font-black uppercase tracking-wider text-[#2B1810] mb-8 pb-3 border-b border-gray-200">
-          ขั้นตอนการจัดส่งสินค้า (Tracking Milestones)
+          {t('trackOrder.milestones')}
         </h2>
 
         <div className="relative">
@@ -104,7 +114,6 @@ export default function OrderTrackingPage() {
                     >
                       {step.title}
                     </p>
-                    <p className="text-[10px] font-semibold text-gray-500 uppercase">{step.subtitle}</p>
                     <p className="text-[11px] text-gray-400 mt-0.5">{step.date}</p>
                   </div>
                 </div>
@@ -116,20 +125,36 @@ export default function OrderTrackingPage() {
         {/* Step details logs */}
         <div className="mt-10 pt-6 border-t border-gray-200 space-y-3">
           <h3 className="text-xs font-black uppercase tracking-wider text-gray-600 mb-2">
-            บันทึกการเดินทางของพัสดุ (Checkpoint Logs)
+            {language === 'th' ? 'บันทึกการเดินทางของพัสดุ' : 'Checkpoint Logs'}
           </h3>
           <div className="text-xs space-y-2 text-gray-600">
             <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
-              <span className="font-semibold text-[#2B1810]">ศูนย์กระจายสินค้าวังน้อย (Wang Noi Hub)</span>
-              <span className="text-gray-400">26 ต.ค. 08:45 น. - พัสดุอยู่ระหว่างนำส่งไปยังศูนย์ปลายทาง</span>
+              <span className="font-semibold text-[#2B1810]">
+                {language === 'th' ? 'ศูนย์กระจายสินค้าวังน้อย' : 'Wang Noi Distribution Hub'}
+              </span>
+              <span className="text-gray-400">
+                {language === 'th'
+                  ? '26 ต.ค. 08:45 น. - พัสดุอยู่ระหว่างนำส่งไปยังศูนย์ปลายทาง'
+                  : 'Oct 26, 08:45 AM - Package in transit to local sorting facility'}
+              </span>
             </div>
             <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
-              <span className="font-semibold text-[#2B1810]">คลังสินค้า Nida Warehouse (Bangkok)</span>
-              <span className="text-gray-400">25 ต.ค. 14:15 น. - บรรจุกล่องและติดใบตราส่งเรียบร้อย</span>
+              <span className="font-semibold text-[#2B1810]">
+                {language === 'th' ? 'คลังสินค้า Nida (กรุงเทพฯ)' : 'Nida Fulfillment Center (Bangkok)'}
+              </span>
+              <span className="text-gray-400">
+                {language === 'th'
+                  ? '25 ต.ค. 14:15 น. - บรรจุกล่องและติดใบตราส่งเรียบร้อย'
+                  : 'Oct 25, 02:15 PM - Packaged and manifest created'}
+              </span>
             </div>
             <div className="flex justify-between items-center py-1.5">
-              <span className="font-semibold text-[#2B1810]">ระบบรับคำสั่งซื้อ (Order Placed)</span>
-              <span className="text-gray-400">24 ต.ค. 09:30 น. - ชำระเงินสำเร็จ</span>
+              <span className="font-semibold text-[#2B1810]">
+                {language === 'th' ? 'ระบบรับคำสั่งซื้อ' : 'Order Placed & Confirmed'}
+              </span>
+              <span className="text-gray-400">
+                {language === 'th' ? '24 ต.ค. 09:30 น. - ชำระเงินสำเร็จ' : 'Oct 24, 09:30 AM - Payment verified'}
+              </span>
             </div>
           </div>
         </div>
@@ -139,23 +164,27 @@ export default function OrderTrackingPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="border border-gray-200 bg-white p-6">
           <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810] mb-4 pb-2 border-b border-gray-200">
-            ที่อยู่จัดส่ง (Destination Address)
+            {language === 'th' ? 'ที่อยู่จัดส่งสินค้า' : 'Destination Address'}
           </h3>
           <div className="text-xs text-gray-600 space-y-1">
-            <p className="font-bold text-[#2B1810] text-sm">พรรณนิดา วิศณุ (Phannida Wissanu)</p>
-            <p>108 สุขุมวิท ซอย 24 คลองเตย</p>
-            <p>กรุงเทพมหานคร 10110</p>
-            <p>เบอร์โทรศัพท์: 081-892-3456</p>
+            <p className="font-bold text-[#2B1810] text-sm">
+              {language === 'th' ? 'คุณพรรณนิดา วิศณุ' : 'Phannida Wissanu'}
+            </p>
+            <p>108 Sukhumvit Soi 24, Klongtoey</p>
+            <p>{language === 'th' ? 'กรุงเทพมหานคร 10110' : 'Bangkok 10110, Thailand'}</p>
+            <p>{language === 'th' ? 'โทรศัพท์: 081-892-3456' : 'Tel: +66 81-892-3456'}</p>
           </div>
         </div>
 
         <div className="border border-gray-200 bg-white p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810] mb-4 pb-2 border-b border-gray-200">
-              ศูนย์บริการช่วยเหลือ (Nida Support)
+              {language === 'th' ? 'ฝ่ายบริการช่วยเหลือลูกค้า' : 'Nida Support Desk'}
             </h3>
             <p className="text-xs text-gray-600 mb-3">
-              หากต้องการเปลี่ยนแปลงเวลาจัดส่ง หรือสอบถามข้อมูลเพิ่มเติมเกี่ยวกับพัสดุนี้
+              {language === 'th'
+                ? 'หากต้องการเปลี่ยนแปลงเวลาจัดส่ง หรือสอบถามข้อมูลเพิ่มเติมเกี่ยวกับพัสดุนี้'
+                : 'Need to schedule delivery timing or have questions regarding this shipment?'}
             </p>
           </div>
           <div className="flex gap-3">
@@ -164,7 +193,7 @@ export default function OrderTrackingPage() {
               className="flex-1 bg-[#2B1810] hover:bg-[#D97706] text-white py-2.5 text-center text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1"
             >
               <Phone size={14} />
-              <span>ติดต่อฝ่ายบริการ</span>
+              <span>{language === 'th' ? 'ติดต่อฝ่ายบริการลูกค้า' : 'Contact Support'}</span>
             </a>
           </div>
         </div>

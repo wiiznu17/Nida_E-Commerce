@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { KeyRound, ArrowRight } from 'lucide-react';
 
 function VerifyOTPContent() {
@@ -13,6 +14,7 @@ function VerifyOTPContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
+  const { language, t } = useLanguage();
 
   const email = searchParams.get('email') || 'customer@nida.com';
   const initialData = {
@@ -83,10 +85,10 @@ function VerifyOTPContent() {
       </div>
 
       <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-[#2B1810] mb-2">
-        VERIFY WITH OTP
+        {t('auth.verifyOtpTitle')}
       </h1>
       <p className="text-center text-gray-500 font-medium text-xs mb-6 leading-relaxed">
-        ระบบได้ส่งรหัสความปลอดภัย OTP 6 หลักไปยัง
+        {t('auth.verifyOtpSubtitle')}
         <br />
         <strong className="text-[#2B1810] text-sm">{email}</strong>
       </p>
@@ -96,7 +98,7 @@ function VerifyOTPContent() {
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block">
-              รหัส OTP จำลอง (Simulated Code)
+              {language === 'th' ? 'รหัส OTP จำลอง (Demo)' : 'Simulated Test Code'}
             </span>
             <span className="text-lg font-mono font-black text-[#2B1810] tracking-widest">
               {sampleCodeNotification}
@@ -107,7 +109,7 @@ function VerifyOTPContent() {
             onClick={handleAutoFill}
             className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[11px] font-bold px-3 py-1.5 rounded-xs transition-colors uppercase"
           >
-            กดกรอกอัตโนมัติ
+            {language === 'th' ? 'กดกรอกอัตโนมัติ' : 'Auto-Fill'}
           </button>
         </div>
       </div>
@@ -135,25 +137,27 @@ function VerifyOTPContent() {
           disabled={otp.join('').length !== 6}
           className="w-full bg-[#2B1810] hover:bg-[#D97706] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2"
         >
-          <span>ยืนยันรหัส OTP & เข้าสู่ระบบ</span>
+          <span>{t('auth.verifyBtn')}</span>
           <ArrowRight size={16} />
         </button>
       </form>
 
       <div className="mt-8 text-center space-y-3 pt-6 border-t border-gray-200">
         <p className="text-xs text-gray-500 font-medium">
-          ไม่ได้รับรหัส OTP?{' '}
+          {language === 'th' ? 'ไม่ได้รับรหัส OTP? ' : "Didn't receive code? "}
           {resendTimer > 0 ? (
-            <span className="text-gray-400 font-semibold">ขอรหัสใหม่ได้ใน ({resendTimer}s)</span>
+            <span className="text-gray-400 font-semibold">
+              {language === 'th' ? `ขอรหัสใหม่ได้ใน (${resendTimer}s)` : `Resend in (${resendTimer}s)`}
+            </span>
           ) : (
             <button onClick={handleResend} className="font-bold text-[#D97706] hover:underline">
-              ขอรหัสใหม่ (Resend OTP)
+              {t('auth.resendCode')}
             </button>
           )}
         </p>
         <div>
           <Link href="/login" className="text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-[#2B1810]">
-            ← ใช้อีเมลอื่น (Change Email)
+            {language === 'th' ? '← ใช้อีเมลอื่น' : '← Change Email'}
           </Link>
         </div>
       </div>

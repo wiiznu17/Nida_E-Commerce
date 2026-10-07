@@ -4,10 +4,12 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LogIn, ShieldCheck, Mail } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,16 +33,16 @@ export default function LoginPage() {
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-[#2B1810] mb-2">
-          MEMBER SIGN IN
+          {t('auth.signInTitle')}
         </h1>
         <p className="text-center text-gray-500 font-medium text-xs mb-8">
-          กรอกอีเมลของคุณเพื่อรับรหัสผ่าน OTP ยืนยันตัวตนแบบไร้รหัสผ่าน (Passwordless)
+          {t('auth.signInSubtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="email" className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-              อีเมลบัญชีผู้ใช้ (Email Address) *
+              {t('auth.emailLabel')}
             </label>
             <div className="relative">
               <input
@@ -49,7 +51,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="customer@example.com"
+                placeholder="customer@nida.com"
                 className="w-full border border-gray-300 px-3 py-2.5 pl-10 text-sm focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]"
               />
               <Mail size={18} className="absolute left-3 top-3 text-gray-400 pointer-events-none" />
@@ -58,7 +60,7 @@ export default function LoginPage() {
 
           <div className="flex items-center space-x-2 text-xs text-gray-500">
             <ShieldCheck size={16} className="text-emerald-600 flex-shrink-0" />
-            <span>รหัส OTP 6 หลักจะถูกส่งไปยังอีเมลของคุณ</span>
+            <span>{t('auth.otpNotice')}</span>
           </div>
 
           <button
@@ -66,14 +68,14 @@ export default function LoginPage() {
             className="w-full bg-[#2B1810] hover:bg-[#D97706] text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2"
           >
             <LogIn size={16} />
-            <span>เข้าสู่ระบบด้วย OTP</span>
+            <span>{t('auth.signInBtn')}</span>
           </button>
         </form>
 
         {/* Demo Fast Fill */}
         <div className="mt-6 pt-5 border-t border-dashed border-gray-200">
           <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-            บัญชีทดสอบด่วน (Quick Demo):
+            {t('auth.quickDemo')}
           </p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -95,9 +97,9 @@ export default function LoginPage() {
 
         <div className="mt-8 text-center pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-600">
-            ยังไม่มีบัญชี Nida?{' '}
-            <Link href="/register" className="font-bold text-[#2B1810] hover:text-[#D97706] underline">
-              ลงทะเบียนสมาชิกใหม่ (Create Account)
+            {t('auth.noAccount')}{' '}
+            <Link href="/register" className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1">
+              {t('auth.joinClub')}
             </Link>
           </p>
         </div>

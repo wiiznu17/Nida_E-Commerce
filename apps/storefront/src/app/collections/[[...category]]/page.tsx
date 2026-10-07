@@ -2,20 +2,26 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import {
+  useLanguage,
+  getProductTitle,
+  getProductSubCategory,
+  getProductTag,
+} from '@/context/LanguageContext';
 import { ChevronDown, Check, Heart, ShoppingBag, Grid3X3, LayoutGrid } from 'lucide-react';
 
 export default function CollectionPage() {
   const params = useParams();
-  const router = useRouter();
   const categoryParam = params?.category;
   const category = Array.isArray(categoryParam) ? categoryParam[0] : categoryParam || 'all';
 
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { language, t } = useLanguage();
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
@@ -25,77 +31,96 @@ export default function CollectionPage() {
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
   // Department / Category Metadata
-  const departmentInfo: Record<string, { title: string; subtitle: string; bannerTag?: string; bgImage?: string }> = {
+  const departmentInfo: Record<
+    string,
+    { title: string; titleTh: string; subtitle: string; subtitleTh: string; bannerTag?: string; bannerTagTh?: string; bgImage?: string }
+  > = {
     women: {
       title: "WOMEN'S COLLECTION",
+      titleTh: 'คอลเลกชันสำหรับผู้หญิง',
       subtitle: 'Classic prep meets modern relaxed tailoring. Sweaters, trench coats, shirts, and versatile denim.',
+      subtitleTh: 'สไตล์เพรปปี้คลาสสิกผสานโครงเสื้อผ่อนคลายร่วมสมัย สเวตเตอร์ไหมพรม เทรนช์โค้ท และยีนส์อเนกประสงค์',
       bannerTag: 'AUTUMN / WINTER 2026',
+      bannerTagTh: 'ฤดูใบไม้ร่วง / หนาว 2026',
       bgImage:
         'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
     },
     men: {
       title: "MEN'S COLLECTION",
+      titleTh: 'คอลเลกชันสำหรับผู้ชาย',
       subtitle: 'Heritage American cool. Iconic pique polos, oxford shirts, varsity outerwear, and tailored chinos.',
+      subtitleTh: 'มรดกความเท่สไตล์อเมริกันคลาสสิก โปโลผ้าปิเก้ไอคอนิก เชิ้ตอ็อกซ์ฟอร์ด และชิโน่คัตติ้งเนี้ยบ',
       bannerTag: 'HERITAGE ICONS',
+      bannerTagTh: 'เฮอริเทจไอคอน',
       bgImage:
         'https://images.unsplash.com/photo-1544441893-675973e31985?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
     },
     kids: {
       title: 'KIDS & MINI PREP',
+      titleTh: 'คอลเลกชันเด็ก & มินิเพรป',
       subtitle: 'Durable, comfortable, and vibrant clothing designed for young explorers and school days.',
+      subtitleTh: 'เสื้อผ้าที่ทนทาน สวมใส่สบาย สีสันสดใส ออกแบบเพื่อวัยแห่งการเรียนรู้และการเล่นสนุก',
       bannerTag: 'BACK TO SCHOOL',
+      bannerTagTh: 'เปิดเทอมสดใส',
       bgImage:
         'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
     },
     bags: {
       title: 'BAGS & LEATHER ACCESSORIES',
+      titleTh: 'กระเป๋าและเครื่องหนังพรีเมียม',
       subtitle: 'Crafted with supple pebble leather, signature ribbon accents, and durable brass hardware.',
+      subtitleTh: 'รังสรรค์ด้วยหนังเกรนแท้เนื้อละเอียด สายริบบิ้นสามสีเอกลักษณ์ และอะไหล่ทองเหลืองสุดประณีต',
       bannerTag: 'LEATHER WORKSHOP',
+      bannerTagTh: 'เวิร์กช็อปเครื่องหนัง',
       bgImage:
         'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
     },
     shoes: {
       title: 'FOOTWEAR & SNEAKERS',
+      titleTh: 'รองเท้าสนีกเกอร์และโลฟเฟอร์',
       subtitle: 'Clean retro court silhouettes and handcrafted loafers made for cushioned everyday ease.',
+      subtitleTh: 'ทรงคอร์ทเทนนิสเรโทรสุดคลีน และรองเท้าโลฟเฟอร์งานฝีมือ พื้นรองรับน้ำหนักเพื่อความนุ่มสบายตลอดวัน',
       bannerTag: 'EVERYDAY PERFORMANCE',
+      bannerTagTh: 'ความสบายในทุกวัน',
       bgImage:
         'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
     },
     home: {
       title: 'HOME & LIFESTYLE',
+      titleTh: 'ของแต่งบ้านและไลฟ์สไตล์',
       subtitle: 'Elevate your sanctuary with striped organic towels, hinoki wood candles, and artisan ceramics.',
+      subtitleTh: 'เติมเต็มความสงบในบ้านด้วยผ้าขนหนูออร์แกนิก เทียนหอมไม้ฮิโนกิ และเครื่องเคลือบดินเผางานช่างศิลป์',
       bannerTag: 'INTENTIONAL LIVING',
+      bannerTagTh: 'วิถีชีวิตอย่างมีระดับ',
       bgImage:
         'https://images.unsplash.com/photo-1583847268964-b28ce8f31161?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
     },
     sale: {
       title: 'SALE MARKDOWNS',
+      titleTh: 'สินค้าลดราคาพิเศษ',
       subtitle: 'Take up to 50% off select seasonal styles. Plus extra 20% off with code NIDA20.',
+      subtitleTh: 'ลดสูงสุด 50% สำหรับสินค้าประจำฤดูกาล พร้อมลดเพิ่มอีก 20% เมื่อกรอกโค้ด NIDA20',
       bannerTag: 'SPECIAL PROMOTION - UP TO 50% OFF',
+      bannerTagTh: 'โปรโมชันพิเศษ - ลดสูงสุด 50%',
       bgImage:
         'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
     },
     all: {
       title: 'ALL PRODUCTS',
+      titleTh: 'สินค้าทั้งหมด',
       subtitle: 'Discover our full range of apparel, bags, shoes, and home lifestyle objects.',
+      subtitleTh: 'เลือกชมสินค้าคุณภาพทั้งหมด ทั้งเสื้อผ้า กระเป๋า รองเท้า และของแต่งบ้านสไตล์ Nida',
       bannerTag: 'COMPLETE CATALOGUE',
+      bannerTagTh: 'แคตตาล็อกสินค้าครบครัน',
       bgImage:
         'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
-    },
-    // Backwards compatibility keys
-    apparel: {
-      title: 'APPAREL',
-      subtitle: 'Tailored knits, outerwear, polos, and trousers for modern living.',
-      bannerTag: 'READY TO WEAR',
-    },
-    accessories: {
-      title: 'ACCESSORIES',
-      subtitle: 'Caps, reversible belts, wallets, and finishing touches.',
-      bannerTag: 'SIGNATURE PIECES',
     },
   };
 
   const currentInfo = departmentInfo[category] || departmentInfo.all;
+  const currentTitle = language === 'th' ? currentInfo.titleTh : currentInfo.title;
+  const currentSubtitle = language === 'th' ? currentInfo.subtitleTh : currentInfo.subtitle;
+  const currentTag = language === 'th' ? currentInfo.bannerTagTh : currentInfo.bannerTag;
 
   // Filter products
   const filteredProducts = useMemo(() => {
@@ -127,14 +152,19 @@ export default function CollectionPage() {
 
   // Extract unique subcategories
   const availableSubCategories = useMemo(() => {
-    const subs = new Set<string>();
+    const subs = new Map<string, string>();
     products.forEach((p) => {
       if (category === 'all' || p.department === category || p.category === category) {
-        if (p.subCategory) subs.add(p.subCategory);
+        if (p.subCategory) {
+          subs.set(p.subCategory, p.subCategoryTh || p.subCategory);
+        }
       }
     });
-    return Array.from(subs);
-  }, [category]);
+    return Array.from(subs.entries()).map(([key, labelTh]) => ({
+      key,
+      label: language === 'th' ? labelTh : key,
+    }));
+  }, [category, language]);
 
   const handleQuickAdd = (e: React.MouseEvent, product: (typeof products)[0]) => {
     e.preventDefault();
@@ -151,37 +181,46 @@ export default function CollectionPage() {
     setTimeout(() => setAddedProductId(null), 2000);
   };
 
+  const sortOptions = [
+    { id: 'featured', label: t('catalog.sortFeatured') },
+    { id: 'price-asc', label: t('catalog.sortPriceAsc') },
+    { id: 'price-desc', label: t('catalog.sortPriceDesc') },
+    { id: 'rating', label: t('catalog.sortRating') },
+  ];
+
+  const currentSortLabel = sortOptions.find((o) => o.id === sortBy)?.label || t('catalog.sortFeatured');
+
   return (
     <div className="w-full bg-white font-sans min-h-screen">
       {/* 1. EDITORIAL DEPARTMENT BANNER */}
       <div className="bg-[#2B1810] text-white py-12 sm:py-16 px-4 relative overflow-hidden">
         {currentInfo.bgImage && (
           <div className="absolute inset-0 opacity-20">
-            <img src={currentInfo.bgImage} alt={currentInfo.title} className="w-full h-full object-cover" />
+            <img src={currentInfo.bgImage} alt={currentTitle} className="w-full h-full object-cover" />
           </div>
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <div className="flex justify-center items-center space-x-2 text-[11px] font-black uppercase tracking-[0.25em] text-gray-300 mb-3">
             <Link href="/" className="hover:text-white transition-colors">
-              HOME
+              {language === 'th' ? 'หน้าแรก' : 'HOME'}
             </Link>
             <span>/</span>
-            <span>COLLECTIONS</span>
+            <span>{language === 'th' ? 'คอลเลกชัน' : 'COLLECTIONS'}</span>
             <span>/</span>
-            <span className="text-[#F59E0B]">{category.toUpperCase()}</span>
+            <span className="text-[#F59E0B]">{currentTitle}</span>
           </div>
 
-          {currentInfo.bannerTag && (
+          {currentTag && (
             <span className="inline-block bg-[#F59E0B] text-[#2B1810] text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 mb-3">
-              {currentInfo.bannerTag}
+              {currentTag}
             </span>
           )}
 
           <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white mb-3">
-            {currentInfo.title}
+            {currentTitle}
           </h1>
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-gray-300 font-normal leading-relaxed">
-            {currentInfo.subtitle}
+            {currentSubtitle}
           </p>
         </div>
       </div>
@@ -196,17 +235,17 @@ export default function CollectionPage() {
                 selectedSubCategory === null ? 'bg-[#2B1810] text-white' : 'bg-white text-[#2B1810] hover:bg-gray-200'
               }`}
             >
-              ALL ({filteredProducts.length})
+              {language === 'th' ? 'ทั้งหมด' : 'ALL'} ({filteredProducts.length})
             </button>
             {availableSubCategories.map((sub) => (
               <button
-                key={sub}
-                onClick={() => setSelectedSubCategory(selectedSubCategory === sub ? null : sub)}
+                key={sub.key}
+                onClick={() => setSelectedSubCategory(selectedSubCategory === sub.key ? null : sub.key)}
                 className={`text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-xs transition-colors whitespace-nowrap ${
-                  selectedSubCategory === sub ? 'bg-[#2B1810] text-white' : 'bg-white text-gray-700 hover:bg-gray-200'
+                  selectedSubCategory === sub.key ? 'bg-[#2B1810] text-white' : 'bg-white text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {sub}
+                {sub.label}
               </button>
             ))}
           </div>
@@ -224,7 +263,8 @@ export default function CollectionPage() {
                 onClick={() => setActiveDropdown(activeDropdown === 'color' ? null : 'color')}
                 className="flex items-center hover:text-[#D97706] uppercase tracking-wider py-2"
               >
-                COLOR {selectedColor && <span className="ml-1 text-[#D97706] font-black">•</span>}
+                {language === 'th' ? 'เลือกสี' : 'COLOR'}{' '}
+                {selectedColor && <span className="ml-1 text-[#D97706] font-black">•</span>}
                 <ChevronDown size={14} className="ml-1" />
               </button>
               {activeDropdown === 'color' && (
@@ -261,14 +301,16 @@ export default function CollectionPage() {
                       }}
                       className="mt-3 text-[11px] text-[#D97706] hover:underline font-bold block"
                     >
-                      Clear Color Filter
+                      {language === 'th' ? 'ล้างตัวกรองสี' : 'Clear Color Filter'}
                     </button>
                   )}
                 </div>
               )}
             </div>
 
-            <span className="text-gray-400 font-normal">Showing {filteredProducts.length} items</span>
+            <span className="text-gray-400 font-normal">
+              {t('catalog.showing')} {filteredProducts.length} {t('catalog.items')}
+            </span>
           </div>
 
           {/* Right: Sort & Grid Layout Buttons */}
@@ -297,19 +339,14 @@ export default function CollectionPage() {
                 onClick={() => setActiveDropdown(activeDropdown === 'sort' ? null : 'sort')}
                 className="text-xs font-bold text-[#2B1810] hover:text-[#D97706] flex items-center uppercase tracking-wider py-2"
               >
-                SORT BY:{' '}
-                <span className="ml-1 text-gray-500 font-semibold">{sortBy.replace('-', ' ').toUpperCase()}</span>
+                {t('catalog.sortBy')}:{' '}
+                <span className="ml-1 text-gray-500 font-semibold">{currentSortLabel}</span>
                 <ChevronDown size={14} className="ml-1" />
               </button>
 
               {activeDropdown === 'sort' && (
                 <div className="absolute top-full right-0 mt-2 w-52 bg-white border border-gray-200 shadow-xl py-2 z-40">
-                  {[
-                    { id: 'featured', label: 'FEATURED' },
-                    { id: 'price-asc', label: 'PRICE: LOW TO HIGH' },
-                    { id: 'price-desc', label: 'PRICE: HIGH TO LOW' },
-                    { id: 'rating', label: 'TOP RATED' },
-                  ].map((option) => (
+                  {sortOptions.map((option) => (
                     <button
                       key={option.id}
                       onClick={() => {
@@ -334,9 +371,11 @@ export default function CollectionPage() {
         {filteredProducts.length === 0 ? (
           <div className="text-center py-24 space-y-4">
             <ShoppingBag size={48} strokeWidth={1} className="mx-auto text-gray-300" />
-            <h3 className="text-xl font-bold text-[#2B1810]">NO PRODUCTS FOUND</h3>
+            <h3 className="text-xl font-bold text-[#2B1810]">{t('catalog.noProducts')}</h3>
             <p className="text-sm text-gray-500 max-w-sm mx-auto">
-              We couldn't find items matching your current filters. Try resetting the filters or check another category.
+              {language === 'th'
+                ? 'ไม่พบสินค้าที่ตรงกับตัวกรองที่เลือก ลองรีเซ็ตตัวกรองหรือเลือกดูหมวดหมู่อื่น'
+                : "We couldn't find items matching your current filters. Try resetting the filters or check another category."}
             </p>
             <button
               onClick={() => {
@@ -345,7 +384,7 @@ export default function CollectionPage() {
               }}
               className="bg-[#2B1810] text-white text-xs font-black uppercase tracking-widest px-6 py-3 hover:bg-[#D97706] transition-colors"
             >
-              RESET ALL FILTERS
+              {t('catalog.resetFilters')}
             </button>
           </div>
         ) : (
@@ -355,6 +394,9 @@ export default function CollectionPage() {
             {filteredProducts.map((product) => {
               const isWish = isInWishlist(product.id);
               const isJustAdded = addedProductId === product.id;
+              const title = getProductTitle(product, language);
+              const subCategory = getProductSubCategory(product, language);
+              const tag = getProductTag(product, language) || product.tag;
 
               return (
                 <div key={product.id} className="group flex flex-col bg-white relative">
@@ -363,15 +405,15 @@ export default function CollectionPage() {
                     <Link href={`/product/${product.id}`} className="block w-full h-full">
                       <img
                         src={product.image}
-                        alt={product.name}
+                        alt={title}
                         className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                       />
                     </Link>
 
                     {/* Tag badge */}
-                    {product.tag && (
+                    {tag && (
                       <div className="absolute top-3 left-3 bg-[#2B1810] text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 shadow-xs">
-                        {product.tag}
+                        {tag}
                       </div>
                     )}
 
@@ -395,11 +437,11 @@ export default function CollectionPage() {
                       >
                         {isJustAdded ? (
                           <>
-                            <Check size={14} /> <span>ADDED TO BAG</span>
+                            <Check size={14} /> <span>{t('home.addedToBag')}</span>
                           </>
                         ) : (
                           <>
-                            <ShoppingBag size={14} /> <span>QUICK ADD</span>
+                            <ShoppingBag size={14} /> <span>{t('home.quickAdd')}</span>
                           </>
                         )}
                       </button>
@@ -416,13 +458,15 @@ export default function CollectionPage() {
                           style={{ backgroundColor: c }}
                         />
                       ))}
-                      <span className="text-[10px] text-gray-400 font-medium ml-1">{product.colors.length} colors</span>
+                      <span className="text-[10px] text-gray-400 font-medium ml-1">
+                        {product.colors.length} {language === 'th' ? 'สี' : 'colors'}
+                      </span>
                     </div>
                   )}
 
                   {/* Category breadcrumb label */}
                   <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                    {product.subCategory || product.category}
+                    {subCategory}
                   </span>
 
                   {/* Product title */}
@@ -430,7 +474,7 @@ export default function CollectionPage() {
                     href={`/product/${product.id}`}
                     className="font-bold text-sm text-[#2B1810] group-hover:text-[#D97706] transition-colors line-clamp-1 mb-2"
                   >
-                    {product.name}
+                    {title}
                   </Link>
 
                   {/* Prices */}

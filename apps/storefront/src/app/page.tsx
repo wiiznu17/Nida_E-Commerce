@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   Heart,
@@ -18,11 +17,17 @@ import {
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import {
+  useLanguage,
+  getProductTitle,
+  getProductSubCategory,
+  getProductTag,
+} from '@/context/LanguageContext';
 
 export default function HomePage() {
-  const router = useRouter();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { language, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'all' | 'women' | 'men' | 'bags'>('all');
   const [copiedCode, setCopiedCode] = useState(false);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
@@ -79,20 +84,19 @@ export default function HomePage() {
             {/* Tag / Badge */}
             <div className="inline-flex items-center space-x-2 bg-[#F59E0B] text-[#2B1810] px-3 py-1 text-xs font-black uppercase tracking-[0.2em] mb-6">
               <Sparkles size={13} className="text-[#2B1810]" />
-              <span>THE AUTUMN / WINTER 2026 CAMPAIGN</span>
+              <span>{t('home.heroTag')}</span>
             </div>
 
             {/* Headline */}
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-white leading-[1.05] mb-6">
-              ICONIC PREP.
+              {t('home.heroTitle1')}
               <br />
-              MODERN LIVING.
+              {t('home.heroTitle2')}
             </h1>
 
             {/* Subtext */}
             <p className="text-base sm:text-lg text-gray-200 font-normal leading-relaxed mb-8 max-w-xl">
-              Effortless silhouettes tailored with heritage precision. Explore new season cable-knit sweaters,
-              collegiate outerwear, and timeless leather goods.
+              {t('home.heroDesc')}
             </p>
 
             {/* Multi CTA Buttons */}
@@ -101,19 +105,19 @@ export default function HomePage() {
                 href="/collections/women"
                 className="bg-white hover:bg-gray-100 text-[#2B1810] px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg hover:shadow-xl hover:translate-y-[-1px] text-center"
               >
-                SHOP WOMEN
+                {t('home.shopWomen')}
               </Link>
               <Link
                 href="/collections/men"
                 className="bg-[#2B1810] hover:bg-[#D97706] border-2 border-white text-white px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg text-center"
               >
-                SHOP MEN
+                {t('home.shopMen')}
               </Link>
               <Link
                 href="/collections/sale"
                 className="bg-[#F59E0B] hover:bg-[#D97706] text-[#2B1810] px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg text-center"
               >
-                SHOP SALE (UP TO 50%)
+                {t('home.shopSale')}
               </Link>
             </div>
           </div>
@@ -128,8 +132,10 @@ export default function HomePage() {
               <Truck size={20} className="text-[#F59E0B]" />
             </div>
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">FREE SHIPPING</h4>
-              <p className="text-[11px] text-gray-500">On all orders over $100</p>
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+                {t('home.freeShippingTitle')}
+              </h4>
+              <p className="text-[11px] text-gray-500">{t('home.freeShippingSub')}</p>
             </div>
           </div>
 
@@ -138,8 +144,10 @@ export default function HomePage() {
               <RefreshCw size={20} className="text-[#F59E0B]" />
             </div>
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">30-DAY RETURNS</h4>
-              <p className="text-[11px] text-gray-500">Hassle-free mail or in-store</p>
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+                {t('home.returnsTitle')}
+              </h4>
+              <p className="text-[11px] text-gray-500">{t('home.returnsSub')}</p>
             </div>
           </div>
 
@@ -148,8 +156,10 @@ export default function HomePage() {
               <ShieldCheck size={20} className="text-[#F59E0B]" />
             </div>
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">NIDA GUARANTEE</h4>
-              <p className="text-[11px] text-gray-500">Sustainable, authentic fabrics</p>
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+                {t('home.guaranteeTitle')}
+              </h4>
+              <p className="text-[11px] text-gray-500">{t('home.guaranteeSub')}</p>
             </div>
           </div>
 
@@ -158,8 +168,10 @@ export default function HomePage() {
               <Star size={20} className="text-[#F59E0B]" />
             </div>
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">NIDA CLUB PERKS</h4>
-              <p className="text-[11px] text-gray-500">Use code NIDA20 for 20% off</p>
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+                {t('home.perksTitle')}
+              </h4>
+              <p className="text-[11px] text-gray-500">{t('home.perksSub')}</p>
             </div>
           </div>
         </div>
@@ -169,10 +181,10 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
         <div className="text-center max-w-xl mx-auto mb-12">
           <span className="text-xs font-black tracking-[0.25em] text-[#D97706] uppercase block mb-2">
-            CURATED STORIES
+            {t('home.curatedStories')}
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-[#2B1810] uppercase tracking-tight">
-            THE SEASONAL SPOTLIGHT
+            {t('home.seasonalSpotlight')}
           </h2>
         </div>
 
@@ -186,20 +198,20 @@ export default function HomePage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/90 via-[#2B1810]/30 to-transparent flex flex-col justify-end p-8 sm:p-10">
               <span className="text-[11px] font-black tracking-[0.25em] text-white/80 uppercase mb-2">
-                AUTUMN KNITWEAR & COATS
+                {t('home.storyWomenTag')}
               </span>
               <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mb-3">
-                WOMEN'S TIMELESS CLASSICS
+                {t('home.storyWomenTitle')}
               </h3>
               <p className="text-xs sm:text-sm text-gray-200 mb-6 max-w-md line-clamp-2">
-                Elevated cable knits, structured wool trenches, and tailored silhouettes made for crisp mornings.
+                {t('home.storyWomenDesc')}
               </p>
               <div>
                 <Link
                   href="/collections/women"
                   className="inline-flex items-center bg-white text-[#2B1810] hover:bg-[#F59E0B] hover:text-[#2B1810] px-6 py-3 font-black text-xs tracking-widest uppercase transition-all shadow-md"
                 >
-                  DISCOVER WOMEN <ArrowRight size={14} className="ml-2" />
+                  {t('home.discoverWomen')} <ArrowRight size={14} className="ml-2" />
                 </Link>
               </div>
             </div>
@@ -214,20 +226,20 @@ export default function HomePage() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/90 via-[#2B1810]/30 to-transparent flex flex-col justify-end p-8 sm:p-10">
               <span className="text-[11px] font-black tracking-[0.25em] text-white/80 uppercase mb-2">
-                COLLEGIATE PREP & VARSITY
+                {t('home.storyMenTag')}
               </span>
               <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight mb-3">
-                MEN'S MODERN HERITAGE
+                {t('home.storyMenTitle')}
               </h3>
               <p className="text-xs sm:text-sm text-gray-200 mb-6 max-w-md line-clamp-2">
-                Heritage pique polos, colorblock sailing jackets, and tailored chinos with American cool swagger.
+                {t('home.storyMenDesc')}
               </p>
               <div>
                 <Link
                   href="/collections/men"
                   className="inline-flex items-center bg-white text-[#2B1810] hover:bg-[#F59E0B] hover:text-[#2B1810] px-6 py-3 font-black text-xs tracking-widest uppercase transition-all shadow-md"
                 >
-                  DISCOVER MEN <ArrowRight size={14} className="ml-2" />
+                  {t('home.discoverMen')} <ArrowRight size={14} className="ml-2" />
                 </Link>
               </div>
             </div>
@@ -240,14 +252,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div>
             <div className="inline-block bg-[#F59E0B] text-[#2B1810] text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 mb-2">
-              LIMITED TIME PROMOTION
+              {t('home.promoRibbonTag')}
             </div>
             <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
-              EXTRA 20% OFF ON ORDERS OVER $120
+              {t('home.promoRibbonTitle')}
             </h3>
-            <p className="text-xs text-gray-300">
-              Apply code at checkout. Includes sale items and new season arrivals.
-            </p>
+            <p className="text-xs text-gray-300">{t('home.promoRibbonDesc')}</p>
           </div>
 
           <div className="flex items-center space-x-3 bg-white/10 p-2 rounded-xs border border-white/20">
@@ -258,10 +268,10 @@ export default function HomePage() {
             >
               {copiedCode ? (
                 <>
-                  <Check size={14} className="mr-1 text-emerald-600" /> COPIED!
+                  <Check size={14} className="mr-1 text-emerald-600" /> {t('home.copied')}
                 </>
               ) : (
-                'COPY CODE'
+                t('home.copyCode')
               )}
             </button>
           </div>
@@ -274,18 +284,20 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 pb-4 border-b border-gray-200 gap-4">
           <div>
             <span className="text-xs font-black tracking-[0.25em] text-[#D97706] uppercase block mb-1">
-              DON'T MISS OUT
+              {t('home.dontMissOut')}
             </span>
-            <h2 className="text-3xl font-black text-[#2B1810] uppercase tracking-tight">WHAT'S TRENDING NOW</h2>
+            <h2 className="text-3xl font-black text-[#2B1810] uppercase tracking-tight">
+              {t('home.trendingTitle')}
+            </h2>
           </div>
 
           {/* Department Filter Pills */}
           <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0">
             {[
-              { id: 'all', label: 'ALL ITEMS' },
-              { id: 'women', label: 'WOMEN' },
-              { id: 'men', label: 'MEN' },
-              { id: 'bags', label: 'BAGS & SHOES' },
+              { id: 'all', label: t('home.tabAll') },
+              { id: 'women', label: t('home.tabWomen') },
+              { id: 'men', label: t('home.tabMen') },
+              { id: 'bags', label: t('home.tabBags') },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -307,6 +319,9 @@ export default function HomePage() {
           {trendingProducts.map((product) => {
             const isWish = isInWishlist(product.id);
             const isJustAdded = addedProductId === product.id;
+            const title = getProductTitle(product, language);
+            const subCategory = getProductSubCategory(product, language);
+            const tag = getProductTag(product, language) || product.tag;
 
             return (
               <div key={product.id} className="group flex flex-col bg-white relative">
@@ -315,15 +330,15 @@ export default function HomePage() {
                   <Link href={`/product/${product.id}`} className="block w-full h-full">
                     <img
                       src={product.image}
-                      alt={product.name}
+                      alt={title}
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
                   </Link>
 
                   {/* Badge */}
-                  {product.tag && (
+                  {tag && (
                     <div className="absolute top-3 left-3 bg-[#2B1810] text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 shadow-xs">
-                      {product.tag}
+                      {tag}
                     </div>
                   )}
 
@@ -347,11 +362,11 @@ export default function HomePage() {
                     >
                       {isJustAdded ? (
                         <>
-                          <Check size={14} /> <span>ADDED TO BAG</span>
+                          <Check size={14} /> <span>{t('home.addedToBag')}</span>
                         </>
                       ) : (
                         <>
-                          <ShoppingBag size={14} /> <span>QUICK ADD</span>
+                          <ShoppingBag size={14} /> <span>{t('home.quickAdd')}</span>
                         </>
                       )}
                     </button>
@@ -369,20 +384,22 @@ export default function HomePage() {
                         title={color}
                       />
                     ))}
-                    <span className="text-[10px] text-gray-400 font-medium ml-1">{product.colors.length} colors</span>
+                    <span className="text-[10px] text-gray-400 font-medium ml-1">
+                      {product.colors.length} {language === 'th' ? 'สี' : 'colors'}
+                    </span>
                   </div>
                 )}
 
                 {/* Title and Category */}
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                  {product.subCategory || product.category}
+                  {subCategory}
                 </span>
 
                 <Link
                   href={`/product/${product.id}`}
                   className="font-bold text-sm text-[#2B1810] group-hover:text-[#D97706] transition-colors line-clamp-1 mb-2"
                 >
-                  {product.name}
+                  {title}
                 </Link>
 
                 {/* Price Display with Strikethrough for Sales */}
@@ -407,7 +424,7 @@ export default function HomePage() {
             href="/collections/all"
             className="inline-flex items-center border-2 border-[#2B1810] text-[#2B1810] hover:bg-[#2B1810] hover:text-white px-8 py-3.5 font-black text-xs uppercase tracking-[0.2em] transition-all"
           >
-            VIEW ALL PRODUCTS ({products.length}) <ChevronRight size={16} className="ml-1" />
+            {t('home.viewAllProducts')} ({products.length}) <ChevronRight size={16} className="ml-1" />
           </Link>
         </div>
       </div>
@@ -417,9 +434,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-xs font-black tracking-[0.25em] text-[#D97706] uppercase block mb-2">
-              DISCOVER BY DEPARTMENT
+              {t('home.discoverDept')}
             </span>
-            <h2 className="text-3xl font-black text-[#2B1810] uppercase tracking-tight">ESSENTIAL CATEGORIES</h2>
+            <h2 className="text-3xl font-black text-[#2B1810] uppercase tracking-tight">
+              {t('home.essentialCategories')}
+            </h2>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -434,9 +453,12 @@ export default function HomePage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/80 via-transparent to-transparent flex flex-col justify-end p-5">
-                  <span className="text-white font-black text-sm uppercase tracking-wider">SWEATERS & KNITS</span>
+                  <span className="text-white font-black text-sm uppercase tracking-wider">
+                    {language === 'th' ? 'สเวตเตอร์และเสื้อไหมพรม' : 'SWEATERS & KNITS'}
+                  </span>
                   <span className="text-white/80 text-xs flex items-center mt-1 font-semibold group-hover:text-white">
-                    Shop Now <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    {language === 'th' ? 'เลือกชม' : 'Shop Now'}{' '}
+                    <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
                   </span>
                 </div>
               </div>
@@ -453,9 +475,12 @@ export default function HomePage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/80 via-transparent to-transparent flex flex-col justify-end p-5">
-                  <span className="text-white font-black text-sm uppercase tracking-wider">HERITAGE POLOS</span>
+                  <span className="text-white font-black text-sm uppercase tracking-wider">
+                    {language === 'th' ? 'เสื้อโปโลเฮอริเทจ' : 'HERITAGE POLOS'}
+                  </span>
                   <span className="text-white/80 text-xs flex items-center mt-1 font-semibold group-hover:text-white">
-                    Shop Now <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    {language === 'th' ? 'เลือกชม' : 'Shop Now'}{' '}
+                    <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
                   </span>
                 </div>
               </div>
@@ -472,9 +497,12 @@ export default function HomePage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/80 via-transparent to-transparent flex flex-col justify-end p-5">
-                  <span className="text-white font-black text-sm uppercase tracking-wider">LEATHER BAGS & BELTS</span>
+                  <span className="text-white font-black text-sm uppercase tracking-wider">
+                    {language === 'th' ? 'กระเป๋าหนังและเข็มขัด' : 'LEATHER BAGS & BELTS'}
+                  </span>
                   <span className="text-white/80 text-xs flex items-center mt-1 font-semibold group-hover:text-white">
-                    Shop Now <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    {language === 'th' ? 'เลือกชม' : 'Shop Now'}{' '}
+                    <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
                   </span>
                 </div>
               </div>
@@ -491,9 +519,12 @@ export default function HomePage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/80 via-transparent to-transparent flex flex-col justify-end p-5">
-                  <span className="text-white font-black text-sm uppercase tracking-wider">FOOTWEAR & SNEAKERS</span>
+                  <span className="text-white font-black text-sm uppercase tracking-wider">
+                    {language === 'th' ? 'รองเท้าและสนีกเกอร์' : 'FOOTWEAR & SNEAKERS'}
+                  </span>
                   <span className="text-white/80 text-xs flex items-center mt-1 font-semibold group-hover:text-white">
-                    Shop Now <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    {language === 'th' ? 'เลือกชม' : 'Shop Now'}{' '}
+                    <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
                   </span>
                 </div>
               </div>
@@ -513,23 +544,22 @@ export default function HomePage() {
             </div>
           </div>
           <span className="text-xs font-black tracking-[0.3em] uppercase text-[#F59E0B] block mb-4">
-            THE NIDA HERITAGE
+            {t('home.heritageTag')}
           </span>
           <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white mb-6">
-            INTENTIONAL DESIGN.
+            {t('home.heritageTitle1')}
             <br />
-            UNCOMPROMISED SPIRIT.
+            {t('home.heritageTitle2')}
           </h2>
           <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed mb-8">
-            Founded by Phannida, Nida celebrates the spirit of modern classic dressing — bridging collegiate optimism
-            with mindful, enduring craftsmanship that transcends fast seasons.
+            {t('home.heritageDesc')}
           </p>
           <div className="flex justify-center gap-4">
             <Link
               href="/about"
               className="bg-white hover:bg-gray-100 text-[#2B1810] px-8 py-4 font-black text-xs uppercase tracking-[0.2em] transition-colors"
             >
-              READ OUR STORY
+              {t('home.readOurStory')}
             </Link>
           </div>
         </div>

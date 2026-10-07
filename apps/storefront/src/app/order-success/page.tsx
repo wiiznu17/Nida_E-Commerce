@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CheckCircle2, ArrowRight, Package, ShoppingBag } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function OrderSuccessPage() {
   const [orderNumber, setOrderNumber] = useState('918274');
+  const { t } = useLanguage();
 
   useEffect(() => {
     setOrderNumber(Math.floor(100000 + Math.random() * 900000).toString());
@@ -28,21 +30,20 @@ export default function OrderSuccessPage() {
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#2B1810] mb-2">
-          ORDER CONFIRMED!
+          {t('orderSuccess.title')}
         </h1>
         <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-6 font-medium">
-          ขอบคุณสำหรับการสั่งซื้อสินค้าแบรนด์ Nida ทางเราได้รับคำสั่งซื้อของคุณเรียบร้อยแล้ว
-          และระบบได้ส่งอีเมลยืนยันพร้อมใบเสร็จให้คุณทันที
+          {t('orderSuccess.thankYou')}
         </p>
 
         {/* Order Number Box */}
         <div className="border border-[#EAE3D9] bg-[#FAF7F2] p-4 mb-8">
           <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mb-1">
-            หมายเลขคำสั่งซื้อ (Order Number)
+            {t('orderSuccess.orderNumberLabel')}
           </p>
           <p className="text-2xl font-black font-mono text-[#2B1810] tracking-wider">#{orderNumber}</p>
           <p className="text-[11px] text-emerald-700 font-bold mt-1">
-            ✓ ชำระเงินสำเร็จ • บันทึกคะแนนสมาชิก Nida VIP เรียบร้อย
+            {t('orderSuccess.status')}
           </p>
         </div>
 
@@ -52,7 +53,7 @@ export default function OrderSuccessPage() {
             className="w-full bg-[#2B1810] hover:bg-[#D97706] text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2"
           >
             <Package size={16} />
-            <span>ติดตามสถานะพัสดุ (Track Order)</span>
+            <span>{t('orderSuccess.trackOrder')}</span>
             <ArrowRight size={14} />
           </Link>
           <Link
@@ -60,7 +61,7 @@ export default function OrderSuccessPage() {
             className="w-full py-3.5 text-xs font-black uppercase tracking-[0.2em] text-[#2B1810] hover:text-[#D97706] border border-gray-300 hover:border-[#2B1810] transition-colors flex items-center justify-center space-x-2"
           >
             <ShoppingBag size={16} />
-            <span>เลือกซื้อสินค้าต่อ (Continue Shopping)</span>
+            <span>{t('orderSuccess.continueShopping')}</span>
           </Link>
         </div>
       </div>
