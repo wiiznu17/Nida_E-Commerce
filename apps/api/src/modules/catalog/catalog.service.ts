@@ -168,6 +168,8 @@ export class CatalogService {
       images: product.images.map((img): ApiProductImage => ({
         id: img.id,
         imageUrl: img.imageUrl,
+        altText: img.altText ?? undefined,
+        altTextTh: img.altTextTh ?? undefined,
         displayOrder: img.displayOrder,
         isPrimary: img.isPrimary,
       })),

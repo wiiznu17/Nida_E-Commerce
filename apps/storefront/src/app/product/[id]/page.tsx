@@ -22,6 +22,7 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { language, t } = useLanguage();
+  const isTh = language === 'th';
 
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState(
@@ -94,7 +95,11 @@ export default function ProductDetailPage() {
                 mainImage === img ? 'border-[#2B1810] shadow-sm' : 'border-transparent hover:border-gray-300'
               }`}
             >
-              <img src={img} alt="" className="w-full h-full object-cover" />
+              <img
+                src={img}
+                alt={`${title} - ${isTh ? 'มุมที่' : 'View'} ${idx + 1}`}
+                className="w-full h-full object-cover"
+              />
             </button>
           ))}
         </div>

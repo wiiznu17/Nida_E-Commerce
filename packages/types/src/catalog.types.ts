@@ -85,6 +85,8 @@ export interface ApiProductDetail {
 export interface ApiProductImage {
   id: string;
   imageUrl: string;
+  altText?: string;
+  altTextTh?: string;
   displayOrder: number;
   isPrimary: boolean;
 }
