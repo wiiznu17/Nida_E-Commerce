@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Boxes, Search, AlertTriangle, Plus, Minus, History, CheckCircle2, X } from 'lucide-react';
-import { AdminLayout } from '../components/AdminLayout';
+import { useSearchParams } from 'react-router-dom';
+import { Boxes, Search, AlertTriangle, Plus, Minus, History, CheckCircle2, X, ChevronDown } from 'lucide-react';
+import { AdminLayout } from '../components/layout';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
 import type { InventoryItem } from '../data/adminData';
 
 export default function AdminInventory() {
   const { language } = useLanguage();
+  const [searchParams] = useSearchParams();
   const { inventoryList, movementsList, adjustStock } = useAdmin();
 
   const [activeTab, setActiveTab] = useState<'levels' | 'history'>('levels');
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
   // Adjust stock modal state
   const [adjustTarget, setAdjustTarget] = useState<InventoryItem | null>(null);
@@ -384,27 +386,32 @@ export default function AdminInventory() {
                 <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
                   เหตุผลในการปรับปรุง (Reason / PO Reference) *
                 </label>
-                <select
-                  value={adjustReason}
-                  onChange={(e) => setAdjustReason(e.target.value)}
-                  className="w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:border-[#2B1810] mb-2"
-                >
-                  <option value="นำเข้าล็อตใหม่จากโรงงานตัดเย็บ (Restocked)">
-                    นำเข้าล็อตใหม่จากโรงงานตัดเย็บ (Restocked)
-                  </option>
-                  <option value="ตรวจนับสต็อกประจำสัปดาห์ (Cycle Count Reconciliation)">
-                    ตรวจนับสต็อกประจำสัปดาห์ (Cycle Count)
-                  </option>
-                  <option value="เบิกสินค้าโชว์หน้าร้าน / สื่อโปรโมท (Showroom Sample)">
-                    เบิกสินค้าโชว์หน้าร้าน (Showroom Sample)
-                  </option>
-                  <option value="สินค้าชำรุดตัดจำหน่ายออกจากคลัง (Damaged Write-off)">
-                    สินค้าชำรุดตัดจำหน่าย (Damaged Write-off)
-                  </option>
-                  <option value="ลูกค้านำมาเปลี่ยน/คืนสภาพสมบูรณ์ (Returned & Restocked)">
-                    รับคืนสินค้าสภาพสมบูรณ์ (Customer Return)
-                  </option>
-                </select>
+                <div className="relative mb-2">
+                  <select
+                    value={adjustReason}
+                    onChange={(e) => setAdjustReason(e.target.value)}
+                    className="w-full appearance-none border border-gray-300 pl-3 pr-9 py-2 bg-white focus:outline-none focus:border-[#2B1810] cursor-pointer"
+                  >
+                    <option value="นำเข้าล็อตใหม่จากโรงงานตัดเย็บ (Restocked)">
+                      นำเข้าล็อตใหม่จากโรงงานตัดเย็บ (Restocked)
+                    </option>
+                    <option value="ตรวจนับสต็อกประจำสัปดาห์ (Cycle Count Reconciliation)">
+                      ตรวจนับสต็อกประจำสัปดาห์ (Cycle Count)
+                    </option>
+                    <option value="เบิกสินค้าโชว์หน้าร้าน / สื่อโปรโมท (Showroom Sample)">
+                      เบิกสินค้าโชว์หน้าร้าน (Showroom Sample)
+                    </option>
+                    <option value="สินค้าชำรุดตัดจำหน่ายออกจากคลัง (Damaged Write-off)">
+                      สินค้าชำรุดตัดจำหน่าย (Damaged Write-off)
+                    </option>
+                    <option value="ลูกค้านำมาเปลี่ยน/คืนสภาพสมบูรณ์ (Returned & Restocked)">
+                      รับคืนสินค้าสภาพสมบูรณ์ (Customer Return)
+                    </option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
+                    <ChevronDown size={14} />
+                  </div>
+                </div>
                 <input
                   type="text"
                   value={adjustReason}

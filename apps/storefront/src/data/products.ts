@@ -1,5 +1,6 @@
 export type Product = {
   id: string;
+  slug?: string;
   name: string;
   nameTh?: string;
   price: number;
@@ -14,9 +15,16 @@ export type Product = {
   tagTh?: string;
   description?: string;
   descriptionTh?: string;
+  materialsCare?: string;
+  materialsCareTh?: string;
   colors?: string[];
+  colorImages?: Record<string, string>;
   rating?: number;
   reviewsCount?: number;
+  isPreorder?: boolean;
+  preorderReleaseDate?: string;
+  preorderLimit?: number;
+  preorderDepositAmount?: number;
 };
 
 export const products: Product[] = [
@@ -222,6 +230,37 @@ export const products: Product[] = [
     colors: ['#2B1810', '#F59E0B'],
     rating: 5.0,
     reviewsCount: 83,
+  },
+  {
+    id: 'm5',
+    slug: 'preorder-limited-cashmere-overcoat',
+    name: 'Pre-Order: Limited Edition Cashmere Overcoat (Winter 2026)',
+    nameTh: 'พรีออเดอร์: เสื้อโค้ทแคชเมียร์ ลิมิเต็ดเอดิชัน (วินเทอร์ 2026)',
+    price: 490,
+    originalPrice: 590,
+    image:
+      'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80',
+    secondaryImage:
+      'https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=800&q=80',
+    category: 'apparel',
+    department: 'men',
+    subCategory: 'Coats & Jackets',
+    subCategoryTh: 'เสื้อโค้ทและแจ็คเก็ต',
+    tag: 'PRE-ORDER',
+    tagTh: 'เปิดพรีออเดอร์',
+    description:
+      'Exclusive artisanal overcoat crafted in limited quantities from Italian double-faced cashmere.',
+    descriptionTh:
+      'เสื้อคลุมแคชเมียร์สั่งตัดพิเศษ ผลิตจำนวนจำกัดจากผ้าแคชเมียร์อิตาลีสองหน้าเกรดพรีเมียม',
+    materialsCare: '100% Italian Cashmere. Specialist dry clean.',
+    materialsCareTh: 'ผ้าแคชเมียร์อิตาลี 100%. ซักแห้งโดยผู้เชี่ยวชาญเท่านั้น',
+    colors: ['#111827', '#D4B996'],
+    rating: 5.0,
+    reviewsCount: 0,
+    isPreorder: true,
+    preorderReleaseDate: '2026-11-15T00:00:00.000Z',
+    preorderLimit: 50,
+    preorderDepositAmount: 100,
   },
 
   // --- KIDS ---

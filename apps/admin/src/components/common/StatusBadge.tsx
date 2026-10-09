@@ -1,4 +1,4 @@
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export interface StatusBadgeProps {
   status: string;
@@ -6,61 +6,60 @@ export interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
-  const { language } = useLanguage();
-  const isTh = language === 'th';
+  const { t } = useLanguage();
 
   const getStyleAndLabel = () => {
     switch (status) {
       case 'DELIVERED':
         return {
           bg: 'bg-emerald-100 text-emerald-900 border-emerald-200',
-          label: isTh ? 'จัดส่งสำเร็จ' : 'Delivered',
+          label: t('status.delivered'),
         };
       case 'SHIPPED':
         return {
           bg: 'bg-blue-100 text-blue-900 border-blue-200',
-          label: isTh ? 'กำลังจัดส่ง' : 'Shipped',
+          label: t('status.shipped'),
         };
       case 'PROCESSING':
         return {
           bg: 'bg-amber-100 text-amber-900 border-amber-200',
-          label: isTh ? 'กำลังเตรียมสินค้า' : 'Processing',
+          label: t('status.processing'),
         };
       case 'PAID':
         return {
           bg: 'bg-indigo-100 text-indigo-900 border-indigo-200',
-          label: isTh ? 'ชำระเงินแล้ว' : 'Paid',
+          label: t('status.paid'),
         };
       case 'PENDING':
         return {
           bg: 'bg-yellow-100 text-yellow-900 border-yellow-200',
-          label: isTh ? 'รอชำระเงิน' : 'Pending',
+          label: t('status.pending'),
         };
       case 'CANCELLED':
         return {
           bg: 'bg-red-100 text-red-900 border-red-200',
-          label: isTh ? 'ยกเลิกแล้ว' : 'Cancelled',
+          label: t('status.cancelled'),
         };
       case 'REFUNDED':
         return {
           bg: 'bg-purple-100 text-purple-900 border-purple-200',
-          label: isTh ? 'คืนเงินแล้ว' : 'Refunded',
+          label: t('status.refunded'),
         };
       // Inventory Statuses
       case 'IN_STOCK':
         return {
           bg: 'bg-emerald-100 text-emerald-900 border-emerald-200',
-          label: isTh ? 'มีสินค้าพร้อมส่ง' : 'In Stock',
+          label: t('status.inStock'),
         };
       case 'LOW_STOCK':
         return {
           bg: 'bg-amber-100 text-amber-900 border-amber-200',
-          label: isTh ? 'สินค้าใกล้หมด' : 'Low Stock',
+          label: t('status.lowStock'),
         };
       case 'OUT_OF_STOCK':
         return {
           bg: 'bg-rose-100 text-rose-900 border-rose-200',
-          label: isTh ? 'สินค้าหมด' : 'Out of Stock',
+          label: t('status.outOfStock'),
         };
       default:
         return {

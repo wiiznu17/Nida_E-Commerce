@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
-import { AdminLayout } from '../components/AdminLayout';
-import { ProductForm } from '../components/ProductForm';
+import { AdminLayout } from '../components/layout';
+import { ProductForm } from '../components/product';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
 import type { Product } from '../data/products';
+import type { SkuVariant } from '../data/adminData';
 
 export default function AdminProductEdit() {
   const { id } = useParams<{ id: string }>();
-  const { language } = useLanguage();
-  const isTh = language === 'th';
+  const { t, isTh } = useLanguage();
   const navigate = useNavigate();
-  const { productsList, updateProduct } = useAdmin();
+  const { productsList, updateProduct, inventoryList } = useAdmin();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const product = productsList.find((p) => p.id === id);
@@ -53,10 +53,23 @@ export default function AdminProductEdit() {
     );
   }
 
-  const handleUpdate = (data: Omit<Product, 'id'>) => {
+  // Preload existing SKUs from inventory list
+  const existingSkus: SkuVariant[] = inventoryList
+    .filter((item) => item.productId === product.id)
+    .map((item) => ({
+      sku: item.sku,
+      size: item.size,
+      colorName: item.colorName,
+      colorHex: item.colorHex,
+      stock: item.availableStock,
+      lowStockThreshold: item.lowStockThreshold,
+      priceAdjustment: Math.max(0, item.price - product.price),
+    }));
+
+  const handleUpdate = (data: Omit<Product, 'id'>, skus?: SkuVariant[]) => {
     setIsSubmitting(true);
     try {
-      updateProduct(product.id, data);
+      updateProduct(product.id, data, skus);
       setTimeout(() => {
         navigate('/admin/products', {
           state: {
@@ -76,7 +89,7 @@ export default function AdminProductEdit() {
 
   return (
     <AdminLayout
-      title={isTh ? `แก้ไขสินค้า: ${productTitle}` : `Edit Product: ${product.name}`}
+      title={`${t('product.editTitle')}: ${productTitle}`}
       subtitle={
         isTh
           ? `แก้ไขข้อมูลสต็อก ราคา และรายละเอียดสินค้า SKU: ${product.id}`
@@ -85,6 +98,7 @@ export default function AdminProductEdit() {
     >
       <ProductForm
         initialData={product}
+        initialSkus={existingSkus}
         isEdit
         onSubmit={handleUpdate}
         isSubmitting={isSubmitting}

@@ -24,6 +24,16 @@ export interface AdminOrder {
   createdAt: string;
 }
 
+export interface SkuVariant {
+  sku: string;
+  size: string;
+  colorName: string;
+  colorHex: string;
+  stock: number;
+  lowStockThreshold: number;
+  priceAdjustment?: number;
+}
+
 export interface InventoryItem {
   id: string;
   sku: string;

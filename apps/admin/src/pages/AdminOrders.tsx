@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Package, Search, Truck, CheckCircle2, ExternalLink, Eye, X, MapPin, CreditCard, Send } from 'lucide-react';
-import { AdminLayout } from '../components/AdminLayout';
+import { AdminLayout } from '../components/layout';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
 import type { AdminOrder } from '../data/adminData';

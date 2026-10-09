@@ -14,9 +14,10 @@ import {
   Check,
   ChevronRight,
 } from 'lucide-react';
-import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useCatalog } from '@/context/CatalogContext';
+import type { Product } from '@/data/products';
 import {
   useLanguage,
   getProductTitle,
@@ -27,13 +28,14 @@ import {
 export default function HomePage() {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { productsList } = useCatalog();
   const { language, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'all' | 'women' | 'men' | 'bags'>('all');
   const [copiedCode, setCopiedCode] = useState(false);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
-  // Filter products for trending section
-  const trendingProducts = products
+  // Filter products for trending section from live catalog
+  const trendingProducts = productsList
     .filter((p) => {
       if (activeTab === 'all') return true;
       if (activeTab === 'women') return p.department === 'women';
@@ -43,7 +45,7 @@ export default function HomePage() {
     })
     .slice(0, 8);
 
-  const handleQuickAdd = (e: React.MouseEvent, product: (typeof products)[0]) => {
+  const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
     const defaultSize =
@@ -424,7 +426,7 @@ export default function HomePage() {
             href="/collections/all"
             className="inline-flex items-center border-2 border-[#2B1810] text-[#2B1810] hover:bg-[#2B1810] hover:text-white px-8 py-3.5 font-black text-xs uppercase tracking-[0.2em] transition-all"
           >
-            {t('home.viewAllProducts')} ({products.length}) <ChevronRight size={16} className="ml-1" />
+            {t('home.viewAllProducts')} ({productsList.length}) <ChevronRight size={16} className="ml-1" />
           </Link>
         </div>
       </div>

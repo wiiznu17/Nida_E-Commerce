@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { QueryProductsDto, SortByOption } from './dto/query-products.dto.js';
+import { CreateProductDto } from './dto/create-product.dto.js';
 import type {
   CategoryWithRelations,
   ProductListPayload,
@@ -15,10 +16,14 @@ import type {
   PaginatedResponse,
 } from '@repo/types';
 import { Prisma, Department } from '@repo/database';
+import { UploadService } from '../upload/upload.service.js';
 
 @Injectable()
 export class CatalogService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   async getCategories(department?: string): Promise<ApiCategory[]> {
     const where: Prisma.CategoryWhereInput = { isActive: true };
@@ -115,9 +120,12 @@ export class CatalogService {
     };
   }
 
-  async getProductBySlug(slug: string): Promise<ApiProductDetail> {
-    const product = await this.prisma.product.findUnique({
-      where: { slug },
+  async getProductBySlug(slugOrId: string): Promise<ApiProductDetail> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+    const product = await this.prisma.product.findFirst({
+      where: isUuid
+        ? { OR: [{ id: slugOrId }, { slug: slugOrId }] }
+        : { slug: slugOrId },
       include: {
         category: {
           include: {
@@ -139,7 +147,7 @@ export class CatalogService {
     });
 
     if (!product) {
-      throw new NotFoundException(`Product with slug "${slug}" not found`);
+      throw new NotFoundException(`Product with identifier "${slugOrId}" not found`);
     }
 
     const avgRating =
@@ -200,7 +208,188 @@ export class CatalogService {
       preorderDepositAmount: product.preorderDepositAmount
         ? Number(product.preorderDepositAmount)
         : undefined,
+      isActive: product.isActive,
     };
+  }
+
+  async createProduct(dto: CreateProductDto): Promise<ApiProductDetail> {
+    const basePrice = dto.basePrice ?? dto.price ?? 0;
+    const originalPrice = dto.originalPrice ?? null;
+
+    // 1. Slug generation with uniqueness check
+    let slug = dto.name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    if (!slug) {
+      slug = `product-${Date.now()}`;
+    }
+
+    const existingSlug = await this.prisma.product.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (existingSlug) {
+      slug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
+    }
+
+    // 2. Resolve Category
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(dto.category);
+    const categoryOrConditions: Prisma.CategoryWhereInput[] = [
+      { slug: dto.category.toLowerCase() },
+      { name: { contains: dto.category, mode: 'insensitive' } },
+    ];
+    if (isUuid) {
+      categoryOrConditions.push({ id: dto.category });
+    }
+
+    let category = await this.prisma.category.findFirst({
+      where: { OR: categoryOrConditions },
+    });
+
+    if (!category && dto.department) {
+      category = await this.prisma.category.findFirst({
+        where: { department: dto.department.toUpperCase() as Department },
+      });
+    }
+
+    if (!category) {
+      category = await this.prisma.category.findFirst();
+    }
+
+    if (!category) {
+      const dep = (dto.department?.toUpperCase() as Department) || Department.WOMEN;
+      category = await this.prisma.category.create({
+        data: {
+          name: dto.category || 'General Apparel',
+          slug: (dto.category || 'general-apparel').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          department: Object.values(Department).includes(dep) ? dep : Department.WOMEN,
+        },
+      });
+    }
+
+    // Commit any temporary images to permanent storage
+    if (dto.image) {
+      dto.image = await this.uploadService.commitTempImage(dto.image, 'products');
+    }
+    if (dto.secondaryImage) {
+      dto.secondaryImage = await this.uploadService.commitTempImage(dto.secondaryImage, 'products');
+    }
+    if (dto.colorImages) {
+      for (const [colorName, imgUrl] of Object.entries(dto.colorImages)) {
+        if (imgUrl) {
+          dto.colorImages[colorName] = await this.uploadService.commitTempImage(imgUrl, 'products');
+        }
+      }
+    }
+
+    // 3. Prepare Images list
+    const imageList: Array<{ imageUrl: string; isPrimary: boolean; displayOrder: number; altText?: string }> = [];
+    if (dto.image) {
+      imageList.push({ imageUrl: dto.image, isPrimary: true, displayOrder: 0, altText: dto.name });
+    }
+    if (dto.secondaryImage && dto.secondaryImage !== dto.image) {
+      imageList.push({ imageUrl: dto.secondaryImage, isPrimary: false, displayOrder: imageList.length, altText: `${dto.name} - View 2` });
+    }
+    if (dto.colorImages) {
+      for (const [colorName, imgUrl] of Object.entries(dto.colorImages)) {
+        if (imgUrl && !imageList.some((img) => img.imageUrl === imgUrl)) {
+          imageList.push({
+            imageUrl: imgUrl,
+            isPrimary: false,
+            displayOrder: imageList.length,
+            altText: `${dto.name} - ${colorName}`,
+          });
+        }
+      }
+    }
+
+    // 4. Prepare Variants & Inventory
+    const skusToCreate = dto.skus && dto.skus.length > 0
+      ? dto.skus
+      : [
+          {
+            sku: `${slug.substring(0, 8).toUpperCase()}-STD`,
+            size: 'One Size',
+            colorName: dto.colors?.[0] || 'Standard',
+            colorHex: '#000000',
+            stock: 20,
+            lowStockThreshold: 5,
+            priceAdjustment: 0,
+            weightGrams: 300,
+          },
+        ];
+
+    // 5. Execute atomic creation via Prisma transaction
+    const newProduct = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.product.create({
+        data: {
+          name: dto.name,
+          nameTh: dto.nameTh ?? null,
+          slug,
+          description: dto.description ?? null,
+          descriptionTh: dto.descriptionTh ?? null,
+          materialsCare: dto.materialsCare ?? null,
+          materialsCareTh: dto.materialsCareTh ?? null,
+          basePrice,
+          originalPrice,
+          tag: dto.tag ?? null,
+          tagTh: dto.tagTh ?? null,
+          categoryId: category.id,
+          isPreorder: dto.isPreorder ?? false,
+          preorderReleaseDate: dto.preorderReleaseDate ? new Date(dto.preorderReleaseDate) : null,
+          preorderLimit: dto.preorderLimit ?? null,
+          preorderDepositAmount: dto.preorderDepositAmount ?? null,
+          isActive: dto.isActive !== undefined ? dto.isActive : true,
+        },
+      });
+
+      // Insert images
+      for (const img of imageList) {
+        await tx.productImage.create({
+          data: {
+            productId: created.id,
+            imageUrl: img.imageUrl,
+            displayOrder: img.displayOrder,
+            isPrimary: img.isPrimary,
+            altText: img.altText ?? null,
+          },
+        });
+      }
+
+      // Insert variants and inventory items
+      for (const skuItem of skusToCreate) {
+        const variant = await tx.productVariant.create({
+          data: {
+            productId: created.id,
+            skuCode: skuItem.sku,
+            size: skuItem.size,
+            colorName: skuItem.colorName,
+            colorHex: skuItem.colorHex,
+            priceAdjustment: skuItem.priceAdjustment ?? 0,
+            barcode: skuItem.barcode ?? null,
+            weightGrams: skuItem.weightGrams ?? 300,
+          },
+        });
+
+        await tx.inventoryItem.create({
+          data: {
+            variantId: variant.id,
+            quantityAvailable: skuItem.stock ?? 0,
+            quantityReserved: 0,
+            preorderBooked: 0,
+            lowStockThreshold: skuItem.lowStockThreshold ?? 5,
+          },
+        });
+      }
+
+      return created;
+    });
+
+    // Return full product details
+    return this.getProductBySlug(newProduct.slug);
   }
 
   private mapCategory(cat: CategoryWithRelations): ApiCategory {
@@ -255,7 +444,17 @@ export class CatalogService {
       reviewsCount: p._count.reviews,
       inStock,
       isPreorder: p.isPreorder,
+      isActive: p.isActive,
     };
+  }
+
+  async toggleProductStatus(id: string, isActive: boolean): Promise<{ success: boolean; id: string; isActive: boolean }> {
+    const updated = await this.prisma.product.update({
+      where: { id },
+      data: { isActive },
+      select: { id: true, isActive: true },
+    });
+    return { success: true, id: updated.id, isActive: updated.isActive };
   }
 
   private buildOrderBy(sortBy?: SortByOption): Prisma.ProductOrderByWithRelationInput[] {

@@ -3,9 +3,10 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useCatalog } from '@/context/CatalogContext';
+import type { Product } from '@/data/products';
 import {
   useLanguage,
   getProductTitle,
@@ -21,6 +22,7 @@ export default function CollectionPage() {
 
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { productsList } = useCatalog();
   const { language, t } = useLanguage();
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -124,7 +126,7 @@ export default function CollectionPage() {
 
   // Filter products
   const filteredProducts = useMemo(() => {
-    let list = products.filter((p) => {
+    let list = productsList.filter((p) => {
       if (category === 'all') return true;
       if (category === 'sale') return Boolean(p.originalPrice && p.originalPrice > p.price);
       if (category === 'apparel') return p.category === 'apparel' || p.department === 'women' || p.department === 'men';
@@ -148,12 +150,12 @@ export default function CollectionPage() {
     }
 
     return list;
-  }, [category, selectedSubCategory, selectedColor, sortBy]);
+  }, [category, selectedSubCategory, selectedColor, sortBy, productsList]);
 
   // Extract unique subcategories
   const availableSubCategories = useMemo(() => {
     const subs = new Map<string, string>();
-    products.forEach((p) => {
+    productsList.forEach((p) => {
       if (category === 'all' || p.department === category || p.category === category) {
         if (p.subCategory) {
           subs.set(p.subCategory, p.subCategoryTh || p.subCategory);
@@ -164,9 +166,9 @@ export default function CollectionPage() {
       key,
       label: language === 'th' ? labelTh : key,
     }));
-  }, [category, language]);
+  }, [category, language, productsList]);
 
-  const handleQuickAdd = (e: React.MouseEvent, product: (typeof products)[0]) => {
+  const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
     const defaultSize =

@@ -1,9 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import express from 'express';
+import * as fs from 'fs';
+import * as path from 'path';
 import { AppModule } from './app.module.js';
 import { HttpExceptionFilter } from './core/filters/http-exception.filter.js';
 import { TransformInterceptor } from './core/interceptors/transform.interceptor.js';
+
+// Automatically load .env file for Node.js process
+if (typeof (process as any).loadEnvFile === 'function') {
+  const envCandidates = [
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), 'apps/api/.env'),
+  ];
+  for (const envPath of envCandidates) {
+    if (fs.existsSync(envPath)) {
+      try {
+        (process as any).loadEnvFile(envPath);
+        break;
+      } catch {}
+    }
+  }
+}
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -11,6 +30,7 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
   app.enableCors();
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(

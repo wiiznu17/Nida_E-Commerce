@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useCatalog } from '@/context/CatalogContext';
 import {
   useLanguage,
   getProductTitle,
@@ -18,7 +18,10 @@ import { ChevronDown, Star, Heart, Truck, RefreshCw, ShieldCheck, Check, Sparkle
 export default function ProductDetailPage() {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const product = products.find((p) => p.id === id) || products[0];
+  const { productsList } = useCatalog();
+  const product =
+    productsList.find((p) => p.id === id || p.slug === id) ||
+    productsList[0]!;
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { language, t } = useLanguage();
@@ -51,13 +54,20 @@ export default function ProductDetailPage() {
   const tag = getProductTag(product, language) || product.tag;
   const description = getProductDescription(product, language);
 
-  // Additional imagery
-  const images = [
-    product.image,
-    product.secondaryImage ||
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  ];
+  // Additional imagery (incorporates color-specific photos)
+  const colorImagesList = product.colorImages
+    ? Object.values(product.colorImages).filter(Boolean)
+    : [];
+  const images = Array.from(
+    new Set(
+      [
+        product.image,
+        product.secondaryImage,
+        ...colorImagesList,
+        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      ].filter(Boolean) as string[],
+    ),
+  ).slice(0, 5);
 
   const handleAddToCart = () => {
     addToCart(product, selectedSize, selectedColor);
@@ -65,7 +75,7 @@ export default function ProductDetailPage() {
     setTimeout(() => setIsAdded(false), 2500);
   };
 
-  const relatedProducts = products
+  const relatedProducts = productsList
     .filter((p) => p.id !== product.id && (p.department === product.department || p.category === product.category))
     .slice(0, 4);
 
@@ -205,7 +215,12 @@ export default function ProductDetailPage() {
                 return (
                   <button
                     key={i}
-                    onClick={() => setSelectedColor(colorLabel)}
+                    onClick={() => {
+                      setSelectedColor(colorLabel);
+                      if (product.colorImages && product.colorImages[col]) {
+                        setMainImage(product.colorImages[col]);
+                      }
+                    }}
                     className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${
                       selectedColor === colorLabel
                         ? 'border-[#2B1810] scale-110 ring-2 ring-[#D97706]'

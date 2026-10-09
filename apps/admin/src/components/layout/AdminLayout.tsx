@@ -3,7 +3,7 @@ import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
 import { AdminPageHeader } from './AdminPageHeader';
 import { AdminFooter } from './AdminFooter';
-export { NidaLogo } from './NidaLogo';
+export { NidaLogo } from '../common/NidaLogo';
 
 export interface AdminLayoutProps {
   children: React.ReactNode;

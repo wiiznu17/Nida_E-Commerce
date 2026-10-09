@@ -119,6 +119,7 @@ export const ProductTag = {
   NEW_ARRIVAL: 'NEW ARRIVAL',
   SALE: 'SALE',
   LIMITED_EDITION: 'LIMITED EDITION',
+  EXCLUSIVE: 'EXCLUSIVE',
   PRE_ORDER: 'PRE-ORDER',
 } as const;
 export type ProductTag = (typeof ProductTag)[keyof typeof ProductTag];

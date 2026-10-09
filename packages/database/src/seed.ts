@@ -1,5 +1,10 @@
 import 'dotenv/config';
-import { PrismaClient, Department, DiscountType, StockChangeType } from './generated/prisma/client.js';
+import { PrismaClient, Department, DiscountType, StockChangeType } from './generated/prisma/index.js';
+
+import {
+  CATEGORIES_SEED_DATA,
+  PRODUCTS_SEED_DATA,
+} from './catalog-seed.data.js';
 
 const prisma = new PrismaClient();
 
@@ -60,116 +65,67 @@ async function main() {
     },
   });
 
-  // 3. Create Categories
-  console.log('📂 Creating Product Categories...');
-  const categoriesData = [
-    { name: 'Women Apparel', slug: 'women-apparel', department: Department.WOMEN },
-    { name: 'Men Apparel', slug: 'men-apparel', department: Department.MEN },
-    { name: 'Classic Bags', slug: 'bags-accessories', department: Department.BAGS },
-    { name: 'Footwear & Shoes', slug: 'footwear-shoes', department: Department.SHOES },
-  ];
-
+  // 3. Create Categories (Parent Categories first, then Subcategories)
+  console.log(`📂 Creating Product Categories (${CATEGORIES_SEED_DATA.length} categories)...`);
   const categoriesMap: Record<string, string> = {};
-  for (const cat of categoriesData) {
-    const created = await prisma.category.create({ data: cat });
+
+  // First pass: parent categories
+  const parentCategories = CATEGORIES_SEED_DATA.filter((c) => !c.parentSlug);
+  for (const cat of parentCategories) {
+    const created = await prisma.category.create({
+      data: {
+        name: cat.name,
+        nameTh: cat.nameTh,
+        slug: cat.slug,
+        department: cat.department as Department,
+        displayOrder: cat.displayOrder,
+      },
+    });
+    categoriesMap[cat.slug] = created.id;
+  }
+
+  // Second pass: sub-categories with parentId relation
+  const subCategories = CATEGORIES_SEED_DATA.filter((c) => c.parentSlug);
+  for (const cat of subCategories) {
+    const parentId = categoriesMap[cat.parentSlug!];
+    const created = await prisma.category.create({
+      data: {
+        name: cat.name,
+        nameTh: cat.nameTh,
+        slug: cat.slug,
+        department: cat.department as Department,
+        parentId: parentId ?? null,
+        displayOrder: cat.displayOrder,
+      },
+    });
     categoriesMap[cat.slug] = created.id;
   }
 
   // 4. Create Products, Variants, Images & Inventory
-  console.log('👗 Creating Products, Variants, Images & Stock...');
-  const productsList = [
-    {
-      name: 'Iconic Cable-Knit Crewneck Sweater',
-      slug: 'iconic-cable-knit-crewneck-sweater',
-      description:
-        'Handcrafted luxury cable-knit sweater made from 100% fine Merino wool. Timeless elegance for autumn and winter.',
-      materialsCare: '100% Merino Wool. Dry clean only or gentle hand wash cold.',
-      basePrice: 129.0,
-      originalPrice: 179.0,
-      tag: 'BESTSELLER',
-      categorySlug: 'women-apparel',
-      isPreorder: false,
-      images: [
-        'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80',
-      ],
-      variants: [
-        { sku: 'SWTR-WHT-S', size: 'S', color: 'Ivory White', hex: '#FFFFFF', stock: 25, weight: 380 },
-        { sku: 'SWTR-WHT-M', size: 'M', color: 'Ivory White', hex: '#FFFFFF', stock: 35, weight: 400 },
-        { sku: 'SWTR-NVY-S', size: 'S', color: 'Navy Dark', hex: '#1E293B', stock: 20, weight: 380 },
-        { sku: 'SWTR-NVY-M', size: 'M', color: 'Navy Dark', hex: '#1E293B', stock: 30, weight: 400 },
-      ],
-    },
-    {
-      name: 'Heritage Double-Breasted Trench Coat',
-      slug: 'heritage-double-breasted-trench-coat',
-      description: 'Tailored double-breasted trench coat with storm flap, horn buttons, and adjustable waist belt.',
-      materialsCare: 'Cotton gabardine with water-repellent finish. Professional dry clean.',
-      basePrice: 289.0,
-      originalPrice: 380.0,
-      tag: 'NEW ARRIVAL',
-      categorySlug: 'women-apparel',
-      isPreorder: false,
-      images: [
-        'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80',
-      ],
-      variants: [
-        { sku: 'TRNCH-BGE-S', size: 'S', color: 'Classic Beige', hex: '#D4B996', stock: 15, weight: 850 },
-        { sku: 'TRNCH-BGE-M', size: 'M', color: 'Classic Beige', hex: '#D4B996', stock: 20, weight: 890 },
-      ],
-    },
-    {
-      name: 'Pre-Order: Limited Edition Cashmere Overcoat (Winter 2026)',
-      slug: 'preorder-limited-cashmere-overcoat',
-      description: 'Exclusive artisanal overcoat crafted in limited quantities from Italian double-faced cashmere.',
-      materialsCare: '100% Italian Cashmere. Specialist dry clean.',
-      basePrice: 490.0,
-      originalPrice: 590.0,
-      tag: 'LIMITED DROP',
-      categorySlug: 'men-apparel',
-      isPreorder: true,
-      preorderReleaseDate: new Date('2026-11-15T00:00:00Z'),
-      preorderLimit: 50,
-      preorderDepositAmount: 100.0,
-      images: ['https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80'],
-      variants: [
-        { sku: 'OVRCT-BLK-M', size: 'M', color: 'Midnight Black', hex: '#111827', stock: 0, weight: 1200 },
-        { sku: 'OVRCT-BLK-L', size: 'L', color: 'Midnight Black', hex: '#111827', stock: 0, weight: 1250 },
-      ],
-    },
-    {
-      name: 'Saffiano Leather Executive Tote',
-      slug: 'saffiano-leather-executive-tote',
-      description:
-        'Structured luxury tote bag made from scratch-resistant Saffiano calf leather with gold-tone hardware.',
-      materialsCare: '100% Calf Leather. Wipe clean with soft damp cloth.',
-      basePrice: 220.0,
-      originalPrice: 275.0,
-      tag: 'ICONIC',
-      categorySlug: 'bags-accessories',
-      isPreorder: false,
-      images: ['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80'],
-      variants: [
-        { sku: 'BAG-TOTE-BLK', size: 'One Size', color: 'Onyx Black', hex: '#000000', stock: 40, weight: 650 },
-        { sku: 'BAG-TOTE-BRN', size: 'One Size', color: 'Cognac Brown', hex: '#78350F', stock: 25, weight: 650 },
-      ],
-    },
-  ];
+  console.log(`👗 Creating Products (${PRODUCTS_SEED_DATA.length} products with complete SKU matrix)...`);
 
-  for (const item of productsList) {
+  for (const item of PRODUCTS_SEED_DATA) {
+    const categoryId =
+      categoriesMap[item.categorySlug] ||
+      categoriesMap['women-apparel'] ||
+      Object.values(categoriesMap)[0]!;
+
     const product = await prisma.product.create({
       data: {
         name: item.name,
+        nameTh: item.nameTh,
         slug: item.slug,
         description: item.description,
+        descriptionTh: item.descriptionTh,
         materialsCare: item.materialsCare,
+        materialsCareTh: item.materialsCareTh,
         basePrice: item.basePrice,
-        originalPrice: item.originalPrice,
+        originalPrice: item.originalPrice ?? null,
         tag: item.tag,
-        categoryId: categoriesMap[item.categorySlug]!,
-        isPreorder: item.isPreorder,
-        preorderReleaseDate: item.preorderReleaseDate ?? null,
+        tagTh: item.tagTh,
+        categoryId,
+        isPreorder: item.isPreorder ?? false,
+        preorderReleaseDate: item.preorderReleaseDate ? new Date(item.preorderReleaseDate) : null,
         preorderLimit: item.preorderLimit ?? null,
         preorderDepositAmount: item.preorderDepositAmount ?? null,
         createdByAdminId: admin.id,

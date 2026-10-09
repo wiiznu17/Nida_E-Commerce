@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import { AdminProvider } from './context/AdminContext';
 import AdminDashboard from './pages/AdminDashboard';
@@ -9,40 +9,29 @@ import AdminOrders from './pages/AdminOrders';
 import AdminInventory from './pages/AdminInventory';
 import AdminPromotions from './pages/AdminPromotions';
 
+const router = createBrowserRouter([
+  { path: '/', element: <AdminDashboard /> },
+  { path: '/admin', element: <AdminDashboard /> },
+  { path: '/products', element: <AdminProducts /> },
+  { path: '/admin/products', element: <AdminProducts /> },
+  { path: '/products/new', element: <AdminProductCreate /> },
+  { path: '/admin/products/new', element: <AdminProductCreate /> },
+  { path: '/products/:id/edit', element: <AdminProductEdit /> },
+  { path: '/admin/products/:id/edit', element: <AdminProductEdit /> },
+  { path: '/orders', element: <AdminOrders /> },
+  { path: '/admin/orders', element: <AdminOrders /> },
+  { path: '/inventory', element: <AdminInventory /> },
+  { path: '/admin/inventory', element: <AdminInventory /> },
+  { path: '/promotions', element: <AdminPromotions /> },
+  { path: '/admin/promotions', element: <AdminPromotions /> },
+  { path: '*', element: <Navigate to="/" replace /> },
+]);
+
 function App() {
   return (
     <LanguageProvider>
       <AdminProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Dashboard routes */}
-            <Route path="/" element={<AdminDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-
-            {/* Products routes */}
-            <Route path="/products" element={<AdminProducts />} />
-            <Route path="/admin/products" element={<AdminProducts />} />
-            <Route path="/products/new" element={<AdminProductCreate />} />
-            <Route path="/admin/products/new" element={<AdminProductCreate />} />
-            <Route path="/products/:id/edit" element={<AdminProductEdit />} />
-            <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />
-
-            {/* Orders routes */}
-            <Route path="/orders" element={<AdminOrders />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
-
-            {/* Inventory routes */}
-            <Route path="/inventory" element={<AdminInventory />} />
-            <Route path="/admin/inventory" element={<AdminInventory />} />
-
-            {/* Promotions routes */}
-            <Route path="/promotions" element={<AdminPromotions />} />
-            <Route path="/admin/promotions" element={<AdminPromotions />} />
-
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
+        <RouterProvider router={router} />
       </AdminProvider>
     </LanguageProvider>
   );

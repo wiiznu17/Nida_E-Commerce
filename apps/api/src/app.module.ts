@@ -5,6 +5,7 @@ import { CouponsModule } from './modules/coupons/coupons.module.js';
 import { OrdersModule } from './modules/orders/orders.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { UploadModule } from './modules/upload/upload.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -16,6 +17,7 @@ import { AppService } from './app.service.js';
     OrdersModule,
     AdminModule,
     HealthModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

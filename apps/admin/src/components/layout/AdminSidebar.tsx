@@ -9,9 +9,9 @@ import {
   X,
   ShieldCheck,
 } from 'lucide-react';
-import { NidaLogo } from './NidaLogo';
-import { useLanguage } from '../context/LanguageContext';
-import { useAdmin } from '../context/AdminContext';
+import { NidaLogo } from '../common/NidaLogo';
+import { useLanguage } from '../../context/LanguageContext';
+import { useAdmin } from '../../context/AdminContext';
 
 export interface AdminSidebarProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export interface AdminSidebarProps {
 }
 
 export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
   const { ordersList, inventoryList } = useAdmin();
 
@@ -33,13 +33,13 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
   const navigationSections = [
     {
-      group: language === 'th' ? 'ภาพรวม' : 'OVERVIEW',
+      group: t('nav.overview'),
       items: [
         {
           id: 'dashboard',
           path: '/admin',
           altPath: '/',
-          label: language === 'th' ? 'แดชบอร์ดภาพรวม' : 'Dashboard',
+          label: t('nav.dashboard'),
           icon: LayoutDashboard,
           badge: null,
           badgeColor: undefined,
@@ -47,13 +47,13 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       ],
     },
     {
-      group: language === 'th' ? 'สินค้าและคลัง' : 'CATALOG & STOCK',
+      group: t('nav.catalogStock'),
       items: [
         {
           id: 'products',
           path: '/admin/products',
           altPath: '/products',
-          label: language === 'th' ? 'จัดการสินค้า' : 'Products',
+          label: t('nav.products'),
           icon: ShoppingBag,
           badge: null,
           badgeColor: undefined,
@@ -62,7 +62,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           id: 'inventory',
           path: '/admin/inventory',
           altPath: '/inventory',
-          label: language === 'th' ? 'สต็อก & ความเคลื่อนไหว' : 'Inventory & Stock',
+          label: t('nav.inventory'),
           icon: Boxes,
           badge: lowStockCount > 0 ? lowStockCount : null,
           badgeColor: 'bg-amber-500 text-[#1E110A] font-black',
@@ -70,13 +70,13 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       ],
     },
     {
-      group: language === 'th' ? 'การขายและจัดส่ง' : 'SALES & ORDERS',
+      group: t('nav.salesOrders'),
       items: [
         {
           id: 'orders',
           path: '/admin/orders',
           altPath: '/orders',
-          label: language === 'th' ? 'คำสั่งซื้อ & จัดส่ง' : 'Orders & Shipping',
+          label: t('nav.orders'),
           icon: Package,
           badge: pendingOrdersCount > 0 ? pendingOrdersCount : null,
           badgeColor: 'bg-red-500 text-white font-bold',
@@ -85,7 +85,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           id: 'promotions',
           path: '/admin/promotions',
           altPath: '/promotions',
-          label: language === 'th' ? 'โค้ดโปรโมชัน & คูปอง' : 'Coupons & Promos',
+          label: t('nav.promotions'),
           icon: Tag,
           badge: null,
           badgeColor: undefined,
@@ -104,7 +104,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         <div className="mt-2 flex items-center space-x-1 bg-[#F59E0B]/15 border border-[#F59E0B]/30 px-2 py-0.5 rounded-full">
           <ShieldCheck size={10} className="text-[#F59E0B]" />
           <span className="text-[9px] font-black tracking-widest text-[#F59E0B] uppercase">
-            ADMIN BACK-OFFICE
+            {t('nav.backOffice')}
           </span>
         </div>
       </div>
@@ -177,7 +177,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
               size={13}
               className="text-[#F59E0B] group-hover:translate-x-0.5 transition-transform"
             />
-            <span className="text-[11px]">{language === 'th' ? 'ดูหน้าร้านออนไลน์' : 'View Store'}</span>
+            <span className="text-[11px]">{t('nav.viewStore')}</span>
           </div>
           <span className="text-[9px] text-white/40">:3000</span>
         </a>
@@ -202,7 +202,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             <button
               type="button"
               onClick={() => setLanguage('th')}
-              className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors ${
+              className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors cursor-pointer ${
                 language === 'th' ? 'bg-[#F59E0B] text-[#1E110A]' : 'text-white/70 hover:text-white'
               }`}
             >
@@ -211,7 +211,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             <button
               type="button"
               onClick={() => setLanguage('en')}
-              className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors ${
+              className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors cursor-pointer ${
                 language === 'en' ? 'bg-[#F59E0B] text-[#1E110A]' : 'text-white/70 hover:text-white'
               }`}
             >
@@ -242,7 +242,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 cursor-pointer"
                 aria-label="Close Sidebar"
               >
                 <X size={20} />

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Plus, Trash2, CheckCircle2, X, Clock, Copy, Check } from 'lucide-react';
-import { AdminLayout } from '../components/AdminLayout';
+import { AdminLayout } from '../components/layout';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
 

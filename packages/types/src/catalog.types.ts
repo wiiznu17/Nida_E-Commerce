@@ -45,6 +45,7 @@ export interface ApiProduct {
   reviewsCount?: number;
   inStock: boolean;
   isPreorder: boolean;
+  isActive?: boolean;
 }
 
 export interface ApiColorSwatch {
@@ -80,6 +81,7 @@ export interface ApiProductDetail {
   preorderReleaseDate?: string;
   preorderLimit?: number;
   preorderDepositAmount?: number;
+  isActive?: boolean;
 }
 
 export interface ApiProductImage {
