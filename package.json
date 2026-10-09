@@ -5,9 +5,10 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dev:store": "turbo run dev --filter=storefront",
+    "dev:store": "turbo run dev --filter=store",
     "dev:admin": "turbo run dev --filter=admin",
-    "dev:api": "turbo run dev --filter=api",
+    "dev:admin-api": "turbo run dev --filter=admin-api",
+    "dev:api": "turbo run dev --filter=admin-api",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",

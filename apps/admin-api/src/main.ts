@@ -12,7 +12,7 @@ import { TransformInterceptor } from './core/interceptors/transform.interceptor.
 if (typeof (process as any).loadEnvFile === 'function') {
   const envCandidates = [
     path.resolve(process.cwd(), '.env'),
-    path.resolve(process.cwd(), 'apps/api/.env'),
+    path.resolve(process.cwd(), 'apps/admin-api/.env'),
   ];
   for (const envPath of envCandidates) {
     if (fs.existsSync(envPath)) {

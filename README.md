@@ -9,9 +9,9 @@ Nida คือแพลตฟอร์ม E-Commerce สำหรับแบร
 ```
 Nida_Project/
 ├── apps/
-│   ├── storefront/     # Next.js 16 (App Router) + React 19 + TailwindCSS v4 (สำหรับลูกค้า)
+│   ├── store/          # Next.js 16 (App Router) + React 19 + TailwindCSS v4 (สำหรับลูกค้า)
 │   ├── admin/          # React 19 + Vite + TailwindCSS v4 (สำหรับทีมงานแอดมินหลังบ้าน)
-│   └── api/            # NestJS Backend + Swagger API Documentation (พอร์ต 4000)
+│   └── admin-api/      # NestJS Admin API + Swagger API Documentation (พอร์ต 4000)
 ├── packages/
 │   ├── database/       # Prisma Schema & PostgreSQL Client, Migrations, Seed script
 │   ├── ui/             # Shared UI Component Library
@@ -114,10 +114,10 @@ npm run dev
 
 | ระบบ                               | คำสั่งรัน           | URL ในการเข้าใช้งาน                                              |
 | :--------------------------------- | :------------------ | :--------------------------------------------------------------- |
-| **Storefront (หน้าร้าน)**          | `npm run dev:store` | [http://localhost:3000](http://localhost:3000)                   |
-| **Admin Portal (หลังบ้าน)**        | `npm run dev:admin` | [http://localhost:5173](http://localhost:5173)                   |
-| **API Server (NestJS)**            | `npm run dev:api`   | [http://localhost:4000](http://localhost:4000)                   |
-| **Interactive API Docs (Swagger)** | _(รัน API ก่อน)_    | [http://localhost:4000/api/docs](http://localhost:4000/api/docs) |
+| **Store (หน้าร้าน)**                 | `npm run dev:store`     | [http://localhost:3000](http://localhost:3000)                   |
+| **Admin Portal (หลังบ้าน)**        | `npm run dev:admin`     | [http://localhost:5173](http://localhost:5173)                   |
+| **Admin API Server (NestJS)**      | `npm run dev:admin-api` | [http://localhost:4000](http://localhost:4000)                   |
+| **Interactive API Docs (Swagger)** | _(รัน API ก่อน)_        | [http://localhost:4000/api/docs](http://localhost:4000/api/docs) |
 
 ---
 

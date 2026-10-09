@@ -47,7 +47,7 @@ export class UploadService implements OnModuleInit {
     if (!process.env.CLOUDINARY_CLOUD_NAME && typeof (process as any).loadEnvFile === 'function') {
       const candidates = [
         path.resolve(process.cwd(), '.env'),
-        path.resolve(process.cwd(), 'apps/api/.env'),
+        path.resolve(process.cwd(), 'apps/admin-api/.env'),
       ];
       for (const p of candidates) {
         if (fs.existsSync(p)) {
@@ -98,7 +98,7 @@ export class UploadService implements OnModuleInit {
       }
     } else {
       this.logger.warn(
-        'Cloudinary credentials not configured in apps/api/.env (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET). Falling back to local storage.',
+        'Cloudinary credentials not configured in apps/admin-api/.env (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET). Falling back to local storage.',
       );
     }
 
