@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Boxes, Plus, Minus, History, X, Search, RotateCcw, Filter } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
@@ -18,17 +18,15 @@ import {
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
-import type { InventoryItem, StockMovement } from '../data/adminData';
-import { INITIAL_MOVEMENTS, INITIAL_INVENTORY } from '../data/adminData';
+import type { InventoryItem } from '../data/adminData';
+import { INITIAL_INVENTORY } from '../data/adminData';
 
 export default function AdminInventory() {
   const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
 
   const [inventoryList, setInventoryList] = useState<InventoryItem[]>([]);
-  const [movementsList] = useState<StockMovement[]>(INITIAL_MOVEMENTS);
 
-  const [activeTab, setActiveTab] = useState<'levels' | 'history'>('levels');
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'sku_asc' | 'stock_asc' | 'stock_desc'>('sku_asc');
@@ -38,8 +36,6 @@ export default function AdminInventory() {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [historyPage, setHistoryPage] = useState(1);
-  const [historyPageSize, setHistoryPageSize] = useState(10);
 
   // Adjust stock modal state
   const [adjustTarget, setAdjustTarget] = useState<InventoryItem | null>(null);
@@ -168,9 +164,6 @@ export default function AdminInventory() {
   const totalPages = Math.max(1, Math.ceil(filteredInventory.length / pageSize));
   const paginatedInventory = filteredInventory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  const totalHistoryPages = Math.max(1, Math.ceil(movementsList.length / historyPageSize));
-  const paginatedMovements = movementsList.slice((historyPage - 1) * historyPageSize, historyPage * historyPageSize);
-
   const lowStockCount = inventoryList.filter(
     (i) => i.availableStock > 0 && i.availableStock <= i.lowStockThreshold,
   ).length;
@@ -197,33 +190,20 @@ export default function AdminInventory() {
 
         {/* Top View Selector: Levels vs Audit History */}
         <div className="flex items-center space-x-2 border-b border-gray-200 pb-3">
-          <button
-            onClick={() => setActiveTab('levels')}
-            className={`px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 cursor-pointer ${
-              activeTab === 'levels'
-                ? 'bg-brand-brown text-white shadow-xs'
-                : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-100'
-            }`}
-          >
+          <div className="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 bg-brand-brown text-white shadow-xs cursor-default">
             <Boxes size={14} />
             <span>{t('inventory.levelsTab') || 'ระดับสต็อกสินค้าคงคลัง'}</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 cursor-pointer ${
-              activeTab === 'history'
-                ? 'bg-brand-brown text-white shadow-xs'
-                : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-100'
-            }`}
+          </div>
+          <Link
+            to="/admin/inventory/audit"
+            className="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 cursor-pointer"
           >
             <History size={14} />
             <span>{t('inventory.historyTab') || 'ประวัติการเคลื่อนไหวสต็อก (Audit Log)'}</span>
-          </button>
+          </Link>
         </div>
 
-        {activeTab === 'levels' ? (
-          <>
-            {/* Filter and Search Bar (Styled like ProductListFilters) */}
+        {/* Filter and Search Bar (Styled like ProductListFilters) */}
             <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">
               {/* Top Row: Stock Status Tabs */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-brand-cream">
@@ -491,79 +471,6 @@ export default function AdminInventory() {
                 }}
               />
             </div>
-          </>
-        ) : (
-          /* Stock Movement Ledger Table */
-          <TableContainer>
-            <div className="p-4 bg-brand-cream border-b border-gray-200">
-              <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
-                {t('inventory.ledgerTitle') || 'สมุดบันทึกประวัติการเปลี่ยนแปลงสต็อก (Stock Movement Audit Ledger)'}
-              </h3>
-              <p className="text-xs text-gray-500 mt-0.5">
-                {t('inventory.ledgerSubtitle') ||
-                  'เก็บบันทึกประวัติการนำเข้า ตัดสต็อก และเหตุผลการปรับปรุงเพื่อความโปร่งใส'}
-              </p>
-            </div>
-
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-40">{t('inventory.table.timestamp') || 'วันเวลา'}</TableHead>
-                  <TableHead className="min-w-[180px]">{t('inventory.table.skuProduct') || 'SKU / สินค้า'}</TableHead>
-                  <TableHead className="w-28 text-center">{t('inventory.table.changeType') || 'ประเภท'}</TableHead>
-                  <TableHead className="w-28 text-center">{t('inventory.table.changeQty') || 'จำนวนที่เปลี่ยน'}</TableHead>
-                  <TableHead className="w-28 text-center">{t('inventory.table.balanceAfter') || 'คงเหลือหลังปรับ'}</TableHead>
-                  <TableHead>{t('inventory.table.reason') || 'เหตุผล / หมายเหตุ'}</TableHead>
-                  <TableHead className="w-32">{t('inventory.table.operator') || 'ผู้ดำเนินการ'}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedMovements.map((m) => (
-                  <TableRow key={m.id}>
-                    <TableCell className="font-mono text-gray-500">{m.timestamp}</TableCell>
-                    <TableCell>
-                      <div className="font-mono font-bold text-brand-brown">{m.sku}</div>
-                      <div className="text-[11px] text-gray-500">{m.productName}</div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span
-                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-xs ${
-                          m.changeType === 'RESTOCK'
-                            ? 'bg-emerald-100 text-emerald-900'
-                            : m.changeType === 'DAMAGE'
-                              ? 'bg-red-100 text-red-900'
-                              : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {m.changeType}
-                      </span>
-                    </TableCell>
-                    <TableCell className="font-mono font-bold text-sm text-center">
-                      <span className={m.quantityChange >= 0 ? 'text-emerald-700' : 'text-red-600'}>
-                        {m.quantityChange >= 0 ? `+${m.quantityChange}` : m.quantityChange}
-                      </span>
-                    </TableCell>
-                    <TableCell className="font-mono font-bold text-brand-brown text-center">{m.balanceAfter}</TableCell>
-                    <TableCell className="text-gray-700">{m.reason}</TableCell>
-                    <TableCell className="font-semibold text-brand-brown">{m.adminName}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            <Pagination
-              currentPage={historyPage}
-              totalPages={totalHistoryPages}
-              pageSize={historyPageSize}
-              totalItems={movementsList.length}
-              onPageChange={setHistoryPage}
-              onPageSizeChange={(newSize) => {
-                setHistoryPageSize(newSize);
-                setHistoryPage(1);
-              }}
-            />
-          </TableContainer>
-        )}
       </div>
 
       {/* Adjust Stock Modal */}

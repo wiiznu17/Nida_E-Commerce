@@ -31,6 +31,7 @@
     "dashboard": "Dashboard",
     "products": "Products",
     "inventory": "Inventory & Stock",
+    "inventoryAudit": "Stock Audit Log",
     "orders": "Orders & Shipping",
     "promotions": "Coupons & Promos",
     "backOffice": "ADMIN BACK-OFFICE",
@@ -339,5 +340,22 @@
       "reason": "Reason / Reference",
       "operator": "Operator"
     }
+  },
+  "inventoryAudit": {
+    "title": "Stock Movement Audit Ledger",
+    "subtitle": "Immutable historical log of all restocks, order deductions, damages, and manual adjustments",
+    "filterAll": "All Logs",
+    "filterRestock": "Restocked",
+    "filterOrderDeduct": "Order Deduct",
+    "filterDamage": "Damage / QC",
+    "filterAdjustment": "Adjustment",
+    "searchPlaceholder": "Search SKU, product title, reason...",
+    "allTypes": "All Change Types",
+    "sortNewest": "Newest First",
+    "sortOldest": "Oldest First",
+    "sortQtyDesc": "Highest Change (+)",
+    "sortQtyAsc": "Largest Deduction (-)",
+    "emptyTitle": "No stock audit records found",
+    "emptySubtitle": "Try adjusting your search query or change type filter"
   }
 }

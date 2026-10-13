@@ -31,6 +31,7 @@
     "dashboard": "แดชบอร์ดภาพรวม",
     "products": "จัดการสินค้า",
     "inventory": "สต็อก & ความเคลื่อนไหว",
+    "inventoryAudit": "ประวัติสต็อก (Audit Log)",
     "orders": "คำสั่งซื้อ & จัดส่ง",
     "promotions": "โค้ดโปรโมชัน & คูปอง",
     "backOffice": "ADMIN BACK-OFFICE",
@@ -339,5 +340,22 @@
       "reason": "เหตุผล / หมายเหตุ",
       "operator": "ผู้ดำเนินการ"
     }
+  },
+  "inventoryAudit": {
+    "title": "ประวัติการเคลื่อนไหวสต็อก (Stock Movement Audit Ledger)",
+    "subtitle": "ตรวจสอบบันทึกประวัติการนำเข้า ตัดจำหน่าย และการปรับปรุงสต็อกสินค้าคงคลัง",
+    "filterAll": "ทั้งหมด",
+    "filterRestock": "นำเข้าสต็อก",
+    "filterOrderDeduct": "ตัดสต็อกออเดอร์",
+    "filterDamage": "ชำรุด / QC",
+    "filterAdjustment": "ปรับยอดตรวจนับ",
+    "searchPlaceholder": "ค้นหารหัส SKU, ชื่อสินค้า, หมายเหตุ...",
+    "allTypes": "ทุกประเภทการเปลี่ยนแปลง",
+    "sortNewest": "เวลาล่าสุดก่อน",
+    "sortOldest": "เวลาเก่าสุดก่อน",
+    "sortQtyDesc": "จำนวนบวกมากสุด (+)",
+    "sortQtyAsc": "จำนวนลดลงมากสุด (-)",
+    "emptyTitle": "ไม่พบประวัติความเคลื่อนไหวสต็อก",
+    "emptySubtitle": "ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองประเภทการเปลี่ยนแปลง"
   }
 }
