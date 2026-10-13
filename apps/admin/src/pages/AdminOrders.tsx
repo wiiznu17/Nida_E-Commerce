@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Package, Truck, ExternalLink, Eye, X, MapPin, CreditCard, Send, Search, RotateCcw } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
@@ -452,7 +453,12 @@ export default function AdminOrders() {
                     <TableRow key={order.id}>
                       {/* Order # & Date */}
                       <TableCell>
-                        <div className="font-mono font-black text-brand-brown text-sm">{order.orderNumber}</div>
+                        <Link
+                          to={`/admin/orders/${order.orderNumber}`}
+                          className="font-mono font-black text-brand-brown text-sm hover:underline hover:text-brand-dark-brown"
+                        >
+                          {order.orderNumber}
+                        </Link>
                         <div className="text-[11px] text-gray-400 font-normal mt-0.5">{order.createdAt}</div>
                       </TableCell>
 
@@ -536,15 +542,14 @@ export default function AdminOrders() {
 
                       {/* Actions */}
                       <TableCell className="text-right">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedOrder(order)}
+                        <Link
+                          to={`/admin/orders/${order.orderNumber}`}
                           className="inline-flex items-center space-x-1 p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors whitespace-nowrap"
                           title={t('orders.detail.viewInvoice')}
                         >
                           <Eye size={15} />
                           <span className="font-bold text-[11px] whitespace-nowrap">{t('orders.detail.viewDetails')}</span>
-                        </button>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))

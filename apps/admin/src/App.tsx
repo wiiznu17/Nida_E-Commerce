@@ -5,6 +5,7 @@ import AdminProducts from './pages/AdminProducts';
 import AdminProductCreate from './pages/AdminProductCreate';
 import AdminProductEdit from './pages/AdminProductEdit';
 import AdminOrders from './pages/AdminOrders';
+import AdminOrderDetail from './pages/AdminOrderDetail';
 import AdminInventory from './pages/AdminInventory';
 import AdminInventoryAudit from './pages/AdminInventoryAudit';
 import AdminPromotions from './pages/AdminPromotions';
@@ -20,6 +21,8 @@ const router = createBrowserRouter([
   { path: '/admin/products/:id/edit', element: <AdminProductEdit /> },
   { path: '/orders', element: <AdminOrders /> },
   { path: '/admin/orders', element: <AdminOrders /> },
+  { path: '/orders/:id', element: <AdminOrderDetail /> },
+  { path: '/admin/orders/:id', element: <AdminOrderDetail /> },
   { path: '/inventory', element: <AdminInventory /> },
   { path: '/admin/inventory', element: <AdminInventory /> },
   { path: '/inventory/audit', element: <AdminInventoryAudit /> },
