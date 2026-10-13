@@ -1,25 +1,36 @@
 import { apiClient } from '../client';
-import type { PromoCoupon } from '../../data/adminData';
+import type { ApiCoupon, DiscountType } from '@repo/types';
+
+export interface CreateCouponPayload {
+  code: string;
+  discountType: DiscountType;
+  discountValue: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  totalUsageLimit?: number;
+  userUsageLimit?: number;
+  startsAt?: string;
+  expiresAt: string;
+  isActive?: boolean;
+}
 
 export const promotionRequester = {
-  async getAll(): Promise<PromoCoupon[]> {
-    const data = await apiClient.get<PromoCoupon[]>('/coupons');
-    return data;
+  async getAll(): Promise<ApiCoupon[]> {
+    return apiClient.get<ApiCoupon[]>('/coupons');
   },
 
-  async create(coupon: PromoCoupon): Promise<PromoCoupon> {
-    const data = await apiClient.post<PromoCoupon>('/coupons', coupon);
-    return data;
+  async create(payload: CreateCouponPayload): Promise<ApiCoupon> {
+    return apiClient.post<ApiCoupon>('/coupons', payload);
   },
 
-  async toggle(code: string): Promise<PromoCoupon> {
-    const data = await apiClient.patch<PromoCoupon>(`/coupons/${code}/toggle`);
-    return data;
+  async toggle(identifier: string): Promise<ApiCoupon> {
+    return apiClient.patch<ApiCoupon>(`/coupons/${identifier}/toggle`);
   },
 
-  async delete(code: string): Promise<{ success: boolean }> {
-    const data = await apiClient.delete<{ success: boolean }>(`/coupons/${code}`);
-    return data;
+  async delete(identifier: string): Promise<{ success: boolean; id: string }> {
+    return apiClient.delete<{ success: boolean; id: string }>(
+      `/coupons/${identifier}`,
+    );
   },
 };
 

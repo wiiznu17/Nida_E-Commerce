@@ -447,5 +447,90 @@
       "orderNotFoundDesc": "The requested order does not exist or invalid order identifier.",
       "totalItems": "Total Items"
     }
+  },
+  "promotions": {
+    "title": "Promotions & Coupon Codes",
+    "subtitle": "Configure marketing promo codes, discount percentages, and quota limits for storefront checkout",
+    "createBtn": "Create New Promo",
+    "tabs": {
+      "all": "All Promotions",
+      "active": "Active",
+      "expired": "Expired",
+      "inactive": "Inactive"
+    },
+    "searchPlaceholder": "Search promo code...",
+    "typeFilter": {
+      "all": "All Discount Types",
+      "percentage": "Percentage (%)",
+      "fixedAmount": "Fixed Amount",
+      "freeShipping": "Free Shipping"
+    },
+    "sort": {
+      "newest": "Newest Created",
+      "oldest": "Oldest Created",
+      "codeAsc": "Code (A-Z)",
+      "codeDesc": "Code (Z-A)",
+      "expiringSoon": "Expiring Soonest"
+    },
+    "searchBtn": "Search",
+    "resetBtn": "Reset",
+    "table": {
+      "code": "Promo Code",
+      "discount": "Discount Type & Value",
+      "conditions": "Min Order / Cap",
+      "quota": "Usage Quota",
+      "validity": "Validity Period",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "expired": "Expired",
+      "notStarted": "Upcoming"
+    },
+    "discountDisplay": {
+      "percentOff": "{val}% OFF",
+      "fixedOff": "฿{val} OFF",
+      "freeShip": "Free Shipping",
+      "minOrder": "Min ฿{min}",
+      "noMin": "No min. order",
+      "maxDiscount": "Max ฿{max}",
+      "noCap": "No cap",
+      "usageRatio": "{current} / {total} used",
+      "unlimited": "Unlimited"
+    },
+    "modal": {
+      "createTitle": "Create New Coupon Code",
+      "createSubtitle": "Configure promotional discount rules and quotas for customer checkout",
+      "codeLabel": "Promo Code *",
+      "codePlaceholder": "e.g. NIDA20, WELCOME50, FREESHIP",
+      "typeLabel": "Discount Type *",
+      "valueLabel": "Discount Value *",
+      "minOrderLabel": "Min Order Amount",
+      "maxDiscountLabel": "Max Discount Cap",
+      "totalLimitLabel": "Total Usage Quota",
+      "userLimitLabel": "Per-User Usage Limit",
+      "startsAtLabel": "Start Date",
+      "expiresAtLabel": "Expiry Date *",
+      "isActiveLabel": "Activate Immediately",
+      "cancelBtn": "Cancel",
+      "submitBtn": "Create Promo Code",
+      "submitting": "Creating..."
+    },
+    "deleteModal": {
+      "title": "Confirm Delete Coupon",
+      "confirmMessage": "Are you sure you want to delete promo code \"{code}\"? This action cannot be undone.",
+      "confirmBtn": "Delete Coupon",
+      "deleting": "Deleting..."
+    },
+    "messages": {
+      "copySuccess": "Coupon code copied to clipboard",
+      "createSuccess": "Promo code \"{code}\" created successfully",
+      "toggleSuccess": "Promo code \"{code}\" status updated",
+      "deleteSuccess": "Promo code \"{code}\" deleted successfully",
+      "emptyTitle": "No Promotions Found",
+      "emptySubtitle": "Try adjusting your filters or click \"Create New Promo\" to add your first promotion"
+    }
   }
 }

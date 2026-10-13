@@ -2,10 +2,12 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { ValidateCouponDto } from './dto/validate-coupon.dto.js';
 import { CalculateCheckoutDto } from './dto/calculate-checkout.dto.js';
+import { CreateCouponDto } from './dto/create-coupon.dto.js';
 import type {
   ApiCoupon,
   CouponValidationResult,
@@ -22,6 +24,89 @@ const STANDARD_SHIPPING_FEE = 50;
 @Injectable()
 export class CouponsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getAllCoupons(): Promise<ApiCoupon[]> {
+    const coupons = await this.prisma.promotionCoupon.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return coupons.map((c) => this.mapCoupon(c));
+  }
+
+  async createCoupon(dto: CreateCouponDto): Promise<ApiCoupon> {
+    const normalizedCode = dto.code.toUpperCase().trim();
+    const existing = await this.prisma.promotionCoupon.findUnique({
+      where: { code: normalizedCode },
+    });
+    if (existing) {
+      throw new ConflictException(
+        `Coupon code "${normalizedCode}" already exists`,
+      );
+    }
+
+    const coupon = await this.prisma.promotionCoupon.create({
+      data: {
+        code: normalizedCode,
+        discountType: dto.discountType,
+        discountValue: dto.discountValue,
+        minOrderAmount: dto.minOrderAmount ?? 0,
+        maxDiscountAmount: dto.maxDiscountAmount ?? null,
+        totalUsageLimit: dto.totalUsageLimit ?? 100,
+        userUsageLimit: dto.userUsageLimit ?? 1,
+        startsAt: dto.startsAt ? new Date(dto.startsAt) : new Date(),
+        expiresAt: new Date(dto.expiresAt),
+        isActive: dto.isActive ?? true,
+      },
+    });
+
+    return this.mapCoupon(coupon);
+  }
+
+  async toggleCoupon(identifier: string): Promise<ApiCoupon> {
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        identifier,
+      );
+    const coupon = await this.prisma.promotionCoupon.findFirst({
+      where: isUuid
+        ? { id: identifier }
+        : { code: identifier.toUpperCase().trim() },
+    });
+
+    if (!coupon) {
+      throw new NotFoundException(`Coupon "${identifier}" not found`);
+    }
+
+    const updated = await this.prisma.promotionCoupon.update({
+      where: { id: coupon.id },
+      data: { isActive: !coupon.isActive },
+    });
+
+    return this.mapCoupon(updated);
+  }
+
+  async deleteCoupon(
+    identifier: string,
+  ): Promise<{ success: boolean; id: string }> {
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        identifier,
+      );
+    const coupon = await this.prisma.promotionCoupon.findFirst({
+      where: isUuid
+        ? { id: identifier }
+        : { code: identifier.toUpperCase().trim() },
+    });
+
+    if (!coupon) {
+      throw new NotFoundException(`Coupon "${identifier}" not found`);
+    }
+
+    await this.prisma.promotionCoupon.delete({
+      where: { id: coupon.id },
+    });
+
+    return { success: true, id: coupon.id };
+  }
 
   async validateCoupon(
     dto: ValidateCouponDto,

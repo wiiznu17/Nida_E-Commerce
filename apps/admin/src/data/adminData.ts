@@ -63,17 +63,11 @@ export interface StockMovement {
   timestamp: string;
 }
 
-export interface PromoCoupon {
-  id: string;
-  code: string;
-  discountType: 'PERCENTAGE' | 'FIXED';
-  discountValue: number;
-  minOrderAmount: number;
-  usageCount: number;
-  usageLimit: number;
-  isActive: boolean;
-  expiresAt: string;
-}
+import type { ApiCoupon } from '@repo/types';
+import { DiscountType } from '@repo/types';
+
+export type PromoCoupon = ApiCoupon;
+
 
 export const INITIAL_ORDERS: AdminOrder[] = [
   {
@@ -671,38 +665,45 @@ export const INITIAL_MOVEMENTS: StockMovement[] = [
   },
 ];
 
-export const INITIAL_COUPONS: PromoCoupon[] = [
+export const INITIAL_COUPONS: ApiCoupon[] = [
   {
     id: 'c-1',
     code: 'NIDA20',
-    discountType: 'PERCENTAGE',
+    discountType: DiscountType.PERCENTAGE,
     discountValue: 20,
     minOrderAmount: 100,
-    usageCount: 142,
-    usageLimit: 500,
+    maxDiscountAmount: 50,
+    totalUsageLimit: 500,
+    userUsageLimit: 1,
+    currentUsageCount: 142,
+    startsAt: '2026-01-01T00:00:00.000Z',
+    expiresAt: '2026-12-31T23:59:59.000Z',
     isActive: true,
-    expiresAt: '2026-12-31',
   },
   {
     id: 'c-2',
-    code: 'FALL50',
-    discountType: 'PERCENTAGE',
-    discountValue: 50,
-    minOrderAmount: 200,
-    usageCount: 89,
-    usageLimit: 200,
+    code: 'FREESHIP',
+    discountType: DiscountType.FREE_SHIPPING,
+    discountValue: 0,
+    minOrderAmount: 50,
+    totalUsageLimit: 1000,
+    userUsageLimit: 2,
+    currentUsageCount: 89,
+    startsAt: '2026-01-01T00:00:00.000Z',
+    expiresAt: '2026-12-31T23:59:59.000Z',
     isActive: true,
-    expiresAt: '2026-10-31',
   },
   {
     id: 'c-3',
-    code: 'WELCOME100',
-    discountType: 'FIXED',
-    discountValue: 100,
-    minOrderAmount: 300,
-    usageCount: 37,
-    usageLimit: 100,
+    code: 'WELCOME50',
+    discountType: DiscountType.FIXED_AMOUNT,
+    discountValue: 50,
+    minOrderAmount: 200,
+    totalUsageLimit: 200,
+    userUsageLimit: 1,
+    currentUsageCount: 37,
+    startsAt: '2026-01-01T00:00:00.000Z',
+    expiresAt: '2026-12-31T23:59:59.000Z',
     isActive: true,
-    expiresAt: '2026-11-15',
   },
 ];

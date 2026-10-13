@@ -447,5 +447,90 @@
       "orderNotFoundDesc": "อาจไม่มีคำสั่งซื้อนี้อยู่ในระบบ หรือรหัสออเดอร์ไม่ถูกต้อง",
       "totalItems": "จำนวนสินค้ารวม"
     }
+  },
+  "promotions": {
+    "title": "แคมเปญและโค้ดส่วนลด",
+    "subtitle": "จัดการโค้ดโปรโมชัน กำหนดเปอร์เซ็นต์ส่วนลด และจำกัดสิทธิ์การใช้งานสำหรับระบบเช็คเอาท์",
+    "createBtn": "สร้างโค้ดส่วนลดใหม่",
+    "tabs": {
+      "all": "ทั้งหมด",
+      "active": "เปิดใช้งาน",
+      "expired": "หมดอายุ",
+      "inactive": "ปิดใช้งาน"
+    },
+    "searchPlaceholder": "ค้นหารหัสโค้ดส่วนลด...",
+    "typeFilter": {
+      "all": "ทุกประเภทส่วนลด",
+      "percentage": "เปอร์เซ็นต์ (%)",
+      "fixedAmount": "จำนวนเงินลดตรง",
+      "freeShipping": "ฟรีค่าจัดส่ง"
+    },
+    "sort": {
+      "newest": "สร้างล่าสุด",
+      "oldest": "สร้างเก่าสุด",
+      "codeAsc": "รหัสโค้ด (A-Z)",
+      "codeDesc": "รหัสโค้ด (Z-A)",
+      "expiringSoon": "หมดอายุเร็วที่สุด"
+    },
+    "searchBtn": "ค้นหา",
+    "resetBtn": "ล้างตัวกรอง",
+    "table": {
+      "code": "รหัสโค้ดโปรโมชัน",
+      "discount": "ประเภท & มูลค่าส่วนลด",
+      "conditions": "เงื่อนไขขั้นต่ำ / เพดานส่วนลด",
+      "quota": "สิทธิ์การใช้งาน (Quota)",
+      "validity": "ระยะเวลาใช้งาน",
+      "status": "สถานะ",
+      "actions": "การจัดการ"
+    },
+    "status": {
+      "active": "เปิดใช้งาน",
+      "inactive": "ปิดใช้งาน",
+      "expired": "หมดอายุ",
+      "notStarted": "ยังไม่เริ่ม"
+    },
+    "discountDisplay": {
+      "percentOff": "ลด {val}%",
+      "fixedOff": "ลด ฿{val}",
+      "freeShip": "ฟรีค่าจัดส่ง",
+      "minOrder": "ขั้นต่ำ ฿{min}",
+      "noMin": "ไม่มีขั้นต่ำ",
+      "maxDiscount": "สูงสุด ฿{max}",
+      "noCap": "ไม่จำกัดเพดาน",
+      "usageRatio": "{current} / {total} สิทธิ์",
+      "unlimited": "ไม่จำกัด"
+    },
+    "modal": {
+      "createTitle": "สร้างโค้ดส่วนลดใหม่",
+      "createSubtitle": "สำหรับใช้งานบนระบบเช็คเอาท์และแคมเปญการตลาดของ NIDA",
+      "codeLabel": "รหัสโค้ดโปรโมชัน (Promo Code) *",
+      "codePlaceholder": "เช่น NIDA20, WELCOME50, FREESHIP",
+      "typeLabel": "ประเภทของส่วนลด (Type) *",
+      "valueLabel": "มูลค่าส่วนลด (Value) *",
+      "minOrderLabel": "ยอดสั่งซื้อขั้นต่ำ (Min Order)",
+      "maxDiscountLabel": "เพดานส่วนลดสูงสุด (Max Discount Cap)",
+      "totalLimitLabel": "จำนวนสิทธิ์รวมทั้งหมด (Total Quota)",
+      "userLimitLabel": "สิทธิ์ต่อผู้ใช้ 1 คน (Per-User Limit)",
+      "startsAtLabel": "วันเริ่มต้นใช้งาน",
+      "expiresAtLabel": "วันหมดอายุ (Expiry Date) *",
+      "isActiveLabel": "เปิดใช้งานโค้ดทันที",
+      "cancelBtn": "ยกเลิก",
+      "submitBtn": "สร้างโค้ดส่วนลด",
+      "submitting": "กำลังสร้าง..."
+    },
+    "deleteModal": {
+      "title": "ยืนยันการลบโค้ดโปรโมชัน",
+      "confirmMessage": "คุณต้องการลบโค้ดส่วนลด \"{code}\" ออกจากระบบหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้",
+      "confirmBtn": "ลบโค้ดส่วนลด",
+      "deleting": "กำลังลบ..."
+    },
+    "messages": {
+      "copySuccess": "คัดลอกรหัสโค้ดแล้ว",
+      "createSuccess": "สร้างโค้ดส่วนลด \"{code}\" สำเร็จแล้ว",
+      "toggleSuccess": "อัปเดตสถานะโค้ด \"{code}\" เรียบร้อย",
+      "deleteSuccess": "ลบโค้ดส่วนลด \"{code}\" เรียบร้อยแล้ว",
+      "emptyTitle": "ไม่พบโค้ดโปรโมชัน",
+      "emptySubtitle": "ลองปรับเปลี่ยนคำค้นหา ตัวกรอง หรือคลิก \"สร้างโค้ดส่วนลดใหม่\" เพื่อเพิ่มโค้ดแรก"
+    }
   }
 }
