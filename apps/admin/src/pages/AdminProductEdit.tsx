@@ -118,17 +118,8 @@ export default function AdminProductEdit() {
     );
   }
 
-  const productTitle = isTh && product.nameTh ? product.nameTh : product.name;
-
   return (
-    <AdminLayout
-      title={`${t('product.editTitle')}: ${productTitle}`}
-      subtitle={
-        isTh
-          ? `แก้ไขข้อมูลสต็อก ราคา และรายละเอียดสินค้า SKU: ${product.id}`
-          : `Update catalog specifications, pricing, and media for SKU: ${product.id}`
-      }
-    >
+    <AdminLayout title={t('product.editTitle')} hidePageHeader>
       <ProductForm
         initialData={product}
         initialSkus={existingSkus}

@@ -10,9 +10,16 @@ export interface AdminLayoutProps {
   title?: string;
   subtitle?: string;
   actionButton?: React.ReactNode;
+  hidePageHeader?: boolean;
 }
 
-export function AdminLayout({ children, title, subtitle, actionButton }: AdminLayoutProps) {
+export function AdminLayout({
+  children,
+  title,
+  subtitle,
+  actionButton,
+  hidePageHeader = false,
+}: AdminLayoutProps) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
@@ -32,7 +39,7 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
         />
 
         {/* Page Title & Breadcrumb Header */}
-        {(title || actionButton) && (
+        {!hidePageHeader && (title || actionButton) && (
           <AdminPageHeader
             title={title || ''}
             subtitle={subtitle}
