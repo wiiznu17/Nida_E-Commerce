@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, RotateCcw, X, Filter } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { DropdownSelect } from '../../ui';
 import { DEFAULT_FILTERS, type ProductFilterState } from './productListTypes';
 
 interface ProductListFiltersProps {
@@ -148,50 +149,34 @@ export function ProductListFilters({
 
           {/* Department Select (2 cols on lg) */}
           <div className="lg:col-span-2">
-            <select
+            <DropdownSelect
               value={staging.department}
-              onChange={(e) => setStaging({ ...staging, department: e.target.value })}
-              className="w-full px-2.5 py-2 text-xs border border-gray-300 focus:outline-none focus:border-[#2B1810] rounded-xs bg-white text-gray-800"
-            >
-              {departments.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setStaging({ ...staging, department: val })}
+              options={departments.map((d) => ({ value: d.id, label: d.label }))}
+            />
           </div>
 
           {/* Category Select (2 cols on lg) */}
           <div className="lg:col-span-2">
-            <select
+            <DropdownSelect
               value={staging.category}
-              onChange={(e) => setStaging({ ...staging, category: e.target.value })}
-              className="w-full px-2.5 py-2 text-xs border border-gray-300 focus:outline-none focus:border-[#2B1810] rounded-xs bg-white text-gray-800"
-            >
-              <option value="all">{t('productList.allCategories')}</option>
-              {availableCategories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setStaging({ ...staging, category: val })}
+              options={[
+                { value: 'all', label: t('productList.allCategories') },
+                ...availableCategories.map((c) => ({ value: c.id, label: c.label })),
+              ]}
+            />
           </div>
 
           {/* Sort By Select (2 cols on lg) */}
           <div className="lg:col-span-2">
-            <select
+            <DropdownSelect
               value={staging.sortBy}
-              onChange={(e) =>
-                setStaging({ ...staging, sortBy: e.target.value as ProductFilterState['sortBy'] })
+              onChange={(val) =>
+                setStaging({ ...staging, sortBy: val as ProductFilterState['sortBy'] })
               }
-              className="w-full px-2.5 py-2 text-xs border border-gray-300 focus:outline-none focus:border-[#2B1810] rounded-xs bg-white text-gray-800"
-            >
-              {sortOptions.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+              options={sortOptions.map((s) => ({ value: s.id, label: s.label }))}
+            />
           </div>
 
           {/* Action Buttons: Search & Reset (2 cols on lg) */}

@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { DropdownSelect } from '../../ui';
 
 interface ProductListPaginationProps {
   currentPage: number;
@@ -79,15 +80,16 @@ export function ProductListPagination({
 
         {/* Rows per page selector */}
         <div className="flex items-center space-x-1 pl-2 border-l border-gray-200">
-          <select
-            value={pageSize}
-            onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="px-2 py-1 text-xs border border-gray-300 rounded-xs bg-[#FAF7F2] font-semibold text-gray-700 focus:outline-none focus:border-[#2B1810]"
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
+          <DropdownSelect
+            value={String(pageSize)}
+            onChange={(val) => onPageSizeChange(Number(val))}
+            options={[
+              { value: '10', label: '10' },
+              { value: '20', label: '20' },
+              { value: '50', label: '50' },
+            ]}
+            className="w-16 h-7.5 px-2 bg-[#FAF7F2] text-xs font-semibold"
+          />
           <span className="text-[11px] text-gray-400">
             {t('productList.perPage')}
           </span>
