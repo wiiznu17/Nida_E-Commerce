@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Package, Search, Truck, CheckCircle2, ExternalLink, Eye, X, MapPin, CreditCard, Send } from 'lucide-react';
+import { Package, Truck, ExternalLink, Eye, X, MapPin, CreditCard, Send } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { DropdownSelect } from '../components/ui';
+import { DropdownSelect, Alert, SearchInput, EmptyState } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
 import { STOREFRONT_URL } from '../config';
@@ -149,10 +149,11 @@ export default function AdminOrders() {
       <div className="space-y-6">
         {/* Toast */}
         {toastMessage && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 text-xs font-bold flex items-center rounded-xs animate-in fade-in">
-            <CheckCircle2 size={16} className="mr-2 text-emerald-600 flex-shrink-0" />
-            <span>{toastMessage}</span>
-          </div>
+          <Alert
+            variant="success"
+            message={toastMessage}
+            onClose={() => setToastMessage(null)}
+          />
         )}
 
         {/* Filters & Search */}
@@ -173,18 +174,14 @@ export default function AdminOrders() {
             ))}
           </div>
 
-          <div className="relative w-full md:w-80">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                language === 'th' ? 'ค้นหาเลขออเดอร์, ชื่อลูกค้า, อีเมล...' : 'Search order #, customer, email...'
-              }
-              className="w-full pl-9 pr-4 py-2 text-xs border border-gray-300 focus:outline-none focus:border-[#2B1810]"
-            />
-          </div>
+          <SearchInput
+            containerClassName="w-full md:w-80"
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder={
+              language === 'th' ? 'ค้นหาเลขออเดอร์, ชื่อลูกค้า, อีเมล...' : 'Search order #, customer, email...'
+            }
+          />
         </div>
 
         {/* Orders Table */}
@@ -308,11 +305,12 @@ export default function AdminOrders() {
           </div>
 
           {filteredOrders.length === 0 && (
-            <div className="p-12 text-center text-gray-500">
-              <Package size={40} className="mx-auto text-gray-300 mb-2" />
-              <p className="text-sm font-bold">
-                {language === 'th' ? 'ไม่พบคำสั่งซื้อตามตัวกรองนี้' : 'No orders found matching criteria'}
-              </p>
+            <div className="p-8">
+              <EmptyState
+                icon={Package}
+                title={language === 'th' ? 'ไม่พบคำสั่งซื้อตามตัวกรองนี้' : 'No orders found matching criteria'}
+                subtitle={language === 'th' ? 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองสถานะ' : 'Try adjusting your search query or status filter'}
+              />
             </div>
           )}
         </div>

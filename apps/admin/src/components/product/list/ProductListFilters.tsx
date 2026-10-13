@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Search, RotateCcw, X, Filter } from 'lucide-react';
+import { Search, RotateCcw, Filter } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
-import { DropdownSelect } from '../../ui';
+import { DropdownSelect, SearchInput } from '../../ui';
 import { DEFAULT_FILTERS, type ProductFilterState } from './productListTypes';
 
 interface ProductListFiltersProps {
@@ -122,29 +122,13 @@ export function ProductListFilters({
       {/* Main Filter & Search Form */}
       <form onSubmit={handleSearchSubmit} className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 items-center">
-          {/* Search Input (5 cols on lg) */}
-          <div className="relative sm:col-span-2 lg:col-span-4">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
-            <input
-              type="text"
+          {/* Search Input (4 cols on lg) */}
+          <div className="sm:col-span-2 lg:col-span-4">
+            <SearchInput
               value={staging.search}
-              onChange={(e) => setStaging({ ...staging, search: e.target.value })}
+              onChange={(val) => setStaging({ ...staging, search: val })}
               placeholder={t('productList.searchPlaceholder')}
-              className="w-full pl-9 pr-8 py-2 text-xs border border-gray-300 focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810] rounded-xs bg-white text-gray-900 transition-colors"
             />
-            {staging.search && (
-              <button
-                type="button"
-                onClick={() => setStaging({ ...staging, search: '' })}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5"
-                title="Clear input"
-              >
-                <X size={13} />
-              </button>
-            )}
           </div>
 
           {/* Department Select (2 cols on lg) */}

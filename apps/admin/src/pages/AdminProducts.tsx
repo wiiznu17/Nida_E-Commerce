@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Plus, Check } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
+import { Alert } from '../components/ui';
 import {
   ProductListFilters,
   ProductListPagination,
@@ -150,10 +151,11 @@ export default function AdminProducts() {
     >
       <div className="space-y-4">
         {toastMessage && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 text-xs font-bold flex items-center rounded-xs shadow-2xs animate-in fade-in">
-            <Check size={16} className="mr-2 text-emerald-600 flex-shrink-0" />
-            <span>{toastMessage}</span>
-          </div>
+          <Alert
+            variant="success"
+            message={toastMessage}
+            onClose={() => setToastMessage(null)}
+          />
         )}
 
         <ProductListFilters

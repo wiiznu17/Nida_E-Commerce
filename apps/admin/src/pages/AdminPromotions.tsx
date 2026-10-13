@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
-import { Plus, Trash2, CheckCircle2, X, Clock, Copy, Check } from 'lucide-react';
+import { Plus, Trash2, X, Clock, Copy, Check, Tag } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { DropdownSelect } from '../components/ui';
+import { DropdownSelect, Alert, EmptyState } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { INITIAL_COUPONS, type PromoCoupon } from '../data/adminData';
 
@@ -113,14 +113,24 @@ export default function AdminPromotions() {
       <div className="space-y-6">
         {/* Toast */}
         {toastMessage && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 text-xs font-bold flex items-center rounded-xs animate-in fade-in">
-            <CheckCircle2 size={16} className="mr-2 text-emerald-600 flex-shrink-0" />
-            <span>{toastMessage}</span>
-          </div>
+          <Alert
+            variant="success"
+            message={toastMessage}
+            onClose={() => setToastMessage(null)}
+          />
         )}
 
         {/* Active Promotions Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {couponsList.length === 0 ? (
+          <div className="bg-white border border-[#EAE3D9] p-8">
+            <EmptyState
+              icon={Tag}
+              title={language === 'th' ? 'ไม่พบโค้ดโปรโมชั่น' : 'No Promotions Found'}
+              subtitle={language === 'th' ? 'คลิกปุ่ม "สร้างโค้ดโปรโมชั่น" เพื่อเพิ่มโค้ดส่วนลดใหม่' : 'Click "Create Promotion" to add your first promo code.'}
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {couponsList.map((coupon) => {
             const usagePercent = Math.min(100, Math.round((coupon.usageCount / coupon.usageLimit) * 100));
 
@@ -227,7 +237,8 @@ export default function AdminPromotions() {
             );
           })}
         </div>
-      </div>
+      )}
+    </div>
 
       {/* Add Coupon Modal */}
       {isAddModalOpen && (

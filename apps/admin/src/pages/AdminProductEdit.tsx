@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
+import { EmptyState } from '../components/ui';
 import { ProductForm } from '../components/product';
 import { useLanguage } from '../context/LanguageContext';
 import { productRequester, mapApiProductDetailToProduct } from '../api/requester/productRequester';
@@ -98,27 +99,20 @@ export default function AdminProductEdit() {
             : 'The requested product could not be located in the catalog'
         }
       >
-        <div className="bg-white border border-[#EAE3D9] p-8 text-center rounded-md space-y-4">
-          <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
-            <AlertCircle size={24} />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-gray-900">
-              {isTh ? `ไม่พบสินค้า ID: "${id}"` : `Product ID: "${id}" does not exist`}
-            </h3>
-            <p className="text-xs text-gray-500 mt-1">
-              {isTh
+        <div className="bg-white border border-[#EAE3D9] p-8 rounded-xs">
+          <EmptyState
+            icon={AlertCircle}
+            title={isTh ? `ไม่พบสินค้า ID: "${id}"` : `Product ID: "${id}" does not exist`}
+            subtitle={
+              isTh
                 ? 'สินค้าอาจถูกลบออกไปแล้ว หรือลิงก์ไม่ถูกต้อง'
-                : 'The item may have been removed or the URL is invalid.'}
-            </p>
-          </div>
-          <Link
-            to="/admin/products"
-            className="inline-flex items-center space-x-1.5 px-4 py-2 bg-[#2B1810] text-white text-xs font-bold rounded-md hover:bg-[#D97706] transition-colors"
-          >
-            <ArrowLeft size={14} />
-            <span>{isTh ? 'กลับไปยังรายการสินค้า' : 'Return to Catalog'}</span>
-          </Link>
+                : 'The item may have been removed or the URL is invalid.'
+            }
+            action={{
+              label: isTh ? 'กลับไปยังรายการสินค้า' : 'Return to Catalog',
+              onClick: () => navigate('/admin/products'),
+            }}
+          />
         </div>
       </AdminLayout>
     );

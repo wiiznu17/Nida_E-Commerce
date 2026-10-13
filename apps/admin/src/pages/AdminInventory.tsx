@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Boxes, Search, AlertTriangle, Plus, Minus, History, CheckCircle2, X } from 'lucide-react';
+import { Boxes, AlertTriangle, Plus, Minus, History, X } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { DropdownSelect } from '../components/ui';
+import { DropdownSelect, Alert, SearchInput, EmptyState } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
 import type { InventoryItem, StockMovement } from '../data/adminData';
@@ -129,10 +129,11 @@ export default function AdminInventory() {
       <div className="space-y-6">
         {/* Toast */}
         {toastMessage && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 text-xs font-bold flex items-center rounded-xs animate-in fade-in">
-            <CheckCircle2 size={16} className="mr-2 text-emerald-600 flex-shrink-0" />
-            <span>{toastMessage}</span>
-          </div>
+          <Alert
+            variant="success"
+            message={toastMessage}
+            onClose={() => setToastMessage(null)}
+          />
         )}
 
         {/* Top View Selector: Levels vs Audit History */}
@@ -207,16 +208,12 @@ export default function AdminInventory() {
                 </button>
               </div>
 
-              <div className="relative w-full md:w-80">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={language === 'th' ? 'ค้นหาชื่อสินค้า, SKU...' : 'Search product title, SKU...'}
-                  className="w-full pl-9 pr-4 py-2 text-xs border border-gray-300 focus:outline-none focus:border-[#2B1810]"
-                />
-              </div>
+              <SearchInput
+                containerClassName="w-full md:w-80"
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={language === 'th' ? 'ค้นหาชื่อสินค้า, SKU...' : 'Search product title, SKU...'}
+              />
             </div>
 
             {/* Inventory Table */}
@@ -235,7 +232,18 @@ export default function AdminInventory() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                    {filteredInventory.map((item) => {
+                    {filteredInventory.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="p-8">
+                          <EmptyState
+                            icon={Boxes}
+                            title={language === 'th' ? 'ไม่พบรายการสต็อกสินค้า' : 'No inventory items found'}
+                            subtitle={language === 'th' ? 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองระดับสต็อก' : 'Try adjusting your search query or stock filter'}
+                          />
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredInventory.map((item) => {
                       const isLowStock = item.availableStock <= item.lowStockThreshold && item.availableStock > 0;
                       const isOutOfStock = item.availableStock === 0;
 
@@ -309,7 +317,7 @@ export default function AdminInventory() {
                           </td>
                         </tr>
                       );
-                    })}
+                    }))}
                   </tbody>
                 </table>
               </div>

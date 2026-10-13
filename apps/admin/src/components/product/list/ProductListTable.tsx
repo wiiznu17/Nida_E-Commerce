@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Boxes, Edit, Eye, Trash2, ShoppingBag, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { STOREFRONT_URL } from '../../../config';
+import { EmptyState } from '../../ui';
 import type { Product } from '../../../data/products';
 import type { InventoryItem } from '../../../data/adminData';
 
@@ -49,15 +50,11 @@ export function ProductListTable({
 
   if (products.length === 0) {
     return (
-      <div className="p-14 text-center bg-white border border-[#EAE3D9] rounded-xs">
-        <ShoppingBag size={40} className="mx-auto text-gray-300 mb-3" />
-        <p className="text-sm font-bold text-gray-700">
-          {t('productList.noProductsFound')}
-        </p>
-        <p className="text-xs text-gray-400 mt-1">
-          {t('productList.noProductsHint')}
-        </p>
-      </div>
+      <EmptyState
+        icon={ShoppingBag}
+        title={t('productList.noProductsFound')}
+        subtitle={t('productList.noProductsHint')}
+      />
     );
   }
 
