@@ -294,5 +294,50 @@
     "inStock": "In Stock",
     "lowStock": "Low Stock",
     "outOfStock": "Out of Stock"
+  },
+  "pagination": {
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "items": "items",
+    "perPage": "items / page",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page"
+  },
+  "inventory": {
+    "title": "Inventory & Stock Control",
+    "subtitle": "SKU-level stock management and real-time audit ledger",
+    "levelsTab": "Current Stock Levels",
+    "historyTab": "Stock Movement Ledger",
+    "lowStockPill": "Low Stock",
+    "outOfStockPill": "Out of Stock",
+    "filterAll": "All SKUs",
+    "filterLow": "Low Stock Only",
+    "filterOut": "Out of Stock",
+    "searchPlaceholder": "Search product title, SKU code...",
+    "searchBtn": "Search",
+    "resetBtn": "Reset",
+    "emptyLevelsTitle": "No inventory items found",
+    "emptyLevelsSubtitle": "Try adjusting your search query or stock filter",
+    "adjustBtn": "Adjust",
+    "ledgerTitle": "Immutable Stock Movement Audit Trail",
+    "ledgerSubtitle": "Historical records of all restocks, orders deductions, and QC write-offs",
+    "table": {
+      "sku": "SKU Code",
+      "product": "Product Name",
+      "variant": "Variant (Size/Color)",
+      "available": "Available Stock",
+      "reserved": "Reserved",
+      "threshold": "Min Alert",
+      "adjust": "Adjust",
+      "timestamp": "Timestamp",
+      "skuProduct": "SKU & Product",
+      "changeType": "Movement Type",
+      "changeQty": "Change Qty",
+      "balanceAfter": "Balance After",
+      "reason": "Reason / Reference",
+      "operator": "Operator"
+    }
   }
 }

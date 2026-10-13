@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Boxes, AlertTriangle, Plus, Minus, History, X } from 'lucide-react';
+import { Boxes, AlertTriangle, Plus, Minus, History, X, Search, RotateCcw } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
   DropdownSelect,
@@ -14,6 +14,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
+  Pagination,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
@@ -21,7 +22,7 @@ import type { InventoryItem, StockMovement } from '../data/adminData';
 import { INITIAL_MOVEMENTS, INITIAL_INVENTORY } from '../data/adminData';
 
 export default function AdminInventory() {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
 
   const [inventoryList, setInventoryList] = useState<InventoryItem[]>([]);
@@ -29,7 +30,14 @@ export default function AdminInventory() {
 
   const [activeTab, setActiveTab] = useState<'levels' | 'history'>('levels');
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
+  const [appliedSearch, setAppliedSearch] = useState(searchParams.get('search') || '');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyPageSize, setHistoryPageSize] = useState(10);
 
   // Adjust stock modal state
   const [adjustTarget, setAdjustTarget] = useState<InventoryItem | null>(null);
@@ -109,11 +117,30 @@ export default function AdminInventory() {
     }
   };
 
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setAppliedSearch(searchInput.trim());
+    setCurrentPage(1);
+  };
+
+  const handleResetSearch = () => {
+    setSearchInput('');
+    setAppliedSearch('');
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (filter: 'all' | 'low' | 'out') => {
+    setStockFilter(filter);
+    setCurrentPage(1);
+  };
+
   // Filtered Inventory
   const filteredInventory = inventoryList.filter((item) => {
+    const query = appliedSearch.toLowerCase();
     const matchesSearch =
-      item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.sku.toLowerCase().includes(searchQuery.toLowerCase());
+      !query ||
+      item.productName.toLowerCase().includes(query) ||
+      item.sku.toLowerCase().includes(query);
 
     if (stockFilter === 'low') {
       return matchesSearch && item.availableStock > 0 && item.availableStock <= item.lowStockThreshold;
@@ -124,6 +151,12 @@ export default function AdminInventory() {
     return matchesSearch;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filteredInventory.length / pageSize));
+  const paginatedInventory = filteredInventory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const totalHistoryPages = Math.max(1, Math.ceil(movementsList.length / historyPageSize));
+  const paginatedMovements = movementsList.slice((historyPage - 1) * historyPageSize, historyPage * historyPageSize);
+
   const lowStockCount = inventoryList.filter(
     (i) => i.availableStock > 0 && i.availableStock <= i.lowStockThreshold,
   ).length;
@@ -131,11 +164,10 @@ export default function AdminInventory() {
 
   return (
     <AdminLayout
-      title={language === 'th' ? 'การจัดการสต็อกและความเคลื่อนไหว' : 'Inventory & Stock Control'}
+      title={t('inventory.title') || 'การจัดการสต็อกและความเคลื่อนไหว'}
       subtitle={
-        language === 'th'
-          ? 'ควบคุมระดับสินค้าคงคลังราย SKU และตรวจสอบประวัติการปรับสต็อก (Stock Movement Ledger)'
-          : 'SKU-level stock management and real-time audit ledger'
+        t('inventory.subtitle') ||
+        'ควบคุมระดับสินค้าคงคลังราย SKU และตรวจสอบประวัติการปรับสต็อก (Stock Movement Ledger)'
       }
     >
       <div className="space-y-6">
@@ -153,25 +185,25 @@ export default function AdminInventory() {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setActiveTab('levels')}
-              className={`px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 ${
+              className={`px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 cursor-pointer ${
                 activeTab === 'levels'
                   ? 'bg-brand-brown text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-100'
               }`}
             >
               <Boxes size={14} />
-              <span>{language === 'th' ? 'ระดับสต็อกสินค้าคงคลัง' : 'Current Stock Levels'}</span>
+              <span>{t('inventory.levelsTab') || 'ระดับสต็อกสินค้าคงคลัง'}</span>
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 ${
+              className={`px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 cursor-pointer ${
                 activeTab === 'history'
                   ? 'bg-brand-brown text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-100'
               }`}
             >
               <History size={14} />
-              <span>{language === 'th' ? 'ประวัติการเคลื่อนไหวสต็อก (Audit Log)' : 'Stock Movement Ledger'}</span>
+              <span>{t('inventory.historyTab') || 'ประวัติการเคลื่อนไหวสต็อก (Audit Log)'}</span>
             </button>
           </div>
 
@@ -179,11 +211,11 @@ export default function AdminInventory() {
           <div className="flex items-center space-x-2 text-xs">
             <span className="bg-amber-100 text-amber-900 px-2.5 py-1 rounded-xs font-bold flex items-center">
               <AlertTriangle size={12} className="mr-1 text-amber-600" />
-              {lowStockCount} {language === 'th' ? 'รายการใกล้หมด' : 'Low Stock'}
+              {lowStockCount} {t('inventory.lowStockPill') || 'รายการใกล้หมด'}
             </span>
             {outOfStockCount > 0 && (
               <span className="bg-red-100 text-red-900 px-2.5 py-1 rounded-xs font-bold">
-                {outOfStockCount} {language === 'th' ? 'สินค้าหมด' : 'Out of Stock'}
+                {outOfStockCount} {t('inventory.outOfStockPill') || 'สินค้าหมด'}
               </span>
             )}
           </div>
@@ -192,40 +224,64 @@ export default function AdminInventory() {
         {activeTab === 'levels' ? (
           <>
             {/* Filter and Search Bar */}
-            <div className="bg-white border border-brand-border p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-              <div className="flex items-center space-x-2">
+            <div className="bg-white border border-brand-border p-4 flex flex-col md:flex-row gap-4 items-center justify-between shadow-2xs rounded-xs">
+              <div className="flex items-center space-x-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
                 <button
-                  onClick={() => setStockFilter('all')}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors ${
+                  type="button"
+                  onClick={() => handleFilterChange('all')}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors whitespace-nowrap cursor-pointer ${
                     stockFilter === 'all' ? 'bg-brand-brown text-white' : 'bg-brand-cream text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {language === 'th' ? 'ทั้งหมด (All SKUs)' : 'All SKUs'}
+                  {t('inventory.filterAll') || 'ทั้งหมด (All SKUs)'}
                 </button>
                 <button
-                  onClick={() => setStockFilter('low')}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors ${
+                  type="button"
+                  onClick={() => handleFilterChange('low')}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors whitespace-nowrap cursor-pointer ${
                     stockFilter === 'low' ? 'bg-brand-brown text-white' : 'bg-brand-cream text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {language === 'th' ? 'สต็อกใกล้หมด (Low Stock)' : 'Low Stock Only'}
+                  {t('inventory.filterLow') || 'สต็อกใกล้หมด (Low Stock)'}
                 </button>
                 <button
-                  onClick={() => setStockFilter('out')}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors ${
+                  type="button"
+                  onClick={() => handleFilterChange('out')}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors whitespace-nowrap cursor-pointer ${
                     stockFilter === 'out' ? 'bg-brand-brown text-white' : 'bg-brand-cream text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {language === 'th' ? 'สินค้าหมด (Out of Stock)' : 'Out of Stock'}
+                  {t('inventory.filterOut') || 'สินค้าหมด (Out of Stock)'}
                 </button>
               </div>
 
-              <SearchInput
-                containerClassName="w-full md:w-80"
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder={language === 'th' ? 'ค้นหาชื่อสินค้า, SKU...' : 'Search product title, SKU...'}
-              />
+              {/* Search Form with Search & Reset Buttons */}
+              <form onSubmit={handleSearchSubmit} className="flex items-center space-x-1.5 w-full md:w-auto">
+                <SearchInput
+                  containerClassName="w-full md:w-72"
+                  value={searchInput}
+                  onChange={setSearchInput}
+                  onClear={handleResetSearch}
+                  placeholder={t('inventory.searchPlaceholder') || 'ค้นหาชื่อสินค้า, SKU...'}
+                />
+                <button
+                  type="submit"
+                  className="inline-flex items-center space-x-1.5 bg-brand-brown hover:bg-brand-dark-brown text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer flex-shrink-0"
+                >
+                  <Search size={13} />
+                  <span>{t('inventory.searchBtn') || 'ค้นหา'}</span>
+                </button>
+                {(searchInput || appliedSearch) && (
+                  <button
+                    type="button"
+                    onClick={handleResetSearch}
+                    className="inline-flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 bg-brand-cream hover:bg-brand-border border border-brand-border rounded-xs transition-colors cursor-pointer flex-shrink-0"
+                    title={t('inventory.resetBtn') || 'ล้างตัวกรอง'}
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                )}
+              </form>
             </div>
 
             {/* Inventory Table */}
@@ -233,28 +289,28 @@ export default function AdminInventory() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{language === 'th' ? 'รูป / SKU' : 'SKU Code'}</TableHead>
-                    <TableHead>{language === 'th' ? 'ชื่อสินค้า' : 'Product Name'}</TableHead>
-                    <TableHead>{language === 'th' ? 'ขนาด & สี' : 'Variant (Size/Color)'}</TableHead>
-                    <TableHead>{language === 'th' ? 'คงเหลือพร้อมขาย' : 'Available Stock'}</TableHead>
-                    <TableHead>{language === 'th' ? 'จองไว้ (Reserved)' : 'Reserved'}</TableHead>
-                    <TableHead>{language === 'th' ? 'เกณฑ์แจ้งเตือน' : 'Min Alert'}</TableHead>
-                    <TableHead className="text-right">{language === 'th' ? 'ปรับสต็อก' : 'Adjust'}</TableHead>
+                    <TableHead className="w-44">{t('inventory.table.sku') || 'รูป / SKU'}</TableHead>
+                    <TableHead className="min-w-[180px]">{t('inventory.table.product') || 'ชื่อสินค้า'}</TableHead>
+                    <TableHead className="w-40">{t('inventory.table.variant') || 'ขนาด & สี'}</TableHead>
+                    <TableHead className="w-36">{t('inventory.table.available') || 'คงเหลือพร้อมขาย'}</TableHead>
+                    <TableHead className="w-28 text-center">{t('inventory.table.reserved') || 'จองไว้ (Reserved)'}</TableHead>
+                    <TableHead className="w-28 text-center">{t('inventory.table.threshold') || 'เกณฑ์แจ้งเตือน'}</TableHead>
+                    <TableHead className="w-28 text-right">{t('inventory.table.adjust') || 'ปรับสต็อก'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredInventory.length === 0 ? (
+                  {paginatedInventory.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} className="p-8">
                         <EmptyState
                           icon={Boxes}
-                          title={language === 'th' ? 'ไม่พบรายการสต็อกสินค้า' : 'No inventory items found'}
-                          subtitle={language === 'th' ? 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองระดับสต็อก' : 'Try adjusting your search query or stock filter'}
+                          title={t('inventory.emptyLevelsTitle') || 'ไม่พบรายการสต็อกสินค้า'}
+                          subtitle={t('inventory.emptyLevelsSubtitle') || 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองระดับสต็อก'}
                         />
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredInventory.map((item) => {
+                    paginatedInventory.map((item) => {
                       const isLowStock = item.availableStock <= item.lowStockThreshold && item.availableStock > 0;
                       const isOutOfStock = item.availableStock === 0;
 
@@ -323,7 +379,7 @@ export default function AdminInventory() {
                               }}
                               className="bg-brand-brown hover:bg-brand-amber text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xs transition-colors inline-flex items-center space-x-1 cursor-pointer"
                             >
-                              <span>{language === 'th' ? 'ปรับสต็อก' : 'Adjust'}</span>
+                              <span>{t('inventory.adjustBtn') || 'ปรับสต็อก'}</span>
                             </button>
                           </TableCell>
                         </TableRow>
@@ -332,6 +388,18 @@ export default function AdminInventory() {
                   )}
                 </TableBody>
               </Table>
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                totalItems={filteredInventory.length}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(newSize) => {
+                  setPageSize(newSize);
+                  setCurrentPage(1);
+                }}
+              />
             </TableContainer>
           </>
         ) : (
@@ -339,38 +407,35 @@ export default function AdminInventory() {
           <TableContainer>
             <div className="p-4 bg-brand-cream border-b border-gray-200">
               <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
-                {language === 'th'
-                  ? 'สมุดบันทึกประวัติการเปลี่ยนแปลงสต็อก (Stock Movement Audit Ledger)'
-                  : 'Immutable Stock Movement Audit Trail'}
+                {t('inventory.ledgerTitle') || 'สมุดบันทึกประวัติการเปลี่ยนแปลงสต็อก (Stock Movement Audit Ledger)'}
               </h3>
               <p className="text-xs text-gray-500 mt-0.5">
-                {language === 'th'
-                  ? 'เก็บบันทึกประวัติการนำเข้า ตัดสต็อก และเหตุผลการปรับปรุงเพื่อความโปร่งใส'
-                  : 'Historical records of all restocks, orders deductions, and QC write-offs'}
+                {t('inventory.ledgerSubtitle') ||
+                  'เก็บบันทึกประวัติการนำเข้า ตัดสต็อก และเหตุผลการปรับปรุงเพื่อความโปร่งใส'}
               </p>
             </div>
 
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{language === 'th' ? 'วันเวลา' : 'Timestamp'}</TableHead>
-                  <TableHead>{language === 'th' ? 'SKU / สินค้า' : 'SKU & Product'}</TableHead>
-                  <TableHead>{language === 'th' ? 'ประเภท' : 'Movement Type'}</TableHead>
-                  <TableHead>{language === 'th' ? 'จำนวนที่เปลี่ยน' : 'Change Qty'}</TableHead>
-                  <TableHead>{language === 'th' ? 'คงเหลือหลังปรับ' : 'Balance After'}</TableHead>
-                  <TableHead>{language === 'th' ? 'เหตุผล / หมายเหตุ' : 'Reason / Reference'}</TableHead>
-                  <TableHead>{language === 'th' ? 'ผู้ดำเนินการ' : 'Operator'}</TableHead>
+                  <TableHead className="w-40">{t('inventory.table.timestamp') || 'วันเวลา'}</TableHead>
+                  <TableHead className="min-w-[180px]">{t('inventory.table.skuProduct') || 'SKU / สินค้า'}</TableHead>
+                  <TableHead className="w-28 text-center">{t('inventory.table.changeType') || 'ประเภท'}</TableHead>
+                  <TableHead className="w-28 text-center">{t('inventory.table.changeQty') || 'จำนวนที่เปลี่ยน'}</TableHead>
+                  <TableHead className="w-28 text-center">{t('inventory.table.balanceAfter') || 'คงเหลือหลังปรับ'}</TableHead>
+                  <TableHead>{t('inventory.table.reason') || 'เหตุผล / หมายเหตุ'}</TableHead>
+                  <TableHead className="w-32">{t('inventory.table.operator') || 'ผู้ดำเนินการ'}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {movementsList.map((m) => (
+                {paginatedMovements.map((m) => (
                   <TableRow key={m.id}>
                     <TableCell className="font-mono text-gray-500">{m.timestamp}</TableCell>
                     <TableCell>
                       <div className="font-mono font-bold text-brand-brown">{m.sku}</div>
                       <div className="text-[11px] text-gray-500">{m.productName}</div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       <span
                         className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-xs ${
                           m.changeType === 'RESTOCK'
@@ -383,18 +448,30 @@ export default function AdminInventory() {
                         {m.changeType}
                       </span>
                     </TableCell>
-                    <TableCell className="font-mono font-bold text-sm">
+                    <TableCell className="font-mono font-bold text-sm text-center">
                       <span className={m.quantityChange >= 0 ? 'text-emerald-700' : 'text-red-600'}>
                         {m.quantityChange >= 0 ? `+${m.quantityChange}` : m.quantityChange}
                       </span>
                     </TableCell>
-                    <TableCell className="font-mono font-bold text-brand-brown">{m.balanceAfter}</TableCell>
+                    <TableCell className="font-mono font-bold text-brand-brown text-center">{m.balanceAfter}</TableCell>
                     <TableCell className="text-gray-700">{m.reason}</TableCell>
                     <TableCell className="font-semibold text-brand-brown">{m.adminName}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+
+            <Pagination
+              currentPage={historyPage}
+              totalPages={totalHistoryPages}
+              pageSize={historyPageSize}
+              totalItems={movementsList.length}
+              onPageChange={setHistoryPage}
+              onPageSizeChange={(newSize) => {
+                setHistoryPageSize(newSize);
+                setHistoryPage(1);
+              }}
+            />
           </TableContainer>
         )}
       </div>

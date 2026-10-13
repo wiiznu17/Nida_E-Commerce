@@ -6,3 +6,4 @@ export * from './EmptyState';
 export * from './input';
 export * from './dialog';
 export * from './table';
+export * from './pagination';

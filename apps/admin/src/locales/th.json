@@ -294,5 +294,50 @@
     "inStock": "มีสินค้าพร้อมส่ง",
     "lowStock": "สินค้าใกล้หมด",
     "outOfStock": "สินค้าหมด"
+  },
+  "pagination": {
+    "showing": "แสดง",
+    "to": "ถึง",
+    "of": "จากทั้งหมด",
+    "items": "รายการ",
+    "perPage": "รายการ / หน้า",
+    "prev": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "page": "หน้า"
+  },
+  "inventory": {
+    "title": "การจัดการสต็อกและความเคลื่อนไหว",
+    "subtitle": "ควบคุมระดับสินค้าคงคลังราย SKU และตรวจสอบประวัติการปรับสต็อก (Stock Movement Ledger)",
+    "levelsTab": "ระดับสต็อกสินค้าคงคลัง",
+    "historyTab": "ประวัติการเคลื่อนไหวสต็อก (Audit Log)",
+    "lowStockPill": "รายการใกล้หมด",
+    "outOfStockPill": "สินค้าหมด",
+    "filterAll": "ทั้งหมด (All SKUs)",
+    "filterLow": "สต็อกใกล้หมด (Low Stock)",
+    "filterOut": "สินค้าหมด (Out of Stock)",
+    "searchPlaceholder": "ค้นหาชื่อสินค้า, รหัส SKU...",
+    "searchBtn": "ค้นหา",
+    "resetBtn": "ล้างตัวกรอง",
+    "emptyLevelsTitle": "ไม่พบรายการสต็อกสินค้า",
+    "emptyLevelsSubtitle": "ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองระดับสต็อก",
+    "adjustBtn": "ปรับสต็อก",
+    "ledgerTitle": "สมุดบันทึกประวัติการเปลี่ยนแปลงสต็อก (Stock Movement Audit Ledger)",
+    "ledgerSubtitle": "เก็บบันทึกประวัติการนำเข้า ตัดสต็อก และเหตุผลการปรับปรุงเพื่อความโปร่งใส",
+    "table": {
+      "sku": "รูป / SKU",
+      "product": "ชื่อสินค้า",
+      "variant": "ขนาด & สี",
+      "available": "คงเหลือพร้อมขาย",
+      "reserved": "จองไว้ (Reserved)",
+      "threshold": "เกณฑ์แจ้งเตือน",
+      "adjust": "ปรับสต็อก",
+      "timestamp": "วันเวลา",
+      "skuProduct": "SKU / สินค้า",
+      "changeType": "ประเภท",
+      "changeQty": "จำนวนที่เปลี่ยน",
+      "balanceAfter": "คงเหลือหลังปรับ",
+      "reason": "เหตุผล / หมายเหตุ",
+      "operator": "ผู้ดำเนินการ"
+    }
   }
 }
