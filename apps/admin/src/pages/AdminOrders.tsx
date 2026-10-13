@@ -1,7 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Package, Truck, ExternalLink, Eye, X, MapPin, CreditCard, Send } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { DropdownSelect, Alert, SearchInput, EmptyState } from '../components/ui';
+import {
+  DropdownSelect,
+  Alert,
+  SearchInput,
+  EmptyState,
+  TableContainer,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
 import { STOREFRONT_URL } from '../config';
@@ -185,38 +197,48 @@ export default function AdminOrders() {
         </div>
 
         {/* Orders Table */}
-        <div className="bg-white border border-[#EAE3D9] overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-gray-200 bg-[#FAF7F2] text-gray-600 font-bold uppercase tracking-wider">
-                  <th className="p-4">{language === 'th' ? 'เลขออเดอร์ / วันเวลา' : 'Order # & Date'}</th>
-                  <th className="p-4">{language === 'th' ? 'ข้อมูลลูกค้า' : 'Customer'}</th>
-                  <th className="p-4">{language === 'th' ? 'รายการสินค้า' : 'Purchased Items'}</th>
-                  <th className="p-4">{language === 'th' ? 'ยอดเงิน' : 'Total'}</th>
-                  <th className="p-4">{language === 'th' ? 'สถานะคำสั่งซื้อ' : 'Fulfillment Status'}</th>
-                  <th className="p-4">{language === 'th' ? 'ขนส่ง / หมายเลขพัสดุ' : 'Courier / Tracking'}</th>
-                  <th className="p-4 text-right">{language === 'th' ? 'การจัดการ' : 'Actions'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50/80 transition-colors">
+        <TableContainer>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{language === 'th' ? 'เลขออเดอร์ / วันเวลา' : 'Order # & Date'}</TableHead>
+                <TableHead>{language === 'th' ? 'ข้อมูลลูกค้า' : 'Customer'}</TableHead>
+                <TableHead>{language === 'th' ? 'รายการสินค้า' : 'Purchased Items'}</TableHead>
+                <TableHead>{language === 'th' ? 'ยอดเงิน' : 'Total'}</TableHead>
+                <TableHead>{language === 'th' ? 'สถานะคำสั่งซื้อ' : 'Fulfillment Status'}</TableHead>
+                <TableHead>{language === 'th' ? 'ขนส่ง / หมายเลขพัสดุ' : 'Courier / Tracking'}</TableHead>
+                <TableHead className="text-right">{language === 'th' ? 'การจัดการ' : 'Actions'}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="p-8">
+                    <EmptyState
+                      icon={Package}
+                      title={language === 'th' ? 'ไม่พบคำสั่งซื้อตามตัวกรองนี้' : 'No orders found matching criteria'}
+                      subtitle={language === 'th' ? 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองสถานะ' : 'Try adjusting your search query or status filter'}
+                    />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredOrders.map((order) => (
+                  <TableRow key={order.id}>
                     {/* Order # */}
-                    <td className="p-4">
+                    <TableCell>
                       <div className="font-mono font-black text-[#2B1810] text-sm">{order.orderNumber}</div>
                       <div className="text-[11px] text-gray-400 font-normal mt-0.5">{order.createdAt}</div>
-                    </td>
+                    </TableCell>
 
                     {/* Customer */}
-                    <td className="p-4">
+                    <TableCell>
                       <div className="font-bold text-[#2B1810]">{order.customerName}</div>
                       <div className="text-[11px] text-gray-500">{order.customerEmail}</div>
                       <div className="text-[11px] text-gray-400">{order.customerPhone}</div>
-                    </td>
+                    </TableCell>
 
                     {/* Items */}
-                    <td className="p-4">
+                    <TableCell>
                       <div className="flex items-center space-x-2">
                         {order.items[0]?.image && (
                           <img
@@ -233,16 +255,16 @@ export default function AdminOrders() {
                           </div>
                         </div>
                       </div>
-                    </td>
+                    </TableCell>
 
                     {/* Amount */}
-                    <td className="p-4">
+                    <TableCell>
                       <div className="font-mono font-black text-[#2B1810] text-sm">${order.totalAmount.toFixed(2)}</div>
                       <div className="text-[10px] text-gray-500 mt-0.5">{order.paymentMethod}</div>
-                    </td>
+                    </TableCell>
 
                     {/* Status with quick selector */}
-                    <td className="p-4">
+                    <TableCell>
                       <DropdownSelect
                         value={order.status}
                         onChange={(val) => handleQuickStatusChange(order.id, val as AdminOrder['status'])}
@@ -263,10 +285,10 @@ export default function AdminOrders() {
                                 : 'bg-purple-50 text-purple-900 border-purple-300'
                         }`}
                       />
-                    </td>
+                    </TableCell>
 
                     {/* Courier & Tracking */}
-                    <td className="p-4">
+                    <TableCell>
                       {order.trackingNumber ? (
                         <div>
                           <div className="font-mono font-bold text-[#2B1810] text-[11px] flex items-center">
@@ -278,42 +300,32 @@ export default function AdminOrders() {
                       ) : (
                         <button
                           onClick={() => handleOpenFulfill(order)}
-                          className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-xs transition-colors"
+                          className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-xs transition-colors cursor-pointer"
                         >
                           {language === 'th' ? '+ ใส่เลขพัสดุ' : '+ Add Tracking'}
                         </button>
                       )}
-                    </td>
+                    </TableCell>
 
                     {/* Actions */}
-                    <td className="p-4 text-right">
+                    <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-2">
                         <button
                           onClick={() => setSelectedOrder(order)}
-                          className="p-1.5 text-[#2B1810] hover:text-[#D97706] hover:bg-gray-100 rounded-xs flex items-center space-x-1"
+                          className="p-1.5 text-[#2B1810] hover:text-[#D97706] hover:bg-gray-100 rounded-xs flex items-center space-x-1 cursor-pointer"
                           title={language === 'th' ? 'ดูใบสั่งซื้อฉบับเต็ม' : 'View full invoice'}
                         >
                           <Eye size={16} />
                           <span className="font-bold text-[11px]">{language === 'th' ? 'รายละเอียด' : 'Details'}</span>
                         </button>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredOrders.length === 0 && (
-            <div className="p-8">
-              <EmptyState
-                icon={Package}
-                title={language === 'th' ? 'ไม่พบคำสั่งซื้อตามตัวกรองนี้' : 'No orders found matching criteria'}
-                subtitle={language === 'th' ? 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองสถานะ' : 'Try adjusting your search query or status filter'}
-              />
-            </div>
-          )}
-        </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
 
       {/* Fulfill / Add Tracking Modal */}

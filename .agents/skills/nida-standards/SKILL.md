@@ -211,6 +211,12 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   - Examples of standard central components:
     - `Button` (`components/ui/button.tsx`)
     - `Select` / `DropdownSelect` (`components/ui/select.tsx`)
+    - `Table`, `TableContainer`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell` (`components/ui/table.tsx`)
+    - `SearchInput` (`components/ui/SearchInput.tsx`)
+    - `Alert` (`components/ui/Alert.tsx`)
+    - `EmptyState` (`components/ui/EmptyState.tsx`)
+    - `Input`, `Textarea` (`components/ui/input.tsx`)
+    - `Dialog` (`components/ui/dialog.tsx`)
     - `StatusBadge` (`components/common/StatusBadge.tsx`)
     - `UnsavedChangesModal` (`components/common/UnsavedChangesModal.tsx`)
 

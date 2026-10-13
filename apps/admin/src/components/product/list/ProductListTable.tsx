@@ -2,7 +2,16 @@ import { Link } from 'react-router-dom';
 import { Boxes, Edit, Eye, Trash2, ShoppingBag, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { STOREFRONT_URL } from '../../../config';
-import { EmptyState } from '../../ui';
+import {
+  EmptyState,
+  TableContainer,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../../ui';
 import type { Product } from '../../../data/products';
 import type { InventoryItem } from '../../../data/adminData';
 
@@ -59,33 +68,33 @@ export function ProductListTable({
   }
 
   return (
-    <div className="overflow-x-auto bg-white border border-[#EAE3D9] rounded-xs shadow-2xs">
-      <table className="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr className="border-b border-[#EAE3D9] bg-[#FAF7F2] text-[10px] font-black uppercase tracking-wider text-gray-500">
-            <th className="p-3.5 w-14 text-center">{language === 'th' ? 'รูป' : 'Image'}</th>
-            <th className="p-3.5">{t('productList.table.product')}</th>
-            <th className="p-3.5 w-28 text-right">{t('productList.table.price')}</th>
-            <th className="p-3.5 w-32 text-center">{t('productList.table.category')}</th>
-            <th className="p-3.5 w-28 text-center">{t('productList.table.stock')}</th>
-            <th className="p-3.5 w-28 text-center">{t('productList.table.status')}</th>
-            <th className="p-3.5 w-24 text-center">{t('productList.table.tag')}</th>
-            <th className="p-3.5 w-32 text-right">{t('productList.table.actions')}</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[#FAF7F2]">
+    <TableContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-14 text-center">{language === 'th' ? 'รูป' : 'Image'}</TableHead>
+            <TableHead>{t('productList.table.product')}</TableHead>
+            <TableHead className="w-28 text-right">{t('productList.table.price')}</TableHead>
+            <TableHead className="w-32 text-center">{t('productList.table.category')}</TableHead>
+            <TableHead className="w-28 text-center">{t('productList.table.stock')}</TableHead>
+            <TableHead className="w-28 text-center">{t('productList.table.status')}</TableHead>
+            <TableHead className="w-24 text-center">{t('productList.table.tag')}</TableHead>
+            <TableHead className="w-32 text-right">{t('productList.table.actions')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {products.map((product) => {
             const stockCount = getProductTotalStock(product.id, product.name);
             const isPublished = product.isActive !== false;
             const isToggling = togglingId === product.id;
 
             return (
-              <tr
+              <TableRow
                 key={product.id}
-                className="hover:bg-[#FAF7F2]/60 transition-colors group"
+                className="group"
               >
                 {/* Image */}
-                <td className="p-3 text-center">
+                <TableCell className="text-center">
                   <div className="w-11 h-14 bg-gray-100 border border-[#EAE3D9] rounded-xs overflow-hidden mx-auto">
                     <img
                       src={product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200'}
@@ -94,10 +103,10 @@ export function ProductListTable({
                       loading="lazy"
                     />
                   </div>
-                </td>
+                </TableCell>
 
                 {/* Name & Subtitle */}
-                <td className="p-3">
+                <TableCell>
                   <div className="space-y-0.5">
                     <Link
                       to={`/admin/products/${product.id}/edit`}
@@ -121,10 +130,10 @@ export function ProductListTable({
                       )}
                     </div>
                   </div>
-                </td>
+                </TableCell>
 
                 {/* Price */}
-                <td className="p-3 text-right">
+                <TableCell className="text-right">
                   <div className="font-mono font-bold text-gray-900">
                     ฿{product.price.toLocaleString()}
                   </div>
@@ -133,20 +142,20 @@ export function ProductListTable({
                       ฿{product.originalPrice.toLocaleString()}
                     </div>
                   )}
-                </td>
+                </TableCell>
 
                 {/* Category / Department */}
-                <td className="p-3 text-center">
+                <TableCell className="text-center">
                   <span className="inline-block bg-[#FAF7F2] border border-[#EAE3D9] text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded-xs uppercase tracking-tight">
                     {product.subCategory || product.category}
                   </span>
                   <div className="text-[10px] text-gray-400 uppercase tracking-widest mt-0.5">
                     {product.department}
                   </div>
-                </td>
+                </TableCell>
 
                 {/* Stock Level */}
-                <td className="p-3 text-center">
+                <TableCell className="text-center">
                   <span
                     className={`inline-flex items-center space-x-1 px-2 py-0.5 text-[11px] font-bold rounded-xs ${
                       stockCount === 0
@@ -167,10 +176,10 @@ export function ProductListTable({
                     />
                     <span>{stockCount} {language === 'th' ? 'ชิ้น' : 'pcs'}</span>
                   </span>
-                </td>
+                </TableCell>
 
                 {/* Status Toggle Switch */}
-                <td className="p-3 text-center">
+                <TableCell className="text-center">
                   <button
                     type="button"
                     disabled={isToggling}
@@ -197,10 +206,10 @@ export function ProductListTable({
                         : t('productList.draft')}
                     </span>
                   </button>
-                </td>
+                </TableCell>
 
                 {/* Tag */}
-                <td className="p-3 text-center">
+                <TableCell className="text-center">
                   {product.tag ? (
                     <span className="bg-[#2B1810] text-[#F59E0B] text-[9px] font-black uppercase px-2 py-0.5 rounded-xs tracking-wider">
                       {product.tag}
@@ -208,10 +217,10 @@ export function ProductListTable({
                   ) : (
                     <span className="text-gray-300">-</span>
                   )}
-                </td>
+                </TableCell>
 
                 {/* Action Buttons */}
-                <td className="p-3 text-right">
+                <TableCell className="text-right">
                   <div className="flex items-center justify-end space-x-1">
                     <Link
                       to={`/admin/inventory?search=${encodeURIComponent(product.name)}`}
@@ -245,12 +254,12 @@ export function ProductListTable({
                       <Trash2 size={15} />
                     </button>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 }

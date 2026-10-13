@@ -51,7 +51,7 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 - **Component Reusability (เน้นการสร้างและใช้ Reusable Component กลาง)**:
   - **Central Primitives Mandate (`components/ui/`)**: Always prioritize creating and reusing central UI components (`components/ui/`, `components/common/`) instead of duplicating ad-hoc inline JSX, raw HTML tags, and custom Tailwind chunks.
   - **Zero Raw Native `<select>` Policy**: Never write raw HTML `<select>` tags with inline styles or custom ad-hoc arrow wrappers across views. Always use the central `<DropdownSelect>` or `<Select>` compound component from `@/components/ui`.
-  - **Extract Early**: If any UI control or widget pattern is repeated across 2 or more places, extract it as a central component in `components/ui/` or `components/common/` immediately. Examples: `Button`, `Select` / `DropdownSelect`, `StatusBadge`, `UnsavedChangesModal`.
+  - **Extract Early**: If any UI control or widget pattern is repeated across 2 or more places, extract it as a central component in `components/ui/` or `components/common/` immediately. Examples: `Button`, `Select` / `DropdownSelect`, `Table` / `TableContainer`, `SearchInput`, `Alert`, `EmptyState`, `StatusBadge`, `UnsavedChangesModal`.
 - **Badge Discipline & No Gratuitous Badges (ลดการใส่ Badge พร่ำเพรื่อ)**:
   - **Zero Meta-Badges on Headers**: Do NOT stick redundant badges on card/section headers (e.g. `Predefined Enums`, `Locked`, `System`). Controls and field labels already convey this context.
   - **Zero Duplicate Status Badges**: Do NOT render decorative status badges right next to/above form switches that already reflect that exact state (e.g. no "Published" badge right above a Published/Draft switcher).

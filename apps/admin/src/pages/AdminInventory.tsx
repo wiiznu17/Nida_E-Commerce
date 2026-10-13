@@ -2,7 +2,19 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Boxes, AlertTriangle, Plus, Minus, History, X } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { DropdownSelect, Alert, SearchInput, EmptyState } from '../components/ui';
+import {
+  DropdownSelect,
+  Alert,
+  SearchInput,
+  EmptyState,
+  TableContainer,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
 import type { InventoryItem, StockMovement } from '../data/adminData';
@@ -217,39 +229,38 @@ export default function AdminInventory() {
             </div>
 
             {/* Inventory Table */}
-            <div className="bg-white border border-[#EAE3D9] overflow-hidden shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-gray-200 bg-[#FAF7F2] text-gray-600 font-bold uppercase tracking-wider">
-                      <th className="p-4">{language === 'th' ? 'รูป / SKU' : 'SKU Code'}</th>
-                      <th className="p-4">{language === 'th' ? 'ชื่อสินค้า' : 'Product Name'}</th>
-                      <th className="p-4">{language === 'th' ? 'ขนาด & สี' : 'Variant (Size/Color)'}</th>
-                      <th className="p-4">{language === 'th' ? 'คงเหลือพร้อมขาย' : 'Available Stock'}</th>
-                      <th className="p-4">{language === 'th' ? 'จองไว้ (Reserved)' : 'Reserved'}</th>
-                      <th className="p-4">{language === 'th' ? 'เกณฑ์แจ้งเตือน' : 'Min Alert'}</th>
-                      <th className="p-4 text-right">{language === 'th' ? 'ปรับสต็อก' : 'Adjust'}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                    {filteredInventory.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="p-8">
-                          <EmptyState
-                            icon={Boxes}
-                            title={language === 'th' ? 'ไม่พบรายการสต็อกสินค้า' : 'No inventory items found'}
-                            subtitle={language === 'th' ? 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองระดับสต็อก' : 'Try adjusting your search query or stock filter'}
-                          />
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredInventory.map((item) => {
+            <TableContainer>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{language === 'th' ? 'รูป / SKU' : 'SKU Code'}</TableHead>
+                    <TableHead>{language === 'th' ? 'ชื่อสินค้า' : 'Product Name'}</TableHead>
+                    <TableHead>{language === 'th' ? 'ขนาด & สี' : 'Variant (Size/Color)'}</TableHead>
+                    <TableHead>{language === 'th' ? 'คงเหลือพร้อมขาย' : 'Available Stock'}</TableHead>
+                    <TableHead>{language === 'th' ? 'จองไว้ (Reserved)' : 'Reserved'}</TableHead>
+                    <TableHead>{language === 'th' ? 'เกณฑ์แจ้งเตือน' : 'Min Alert'}</TableHead>
+                    <TableHead className="text-right">{language === 'th' ? 'ปรับสต็อก' : 'Adjust'}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredInventory.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="p-8">
+                        <EmptyState
+                          icon={Boxes}
+                          title={language === 'th' ? 'ไม่พบรายการสต็อกสินค้า' : 'No inventory items found'}
+                          subtitle={language === 'th' ? 'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองระดับสต็อก' : 'Try adjusting your search query or stock filter'}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredInventory.map((item) => {
                       const isLowStock = item.availableStock <= item.lowStockThreshold && item.availableStock > 0;
                       const isOutOfStock = item.availableStock === 0;
 
                       return (
-                        <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
-                          <td className="p-4">
+                        <TableRow key={item.id}>
+                          <TableCell>
                             <div className="flex items-center space-x-3">
                               <img
                                 src={item.image}
@@ -261,11 +272,11 @@ export default function AdminInventory() {
                                 <span className="text-[10px] text-gray-400 uppercase">{item.department}</span>
                               </div>
                             </div>
-                          </td>
+                          </TableCell>
 
-                          <td className="p-4 font-bold text-[#2B1810]">{item.productName}</td>
+                          <TableCell className="font-bold text-[#2B1810]">{item.productName}</TableCell>
 
-                          <td className="p-4">
+                          <TableCell>
                             <div className="flex items-center space-x-1.5">
                               <span
                                 className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block"
@@ -274,9 +285,9 @@ export default function AdminInventory() {
                               <span className="font-bold text-gray-800">{item.size}</span>
                               <span className="text-gray-500 text-[11px]">({item.colorName})</span>
                             </div>
-                          </td>
+                          </TableCell>
 
-                          <td className="p-4">
+                          <TableCell>
                             <div className="flex items-center space-x-2">
                               <span
                                 className={`font-mono text-base font-black ${
@@ -296,36 +307,36 @@ export default function AdminInventory() {
                                 </span>
                               )}
                             </div>
-                          </td>
+                          </TableCell>
 
-                          <td className="p-4 font-mono text-gray-500">
+                          <TableCell className="font-mono text-gray-500">
                             {item.reservedStock} {language === 'th' ? 'ชิ้น' : 'pcs'}
-                          </td>
+                          </TableCell>
 
-                          <td className="p-4 font-mono text-gray-400">≤ {item.lowStockThreshold}</td>
+                          <TableCell className="font-mono text-gray-400">≤ {item.lowStockThreshold}</TableCell>
 
-                          <td className="p-4 text-right">
+                          <TableCell className="text-right">
                             <button
                               onClick={() => {
                                 setAdjustTarget(item);
                                 setAdjustQuantity(10);
                               }}
-                              className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xs transition-colors inline-flex items-center space-x-1"
+                              className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xs transition-colors inline-flex items-center space-x-1 cursor-pointer"
                             >
                               <span>{language === 'th' ? 'ปรับสต็อก' : 'Adjust'}</span>
                             </button>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       );
-                    }))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </>
         ) : (
           /* Stock Movement Ledger Table */
-          <div className="bg-white border border-[#EAE3D9] overflow-hidden shadow-xs">
+          <TableContainer>
             <div className="p-4 bg-[#FAF7F2] border-b border-gray-200">
               <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
                 {language === 'th'
@@ -339,54 +350,52 @@ export default function AdminInventory() {
               </p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 font-bold uppercase tracking-wider">
-                    <th className="p-4">{language === 'th' ? 'วันเวลา' : 'Timestamp'}</th>
-                    <th className="p-4">{language === 'th' ? 'SKU / สินค้า' : 'SKU & Product'}</th>
-                    <th className="p-4">{language === 'th' ? 'ประเภท' : 'Movement Type'}</th>
-                    <th className="p-4">{language === 'th' ? 'จำนวนที่เปลี่ยน' : 'Change Qty'}</th>
-                    <th className="p-4">{language === 'th' ? 'คงเหลือหลังปรับ' : 'Balance After'}</th>
-                    <th className="p-4">{language === 'th' ? 'เหตุผล / หมายเหตุ' : 'Reason / Reference'}</th>
-                    <th className="p-4">{language === 'th' ? 'ผู้ดำเนินการ' : 'Operator'}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                  {movementsList.map((m) => (
-                    <tr key={m.id} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="p-4 font-mono text-gray-500">{m.timestamp}</td>
-                      <td className="p-4">
-                        <div className="font-mono font-bold text-[#2B1810]">{m.sku}</div>
-                        <div className="text-[11px] text-gray-500">{m.productName}</div>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-xs ${
-                            m.changeType === 'RESTOCK'
-                              ? 'bg-emerald-100 text-emerald-900'
-                              : m.changeType === 'DAMAGE'
-                                ? 'bg-red-100 text-red-900'
-                                : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {m.changeType}
-                        </span>
-                      </td>
-                      <td className="p-4 font-mono font-bold text-sm">
-                        <span className={m.quantityChange >= 0 ? 'text-emerald-700' : 'text-red-600'}>
-                          {m.quantityChange >= 0 ? `+${m.quantityChange}` : m.quantityChange}
-                        </span>
-                      </td>
-                      <td className="p-4 font-mono font-bold text-[#2B1810]">{m.balanceAfter}</td>
-                      <td className="p-4 text-gray-700">{m.reason}</td>
-                      <td className="p-4 font-semibold text-[#2B1810]">{m.adminName}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{language === 'th' ? 'วันเวลา' : 'Timestamp'}</TableHead>
+                  <TableHead>{language === 'th' ? 'SKU / สินค้า' : 'SKU & Product'}</TableHead>
+                  <TableHead>{language === 'th' ? 'ประเภท' : 'Movement Type'}</TableHead>
+                  <TableHead>{language === 'th' ? 'จำนวนที่เปลี่ยน' : 'Change Qty'}</TableHead>
+                  <TableHead>{language === 'th' ? 'คงเหลือหลังปรับ' : 'Balance After'}</TableHead>
+                  <TableHead>{language === 'th' ? 'เหตุผล / หมายเหตุ' : 'Reason / Reference'}</TableHead>
+                  <TableHead>{language === 'th' ? 'ผู้ดำเนินการ' : 'Operator'}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {movementsList.map((m) => (
+                  <TableRow key={m.id}>
+                    <TableCell className="font-mono text-gray-500">{m.timestamp}</TableCell>
+                    <TableCell>
+                      <div className="font-mono font-bold text-[#2B1810]">{m.sku}</div>
+                      <div className="text-[11px] text-gray-500">{m.productName}</div>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-xs ${
+                          m.changeType === 'RESTOCK'
+                            ? 'bg-emerald-100 text-emerald-900'
+                            : m.changeType === 'DAMAGE'
+                              ? 'bg-red-100 text-red-900'
+                              : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {m.changeType}
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-mono font-bold text-sm">
+                      <span className={m.quantityChange >= 0 ? 'text-emerald-700' : 'text-red-600'}>
+                        {m.quantityChange >= 0 ? `+${m.quantityChange}` : m.quantityChange}
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-mono font-bold text-[#2B1810]">{m.balanceAfter}</TableCell>
+                    <TableCell className="text-gray-700">{m.reason}</TableCell>
+                    <TableCell className="font-semibold text-[#2B1810]">{m.adminName}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </div>
 

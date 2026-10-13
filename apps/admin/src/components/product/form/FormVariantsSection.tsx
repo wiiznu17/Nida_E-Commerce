@@ -8,6 +8,15 @@ import {
   Barcode,
 } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import {
+  TableContainer,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../../ui';
 import type { FormVariantsSectionProps } from './formTypes';
 
 export function FormVariantsSection({
@@ -252,39 +261,38 @@ export function FormVariantsSection({
           </div>
 
           {/* SKU Table */}
-          <div className="border border-gray-200 rounded-md overflow-hidden bg-white">
-            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead className="bg-[#FAF7F2] text-gray-600 border-b border-gray-200 sticky top-0 z-10">
-                  <tr>
-                    <th className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810]">
-                      {t('product.skuCode')}
-                    </th>
-                    <th className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-44">
-                      {t('product.color')}
-                    </th>
-                    <th className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-20 text-center">
-                      {t('product.size')}
-                    </th>
-                    <th className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-64 whitespace-nowrap">
-                      {t('product.currentStockReadOnly')}
-                    </th>
-                    <th className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-28 text-center">
-                      {t('product.lowStockAlert')}
-                    </th>
-                    <th className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-28 text-center">
-                      {t('product.priceAdj')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {skuList.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="py-8 text-center text-gray-400 text-xs">
-                        {t('product.noVariantsDefined')}
-                      </td>
-                    </tr>
-                  ) : (
+          <TableContainer className="border border-gray-200 rounded-md overflow-hidden bg-white">
+            <Table containerClassName="max-h-[400px] overflow-y-auto">
+              <TableHeader className="bg-[#FAF7F2] text-gray-600 border-b border-gray-200 sticky top-0 z-10">
+                <TableRow>
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810]">
+                    {t('product.skuCode')}
+                  </TableHead>
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-44">
+                    {t('product.color')}
+                  </TableHead>
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-20 text-center">
+                    {t('product.size')}
+                  </TableHead>
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-64 whitespace-nowrap">
+                    {t('product.currentStockReadOnly')}
+                  </TableHead>
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-28 text-center">
+                    {t('product.lowStockAlert')}
+                  </TableHead>
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-28 text-center">
+                    {t('product.priceAdj')}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-gray-100">
+                {skuList.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="py-8 text-center text-gray-400 text-xs">
+                      {t('product.noVariantsDefined')}
+                    </TableCell>
+                  </TableRow>
+                ) : (
                     skuList.map((sku, index) => {
                     const stockNum = Number(sku.stock) || 0;
                     const thresholdNum = Number(sku.lowStockThreshold) || 5;
@@ -292,11 +300,11 @@ export function FormVariantsSection({
                     const isOutOfStock = stockNum === 0;
 
                     return (
-                      <tr
+                      <TableRow
                         key={`${sku.sku}-${index}`}
                         className="hover:bg-amber-50/40 transition-colors"
                       >
-                        <td className="py-2 px-3.5 font-mono">
+                        <TableCell className="py-2 px-3.5 font-mono">
                           <input
                             type="text"
                             required
@@ -306,8 +314,8 @@ export function FormVariantsSection({
                             }
                             className="w-full text-[11px] p-1 font-mono uppercase border border-gray-300 rounded-xs bg-white focus:border-[#2B1810] outline-hidden"
                           />
-                        </td>
-                        <td className="py-2 px-3.5">
+                        </TableCell>
+                        <TableCell className="py-2 px-3.5">
                           <div className="flex items-center space-x-1.5">
                             <span
                               className="w-3.5 h-3.5 rounded-full border border-gray-400 shadow-2xs flex-shrink-0"
@@ -317,13 +325,13 @@ export function FormVariantsSection({
                               {sku.colorName}
                             </span>
                           </div>
-                        </td>
-                        <td className="py-2 px-3.5 text-center">
+                        </TableCell>
+                        <TableCell className="py-2 px-3.5 text-center">
                           <span className="inline-block bg-[#FAF7F2] border border-[#EAE3D9] text-[#2B1810] text-[10px] font-black px-2 py-0.5 rounded-xs">
                             {sku.size}
                           </span>
-                        </td>
-                        <td className="py-2 px-3.5">
+                        </TableCell>
+                        <TableCell className="py-2 px-3.5">
                           <div className="flex items-center space-x-1.5 whitespace-nowrap">
                             <span
                               className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded-xs border ${
@@ -352,8 +360,8 @@ export function FormVariantsSection({
                               </span>
                             )}
                           </div>
-                        </td>
-                        <td className="py-2 px-3.5 text-center">
+                        </TableCell>
+                        <TableCell className="py-2 px-3.5 text-center">
                           <input
                             type="number"
                             min="1"
@@ -367,8 +375,8 @@ export function FormVariantsSection({
                             }
                             className="w-16 text-center text-[11px] p-1 font-mono border border-gray-300 rounded-xs bg-white outline-hidden mx-auto block"
                           />
-                        </td>
-                        <td className="py-2 px-3.5 text-center">
+                        </TableCell>
+                        <TableCell className="py-2 px-3.5 text-center">
                           <input
                             type="number"
                             step="0.01"
@@ -383,13 +391,12 @@ export function FormVariantsSection({
                             placeholder="0.00"
                             className="w-18 text-center text-[11px] p-1 font-mono border border-gray-300 rounded-xs bg-white outline-hidden mx-auto block"
                           />
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     );
                   }))}
-                </tbody>
-              </table>
-            </div>
+              </TableBody>
+            </Table>
 
             <div className="p-2.5 border-t border-gray-100 bg-[#FAF7F2] flex items-center justify-between">
               <span className="text-[10px] text-gray-600 font-bold">
@@ -399,7 +406,7 @@ export function FormVariantsSection({
                 {t('product.stockManagedInInventory')}
               </span>
             </div>
-          </div>
+          </TableContainer>
         </div>
       ) : (
         /* Single SKU Mode */

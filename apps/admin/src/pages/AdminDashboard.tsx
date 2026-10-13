@@ -12,6 +12,14 @@ import {
   Tag,
 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
@@ -444,65 +452,63 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-gray-200 bg-[#FAF7F2] text-gray-600 font-bold uppercase tracking-wider">
-                  <th className="p-3">{language === 'th' ? 'เลขออเดอร์' : 'Order #'}</th>
-                  <th className="p-3">{language === 'th' ? 'ลูกค้า' : 'Customer'}</th>
-                  <th className="p-3">{language === 'th' ? 'สินค้า' : 'Items'}</th>
-                  <th className="p-3">{language === 'th' ? 'ยอดรวม' : 'Total'}</th>
-                  <th className="p-3">{language === 'th' ? 'สถานะ' : 'Status'}</th>
-                  <th className="p-3 text-right">{language === 'th' ? 'การจัดการ' : 'Action'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                {ordersList.slice(0, 5).map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="p-3 font-mono font-bold text-[#2B1810]">
-                      {order.orderNumber}
-                      <span className="block text-[10px] font-sans text-gray-400 font-normal mt-0.5">
-                        {order.createdAt}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <div className="font-bold text-[#2B1810]">{order.customerName}</div>
-                      <div className="text-[11px] text-gray-500">{order.customerEmail}</div>
-                    </td>
-                    <td className="p-3">
-                      <span className="text-gray-800">
-                        {order.items[0]?.productName}
-                        {order.items.length > 1 && ` (+อีก ${order.items.length - 1} รายการ)`}
-                      </span>
-                    </td>
-                    <td className="p-3 font-mono font-bold text-[#2B1810]">${order.totalAmount.toFixed(2)}</td>
-                    <td className="p-3">{renderStatusBadge(order.status)}</td>
-                    <td className="p-3 text-right">
-                      {order.status === 'PROCESSING' || order.status === 'PAID' ? (
-                        <button
-                          onClick={() =>
-                            updateOrderStatus(
-                              order.id,
-                              'SHIPPED',
-                              'Kerry Express TH',
-                              `KER-${Math.floor(100000000 + Math.random() * 900000000)}TH`,
-                            )
-                          }
-                          className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[10px] font-black uppercase px-2.5 py-1.5 rounded-xs transition-colors"
-                        >
-                          {language === 'th' ? 'กดจัดส่งทันที' : 'Ship Now'}
-                        </button>
-                      ) : (
-                        <Link to="/admin/orders" className="text-[#D97706] hover:underline text-xs font-bold">
-                          {language === 'th' ? 'ดูรายละเอียด' : 'View Details'}
-                        </Link>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{language === 'th' ? 'เลขออเดอร์' : 'Order #'}</TableHead>
+                <TableHead>{language === 'th' ? 'ลูกค้า' : 'Customer'}</TableHead>
+                <TableHead>{language === 'th' ? 'สินค้า' : 'Items'}</TableHead>
+                <TableHead>{language === 'th' ? 'ยอดรวม' : 'Total'}</TableHead>
+                <TableHead>{language === 'th' ? 'สถานะ' : 'Status'}</TableHead>
+                <TableHead className="text-right">{language === 'th' ? 'การจัดการ' : 'Action'}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {ordersList.slice(0, 5).map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell className="font-mono font-bold text-[#2B1810]">
+                    {order.orderNumber}
+                    <span className="block text-[10px] font-sans text-gray-400 font-normal mt-0.5">
+                      {order.createdAt}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-bold text-[#2B1810]">{order.customerName}</div>
+                    <div className="text-[11px] text-gray-500">{order.customerEmail}</div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-gray-800">
+                      {order.items[0]?.productName}
+                      {order.items.length > 1 && ` (+อีก ${order.items.length - 1} รายการ)`}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-mono font-bold text-[#2B1810]">${order.totalAmount.toFixed(2)}</TableCell>
+                  <TableCell>{renderStatusBadge(order.status)}</TableCell>
+                  <TableCell className="text-right">
+                    {order.status === 'PROCESSING' || order.status === 'PAID' ? (
+                      <button
+                        onClick={() =>
+                          updateOrderStatus(
+                            order.id,
+                            'SHIPPED',
+                            'Kerry Express TH',
+                            `KER-${Math.floor(100000000 + Math.random() * 900000000)}TH`,
+                          )
+                        }
+                        className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[10px] font-black uppercase px-2.5 py-1.5 rounded-xs transition-colors cursor-pointer"
+                      >
+                        {language === 'th' ? 'กดจัดส่งทันที' : 'Ship Now'}
+                      </button>
+                    ) : (
+                      <Link to="/admin/orders" className="text-[#D97706] hover:underline text-xs font-bold">
+                        {language === 'th' ? 'ดูรายละเอียด' : 'View Details'}
+                      </Link>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </AdminLayout>
