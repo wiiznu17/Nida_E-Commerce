@@ -315,7 +315,7 @@
     "filterAll": "All SKUs",
     "filterLow": "Low Stock Only",
     "filterOut": "Out of Stock",
-    "searchPlaceholder": "Search product title, SKU code...",
+    "searchPlaceholder": "Search SKU code...",
     "searchBtn": "Search",
     "resetBtn": "Reset",
     "emptyLevelsTitle": "No inventory items found",

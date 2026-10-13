@@ -315,7 +315,7 @@
     "filterAll": "ทั้งหมด (All SKUs)",
     "filterLow": "สต็อกใกล้หมด (Low Stock)",
     "filterOut": "สินค้าหมด (Out of Stock)",
-    "searchPlaceholder": "ค้นหาชื่อสินค้า, รหัส SKU...",
+    "searchPlaceholder": "ค้นหารหัส SKU...",
     "searchBtn": "ค้นหา",
     "resetBtn": "ล้างตัวกรอง",
     "emptyLevelsTitle": "ไม่พบรายการสต็อกสินค้า",
@@ -324,7 +324,7 @@
     "ledgerTitle": "สมุดบันทึกประวัติการเปลี่ยนแปลงสต็อก (Stock Movement Audit Ledger)",
     "ledgerSubtitle": "เก็บบันทึกประวัติการนำเข้า ตัดสต็อก และเหตุผลการปรับปรุงเพื่อความโปร่งใส",
     "table": {
-      "sku": "รูป / SKU",
+      "sku": "รหัส SKU",
       "product": "ชื่อสินค้า",
       "variant": "ขนาด & สี",
       "available": "คงเหลือพร้อมขาย",
