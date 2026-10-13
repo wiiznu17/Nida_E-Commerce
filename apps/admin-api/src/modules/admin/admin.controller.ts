@@ -55,14 +55,24 @@ export class AdminController {
     );
   }
 
-  @Post('inventory/restock')
+  @Get('inventory/movements')
+  @ApiOperation({
+    summary: 'ดูประวัติการเคลื่อนไหวของสต็อก (Stock Movement History)',
+    description: 'ดึงรายการ Audit Log การเติมสต็อก ปรับยอดสต็อก และตัดสต็อกสินค้า',
+  })
+  @ApiResponse({ status: 200, description: 'รายการประวัติการเคลื่อนไหวของสต็อก' })
+  async getStockMovements() {
+    return this.adminService.getStockMovements();
+  }
+
+  @Post(['inventory/restock', 'inventory/adjust'])
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'เติมสต็อกสินค้าเข้าคลัง (Restock Inventory)',
+    summary: 'ปรับปรุงสต็อกสินค้าเข้า/ออกคลัง (Restock / Adjust Inventory)',
     description:
-      'เพิ่มจำนวนสินค้าในคลัง พร้อมบันทึก StockMovement Audit Trail อัตโนมัติ',
+      'ปรับจำนวนสต็อกสินค้าในคลัง (บวก/ลบ) พร้อมบันทึก StockMovement Audit Trail อัตโนมัติ',
   })
-  @ApiResponse({ status: 200, description: 'เติมสต็อกสินค้าสำเร็จ' })
+  @ApiResponse({ status: 200, description: 'ปรับสต็อกสินค้าสำเร็จ' })
   @ApiResponse({ status: 404, description: 'ไม่พบสินค้า Variant ที่ระบุ' })
   async restock(@Body() dto: RestockInventoryDto) {
     return this.adminService.restock(dto);

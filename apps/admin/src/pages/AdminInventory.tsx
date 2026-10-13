@@ -90,6 +90,7 @@ export default function AdminInventory() {
     try {
       await inventoryRequester.restock({
         variantId: adjustTarget.id,
+        sku: adjustTarget.sku,
         quantity: adjustQuantity,
         reasonNote: adjustReason,
       });
@@ -99,16 +100,9 @@ export default function AdminInventory() {
           ? `ปรับสต็อก SKU: ${adjustTarget.sku} จำนวน ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity} ชิ้น เรียบร้อยแล้ว`
           : `Stock for ${adjustTarget.sku} adjusted by ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity}`,
       );
-    } catch {
-      const newStock = Math.max(0, adjustTarget.availableStock + adjustQuantity);
-      setInventoryList((prev) =>
-        prev.map((i) => (i.sku === adjustTarget.sku ? { ...i, availableStock: newStock } : i)),
-      );
-      showToast(
-        language === 'th'
-          ? `ปรับสต็อก SKU: ${adjustTarget.sku} จำนวน ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity} ชิ้น เรียบร้อยแล้ว`
-          : `Stock for ${adjustTarget.sku} adjusted by ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity}`,
-      );
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Failed to adjust stock';
+      showToast(errMsg);
     } finally {
       setAdjustTarget(null);
       setAdjustQuantity(10);

@@ -1,10 +1,17 @@
 import { apiClient } from '../client';
-import type { ApiInventoryItem, Department } from '@repo/types';
+import type {
+  ApiInventoryItem,
+  ApiStockMovement,
+  Department,
+  StockChangeType,
+} from '@repo/types';
 
 export interface RestockInventoryPayload {
   variantId: string;
+  sku?: string;
   quantity: number;
   reasonNote: string;
+  changeType?: StockChangeType;
   adminId?: string;
 }
 
@@ -21,7 +28,21 @@ export const inventoryRequester = {
   },
 
   async restock(payload: RestockInventoryPayload): Promise<ApiInventoryItem> {
-    const data = await apiClient.post<ApiInventoryItem>('/admin/inventory/restock', payload);
+    const data = await apiClient.post<ApiInventoryItem>(
+      '/admin/inventory/restock',
+      payload,
+    );
+    return data;
+  },
+
+  async adjustStock(payload: RestockInventoryPayload): Promise<ApiInventoryItem> {
+    return this.restock(payload);
+  },
+
+  async getMovements(): Promise<ApiStockMovement[]> {
+    const data = await apiClient.get<ApiStockMovement[]>(
+      '/admin/inventory/movements',
+    );
     return data;
   },
 };

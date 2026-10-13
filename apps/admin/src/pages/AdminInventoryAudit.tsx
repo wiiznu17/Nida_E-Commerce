@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Boxes, History, Search, RotateCcw, Filter } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
@@ -16,6 +16,7 @@ import {
   Pagination,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
+import { inventoryRequester } from '../api/requester/inventoryRequester';
 import type { StockMovement } from '../data/adminData';
 import { INITIAL_MOVEMENTS } from '../data/adminData';
 
@@ -23,7 +24,7 @@ export default function AdminInventoryAudit() {
   const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
 
-  const [movementsList] = useState<StockMovement[]>(INITIAL_MOVEMENTS);
+  const [movementsList, setMovementsList] = useState<StockMovement[]>(INITIAL_MOVEMENTS);
   const [typeFilter, setTypeFilter] = useState<'all' | 'RESTOCK' | 'ORDER_DEDUCT' | 'DAMAGE' | 'ADJUSTMENT'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'qty_desc' | 'qty_asc'>('newest');
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
@@ -32,6 +33,33 @@ export default function AdminInventoryAudit() {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  const loadMovements = async () => {
+    try {
+      const data = await inventoryRequester.getMovements();
+      if (Array.isArray(data) && data.length > 0) {
+        setMovementsList(
+          data.map((m) => ({
+            id: m.id,
+            sku: m.sku,
+            productName: m.productName,
+            changeType: m.changeType as StockMovement['changeType'],
+            quantityChange: m.quantityChange,
+            balanceAfter: m.balanceAfter,
+            reason: m.reason ?? '',
+            adminName: m.adminName ?? 'System / Admin',
+            timestamp: m.createdAt.replace('T', ' ').slice(0, 16),
+          })),
+        );
+      }
+    } catch {
+      // Gracefully maintain INITIAL_MOVEMENTS if endpoint fails or empty
+    }
+  };
+
+  useEffect(() => {
+    loadMovements();
+  }, []);
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();

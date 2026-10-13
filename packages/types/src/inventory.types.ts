@@ -6,6 +6,7 @@ import type { Department, StockChangeType } from './enums.js';
 
 export interface ApiInventoryItem {
   id: string;
+  variantId?: string;
   sku: string;
   productId: string;
   productName: string;

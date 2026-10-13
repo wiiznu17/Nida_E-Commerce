@@ -10,6 +10,7 @@ import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto.js';
 import type { InventoryItemWithRelations } from './types/admin.payloads.js';
 import type {
   ApiInventoryItem,
+  ApiStockMovement,
   ApiShipment,
   ApiOrder,
   ShipmentTimelineEntry,
@@ -70,10 +71,30 @@ export class AdminService {
   }
 
   async restock(dto: RestockInventoryDto): Promise<ApiInventoryItem> {
-    const { variantId, quantity, reasonNote, adminId } = dto;
+    const { variantId, sku, quantity, reasonNote, adminId, changeType } = dto;
 
-    const inventoryItem = await this.prisma.inventoryItem.findUnique({
-      where: { variantId },
+    if (quantity === 0) {
+      throw new BadRequestException('Quantity change cannot be zero');
+    }
+
+    const identifier = (variantId || sku || '').trim();
+    if (!identifier) {
+      throw new BadRequestException('Variant identifier or SKU is required');
+    }
+
+    const isUuid = UUID_REGEX.test(identifier);
+
+    const inventoryItem = await this.prisma.inventoryItem.findFirst({
+      where: isUuid
+        ? {
+            OR: [{ variantId: identifier }, { id: identifier }],
+          }
+        : {
+            OR: [
+              { variant: { skuCode: identifier } },
+              ...(sku ? [{ variant: { skuCode: sku.trim() } }] : []),
+            ],
+          },
       include: {
         variant: {
           include: {
@@ -90,11 +111,22 @@ export class AdminService {
 
     if (!inventoryItem) {
       throw new NotFoundException(
-        `Inventory item for variant "${variantId}" not found`,
+        `Inventory item for "${identifier}" not found`,
       );
     }
 
     const newBalance = inventoryItem.quantityAvailable + quantity;
+    if (newBalance < 0) {
+      throw new BadRequestException(
+        `Cannot reduce stock below zero. Current stock: ${inventoryItem.quantityAvailable}, adjustment: ${quantity}`,
+      );
+    }
+
+    const resolvedChangeType =
+      changeType ??
+      (quantity >= 0
+        ? StockChangeType.RESTOCK
+        : StockChangeType.MANUAL_ADJUSTMENT);
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const updatedItem = await tx.inventoryItem.update({
@@ -119,9 +151,9 @@ export class AdminService {
 
       await tx.stockMovement.create({
         data: {
-          variantId,
+          variantId: inventoryItem.variantId,
           adminId: adminId ?? null,
-          changeType: StockChangeType.RESTOCK,
+          changeType: resolvedChangeType,
           quantityChange: quantity,
           balanceAfter: newBalance,
           reasonNote,
@@ -132,6 +164,34 @@ export class AdminService {
     });
 
     return this.mapInventoryItem(updated);
+  }
+
+  async getStockMovements(): Promise<ApiStockMovement[]> {
+    const movements = await this.prisma.stockMovement.findMany({
+      include: {
+        variant: {
+          include: {
+            product: true,
+          },
+        },
+        admin: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+
+    return movements.map((m) => ({
+      id: m.id,
+      sku: m.variant.skuCode,
+      productName: m.variant.product.name,
+      variantInfo: `${m.variant.colorName} / ${m.variant.size}`,
+      changeType: m.changeType as ApiStockMovement['changeType'],
+      quantityChange: m.quantityChange,
+      balanceAfter: m.balanceAfter,
+      reason: m.reasonNote,
+      adminName: m.admin ? m.admin.fullName : undefined,
+      createdAt: m.createdAt.toISOString(),
+    }));
   }
 
   async fulfillOrder(identifier: string, dto: FulfillOrderDto) {
@@ -363,6 +423,7 @@ export class AdminService {
 
     return {
       id: item.id,
+      variantId: item.variantId,
       sku: v.skuCode,
       productId: p.id,
       productName: p.name,
