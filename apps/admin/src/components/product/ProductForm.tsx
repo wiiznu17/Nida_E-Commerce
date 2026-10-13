@@ -548,9 +548,9 @@ export function ProductForm({
       )}
 
       {/* 1. Top Section: Basic Info (8 Cols) + Action Hub (4 Cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left Column: Core Product Info */}
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-8 flex flex-col">
           <FormBasicInfoSection
             isTh={isTh}
             name={name}
@@ -567,7 +567,7 @@ export function ProductForm({
         </div>
 
         {/* Right Column: Status & Publishing Action Hub */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 flex flex-col">
           <FormStatusOverviewCard
             isTh={isTh}
             publishStatus={publishStatus}

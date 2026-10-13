@@ -15,7 +15,7 @@ export function FormStatusOverviewCard({
   const hasDiscount = (numericOriginal ?? 0) > numericPrice && numericPrice > 0;
 
   return (
-    <div className="bg-brand-cream border border-brand-border p-4 sm:p-5 rounded-md shadow-xs space-y-3.5">
+    <div className="bg-brand-cream border border-brand-border p-4 sm:p-5 rounded-md shadow-xs space-y-3.5 h-full flex flex-col justify-between">
       <div className="border-b border-brand-border pb-2">
         <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
           {t('product.statusOverview')}
