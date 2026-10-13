@@ -14,12 +14,12 @@ export function FormPricingSection({
   return (
     <div
       id="sec-pricing"
-      className="bg-white border border-[#EAE3D9] p-4 sm:p-5 rounded-md shadow-2xs space-y-3.5"
+      className="bg-white border border-brand-border p-4 sm:p-5 rounded-md shadow-2xs space-y-3.5"
     >
       <div className="flex items-center justify-between border-b border-gray-100 pb-2">
         <div className="flex items-center space-x-2">
-          <DollarSign size={16} className="text-[#D97706]" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+          <DollarSign size={16} className="text-brand-amber" />
+          <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
             {t('product.pricingDiscounts')}
           </h3>
         </div>
@@ -45,7 +45,7 @@ export function FormPricingSection({
               value={price}
               onChange={(e) => onPriceChange(e.target.value)}
               placeholder="129.00"
-              className="w-full text-xs p-2.5 pl-7 border border-gray-300 rounded-md focus:border-[#2B1810] outline-hidden font-mono text-base font-bold text-[#2B1810]"
+              className="w-full text-xs p-2.5 pl-7 border border-gray-300 rounded-md focus:border-brand-brown outline-hidden font-mono text-base font-bold text-brand-brown"
             />
           </div>
         </div>
@@ -63,7 +63,7 @@ export function FormPricingSection({
               value={originalPrice}
               onChange={(e) => onOriginalPriceChange(e.target.value)}
               placeholder="179.00"
-              className="w-full text-xs p-2.5 pl-7 border border-gray-300 rounded-md focus:border-[#2B1810] outline-hidden font-mono"
+              className="w-full text-xs p-2.5 pl-7 border border-gray-300 rounded-md focus:border-brand-brown outline-hidden font-mono"
             />
           </div>
         </div>

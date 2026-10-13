@@ -63,16 +63,16 @@ export function ProductListFilters({
   ];
 
   return (
-    <div className="bg-white border border-[#EAE3D9] p-4 space-y-3.5 shadow-2xs rounded-xs">
+    <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">
       {/* Top Row: Status Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#FAF7F2]">
-        <div className="flex items-center space-x-1.5 p-1 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xs w-full sm:w-auto overflow-x-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-brand-cream">
+        <div className="flex items-center space-x-1.5 p-1 bg-brand-cream border border-brand-border rounded-xs w-full sm:w-auto overflow-x-auto">
           <button
             type="button"
             onClick={() => handleStatusChange('all')}
             className={`px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-all ${
               staging.status === 'all'
-                ? 'bg-white text-[#2B1810] shadow-2xs font-black'
+                ? 'bg-white text-brand-brown shadow-2xs font-black'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -167,7 +167,7 @@ export function ProductListFilters({
           <div className="flex items-center space-x-1.5 sm:col-span-2 lg:col-span-2">
             <button
               type="submit"
-              className="flex-1 inline-flex items-center justify-center space-x-1.5 bg-[#2B1810] hover:bg-[#3D2318] text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer"
+              className="flex-1 inline-flex items-center justify-center space-x-1.5 bg-brand-brown hover:bg-brand-dark-brown text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer"
             >
               <Search size={13} />
               <span>{t('productList.searchBtn')}</span>
@@ -175,7 +175,7 @@ export function ProductListFilters({
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 bg-[#FAF7F2] hover:bg-[#EAE3D9] border border-[#EAE3D9] rounded-xs transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 bg-brand-cream hover:bg-brand-border border border-brand-border rounded-xs transition-colors cursor-pointer"
               title={t('productList.resetBtn')}
             >
               <RotateCcw size={14} />

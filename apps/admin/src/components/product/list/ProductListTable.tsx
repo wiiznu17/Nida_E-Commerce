@@ -48,8 +48,8 @@ export function ProductListTable({
 
   if (isLoading) {
     return (
-      <div className="p-16 text-center bg-white border border-[#EAE3D9] rounded-xs shadow-2xs flex flex-col items-center justify-center space-y-3">
-        <Loader2 size={32} className="animate-spin text-[#2B1810]" />
+      <div className="p-16 text-center bg-white border border-brand-border rounded-xs shadow-2xs flex flex-col items-center justify-center space-y-3">
+        <Loader2 size={32} className="animate-spin text-brand-brown" />
         <p className="text-xs font-semibold text-gray-500">
           {language === 'th' ? 'กำลังโหลดรายการสินค้า...' : 'Loading products...'}
         </p>
@@ -95,7 +95,7 @@ export function ProductListTable({
               >
                 {/* Image */}
                 <TableCell className="text-center">
-                  <div className="w-11 h-14 bg-gray-100 border border-[#EAE3D9] rounded-xs overflow-hidden mx-auto">
+                  <div className="w-11 h-14 bg-gray-100 border border-brand-border rounded-xs overflow-hidden mx-auto">
                     <img
                       src={product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200'}
                       alt={product.name}
@@ -110,7 +110,7 @@ export function ProductListTable({
                   <div className="space-y-0.5">
                     <Link
                       to={`/admin/products/${product.id}/edit`}
-                      className="font-bold text-gray-900 hover:text-[#D97706] transition-colors line-clamp-1"
+                      className="font-bold text-gray-900 hover:text-brand-amber transition-colors line-clamp-1"
                     >
                       {product.name}
                     </Link>
@@ -146,7 +146,7 @@ export function ProductListTable({
 
                 {/* Category / Department */}
                 <TableCell className="text-center">
-                  <span className="inline-block bg-[#FAF7F2] border border-[#EAE3D9] text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded-xs uppercase tracking-tight">
+                  <span className="inline-block bg-brand-cream border border-brand-border text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded-xs uppercase tracking-tight">
                     {product.subCategory || product.category}
                   </span>
                   <div className="text-[10px] text-gray-400 uppercase tracking-widest mt-0.5">
@@ -211,7 +211,7 @@ export function ProductListTable({
                 {/* Tag */}
                 <TableCell className="text-center">
                   {product.tag ? (
-                    <span className="bg-[#2B1810] text-[#F59E0B] text-[9px] font-black uppercase px-2 py-0.5 rounded-xs tracking-wider">
+                    <span className="bg-brand-brown text-brand-yellow text-[9px] font-black uppercase px-2 py-0.5 rounded-xs tracking-wider">
                       {product.tag}
                     </span>
                   ) : (
@@ -224,14 +224,14 @@ export function ProductListTable({
                   <div className="flex items-center justify-end space-x-1">
                     <Link
                       to={`/admin/inventory?search=${encodeURIComponent(product.name)}`}
-                      className="p-1.5 text-gray-500 hover:text-[#D97706] hover:bg-amber-50 rounded-xs transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-brand-amber hover:bg-amber-50 rounded-xs transition-colors"
                       title={language === 'th' ? 'จัดการสต็อกในหน้าคลังสินค้า' : 'Manage in Inventory'}
                     >
                       <Boxes size={15} />
                     </Link>
                     <Link
                       to={`/admin/products/${product.id}/edit`}
-                      className="p-1.5 text-gray-500 hover:text-[#D97706] hover:bg-amber-50 rounded-xs transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-brand-amber hover:bg-amber-50 rounded-xs transition-colors"
                       title={language === 'th' ? 'แก้ไขสเปกสินค้า' : 'Edit Product'}
                     >
                       <Edit size={15} />
@@ -240,7 +240,7 @@ export function ProductListTable({
                       href={`${STOREFRONT_URL}/products/${product.slug ?? product.id}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-1.5 text-gray-500 hover:text-[#2B1810] hover:bg-gray-100 rounded-xs transition-colors"
+                      className="p-1.5 text-gray-500 hover:text-brand-brown hover:bg-gray-100 rounded-xs transition-colors"
                       title={language === 'th' ? 'ดูหน้าสินค้าบนเว็บ' : 'View on Store'}
                     >
                       <Eye size={15} />

@@ -45,16 +45,16 @@ export function PublishConfirmModal({
   } = productData;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2B1810]/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white border border-[#EAE3D9] w-full max-w-lg rounded-xl shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white border border-brand-border w-full max-w-lg rounded-xl shadow-2xl overflow-hidden flex flex-col">
         {/* Modal Header */}
-        <div className="bg-[#FAF7F2] border-b border-[#EAE3D9] px-5 py-4 flex items-center justify-between">
+        <div className="bg-brand-cream border-b border-brand-border px-5 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shadow-2xs">
               <Globe size={18} />
             </div>
             <div>
-              <h3 className="text-sm font-black uppercase tracking-wider text-[#2B1810]">
+              <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
                 {t('publishModal.title')}
               </h3>
               <p className="text-[11px] text-gray-500 font-medium">
@@ -75,7 +75,7 @@ export function PublishConfirmModal({
         {/* Modal Body */}
         <div className="p-5 space-y-4 text-xs">
           {/* Product Summary Card */}
-          <div className="flex items-start space-x-3.5 p-3 bg-[#FAF7F2] border border-[#EAE3D9] rounded-lg">
+          <div className="flex items-start space-x-3.5 p-3 bg-brand-cream border border-brand-border rounded-lg">
             {image ? (
               <img
                 src={image}
@@ -97,10 +97,10 @@ export function PublishConfirmModal({
                   <span>{t('publishModal.liveBadge')}</span>
                 </span>
               </div>
-              <h4 className="font-bold text-[#2B1810] text-sm truncate">{name}</h4>
+              <h4 className="font-bold text-brand-brown text-sm truncate">{name}</h4>
               {nameTh && <p className="text-gray-500 text-[11px] truncate mt-0.5">{nameTh}</p>}
               <div className="flex items-center space-x-3 mt-2 font-mono">
-                <span className="font-bold text-[#2B1810] text-xs">
+                <span className="font-bold text-brand-brown text-xs">
                   ${Number(price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </span>
                 <span className="text-gray-300">•</span>
@@ -114,8 +114,8 @@ export function PublishConfirmModal({
 
           {/* Warning & Checklist Notice */}
           <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-lg space-y-2 text-amber-900 text-xs">
-            <div className="flex items-center space-x-1.5 font-bold text-[#2B1810]">
-              <AlertCircle size={15} className="text-[#D97706]" />
+            <div className="flex items-center space-x-1.5 font-bold text-brand-brown">
+              <AlertCircle size={15} className="text-brand-amber" />
               <span>{t('publishModal.checklistTitle')}</span>
             </div>
             <ul className="space-y-1 text-[11px] text-gray-700 list-disc list-inside pl-1">
@@ -170,7 +170,7 @@ export function PublishConfirmModal({
               type="button"
               disabled={isSubmitting}
               onClick={onConfirm}
-              className="flex-1 sm:flex-initial px-5 py-2 text-xs font-black uppercase tracking-wider text-[#1E110A] bg-[#F59E0B] hover:bg-[#D97706] rounded-md shadow-xs transition-colors flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
+              className="flex-1 sm:flex-initial px-5 py-2 text-xs font-black uppercase tracking-wider text-brand-dark-brown bg-brand-yellow hover:bg-brand-amber rounded-md shadow-xs transition-colors flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
             >
               <Check size={15} />
               <span>

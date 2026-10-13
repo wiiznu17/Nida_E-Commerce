@@ -39,15 +39,15 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'group/select-trigger flex h-8.5 w-full items-center justify-between gap-2 rounded-xs border border-[#EAE3D9] bg-white px-3 py-2 text-xs text-[#2B1810] shadow-2xs outline-none transition-colors select-none',
-      'hover:border-[#2B1810]/40 focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]/20',
-      'disabled:cursor-not-allowed disabled:opacity-50 data-[popup-open]:border-[#2B1810]',
+      'group/select-trigger flex h-8.5 w-full items-center justify-between gap-2 rounded-xs border border-brand-border bg-white px-3 py-2 text-xs text-brand-brown shadow-2xs outline-none transition-colors select-none',
+      'hover:border-brand-brown/40 focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20',
+      'disabled:cursor-not-allowed disabled:opacity-50 data-[popup-open]:border-brand-brown',
       className,
     )}
     {...props}
   >
     <span className="truncate flex-1 text-left">{children}</span>
-    <SelectPrimitive.Icon className="shrink-0 text-gray-400 group-hover/select-trigger:text-[#2B1810] transition-transform duration-200 group-data-[popup-open]/select-trigger:rotate-180">
+    <SelectPrimitive.Icon className="shrink-0 text-gray-400 group-hover/select-trigger:text-brand-brown transition-transform duration-200 group-data-[popup-open]/select-trigger:rotate-180">
       <ChevronDown size={14} />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
@@ -70,7 +70,7 @@ function SelectContent({
       <SelectPrimitive.Positioner sideOffset={sideOffset} className="z-50 min-w-[var(--anchor-width)]">
         <SelectPrimitive.Popup
           className={cn(
-            'max-h-64 overflow-y-auto rounded-xs border border-[#EAE3D9] bg-white p-1 text-xs text-[#2B1810] shadow-lg outline-none',
+            'max-h-64 overflow-y-auto rounded-xs border border-brand-border bg-white p-1 text-xs text-brand-brown shadow-lg outline-none',
             'animate-in fade-in-0 zoom-in-95',
             className,
           )}
@@ -90,15 +90,15 @@ const SelectItem = React.forwardRef<
     ref={ref}
     className={cn(
       'relative flex w-full items-center justify-between rounded-xs px-2.5 py-1.5 text-xs text-gray-700 outline-none select-none cursor-pointer transition-colors',
-      'data-[highlighted]:bg-[#FAF7F2] data-[highlighted]:text-[#2B1810]',
-      'data-[selected]:font-bold data-[selected]:text-[#2B1810] data-[selected]:bg-[#FAF7F2]/60',
+      'data-[highlighted]:bg-brand-cream data-[highlighted]:text-brand-brown',
+      'data-[selected]:font-bold data-[selected]:text-brand-brown data-[selected]:bg-brand-cream/60',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className,
     )}
     {...props}
   >
     <SelectPrimitive.ItemText className="truncate">{children}</SelectPrimitive.ItemText>
-    <SelectPrimitive.ItemIndicator className="shrink-0 pl-2 text-[#2B1810]">
+    <SelectPrimitive.ItemIndicator className="shrink-0 pl-2 text-brand-brown">
       <Check size={13} />
     </SelectPrimitive.ItemIndicator>
   </SelectPrimitive.Item>

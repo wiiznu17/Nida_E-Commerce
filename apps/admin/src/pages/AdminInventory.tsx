@@ -155,7 +155,7 @@ export default function AdminInventory() {
               onClick={() => setActiveTab('levels')}
               className={`px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 ${
                 activeTab === 'levels'
-                  ? 'bg-[#2B1810] text-white shadow-xs'
+                  ? 'bg-brand-brown text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-100'
               }`}
             >
@@ -166,7 +166,7 @@ export default function AdminInventory() {
               onClick={() => setActiveTab('history')}
               className={`px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 ${
                 activeTab === 'history'
-                  ? 'bg-[#2B1810] text-white shadow-xs'
+                  ? 'bg-brand-brown text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-100'
               }`}
             >
@@ -192,12 +192,12 @@ export default function AdminInventory() {
         {activeTab === 'levels' ? (
           <>
             {/* Filter and Search Bar */}
-            <div className="bg-white border border-[#EAE3D9] p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="bg-white border border-brand-border p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setStockFilter('all')}
                   className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors ${
-                    stockFilter === 'all' ? 'bg-[#2B1810] text-white' : 'bg-[#FAF7F2] text-gray-700 hover:bg-gray-200'
+                    stockFilter === 'all' ? 'bg-brand-brown text-white' : 'bg-brand-cream text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   {language === 'th' ? 'ทั้งหมด (All SKUs)' : 'All SKUs'}
@@ -205,7 +205,7 @@ export default function AdminInventory() {
                 <button
                   onClick={() => setStockFilter('low')}
                   className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors ${
-                    stockFilter === 'low' ? 'bg-[#2B1810] text-white' : 'bg-[#FAF7F2] text-gray-700 hover:bg-gray-200'
+                    stockFilter === 'low' ? 'bg-brand-brown text-white' : 'bg-brand-cream text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   {language === 'th' ? 'สต็อกใกล้หมด (Low Stock)' : 'Low Stock Only'}
@@ -213,7 +213,7 @@ export default function AdminInventory() {
                 <button
                   onClick={() => setStockFilter('out')}
                   className={`px-3 py-1.5 text-xs font-bold rounded-xs transition-colors ${
-                    stockFilter === 'out' ? 'bg-[#2B1810] text-white' : 'bg-[#FAF7F2] text-gray-700 hover:bg-gray-200'
+                    stockFilter === 'out' ? 'bg-brand-brown text-white' : 'bg-brand-cream text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   {language === 'th' ? 'สินค้าหมด (Out of Stock)' : 'Out of Stock'}
@@ -268,13 +268,13 @@ export default function AdminInventory() {
                                 className="w-10 h-12 object-cover border border-gray-200 flex-shrink-0"
                               />
                               <div>
-                                <span className="font-mono font-bold text-[#2B1810] block">{item.sku}</span>
+                                <span className="font-mono font-bold text-brand-brown block">{item.sku}</span>
                                 <span className="text-[10px] text-gray-400 uppercase">{item.department}</span>
                               </div>
                             </div>
                           </TableCell>
 
-                          <TableCell className="font-bold text-[#2B1810]">{item.productName}</TableCell>
+                          <TableCell className="font-bold text-brand-brown">{item.productName}</TableCell>
 
                           <TableCell>
                             <div className="flex items-center space-x-1.5">
@@ -321,7 +321,7 @@ export default function AdminInventory() {
                                 setAdjustTarget(item);
                                 setAdjustQuantity(10);
                               }}
-                              className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xs transition-colors inline-flex items-center space-x-1 cursor-pointer"
+                              className="bg-brand-brown hover:bg-brand-amber text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xs transition-colors inline-flex items-center space-x-1 cursor-pointer"
                             >
                               <span>{language === 'th' ? 'ปรับสต็อก' : 'Adjust'}</span>
                             </button>
@@ -337,8 +337,8 @@ export default function AdminInventory() {
         ) : (
           /* Stock Movement Ledger Table */
           <TableContainer>
-            <div className="p-4 bg-[#FAF7F2] border-b border-gray-200">
-              <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+            <div className="p-4 bg-brand-cream border-b border-gray-200">
+              <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
                 {language === 'th'
                   ? 'สมุดบันทึกประวัติการเปลี่ยนแปลงสต็อก (Stock Movement Audit Ledger)'
                   : 'Immutable Stock Movement Audit Trail'}
@@ -367,7 +367,7 @@ export default function AdminInventory() {
                   <TableRow key={m.id}>
                     <TableCell className="font-mono text-gray-500">{m.timestamp}</TableCell>
                     <TableCell>
-                      <div className="font-mono font-bold text-[#2B1810]">{m.sku}</div>
+                      <div className="font-mono font-bold text-brand-brown">{m.sku}</div>
                       <div className="text-[11px] text-gray-500">{m.productName}</div>
                     </TableCell>
                     <TableCell>
@@ -388,9 +388,9 @@ export default function AdminInventory() {
                         {m.quantityChange >= 0 ? `+${m.quantityChange}` : m.quantityChange}
                       </span>
                     </TableCell>
-                    <TableCell className="font-mono font-bold text-[#2B1810]">{m.balanceAfter}</TableCell>
+                    <TableCell className="font-mono font-bold text-brand-brown">{m.balanceAfter}</TableCell>
                     <TableCell className="text-gray-700">{m.reason}</TableCell>
-                    <TableCell className="font-semibold text-[#2B1810]">{m.adminName}</TableCell>
+                    <TableCell className="font-semibold text-brand-brown">{m.adminName}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -401,11 +401,11 @@ export default function AdminInventory() {
 
       {/* Adjust Stock Modal */}
       {adjustTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2B1810]/50 backdrop-blur-xs">
-          <div className="bg-white border border-[#EAE3D9] max-w-md w-full p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/50 backdrop-blur-xs">
+          <div className="bg-white border border-brand-border max-w-md w-full p-6 shadow-2xl relative">
             <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200">
               <div>
-                <h3 className="text-base font-black uppercase text-[#2B1810]">
+                <h3 className="text-base font-black uppercase text-brand-brown">
                   {language === 'th' ? 'ปรับปรุงจำนวนสต็อกสินค้า' : 'Adjust Inventory Stock'}
                 </h3>
                 <p className="text-xs text-gray-500 font-mono">{adjustTarget.sku}</p>
@@ -415,11 +415,11 @@ export default function AdminInventory() {
               </button>
             </div>
 
-            <div className="bg-[#FAF7F2] p-3 border border-[#EAE3D9] mb-4 text-xs">
-              <div className="font-bold text-[#2B1810]">{adjustTarget.productName}</div>
+            <div className="bg-brand-cream p-3 border border-brand-border mb-4 text-xs">
+              <div className="font-bold text-brand-brown">{adjustTarget.productName}</div>
               <div className="text-gray-500 mt-0.5">
                 ขนาด {adjustTarget.size} • สี {adjustTarget.colorName} • สต็อกปัจจุบัน:{' '}
-                <strong className="text-[#2B1810]">{adjustTarget.availableStock} ชิ้น</strong>
+                <strong className="text-brand-brown">{adjustTarget.availableStock} ชิ้น</strong>
               </div>
             </div>
 
@@ -432,7 +432,7 @@ export default function AdminInventory() {
                   <button
                     type="button"
                     onClick={() => setAdjustQuantity((prev) => prev - 5)}
-                    className="p-2 border border-gray-300 hover:bg-gray-100 text-[#2B1810]"
+                    className="p-2 border border-gray-300 hover:bg-gray-100 text-brand-brown"
                   >
                     <Minus size={16} />
                   </button>
@@ -441,12 +441,12 @@ export default function AdminInventory() {
                     required
                     value={adjustQuantity}
                     onChange={(e) => setAdjustQuantity(Number(e.target.value))}
-                    className="flex-1 text-center font-mono font-black text-base border border-gray-300 py-1.5 focus:outline-none focus:border-[#2B1810]"
+                    className="flex-1 text-center font-mono font-black text-base border border-gray-300 py-1.5 focus:outline-none focus:border-brand-brown"
                   />
                   <button
                     type="button"
                     onClick={() => setAdjustQuantity((prev) => prev + 5)}
-                    className="p-2 border border-gray-300 hover:bg-gray-100 text-[#2B1810]"
+                    className="p-2 border border-gray-300 hover:bg-gray-100 text-brand-brown"
                   >
                     <Plus size={16} />
                   </button>
@@ -493,7 +493,7 @@ export default function AdminInventory() {
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
                   placeholder="หรือพิมพ์เหตุผลเพิ่มเติม..."
-                  className="w-full border border-gray-300 px-3 py-1.5 focus:outline-none focus:border-[#2B1810]"
+                  className="w-full border border-gray-300 px-3 py-1.5 focus:outline-none focus:border-brand-brown"
                 />
               </div>
 
@@ -507,7 +507,7 @@ export default function AdminInventory() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#2B1810] hover:bg-[#D97706] text-white font-bold uppercase tracking-wider shadow-xs"
+                  className="px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white font-bold uppercase tracking-wider shadow-xs"
                 >
                   {language === 'th' ? 'บันทึกการปรับสต็อก' : 'Apply Stock Change'}
                 </button>

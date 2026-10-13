@@ -79,8 +79,8 @@ export default function AdminProductEdit() {
         title={t('product.editTitle')}
         subtitle={isTh ? 'กำลังโหลดข้อมูลสินค้า...' : 'Loading product specifications...'}
       >
-        <div className="bg-white border border-[#EAE3D9] p-16 text-center rounded-xs flex flex-col items-center justify-center space-y-3">
-          <Loader2 size={24} className="animate-spin text-[#2B1810]" />
+        <div className="bg-white border border-brand-border p-16 text-center rounded-xs flex flex-col items-center justify-center space-y-3">
+          <Loader2 size={24} className="animate-spin text-brand-brown" />
           <p className="text-xs text-gray-500 font-medium">
             {isTh ? 'กำลังดึงข้อมูลจากระบบ...' : 'Retrieving catalog data...'}
           </p>
@@ -99,7 +99,7 @@ export default function AdminProductEdit() {
             : 'The requested product could not be located in the catalog'
         }
       >
-        <div className="bg-white border border-[#EAE3D9] p-8 rounded-xs">
+        <div className="bg-white border border-brand-border p-8 rounded-xs">
           <EmptyState
             icon={AlertCircle}
             title={isTh ? `ไม่พบสินค้า ID: "${id}"` : `Product ID: "${id}" does not exist`}

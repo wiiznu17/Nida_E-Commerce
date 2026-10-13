@@ -13,12 +13,12 @@ export function FormMarketingTagSection({
   return (
     <div
       id="sec-tags"
-      className="bg-white border border-[#EAE3D9] p-4 sm:p-5 rounded-md shadow-2xs flex-1 flex flex-col justify-between space-y-3.5"
+      className="bg-white border border-brand-border p-4 sm:p-5 rounded-md shadow-2xs flex-1 flex flex-col justify-between space-y-3.5"
     >
       <div>
         <div className="flex items-center space-x-2 border-b border-gray-100 pb-2 mb-3">
-          <Tag size={16} className="text-[#D97706]" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+          <Tag size={16} className="text-brand-amber" />
+          <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
             {t('product.marketingBadge')}
           </h3>
         </div>
@@ -36,7 +36,7 @@ export function FormMarketingTagSection({
               onClick={() => onSelectTag(undefined)}
               className={`text-[10px] font-bold px-2 py-1.5 rounded-md border text-center transition-all cursor-pointer flex items-center justify-center space-x-1 ${
                 !tag
-                  ? 'bg-[#2B1810] text-white border-[#2B1810] shadow-xs'
+                  ? 'bg-brand-brown text-white border-brand-brown shadow-xs'
                   : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
               }`}
             >
@@ -74,7 +74,7 @@ export function FormMarketingTagSection({
       </div>
 
       {/* Tag Details */}
-      <div className="bg-[#FAF7F2] border border-[#EAE3D9] rounded-md p-2.5 space-y-2">
+      <div className="bg-brand-cream border border-brand-border rounded-md p-2.5 space-y-2">
         {activeMarketingTag ? (
           <>
             <div className="flex items-center justify-between text-[10px]">

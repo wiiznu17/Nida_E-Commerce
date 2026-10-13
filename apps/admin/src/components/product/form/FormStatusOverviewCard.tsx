@@ -15,9 +15,9 @@ export function FormStatusOverviewCard({
   const hasDiscount = (numericOriginal ?? 0) > numericPrice && numericPrice > 0;
 
   return (
-    <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-4 sm:p-5 rounded-md shadow-xs space-y-3.5">
-      <div className="border-b border-[#EAE3D9] pb-2">
-        <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+    <div className="bg-brand-cream border border-brand-border p-4 sm:p-5 rounded-md shadow-xs space-y-3.5">
+      <div className="border-b border-brand-border pb-2">
+        <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
           {t('product.statusOverview')}
         </span>
       </div>
@@ -27,7 +27,7 @@ export function FormStatusOverviewCard({
         <label className="text-[10px] font-bold uppercase tracking-wider text-gray-600 block">
           {t('product.publishStatusLabel')}
         </label>
-        <div className="grid grid-cols-2 gap-1.5 bg-white p-1 rounded-md border border-[#EAE3D9]">
+        <div className="grid grid-cols-2 gap-1.5 bg-white p-1 rounded-md border border-brand-border">
           <button
             type="button"
             onClick={() => onPublishStatusChange('published')}
@@ -45,7 +45,7 @@ export function FormStatusOverviewCard({
             onClick={() => onPublishStatusChange('draft')}
             className={`flex items-center justify-center space-x-1.5 py-1.5 px-2 rounded-xs text-[11px] font-bold transition-all cursor-pointer ${
               publishStatus === 'draft'
-                ? 'bg-[#2B1810] text-[#F59E0B] shadow-2xs'
+                ? 'bg-brand-brown text-brand-yellow shadow-2xs'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
@@ -66,7 +66,7 @@ export function FormStatusOverviewCard({
           <span className="text-[9px] uppercase font-bold text-gray-500 block">
             {t('product.stock')}
           </span>
-          <span className="font-black text-[#D97706] text-sm">
+          <span className="font-black text-brand-amber text-sm">
             {totalStockCount} {t('common.units')}
           </span>
         </div>
@@ -95,7 +95,7 @@ export function FormStatusOverviewCard({
               <span className="text-[9px] uppercase font-bold text-gray-500 block">
                 {t('product.price')}
               </span>
-              <span className="font-black text-[#2B1810] text-sm font-mono">
+              <span className="font-black text-brand-brown text-sm font-mono">
                 ${numericPrice.toFixed(2)}
               </span>
             </div>
@@ -107,9 +107,9 @@ export function FormStatusOverviewCard({
       <button
         type="button"
         onClick={onShowPreview}
-        className="w-full py-2 px-3 text-xs font-bold text-[#2B1810] bg-white hover:bg-amber-50/70 border border-[#EAE3D9] hover:border-[#D97706] rounded-md shadow-2xs transition-all flex items-center justify-center space-x-2 group cursor-pointer"
+        className="w-full py-2 px-3 text-xs font-bold text-brand-brown bg-white hover:bg-amber-50/70 border border-brand-border hover:border-brand-amber rounded-md shadow-2xs transition-all flex items-center justify-center space-x-2 group cursor-pointer"
       >
-        <Eye size={15} className="text-[#D97706] group-hover:scale-110 transition-transform" />
+        <Eye size={15} className="text-brand-amber group-hover:scale-110 transition-transform" />
         <span>{t('product.previewStorefront')}</span>
       </button>
     </div>

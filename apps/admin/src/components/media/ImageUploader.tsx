@@ -194,9 +194,9 @@ export function ImageUploader({
         onDrop={handleDrop}
         className={`relative border-2 border-dashed rounded-md overflow-hidden transition-all ${
           isDragging
-            ? 'border-[#D97706] bg-amber-50/50 scale-[1.01]'
+            ? 'border-brand-amber bg-amber-50/50 scale-[1.01]'
             : value
-              ? 'border-gray-200 bg-[#FAF7F2]'
+              ? 'border-gray-200 bg-brand-cream'
               : 'border-gray-300 bg-gray-50/50 hover:border-gray-400'
         } ${compact ? 'p-1.5' : 'p-2.5'}`}
       >
@@ -232,7 +232,7 @@ export function ImageUploader({
                 type="button"
                 onClick={handleOpenCropForCurrent}
                 disabled={isUploading}
-                className="px-2 py-1 text-[10px] font-bold bg-[#2B1810] text-[#F59E0B] rounded-xs hover:bg-[#3D2317] transition-colors shadow-xs flex items-center space-x-1 cursor-pointer"
+                className="px-2 py-1 text-[10px] font-bold bg-brand-brown text-brand-yellow rounded-xs hover:bg-brand-dark-brown transition-colors shadow-xs flex items-center space-x-1 cursor-pointer"
                 title={isTh ? 'ครอบตัดหรือปรับสัดส่วน 3:4' : 'Crop / Reposition 3:4'}
               >
                 <Crop size={11} />
@@ -242,7 +242,7 @@ export function ImageUploader({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="px-2 py-1 text-[10px] font-bold bg-white text-gray-800 rounded-xs hover:bg-[#FAF7F2] transition-colors shadow-xs cursor-pointer"
+                className="px-2 py-1 text-[10px] font-bold bg-white text-gray-800 rounded-xs hover:bg-brand-cream transition-colors shadow-xs cursor-pointer"
               >
                 {isTh ? 'เปลี่ยนรูป' : 'Change'}
               </button>
@@ -265,7 +265,7 @@ export function ImageUploader({
               compact ? 'py-3 px-2' : 'py-6 px-3'
             }`}
           >
-            <div className="w-8 h-8 rounded-full bg-amber-50 text-[#D97706] flex items-center justify-center mb-1.5 shadow-2xs">
+            <div className="w-8 h-8 rounded-full bg-amber-50 text-brand-amber flex items-center justify-center mb-1.5 shadow-2xs">
               <UploadCloud size={16} />
             </div>
 
@@ -283,14 +283,14 @@ export function ImageUploader({
         {/* Uploading Spinner Overlay */}
         {isUploading && (
           <div className="absolute inset-0 bg-white/90 backdrop-blur-xs flex flex-col items-center justify-center z-20 space-y-2">
-            <Loader2 size={22} className="text-[#D97706] animate-spin" />
+            <Loader2 size={22} className="text-brand-amber animate-spin" />
             <span className="text-xs font-bold text-gray-800">
               {isTh ? 'กำลังอัปโหลดรูปภาพ...' : 'Uploading image...'}
             </span>
             {uploadProgress > 0 && (
               <div className="w-28 bg-gray-200 rounded-full h-1.5 overflow-hidden">
                 <div
-                  className="bg-[#D97706] h-full transition-all duration-200"
+                  className="bg-brand-amber h-full transition-all duration-200"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>

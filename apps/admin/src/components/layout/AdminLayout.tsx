@@ -16,7 +16,7 @@ export function AdminLayout({ children, title, subtitle, actionButton }: AdminLa
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] font-sans text-[#2B1810] flex">
+    <div className="min-h-screen bg-brand-cream font-sans text-brand-brown flex">
       {/* Sidebar (Desktop Fixed & Mobile Slide-over) */}
       <AdminSidebar
         isOpen={isMobileSidebarOpen}

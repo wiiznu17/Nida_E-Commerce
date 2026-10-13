@@ -141,7 +141,7 @@ export default function AdminDashboard() {
         <div className="flex items-center space-x-2">
           <Link
             to="/admin/products"
-            className="bg-[#2B1810] hover:bg-[#D97706] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 shadow-xs"
+            className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 shadow-xs"
           >
             <Plus size={14} />
             <span>{language === 'th' ? 'เพิ่มสินค้าใหม่' : 'Add Product'}</span>
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
     >
       <div className="space-y-4">
         {/* Timeframe Filter Bar */}
-        <div className="flex items-center justify-between bg-white border border-[#EAE3D9] p-2.5 px-3.5 shadow-2xs">
+        <div className="flex items-center justify-between bg-white border border-brand-border p-2.5 px-3.5 shadow-2xs">
           <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
             {language === 'th' ? 'ช่วงเวลาที่แสดงข้อมูล:' : 'Timeframe:'}
           </span>
@@ -159,7 +159,7 @@ export default function AdminDashboard() {
             <button
               onClick={() => setTimeframe('today')}
               className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
-                timeframe === 'today' ? 'bg-[#2B1810] text-white' : 'text-gray-600 hover:text-[#2B1810]'
+                timeframe === 'today' ? 'bg-brand-brown text-white' : 'text-gray-600 hover:text-brand-brown'
               }`}
             >
               {language === 'th' ? 'วันนี้ (Today)' : 'Today'}
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
             <button
               onClick={() => setTimeframe('week')}
               className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
-                timeframe === 'week' ? 'bg-[#2B1810] text-white' : 'text-gray-600 hover:text-[#2B1810]'
+                timeframe === 'week' ? 'bg-brand-brown text-white' : 'text-gray-600 hover:text-brand-brown'
               }`}
             >
               {language === 'th' ? '7 วันล่าสุด' : 'Past 7 Days'}
@@ -175,7 +175,7 @@ export default function AdminDashboard() {
             <button
               onClick={() => setTimeframe('month')}
               className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
-                timeframe === 'month' ? 'bg-[#2B1810] text-white' : 'text-gray-600 hover:text-[#2B1810]'
+                timeframe === 'month' ? 'bg-brand-brown text-white' : 'text-gray-600 hover:text-brand-brown'
               }`}
             >
               {language === 'th' ? 'เดือนนี้ (Month)' : 'This Month'}
@@ -186,16 +186,16 @@ export default function AdminDashboard() {
         {/* 4 Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Revenue */}
-          <div className="bg-white border border-[#EAE3D9] p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
+          <div className="bg-white border border-brand-border p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-brand-brown transition-colors">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                 {language === 'th' ? 'ยอดขายรวม' : 'Total Revenue'}
               </span>
-              <div className="w-7 h-7 rounded-full bg-[#FAF7F2] text-[#D97706] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-brand-cream text-brand-amber flex items-center justify-center">
                 <DollarSign size={15} />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-[#2B1810] tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-brand-brown tracking-tight">
               $
               {(totalRevenue + 12840).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
@@ -209,16 +209,16 @@ export default function AdminDashboard() {
           </div>
 
           {/* Orders */}
-          <div className="bg-white border border-[#EAE3D9] p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
+          <div className="bg-white border border-brand-border p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-brand-brown transition-colors">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                 {language === 'th' ? 'คำสั่งซื้อทั้งหมด' : 'Total Orders'}
               </span>
-              <div className="w-7 h-7 rounded-full bg-[#FAF7F2] text-[#2B1810] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-brand-cream text-brand-brown flex items-center justify-center">
                 <ShoppingBag size={15} />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-[#2B1810] tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-brand-brown tracking-tight">
               {ordersList.length + 124} {language === 'th' ? 'ออเดอร์' : 'orders'}
             </div>
             <div className="flex items-center text-xs font-bold text-emerald-600 mt-1.5">
@@ -228,21 +228,21 @@ export default function AdminDashboard() {
           </div>
 
           {/* Pending Fulfillment */}
-          <div className="bg-white border border-[#EAE3D9] p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
+          <div className="bg-white border border-brand-border p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-brand-brown transition-colors">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                 {language === 'th' ? 'ออเดอร์รอจัดส่ง' : 'Pending Shipping'}
               </span>
-              <div className="w-7 h-7 rounded-full bg-amber-50 text-[#D97706] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-amber-50 text-brand-amber flex items-center justify-center">
                 <Package size={15} />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-[#D97706] tracking-tight">
+            <div className="text-xl sm:text-2xl font-black text-brand-amber tracking-tight">
               {pendingOrders.length} {language === 'th' ? 'รายการ' : 'pending'}
             </div>
             <Link
               to="/admin/orders"
-              className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-[#2B1810] mt-1.5 underline"
+              className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-brand-brown mt-1.5 underline"
             >
               <span>{language === 'th' ? 'คลิกเพื่อจัดการพัสดุ' : 'Fulfill orders now'}</span>
               <ArrowUpRight size={12} className="ml-0.5" />
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Low Stock Alerts */}
-          <div className="bg-white border border-[#EAE3D9] p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-[#2B1810] transition-colors">
+          <div className="bg-white border border-brand-border p-4 sm:p-5 relative overflow-hidden shadow-xs hover:border-brand-brown transition-colors">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
                 {language === 'th' ? 'สินค้าสต็อกเหลือน้อย' : 'Low Stock SKUs'}
@@ -290,7 +290,7 @@ export default function AdminDashboard() {
             </div>
             <Link
               to="/admin/inventory"
-              className="bg-[#2B1810] hover:bg-[#D97706] text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xs whitespace-nowrap"
+              className="bg-brand-brown hover:bg-brand-amber text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xs whitespace-nowrap"
             >
               {language === 'th' ? 'จัดการสต็อกทันที' : 'Adjust Stock'}
             </Link>
@@ -300,10 +300,10 @@ export default function AdminDashboard() {
         {/* Sales by Department & Quick Shortcuts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Department Breakdown */}
-          <div className="lg:col-span-2 bg-white border border-[#EAE3D9] p-6">
+          <div className="lg:col-span-2 bg-white border border-brand-border p-6">
             <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-100">
               <div>
-                <h3 className="text-sm font-black uppercase tracking-wider text-[#2B1810]">
+                <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
                   {language === 'th' ? 'สัดส่วนยอดขายตามหมวดหมู่' : 'Sales by Department'}
                 </h3>
                 <p className="text-xs text-gray-500">
@@ -312,7 +312,7 @@ export default function AdminDashboard() {
                     : 'Department distribution and product revenue'}
                 </p>
               </div>
-              <span className="text-xs font-bold text-[#D97706]">2026 Season</span>
+              <span className="text-xs font-bold text-brand-amber">2026 Season</span>
             </div>
 
             <div className="space-y-4">
@@ -320,19 +320,19 @@ export default function AdminDashboard() {
                 {
                   dept: language === 'th' ? 'เสื้อผ้าสตรี (Women)' : 'Women Collection',
                   pct: 44,
-                  color: 'bg-[#2B1810]',
+                  color: 'bg-brand-brown',
                   amount: '$62,854',
                 },
                 {
                   dept: language === 'th' ? 'เสื้อผ้าบุรุษ (Men)' : 'Men Collection',
                   pct: 28,
-                  color: 'bg-[#D97706]',
+                  color: 'bg-brand-amber',
                   amount: '$39,998',
                 },
                 {
                   dept: language === 'th' ? 'กระเป๋าและเครื่องหนัง (Bags)' : 'Bags & Leather',
                   pct: 16,
-                  color: 'bg-[#B45309]',
+                  color: 'bg-amber-700',
                   amount: '$22,856',
                 },
                 {
@@ -351,7 +351,7 @@ export default function AdminDashboard() {
                 <div key={idx} className="space-y-1.5">
                   <div className="flex justify-between text-xs font-bold text-gray-700">
                     <span>{item.dept}</span>
-                    <span className="font-mono text-[#2B1810]">
+                    <span className="font-mono text-brand-brown">
                       {item.amount} ({item.pct}%)
                     </span>
                   </div>
@@ -367,54 +367,54 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Admin Actions & Shortcuts */}
-          <div className="bg-white border border-[#EAE3D9] p-6 flex flex-col justify-between">
+          <div className="bg-white border border-brand-border p-6 flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-black uppercase tracking-wider text-[#2B1810] mb-4 pb-2 border-b border-gray-100">
+              <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown mb-4 pb-2 border-b border-gray-100">
                 {language === 'th' ? 'ทางลัดการจัดการ' : 'Quick Actions'}
               </h3>
               <div className="space-y-3">
                 <Link
                   to="/admin/products"
-                  className="w-full p-3 bg-[#FAF7F2] hover:bg-white border border-[#EAE3D9] hover:border-[#2B1810] text-left text-xs font-bold flex items-center justify-between transition-colors group"
+                  className="w-full p-3 bg-brand-cream hover:bg-white border border-brand-border hover:border-brand-brown text-left text-xs font-bold flex items-center justify-between transition-colors group"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <ShoppingBag size={16} className="text-[#D97706]" />
+                    <ShoppingBag size={16} className="text-brand-amber" />
                     <span>{language === 'th' ? 'เพิ่ม / แก้ไขสินค้า' : 'Manage Products'}</span>
                   </div>
-                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-[#2B1810]" />
+                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-brand-brown" />
                 </Link>
 
                 <Link
                   to="/admin/orders"
-                  className="w-full p-3 bg-[#FAF7F2] hover:bg-white border border-[#EAE3D9] hover:border-[#2B1810] text-left text-xs font-bold flex items-center justify-between transition-colors group"
+                  className="w-full p-3 bg-brand-cream hover:bg-white border border-brand-border hover:border-brand-brown text-left text-xs font-bold flex items-center justify-between transition-colors group"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <Package size={16} className="text-[#D97706]" />
+                    <Package size={16} className="text-brand-amber" />
                     <span>{language === 'th' ? 'อัปเดตสถานะจัดส่ง' : 'Fulfill & Ship Orders'}</span>
                   </div>
-                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-[#2B1810]" />
+                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-brand-brown" />
                 </Link>
 
                 <Link
                   to="/admin/inventory"
-                  className="w-full p-3 bg-[#FAF7F2] hover:bg-white border border-[#EAE3D9] hover:border-[#2B1810] text-left text-xs font-bold flex items-center justify-between transition-colors group"
+                  className="w-full p-3 bg-brand-cream hover:bg-white border border-brand-border hover:border-brand-brown text-left text-xs font-bold flex items-center justify-between transition-colors group"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <Boxes size={16} className="text-[#D97706]" />
+                    <Boxes size={16} className="text-brand-amber" />
                     <span>{language === 'th' ? 'ตรวจนับ & ปรับสต็อก' : 'Adjust Inventory Stock'}</span>
                   </div>
-                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-[#2B1810]" />
+                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-brand-brown" />
                 </Link>
 
                 <Link
                   to="/admin/promotions"
-                  className="w-full p-3 bg-[#FAF7F2] hover:bg-white border border-[#EAE3D9] hover:border-[#2B1810] text-left text-xs font-bold flex items-center justify-between transition-colors group"
+                  className="w-full p-3 bg-brand-cream hover:bg-white border border-brand-border hover:border-brand-brown text-left text-xs font-bold flex items-center justify-between transition-colors group"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <Tag size={16} className="text-[#D97706]" />
+                    <Tag size={16} className="text-brand-amber" />
                     <span>{language === 'th' ? 'สร้างโค้ดส่วนลดใหม่' : 'Create Promo Code'}</span>
                   </div>
-                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-[#2B1810]" />
+                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-brand-brown" />
                 </Link>
               </div>
             </div>
@@ -431,10 +431,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Orders Table */}
-        <div className="bg-white border border-[#EAE3D9] p-6 shadow-xs">
+        <div className="bg-white border border-brand-border p-6 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
             <div>
-              <h3 className="text-base font-black uppercase tracking-wider text-[#2B1810]">
+              <h3 className="text-base font-black uppercase tracking-wider text-brand-brown">
                 {language === 'th' ? 'คำสั่งซื้อล่าสุด (Recent Orders)' : 'Recent Customer Orders'}
               </h3>
               <p className="text-xs text-gray-500">
@@ -445,7 +445,7 @@ export default function AdminDashboard() {
             </div>
             <Link
               to="/admin/orders"
-              className="text-xs font-bold uppercase tracking-wider text-[#D97706] hover:underline flex items-center"
+              className="text-xs font-bold uppercase tracking-wider text-brand-amber hover:underline flex items-center"
             >
               <span>{language === 'th' ? 'ดูคำสั่งซื้อทั้งหมด' : 'View All Orders'}</span>
               <ArrowUpRight size={14} className="ml-1" />
@@ -466,14 +466,14 @@ export default function AdminDashboard() {
             <TableBody>
               {ordersList.slice(0, 5).map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-mono font-bold text-[#2B1810]">
+                  <TableCell className="font-mono font-bold text-brand-brown">
                     {order.orderNumber}
                     <span className="block text-[10px] font-sans text-gray-400 font-normal mt-0.5">
                       {order.createdAt}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <div className="font-bold text-[#2B1810]">{order.customerName}</div>
+                    <div className="font-bold text-brand-brown">{order.customerName}</div>
                     <div className="text-[11px] text-gray-500">{order.customerEmail}</div>
                   </TableCell>
                   <TableCell>
@@ -482,7 +482,7 @@ export default function AdminDashboard() {
                       {order.items.length > 1 && ` (+อีก ${order.items.length - 1} รายการ)`}
                     </span>
                   </TableCell>
-                  <TableCell className="font-mono font-bold text-[#2B1810]">${order.totalAmount.toFixed(2)}</TableCell>
+                  <TableCell className="font-mono font-bold text-brand-brown">${order.totalAmount.toFixed(2)}</TableCell>
                   <TableCell>{renderStatusBadge(order.status)}</TableCell>
                   <TableCell className="text-right">
                     {order.status === 'PROCESSING' || order.status === 'PAID' ? (
@@ -495,12 +495,12 @@ export default function AdminDashboard() {
                             `KER-${Math.floor(100000000 + Math.random() * 900000000)}TH`,
                           )
                         }
-                        className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[10px] font-black uppercase px-2.5 py-1.5 rounded-xs transition-colors cursor-pointer"
+                        className="bg-brand-brown hover:bg-brand-amber text-white text-[10px] font-black uppercase px-2.5 py-1.5 rounded-xs transition-colors cursor-pointer"
                       >
                         {language === 'th' ? 'กดจัดส่งทันที' : 'Ship Now'}
                       </button>
                     ) : (
-                      <Link to="/admin/orders" className="text-[#D97706] hover:underline text-xs font-bold">
+                      <Link to="/admin/orders" className="text-brand-amber hover:underline text-xs font-bold">
                         {language === 'th' ? 'ดูรายละเอียด' : 'View Details'}
                       </Link>
                     )}

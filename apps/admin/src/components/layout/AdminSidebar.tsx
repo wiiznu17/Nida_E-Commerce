@@ -80,7 +80,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           label: t('nav.inventory'),
           icon: Boxes,
           badge: lowStockCount > 0 ? lowStockCount : null,
-          badgeColor: 'bg-amber-500 text-[#1E110A] font-black',
+          badgeColor: 'bg-brand-yellow text-brand-dark-brown font-black',
         },
       ],
     },
@@ -110,15 +110,15 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   ];
 
   const renderContent = () => (
-    <div className="flex flex-col h-full bg-[#1E110A] text-white border-r border-[#2B1810] shadow-xl">
+    <div className="flex flex-col h-full bg-brand-dark-brown text-white border-r border-brand-brown shadow-xl">
       {/* Sidebar Header / Brand */}
       <div className="p-4 border-b border-white/10 flex flex-col items-center justify-center relative">
         <Link to="/admin" className="flex flex-col items-center" onClick={onClose}>
           <NidaLogo size="sm" dark />
         </Link>
-        <div className="mt-2 flex items-center space-x-1 bg-[#F59E0B]/15 border border-[#F59E0B]/30 px-2 py-0.5 rounded-full">
-          <ShieldCheck size={10} className="text-[#F59E0B]" />
-          <span className="text-[9px] font-black tracking-widest text-[#F59E0B] uppercase">
+        <div className="mt-2 flex items-center space-x-1 bg-brand-yellow/15 border border-brand-yellow/30 px-2 py-0.5 rounded-full">
+          <ShieldCheck size={10} className="text-brand-yellow" />
+          <span className="text-[9px] font-black tracking-widest text-brand-yellow uppercase">
             {t('nav.backOffice')}
           </span>
         </div>
@@ -147,7 +147,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                     onClick={onClose}
                     className={`group relative flex items-center justify-between px-2.5 py-1.5 text-xs font-bold tracking-wide rounded-md transition-all ${
                       isActive
-                        ? 'bg-[#F59E0B] text-[#1E110A] shadow-xs font-black'
+                        ? 'bg-brand-yellow text-brand-dark-brown shadow-xs font-black'
                         : 'text-white/75 hover:text-white hover:bg-white/10'
                     }`}
                   >
@@ -155,7 +155,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                       <Icon
                         size={15}
                         className={`transition-transform group-hover:scale-105 ${
-                          isActive ? 'text-[#1E110A]' : 'text-white/60 group-hover:text-[#F59E0B]'
+                          isActive ? 'text-brand-dark-brown' : 'text-white/60 group-hover:text-brand-yellow'
                         }`}
                       />
                       <span>{item.label}</span>
@@ -179,7 +179,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       </div>
 
       {/* Sidebar Footer / Quick Actions & User Profile */}
-      <div className="p-3 border-t border-white/10 space-y-2 bg-[#170D08]">
+      <div className="p-3 border-t border-white/10 space-y-2 bg-black/20">
         {/* View Storefront Link */}
         <a
           href={STOREFRONT_URL}
@@ -190,7 +190,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           <div className="flex items-center space-x-2">
             <ExternalLink
               size={13}
-              className="text-[#F59E0B] group-hover:translate-x-0.5 transition-transform"
+              className="text-brand-yellow group-hover:translate-x-0.5 transition-transform"
             />
             <span className="text-[11px]">{t('nav.viewStore')}</span>
           </div>
@@ -210,10 +210,10 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center space-x-2">
             <div className="relative">
-              <div className="w-7 h-7 rounded-full bg-[#F59E0B] text-[#1E110A] flex items-center justify-center font-black text-[11px] shadow-xs">
+              <div className="w-7 h-7 rounded-full bg-brand-yellow text-brand-dark-brown flex items-center justify-center font-black text-[11px] shadow-xs">
                 W
               </div>
-              <span className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full bg-emerald-500 ring-1 ring-[#170D08]" />
+              <span className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full bg-emerald-500 ring-1 ring-brand-dark-brown" />
             </div>
             <div>
               <div className="text-[11px] font-bold text-white leading-tight">Wissanu</div>
@@ -227,7 +227,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
               type="button"
               onClick={() => setLanguage('th')}
               className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors cursor-pointer ${
-                language === 'th' ? 'bg-[#F59E0B] text-[#1E110A]' : 'text-white/70 hover:text-white'
+                language === 'th' ? 'bg-brand-yellow text-brand-dark-brown' : 'text-white/70 hover:text-white'
               }`}
             >
               TH
@@ -236,7 +236,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
               type="button"
               onClick={() => setLanguage('en')}
               className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors cursor-pointer ${
-                language === 'en' ? 'bg-[#F59E0B] text-[#1E110A]' : 'text-white/70 hover:text-white'
+                language === 'en' ? 'bg-brand-yellow text-brand-dark-brown' : 'text-white/70 hover:text-white'
               }`}
             >
               EN

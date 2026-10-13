@@ -103,7 +103,7 @@ export default function AdminPromotions() {
       actionButton={
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-[#2B1810] hover:bg-[#D97706] text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 shadow-xs"
+          className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 shadow-xs"
         >
           <Plus size={16} />
           <span>{language === 'th' ? 'สร้างโค้ดส่วนลดใหม่' : 'Create New Promo'}</span>
@@ -122,7 +122,7 @@ export default function AdminPromotions() {
 
         {/* Active Promotions Cards */}
         {couponsList.length === 0 ? (
-          <div className="bg-white border border-[#EAE3D9] p-8">
+          <div className="bg-white border border-brand-border p-8">
             <EmptyState
               icon={Tag}
               title={language === 'th' ? 'ไม่พบโค้ดโปรโมชั่น' : 'No Promotions Found'}
@@ -138,7 +138,7 @@ export default function AdminPromotions() {
               <div
                 key={coupon.id}
                 className={`bg-white border p-5 relative overflow-hidden transition-all shadow-xs ${
-                  coupon.isActive ? 'border-[#EAE3D9] hover:border-[#2B1810]' : 'border-gray-200 opacity-60 bg-gray-50'
+                  coupon.isActive ? 'border-brand-border hover:border-brand-brown' : 'border-gray-200 opacity-60 bg-gray-50'
                 }`}
               >
                 {/* Header badge & status toggle */}
@@ -160,7 +160,7 @@ export default function AdminPromotions() {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => toggleCouponActive(coupon.id)}
-                      className="text-xs font-bold text-gray-500 hover:text-[#2B1810] underline"
+                      className="text-xs font-bold text-gray-500 hover:text-brand-brown underline"
                     >
                       {coupon.isActive
                         ? language === 'th'
@@ -181,16 +181,16 @@ export default function AdminPromotions() {
                 </div>
 
                 {/* Coupon Code Block */}
-                <div className="flex items-center justify-between bg-[#FAF7F2] p-3 border border-dashed border-[#2B1810] mb-4">
+                <div className="flex items-center justify-between bg-brand-cream p-3 border border-dashed border-brand-brown mb-4">
                   <div>
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">
                       PROMO CODE
                     </span>
-                    <span className="font-mono font-black text-lg text-[#2B1810]">{coupon.code}</span>
+                    <span className="font-mono font-black text-lg text-brand-brown">{coupon.code}</span>
                   </div>
                   <button
                     onClick={() => handleCopy(coupon.code)}
-                    className="p-1.5 text-[#2B1810] hover:bg-white rounded-xs border border-transparent hover:border-gray-300 transition-colors"
+                    className="p-1.5 text-brand-brown hover:bg-white rounded-xs border border-transparent hover:border-gray-300 transition-colors"
                     title="Copy Code"
                   >
                     {copiedCode === coupon.code ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
@@ -198,7 +198,7 @@ export default function AdminPromotions() {
                 </div>
 
                 {/* Discount Value */}
-                <div className="text-sm font-bold text-[#2B1810] mb-2">
+                <div className="text-sm font-bold text-brand-brown mb-2">
                   {coupon.discountType === 'PERCENTAGE' ? (
                     <span>
                       ลด {coupon.discountValue}% (ขั้นต่ำ ${coupon.minOrderAmount})
@@ -214,13 +214,13 @@ export default function AdminPromotions() {
                 <div className="space-y-1 mb-4">
                   <div className="flex justify-between text-[11px] font-bold text-gray-500">
                     <span>{language === 'th' ? 'สิทธิ์ที่ถูกใช้แล้ว' : 'Redeemed Quota'}</span>
-                    <span className="font-mono text-[#2B1810]">
+                    <span className="font-mono text-brand-brown">
                       {coupon.usageCount} / {coupon.usageLimit} ({usagePercent}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
                     <div
-                      className="bg-[#D97706] h-full transition-all duration-300"
+                      className="bg-brand-amber h-full transition-all duration-300"
                       style={{ width: `${usagePercent}%` }}
                     />
                   </div>
@@ -242,11 +242,11 @@ export default function AdminPromotions() {
 
       {/* Add Coupon Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2B1810]/50 backdrop-blur-xs">
-          <div className="bg-white border border-[#EAE3D9] max-w-md w-full p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/50 backdrop-blur-xs">
+          <div className="bg-white border border-brand-border max-w-md w-full p-6 shadow-2xl relative">
             <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200">
               <div>
-                <h3 className="text-base font-black uppercase text-[#2B1810]">
+                <h3 className="text-base font-black uppercase text-brand-brown">
                   {language === 'th' ? 'สร้างโค้ดส่วนลดใหม่' : 'Create New Coupon'}
                 </h3>
                 <p className="text-xs text-gray-500">สำหรับใช้งานบนระบบเช็คเอาท์และแคมเปญ</p>
@@ -267,7 +267,7 @@ export default function AdminPromotions() {
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                   placeholder="เช่น NIDA25, SUMMER50"
-                  className="w-full border border-gray-300 px-3 py-2 font-mono font-bold uppercase focus:outline-none focus:border-[#2B1810]"
+                  className="w-full border border-gray-300 px-3 py-2 font-mono font-bold uppercase focus:outline-none focus:border-brand-brown"
                 />
               </div>
 
@@ -300,7 +300,7 @@ export default function AdminPromotions() {
                     min="1"
                     value={formData.discountValue}
                     onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
-                    className="w-full border border-gray-300 px-3 py-2 font-mono font-bold focus:outline-none focus:border-[#2B1810]"
+                    className="w-full border border-gray-300 px-3 py-2 font-mono font-bold focus:outline-none focus:border-brand-brown"
                   />
                 </div>
               </div>
@@ -314,7 +314,7 @@ export default function AdminPromotions() {
                     type="number"
                     value={formData.minOrderAmount}
                     onChange={(e) => setFormData({ ...formData, minOrderAmount: Number(e.target.value) })}
-                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
+                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-brand-brown"
                   />
                 </div>
                 <div>
@@ -325,7 +325,7 @@ export default function AdminPromotions() {
                     type="number"
                     value={formData.usageLimit}
                     onChange={(e) => setFormData({ ...formData, usageLimit: Number(e.target.value) })}
-                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
+                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-brand-brown"
                   />
                 </div>
               </div>
@@ -339,7 +339,7 @@ export default function AdminPromotions() {
                   required
                   value={formData.expiresAt}
                   onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
-                  className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-[#2B1810]"
+                  className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-brand-brown"
                 />
               </div>
 
@@ -353,7 +353,7 @@ export default function AdminPromotions() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#2B1810] hover:bg-[#D97706] text-white font-bold uppercase tracking-wider shadow-xs"
+                  className="px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white font-bold uppercase tracking-wider shadow-xs"
                 >
                   {language === 'th' ? 'สร้างโค้ด' : 'Create Promo'}
                 </button>

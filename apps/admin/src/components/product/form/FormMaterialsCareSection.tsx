@@ -14,11 +14,11 @@ export function FormMaterialsCareSection({
   return (
     <div
       id="sec-story"
-      className="bg-white border border-[#EAE3D9] p-4 sm:p-5 rounded-xs shadow-2xs flex-1 flex flex-col justify-between space-y-3"
+      className="bg-white border border-brand-border p-4 sm:p-5 rounded-xs shadow-2xs flex-1 flex flex-col justify-between space-y-3"
     >
       <div className="flex items-center space-x-2 border-b border-gray-100 pb-2">
-        <SlidersHorizontal size={16} className="text-[#D97706]" />
-        <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+        <SlidersHorizontal size={16} className="text-brand-amber" />
+        <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
           {t('product.materialsCareTitle')}
         </h3>
       </div>

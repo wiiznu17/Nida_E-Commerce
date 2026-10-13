@@ -37,7 +37,7 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Popup
         ref={ref}
         className={cn(
-          'relative w-full max-w-lg rounded-xs border border-[#EAE3D9] bg-white p-6 shadow-2xl outline-none',
+          'relative w-full max-w-lg rounded-xs border border-brand-border bg-white p-6 shadow-2xl outline-none',
           'transition-all duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           className,
@@ -77,7 +77,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-5 pt-3 border-t border-[#FAF7F2]',
+      'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-5 pt-3 border-t border-brand-cream',
       className,
     )}
     {...props}
@@ -92,7 +92,7 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      'text-sm font-black uppercase tracking-wider text-[#2B1810]',
+      'text-sm font-black uppercase tracking-wider text-brand-brown',
       className,
     )}
     {...props}

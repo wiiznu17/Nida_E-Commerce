@@ -30,12 +30,12 @@ export function FormMediaSection({
   return (
     <div
       id="sec-media"
-      className="w-full bg-white border border-[#EAE3D9] p-4 sm:p-6 rounded-md shadow-2xs space-y-5"
+      className="w-full bg-white border border-brand-border p-4 sm:p-6 rounded-xs shadow-2xs space-y-5"
     >
       <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
         <div className="flex items-center space-x-2">
-          <ImageIcon size={16} className="text-[#D97706]" />
-          <h2 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+          <ImageIcon size={16} className="text-brand-amber" />
+          <h2 className="text-xs font-black uppercase tracking-wider text-brand-brown">
             {t('product.mediaColors')}
           </h2>
         </div>
@@ -43,7 +43,7 @@ export function FormMediaSection({
 
       {/* Master Cover & Hover Photos Side-by-Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="p-3.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-md">
+        <div className="p-3.5 bg-brand-cream border border-brand-border rounded-xs">
           <ImageUploader
             value={image}
             onChange={onImageChange}
@@ -53,7 +53,7 @@ export function FormMediaSection({
           />
         </div>
 
-        <div className="p-3.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-md">
+        <div className="p-3.5 bg-brand-cream border border-brand-border rounded-xs">
           <ImageUploader
             value={secondaryImage}
             onChange={onSecondaryImageChange}
@@ -68,8 +68,8 @@ export function FormMediaSection({
       <div className="pt-4 border-t border-gray-100 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center space-x-2">
-            <Palette size={15} className="text-[#D97706]" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+            <Palette size={15} className="text-brand-amber" />
+            <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
               {t('product.colorSwatches')}
             </span>
           </div>
@@ -79,7 +79,7 @@ export function FormMediaSection({
         </div>
 
         {/* Color Presets Picker Bar */}
-        <div className="p-3 bg-[#FAF7F2] border border-[#EAE3D9] rounded-md space-y-2.5">
+        <div className="p-3 bg-brand-cream border border-brand-border rounded-md space-y-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-[10px] font-bold text-gray-600">
               {t('product.brandPresets')}
@@ -107,7 +107,7 @@ export function FormMediaSection({
                 disabled={selectedColors.some(
                   (c) => c.toLowerCase() === customColor.toLowerCase(),
                 )}
-                className="text-[10px] font-bold px-2 py-1 bg-[#2B1810] text-[#F59E0B] rounded-xs hover:bg-[#3D2317] transition-colors disabled:opacity-40 cursor-pointer"
+                className="text-[10px] font-bold px-2 py-1 bg-brand-brown text-brand-yellow rounded-xs hover:bg-brand-dark-brown transition-colors disabled:opacity-40 cursor-pointer"
               >
                 <Plus size={11} className="inline mr-0.5" />
                 {t('product.addColor')}
@@ -131,9 +131,9 @@ export function FormMediaSection({
                   disabled={locked}
                   className={`flex flex-col items-center p-1.5 rounded-sm border text-center transition-all ${
                     locked
-                      ? 'border-[#2B1810] bg-white ring-1 ring-[#2B1810] shadow-2xs opacity-90 cursor-not-allowed'
+                      ? 'border-brand-brown bg-white ring-1 ring-brand-brown shadow-2xs opacity-90 cursor-not-allowed'
                       : isSelected
-                        ? 'border-[#2B1810] bg-white ring-1 ring-[#2B1810] shadow-2xs cursor-pointer'
+                        ? 'border-brand-brown bg-white ring-1 ring-brand-brown shadow-2xs cursor-pointer'
                         : 'border-gray-200 bg-white/70 hover:border-gray-300 cursor-pointer'
                   }`}
                   title={locked ? t('product.originalLockedColor') : col.name}
@@ -154,7 +154,7 @@ export function FormMediaSection({
           </div>
 
           {/* All Selected Colors Pills Bar (with removal capability) */}
-          <div className="pt-2 border-t border-[#EAE3D9] space-y-1.5">
+          <div className="pt-2 border-t border-brand-border space-y-1.5">
             <span className="text-[10px] font-bold text-gray-600 block">
               {t('product.activeSelectedColors')}
             </span>
@@ -170,13 +170,13 @@ export function FormMediaSection({
                   return (
                     <div
                       key={hex}
-                      className="inline-flex items-center space-x-1.5 pl-2 pr-1.5 py-0.5 bg-white border border-[#2B1810] rounded-xs shadow-2xs text-[10px]"
+                      className="inline-flex items-center space-x-1.5 pl-2 pr-1.5 py-0.5 bg-white border border-brand-brown rounded-xs shadow-2xs text-[10px]"
                     >
                       <span
                         className="w-3 h-3 rounded-full border border-gray-400 shrink-0"
                         style={{ backgroundColor: hex }}
                       />
-                      <span className="font-bold text-[#2B1810]">{colorName}</span>
+                      <span className="font-bold text-brand-brown">{colorName}</span>
                       <span className="font-mono text-gray-400 text-[9px]">{hex}</span>
                       {locked ? (
                         <span
@@ -223,7 +223,7 @@ export function FormMediaSection({
                 return (
                   <div
                     key={hex}
-                    className="p-3 bg-white border border-[#EAE3D9] rounded-md shadow-2xs space-y-2 flex flex-col justify-between"
+                    className="p-3 bg-white border border-brand-border rounded-md shadow-2xs space-y-2 flex flex-col justify-between"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-1.5">
@@ -231,7 +231,7 @@ export function FormMediaSection({
                           className="w-4 h-4 rounded-full border border-gray-400 shadow-2xs"
                           style={{ backgroundColor: hex }}
                         />
-                        <span className="text-xs font-bold text-[#2B1810]">{colorName}</span>
+                        <span className="text-xs font-bold text-brand-brown">{colorName}</span>
                         <span className="text-[10px] font-mono text-gray-400">{hex}</span>
                       </div>
 
@@ -240,7 +240,7 @@ export function FormMediaSection({
                           <button
                             type="button"
                             onClick={() => onUseMasterImageForColor(hex)}
-                            className="text-[10px] text-[#D97706] hover:underline font-bold cursor-pointer"
+                            className="text-[10px] text-brand-amber hover:underline font-bold cursor-pointer"
                           >
                             {t('product.useMaster')}
                           </button>

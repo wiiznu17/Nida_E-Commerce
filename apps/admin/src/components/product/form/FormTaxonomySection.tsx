@@ -21,11 +21,11 @@ export function FormTaxonomySection({
   return (
     <div
       id="sec-taxonomy"
-      className="bg-white border border-[#EAE3D9] p-4 sm:p-5 rounded-md shadow-2xs space-y-3.5"
+      className="bg-white border border-brand-border p-4 sm:p-5 rounded-md shadow-2xs space-y-3.5"
     >
       <div className="flex items-center space-x-2 border-b border-gray-100 pb-2">
-        <FolderTree size={16} className="text-[#D97706]" />
-        <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+        <FolderTree size={16} className="text-brand-amber" />
+        <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
           {t('product.taxonomy')}
         </h3>
       </div>
@@ -80,17 +80,17 @@ export function FormTaxonomySection({
         />
 
         {/* Fixed Taxonomy Info Box */}
-        <div className="bg-[#FAF7F2] border border-[#EAE3D9] rounded-md p-2.5 space-y-2 mt-2">
+        <div className="bg-brand-cream border border-brand-border rounded-md p-2.5 space-y-2 mt-2">
           <div className="grid grid-cols-2 gap-2 text-[10px]">
             <div className="bg-white p-1.5 rounded-sm border border-gray-100">
               <span className="text-gray-400 block font-medium">EN Label</span>
-              <span className="font-bold text-[#2B1810] truncate block" title={subCategory}>
+              <span className="font-bold text-brand-brown truncate block" title={subCategory}>
                 {subCategory}
               </span>
             </div>
             <div className="bg-white p-1.5 rounded-sm border border-gray-100">
               <span className="text-gray-400 block font-medium">TH Label</span>
-              <span className="font-bold text-[#2B1810] truncate block" title={subCategoryTh}>
+              <span className="font-bold text-brand-brown truncate block" title={subCategoryTh}>
                 {subCategoryTh}
               </span>
             </div>

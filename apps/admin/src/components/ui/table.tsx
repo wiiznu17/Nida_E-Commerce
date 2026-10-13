@@ -7,7 +7,7 @@ export const TableContainer = React.forwardRef<HTMLDivElement, TableContainerPro
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('bg-white border border-[#EAE3D9] overflow-hidden rounded-xs shadow-2xs', className)}
+      className={cn('bg-white border border-brand-border overflow-hidden rounded-xs shadow-2xs', className)}
       {...props}
     />
   ),
@@ -38,7 +38,7 @@ export const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cn(
-      'border-b border-[#EAE3D9] bg-[#FAF7F2] text-[10px] font-black uppercase tracking-wider text-gray-500',
+      'border-b border-brand-border bg-brand-cream text-[10px] font-black uppercase tracking-wider text-gray-500',
       className,
     )}
     {...props}
@@ -64,7 +64,7 @@ export const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn('border-t border-[#EAE3D9] bg-[#FAF7F2] font-medium text-gray-700', className)}
+    className={cn('border-t border-brand-border bg-brand-cream font-medium text-gray-700', className)}
     {...props}
   />
 ));

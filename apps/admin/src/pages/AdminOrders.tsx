@@ -169,7 +169,7 @@ export default function AdminOrders() {
         )}
 
         {/* Filters & Search */}
-        <div className="bg-white border border-[#EAE3D9] p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="bg-white border border-brand-border p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex items-center space-x-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
             {statusTabs.map((tab) => (
               <button
@@ -177,8 +177,8 @@ export default function AdminOrders() {
                 onClick={() => setStatusFilter(tab.id)}
                 className={`px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-colors ${
                   statusFilter === tab.id
-                    ? 'bg-[#2B1810] text-white shadow-xs'
-                    : 'bg-[#FAF7F2] text-gray-700 hover:bg-gray-200'
+                    ? 'bg-brand-brown text-white shadow-xs'
+                    : 'bg-brand-cream text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 {tab.label}
@@ -226,13 +226,13 @@ export default function AdminOrders() {
                   <TableRow key={order.id}>
                     {/* Order # */}
                     <TableCell>
-                      <div className="font-mono font-black text-[#2B1810] text-sm">{order.orderNumber}</div>
+                      <div className="font-mono font-black text-brand-brown text-sm">{order.orderNumber}</div>
                       <div className="text-[11px] text-gray-400 font-normal mt-0.5">{order.createdAt}</div>
                     </TableCell>
 
                     {/* Customer */}
                     <TableCell>
-                      <div className="font-bold text-[#2B1810]">{order.customerName}</div>
+                      <div className="font-bold text-brand-brown">{order.customerName}</div>
                       <div className="text-[11px] text-gray-500">{order.customerEmail}</div>
                       <div className="text-[11px] text-gray-400">{order.customerPhone}</div>
                     </TableCell>
@@ -259,7 +259,7 @@ export default function AdminOrders() {
 
                     {/* Amount */}
                     <TableCell>
-                      <div className="font-mono font-black text-[#2B1810] text-sm">${order.totalAmount.toFixed(2)}</div>
+                      <div className="font-mono font-black text-brand-brown text-sm">${order.totalAmount.toFixed(2)}</div>
                       <div className="text-[10px] text-gray-500 mt-0.5">{order.paymentMethod}</div>
                     </TableCell>
 
@@ -291,8 +291,8 @@ export default function AdminOrders() {
                     <TableCell>
                       {order.trackingNumber ? (
                         <div>
-                          <div className="font-mono font-bold text-[#2B1810] text-[11px] flex items-center">
-                            <Truck size={12} className="mr-1 text-[#D97706]" />
+                          <div className="font-mono font-bold text-brand-brown text-[11px] flex items-center">
+                            <Truck size={12} className="mr-1 text-brand-amber" />
                             {order.trackingNumber}
                           </div>
                           <div className="text-[10px] text-gray-500 mt-0.5">{order.courierName || 'Kerry Express'}</div>
@@ -300,7 +300,7 @@ export default function AdminOrders() {
                       ) : (
                         <button
                           onClick={() => handleOpenFulfill(order)}
-                          className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-xs transition-colors cursor-pointer"
+                          className="bg-brand-brown hover:bg-brand-amber text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-xs transition-colors cursor-pointer"
                         >
                           {language === 'th' ? '+ ใส่เลขพัสดุ' : '+ Add Tracking'}
                         </button>
@@ -312,7 +312,7 @@ export default function AdminOrders() {
                       <div className="flex items-center justify-end space-x-2">
                         <button
                           onClick={() => setSelectedOrder(order)}
-                          className="p-1.5 text-[#2B1810] hover:text-[#D97706] hover:bg-gray-100 rounded-xs flex items-center space-x-1 cursor-pointer"
+                          className="p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs flex items-center space-x-1 cursor-pointer"
                           title={language === 'th' ? 'ดูใบสั่งซื้อฉบับเต็ม' : 'View full invoice'}
                         >
                           <Eye size={16} />
@@ -330,11 +330,11 @@ export default function AdminOrders() {
 
       {/* Fulfill / Add Tracking Modal */}
       {isFulfillModalOpen && orderToFulfill && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2B1810]/50 backdrop-blur-xs">
-          <div className="bg-white border border-[#EAE3D9] max-w-md w-full p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/50 backdrop-blur-xs">
+          <div className="bg-white border border-brand-border max-w-md w-full p-6 shadow-2xl relative">
             <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200">
               <div>
-                <h3 className="text-base font-black uppercase text-[#2B1810]">
+                <h3 className="text-base font-black uppercase text-brand-brown">
                   {language === 'th' ? 'บันทึกการจัดส่งพัสดุ' : 'Fulfill & Dispatch Order'}
                 </h3>
                 <p className="text-xs text-gray-500">ออเดอร์ #{orderToFulfill.orderNumber}</p>
@@ -370,7 +370,7 @@ export default function AdminOrders() {
                   required
                   value={trackingNumber}
                   onChange={(e) => setTrackingNumber(e.target.value)}
-                  className="w-full border border-gray-300 px-3 py-2 font-mono font-bold text-sm focus:outline-none focus:border-[#2B1810]"
+                  className="w-full border border-gray-300 px-3 py-2 font-mono font-bold text-sm focus:outline-none focus:border-brand-brown"
                 />
               </div>
 
@@ -390,7 +390,7 @@ export default function AdminOrders() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#2B1810] hover:bg-[#D97706] text-white font-bold uppercase tracking-wider shadow-xs flex items-center space-x-1.5"
+                  className="px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white font-bold uppercase tracking-wider shadow-xs flex items-center space-x-1.5"
                 >
                   <Send size={14} />
                   <span>{language === 'th' ? 'ยืนยันการจัดส่ง' : 'Confirm Dispatch'}</span>
@@ -403,14 +403,14 @@ export default function AdminOrders() {
 
       {/* Order Detail Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2B1810]/50 backdrop-blur-xs">
-          <div className="bg-white border border-[#EAE3D9] max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/50 backdrop-blur-xs">
+          <div className="bg-white border border-brand-border max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl relative">
             <div className="flex justify-between items-start pb-4 mb-6 border-b border-gray-200">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#D97706] block">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-amber block">
                   ใบสั่งซื้อคำสั่งซื้อ (Order Details)
                 </span>
-                <h3 className="text-xl font-black uppercase text-[#2B1810] mt-0.5">
+                <h3 className="text-xl font-black uppercase text-brand-brown mt-0.5">
                   ออเดอร์ #{selectedOrder.orderNumber}
                 </h3>
                 <p className="text-xs text-gray-400">สั่งซื้อเมื่อ: {selectedOrder.createdAt}</p>
@@ -421,13 +421,13 @@ export default function AdminOrders() {
             </div>
 
             {/* Address & Payment Info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-[#FAF7F2] p-4 border border-[#EAE3D9] text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-brand-cream p-4 border border-brand-border text-xs">
               <div>
                 <div className="font-bold uppercase tracking-wider text-gray-500 mb-1 flex items-center">
-                  <MapPin size={12} className="mr-1 text-[#D97706]" />
+                  <MapPin size={12} className="mr-1 text-brand-amber" />
                   ที่อยู่จัดส่งสินค้า
                 </div>
-                <p className="font-bold text-[#2B1810] text-sm">{selectedOrder.customerName}</p>
+                <p className="font-bold text-brand-brown text-sm">{selectedOrder.customerName}</p>
                 <p className="text-gray-600 mt-0.5">{selectedOrder.shippingAddress}</p>
                 <p className="text-gray-600">
                   {selectedOrder.city} {selectedOrder.postalCode}
@@ -436,18 +436,18 @@ export default function AdminOrders() {
               </div>
               <div>
                 <div className="font-bold uppercase tracking-wider text-gray-500 mb-1 flex items-center">
-                  <CreditCard size={12} className="mr-1 text-[#D97706]" />
+                  <CreditCard size={12} className="mr-1 text-brand-amber" />
                   การชำระเงิน & ขนส่ง
                 </div>
                 <p className="text-gray-700">
-                  วิธีชำระ: <strong className="text-[#2B1810]">{selectedOrder.paymentMethod}</strong>
+                  วิธีชำระ: <strong className="text-brand-brown">{selectedOrder.paymentMethod}</strong>
                 </p>
                 <p className="text-gray-700 mt-1">
-                  สถานะ: <strong className="text-[#D97706]">{selectedOrder.status}</strong>
+                  สถานะ: <strong className="text-brand-amber">{selectedOrder.status}</strong>
                 </p>
                 {selectedOrder.trackingNumber && (
                   <p className="text-gray-700 mt-1">
-                    เลขพัสดุ: <span className="font-mono font-bold text-[#2B1810]">{selectedOrder.trackingNumber}</span>{' '}
+                    เลขพัสดุ: <span className="font-mono font-bold text-brand-brown">{selectedOrder.trackingNumber}</span>{' '}
                     ({selectedOrder.courierName})
                   </p>
                 )}
@@ -468,14 +468,14 @@ export default function AdminOrders() {
                       className="w-12 h-14 object-cover border border-gray-200"
                     />
                     <div>
-                      <div className="font-bold text-[#2B1810] text-sm">{item.productName}</div>
+                      <div className="font-bold text-brand-brown text-sm">{item.productName}</div>
                       <div className="text-gray-500">
                         ขนาด: {item.size} • สี: {item.color} • จำนวน: {item.quantity} ชิ้น
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold font-mono text-[#2B1810] text-sm">
+                    <div className="font-bold font-mono text-brand-brown text-sm">
                       ${(item.price * item.quantity).toFixed(2)}
                     </div>
                     <div className="text-gray-400 text-[11px]">${item.price.toFixed(2)} / ชิ้น</div>
@@ -485,11 +485,11 @@ export default function AdminOrders() {
             </div>
 
             {/* Total */}
-            <div className="flex justify-between items-center p-4 bg-[#FAF7F2] border border-[#EAE3D9] mb-6">
+            <div className="flex justify-between items-center p-4 bg-brand-cream border border-brand-border mb-6">
               <span className="font-bold uppercase tracking-wider text-gray-700 text-xs">
                 ยอดรวมทั้งสิ้น (Grand Total)
               </span>
-              <span className="font-black font-mono text-xl text-[#2B1810]">
+              <span className="font-black font-mono text-xl text-brand-brown">
                 ${selectedOrder.totalAmount.toFixed(2)}
               </span>
             </div>
@@ -500,14 +500,14 @@ export default function AdminOrders() {
                 href={`${STOREFRONT_URL}/track-order/${selectedOrder.orderNumber}`}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs font-bold text-[#D97706] hover:underline flex items-center"
+                className="text-xs font-bold text-brand-amber hover:underline flex items-center"
               >
                 <span>เปิดดูหน้า Live Tracking ของลูกค้า</span>
                 <ExternalLink size={14} className="ml-1" />
               </a>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="bg-[#2B1810] text-white px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-[#D97706] transition-colors"
+                className="bg-brand-brown text-white px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-brand-amber transition-colors"
               >
                 ปิดหน้าต่าง
               </button>

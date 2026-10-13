@@ -12,11 +12,11 @@ export function FormTopBar({
   const { t } = useLanguage();
 
   return (
-    <div className="bg-white border border-[#EAE3D9] p-3 rounded-md shadow-2xs flex flex-wrap items-center justify-between gap-3 sticky top-14 z-20">
+    <div className="bg-white border border-brand-border p-3 rounded-md shadow-2xs flex flex-wrap items-center justify-between gap-3 sticky top-14 z-20">
       <div className="flex items-center space-x-2">
         <Link
           to="/admin/products"
-          className="inline-flex items-center space-x-1.5 text-xs font-bold text-gray-500 hover:text-[#2B1810] transition-colors pr-2 border-r border-gray-200"
+          className="inline-flex items-center space-x-1.5 text-xs font-bold text-gray-500 hover:text-brand-brown transition-colors pr-2 border-r border-gray-200"
         >
           <ArrowLeft size={14} />
           <span className="hidden sm:inline">{t('common.back')}</span>
@@ -27,42 +27,42 @@ export function FormTopBar({
           <button
             type="button"
             onClick={() => onScrollTo('sec-basic')}
-            className="px-2.5 py-1 text-gray-600 hover:text-[#2B1810] hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
+            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
           >
             {t('product.generalInfo')}
           </button>
           <button
             type="button"
             onClick={() => onScrollTo('sec-media')}
-            className="px-2.5 py-1 text-gray-600 hover:text-[#2B1810] hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
+            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
           >
             {t('product.mediaColors')}
           </button>
           <button
             type="button"
             onClick={() => onScrollTo('sec-pricing')}
-            className="px-2.5 py-1 text-gray-600 hover:text-[#2B1810] hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
+            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
           >
             {t('product.pricingDiscounts')}
           </button>
           <button
             type="button"
             onClick={() => onScrollTo('sec-taxonomy')}
-            className="px-2.5 py-1 text-gray-600 hover:text-[#2B1810] hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
+            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
           >
             {t('product.taxonomy')}
           </button>
           <button
             type="button"
             onClick={() => onScrollTo('sec-story')}
-            className="px-2.5 py-1 text-gray-600 hover:text-[#2B1810] hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
+            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
           >
             {t('product.materialsCareTitle')}
           </button>
           <button
             type="button"
             onClick={() => onScrollTo('sec-inventory')}
-            className="px-2.5 py-1 text-gray-600 hover:text-[#2B1810] hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
+            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
           >
             {t('product.variantsSkus')}
           </button>
@@ -82,8 +82,8 @@ export function FormTopBar({
           disabled={isSubmitting}
           className={`px-4 py-1.5 text-xs font-black uppercase tracking-wider rounded-md shadow-xs transition-colors inline-flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer ${
             publishStatus === 'published'
-              ? 'text-[#1E110A] bg-[#F59E0B] hover:bg-[#D97706]'
-              : 'text-[#F59E0B] bg-[#2B1810] hover:bg-[#3D2317]'
+              ? 'text-brand-dark-brown bg-brand-yellow hover:bg-brand-amber'
+              : 'text-brand-yellow bg-brand-brown hover:bg-brand-dark-brown'
           }`}
         >
           {publishStatus === 'published' ? <Globe size={14} /> : <FileText size={14} />}

@@ -20,11 +20,11 @@ export function FormBasicInfoSection({
   return (
     <div
       id="sec-basic"
-      className="bg-white border border-[#EAE3D9] p-4 sm:p-5 rounded-xs shadow-2xs space-y-4"
+      className="bg-white border border-brand-border p-4 sm:p-5 rounded-xs shadow-2xs space-y-4"
     >
       <div className="flex items-center space-x-2 border-b border-gray-100 pb-2.5">
-        <FileText size={16} className="text-[#D97706]" />
-        <h2 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+        <FileText size={16} className="text-brand-amber" />
+        <h2 className="text-xs font-black uppercase tracking-wider text-brand-brown">
           {t('product.generalInfo')}
         </h2>
       </div>
@@ -68,13 +68,13 @@ export function FormBasicInfoSection({
           <label className="text-[11px] font-bold text-gray-700">
             {t('product.storyDetails')}
           </label>
-          <div className="flex items-center bg-[#FAF7F2] border border-[#EAE3D9] p-0.5 rounded-xs text-[10px] font-bold">
+          <div className="flex items-center bg-brand-cream border border-brand-border p-0.5 rounded-xs text-[10px] font-bold">
             <button
               type="button"
               onClick={() => onDescLangTabChange('en')}
               className={`px-2.5 py-0.5 rounded-xs transition-colors cursor-pointer uppercase tracking-wider ${
                 descLangTab === 'en'
-                  ? 'bg-[#2B1810] text-white shadow-2xs'
+                  ? 'bg-brand-brown text-white shadow-2xs'
                   : 'text-gray-500 hover:text-gray-900'
               }`}
             >
@@ -85,7 +85,7 @@ export function FormBasicInfoSection({
               onClick={() => onDescLangTabChange('th')}
               className={`px-2.5 py-0.5 rounded-xs transition-colors cursor-pointer uppercase tracking-wider ${
                 descLangTab === 'th'
-                  ? 'bg-[#2B1810] text-white shadow-2xs'
+                  ? 'bg-brand-brown text-white shadow-2xs'
                   : 'text-gray-500 hover:text-gray-900'
               }`}
             >

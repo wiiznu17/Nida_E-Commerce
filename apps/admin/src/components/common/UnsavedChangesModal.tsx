@@ -32,7 +32,7 @@ export function UnsavedChangesModal({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-[#EAE3D9] overflow-hidden z-10 animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-brand-border overflow-hidden z-10 animate-in zoom-in-95 duration-200">
         {/* Amber Header Accent */}
         <div className="h-1.5 w-full bg-linear-to-r from-amber-500 via-amber-400 to-amber-600" />
 
@@ -45,7 +45,7 @@ export function UnsavedChangesModal({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-black text-[#2B1810] tracking-tight">
+                <h3 className="text-base font-black text-brand-brown tracking-tight">
                   {title || defaultTitle}
                 </h3>
                 <button
@@ -85,7 +85,7 @@ export function UnsavedChangesModal({
             <button
               type="button"
               onClick={onStay}
-              className="w-full sm:w-auto px-5 py-2 text-xs font-black uppercase tracking-wider text-[#1E110A] bg-[#F59E0B] hover:bg-[#D97706] rounded-md shadow-xs transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2 text-xs font-black uppercase tracking-wider text-brand-dark-brown bg-brand-yellow hover:bg-brand-amber rounded-md shadow-xs transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
             >
               <span>{t('unsaved.keepEditing')}</span>
               <ArrowRight size={14} />

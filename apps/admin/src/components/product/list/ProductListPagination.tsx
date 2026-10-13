@@ -51,28 +51,28 @@ export function ProductListPagination({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-4 bg-white border-t border-[#EAE3D9] text-xs">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-4 bg-white border-t border-brand-border text-xs">
       {/* Left: Range text & Page Size */}
       <div className="flex items-center space-x-3 text-gray-600">
         <span>
           {language === 'th' ? (
             <>
               {t('productList.showing')}{' '}
-              <span className="font-bold text-[#2B1810]">
+              <span className="font-bold text-brand-brown">
                 {from}–{to}
               </span>{' '}
               {t('productList.of')}{' '}
-              <span className="font-bold text-[#2B1810]">{totalItems}</span>{' '}
+              <span className="font-bold text-brand-brown">{totalItems}</span>{' '}
               {t('productList.items')}
             </>
           ) : (
             <>
               {t('productList.showing')}{' '}
-              <span className="font-bold text-[#2B1810]">
+              <span className="font-bold text-brand-brown">
                 {from}–{to}
               </span>{' '}
               {t('productList.of')}{' '}
-              <span className="font-bold text-[#2B1810]">{totalItems}</span>{' '}
+              <span className="font-bold text-brand-brown">{totalItems}</span>{' '}
               {t('productList.items')}
             </>
           )}
@@ -88,7 +88,7 @@ export function ProductListPagination({
               { value: '20', label: '20' },
               { value: '50', label: '50' },
             ]}
-            className="w-16 h-7.5 px-2 bg-[#FAF7F2] text-xs font-semibold"
+            className="w-16 h-7.5 px-2 bg-brand-cream text-xs font-semibold"
           />
           <span className="text-[11px] text-gray-400">
             {t('productList.perPage')}
@@ -106,7 +106,7 @@ export function ProductListPagination({
           className={`inline-flex items-center justify-center p-1.5 rounded-xs border text-xs font-semibold transition-colors ${
             currentPage <= 1
               ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-              : 'border-[#EAE3D9] text-gray-700 bg-white hover:bg-[#FAF7F2] hover:border-[#2B1810] cursor-pointer'
+              : 'border-brand-border text-gray-700 bg-white hover:bg-brand-cream hover:border-brand-brown cursor-pointer'
           }`}
           title={t('productList.prev')}
         >
@@ -131,8 +131,8 @@ export function ProductListPagination({
               onClick={() => onPageChange(p)}
               className={`min-w-[28px] h-7 px-2 text-xs font-bold rounded-xs transition-colors cursor-pointer ${
                 isActive
-                  ? 'bg-[#2B1810] text-white shadow-2xs font-black'
-                  : 'bg-white border border-[#EAE3D9] text-gray-700 hover:bg-[#FAF7F2] hover:border-gray-400'
+                  ? 'bg-brand-brown text-white shadow-2xs font-black'
+                  : 'bg-white border border-brand-border text-gray-700 hover:bg-brand-cream hover:border-gray-400'
               }`}
             >
               {p}
@@ -148,7 +148,7 @@ export function ProductListPagination({
           className={`inline-flex items-center justify-center p-1.5 rounded-xs border text-xs font-semibold transition-colors ${
             currentPage >= totalPages
               ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-              : 'border-[#EAE3D9] text-gray-700 bg-white hover:bg-[#FAF7F2] hover:border-[#2B1810] cursor-pointer'
+              : 'border-brand-border text-gray-700 bg-white hover:bg-brand-cream hover:border-brand-brown cursor-pointer'
           }`}
           title={t('productList.next')}
         >

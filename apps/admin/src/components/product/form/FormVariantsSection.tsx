@@ -48,24 +48,24 @@ export function FormVariantsSection({
   return (
     <div
       id="sec-inventory"
-      className="w-full bg-white border border-[#EAE3D9] p-4 sm:p-6 rounded-md shadow-2xs space-y-4"
+      className="w-full bg-white border border-brand-border p-4 sm:p-6 rounded-md shadow-2xs space-y-4"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-2.5">
         <div className="flex items-center space-x-2">
-          <Boxes size={16} className="text-[#D97706]" />
-          <h2 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+          <Boxes size={16} className="text-brand-amber" />
+          <h2 className="text-xs font-black uppercase tracking-wider text-brand-brown">
             {t('product.variantsSkus')}
           </h2>
         </div>
 
         {/* Mode Switcher */}
-        <div className="flex items-center bg-[#FAF7F2] p-0.5 border border-[#EAE3D9] rounded-md self-start sm:self-auto">
+        <div className="flex items-center bg-brand-cream p-0.5 border border-brand-border rounded-md self-start sm:self-auto">
           <button
             type="button"
             onClick={() => onVariantModeChange('matrix')}
             className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-sm transition-all cursor-pointer ${
               variantMode === 'matrix'
-                ? 'bg-[#2B1810] text-[#F59E0B] shadow-2xs'
+                ? 'bg-brand-brown text-brand-yellow shadow-2xs'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -76,7 +76,7 @@ export function FormVariantsSection({
             onClick={() => onVariantModeChange('single')}
             className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-sm transition-all cursor-pointer ${
               variantMode === 'single'
-                ? 'bg-[#2B1810] text-[#F59E0B] shadow-2xs'
+                ? 'bg-brand-brown text-brand-yellow shadow-2xs'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -88,9 +88,9 @@ export function FormVariantsSection({
       {/* Decoupled Inventory Notice */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 bg-amber-50/70 border border-amber-200 rounded-md text-amber-900 text-xs">
         <div className="flex items-start space-x-2.5">
-          <Boxes size={16} className="text-[#D97706] shrink-0 mt-0.5" />
+          <Boxes size={16} className="text-brand-amber shrink-0 mt-0.5" />
           <div>
-            <p className="font-bold text-[11px] text-[#2B1810]">
+            <p className="font-bold text-[11px] text-brand-brown">
               {t('product.decoupledStockTitle')}
             </p>
             <p className="text-[10px] text-gray-600 mt-0.5">
@@ -103,7 +103,7 @@ export function FormVariantsSection({
             to={`/admin/inventory?search=${encodeURIComponent(productName)}`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center space-x-1 text-[11px] font-bold text-[#2B1810] bg-white border border-amber-300 px-2.5 py-1 rounded-xs hover:bg-amber-100/60 shadow-2xs shrink-0 self-start sm:self-auto"
+            className="inline-flex items-center space-x-1 text-[11px] font-bold text-brand-brown bg-white border border-amber-300 px-2.5 py-1 rounded-xs hover:bg-amber-100/60 shadow-2xs shrink-0 self-start sm:self-auto"
           >
             <span>{t('product.manageInInventory')}</span>
             <ExternalLink size={12} />
@@ -114,9 +114,9 @@ export function FormVariantsSection({
       {variantMode === 'matrix' ? (
         <div className="space-y-4">
           {/* Size Presets and Active Sizes */}
-          <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-3 rounded-md space-y-2.5">
+          <div className="bg-brand-cream border border-brand-border p-3 rounded-md space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#2B1810]">
+              <span className="text-[10px] font-black uppercase tracking-wider text-brand-brown">
                 {t('product.activeSizes')}
               </span>
 
@@ -161,7 +161,7 @@ export function FormVariantsSection({
                   return (
                     <span
                       key={size}
-                      className="inline-flex items-center space-x-1 bg-white border border-[#2B1810] text-[#2B1810] text-[10px] font-black px-2 py-0.5 rounded-xs shadow-2xs"
+                      className="inline-flex items-center space-x-1 bg-white border border-brand-brown text-brand-brown text-[10px] font-black px-2 py-0.5 rounded-xs shadow-2xs"
                     >
                       <span>{size}</span>
                       {isLocked ? (
@@ -204,7 +204,7 @@ export function FormVariantsSection({
                 <button
                   type="button"
                   onClick={onAddCustomSize}
-                  className="text-[10px] font-bold px-2 py-0.5 bg-[#2B1810] text-[#F59E0B] rounded-xs hover:bg-[#3D2317] cursor-pointer"
+                  className="text-[10px] font-bold px-2 py-0.5 bg-brand-brown text-brand-yellow rounded-xs hover:bg-brand-dark-brown cursor-pointer"
                 >
                   <Plus size={11} className="inline mr-0.5" />
                   {t('product.addSize')}
@@ -220,7 +220,7 @@ export function FormVariantsSection({
                 <span className="text-[10px] uppercase font-bold text-gray-500 block">
                   {t('product.skuCount')}
                 </span>
-                <span className="font-black text-[#2B1810] text-sm">
+                <span className="font-black text-brand-brown text-sm">
                   {skuList.length} {t('common.variants')}
                 </span>
               </div>
@@ -228,7 +228,7 @@ export function FormVariantsSection({
                 <span className="text-[10px] uppercase font-bold text-gray-500 block">
                   {t('product.totalStockReadOnly')}
                 </span>
-                <span className="font-black text-[#D97706] text-sm">
+                <span className="font-black text-brand-amber text-sm">
                   {totalStockCount.toLocaleString()} {t('common.units')}
                 </span>
               </div>
@@ -263,24 +263,24 @@ export function FormVariantsSection({
           {/* SKU Table */}
           <TableContainer className="border border-gray-200 rounded-md overflow-hidden bg-white">
             <Table containerClassName="max-h-[400px] overflow-y-auto">
-              <TableHeader className="bg-[#FAF7F2] text-gray-600 border-b border-gray-200 sticky top-0 z-10">
+              <TableHeader className="bg-brand-cream text-gray-600 border-b border-gray-200 sticky top-0 z-10">
                 <TableRow>
-                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810]">
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-brand-brown">
                     {t('product.skuCode')}
                   </TableHead>
-                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-44">
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-brand-brown w-44">
                     {t('product.color')}
                   </TableHead>
-                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-20 text-center">
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-brand-brown w-20 text-center">
                     {t('product.size')}
                   </TableHead>
-                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-64 whitespace-nowrap">
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-brand-brown w-64 whitespace-nowrap">
                     {t('product.currentStockReadOnly')}
                   </TableHead>
-                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-28 text-center">
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-brand-brown w-28 text-center">
                     {t('product.lowStockAlert')}
                   </TableHead>
-                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-[#2B1810] w-28 text-center">
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-brand-brown w-28 text-center">
                     {t('product.priceAdj')}
                   </TableHead>
                 </TableRow>
@@ -312,7 +312,7 @@ export function FormVariantsSection({
                             onChange={(e) =>
                               onUpdateSkuRow(index, 'sku', e.target.value.toUpperCase())
                             }
-                            className="w-full text-[11px] p-1 font-mono uppercase border border-gray-300 rounded-xs bg-white focus:border-[#2B1810] outline-hidden"
+                            className="w-full text-[11px] p-1 font-mono uppercase border border-gray-300 rounded-xs bg-white focus:border-brand-brown outline-hidden"
                           />
                         </TableCell>
                         <TableCell className="py-2 px-3.5">
@@ -327,7 +327,7 @@ export function FormVariantsSection({
                           </div>
                         </TableCell>
                         <TableCell className="py-2 px-3.5 text-center">
-                          <span className="inline-block bg-[#FAF7F2] border border-[#EAE3D9] text-[#2B1810] text-[10px] font-black px-2 py-0.5 rounded-xs">
+                          <span className="inline-block bg-brand-cream border border-brand-border text-brand-brown text-[10px] font-black px-2 py-0.5 rounded-xs">
                             {sku.size}
                           </span>
                         </TableCell>
@@ -398,7 +398,7 @@ export function FormVariantsSection({
               </TableBody>
             </Table>
 
-            <div className="p-2.5 border-t border-gray-100 bg-[#FAF7F2] flex items-center justify-between">
+            <div className="p-2.5 border-t border-gray-100 bg-brand-cream flex items-center justify-between">
               <span className="text-[10px] text-gray-600 font-bold">
                 {skuList.length} {t('common.variants')} ({activeSizes.length} {t('product.size')})
               </span>
@@ -410,9 +410,9 @@ export function FormVariantsSection({
         </div>
       ) : (
         /* Single SKU Mode */
-        <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-4 rounded-md space-y-3">
+        <div className="bg-brand-cream border border-brand-border p-4 rounded-md space-y-3">
           <div className="flex items-center space-x-2 text-gray-700">
-            <Barcode size={18} className="text-[#D97706]" />
+            <Barcode size={18} className="text-brand-amber" />
             <span className="text-xs font-bold">
               {t('product.singleStandardItem')}
             </span>

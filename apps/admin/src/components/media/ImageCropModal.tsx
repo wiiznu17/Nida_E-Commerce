@@ -275,15 +275,15 @@ export function ImageCropModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-xl bg-brand-cream border border-brand-border rounded-xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-5 py-3.5 bg-white border-b border-[#EAE3D9] flex items-center justify-between">
+        <div className="px-5 py-3.5 bg-white border-b border-brand-border flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-md bg-amber-50 border border-amber-200 flex items-center justify-center text-[#D97706]">
+            <div className="w-7 h-7 rounded-md bg-amber-50 border border-amber-200 flex items-center justify-center text-brand-amber">
               <Crop size={16} />
             </div>
             <div>
-              <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+              <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
                 {isTh ? 'ครอบตัดรูปภาพสินค้า (3:4)' : 'Crop Product Image (3:4)'}
               </h3>
               <p className="text-[10px] text-gray-500">
@@ -313,7 +313,7 @@ export function ImageCropModal({
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           onWheel={handleWheel}
-          className="relative w-full h-[450px] bg-[#140B07] overflow-hidden flex items-center justify-center select-none cursor-grab active:cursor-grabbing"
+          className="relative w-full h-[450px] bg-brand-dark-brown overflow-hidden flex items-center justify-center select-none cursor-grab active:cursor-grabbing"
         >
           {/* Background image layer showing the full image */}
           {imageLoaded && (
@@ -340,7 +340,7 @@ export function ImageCropModal({
               height: `${VIEWPORT_HEIGHT}px`,
               boxShadow: '0 0 0 9999px rgba(18, 9, 5, 0.60)',
             }}
-            className="relative pointer-events-none rounded-sm border-2 border-[#F59E0B] shadow-2xl flex items-center justify-center"
+            className="relative pointer-events-none rounded-sm border-2 border-brand-yellow shadow-2xl flex items-center justify-center"
           >
             {/* Rule of Thirds Guide Grid */}
             <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
@@ -364,7 +364,7 @@ export function ImageCropModal({
         </div>
 
         {/* Controls Toolbar */}
-        <div className="px-5 py-3 bg-white border-t border-[#EAE3D9] space-y-3">
+        <div className="px-5 py-3 bg-white border-t border-brand-border space-y-3">
           {/* Zoom Slider */}
           <div className="flex items-center space-x-3">
             <button
@@ -383,7 +383,7 @@ export function ImageCropModal({
               step="0.05"
               value={zoom}
               onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
-              className="flex-1 accent-[#D97706] h-1.5 bg-gray-200 rounded-lg cursor-pointer"
+              className="flex-1 accent-brand-amber h-1.5 bg-gray-200 rounded-lg cursor-pointer"
             />
 
             <button
@@ -423,7 +423,7 @@ export function ImageCropModal({
         </div>
 
         {/* Footer Buttons */}
-        <div className="px-5 py-3 bg-[#FAF7F2] border-t border-[#EAE3D9] flex items-center justify-end space-x-2">
+        <div className="px-5 py-3 bg-brand-cream border-t border-brand-border flex items-center justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
@@ -437,7 +437,7 @@ export function ImageCropModal({
               type="button"
               onClick={handleConfirmCrop}
               disabled={isProcessing || !imageLoaded}
-              className="px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#1E110A] bg-[#F59E0B] hover:bg-[#D97706] rounded-md shadow-xs transition-colors inline-flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer"
+              className="px-4 py-1.5 text-xs font-black uppercase tracking-wider text-brand-dark-brown bg-brand-yellow hover:bg-brand-amber rounded-md shadow-xs transition-colors inline-flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer"
             >
               {isProcessing ? (
                 <span>{isTh ? 'กำลังครอบตัดและแปลงไฟล์...' : 'Processing...'}</span>

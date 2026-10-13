@@ -9,8 +9,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          'flex h-8.5 w-full rounded-xs border border-[#EAE3D9] bg-white px-3 py-2 text-xs text-[#2B1810] shadow-2xs outline-none transition-all placeholder:text-gray-400',
-          'hover:border-[#2B1810]/40 focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]/20',
+          'flex h-8.5 w-full rounded-xs border border-brand-border bg-white px-3 py-2 text-xs text-brand-brown shadow-2xs outline-none transition-all placeholder:text-gray-400',
+          'hover:border-brand-brown/40 focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20',
           'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-50',
           className,
         )}
@@ -29,8 +29,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <textarea
         className={cn(
-          'flex min-h-16 w-full rounded-xs border border-[#EAE3D9] bg-white px-3 py-2 text-xs text-[#2B1810] shadow-2xs outline-none transition-all placeholder:text-gray-400',
-          'hover:border-[#2B1810]/40 focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]/20',
+          'flex min-h-16 w-full rounded-xs border border-brand-border bg-white px-3 py-2 text-xs text-brand-brown shadow-2xs outline-none transition-all placeholder:text-gray-400',
+          'hover:border-brand-brown/40 focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20',
           'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-50',
           className,
         )}

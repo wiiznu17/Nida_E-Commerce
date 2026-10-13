@@ -33,12 +33,12 @@ export function ProductCreateSuccessModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#2B1810]/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-brand-brown/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl border border-[#EAE3D9] overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col">
+      <div className="relative w-full max-w-lg bg-white rounded-xl shadow-2xl border border-brand-border overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col">
         {/* Emerald Header Accent */}
         <div className="h-1.5 w-full bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-600" />
 
@@ -50,7 +50,7 @@ export function ProductCreateSuccessModal({
                 <CheckCircle2 size={22} className="stroke-[2.2]" />
               </div>
               <div>
-                <h3 className="text-base font-black text-[#2B1810] tracking-tight">
+                <h3 className="text-base font-black text-brand-brown tracking-tight">
                   {t('product.createSuccessTitle')}
                 </h3>
                 <p className="mt-1 text-xs text-stone-500 leading-relaxed">
@@ -68,23 +68,23 @@ export function ProductCreateSuccessModal({
           </div>
 
           {/* Product Snapshot Card */}
-          <div className="mt-5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-lg p-4">
+          <div className="mt-5 bg-brand-cream border border-brand-border rounded-lg p-4">
             <div className="flex items-center space-x-4">
               {product.image ? (
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-16 h-20 object-cover rounded-md border border-[#EAE3D9] bg-white shrink-0 shadow-2xs"
+                  className="w-16 h-20 object-cover rounded-md border border-brand-border bg-white shrink-0 shadow-2xs"
                 />
               ) : (
-                <div className="w-16 h-20 rounded-md border border-[#EAE3D9] bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
+                <div className="w-16 h-20 rounded-md border border-brand-border bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
                   <Package size={20} />
                 </div>
               )}
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 bg-white border border-[#EAE3D9] px-2 py-0.5 rounded-sm">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 bg-white border border-brand-border px-2 py-0.5 rounded-sm">
                     {product.department?.toUpperCase() || 'CATALOG'}
                   </span>
                   <span className="inline-flex items-center space-x-1 text-[10px] font-semibold px-2 py-0.5 rounded-sm border bg-white border-stone-200 text-stone-600">
@@ -95,7 +95,7 @@ export function ProductCreateSuccessModal({
                   </span>
                 </div>
 
-                <h4 className="mt-1.5 text-sm font-bold text-[#2B1810] truncate">
+                <h4 className="mt-1.5 text-sm font-bold text-brand-brown truncate">
                   {product.name}
                 </h4>
                 {product.nameTh && (
@@ -105,7 +105,7 @@ export function ProductCreateSuccessModal({
                 )}
 
                 <div className="mt-2 flex items-baseline space-x-2">
-                  <span className="text-sm font-black text-[#2B1810]">
+                  <span className="text-sm font-black text-brand-brown">
                     ${Number(product.price).toLocaleString()}
                   </span>
                   {product.originalPrice && product.originalPrice > product.price && (
@@ -126,7 +126,7 @@ export function ProductCreateSuccessModal({
             <button
               type="button"
               onClick={onViewList}
-              className="w-full sm:flex-1 py-2.5 px-4 bg-[#2B1810] hover:bg-[#3D2419] text-[#FAF7F2] rounded-lg text-xs font-semibold tracking-wide flex items-center justify-center space-x-2 transition-all shadow-xs cursor-pointer"
+              className="w-full sm:flex-1 py-2.5 px-4 bg-brand-brown hover:bg-brand-dark-brown text-white rounded-lg text-xs font-semibold tracking-wide flex items-center justify-center space-x-2 transition-all shadow-xs cursor-pointer"
             >
               <List size={15} />
               <span>{t('product.viewProductList')}</span>
@@ -135,7 +135,7 @@ export function ProductCreateSuccessModal({
             <button
               type="button"
               onClick={onCreateAnother}
-              className="w-full sm:w-auto py-2.5 px-4 bg-white border border-[#EAE3D9] hover:bg-stone-50 text-[#2B1810] rounded-lg text-xs font-semibold tracking-wide flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+              className="w-full sm:w-auto py-2.5 px-4 bg-white border border-brand-border hover:bg-stone-50 text-brand-brown rounded-lg text-xs font-semibold tracking-wide flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
             >
               <Plus size={15} />
               <span>{t('product.createAnother')}</span>

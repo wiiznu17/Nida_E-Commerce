@@ -88,12 +88,12 @@ export function ProductPreviewModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl border border-[#EAE3D9] max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-xl shadow-2xl border border-brand-border max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-[#FAF7F2]">
-          <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-brand-cream">
+          <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
             {t('preview.title')}
           </h3>
           <button
@@ -113,7 +113,7 @@ export function ProductPreviewModal({
             <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
               {t('preview.catalogCard')}
             </span>
-            <div className="border border-gray-200 rounded-lg overflow-hidden bg-[#FAF7F2] p-3 shadow-xs">
+            <div className="border border-gray-200 rounded-lg overflow-hidden bg-brand-cream p-3 shadow-xs">
               <div className="aspect-[3/4] bg-white rounded-md overflow-hidden relative border border-gray-200 flex items-center justify-center group">
                 {image ? (
                   <img
@@ -135,7 +135,7 @@ export function ProductPreviewModal({
                 )}
 
                 {tag && (
-                  <div className="absolute top-2.5 left-2.5 bg-[#2B1810] text-[#F59E0B] text-[9px] font-black uppercase px-2.5 py-0.5 tracking-wider rounded-xs shadow-md">
+                  <div className="absolute top-2.5 left-2.5 bg-brand-brown text-brand-yellow text-[9px] font-black uppercase px-2.5 py-0.5 tracking-wider rounded-xs shadow-md">
                     {isTh && tagTh ? tagTh : tag}
                   </div>
                 )}
@@ -157,7 +157,7 @@ export function ProductPreviewModal({
                 <span className="text-[10px] font-mono uppercase text-gray-500 block">
                   {department} • {subCategory || category}
                 </span>
-                <h4 className="text-sm font-bold text-[#2B1810] truncate mt-0.5">
+                <h4 className="text-sm font-bold text-brand-brown truncate mt-0.5">
                   {name || t('preview.defaultTitle')}
                 </h4>
                 {nameTh && (
@@ -189,7 +189,7 @@ export function ProductPreviewModal({
                   </div>
                 ) : (
                   <div className="flex items-baseline space-x-2 mt-1.5">
-                    <span className="text-sm font-black text-[#2B1810] font-mono">
+                    <span className="text-sm font-black text-brand-brown font-mono">
                       ${numericPrice.toFixed(2)}
                     </span>
                   </div>
@@ -218,10 +218,10 @@ export function ProductPreviewModal({
             </span>
             <div className="border border-gray-200 rounded-lg p-4 bg-white space-y-3 text-xs shadow-xs">
               <div>
-                <span className="text-[10px] font-bold uppercase text-[#D97706] tracking-wider">
+                <span className="text-[10px] font-bold uppercase text-brand-amber tracking-wider">
                   NIDA HERITAGE
                 </span>
-                <h4 className="text-base font-black text-[#2B1810] leading-tight mt-0.5">
+                <h4 className="text-base font-black text-brand-brown leading-tight mt-0.5">
                   {name || t('preview.defaultTitle')}
                 </h4>
                 {nameTh && (
@@ -265,7 +265,7 @@ export function ProductPreviewModal({
                   <span className="text-[9px] font-bold uppercase tracking-wider text-gray-500 block">
                     {t('product.price')}
                   </span>
-                  <span className="text-lg font-black text-[#2B1810] font-mono">
+                  <span className="text-lg font-black text-brand-brown font-mono">
                     ${numericPrice.toFixed(2)}
                   </span>
                 </div>
@@ -320,7 +320,7 @@ export function ProductPreviewModal({
               {/* Stock count badge */}
               <div className="pt-2 flex items-center justify-between text-[11px] text-gray-500 border-t border-gray-100">
                 <span>{t('preview.initialStock')}</span>
-                <span className="font-bold text-[#D97706]">
+                <span className="font-bold text-brand-amber">
                   {totalStock} {t('common.units')}
                 </span>
               </div>
@@ -329,7 +329,7 @@ export function ProductPreviewModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-[#FAF7F2] border-t border-gray-100 flex items-center justify-end">
+        <div className="p-4 bg-brand-cream border-t border-gray-100 flex items-center justify-end">
           <button
             type="button"
             onClick={onClose}
