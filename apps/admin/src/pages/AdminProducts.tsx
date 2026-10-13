@@ -43,7 +43,7 @@ export default function AdminProducts() {
     };
   }, [currentPage, pageSize, activeFilters]);
 
-  const { products, total, totalPages, refetch } = useProducts(queryParams);
+  const { products, total, totalPages, isLoading, refetch } = useProducts(queryParams);
 
   useEffect(() => {
     productRequester
@@ -152,6 +152,7 @@ export default function AdminProducts() {
             products={products}
             inventoryList={[]}
             togglingId={togglingId}
+            isLoading={isLoading}
             onToggleStatus={handleToggleStatus}
             onDelete={handleDelete}
           />

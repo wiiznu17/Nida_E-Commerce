@@ -9,6 +9,7 @@ interface ProductListTableProps {
   products: Product[];
   inventoryList: InventoryItem[];
   togglingId: string | null;
+  isLoading?: boolean;
   onToggleStatus: (product: Product) => void;
   onDelete: (id: string, name: string) => void;
 }
@@ -17,6 +18,7 @@ export function ProductListTable({
   products,
   inventoryList,
   togglingId,
+  isLoading = false,
   onToggleStatus,
   onDelete,
 }: ProductListTableProps) {
@@ -33,6 +35,17 @@ export function ProductListTable({
     }
     return 20; // fallback default
   };
+
+  if (isLoading) {
+    return (
+      <div className="p-16 text-center bg-white border border-[#EAE3D9] rounded-xs shadow-2xs flex flex-col items-center justify-center space-y-3">
+        <Loader2 size={32} className="animate-spin text-[#2B1810]" />
+        <p className="text-xs font-semibold text-gray-500">
+          {language === 'th' ? 'กำลังโหลดรายการสินค้า...' : 'Loading products...'}
+        </p>
+      </div>
+    );
+  }
 
   if (products.length === 0) {
     return (

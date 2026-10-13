@@ -41,11 +41,19 @@ export function useProducts(params: Partial<QueryProductsInput> = {}) {
     setError(null);
     try {
       const response = await productRequester.getProducts(params);
-      if (response && response.data) {
-        setRawApiProducts(response.data);
-        setProducts(response.data.map(mapApiProductToProduct));
-        setTotal(response.pagination.total);
-        setTotalPages(response.pagination.totalPages);
+      if (response) {
+        if ('data' in response && Array.isArray(response.data)) {
+          setRawApiProducts(response.data);
+          setProducts(response.data.map(mapApiProductToProduct));
+          setTotal(response.pagination?.total ?? response.data.length);
+          setTotalPages(response.pagination?.totalPages ?? 1);
+        } else if (Array.isArray(response)) {
+          const list = response as unknown as ApiProduct[];
+          setRawApiProducts(list);
+          setProducts(list.map(mapApiProductToProduct));
+          setTotal(list.length);
+          setTotalPages(1);
+        }
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to fetch products';

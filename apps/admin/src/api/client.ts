@@ -68,7 +68,12 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
       throw new ApiError(errorMessage, response.status, data);
     }
 
-    // Auto-unwrap NestJS TransformInterceptor response: { success: true, data: T }
+    // Preserve PaginatedResponse structure ({ success: true, data: T[], pagination: PaginationMeta })
+    if (data && typeof data === 'object' && 'pagination' in data) {
+      return data as T;
+    }
+
+    // Auto-unwrap standard NestJS TransformInterceptor response: { success: true, data: T }
     if (data && typeof data === 'object' && 'data' in data && 'success' in data) {
       return data.data as T;
     }

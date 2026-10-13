@@ -51,7 +51,8 @@ export function mapApiProductDetailToProduct(
 export const productRequester = {
   async getAll(): Promise<Product[]> {
     const res = await this.getProducts({ limit: 100, page: 1, sortBy: 'newest' });
-    return res.data.map((p) => ({
+    const items = Array.isArray(res) ? (res as ApiProduct[]) : (res?.data ?? []);
+    return items.map((p) => ({
       id: p.id,
       slug: p.slug,
       name: p.name,
@@ -79,6 +80,7 @@ export const productRequester = {
       '/catalog/products',
       params as Record<string, string | number | boolean | undefined>,
     );
+    console.log("data", data);
     return data;
   },
 
