@@ -2,7 +2,8 @@
  * Core HTTP API Client for Nida Admin
  *
  * Best Practice: Centralized request wrapper with base URL handling,
- * header management, response extraction, and progress tracking.
+ * header management, response extraction, silent refresh with rotation,
+ * and concurrent request queueing.
  */
 
 import { API_BASE_URL } from '../config';
@@ -25,7 +26,28 @@ interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
 }
 
-async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null = null): void {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else if (token) {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+}
+
+async function request<T>(
+  endpoint: string,
+  options: RequestOptions = {},
+  isRetry = false,
+): Promise<T> {
   const { params, headers = {}, ...rest } = options;
 
   let url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
@@ -57,12 +79,104 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
       headers: defaultHeaders,
     });
 
+    // Check for HTTP 401 Unauthorized for silent refresh
+    const isAuthBypassEndpoint =
+      endpoint.includes('/auth/admin/login') ||
+      endpoint.includes('/auth/admin/refresh') ||
+      endpoint.includes('/auth/admin/setup-password') ||
+      endpoint.includes('/auth/admin/reset-password') ||
+      endpoint.includes('/auth/admin/verify-token');
+
+    if (response.status === 401 && !isRetry && !isAuthBypassEndpoint) {
+      if (isRefreshing) {
+        return new Promise<string>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((newToken) => {
+          return request<T>(
+            endpoint,
+            {
+              ...options,
+              headers: {
+                ...(options.headers as Record<string, string>),
+                Authorization: `Bearer ${newToken}`,
+              },
+            },
+            true,
+          );
+        });
+      }
+
+      isRefreshing = true;
+      const currentRefreshToken =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('nida_refresh_token')
+          : null;
+
+      if (!currentRefreshToken) {
+        isRefreshing = false;
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('nida_auth_token');
+          localStorage.removeItem('nida_refresh_token');
+          window.dispatchEvent(new Event('nida_auth_expired'));
+        }
+        throw new ApiError('Session has expired, please log in', 401);
+      }
+
+      try {
+        const refreshResponse = await fetch(`${API_BASE_URL}/auth/admin/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken: currentRefreshToken }),
+        });
+
+        if (!refreshResponse.ok) {
+          throw new Error('Refresh token rejected');
+        }
+
+        const refreshData = await refreshResponse.json();
+        const newAccessToken: string = refreshData.data?.accessToken;
+        const newRefreshToken: string = refreshData.data?.refreshToken;
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('nida_auth_token', newAccessToken);
+          localStorage.setItem('nida_refresh_token', newRefreshToken);
+        }
+
+        processQueue(null, newAccessToken);
+
+        return request<T>(
+          endpoint,
+          {
+            ...options,
+            headers: {
+              ...(options.headers as Record<string, string>),
+              Authorization: `Bearer ${newAccessToken}`,
+            },
+          },
+          true,
+        );
+      } catch (refreshErr: unknown) {
+        processQueue(refreshErr, null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('nida_auth_token');
+          localStorage.removeItem('nida_refresh_token');
+          window.dispatchEvent(new Event('nida_auth_expired'));
+        }
+        throw new ApiError('Session expired, please sign in again', 401);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
     const isJson = response.headers.get('content-type')?.includes('application/json');
     const data = isJson ? await response.json() : await response.text();
 
     if (!response.ok) {
       const errorMessage =
-        (typeof data === 'object' && data !== null && 'message' in data && typeof (data as { message: unknown }).message === 'string'
+        (typeof data === 'object' &&
+        data !== null &&
+        'message' in data &&
+        typeof (data as { message: unknown }).message === 'string'
           ? (data as { message: string }).message
           : null) ?? `Request failed with status ${response.status}`;
       throw new ApiError(errorMessage, response.status, data);
@@ -126,7 +240,6 @@ function upload<T>(
       }
 
       if (xhr.status >= 200 && xhr.status < 300) {
-        // Auto-unwrap NestJS { success: true, data: ... }
         if (data && typeof data === 'object' && 'data' in data) {
           resolve((data as { data: T }).data);
         } else {
@@ -134,10 +247,12 @@ function upload<T>(
         }
       } else {
         const errorMsg =
-          (typeof data === 'object' && data !== null && 'message' in data && typeof (data as { message: unknown }).message === 'string'
+          (typeof data === 'object' &&
+          data !== null &&
+          'message' in data &&
+          typeof (data as { message: unknown }).message === 'string'
             ? (data as { message: string }).message
-            : null) ??
-          `Upload failed with status code ${xhr.status}`;
+            : null) ?? `Upload failed with status code ${xhr.status}`;
         reject(new ApiError(errorMsg, xhr.status, data));
       }
     };

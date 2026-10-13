@@ -19,7 +19,8 @@ import { AdminService } from './admin.service.js';
 import { RestockInventoryDto } from './dto/restock-inventory.dto.js';
 import { FulfillOrderDto } from './dto/fulfill-order.dto.js';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto.js';
-import { Department } from '@repo/types';
+import { Department, type ApiAdminUser } from '@repo/types';
+import { CurrentAdmin } from '../auth/decorators/index.js';
 
 @ApiTags('Admin Back-Office')
 @Controller('admin')
@@ -74,8 +75,14 @@ export class AdminController {
   })
   @ApiResponse({ status: 200, description: 'ปรับสต็อกสินค้าสำเร็จ' })
   @ApiResponse({ status: 404, description: 'ไม่พบสินค้า Variant ที่ระบุ' })
-  async restock(@Body() dto: RestockInventoryDto) {
-    return this.adminService.restock(dto);
+  async restock(
+    @Body() dto: RestockInventoryDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
+  ) {
+    return this.adminService.restock({
+      ...dto,
+      adminId: admin?.id ?? dto.adminId,
+    });
   }
 
   @Post('orders/:identifier/fulfill')

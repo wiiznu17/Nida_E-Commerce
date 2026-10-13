@@ -58,7 +58,7 @@ async function main() {
     data: {
       username: 'superadmin',
       email: 'admin@nida-apparel.com',
-      passwordHash: '$2b$10$EpRnTzVlqHNP0.fUbXUwSOyuiXe/QLSUG6x8eqKMBGdVg0K6yKkG2', // demo hash for "admin123"
+      passwordHash: '$2b$10$/45cqjrkP0Gy4P0tjZeBJe5XyQ0u1vpEhkTI1A14DnM2Y9Kxa6dL.', // bcrypt hash for "admin123"
       fullName: 'Nida Super Admin',
       department: 'Headquarters',
       roleId: superAdminRole.id,

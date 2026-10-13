@@ -12,4 +12,5 @@ export * from './order.types.js';
 export * from './coupon.types.js';
 export * from './inventory.types.js';
 export * from './user.types.js';
+export * from './auth.types.js';
 export * from './taxonomy.js';

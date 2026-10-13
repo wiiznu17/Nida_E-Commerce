@@ -1,5 +1,11 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './core/prisma/prisma.module.js';
+import { RedisModule } from './core/redis/redis.module.js';
+import { MailerModule } from './core/mailer/mailer.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard.js';
+import { AdminUsersModule } from './modules/admin-users/admin-users.module.js';
 import { CatalogModule } from './modules/catalog/catalog.module.js';
 import { CouponsModule } from './modules/coupons/coupons.module.js';
 import { OrdersModule } from './modules/orders/orders.module.js';
@@ -12,6 +18,10 @@ import { AppService } from './app.service.js';
 @Module({
   imports: [
     PrismaModule,
+    RedisModule,
+    MailerModule,
+    AuthModule,
+    AdminUsersModule,
     CatalogModule,
     CouponsModule,
     OrdersModule,
@@ -20,6 +30,12 @@ import { AppService } from './app.service.js';
     UploadModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

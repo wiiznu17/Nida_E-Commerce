@@ -3,3 +3,4 @@ export * from './AdminHeader';
 export * from './AdminSidebar';
 export * from './AdminPageHeader';
 export * from './AdminFooter';
+export * from './AuthSplitLayout';
