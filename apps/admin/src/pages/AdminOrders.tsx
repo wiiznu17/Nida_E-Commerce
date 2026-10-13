@@ -3,6 +3,7 @@ import { Package, Search, Truck, CheckCircle2, ExternalLink, Eye, X, MapPin, Cre
 import { AdminLayout } from '../components/layout';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
+import { STOREFRONT_URL } from '../config';
 import type { AdminOrder } from '../data/adminData';
 
 export default function AdminOrders() {
@@ -414,7 +415,7 @@ export default function AdminOrders() {
             {/* Bottom Actions */}
             <div className="flex justify-between items-center pt-2">
               <a
-                href={`http://localhost:3000/track-order/${selectedOrder.orderNumber}`}
+                href={`${STOREFRONT_URL}/track-order/${selectedOrder.orderNumber}`}
                 target="_blank"
                 rel="noreferrer"
                 className="text-xs font-bold text-[#D97706] hover:underline flex items-center"

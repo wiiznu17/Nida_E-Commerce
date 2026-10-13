@@ -20,6 +20,17 @@ export interface UploadResult {
   source: 'cloudinary' | 'local';
 }
 
+interface CloudinaryConfig {
+  cloudName: string;
+  apiKey: string;
+  apiSecret: string;
+}
+
+interface CloudinaryUploadResponse {
+  secure_url?: string;
+  url?: string;
+}
+
 @Injectable()
 export class UploadService implements OnModuleInit {
   private readonly logger = new Logger(UploadService.name);
@@ -39,84 +50,74 @@ export class UploadService implements OnModuleInit {
       throw new BadRequestException('No file provided');
     }
 
-    const cleanFolder = subFolder
-      ? subFolder.trim().replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase() || 'products'
-      : 'products';
+    const cleanFolder = subFolder.trim().replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
+    const targetFolder = cleanFolder.length > 0 ? cleanFolder : 'products';
 
-    // Ensure .env is loaded
-    if (!process.env.CLOUDINARY_CLOUD_NAME && typeof (process as any).loadEnvFile === 'function') {
-      const candidates = [
-        path.resolve(process.cwd(), '.env'),
-        path.resolve(process.cwd(), 'apps/admin-api/.env'),
-      ];
-      for (const p of candidates) {
-        if (fs.existsSync(p)) {
-          try {
-            (process as any).loadEnvFile(p);
-            break;
-          } catch {}
-        }
-      }
-    }
-
-    // Check Cloudinary environment variables
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.CLOUDINARY_API_KEY;
-    const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-    // Check if CLOUDINARY_URL format is used: cloudinary://<api_key>:<api_secret>@<cloud_name>
-    let resolvedCloudName = cloudName;
-    let resolvedApiKey = apiKey;
-    let resolvedApiSecret = apiSecret;
-
-    if (process.env.CLOUDINARY_URL && (!resolvedCloudName || !resolvedApiKey || !resolvedApiSecret)) {
+    const cloudinaryConfig = this.resolveCloudinaryConfig();
+    if (cloudinaryConfig) {
       try {
-        const parsed = new URL(process.env.CLOUDINARY_URL);
-        resolvedCloudName = parsed.hostname;
-        resolvedApiKey = parsed.username;
-        resolvedApiSecret = parsed.password;
-      } catch (err) {
-        this.logger.warn('Failed to parse CLOUDINARY_URL environment variable');
-      }
-    }
-
-    if (resolvedCloudName && resolvedApiKey && resolvedApiSecret) {
-      try {
-        const cloudinaryFolder = `nida/${cleanFolder}`;
+        const cloudinaryFolder = `nida/${targetFolder}`;
         const resultUrl = await this.uploadToCloudinaryApi(
           file,
-          resolvedCloudName,
-          resolvedApiKey,
-          resolvedApiSecret,
+          cloudinaryConfig,
           cloudinaryFolder,
         );
         this.logger.log(`Successfully uploaded image to Cloudinary (${cloudinaryFolder}): ${resultUrl}`);
         return { url: resultUrl, source: 'cloudinary' };
-      } catch (err: any) {
-        this.logger.error(`Cloudinary upload failed: ${err.message}`, err.stack);
-        // Fallback to local storage if Cloudinary fails
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        this.logger.error(`Cloudinary upload failed: ${errMsg}`);
       }
     } else {
       this.logger.warn(
-        'Cloudinary credentials not configured in apps/admin-api/.env (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET). Falling back to local storage.',
+        'Cloudinary credentials not configured in apps/admin-api/.env. Falling back to local storage.',
       );
     }
 
-    // Local Storage Fallback
-    const localUrl = await this.saveLocally(file, cleanFolder);
+    const localUrl = await this.saveLocally(file, targetFolder);
     return { url: localUrl, source: 'local' };
+  }
+
+  private resolveCloudinaryConfig(): CloudinaryConfig | null {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (cloudName && apiKey && apiSecret) {
+      return { cloudName, apiKey, apiSecret };
+    }
+
+    if (process.env.CLOUDINARY_URL) {
+      try {
+        const parsed = new URL(process.env.CLOUDINARY_URL);
+        if (parsed.hostname && parsed.username && parsed.password) {
+          return {
+            cloudName: parsed.hostname,
+            apiKey: parsed.username,
+            apiSecret: parsed.password,
+          };
+        }
+      } catch {
+        this.logger.warn('Failed to parse CLOUDINARY_URL environment variable');
+      }
+    }
+
+    return null;
+  }
+
+  private buildLocalUrl(subFolder: string, filename: string): string {
+    const port = process.env.PORT ?? 4000;
+    return `http://localhost:${port}/uploads/${subFolder}/${filename}`;
   }
 
   private async uploadToCloudinaryApi(
     file: UploadedFileDto,
-    cloudName: string,
-    apiKey: string,
-    apiSecret: string,
+    config: CloudinaryConfig,
     folder: string,
   ): Promise<string> {
+    const { cloudName, apiKey, apiSecret } = config;
     const timestamp = Math.round(Date.now() / 1000);
 
-    // Cloudinary signature parameters must be sorted alphabetically: folder, timestamp
     const toSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
     const signature = crypto.createHash('sha1').update(toSign).digest('hex');
 
@@ -140,12 +141,13 @@ export class UploadService implements OnModuleInit {
       throw new Error(`Cloudinary API responded with status ${response.status}: ${errorText}`);
     }
 
-    const json = (await response.json()) as any;
-    if (!json.secure_url && !json.url) {
+    const json = (await response.json()) as CloudinaryUploadResponse;
+    const resultUrl = json.secure_url ?? json.url;
+    if (!resultUrl) {
       throw new Error('Cloudinary response did not contain secure_url');
     }
 
-    return json.secure_url || json.url;
+    return resultUrl;
   }
 
   private async saveLocally(file: UploadedFileDto, subFolder: string = 'products'): Promise<string> {
@@ -154,21 +156,19 @@ export class UploadService implements OnModuleInit {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    const ext = path.extname(file.originalname) || '.jpg';
+    const parsedExt = path.extname(file.originalname);
+    const ext = parsedExt.length > 0 ? parsedExt : '.jpg';
     const filename = `${subFolder}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
     const targetPath = path.join(uploadDir, filename);
 
     await fs.promises.writeFile(targetPath, file.buffer);
-    const port = process.env.PORT ?? 4000;
-    return `http://localhost:${port}/uploads/${subFolder}/${filename}`;
+    return this.buildLocalUrl(subFolder, filename);
   }
 
-  /**
-   * Move a temporary image to permanent storage (e.g. from 'temp' to 'products').
-   * If the URL is in /uploads/temp/, moves the file and returns the permanent URL.
-   */
   async commitTempImage(url?: string, targetSubFolder: string = 'products'): Promise<string> {
-    if (!url || typeof url !== 'string') return url || '';
+    if (!url || typeof url !== 'string') {
+      return url ?? '';
+    }
 
     if (url.includes('/uploads/temp/')) {
       try {
@@ -187,10 +187,10 @@ export class UploadService implements OnModuleInit {
           this.logger.log(`[Storage] Committed temp image to ${targetSubFolder}: ${filename}`);
         }
 
-        const port = process.env.PORT ?? 4000;
-        return `http://localhost:${port}/uploads/${targetSubFolder}/${filename}`;
-      } catch (err: any) {
-        this.logger.error(`Failed to commit temp image: ${err.message}`);
+        return this.buildLocalUrl(targetSubFolder, filename);
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        this.logger.error(`Failed to commit temp image: ${errMsg}`);
         return url;
       }
     }
@@ -198,9 +198,6 @@ export class UploadService implements OnModuleInit {
     return url;
   }
 
-  /**
-   * Purge orphaned temporary images older than maxAgeHours (default 24 hours).
-   */
   async cleanupExpiredTempFiles(maxAgeHours: number = 24): Promise<number> {
     const tempDir = path.join(process.cwd(), 'uploads', 'temp');
     if (!fs.existsSync(tempDir)) return 0;
@@ -224,8 +221,9 @@ export class UploadService implements OnModuleInit {
       if (deletedCount > 0) {
         this.logger.log(`[Storage Cleanup] Purged ${deletedCount} abandoned temp images.`);
       }
-    } catch (err: any) {
-      this.logger.warn(`Temp cleanup encountered an error: ${err.message}`);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Temp cleanup encountered an error: ${errMsg}`);
     }
 
     return deletedCount;

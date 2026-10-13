@@ -123,3 +123,16 @@ export const ProductTag = {
   PRE_ORDER: 'PRE-ORDER',
 } as const;
 export type ProductTag = (typeof ProductTag)[keyof typeof ProductTag];
+
+// --- Media & Storage ---
+export const UploadFolder = {
+  PRODUCTS: 'products',
+  CATEGORIES: 'categories',
+  BANNERS: 'banners',
+  AVATARS: 'avatars',
+  REVIEWS: 'reviews',
+  SLIPS: 'slips',
+  TEMP: 'temp',
+} as const;
+export type UploadFolder = (typeof UploadFolder)[keyof typeof UploadFolder];
+

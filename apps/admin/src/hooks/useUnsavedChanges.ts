@@ -9,7 +9,7 @@ export interface UseUnsavedChangesOptions {
 export function useUnsavedChanges({ isDirty, isSubmitting = false }: UseUnsavedChangesOptions) {
   const shouldBlock = isDirty && !isSubmitting;
 
-  // 1. Guard against browser tab closing, refreshing, or hard navigation
+  // Guard against browser tab closing, refreshing, or hard navigation
   useEffect(() => {
     if (!shouldBlock) return;
 
@@ -26,7 +26,7 @@ export function useUnsavedChanges({ isDirty, isSubmitting = false }: UseUnsavedC
     };
   }, [shouldBlock]);
 
-  // 2. Guard against in-app React Router client-side navigation (sidebar links, back button, etc.)
+  // Guard against in-app React Router client-side navigation (sidebar links, back button, etc.)
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
       shouldBlock && currentLocation.pathname !== nextLocation.pathname,

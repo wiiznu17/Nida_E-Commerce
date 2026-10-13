@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { type Product, products as initialProducts } from '../data/products';
-import { productsApi } from '../api/products.api';
+import { productRequester as productsApi } from '../api';
 import {
   type AdminOrder,
   type InventoryItem,
@@ -87,24 +87,66 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   });
 
   // Automatically sync catalog products from database API on mount
+interface CatalogResponseItem {
+  id: string;
+  slug?: string;
+  name: string;
+  nameTh?: string;
+  basePrice?: number;
+  price?: number;
+  originalPrice?: number;
+  primaryImage?: string;
+  secondaryImage?: string;
+  image?: string;
+  images?: Array<{ imageUrl: string; isPrimary?: boolean }>;
+  categorySlug?: string;
+  category?: { slug?: string; department?: string; name?: string; nameTh?: string };
+  department?: string;
+  categoryName?: string;
+  subCategory?: string;
+  categoryNameTh?: string;
+  subCategoryTh?: string;
+  tag?: string;
+  tagTh?: string;
+  description?: string;
+  descriptionTh?: string;
+  materialsCare?: string;
+  materialsCareTh?: string;
+  colors?: Array<string | { hex: string }>;
+  rating?: number;
+  reviewsCount?: number;
+  isPreorder?: boolean;
+  isActive?: boolean;
+}
+
   useEffect(() => {
     productsApi
       .getAll()
-      .then((data: any) => {
+      .then((data: unknown) => {
         if (Array.isArray(data) && data.length > 0) {
-          const mapped: Product[] = data.map((item: any) => ({
+          const items = data as CatalogResponseItem[];
+          const mapped: Product[] = items.map((item) => ({
             id: item.id,
             slug: item.slug,
             name: item.name,
             nameTh: item.nameTh,
             price: Number(item.basePrice ?? item.price ?? 0),
             originalPrice: item.originalPrice ? Number(item.originalPrice) : undefined,
-            image: item.primaryImage || item.image || item.images?.[0]?.imageUrl || '',
-            secondaryImage: item.secondaryImage || item.images?.[1]?.imageUrl || undefined,
-            category: item.categorySlug || item.category?.slug || 'apparel',
-            department: (item.department || item.category?.department || 'women').toLowerCase(),
-            subCategory: item.categoryName || item.category?.name || item.subCategory,
-            subCategoryTh: item.categoryNameTh || item.category?.nameTh || item.subCategoryTh,
+            image:
+              item.primaryImage ??
+              item.image ??
+              (Array.isArray(item.images) && item.images.length > 0
+                ? (item.images.find((img) => img.isPrimary)?.imageUrl ?? item.images[0]?.imageUrl ?? '')
+                : ''),
+            secondaryImage:
+              item.secondaryImage ??
+              (Array.isArray(item.images) && item.images.length > 1
+                ? item.images[1]?.imageUrl
+                : undefined),
+            category: item.categorySlug ?? item.category?.slug ?? 'apparel',
+            department: (item.department ?? item.category?.department ?? 'women').toLowerCase(),
+            subCategory: item.categoryName ?? item.category?.name ?? item.subCategory,
+            subCategoryTh: item.categoryNameTh ?? item.category?.nameTh ?? item.subCategoryTh,
             tag: item.tag,
             tagTh: item.tagTh,
             description: item.description,
@@ -112,7 +154,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
             materialsCare: item.materialsCare,
             materialsCareTh: item.materialsCareTh,
             colors: Array.isArray(item.colors)
-              ? item.colors.map((c: any) => (typeof c === 'string' ? c : c.hex))
+              ? item.colors.map((c) => (typeof c === 'string' ? c : c.hex))
               : [],
             rating: item.rating ?? 5.0,
             reviewsCount: item.reviewsCount ?? 0,

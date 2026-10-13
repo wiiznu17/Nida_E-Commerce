@@ -12,6 +12,7 @@ import {
 import { NidaLogo } from '../common/NidaLogo';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAdmin } from '../../context/AdminContext';
+import { STOREFRONT_URL } from '../../config';
 
 export interface AdminSidebarProps {
   isOpen: boolean;
@@ -167,7 +168,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       <div className="p-3 border-t border-white/10 space-y-2 bg-[#170D08]">
         {/* View Storefront Link */}
         <a
-          href="http://localhost:3000"
+          href={STOREFRONT_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-between w-full px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white text-xs font-bold transition-all group"
@@ -179,7 +180,16 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             />
             <span className="text-[11px]">{t('nav.viewStore')}</span>
           </div>
-          <span className="text-[9px] text-white/40">:3000</span>
+          <span className="text-[9px] text-white/40">
+            {(() => {
+              try {
+                const port = new URL(STOREFRONT_URL).port;
+                return port ? `:${port}` : '';
+              } catch {
+                return '';
+              }
+            })()}
+          </span>
         </a>
 
         {/* User Card */}

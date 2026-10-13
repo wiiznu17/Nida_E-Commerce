@@ -4,11 +4,11 @@ import {
   UseInterceptors,
   UploadedFile,
   Body,
-  Query,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { UploadFolder } from '@repo/types';
 import {
   UploadService,
   type UploadResult,
@@ -21,14 +21,8 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Upload an image to Cloudinary (or local media storage) with folder namespace' })
+  @ApiOperation({ summary: 'Upload an image with folder namespace' })
   @ApiConsumes('multipart/form-data')
-  @ApiQuery({
-    name: 'folder',
-    required: false,
-    enum: ['products', 'categories', 'banners', 'avatars', 'reviews', 'slips', 'temp'],
-    description: 'Subfolder to group images (e.g. products, banners, categories, avatars)',
-  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -39,8 +33,8 @@ export class UploadController {
         },
         folder: {
           type: 'string',
-          enum: ['products', 'categories', 'banners', 'avatars', 'reviews', 'slips'],
-          default: 'temp',
+          enum: Object.values(UploadFolder),
+          default: UploadFolder.PRODUCTS,
           description: 'Subfolder name (e.g. products, banners, categories, avatars, temp)',
         },
       },
@@ -63,14 +57,12 @@ export class UploadController {
     }),
   )
   async upload(
-    @UploadedFile() file: any,
-    @Body('folder') bodyFolder?: string,
-    @Query('folder') queryFolder?: string,
+    @UploadedFile() file: UploadedFileDto,
+    @Body('folder') folder: UploadFolder = UploadFolder.PRODUCTS,
   ): Promise<UploadResult> {
     if (!file) {
       throw new BadRequestException('Image file is required');
     }
-    const folder = bodyFolder || queryFolder || 'products';
-    return this.uploadService.uploadImage(file as UploadedFileDto, folder);
+    return this.uploadService.uploadImage(file, folder);
   }
 }

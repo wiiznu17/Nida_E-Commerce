@@ -9,7 +9,7 @@ import type { ZodSchema } from 'zod';
 
 @Injectable()
 export class ZodValidationPipe implements PipeTransform {
-  constructor(private readonly schema: ZodSchema<any>) {}
+  constructor(private readonly schema: ZodSchema) {}
 
   transform(value: unknown, _metadata: ArgumentMetadata) {
     const result = this.schema.safeParse(value);
@@ -23,7 +23,8 @@ export class ZodValidationPipe implements PipeTransform {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
         error: 'Bad Request',
-        message: messages,
+        message: 'Validation failed',
+        issues: messages,
         details: {
           validation: messages,
           issues: result.error.issues,

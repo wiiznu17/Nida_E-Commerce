@@ -296,22 +296,52 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
 
 ## 5. Code Quality & Verification Workflow
 
-### 5.1 Strict TypeScript & Linting
-- Explicitly type all component props and form states.
-- Avoid using `any` unless absolutely necessary for dynamic third-party helpers.
-- Clean up unused imports, dead variables, and console logs before completing work.
+### 5.1 Zero `any` & Strict Typing (ห้ามใช้ `any` เด็ดขาด)
+- **Zero `any` Policy**: Never use `any` in application code, API requesters, contexts, components, or utilities.
+- **Why It's Banned**:
+  - `any` disables TypeScript compiler guarantees, leaks untyped data, and introduces silent runtime crashes.
+- **Enforced Standards**:
+  - Use `unknown` for unknown payloads, catch blocks (`catch (err: unknown)`), and raw JSON, paired with type narrowing (`if (err instanceof ApiError)` or explicit guards).
+  - Use generics (e.g. `ApiError<T = unknown>`, `apiClient.get<T>()`) or domain-specific interfaces.
+  - Use `Record<string, unknown>` for dynamic dictionaries instead of `Record<string, any>` or `any`.
+  - Clean up unused imports, dead variables, and console logs before completing work.
 
-### 5.2 Mandatory Verification Step
+### 5.2 Ban Sloppy `||` Fallback Chaining (ห้ามเขียน Fallback แบบใช้ `||` ซ้อนกันมั่วซั่ว)
+- **Strictly No `||` Chaining**: Never write chained logical OR fallbacks like `a || b || c || d` when resolving values, URLs, API responses, or component props.
+- **Why It's Banned**:
+  - `||` conflates falsy values (`0`, `""`, `false`) with missing data, causing subtle runtime bugs and edge-case corruption.
+  - Chaining multiple `||` operators creates ambiguous, untyped guesswork that degrades code readability and looks like sloppy, low-grade code.
+- **Enforced Standards**:
+  1. **Nullish Coalescing (`??`)**: Use `??` when falling back exclusively from `null` or `undefined`.
+  2. **Dedicated Extraction Helpers**: When resolving hierarchical options (e.g. primary image -> first image -> fallback URL), write clean, strongly-typed helper functions with early returns or explicit array operations.
+  3. **Explicit Ternaries / Conditions**: For structured data mappings, use explicit guards (`if/else` or typed resolvers) instead of lazy `||` chains.
+
+### 5.3 Test Co-Evolution & Unit Testing Standard (เขียนหรือแก้โค้ดต้องแก้และรัน Test เสมอ)
+- **Mandatory Test Updates**: Whenever writing new features, modifying business logic, altering DTOs, schemas, or service methods, you **MUST** simultaneously write or update corresponding unit tests. Never leave existing tests failing or new logic untested.
+- **Dedicated Feature-Based Test Organization**: Group tests into dedicated domain folders (e.g. `apps/admin-api/test/product/`) and divide by feature per file (e.g. `create-product.spec.ts`, `get-products.spec.ts`, `get-by-slug.spec.ts`, `status-toggle.spec.ts`, `categories.spec.ts`, `validation.spec.ts`). Never dump unrelated test cases into a flat or monolithic test file.
+- **Run Unit Tests**: Always execute the test suite and ensure all tests pass:
+  ```bash
+  npm --prefix apps/admin-api run test
+  ```
+
+### 5.4 Mandatory Verification Step
 Before completing any task or reporting back to the user:
 1. **Run Typecheck & Build**:
    ```bash
    npm --prefix packages/types run build
+   npm --prefix packages/validators run build
+   npm --prefix apps/admin-api run build
    npm --prefix apps/admin run build
    ```
-2. Verify that:
+2. **Run Test Suites**:
+   ```bash
+   npm --prefix apps/admin-api run test
+   ```
+3. Verify that:
    - There are 0 TypeScript compilation errors (`tsc -b`).
-   - The Vite/Next bundle compiles cleanly without missing module warnings.
-   - Any deleted files have no lingering import references.
+   - The Vite/Next/Nest bundles compile cleanly without missing module warnings.
+   - All unit test suites pass 100% with 0 failures.
+   - Any deleted or moved files have no lingering import references.
 
 ---
 
@@ -323,6 +353,7 @@ When implementing any feature or refactoring:
 - [ ] Are types and constants separated into `formTypes.ts` / `formConstants.ts`?
 - [ ] Are domain entities and shared enums imported from `@repo/types` instead of re-declared?
 - [ ] If `@repo/types` was modified, was `npm --prefix packages/types run build` executed?
+- [ ] If `@repo/validators` was modified, was `npm --prefix packages/validators run build` executed?
 - [ ] Are all exports channeled through `index.ts` barrel files?
 - [ ] Are old or obsolete files deleted?
 - [ ] Are all UI texts extracted to both `th.json` and `en.json`?
@@ -335,4 +366,9 @@ When implementing any feature or refactoring:
 - [ ] Are developer internal enum keys (e.g. `MarketingTagKey.*`, `ProductSubCategory.*`) hidden from UI presentation?
 - [ ] Are table column widths sized proportionally to content length (e.g. compact widths for Size, Actions, and Numbers; flexible for titles and codes)?
 - [ ] Are action buttons clean, unified, and non-redundant?
-- [ ] Did you run `npm --prefix apps/admin run build` and pass with 0 errors?
+- [ ] Are all fallback values using nullish coalescing (`??`) or explicit helper functions instead of sloppy chained `||` operators?
+- [ ] Are comments free from robotic numbered step prefixes (ห้ามเขียน comment แบบ 1, 2, 3, 4 เช่น `// 1. Call API`, `// 2. Sync state`)?
+- [ ] **Did you write or update unit tests in a dedicated feature folder (e.g. `test/<feature>/`) covering the new or changed logic?**
+- [ ] **Did you run `npm --prefix apps/admin-api run test` and pass 100% with 0 failures?**
+- [ ] Did you run `npm --prefix apps/admin run build` and `npm --prefix apps/admin-api run build` and pass with 0 errors?
+

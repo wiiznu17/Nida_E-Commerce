@@ -4,24 +4,24 @@ import en from '../locales/en.json';
 
 export type Language = 'th' | 'en';
 
-export const locales: Record<Language, any> = { th, en };
+export const locales: Record<Language, Record<string, unknown>> = { th, en };
 
-function getNestedValue(obj: any, path: string): string | undefined {
+function getNestedValue(obj: Record<string, unknown>, path: string): string | undefined {
   if (!obj || typeof obj !== 'object') return undefined;
 
   // Direct property check first (for flat keys)
   if (path in obj && typeof obj[path] === 'string') {
-    return obj[path];
+    return obj[path] as string;
   }
 
   // Dot-notation traversal (e.g. 'product.nameEn')
   const parts = path.split('.');
-  let current: any = obj;
+  let current: unknown = obj;
   for (const part of parts) {
     if (current === null || current === undefined || typeof current !== 'object') {
       return undefined;
     }
-    current = current[part];
+    current = (current as Record<string, unknown>)[part];
   }
   return typeof current === 'string' ? current : undefined;
 }
@@ -60,15 +60,13 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const isTh = language === 'th';
 
   const t = (key: string, fallback?: string): string => {
-    // 1. Check in active language JSON
     const val = getNestedValue(locales[language], key);
     if (val !== undefined) return val;
 
-    // 2. Check in English JSON fallback
     const enVal = getNestedValue(locales.en, key);
     if (enVal !== undefined) return enVal;
 
-    return fallback || key;
+    return fallback ?? key;
   };
 
   return (

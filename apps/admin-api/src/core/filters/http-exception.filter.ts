@@ -20,7 +20,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let error = 'Internal Server Error';
     let message = 'An unexpected error occurred';
-    let details: Record<string, string[]> | undefined;
+    let issues: string[] = [];
+    let details: Record<string, unknown> | undefined;
 
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
@@ -33,13 +34,33 @@ export class HttpExceptionFilter implements ExceptionFilter {
         exceptionResponse !== null
       ) {
         const res = exceptionResponse as Record<string, unknown>;
-        message = (res['message'] as string) ?? message;
-        error = (res['error'] as string) ?? error;
 
-        // class-validator returns message as string[]
-        if (Array.isArray(res['message'])) {
-          details = { validation: res['message'] as string[] };
+        if (typeof res['error'] === 'string' && res['error'].length > 0) {
+          error = res['error'];
+        }
+
+        if (Array.isArray(res['issues'])) {
+          issues = res['issues'].filter((i): i is string => typeof i === 'string');
+        } else if (Array.isArray(res['message'])) {
+          issues = res['message'].filter((i): i is string => typeof i === 'string');
+        } else if (
+          typeof res['details'] === 'object' &&
+          res['details'] !== null &&
+          Array.isArray((res['details'] as Record<string, unknown>)['validation'])
+        ) {
+          issues = ((res['details'] as Record<string, unknown>)['validation'] as unknown[]).filter(
+            (i): i is string => typeof i === 'string',
+          );
+        }
+
+        if (typeof res['message'] === 'string' && res['message'].length > 0) {
+          message = res['message'];
+        } else if (issues.length > 0) {
           message = 'Validation failed';
+        }
+
+        if (typeof res['details'] === 'object' && res['details'] !== null) {
+          details = res['details'] as Record<string, unknown>;
         }
       }
 
@@ -47,6 +68,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else {
       // Unexpected errors — log full stack trace
       this.logger.error('Unhandled exception:', exception);
+      message = 'An unexpected server error occurred';
     }
 
     const body: ApiError = {
@@ -54,6 +76,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode,
       error,
       message,
+      ...(issues.length > 0 && { issues }),
       ...(details && { details }),
     };
 

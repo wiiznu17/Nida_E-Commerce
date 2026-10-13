@@ -130,11 +130,11 @@ export function ImageUploader({
         },
       });
       onChange(url);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload Error:', err);
-      setErrorMessage(
-        err.message || (isTh ? 'เกิดข้อผิดพลาดในการอัปโหลดรูป' : 'Failed to upload image'),
-      );
+      const fallbackMsg = isTh ? 'เกิดข้อผิดพลาดในการอัปโหลดรูป' : 'Failed to upload image';
+      const msg = err instanceof Error && err.message.length > 0 ? err.message : fallbackMsg;
+      setErrorMessage(msg);
     } finally {
       setIsUploading(false);
       setUploadProgress(0);

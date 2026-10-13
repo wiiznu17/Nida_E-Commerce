@@ -396,7 +396,11 @@ export function ProductForm({
     setSkuList(updated);
   };
 
-  const updateSkuRow = (index: number, field: keyof SkuVariant, value: any) => {
+  const updateSkuRow = (
+    index: number,
+    field: keyof SkuVariant,
+    value: SkuVariant[keyof SkuVariant],
+  ) => {
     const updated = [...skuList];
     updated[index] = { ...updated[index], [field]: value };
     setSkuList(updated);

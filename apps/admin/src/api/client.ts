@@ -5,14 +5,15 @@
  * header management, response extraction, and progress tracking.
  */
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+import { API_BASE_URL } from '../config';
 
-export class ApiError extends Error {
+export { API_BASE_URL };
+
+export class ApiError<T = unknown> extends Error {
   status?: number;
-  data?: any;
+  data?: T;
 
-  constructor(message: string, status?: number, data?: any) {
+  constructor(message: string, status?: number, data?: T) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -61,8 +62,9 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
     if (!response.ok) {
       const errorMessage =
-        (typeof data === 'object' && data?.message) ||
-        `Request failed with status ${response.status}`;
+        (typeof data === 'object' && data !== null && 'message' in data && typeof (data as { message: unknown }).message === 'string'
+          ? (data as { message: string }).message
+          : null) ?? `Request failed with status ${response.status}`;
       throw new ApiError(errorMessage, response.status, data);
     }
 
@@ -72,9 +74,10 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     }
 
     return data as T;
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof ApiError) throw err;
-    throw new ApiError(err.message || 'Network request failed', 0, err);
+    const msg = err instanceof Error ? err.message : 'Network request failed';
+    throw new ApiError(msg, 0, err);
   }
 }
 
@@ -108,7 +111,7 @@ function upload<T>(
 
     xhr.onload = () => {
       const isJson = xhr.getResponseHeader('content-type')?.includes('application/json');
-      let data: any = xhr.responseText;
+      let data: unknown = xhr.responseText;
       if (isJson) {
         try {
           data = JSON.parse(xhr.responseText);
@@ -120,13 +123,15 @@ function upload<T>(
       if (xhr.status >= 200 && xhr.status < 300) {
         // Auto-unwrap NestJS { success: true, data: ... }
         if (data && typeof data === 'object' && 'data' in data) {
-          resolve(data.data as T);
+          resolve((data as { data: T }).data);
         } else {
           resolve(data as T);
         }
       } else {
         const errorMsg =
-          (typeof data === 'object' && data?.message) ||
+          (typeof data === 'object' && data !== null && 'message' in data && typeof (data as { message: unknown }).message === 'string'
+            ? (data as { message: string }).message
+            : null) ??
           `Upload failed with status code ${xhr.status}`;
         reject(new ApiError(errorMsg, xhr.status, data));
       }
@@ -141,16 +146,16 @@ function upload<T>(
 }
 
 export const apiClient = {
-  get: <T>(endpoint: string, params?: Record<string, any>) =>
+  get: <T>(endpoint: string, params?: Record<string, string | number | boolean | undefined>) =>
     request<T>(endpoint, { method: 'GET', params }),
 
-  post: <T>(endpoint: string, body?: any) =>
+  post: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, { method: 'POST', body: JSON.stringify(body) }),
 
-  put: <T>(endpoint: string, body?: any) =>
+  put: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
 
-  patch: <T>(endpoint: string, body?: any) =>
+  patch: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(body) }),
 
   delete: <T>(endpoint: string) =>

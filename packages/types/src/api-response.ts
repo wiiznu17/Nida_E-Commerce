@@ -1,7 +1,3 @@
-// ====================================================
-// @repo/types — Generic API Response Wrappers
-// ====================================================
-
 /**
  * Standard successful API response wrapper.
  * ทุก endpoint คืนรูปแบบนี้เพื่อความสม่ำเสมอ
@@ -36,7 +32,8 @@ export interface ApiError {
   statusCode: number;
   error: string;
   message: string;
-  details?: Record<string, string[]>;
+  issues?: string[];
+  details?: Record<string, unknown>;
 }
 
 /**

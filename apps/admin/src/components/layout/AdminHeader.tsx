@@ -1,5 +1,6 @@
 import { Menu, ChevronRight, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { STOREFRONT_URL } from '../../config';
 
 export interface AdminHeaderProps {
   title?: string;
@@ -25,14 +26,14 @@ export function AdminHeader({ title, onOpenMobile }: AdminHeaderProps) {
         <div className="flex items-center space-x-2 text-xs">
           <span className="font-bold text-gray-500">Admin</span>
           <ChevronRight size={14} className="text-gray-400" />
-          <span className="font-bold text-[#2B1810]">{title || 'Dashboard'}</span>
+          <span className="font-bold text-[#2B1810]">{title ?? 'Dashboard'}</span>
         </div>
       </div>
 
       {/* Right: Quick Links / Storefront Gateway */}
       <div className="flex items-center space-x-3">
         <a
-          href="http://localhost:3000"
+          href={STOREFRONT_URL}
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[#2B1810] bg-[#FAF7F2] hover:bg-[#EAE3D9] border border-[#EAE3D9] transition-colors"

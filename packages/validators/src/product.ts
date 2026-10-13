@@ -12,7 +12,10 @@ export const createSkuVariantSchema = z.object({
   lowStockThreshold: z.coerce.number().int().min(0, 'Low stock threshold cannot be negative').default(5),
   priceAdjustment: z.coerce.number().default(0),
   barcode: z.string().trim().optional().nullable(),
-  weightGrams: z.coerce.number().positive('Weight must be positive').optional().nullable(),
+  weightGrams: z.preprocess(
+    (v) => (v === 0 || v === '' ? null : v),
+    z.coerce.number().positive('Weight must be positive').optional().nullable(),
+  ),
 });
 
 export type CreateSkuVariantInput = z.infer<typeof createSkuVariantSchema>;
@@ -26,7 +29,10 @@ export const createProductSchema = z
     nameTh: z.string().trim().optional().nullable(),
     price: z.coerce.number().positive('Price must be greater than 0').optional().nullable(),
     basePrice: z.coerce.number().positive('Base price must be greater than 0').optional().nullable(),
-    originalPrice: z.coerce.number().positive('Original price must be greater than 0').optional().nullable(),
+    originalPrice: z.preprocess(
+      (val) => (val === 0 || val === '' || val === null || val === undefined ? null : val),
+      z.coerce.number().positive('Original price must be greater than 0').optional().nullable(),
+    ),
     image: z.string().trim().min(1, 'Primary cover image is required').optional().nullable(),
     secondaryImage: z.string().trim().optional().nullable(),
     category: z.string().trim().min(1, 'Category is required'),
@@ -41,6 +47,8 @@ export const createProductSchema = z
     materialsCareTh: z.string().trim().optional().nullable(),
     colors: z.array(z.string()).optional().default([]),
     colorImages: z.record(z.string(), z.string()).optional().nullable(),
+    rating: z.coerce.number().optional().nullable(),
+    reviewsCount: z.coerce.number().optional().nullable(),
     isPreorder: z.coerce.boolean().optional().default(false),
     preorderReleaseDate: z.string().optional().nullable(),
     preorderLimit: z.coerce.number().int().min(0).optional().nullable(),

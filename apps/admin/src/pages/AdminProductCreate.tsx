@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../components/layout';
-import { ProductForm } from '../components/product';
+import {
+  ProductForm,
+  ProductCreateSuccessModal,
+  ProductCreateErrorModal,
+} from '../components/product';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
-import { productsApi } from '../api';
+import { productsApi, extractApiError } from '../api';
+import { STOREFRONT_URL } from '../config';
 import type { Product } from '../data/products';
 import type { SkuVariant } from '../data/adminData';
 
@@ -13,43 +18,53 @@ export default function AdminProductCreate() {
   const navigate = useNavigate();
   const { addProduct } = useAdmin();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Success Modal State
+  const [createdProduct, setCreatedProduct] = useState<Product | null>(null);
+  const [createdSkus, setCreatedSkus] = useState<SkuVariant[]>([]);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+
+  // Error Modal State
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [formResetKey, setFormResetKey] = useState(0);
 
   const handleCreate = async (data: Omit<Product, 'id'>, skus?: SkuVariant[]) => {
     setIsSubmitting(true);
-    setErrorMsg(null);
     try {
-      let createdProductFromApi: any = null;
-      try {
-        createdProductFromApi = await productsApi.create(data, skus);
-      } catch (apiErr: any) {
-        console.warn('Backend API persistence warning:', apiErr);
-      }
+      const apiResponse = await productsApi.create(data, skus);
+      addProduct(apiResponse, skus);
 
-      // Sync with local admin context (with real DB id if available)
-      const finalProduct = createdProductFromApi?.id
-        ? { ...data, id: createdProductFromApi.id }
-        : data;
-
-      addProduct(finalProduct, skus);
-      const skuCount = skus?.length || 1;
-
-      navigate('/admin/products', {
-        state: {
-          toast: isTh
-            ? `เพิ่มสินค้า "${data.name}" (${skuCount} SKU) เข้าสู่ระบบเรียบร้อยแล้ว`
-            : `Product "${data.name}" (${skuCount} SKUs) successfully created`,
-        },
-      });
-    } catch (err: any) {
+      setCreatedProduct(apiResponse);
+      setCreatedSkus(skus ?? []);
+      setIsSuccessModalOpen(true);
+    } catch (err: unknown) {
       console.error('Error creating product:', err);
-      setErrorMsg(
-        err?.message ||
-          (isTh
-            ? 'เกิดข้อผิดพลาดในการสร้างสินค้า กรุณาลองใหม่อีกครั้ง'
-            : 'Failed to create product. Please try again.')
-      );
+      const { message, issues } = extractApiError(err, t('common.createProductError'));
+      setErrorMessage(message);
+      setValidationErrors(issues);
+      setIsErrorModalOpen(true);
+    } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleViewList = () => {
+    setIsSuccessModalOpen(false);
+    navigate('/admin/products');
+  };
+
+  const handleCreateAnother = () => {
+    setIsSuccessModalOpen(false);
+    setCreatedProduct(null);
+    setCreatedSkus([]);
+    setFormResetKey((prev) => prev + 1);
+  };
+
+  const handleViewStore = () => {
+    if (createdProduct?.slug) {
+      window.open(`${STOREFRONT_URL}/products/${createdProduct.slug}`, '_blank');
     }
   };
 
@@ -62,18 +77,30 @@ export default function AdminProductCreate() {
           : 'Define bilingual product attributes, pricing, categories, and color variants'
       }
     >
-      {errorMsg && (
-        <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center justify-between">
-          <span>{errorMsg}</span>
-          <button
-            onClick={() => setErrorMsg(null)}
-            className="text-red-500 hover:text-red-700 font-bold ml-4"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-      <ProductForm onSubmit={handleCreate} isSubmitting={isSubmitting} />
+      <ProductForm
+        key={formResetKey}
+        onSubmit={handleCreate}
+        isSubmitting={isSubmitting}
+      />
+
+      {/* Success Dialog */}
+      <ProductCreateSuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        product={createdProduct}
+        skus={createdSkus}
+        onViewList={handleViewList}
+        onCreateAnother={handleCreateAnother}
+        onViewStore={createdProduct?.slug ? handleViewStore : undefined}
+      />
+
+      {/* Error Dialog */}
+      <ProductCreateErrorModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        errorMessage={errorMessage}
+        validationErrors={validationErrors}
+      />
     </AdminLayout>
   );
 }

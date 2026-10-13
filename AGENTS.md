@@ -86,10 +86,35 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 
 ---
 
-## 5. Verification & Build
-- Always test TypeScript compilation before completing any task:
-  ```bash
-  npm --prefix packages/types run build
-  npm --prefix apps/admin run build
-  ```
-- Ensure 0 errors, no broken barrel exports, and no unused variables/imports.
+## 5. Testing & Verification
+- **Test Co-Evolution (เขียนหรือแก้โค้ดต้องแก้และรัน Test เสมอ)**:
+  - Whenever writing new features, modifying business logic, altering DTOs, schemas, or service methods, you **MUST** simultaneously create or update unit tests.
+  - Keep test files organized in dedicated domain folders (e.g., `apps/admin-api/test/product/`) divided by feature per file (e.g. `create-product.spec.ts`, `get-products.spec.ts`).
+  - Always run tests and ensure 100% pass:
+    ```bash
+    npm --prefix apps/admin-api run test
+    ```
+- **Build Verification**:
+  - Always test TypeScript compilation before completing any task:
+    ```bash
+    npm --prefix packages/types run build
+    npm --prefix packages/validators run build
+    npm --prefix apps/admin-api run build
+    npm --prefix apps/admin run build
+    ```
+  - Ensure 0 errors, no broken barrel exports, and no unused variables/imports.
+
+---
+
+## 6. Code Quality & Clean Code Standards
+- **Zero `any` Policy (ห้ามใช้ `any` เด็ดขาด)**:
+  - Do NOT write `any` anywhere in application code, API requesters, contexts, components, or service logic.
+  - Use `unknown` with explicit type narrowing (e.g. `catch (err: unknown)`, `if (err instanceof ApiError)`), generics (`ApiError<T = unknown>`), or `Record<string, unknown>` instead.
+- **Ban Sloppy `||` Fallback Chaining (ห้ามเขียน Fallback แบบใช้ `||` ซ้อนกันมั่วซั่ว)**:
+  - Never write chained logical OR fallbacks (e.g. `val || other || fallback || ''`). It conflates falsy values (`0`, `""`, `false`), masks data flow bugs, and represents sloppy, untyped guesswork.
+  - Use nullish coalescing (`??`) for defaulting specifically on `null` or `undefined`.
+  - For multi-step hierarchical extraction (e.g. primary image -> first image -> fallback), write dedicated, strongly-typed helper functions with early returns or explicit array logic.
+- **Ban Numbered Step Comments (ห้ามเขียน comment แบบนับเลข 1, 2, 3, 4 เด็ดขาด)**:
+  - Do NOT write robotic numbered comments (e.g. `// 1. Call API`, `// 2. Sync state`, `// 3. Open modal`, `// 1. Slug generation`). It clutters the codebase and looks like amateur AI-generated slop.
+  - Write clean, self-documenting code with expressive variable and function names. If explanatory context is genuinely required, explain *why* or non-obvious business logic without sequential numbers.
+

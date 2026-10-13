@@ -340,7 +340,7 @@ model InventoryItem {
 model ProductImage {
   id           String   @id @default(uuid()) @db.Uuid
   productId    String   @map("product_id") @db.Uuid
-  imageUrl     String   @map("image_url") @db.VarChar(500)
+  imageUrl     String   @map("image_url") @db.Text
   altText      String?  @map("alt_text") @db.VarChar(255)
   altTextTh    String?  @map("alt_text_th") @db.VarChar(255)
   displayOrder Int      @default(0) @map("display_order")

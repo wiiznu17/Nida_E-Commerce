@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Boxes, Edit, Eye, Trash2, ShoppingBag, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { STOREFRONT_URL } from '../../../config';
 import type { Product } from '../../../data/products';
 import type { InventoryItem } from '../../../data/adminData';
 
@@ -217,7 +218,7 @@ export function ProductListTable({
                       <Edit size={15} />
                     </Link>
                     <a
-                      href={`http://localhost:3000/product/${product.id}`}
+                      href={`${STOREFRONT_URL}/products/${product.slug ?? product.id}`}
                       target="_blank"
                       rel="noreferrer"
                       className="p-1.5 text-gray-500 hover:text-[#2B1810] hover:bg-gray-100 rounded-xs transition-colors"

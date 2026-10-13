@@ -21,7 +21,8 @@
     "viewStorefront": "View Storefront",
     "units": "units",
     "variants": "variants",
-    "unsavedEdits": "Unsaved edits"
+    "unsavedEdits": "Unsaved edits",
+    "createProductError": "Failed to create product. Please verify your inputs and try again."
   },
   "nav": {
     "overview": "OVERVIEW",
@@ -187,7 +188,16 @@
     "validationNameEn": "English Product Name is required",
     "validationPrice": "Price must be greater than 0",
     "validationImage": "Primary image URL is required",
-    "validationSkus": "At least 1 SKU is required"
+    "validationSkus": "At least 1 SKU is required",
+    "createSuccessTitle": "Product Created Successfully",
+    "createSuccessDesc": "The product and SKU variant matrix have been successfully recorded in the catalog.",
+    "createAnother": "Create Another",
+    "viewProductList": "View Products List",
+    "viewStorefront": "View in Store",
+    "createErrorTitle": "Failed to Create Product",
+    "createErrorDesc": "Validation failed. Please review the highlighted issues and try again.",
+    "validationErrorsTitle": "Validation Issues:",
+    "backToEdit": "Back to Edit"
   },
   "preview": {
     "title": "Product Preview",

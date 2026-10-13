@@ -51,6 +51,22 @@ export class QueryProductsDto {
   @IsOptional()
   isPreorder?: boolean;
 
+  @ApiPropertyOptional({
+    description: 'Filter by publication status',
+    enum: ['all', 'published', 'draft'],
+    example: 'published',
+  })
+  @IsOptional()
+  @IsString()
+  status?: 'all' | 'published' | 'draft';
+
+  @ApiPropertyOptional({
+    description: 'Filter by active status',
+    example: true,
+  })
+  @IsOptional()
+  isActive?: boolean;
+
   @ApiPropertyOptional({ enum: SortByOption, default: SortByOption.NEWEST })
   @IsOptional()
   @IsEnum(SortByOption)

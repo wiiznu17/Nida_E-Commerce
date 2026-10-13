@@ -36,8 +36,9 @@ export default function AdminProducts() {
 
   // Listen for toast from navigation redirect (create/edit)
   useEffect(() => {
-    if (location.state && (location.state as any).toast) {
-      showToast((location.state as any).toast);
+    const navState = location.state as { toast?: string } | null;
+    if (navState?.toast) {
+      showToast(navState.toast);
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);

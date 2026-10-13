@@ -185,6 +185,16 @@ export class CreateProductDto {
   @Type(() => CreateSkuVariantDto)
   skus?: CreateSkuVariantDto[];
 
+  @ApiPropertyOptional({ description: 'Optional initial rating' })
+  @IsOptional()
+  @IsNumber()
+  rating?: number;
+
+  @ApiPropertyOptional({ description: 'Optional initial reviews count' })
+  @IsOptional()
+  @IsNumber()
+  reviewsCount?: number;
+
   @ApiPropertyOptional({ description: 'Publication status: true for Published, false for Draft', default: true })
   @IsOptional()
   @IsBoolean()

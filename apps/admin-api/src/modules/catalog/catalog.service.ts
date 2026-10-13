@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { QueryProductsDto, SortByOption } from './dto/query-products.dto.js';
-import { CreateProductDto } from './dto/create-product.dto.js';
+import { CreateProductDto, CreateSkuVariantDto } from './dto/create-product.dto.js';
 import type {
   CategoryWithRelations,
   ProductListPayload,
@@ -61,7 +61,15 @@ export class CatalogService {
     } = query;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ProductWhereInput = { isActive: true };
+    const where: Prisma.ProductWhereInput = {};
+
+    if (query.status === 'published' || query.isActive === true) {
+      where.isActive = true;
+    } else if (query.status === 'draft' || query.isActive === false) {
+      where.isActive = false;
+    } else if (query.status !== 'all') {
+      where.isActive = true;
+    }
 
     if (search) {
       where.OR = [
@@ -216,113 +224,11 @@ export class CatalogService {
     const basePrice = dto.basePrice ?? dto.price ?? 0;
     const originalPrice = dto.originalPrice ?? null;
 
-    // 1. Slug generation with uniqueness check
-    let slug = dto.name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    const slug = await this.generateUniqueSlug(dto.name);
+    const category = await this.resolveCategory(dto.category, dto.department);
+    const imageList = await this.commitAndPrepareImages(dto);
+    const skusToCreate = this.prepareSkusToCreate(dto.skus, slug, dto.colors?.[0]);
 
-    if (!slug) {
-      slug = `product-${Date.now()}`;
-    }
-
-    const existingSlug = await this.prisma.product.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-    if (existingSlug) {
-      slug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
-    }
-
-    // 2. Resolve Category
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(dto.category);
-    const categoryOrConditions: Prisma.CategoryWhereInput[] = [
-      { slug: dto.category.toLowerCase() },
-      { name: { contains: dto.category, mode: 'insensitive' } },
-    ];
-    if (isUuid) {
-      categoryOrConditions.push({ id: dto.category });
-    }
-
-    let category = await this.prisma.category.findFirst({
-      where: { OR: categoryOrConditions },
-    });
-
-    if (!category && dto.department) {
-      category = await this.prisma.category.findFirst({
-        where: { department: dto.department.toUpperCase() as Department },
-      });
-    }
-
-    if (!category) {
-      category = await this.prisma.category.findFirst();
-    }
-
-    if (!category) {
-      const dep = (dto.department?.toUpperCase() as Department) || Department.WOMEN;
-      category = await this.prisma.category.create({
-        data: {
-          name: dto.category || 'General Apparel',
-          slug: (dto.category || 'general-apparel').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          department: Object.values(Department).includes(dep) ? dep : Department.WOMEN,
-        },
-      });
-    }
-
-    // Commit any temporary images to permanent storage
-    if (dto.image) {
-      dto.image = await this.uploadService.commitTempImage(dto.image, 'products');
-    }
-    if (dto.secondaryImage) {
-      dto.secondaryImage = await this.uploadService.commitTempImage(dto.secondaryImage, 'products');
-    }
-    if (dto.colorImages) {
-      for (const [colorName, imgUrl] of Object.entries(dto.colorImages)) {
-        if (imgUrl) {
-          dto.colorImages[colorName] = await this.uploadService.commitTempImage(imgUrl, 'products');
-        }
-      }
-    }
-
-    // 3. Prepare Images list
-    const imageList: Array<{ imageUrl: string; isPrimary: boolean; displayOrder: number; altText?: string }> = [];
-    if (dto.image) {
-      imageList.push({ imageUrl: dto.image, isPrimary: true, displayOrder: 0, altText: dto.name });
-    }
-    if (dto.secondaryImage && dto.secondaryImage !== dto.image) {
-      imageList.push({ imageUrl: dto.secondaryImage, isPrimary: false, displayOrder: imageList.length, altText: `${dto.name} - View 2` });
-    }
-    if (dto.colorImages) {
-      for (const [colorName, imgUrl] of Object.entries(dto.colorImages)) {
-        if (imgUrl && !imageList.some((img) => img.imageUrl === imgUrl)) {
-          imageList.push({
-            imageUrl: imgUrl,
-            isPrimary: false,
-            displayOrder: imageList.length,
-            altText: `${dto.name} - ${colorName}`,
-          });
-        }
-      }
-    }
-
-    // 4. Prepare Variants & Inventory
-    const skusToCreate = dto.skus && dto.skus.length > 0
-      ? dto.skus
-      : [
-          {
-            sku: `${slug.substring(0, 8).toUpperCase()}-STD`,
-            size: 'One Size',
-            colorName: dto.colors?.[0] || 'Standard',
-            colorHex: '#000000',
-            stock: 20,
-            lowStockThreshold: 5,
-            priceAdjustment: 0,
-            weightGrams: 300,
-          },
-        ];
-
-    // 5. Execute atomic creation via Prisma transaction
     const newProduct = await this.prisma.$transaction(async (tx) => {
       const created = await tx.product.create({
         data: {
@@ -346,7 +252,6 @@ export class CatalogService {
         },
       });
 
-      // Insert images
       for (const img of imageList) {
         await tx.productImage.create({
           data: {
@@ -359,7 +264,6 @@ export class CatalogService {
         });
       }
 
-      // Insert variants and inventory items
       for (const skuItem of skusToCreate) {
         const variant = await tx.productVariant.create({
           data: {
@@ -388,8 +292,161 @@ export class CatalogService {
       return created;
     });
 
-    // Return full product details
     return this.getProductBySlug(newProduct.slug);
+  }
+
+  private async generateUniqueSlug(name: string): Promise<string> {
+    const rawSlug = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    const baseSlug = rawSlug.length > 0 ? rawSlug : `product-${Date.now()}`;
+
+    const existingSlug = await this.prisma.product.findUnique({
+      where: { slug: baseSlug },
+      select: { id: true },
+    });
+
+    if (existingSlug) {
+      return `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
+    }
+
+    return baseSlug;
+  }
+
+  private async resolveCategory(
+    categoryInput: string,
+    departmentInput?: string,
+  ): Promise<{ id: string }> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryInput);
+    const categoryOrConditions: Prisma.CategoryWhereInput[] = [
+      { slug: categoryInput.toLowerCase() },
+      { name: { contains: categoryInput, mode: 'insensitive' } },
+    ];
+    if (isUuid) {
+      categoryOrConditions.push({ id: categoryInput });
+    }
+
+    let category = await this.prisma.category.findFirst({
+      where: { OR: categoryOrConditions },
+    });
+
+    if (!category && departmentInput) {
+      const parsedDept = departmentInput.toUpperCase() as Department;
+      if (Object.values(Department).includes(parsedDept)) {
+        category = await this.prisma.category.findFirst({
+          where: { department: parsedDept },
+        });
+      }
+    }
+
+    if (!category) {
+      category = await this.prisma.category.findFirst();
+    }
+
+    if (!category) {
+      const parsedDept = departmentInput?.toUpperCase() as Department | undefined;
+      const validDept = parsedDept && Object.values(Department).includes(parsedDept)
+        ? parsedDept
+        : Department.WOMEN;
+
+      const categoryName = categoryInput.trim().length > 0 ? categoryInput : 'General Apparel';
+      const categorySlug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+      category = await this.prisma.category.create({
+        data: {
+          name: categoryName,
+          slug: categorySlug,
+          department: validDept,
+        },
+      });
+    }
+
+    return category;
+  }
+
+  private async commitAndPrepareImages(
+    dto: CreateProductDto,
+  ): Promise<Array<{ imageUrl: string; isPrimary: boolean; displayOrder: number; altText?: string }>> {
+    let mainImageUrl = dto.image;
+    if (mainImageUrl) {
+      mainImageUrl = await this.uploadService.commitTempImage(mainImageUrl, 'products');
+      dto.image = mainImageUrl;
+    }
+
+    let secondaryImageUrl = dto.secondaryImage;
+    if (secondaryImageUrl) {
+      secondaryImageUrl = await this.uploadService.commitTempImage(secondaryImageUrl, 'products');
+      dto.secondaryImage = secondaryImageUrl;
+    }
+
+    if (dto.colorImages) {
+      for (const [colorName, imgUrl] of Object.entries(dto.colorImages)) {
+        if (imgUrl) {
+          dto.colorImages[colorName] = await this.uploadService.commitTempImage(imgUrl, 'products');
+        }
+      }
+    }
+
+    const imageList: Array<{ imageUrl: string; isPrimary: boolean; displayOrder: number; altText?: string }> = [];
+
+    if (mainImageUrl) {
+      imageList.push({
+        imageUrl: mainImageUrl,
+        isPrimary: true,
+        displayOrder: 0,
+        altText: dto.name,
+      });
+    }
+
+    if (secondaryImageUrl && secondaryImageUrl !== mainImageUrl) {
+      imageList.push({
+        imageUrl: secondaryImageUrl,
+        isPrimary: false,
+        displayOrder: imageList.length,
+        altText: `${dto.name} - View 2`,
+      });
+    }
+
+    if (dto.colorImages) {
+      for (const [colorName, imgUrl] of Object.entries(dto.colorImages)) {
+        if (imgUrl && !imageList.some((img) => img.imageUrl === imgUrl)) {
+          imageList.push({
+            imageUrl: imgUrl,
+            isPrimary: false,
+            displayOrder: imageList.length,
+            altText: `${dto.name} - ${colorName}`,
+          });
+        }
+      }
+    }
+
+    return imageList;
+  }
+
+  private prepareSkusToCreate(
+    skus: CreateSkuVariantDto[] | undefined,
+    slug: string,
+    defaultColor?: string,
+  ): CreateSkuVariantDto[] {
+    if (skus && skus.length > 0) {
+      return skus;
+    }
+
+    return [
+      {
+        sku: `${slug.substring(0, 8).toUpperCase()}-STD`,
+        size: 'One Size',
+        colorName: defaultColor ?? 'Standard',
+        colorHex: '#000000',
+        stock: 20,
+        lowStockThreshold: 5,
+        priceAdjustment: 0,
+        weightGrams: 300,
+      },
+    ];
   }
 
   private mapCategory(cat: CategoryWithRelations): ApiCategory {

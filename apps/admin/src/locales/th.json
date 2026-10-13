@@ -21,7 +21,8 @@
     "viewStorefront": "ดูหน้าร้าน",
     "units": "ชิ้น",
     "variants": "รายการ",
-    "unsavedEdits": "มีการแก้ไขที่ยังไม่บันทึก"
+    "unsavedEdits": "มีการแก้ไขที่ยังไม่บันทึก",
+    "createProductError": "เกิดข้อผิดพลาดในการสร้างสินค้า กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง"
   },
   "nav": {
     "overview": "ภาพรวม",
@@ -187,7 +188,16 @@
     "validationNameEn": "กรุณากรอกชื่อสินค้าภาษาอังกฤษ",
     "validationPrice": "ราคาขายต้องมากกว่า 0",
     "validationImage": "กรุณาระบุ URL รูปภาพหลัก",
-    "validationSkus": "ต้องมี SKU อย่างน้อย 1 รายการ"
+    "validationSkus": "ต้องมี SKU อย่างน้อย 1 รายการ",
+    "createSuccessTitle": "สร้างสินค้าสำเร็จ",
+    "createSuccessDesc": "บันทึกข้อมูลสินค้าและสร้างรายการ SKU ในระบบเรียบร้อยแล้ว",
+    "createAnother": "สร้างสินค้าชิ้นใหม่",
+    "viewProductList": "ไปที่รายการสินค้า",
+    "viewStorefront": "ดูหน้าร้าน",
+    "createErrorTitle": "ไม่สามารถสร้างสินค้าได้",
+    "createErrorDesc": "การตรวจสอบข้อมูลล้มเหลว กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง",
+    "validationErrorsTitle": "ข้อผิดพลาดที่ต้องแก้ไข:",
+    "backToEdit": "กลับไปแก้ไขข้อมูล"
   },
   "preview": {
     "title": "Product Preview",
