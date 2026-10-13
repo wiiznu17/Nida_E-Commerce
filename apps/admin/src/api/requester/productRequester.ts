@@ -80,7 +80,13 @@ export const productRequester = {
       '/catalog/products',
       params as Record<string, string | number | boolean | undefined>,
     );
-    console.log("data", data);
+    return data;
+  },
+
+  async getStatusCounts(): Promise<{ total: number; published: number; draft: number }> {
+    const data = await apiClient.get<{ total: number; published: number; draft: number }>(
+      '/catalog/products/counts',
+    );
     return data;
   },
 

@@ -143,4 +143,22 @@ describe('CatalogService - getProducts', () => {
       }),
     );
   });
+
+  it('retrieves product counts partitioned into total, published, and draft', async () => {
+    prismaMock.product.count
+      .mockResolvedValueOnce(25) // total
+      .mockResolvedValueOnce(22) // published
+      .mockResolvedValueOnce(3); // draft
+
+    const counts = await service.getProductCounts();
+
+    expect(counts).toEqual({
+      total: 25,
+      published: 22,
+      draft: 3,
+    });
+    expect(prismaMock.product.count).toHaveBeenCalledTimes(3);
+    expect(prismaMock.product.count).toHaveBeenNthCalledWith(2, { where: { isActive: true } });
+    expect(prismaMock.product.count).toHaveBeenNthCalledWith(3, { where: { isActive: false } });
+  });
 });

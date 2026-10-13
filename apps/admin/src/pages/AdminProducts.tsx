@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Plus, Check } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
@@ -25,6 +25,22 @@ export default function AdminProducts() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; label: string }>>([]);
+  const [statusCounts, setStatusCounts] = useState<{ total: number; published: number; draft: number }>({
+    total: 0,
+    published: 0,
+    draft: 0,
+  });
+
+  const fetchStatusCounts = useCallback(() => {
+    productRequester
+      .getStatusCounts()
+      .then(setStatusCounts)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchStatusCounts();
+  }, [fetchStatusCounts]);
 
   const queryParams = useMemo((): QueryProductsInput => {
     return {
@@ -33,7 +49,7 @@ export default function AdminProducts() {
       search: activeFilters.search.trim().length > 0 ? activeFilters.search.trim() : undefined,
       category: activeFilters.category !== 'all' ? activeFilters.category : undefined,
       department: activeFilters.department !== 'all' ? activeFilters.department.toUpperCase() : undefined,
-      status: activeFilters.status !== 'all' ? (activeFilters.status as 'published' | 'draft') : undefined,
+      status: activeFilters.status,
       sortBy:
         activeFilters.sortBy === 'price_asc'
           ? ('price_asc' as const)
@@ -82,6 +98,7 @@ export default function AdminProducts() {
         await productRequester.delete(id);
         showToast(t('productList.deleteSuccess'));
         refetch();
+        fetchStatusCounts();
       } catch {
         showToast(t('productList.deleteError'));
       }
@@ -100,6 +117,7 @@ export default function AdminProducts() {
         t('productList.statusToggleSuccess').replace('{status}', statusLabel),
       );
       refetch();
+      fetchStatusCounts();
     } catch {
       showToast(t('productList.statusToggleError'));
     } finally {
@@ -141,9 +159,9 @@ export default function AdminProducts() {
         <ProductListFilters
           activeFilters={activeFilters}
           onApplyFilters={handleApplyFilters}
-          totalCount={total}
-          publishedCount={total}
-          draftCount={0}
+          totalCount={statusCounts.total}
+          publishedCount={statusCounts.published}
+          draftCount={statusCounts.draft}
           availableCategories={availableCategories}
         />
 

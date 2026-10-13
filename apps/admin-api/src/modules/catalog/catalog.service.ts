@@ -128,6 +128,15 @@ export class CatalogService {
     };
   }
 
+  async getProductCounts(): Promise<{ total: number; published: number; draft: number }> {
+    const [total, published, draft] = await Promise.all([
+      this.prisma.product.count(),
+      this.prisma.product.count({ where: { isActive: true } }),
+      this.prisma.product.count({ where: { isActive: false } }),
+    ]);
+    return { total, published, draft };
+  }
+
   async getProductBySlug(slugOrId: string): Promise<ApiProductDetail> {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
     const product = await this.prisma.product.findFirst({

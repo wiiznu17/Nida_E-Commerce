@@ -41,6 +41,7 @@ export function ProductListFilters({
   const handleStatusChange = (status: ProductFilterState['status']) => {
     const updated = { ...staging, status };
     setStaging(updated);
+    onApplyFilters(updated);
   };
 
   const departments = [

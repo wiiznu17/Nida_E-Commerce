@@ -50,6 +50,15 @@ export class CatalogController {
     return this.catalogService.getProducts(query);
   }
 
+  @Get('products/counts')
+  @ApiOperation({
+    summary: 'Get product status counts',
+    description: 'Retrieve counts for all, published, and draft products',
+  })
+  getProductCounts() {
+    return this.catalogService.getProductCounts();
+  }
+
   @Get('products/:slug')
   @ApiOperation({
     summary: 'Get product details',
