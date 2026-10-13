@@ -1,5 +1,6 @@
 import { SlidersHorizontal } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { Textarea } from '../../ui';
 import type { FormMaterialsCareSectionProps } from './formTypes';
 
 export function FormMaterialsCareSection({
@@ -13,7 +14,7 @@ export function FormMaterialsCareSection({
   return (
     <div
       id="sec-story"
-      className="bg-white border border-[#EAE3D9] p-4 sm:p-5 rounded-md shadow-2xs flex-1 flex flex-col justify-between space-y-3"
+      className="bg-white border border-[#EAE3D9] p-4 sm:p-5 rounded-xs shadow-2xs flex-1 flex flex-col justify-between space-y-3"
     >
       <div className="flex items-center space-x-2 border-b border-gray-100 pb-2">
         <SlidersHorizontal size={16} className="text-[#D97706]" />
@@ -27,12 +28,12 @@ export function FormMaterialsCareSection({
           <label className="text-[11px] font-bold text-gray-700">
             {t('product.materialsCareEn')}
           </label>
-          <textarea
+          <Textarea
             rows={3}
             value={materialsCare}
             onChange={(e) => onMaterialsCareChange(e.target.value)}
             placeholder={t('product.materialsCareEnPlaceholder')}
-            className="w-full flex-1 min-h-[72px] text-xs p-2.5 border border-gray-300 rounded-md focus:border-[#2B1810] outline-hidden leading-relaxed"
+            className="flex-1 min-h-[72px] leading-relaxed"
           />
         </div>
 
@@ -40,12 +41,12 @@ export function FormMaterialsCareSection({
           <label className="text-[11px] font-bold text-gray-700">
             {t('product.materialsCareTh')}
           </label>
-          <textarea
+          <Textarea
             rows={3}
             value={materialsCareTh}
             onChange={(e) => onMaterialsCareThChange(e.target.value)}
             placeholder={t('product.materialsCareThPlaceholder')}
-            className="w-full flex-1 min-h-[72px] text-xs p-2.5 border border-gray-300 rounded-md focus:border-[#2B1810] outline-hidden leading-relaxed"
+            className="flex-1 min-h-[72px] leading-relaxed"
           />
         </div>
       </div>
