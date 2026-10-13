@@ -26,6 +26,16 @@ import { Department } from '@repo/types';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Get('orders')
+  @ApiOperation({
+    summary: 'ดูรายการคำสั่งซื้อของแอดมินทั้งหมด (Admin Orders)',
+    description: 'ดึงรายการคำสั่งซื้อทั้งหมดพร้อมรายการสินค้าและข้อมูลการจัดส่ง',
+  })
+  @ApiResponse({ status: 200, description: 'รายการคำสั่งซื้อทั้งหมด' })
+  async getOrders() {
+    return this.adminService.getOrders();
+  }
+
   @Get('inventory')
   @ApiOperation({
     summary: 'ดูรายการสต็อกสินค้าคงคลังทั้งหมด (Inventory List)',

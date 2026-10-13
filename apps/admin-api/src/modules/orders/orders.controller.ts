@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Body,
   Param,
   HttpCode,
@@ -10,6 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { OrdersService } from './orders.service.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
+import { OrderStatus } from '@repo/database';
 
 @ApiTags('Orders & Shipments')
 @Controller()
@@ -33,6 +35,16 @@ export class OrdersController {
     return this.ordersService.createOrder(dto);
   }
 
+  @Get('orders')
+  @ApiOperation({
+    summary: 'ดูรายการคำสั่งซื้อทั้งหมด (Get All Orders)',
+    description: 'ดึงรายการคำสั่งซื้อทั้งหมดสำหรับแอดมินและประวัติคำสั่งซื้อ',
+  })
+  @ApiResponse({ status: 200, description: 'รายการคำสั่งซื้อทั้งหมด' })
+  async getOrders() {
+    return this.ordersService.getOrders();
+  }
+
   @Get('orders/:orderNumber')
   @ApiOperation({
     summary: 'ดูรายละเอียดคำสั่งซื้อตาม Order Number',
@@ -47,6 +59,24 @@ export class OrdersController {
   @ApiResponse({ status: 404, description: 'ไม่พบคำสั่งซื้อ' })
   async getOrder(@Param('orderNumber') orderNumber: string) {
     return this.ordersService.getOrderByNumber(orderNumber);
+  }
+
+  @Patch('orders/:id/status')
+  @ApiOperation({
+    summary: 'อัปเดตสถานะคำสั่งซื้อ (Update Order Status)',
+    description: 'เปลี่ยนสถานะของคำสั่งซื้อ เช่น PAID, SHIPPED, DELIVERED หรือ CANCELLED',
+  })
+  @ApiParam({ name: 'id', description: 'Order ID หรือ Order Number' })
+  async updateOrderStatus(
+    @Param('id') id: string,
+    @Body() body: { status: OrderStatus; courierName?: string; trackingNumber?: string },
+  ) {
+    return this.ordersService.updateOrderStatus(
+      id,
+      body.status,
+      body.courierName,
+      body.trackingNumber,
+    );
   }
 
   @Get('shipments/track/:trackingNumber')

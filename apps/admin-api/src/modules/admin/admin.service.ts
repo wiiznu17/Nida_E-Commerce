@@ -11,6 +11,7 @@ import type { InventoryItemWithRelations } from './types/admin.payloads.js';
 import type {
   ApiInventoryItem,
   ApiShipment,
+  ApiOrder,
   ShipmentTimelineEntry,
 } from '@repo/types';
 import {
@@ -263,6 +264,96 @@ export class AdminService {
         timestamp: log.logTimestamp.toISOString(),
       })),
     };
+  }
+
+  async getOrders(): Promise<ApiOrder[]> {
+    const orders = await this.prisma.order.findMany({
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    images: { where: { isPrimary: true }, take: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+        shipments: {
+          include: { logs: { orderBy: { logTimestamp: 'desc' } } },
+        },
+        payment: true,
+      },
+      orderBy: { placedAt: 'desc' },
+    });
+
+    return orders.map((order): ApiOrder => {
+      const address = (order.shippingAddressSnapshot as Record<string, unknown>) ?? {};
+      return {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status as OrderStatus,
+        hasPreorderItems: order.hasPreorderItems,
+        subtotal: Number(order.subtotal),
+        discountTotal: Number(order.discountTotal),
+        shippingFee: Number(order.shippingFee),
+        taxAmount: Number(order.taxAmount),
+        totalAmount: Number(order.totalAmount),
+        currency: order.currency,
+        promoCodeUsed: order.promoCodeUsed ?? undefined,
+        items: order.items.map((item) => ({
+          id: item.id,
+          productName: item.productNameSnapshot,
+          variantInfo: item.variantInfoSnapshot,
+          imageUrl: item.variant?.product?.images?.[0]?.imageUrl ?? undefined,
+          unitPrice: Number(item.unitPrice),
+          quantity: item.quantity,
+          subtotal: Number(item.subtotal),
+          discountShare: Number(item.discountShare),
+          netPrice: Number(item.netPrice),
+          isPreorder: false,
+        })),
+        shippingAddress: {
+          recipientName: String(address['recipientName'] ?? ''),
+          phone: String(address['phone'] ?? ''),
+          addressLine1: String(address['addressLine1'] ?? ''),
+          addressLine2: address['addressLine2'] ? String(address['addressLine2']) : undefined,
+          subdistrict: String(address['subdistrict'] ?? ''),
+          district: String(address['district'] ?? ''),
+          province: String(address['province'] ?? ''),
+          postalCode: String(address['postalCode'] ?? ''),
+        },
+        payment: order.payment
+          ? {
+              paymentMethod: order.payment.paymentMethod,
+              status: order.payment.status,
+              cardLast4: order.payment.cardLast4 ?? undefined,
+              cardBrand: order.payment.cardBrand ?? undefined,
+              paidAt: order.payment.paidAt?.toISOString() ?? undefined,
+            }
+          : undefined,
+        shipments: order.shipments.map((s) => ({
+          id: s.id,
+          courierName: s.courierName,
+          trackingNumber: s.trackingNumber,
+          status: s.status as ShipmentStatus,
+          shippedAt: s.shippedAt?.toISOString() ?? undefined,
+          estimatedDelivery: s.estimatedDelivery?.toISOString() ?? undefined,
+          deliveredAt: s.deliveredAt?.toISOString() ?? undefined,
+          timeline: s.logs.map((log) => ({
+            id: log.id,
+            statusTitle: log.statusTitle,
+            statusDescription: log.statusDescription ?? undefined,
+            location: log.location ?? undefined,
+            timestamp: log.logTimestamp.toISOString(),
+          })),
+        })),
+        placedAt: order.placedAt.toISOString(),
+      };
+    });
   }
 
   private mapInventoryItem(item: InventoryItemWithRelations): ApiInventoryItem {

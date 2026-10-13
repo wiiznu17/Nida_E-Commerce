@@ -227,6 +227,86 @@ export class OrdersService {
     return this.mapOrder(order);
   }
 
+  async getOrders(): Promise<ApiOrder[]> {
+    const orders = await this.prisma.order.findMany({
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    images: { where: { isPrimary: true }, take: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+        shipments: {
+          include: { logs: { orderBy: { logTimestamp: 'desc' } } },
+        },
+        payment: true,
+      },
+      orderBy: { placedAt: 'desc' },
+    });
+
+    return orders.map((o) => this.mapOrder(o));
+  }
+
+  async updateOrderStatus(
+    id: string,
+    status: OrderStatus,
+    courierName?: string,
+    trackingNumber?: string,
+  ): Promise<ApiOrder> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const existing = await this.prisma.order.findFirst({
+      where: isUuid ? { OR: [{ id }, { orderNumber: id }] } : { orderNumber: id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Order "${id}" not found`);
+    }
+
+    if (courierName && trackingNumber) {
+      await this.prisma.shipment.create({
+        data: {
+          orderId: existing.id,
+          courierName,
+          trackingNumber,
+          status: ShipmentStatus.LABEL_CREATED,
+        },
+      });
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id: existing.id },
+      data: { status },
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    images: { where: { isPrimary: true }, take: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+        shipments: {
+          include: { logs: { orderBy: { logTimestamp: 'desc' } } },
+        },
+        payment: true,
+      },
+    });
+
+    return this.mapOrder(updated);
+  }
+
   async trackShipment(trackingNumber: string): Promise<TrackingResult> {
     const shipment = await this.prisma.shipment.findFirst({
       where: {

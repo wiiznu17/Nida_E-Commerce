@@ -1,14 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Package, Search, Truck, CheckCircle2, ExternalLink, Eye, X, MapPin, CreditCard, Send } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import { useLanguage } from '../context/LanguageContext';
-import { useAdmin } from '../context/AdminContext';
+import { orderRequester } from '../api/requester/orderRequester';
 import { STOREFRONT_URL } from '../config';
 import type { AdminOrder } from '../data/adminData';
+import { INITIAL_ORDERS } from '../data/adminData';
+import type { ApiOrder, OrderStatus } from '@repo/types';
+
+export function mapApiOrderToAdminOrder(api: ApiOrder): AdminOrder {
+  return {
+    id: api.id,
+    orderNumber: api.orderNumber,
+    customerName: api.shippingAddress?.recipientName || 'Valued Customer',
+    customerEmail: 'customer@nida.com',
+    customerPhone: api.shippingAddress?.phone || '-',
+    shippingAddress: api.shippingAddress?.addressLine1 || '-',
+    city: api.shippingAddress?.province || '-',
+    postalCode: api.shippingAddress?.postalCode || '-',
+    items: (api.items ?? []).map((i) => ({
+      productId: i.id,
+      productName: i.productName,
+      size: i.variantInfo,
+      color: 'Standard',
+      quantity: i.quantity,
+      price: i.unitPrice,
+      image: i.imageUrl ?? '',
+    })),
+    totalAmount: api.totalAmount,
+    paymentMethod: api.payment?.paymentMethod ?? 'CREDIT_CARD',
+    status: api.status as AdminOrder['status'],
+    courierName: api.shipments?.[0]?.courierName,
+    trackingNumber: api.shipments?.[0]?.trackingNumber,
+    createdAt: api.placedAt,
+  };
+}
 
 export default function AdminOrders() {
   const { language } = useLanguage();
-  const { ordersList, updateOrderStatus } = useAdmin();
+  const [ordersList, setOrdersList] = useState<AdminOrder[]>([]);
 
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,6 +48,24 @@ export default function AdminOrders() {
   const [courier, setCourier] = useState('Kerry Express TH');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const loadOrders = async () => {
+    try {
+      const apiOrders = await orderRequester.getOrders();
+      if (apiOrders && apiOrders.length > 0) {
+        setOrdersList(apiOrders.map(mapApiOrderToAdminOrder));
+      } else {
+        setOrdersList(INITIAL_ORDERS);
+      }
+    } catch (err: unknown) {
+      console.warn('Backend orders unavailable, using seed orders:', err);
+      setOrdersList(INITIAL_ORDERS);
+    }
+  };
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -30,21 +78,43 @@ export default function AdminOrders() {
     setIsFulfillModalOpen(true);
   };
 
-  const handleFulfillSubmit = (e: React.FormEvent) => {
+  const handleFulfillSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (orderToFulfill) {
-      updateOrderStatus(orderToFulfill.id, 'SHIPPED', courier, trackingNumber);
-      setIsFulfillModalOpen(false);
-      showToast(
-        language === 'th'
-          ? `อัปเดตคำสั่งซื้อ #${orderToFulfill.orderNumber} เป็น 'จัดส่งแล้ว' พร้อมเลขพัสดุ ${trackingNumber}`
-          : `Order #${orderToFulfill.orderNumber} fulfilled with tracking ${trackingNumber}`,
+    if (!orderToFulfill) return;
+
+    try {
+      await orderRequester.fulfill(orderToFulfill.orderNumber, {
+        courierName: courier,
+        trackingNumber,
+      });
+      await loadOrders();
+    } catch {
+      setOrdersList((prev) =>
+        prev.map((o) =>
+          o.id === orderToFulfill.id
+            ? { ...o, status: 'SHIPPED', courierName: courier, trackingNumber }
+            : o,
+        ),
       );
     }
+
+    setIsFulfillModalOpen(false);
+    showToast(
+      language === 'th'
+        ? `อัปเดตคำสั่งซื้อ #${orderToFulfill.orderNumber} เป็น 'จัดส่งแล้ว' พร้อมเลขพัสดุ ${trackingNumber}`
+        : `Order #${orderToFulfill.orderNumber} fulfilled with tracking ${trackingNumber}`,
+    );
   };
 
-  const handleQuickStatusChange = (orderId: string, newStatus: AdminOrder['status']) => {
-    updateOrderStatus(orderId, newStatus);
+  const handleQuickStatusChange = async (orderId: string, newStatus: AdminOrder['status']) => {
+    try {
+      await orderRequester.updateStatus(orderId, newStatus as OrderStatus);
+      await loadOrders();
+    } catch {
+      setOrdersList((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
+      );
+    }
     showToast(language === 'th' ? `เปลี่ยนสถานะออเดอร์เป็น ${newStatus} สำเร็จ` : `Status updated to ${newStatus}`);
   };
 

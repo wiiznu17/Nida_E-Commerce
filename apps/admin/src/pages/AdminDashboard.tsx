@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   DollarSign,
@@ -13,12 +13,72 @@ import {
 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import { useLanguage } from '../context/LanguageContext';
-import { useAdmin } from '../context/AdminContext';
+import { orderRequester } from '../api/requester/orderRequester';
+import { inventoryRequester } from '../api/requester/inventoryRequester';
+import { mapApiOrderToAdminOrder } from './AdminOrders';
+import type { AdminOrder, InventoryItem } from '../data/adminData';
+import { INITIAL_ORDERS, INITIAL_INVENTORY } from '../data/adminData';
+import type { OrderStatus } from '@repo/types';
 
 export default function AdminDashboard() {
   const { language } = useLanguage();
-  const { ordersList, inventoryList, updateOrderStatus } = useAdmin();
+  const [ordersList, setOrdersList] = useState<AdminOrder[]>(INITIAL_ORDERS);
+  const [inventoryList, setInventoryList] = useState<InventoryItem[]>(INITIAL_INVENTORY);
   const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('today');
+
+  const loadData = async () => {
+    try {
+      const [apiOrders, apiInv] = await Promise.all([
+        orderRequester.getOrders().catch(() => []),
+        inventoryRequester.getInventory().catch(() => []),
+      ]);
+      if (apiOrders.length > 0) {
+        setOrdersList(apiOrders.map(mapApiOrderToAdminOrder));
+      }
+      if (apiInv.length > 0) {
+        setInventoryList(
+          apiInv.map((api) => ({
+            id: api.id,
+            sku: api.sku,
+            productId: api.productId,
+            productName: api.productName,
+            department: String(api.department),
+            category: api.categoryName,
+            size: api.size,
+            colorName: api.colorName,
+            colorHex: api.colorHex,
+            availableStock: api.quantityAvailable,
+            reservedStock: api.quantityReserved,
+            lowStockThreshold: api.lowStockThreshold,
+            price: api.price,
+            image: api.imageUrl ?? '',
+          })),
+        );
+      }
+    } catch {
+      // Fallback to initial seeds
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const updateOrderStatus = async (
+    orderId: string,
+    newStatus: AdminOrder['status'],
+    courierName?: string,
+    trackingNumber?: string,
+  ) => {
+    try {
+      await orderRequester.updateStatus(orderId, newStatus as OrderStatus, courierName, trackingNumber);
+      await loadData();
+    } catch {
+      setOrdersList((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
+      );
+    }
+  };
 
   // Metrics calculations
   const totalRevenue = ordersList.reduce((sum, ord) => sum + ord.totalAmount, 0);

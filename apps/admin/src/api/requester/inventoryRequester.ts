@@ -1,26 +1,27 @@
 import { apiClient } from '../client';
-import type { InventoryItem, StockMovement } from '../../data/adminData';
+import type { ApiInventoryItem, Department } from '@repo/types';
 
-export interface AdjustStockPayload {
-  sku: string;
-  quantityChange: number;
-  reason: string;
-  updatedBy: string;
+export interface RestockInventoryPayload {
+  variantId: string;
+  quantity: number;
+  reasonNote: string;
+  adminId?: string;
 }
 
 export const inventoryRequester = {
-  async getAll(): Promise<InventoryItem[]> {
-    const data = await apiClient.get<InventoryItem[]>('/admin/inventory');
+  async getInventory(params?: {
+    department?: Department;
+    lowStockOnly?: boolean;
+  }): Promise<ApiInventoryItem[]> {
+    const data = await apiClient.get<ApiInventoryItem[]>(
+      '/admin/inventory',
+      params as Record<string, string | number | boolean | undefined>,
+    );
     return data;
   },
 
-  async adjustStock(payload: AdjustStockPayload): Promise<InventoryItem> {
-    const data = await apiClient.post<InventoryItem>('/admin/inventory/adjust', payload);
-    return data;
-  },
-
-  async getMovements(): Promise<StockMovement[]> {
-    const data = await apiClient.get<StockMovement[]>('/admin/inventory/movements');
+  async restock(payload: RestockInventoryPayload): Promise<ApiInventoryItem> {
+    const data = await apiClient.post<ApiInventoryItem>('/admin/inventory/restock', payload);
     return data;
   },
 };

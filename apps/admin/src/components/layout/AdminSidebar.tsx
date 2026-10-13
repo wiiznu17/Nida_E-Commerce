@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -11,8 +12,9 @@ import {
 } from 'lucide-react';
 import { NidaLogo } from '../common/NidaLogo';
 import { useLanguage } from '../../context/LanguageContext';
-import { useAdmin } from '../../context/AdminContext';
 import { STOREFRONT_URL } from '../../config';
+import { orderRequester } from '../../api/requester/orderRequester';
+import { inventoryRequester } from '../../api/requester/inventoryRequester';
 
 export interface AdminSidebarProps {
   isOpen: boolean;
@@ -22,15 +24,27 @@ export interface AdminSidebarProps {
 export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
-  const { ordersList, inventoryList } = useAdmin();
 
-  // Live badge calculations
-  const pendingOrdersCount = ordersList.filter(
-    (o) => o.status === 'PROCESSING' || o.status === 'PAID',
-  ).length;
-  const lowStockCount = inventoryList.filter(
-    (i) => i.availableStock <= i.lowStockThreshold,
-  ).length;
+  const [pendingOrdersCount, setPendingOrdersCount] = useState<number>(0);
+  const [lowStockCount, setLowStockCount] = useState<number>(0);
+
+  useEffect(() => {
+    orderRequester
+      .getOrders()
+      .then((orders) => {
+        setPendingOrdersCount(
+          orders.filter((o) => o.status === 'PROCESSING' || o.status === 'PAID').length,
+        );
+      })
+      .catch(() => {});
+
+    inventoryRequester
+      .getInventory({ lowStockOnly: true })
+      .then((items) => {
+        setLowStockCount(items.length);
+      })
+      .catch(() => {});
+  }, [location.pathname]);
 
   const navigationSections = [
     {

@@ -10,31 +10,62 @@ import {
   type ProductFilterState,
 } from '../components/product';
 import { useLanguage } from '../context/LanguageContext';
-import { useAdmin } from '../context/AdminContext';
+import { productRequester } from '../api/requester/productRequester';
+import { useProducts } from '../hooks/useProducts';
 import type { Product } from '../data/products';
+import type { QueryProductsInput } from '@repo/validators';
 
 export default function AdminProducts() {
-  const { t, language } = useLanguage();
+  const { t, language, isTh } = useLanguage();
   const location = useLocation();
-  const { productsList, deleteProduct, inventoryList, toggleProductStatus } = useAdmin();
 
-  // Committed filter state (only updated when user clicks Search or Reset)
   const [activeFilters, setActiveFilters] = useState<ProductFilterState>(DEFAULT_FILTERS);
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-
-  // Status & Feedback state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; label: string }>>([]);
+
+  const queryParams = useMemo((): QueryProductsInput => {
+    return {
+      page: currentPage,
+      limit: pageSize,
+      search: activeFilters.search.trim().length > 0 ? activeFilters.search.trim() : undefined,
+      category: activeFilters.category !== 'all' ? activeFilters.category : undefined,
+      department: activeFilters.department !== 'all' ? activeFilters.department.toUpperCase() : undefined,
+      status: activeFilters.status !== 'all' ? (activeFilters.status as 'published' | 'draft') : undefined,
+      sortBy:
+        activeFilters.sortBy === 'price_asc'
+          ? ('price_asc' as const)
+          : activeFilters.sortBy === 'price_desc'
+            ? ('price_desc' as const)
+            : ('newest' as const),
+    };
+  }, [currentPage, pageSize, activeFilters]);
+
+  const { products, total, totalPages, refetch } = useProducts(queryParams);
+
+  useEffect(() => {
+    productRequester
+      .getCategories()
+      .then((cats) => {
+        setAvailableCategories(
+          cats.map((c) => ({
+            id: c.slug,
+            label: isTh && c.nameTh ? c.nameTh : c.name,
+          })),
+        );
+      })
+      .catch(() => {
+        // Categories list optional fallback
+      });
+  }, [isTh]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Listen for toast from navigation redirect (create/edit)
   useEffect(() => {
     const navState = location.state as { toast?: string } | null;
     if (navState?.toast) {
@@ -43,15 +74,17 @@ export default function AdminProducts() {
     }
   }, [location.state]);
 
-  const handleDelete = (id: string, name: string) => {
-    const confirmText =
-      language === 'th'
-        ? t('productList.confirmDelete').replace('{name}', name)
-        : t('productList.confirmDelete').replace('{name}', name);
+  const handleDelete = async (id: string, name: string) => {
+    const confirmText = t('productList.confirmDelete').replace('{name}', name);
 
     if (window.confirm(confirmText)) {
-      deleteProduct(id);
-      showToast(t('productList.deleteSuccess'));
+      try {
+        await productRequester.delete(id);
+        showToast(t('productList.deleteSuccess'));
+        refetch();
+      } catch {
+        showToast(t('productList.deleteError'));
+      }
     }
   };
 
@@ -59,13 +92,14 @@ export default function AdminProducts() {
     const nextStatus = product.isActive === false ? true : false;
     setTogglingId(product.id);
     try {
-      await toggleProductStatus(product.id, nextStatus);
+      await productRequester.toggleStatus(product.id, nextStatus);
       const statusLabel = nextStatus
         ? t('productList.published')
         : t('productList.draft');
       showToast(
         t('productList.statusToggleSuccess').replace('{status}', statusLabel),
       );
+      refetch();
     } catch {
       showToast(t('productList.statusToggleError'));
     } finally {
@@ -73,109 +107,19 @@ export default function AdminProducts() {
     }
   };
 
-  // Available categories derived dynamically from products
-  const availableCategories = useMemo(() => {
-    const map = new Map<string, string>();
-    productsList.forEach((p) => {
-      const slug = p.category;
-      const label = p.subCategory || p.category;
-      if (slug && !map.has(slug)) {
-        map.set(slug, label);
-      }
-    });
-    return Array.from(map.entries()).map(([id, label]) => ({ id, label }));
-  }, [productsList]);
-
-  // Handle Search button / filter apply
   const handleApplyFilters = (newFilters: ProductFilterState) => {
     setActiveFilters(newFilters);
-    setCurrentPage(1); // Always reset to page 1 on new query
+    setCurrentPage(1);
   };
-
-  // Filtered and Sorted products
-  const filteredProducts = useMemo(() => {
-    const term = activeFilters.search.trim().toLowerCase();
-
-    return productsList
-      .filter((p) => {
-        // Status filter
-        if (activeFilters.status === 'published' && p.isActive === false) {
-          return false;
-        }
-        if (activeFilters.status === 'draft' && p.isActive !== false) {
-          return false;
-        }
-
-        // Department filter
-        if (
-          activeFilters.department !== 'all' &&
-          p.department?.toLowerCase() !== activeFilters.department.toLowerCase()
-        ) {
-          return false;
-        }
-
-        // Category filter
-        if (
-          activeFilters.category !== 'all' &&
-          p.category.toLowerCase() !== activeFilters.category.toLowerCase()
-        ) {
-          return false;
-        }
-
-        // Search text filter
-        if (term) {
-          const matchName = p.name.toLowerCase().includes(term);
-          const matchNameTh = p.nameTh ? p.nameTh.toLowerCase().includes(term) : false;
-          const matchCategory = p.category.toLowerCase().includes(term);
-          const matchSubCategory = p.subCategory ? p.subCategory.toLowerCase().includes(term) : false;
-          const matchSlug = p.slug ? p.slug.toLowerCase().includes(term) : false;
-
-          if (!matchName && !matchNameTh && !matchCategory && !matchSubCategory && !matchSlug) {
-            return false;
-          }
-        }
-
-        return true;
-      })
-      .sort((a, b) => {
-        if (activeFilters.sortBy === 'price_asc') {
-          return a.price - b.price;
-        }
-        if (activeFilters.sortBy === 'price_desc') {
-          return b.price - a.price;
-        }
-        if (activeFilters.sortBy === 'name_asc') {
-          return a.name.localeCompare(b.name);
-        }
-        // Default: newest / preserve default list order
-        return 0;
-      });
-  }, [productsList, activeFilters]);
-
-  // Counts for status pills
-  const totalPublished = useMemo(
-    () => productsList.filter((p) => p.isActive !== false).length,
-    [productsList],
-  );
-  const totalDrafts = useMemo(
-    () => productsList.filter((p) => p.isActive === false).length,
-    [productsList],
-  );
-
-  // Pagination calculation
-  const totalItems = filteredProducts.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-
-  const paginatedProducts = useMemo(() => {
-    const start = (safeCurrentPage - 1) * pageSize;
-    return filteredProducts.slice(start, start + pageSize);
-  }, [filteredProducts, safeCurrentPage, pageSize]);
 
   return (
     <AdminLayout
       title={t('productList.title')}
-      subtitle={`${t('productList.subtitle')} (${language === 'th' ? `แสดง ${filteredProducts.length} จาก ${productsList.length} รายการ` : `${filteredProducts.length} of ${productsList.length} products displayed`})`}
+      subtitle={`${t('productList.subtitle')} (${
+        language === 'th'
+          ? `แสดง ${products.length} จาก ${total} รายการ`
+          : `${products.length} of ${total} products displayed`
+      })`}
       actionButton={
         <Link
           to="/admin/products/new"
@@ -187,7 +131,6 @@ export default function AdminProducts() {
       }
     >
       <div className="space-y-4">
-        {/* Toast Notification */}
         {toastMessage && (
           <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 text-xs font-bold flex items-center rounded-xs shadow-2xs animate-in fade-in">
             <Check size={16} className="mr-2 text-emerald-600 flex-shrink-0" />
@@ -195,31 +138,29 @@ export default function AdminProducts() {
           </div>
         )}
 
-        {/* Filters and Search Bar with Search Button */}
         <ProductListFilters
           activeFilters={activeFilters}
           onApplyFilters={handleApplyFilters}
-          totalCount={productsList.length}
-          publishedCount={totalPublished}
-          draftCount={totalDrafts}
+          totalCount={total}
+          publishedCount={total}
+          draftCount={0}
           availableCategories={availableCategories}
         />
 
-        {/* Products Table with Pagination */}
         <div className="space-y-0">
           <ProductListTable
-            products={paginatedProducts}
-            inventoryList={inventoryList}
+            products={products}
+            inventoryList={[]}
             togglingId={togglingId}
             onToggleStatus={handleToggleStatus}
             onDelete={handleDelete}
           />
 
           <ProductListPagination
-            currentPage={safeCurrentPage}
+            currentPage={currentPage}
             totalPages={totalPages}
             pageSize={pageSize}
-            totalItems={totalItems}
+            totalItems={total}
             onPageChange={(page) => setCurrentPage(page)}
             onPageSizeChange={(newSize) => {
               setPageSize(newSize);

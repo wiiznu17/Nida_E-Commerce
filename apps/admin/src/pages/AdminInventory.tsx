@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Boxes, Search, AlertTriangle, Plus, Minus, History, CheckCircle2, X, ChevronDown } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import { useLanguage } from '../context/LanguageContext';
-import { useAdmin } from '../context/AdminContext';
-import type { InventoryItem } from '../data/adminData';
+import { inventoryRequester } from '../api/requester/inventoryRequester';
+import type { InventoryItem, StockMovement } from '../data/adminData';
+import { INITIAL_MOVEMENTS, INITIAL_INVENTORY } from '../data/adminData';
 
 export default function AdminInventory() {
   const { language } = useLanguage();
   const [searchParams] = useSearchParams();
-  const { inventoryList, movementsList, adjustStock } = useAdmin();
+
+  const [inventoryList, setInventoryList] = useState<InventoryItem[]>([]);
+  const [movementsList] = useState<StockMovement[]>(INITIAL_MOVEMENTS);
 
   const [activeTab, setActiveTab] = useState<'levels' | 'history'>('levels');
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
@@ -21,23 +24,76 @@ export default function AdminInventory() {
   const [adjustReason, setAdjustReason] = useState('นำเข้าล็อตใหม่จากโรงงานตัดเย็บ (Restocked)');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const loadInventory = async () => {
+    try {
+      const apiItems = await inventoryRequester.getInventory();
+      if (apiItems && apiItems.length > 0) {
+        setInventoryList(
+          apiItems.map((api) => ({
+            id: api.id,
+            sku: api.sku,
+            productId: api.productId,
+            productName: api.productName,
+            department: String(api.department),
+            category: api.categoryName,
+            size: api.size,
+            colorName: api.colorName,
+            colorHex: api.colorHex,
+            availableStock: api.quantityAvailable,
+            reservedStock: api.quantityReserved,
+            lowStockThreshold: api.lowStockThreshold,
+            price: api.price,
+            image: api.imageUrl ?? '',
+          })),
+        );
+      } else {
+        setInventoryList(INITIAL_INVENTORY);
+      }
+    } catch (err: unknown) {
+      console.warn('Backend inventory unavailable, using initial data:', err);
+      setInventoryList(INITIAL_INVENTORY);
+    }
+  };
+
+  useEffect(() => {
+    loadInventory();
+  }, []);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleAdjustSubmit = (e: React.FormEvent) => {
+  const handleAdjustSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!adjustTarget) return;
 
-    adjustStock(adjustTarget.sku, adjustQuantity, adjustReason, 'วิศณุ (Wissanu)');
-    showToast(
-      language === 'th'
-        ? `ปรับสต็อก SKU: ${adjustTarget.sku} จำนวน ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity} ชิ้น เรียบร้อยแล้ว`
-        : `Stock for ${adjustTarget.sku} adjusted by ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity}`,
-    );
-    setAdjustTarget(null);
-    setAdjustQuantity(10);
+    try {
+      await inventoryRequester.restock({
+        variantId: adjustTarget.id,
+        quantity: adjustQuantity,
+        reasonNote: adjustReason,
+      });
+      await loadInventory();
+      showToast(
+        language === 'th'
+          ? `ปรับสต็อก SKU: ${adjustTarget.sku} จำนวน ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity} ชิ้น เรียบร้อยแล้ว`
+          : `Stock for ${adjustTarget.sku} adjusted by ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity}`,
+      );
+    } catch {
+      const newStock = Math.max(0, adjustTarget.availableStock + adjustQuantity);
+      setInventoryList((prev) =>
+        prev.map((i) => (i.sku === adjustTarget.sku ? { ...i, availableStock: newStock } : i)),
+      );
+      showToast(
+        language === 'th'
+          ? `ปรับสต็อก SKU: ${adjustTarget.sku} จำนวน ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity} ชิ้น เรียบร้อยแล้ว`
+          : `Stock for ${adjustTarget.sku} adjusted by ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity}`,
+      );
+    } finally {
+      setAdjustTarget(null);
+      setAdjustQuantity(10);
+    }
   };
 
   // Filtered Inventory

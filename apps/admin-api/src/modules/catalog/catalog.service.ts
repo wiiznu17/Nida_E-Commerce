@@ -514,6 +514,73 @@ export class CatalogService {
     return { success: true, id: updated.id, isActive: updated.isActive };
   }
 
+  async deleteProduct(id: string): Promise<{ success: boolean; id: string }> {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: {
+        variants: {
+          include: {
+            orderItems: { select: { id: true }, take: 1 },
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    const hasOrders = product.variants.some((v) => v.orderItems.length > 0);
+    if (hasOrders) {
+      await this.prisma.product.update({
+        where: { id },
+        data: { isActive: false },
+      });
+      return { success: true, id };
+    }
+
+    await this.prisma.product.delete({
+      where: { id },
+    });
+    return { success: true, id };
+  }
+
+  async updateProduct(id: string, dto: Partial<CreateProductDto>): Promise<ApiProductDetail> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const existing = await this.prisma.product.findFirst({
+      where: isUuid ? { OR: [{ id }, { slug: id }] } : { slug: id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Product with ID "${id}" not found`);
+    }
+
+    const basePrice = dto.basePrice ?? dto.price ?? (Number(existing.basePrice) || 0);
+
+    await this.prisma.product.update({
+      where: { id: existing.id },
+      data: {
+        name: dto.name ?? existing.name,
+        nameTh: dto.nameTh !== undefined ? dto.nameTh : existing.nameTh,
+        description: dto.description !== undefined ? dto.description : existing.description,
+        descriptionTh: dto.descriptionTh !== undefined ? dto.descriptionTh : existing.descriptionTh,
+        materialsCare: dto.materialsCare !== undefined ? dto.materialsCare : existing.materialsCare,
+        materialsCareTh: dto.materialsCareTh !== undefined ? dto.materialsCareTh : existing.materialsCareTh,
+        basePrice,
+        originalPrice: dto.originalPrice !== undefined ? dto.originalPrice : existing.originalPrice,
+        tag: dto.tag !== undefined ? dto.tag : existing.tag,
+        tagTh: dto.tagTh !== undefined ? dto.tagTh : existing.tagTh,
+        isPreorder: dto.isPreorder !== undefined ? dto.isPreorder : existing.isPreorder,
+        preorderReleaseDate: dto.preorderReleaseDate ? new Date(dto.preorderReleaseDate) : existing.preorderReleaseDate,
+        preorderLimit: dto.preorderLimit !== undefined ? dto.preorderLimit : existing.preorderLimit,
+        preorderDepositAmount: dto.preorderDepositAmount !== undefined ? dto.preorderDepositAmount : existing.preorderDepositAmount,
+        isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
+      },
+    });
+
+    return this.getProductBySlug(existing.slug);
+  }
+
   private buildOrderBy(sortBy?: SortByOption): Prisma.ProductOrderByWithRelationInput[] {
     switch (sortBy) {
       case SortByOption.PRICE_ASC:

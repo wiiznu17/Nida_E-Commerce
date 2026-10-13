@@ -2,11 +2,30 @@ import { useState, type FormEvent } from 'react';
 import { Plus, Trash2, CheckCircle2, X, Clock, Copy, Check } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import { useLanguage } from '../context/LanguageContext';
-import { useAdmin } from '../context/AdminContext';
+import { INITIAL_COUPONS, type PromoCoupon } from '../data/adminData';
 
 export default function AdminPromotions() {
   const { language } = useLanguage();
-  const { couponsList, addCoupon, toggleCouponActive, deleteCoupon } = useAdmin();
+  const [couponsList, setCouponsList] = useState<PromoCoupon[]>(INITIAL_COUPONS);
+
+  const addCoupon = (coupon: Omit<PromoCoupon, 'id' | 'usageCount'>) => {
+    const newCoupon: PromoCoupon = {
+      ...coupon,
+      id: `c-${Date.now()}`,
+      usageCount: 0,
+    };
+    setCouponsList((prev) => [newCoupon, ...prev]);
+  };
+
+  const toggleCouponActive = (id: string) => {
+    setCouponsList((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)),
+    );
+  };
+
+  const deleteCoupon = (id: string) => {
+    setCouponsList((prev) => prev.filter((c) => c.id !== id));
+  };
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);

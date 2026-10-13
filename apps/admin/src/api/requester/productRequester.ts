@@ -1,96 +1,134 @@
 import { apiClient } from '../client';
+import type {
+  ApiProduct,
+  ApiProductDetail,
+  ApiCategory,
+  PaginatedResponse,
+} from '@repo/types';
+import type { QueryProductsInput } from '@repo/validators';
 import type { Product } from '../../data/products';
 import type { SkuVariant } from '../../data/adminData';
 
-export interface CreateProductPayload extends Omit<Product, 'id'> {
-  skus?: SkuVariant[];
-}
+export function mapApiProductDetailToProduct(
+  detail: ApiProductDetail,
+  fallback: Omit<Product, 'id'>,
+): Product {
+  const derivedColors = detail.variants
+    ? Array.from(new Set(detail.variants.map((v) => v.colorHex)))
+    : fallback.colors;
 
-export interface UpdateProductPayload extends Partial<Product> {
-  skus?: SkuVariant[];
-}
-
-interface ApiProductResponse {
-  id: string;
-  slug?: string;
-  basePrice?: number | string;
-  price?: number | string;
-  originalPrice?: number | string | null;
-  images?: Array<{ imageUrl: string; isPrimary?: boolean }>;
-  category?: { slug?: string; department?: string };
-  isActive?: boolean;
-}
-
-function resolvePrimaryImageUrl(
-  images: Array<{ imageUrl: string; isPrimary?: boolean }> | undefined,
-  fallbackUrl: string,
-): string {
-  if (!images || images.length === 0) {
-    return fallbackUrl;
-  }
-  const primaryImage = images.find((item) => item.isPrimary);
-  if (primaryImage?.imageUrl) {
-    return primaryImage.imageUrl;
-  }
-  return images[0]?.imageUrl ?? fallbackUrl;
+  return {
+    ...fallback,
+    id: detail.id,
+    slug: detail.slug,
+    name: detail.name,
+    nameTh: detail.nameTh,
+    price: detail.basePrice,
+    originalPrice: detail.originalPrice,
+    image: detail.images?.[0]?.imageUrl ?? fallback.image,
+    secondaryImage: detail.images?.[1]?.imageUrl ?? fallback.secondaryImage,
+    category: detail.category?.slug ?? fallback.category,
+    subCategory: detail.category?.name ?? fallback.subCategory,
+    subCategoryTh: detail.category?.nameTh ?? fallback.subCategoryTh,
+    department: (detail.category?.department ?? fallback.department)?.toLowerCase(),
+    tag: detail.tag,
+    tagTh: detail.tagTh,
+    description: detail.description,
+    descriptionTh: detail.descriptionTh,
+    materialsCare: detail.materialsCare,
+    materialsCareTh: detail.materialsCareTh,
+    colors: derivedColors,
+    rating: detail.rating,
+    reviewsCount: detail.reviewsCount,
+    isPreorder: detail.isPreorder,
+    preorderReleaseDate: detail.preorderReleaseDate,
+    preorderLimit: detail.preorderLimit,
+    preorderDepositAmount: detail.preorderDepositAmount,
+    isActive: detail.isActive,
+  };
 }
 
 export const productRequester = {
   async getAll(): Promise<Product[]> {
-    const data = await apiClient.get<Product[]>('/catalog/products');
-    return data;
+    const res = await this.getProducts({ limit: 100, page: 1, sortBy: 'newest' });
+    return res.data.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      name: p.name,
+      nameTh: p.nameTh,
+      price: p.basePrice,
+      originalPrice: p.originalPrice,
+      image: p.primaryImage ?? '',
+      secondaryImage: p.secondaryImage,
+      category: p.categorySlug,
+      subCategory: p.categoryName,
+      subCategoryTh: p.categoryNameTh,
+      department: p.department?.toLowerCase(),
+      tag: p.tag,
+      tagTh: p.tagTh,
+      colors: p.colors.map((c) => c.hex),
+      rating: p.rating ?? 5.0,
+      reviewsCount: p.reviewsCount ?? 0,
+      isPreorder: p.isPreorder,
+      isActive: p.isActive ?? true,
+    }));
   },
 
-  async getById(id: string): Promise<Product> {
-    const data = await apiClient.get<Product>(`/catalog/products/${id}`);
-    return data;
-  },
-
-  async create(data: Omit<Product, 'id'>, skus?: SkuVariant[]): Promise<Product> {
-    const payload: CreateProductPayload = {
-      ...data,
-      skus,
-    };
-    const response = await apiClient.post<ApiProductResponse>('/catalog/products', payload);
-    const resolvedImage = resolvePrimaryImageUrl(response.images, data.image);
-    const categorySlug = response.category?.slug ?? data.category;
-    const departmentCode = (response.category?.department ?? data.department)?.toLowerCase();
-
-    return {
-      ...data,
-      id: response.id,
-      slug: response.slug,
-      price: Number(response.basePrice ?? response.price ?? data.price),
-      originalPrice:
-        response.originalPrice != null
-          ? Number(response.originalPrice)
-          : data.originalPrice,
-      image: resolvedImage,
-      category: categorySlug,
-      department: departmentCode,
-      isActive: response.isActive ?? data.isActive,
-    };
-  },
-
-  async update(id: string, data: Partial<Product>, skus?: SkuVariant[]): Promise<Product> {
-    const payload: UpdateProductPayload = {
-      ...data,
-      skus,
-    };
-    const response = await apiClient.put<Product>(`/catalog/products/${id}`, payload);
-    return response;
-  },
-
-  async toggleStatus(id: string, nextStatus?: boolean): Promise<{ success: boolean; isActive: boolean }> {
-    const data = await apiClient.patch<{ success: boolean; isActive: boolean }>(
-      `/catalog/products/${id}/toggle`,
-      nextStatus !== undefined ? { isActive: nextStatus } : undefined,
+  async getProducts(params?: Partial<QueryProductsInput>): Promise<PaginatedResponse<ApiProduct>> {
+    const data = await apiClient.get<PaginatedResponse<ApiProduct>>(
+      '/catalog/products',
+      params as Record<string, string | number | boolean | undefined>,
     );
     return data;
   },
 
-  async delete(id: string): Promise<{ success: boolean }> {
-    const data = await apiClient.delete<{ success: boolean }>(`/catalog/products/${id}`);
+  async getCategories(department?: string): Promise<ApiCategory[]> {
+    const data = await apiClient.get<ApiCategory[]>(
+      '/catalog/categories',
+      department ? { department } : undefined,
+    );
+    return data;
+  },
+
+  async getBySlug(slugOrId: string): Promise<ApiProductDetail> {
+    const data = await apiClient.get<ApiProductDetail>(`/catalog/products/${slugOrId}`);
+    return data;
+  },
+
+  async create(data: Omit<Product, 'id'>, skus?: SkuVariant[]): Promise<Product> {
+    const payload = {
+      ...data,
+      skus,
+    };
+    const response = await apiClient.post<ApiProductDetail>('/catalog/products', payload);
+    return mapApiProductDetailToProduct(response, data);
+  },
+
+  async update(id: string, data: Partial<Product>, _skus?: SkuVariant[]): Promise<Product> {
+    const response = await apiClient.put<ApiProductDetail>(`/catalog/products/${id}`, data);
+    return mapApiProductDetailToProduct(response, {
+      name: data.name ?? response.name,
+      price: data.price ?? response.basePrice,
+      image: data.image ?? response.images?.[0]?.imageUrl ?? '',
+      category: data.category ?? response.category?.slug ?? 'apparel',
+    });
+  },
+
+  async toggleStatus(
+    id: string,
+    isActive: boolean,
+  ): Promise<{ success: boolean; id: string; isActive: boolean }> {
+    const data = await apiClient.patch<{ success: boolean; id: string; isActive: boolean }>(
+      `/catalog/products/${id}/status`,
+      { isActive },
+    );
+    return data;
+  },
+
+  async delete(id: string): Promise<{ success: boolean; id: string }> {
+    const data = await apiClient.delete<{ success: boolean; id: string }>(
+      `/catalog/products/${id}`,
+    );
     return data;
   },
 };

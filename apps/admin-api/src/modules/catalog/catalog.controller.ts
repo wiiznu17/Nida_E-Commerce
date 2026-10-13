@@ -2,7 +2,9 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -77,6 +79,19 @@ export class CatalogController {
     return this.catalogService.createProduct(createProductDto);
   }
 
+  @Put('products/:id')
+  @ApiOperation({
+    summary: 'Update product details',
+    description: 'Update catalog specifications, pricing, and details of an existing product.',
+  })
+  @ApiParam({ name: 'id', description: 'Product UUID or slug' })
+  updateProduct(
+    @Param('id') id: string,
+    @Body() dto: Partial<CreateProductDto>,
+  ) {
+    return this.catalogService.updateProduct(id, dto);
+  }
+
   @Patch('products/:id/status')
   @ApiOperation({
     summary: 'Toggle product active/published status',
@@ -89,6 +104,17 @@ export class CatalogController {
     body: { isActive: boolean },
   ) {
     return this.catalogService.toggleProductStatus(id, Boolean(body.isActive));
+  }
+
+  @Delete('products/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete or archive a product',
+    description: 'Deletes a product, or archives it if associated with order history.',
+  })
+  @ApiParam({ name: 'id', description: 'Product UUID' })
+  deleteProduct(@Param('id') id: string) {
+    return this.catalogService.deleteProduct(id);
   }
 }
 

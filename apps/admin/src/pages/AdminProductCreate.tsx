@@ -7,7 +7,6 @@ import {
   ProductCreateErrorModal,
 } from '../components/product';
 import { useLanguage } from '../context/LanguageContext';
-import { useAdmin } from '../context/AdminContext';
 import { productsApi, extractApiError } from '../api';
 import { STOREFRONT_URL } from '../config';
 import type { Product } from '../data/products';
@@ -16,7 +15,6 @@ import type { SkuVariant } from '../data/adminData';
 export default function AdminProductCreate() {
   const { t, isTh } = useLanguage();
   const navigate = useNavigate();
-  const { addProduct } = useAdmin();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Success Modal State
@@ -34,8 +32,6 @@ export default function AdminProductCreate() {
     setIsSubmitting(true);
     try {
       const apiResponse = await productsApi.create(data, skus);
-      addProduct(apiResponse, skus);
-
       setCreatedProduct(apiResponse);
       setCreatedSkus(skus ?? []);
       setIsSuccessModalOpen(true);

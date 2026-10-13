@@ -86,6 +86,11 @@ export const queryProductsSchema = z.object({
   category: z.string().trim().optional(),
   department: z.string().trim().optional(),
   tag: z.string().trim().optional(),
+  status: z.enum(['all', 'published', 'draft']).optional(),
+  isActive: z
+    .union([z.boolean(), z.enum(['true', 'false'])])
+    .transform((val) => val === true || val === 'true')
+    .optional(),
   isPreorder: z
     .union([z.boolean(), z.enum(['true', 'false'])])
     .transform((val) => val === true || val === 'true')

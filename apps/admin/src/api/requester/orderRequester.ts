@@ -1,28 +1,40 @@
 import { apiClient } from '../client';
-import type { AdminOrder } from '../../data/adminData';
+import type { ApiOrder, OrderStatus } from '@repo/types';
 
-export interface UpdateOrderStatusPayload {
-  status: AdminOrder['status'];
-  courierName?: string;
-  trackingNumber?: string;
+export interface FulfillOrderPayload {
+  courierName: string;
+  trackingNumber: string;
+  initialStatusTitle?: string;
+  estimatedDelivery?: string;
 }
 
 export const orderRequester = {
-  async getAll(): Promise<AdminOrder[]> {
-    const data = await apiClient.get<AdminOrder[]>('/admin/orders');
+  async getOrders(): Promise<ApiOrder[]> {
+    const data = await apiClient.get<ApiOrder[]>('/admin/orders');
     return data;
   },
 
-  async getById(id: string): Promise<AdminOrder> {
-    const data = await apiClient.get<AdminOrder>(`/admin/orders/${id}`);
+  async getByNumber(orderNumber: string): Promise<ApiOrder> {
+    const data = await apiClient.get<ApiOrder>(`/orders/${orderNumber}`);
     return data;
   },
 
   async updateStatus(
-    orderId: string,
-    payload: UpdateOrderStatusPayload,
-  ): Promise<AdminOrder> {
-    const data = await apiClient.patch<AdminOrder>(`/admin/orders/${orderId}/status`, payload);
+    id: string,
+    status: OrderStatus,
+    courierName?: string,
+    trackingNumber?: string,
+  ): Promise<ApiOrder> {
+    const data = await apiClient.patch<ApiOrder>(`/orders/${id}/status`, {
+      status,
+      courierName,
+      trackingNumber,
+    });
+    return data;
+  },
+
+  async fulfill(orderIdentifier: string, payload: FulfillOrderPayload): Promise<unknown> {
+    const data = await apiClient.post(`/admin/orders/${orderIdentifier}/fulfill`, payload);
     return data;
   },
 };

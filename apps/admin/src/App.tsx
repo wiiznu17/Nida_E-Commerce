@@ -1,6 +1,5 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
-import { AdminProvider } from './context/AdminContext';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
 import AdminProductCreate from './pages/AdminProductCreate';
@@ -30,9 +29,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <LanguageProvider>
-      <AdminProvider>
-        <RouterProvider router={router} />
-      </AdminProvider>
+      <RouterProvider router={router} />
     </LanguageProvider>
   );
 }
