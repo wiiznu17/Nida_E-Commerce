@@ -1,6 +1,7 @@
-import { FolderTree, ChevronDown } from 'lucide-react';
+import { FolderTree } from 'lucide-react';
 import { PRODUCT_DEPARTMENTS } from '@repo/types';
 import { useLanguage } from '../../../context/LanguageContext';
+import { DropdownSelect } from '../../ui';
 import type { FormTaxonomySectionProps } from './formTypes';
 
 export function FormTaxonomySection({
@@ -34,22 +35,14 @@ export function FormTaxonomySection({
         <label className="text-[11px] font-bold text-gray-700">
           {t('product.department')}
         </label>
-        <div className="relative">
-          <select
-            value={department}
-            onChange={(e) => onDepartmentChange(e.target.value)}
-            className="w-full appearance-none text-xs pl-3 pr-9 py-2.5 border border-gray-300 rounded-md focus:border-[#2B1810] bg-white outline-hidden font-medium cursor-pointer"
-          >
-            {PRODUCT_DEPARTMENTS.map((dept) => (
-              <option key={dept.id} value={dept.id}>
-                {isTh ? dept.labelTh : dept.labelEn}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-            <ChevronDown size={14} />
-          </div>
-        </div>
+        <DropdownSelect
+          value={department}
+          onChange={onDepartmentChange}
+          options={PRODUCT_DEPARTMENTS.map((dept) => ({
+            value: dept.id,
+            label: isTh ? dept.labelTh : dept.labelEn,
+          }))}
+        />
       </div>
 
       {/* Category */}
@@ -57,22 +50,14 @@ export function FormTaxonomySection({
         <label className="text-[11px] font-bold text-gray-700">
           {t('product.category')}
         </label>
-        <div className="relative">
-          <select
-            value={category}
-            onChange={(e) => onCategoryChange(e.target.value)}
-            className="w-full appearance-none text-xs pl-3 pr-9 py-2.5 border border-gray-300 rounded-md focus:border-[#2B1810] bg-white outline-hidden font-medium cursor-pointer"
-          >
-            {availableCategories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {isTh ? cat.labelTh : cat.labelEn}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-            <ChevronDown size={14} />
-          </div>
-        </div>
+        <DropdownSelect
+          value={category}
+          onChange={onCategoryChange}
+          options={availableCategories.map((cat) => ({
+            value: cat.id,
+            label: isTh ? cat.labelTh : cat.labelEn,
+          }))}
+        />
       </div>
 
       {/* Sub-Category Enum Dropdown */}
@@ -85,22 +70,14 @@ export function FormTaxonomySection({
             {availableSubCategories.length} {t('product.options')}
           </span>
         </div>
-        <div className="relative">
-          <select
-            value={subCategoryKey}
-            onChange={(e) => onSubCategoryChange(e.target.value)}
-            className="w-full appearance-none text-xs pl-3 pr-9 py-2.5 border border-gray-300 rounded-md focus:border-[#2B1810] bg-white outline-hidden font-medium cursor-pointer"
-          >
-            {availableSubCategories.map((sub) => (
-              <option key={sub.key} value={sub.key}>
-                {isTh ? `${sub.labelTh} (${sub.labelEn})` : sub.labelEn}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-            <ChevronDown size={14} />
-          </div>
-        </div>
+        <DropdownSelect
+          value={subCategoryKey}
+          onChange={onSubCategoryChange}
+          options={availableSubCategories.map((sub) => ({
+            value: sub.key,
+            label: isTh ? `${sub.labelTh} (${sub.labelEn})` : sub.labelEn,
+          }))}
+        />
 
         {/* Fixed Taxonomy Info Box */}
         <div className="bg-[#FAF7F2] border border-[#EAE3D9] rounded-md p-2.5 space-y-2 mt-2">

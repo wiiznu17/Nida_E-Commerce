@@ -48,9 +48,10 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
     - **Complementary 12-Column Grids**: Pair columns to sum exactly to 12 (e.g. `8 cols + 4 cols`, `7 cols + 5 cols`, or full `12 cols`). Never leave asymmetrical orphaned columns.
     - **Height & Vertical Alignment**: When stacking cards side-by-side, wrap columns with `flex flex-col space-y-5` and use `flex-1 flex flex-col justify-between` on child cards so row heights match and align cleanly.
     - **Internal Input Density**: Group related inputs into compact sub-grids (`grid grid-cols-2` or `grid-cols-3` like Price + Compare Price, or Dept + Category + SubCategory); never leave solitary narrow inputs floating in an expansive horizontal void.
-- **Component Reusability (เน้นการใช้ Reusable Component)**:
-  - Always reuse existing design system primitives and domain components (`components/common/`, `components/ui/`, `components/product/`) instead of duplicating ad-hoc inline JSX and custom Tailwind chunks.
-  - Examples: `StatusBadge`, `UnsavedChangesModal`, shared button primitives, modal shells. Extract recurring UI patterns into clean, reusable components early.
+- **Component Reusability (เน้นการสร้างและใช้ Reusable Component กลาง)**:
+  - **Central Primitives Mandate (`components/ui/`)**: Always prioritize creating and reusing central UI components (`components/ui/`, `components/common/`) instead of duplicating ad-hoc inline JSX, raw HTML tags, and custom Tailwind chunks.
+  - **Zero Raw Native `<select>` Policy**: Never write raw HTML `<select>` tags with inline styles or custom ad-hoc arrow wrappers across views. Always use the central `<DropdownSelect>` or `<Select>` compound component from `@/components/ui`.
+  - **Extract Early**: If any UI control or widget pattern is repeated across 2 or more places, extract it as a central component in `components/ui/` or `components/common/` immediately. Examples: `Button`, `Select` / `DropdownSelect`, `StatusBadge`, `UnsavedChangesModal`.
 - **Badge Discipline & No Gratuitous Badges (ลดการใส่ Badge พร่ำเพรื่อ)**:
   - **Zero Meta-Badges on Headers**: Do NOT stick redundant badges on card/section headers (e.g. `Predefined Enums`, `Locked`, `System`). Controls and field labels already convey this context.
   - **Zero Duplicate Status Badges**: Do NOT render decorative status badges right next to/above form switches that already reflect that exact state (e.g. no "Published" badge right above a Published/Draft switcher).

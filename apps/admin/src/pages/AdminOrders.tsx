@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Package, Search, Truck, CheckCircle2, ExternalLink, Eye, X, MapPin, CreditCard, Send } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
+import { DropdownSelect } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
 import { STOREFRONT_URL } from '../config';
@@ -245,10 +246,17 @@ export default function AdminOrders() {
 
                     {/* Status with quick selector */}
                     <td className="p-4">
-                      <select
+                      <DropdownSelect
                         value={order.status}
-                        onChange={(e) => handleQuickStatusChange(order.id, e.target.value as AdminOrder['status'])}
-                        className={`text-[11px] font-black uppercase px-2.5 py-1 rounded-xs border cursor-pointer focus:outline-none ${
+                        onChange={(val) => handleQuickStatusChange(order.id, val as AdminOrder['status'])}
+                        options={[
+                          { value: 'PAID', label: 'PAID' },
+                          { value: 'PROCESSING', label: 'PROCESSING' },
+                          { value: 'SHIPPED', label: 'SHIPPED' },
+                          { value: 'DELIVERED', label: 'DELIVERED' },
+                          { value: 'CANCELLED', label: 'CANCELLED' },
+                        ]}
+                        className={`text-[11px] font-black uppercase h-7.5 px-2.5 py-1 ${
                           order.status === 'DELIVERED'
                             ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
                             : order.status === 'SHIPPED'
@@ -257,13 +265,7 @@ export default function AdminOrders() {
                                 ? 'bg-amber-50 text-amber-900 border-amber-300'
                                 : 'bg-purple-50 text-purple-900 border-purple-300'
                         }`}
-                      >
-                        <option value="PAID">PAID</option>
-                        <option value="PROCESSING">PROCESSING</option>
-                        <option value="SHIPPED">SHIPPED</option>
-                        <option value="DELIVERED">DELIVERED</option>
-                        <option value="CANCELLED">CANCELLED</option>
-                      </select>
+                      />
                     </td>
 
                     {/* Courier & Tracking */}
@@ -337,16 +339,16 @@ export default function AdminOrders() {
                 <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
                   บริษัทขนส่ง (Courier Partner)
                 </label>
-                <select
+                <DropdownSelect
                   value={courier}
-                  onChange={(e) => setCourier(e.target.value)}
-                  className="w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:border-[#2B1810]"
-                >
-                  <option value="Kerry Express TH">Kerry Express TH</option>
-                  <option value="Flash Express">Flash Express</option>
-                  <option value="Thailand Post EMS">Thailand Post EMS</option>
-                  <option value="DHL Express International">DHL Express International</option>
-                </select>
+                  onChange={setCourier}
+                  options={[
+                    { value: 'Kerry Express TH', label: 'Kerry Express TH' },
+                    { value: 'Flash Express', label: 'Flash Express' },
+                    { value: 'Thailand Post EMS', label: 'Thailand Post EMS' },
+                    { value: 'DHL Express International', label: 'DHL Express International' },
+                  ]}
+                />
               </div>
 
               <div>

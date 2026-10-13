@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Plus, Trash2, CheckCircle2, X, Clock, Copy, Check } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
+import { DropdownSelect } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { INITIAL_COUPONS, type PromoCoupon } from '../data/adminData';
 
@@ -264,19 +265,19 @@ export default function AdminPromotions() {
                   <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
                     ประเภทส่วนลด (Type)
                   </label>
-                  <select
+                  <DropdownSelect
                     value={formData.discountType}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setFormData({
                         ...formData,
-                        discountType: e.target.value as 'PERCENTAGE' | 'FIXED',
+                        discountType: val as 'PERCENTAGE' | 'FIXED',
                       })
                     }
-                    className="w-full border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:border-[#2B1810]"
-                  >
-                    <option value="PERCENTAGE">เปอร์เซ็นต์ (%)</option>
-                    <option value="FIXED">จำนวนเงินตายตัว ($)</option>
-                  </select>
+                    options={[
+                      { value: 'PERCENTAGE', label: 'เปอร์เซ็นต์ (%)' },
+                      { value: 'FIXED', label: 'จำนวนเงินตายตัว ($)' },
+                    ]}
+                  />
                 </div>
                 <div>
                   <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">

@@ -200,15 +200,19 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
     - 3-Column: Department + Category + Sub-Category cascading dropdowns.
     - Responsive Grid Chips: Color presets and size presets aligned in clean grids.
 
-### 3.7 Component Reusability First
-- **Avoid One-Off Inline Duplication**:
-  - Always search and reuse existing components from `components/common/`, `components/ui/`, `components/layout/`, and domain folders before writing new markup.
-  - Examples of reusable components:
-    - `StatusBadge` (universal status pill for orders, inventory, catalog)
-    - `UnsavedChangesModal` (standard navigation guard)
-    - Reusable button primitives (`components/ui/button.tsx`)
-    - Modal frames and confirmation dialogs
-  - When noticing the same card pattern, table header, or form group repeated across multiple views, extract it into a reusable sub-component immediately.
+### 3.7 Central UI Components First (เน้นการสร้างและใช้ Component กลางเป็นหลัก)
+- **Central Primitives Mandate (`components/ui/`)**:
+  - Whenever building interactive form controls, dropdowns, buttons, dialogs, or inputs, **ALWAYS** prioritize creating and reusing central UI components in `components/ui/` (e.g., `Button`, `DropdownSelect` / `Select`, `Input`, `Modal`).
+  - **Zero Raw Native `<select>` Policy**: Never write raw HTML `<select>` tags with inline styles or custom ad-hoc arrow wrappers across views. Always use the central `<DropdownSelect>` or `<Select>` compound component from `@/components/ui`.
+  - **Consistent Architecture**: Central UI primitives must follow shadcn / `@base-ui/react` conventions, pairing flexible compound parts (`Select`, `SelectTrigger`, `SelectContent`, `SelectItem`) with convenient single-prop wrappers (`DropdownSelect`) for maximum ergonomics.
+  - **Comfortable Icon Padding & Alignment**: Dropdown arrows (`ChevronDown`) and icons must always have intentional padding (`px-3`, `gap-2`) and never sit uncomfortably tight against the edge border.
+- **Extract Early (สร้าง Component กลางไว้ใช้)**:
+  - If any recurring UI pattern, form control, or interactive widget is used or expected to be used across multiple pages, **immediately extract it into a central component in `components/ui/` or `components/common/`** before writing page-level markup.
+  - Examples of standard central components:
+    - `Button` (`components/ui/button.tsx`)
+    - `Select` / `DropdownSelect` (`components/ui/select.tsx`)
+    - `StatusBadge` (`components/common/StatusBadge.tsx`)
+    - `UnsavedChangesModal` (`components/common/UnsavedChangesModal.tsx`)
 
 ### 3.8 Badge Discipline & Elimination of Gratuitous UI Badges
 - **Zero Meta-Badges on Headers**:
