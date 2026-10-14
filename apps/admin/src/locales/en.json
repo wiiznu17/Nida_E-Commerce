@@ -656,5 +656,27 @@
     "fieldsBreakdown": "Modified Field Breakdown",
     "emptyTitle": "No Audit Logs Found",
     "emptyDescription": "There are no audit log entries matching your active filter criteria."
+  },
+  "accessDenied": {
+    "badge": "Security Access Restricted",
+    "title": "Access Permission Required",
+    "description": "Your current role does not have permission to view or manage this module. Please contact your Super Administrator if you require elevated privileges.",
+    "currentAccount": "Current Account",
+    "currentRole": "Current Role",
+    "requiredScope": "Required Security Scope",
+    "goBack": "Go Back",
+    "returnDashboard": "Return to Dashboard"
+  },
+  "permissions": {
+    "CATALOG_READ": "View Catalog & Categories",
+    "CATALOG_WRITE": "Create & Update Products",
+    "INVENTORY_READ": "View Stock & Inventory",
+    "INVENTORY_ADJUST": "Adjust & Restock Inventory",
+    "ORDERS_READ": "View Orders & Shipments",
+    "ORDERS_FULFILL": "Fulfill & Update Shipments",
+    "COUPONS_READ": "View Coupons & Discounts",
+    "COUPONS_MANAGE": "Create & Manage Coupons",
+    "ADMIN_USERS_MANAGE": "Manage Admin Staff & Roles",
+    "AUDIT_LOGS_READ": "View Security Audit Trail"
   }
 }

@@ -21,7 +21,8 @@ import { orderRequester } from '../api/requester/orderRequester';
 import { STOREFRONT_URL } from '../config';
 import type { AdminOrder } from '../data/adminData';
 import { INITIAL_ORDERS } from '../data/adminData';
-import type { ApiOrder, OrderStatus } from '@repo/types';
+import { PermissionGate } from '../components/common';
+import { AdminPermission, type ApiOrder, type OrderStatus } from '@repo/types';
 
 export function mapApiOrderToAdminOrder(api: ApiOrder): AdminOrder {
   return {
@@ -530,13 +531,22 @@ export default function AdminOrders() {
                             </div>
                           </div>
                         ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleOpenFulfill(order)}
-                            className="bg-brand-brown hover:bg-brand-dark-brown text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-xs transition-colors cursor-pointer whitespace-nowrap"
+                          <PermissionGate
+                            permission={AdminPermission.ORDERS_FULFILL}
+                            fallback={
+                              <span className="text-[10px] text-gray-400 font-mono italic">
+                                {t('orders.status.unfulfilled') || 'Pending'}
+                              </span>
+                            }
                           >
-                            {t('orders.fulfill.addTracking')}
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenFulfill(order)}
+                              className="bg-brand-brown hover:bg-brand-dark-brown text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-xs transition-colors cursor-pointer whitespace-nowrap"
+                            >
+                              {t('orders.fulfill.addTracking')}
+                            </button>
+                          </PermissionGate>
                         )}
                       </TableCell>
 

@@ -21,6 +21,8 @@ import {
   queryProductsSchema,
   updateProductStatusSchema,
 } from '@repo/validators';
+import { AdminPermission } from '@repo/types';
+import { RequirePermissions } from '../auth/decorators/index.js';
 
 @ApiTags('Catalog')
 @Controller(['catalog', ''])
@@ -28,6 +30,7 @@ export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}
 
   @Get('categories')
+  @RequirePermissions(AdminPermission.CATALOG_READ)
   @ApiOperation({
     summary: 'Get all categories',
     description:
@@ -38,6 +41,7 @@ export class CatalogController {
   }
 
   @Get('products')
+  @RequirePermissions(AdminPermission.CATALOG_READ)
   @ApiOperation({
     summary: 'Search & list products',
     description:
@@ -51,6 +55,7 @@ export class CatalogController {
   }
 
   @Get('products/counts')
+  @RequirePermissions(AdminPermission.CATALOG_READ)
   @ApiOperation({
     summary: 'Get product status counts',
     description: 'Retrieve counts for all, published, and draft products',
@@ -60,6 +65,7 @@ export class CatalogController {
   }
 
   @Get('products/:slug')
+  @RequirePermissions(AdminPermission.CATALOG_READ)
   @ApiOperation({
     summary: 'Get product details',
     description:
@@ -71,6 +77,7 @@ export class CatalogController {
   }
 
   @Post('products')
+  @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a new product',
@@ -89,6 +96,7 @@ export class CatalogController {
   }
 
   @Put('products/:id')
+  @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @ApiOperation({
     summary: 'Update product details',
     description: 'Update catalog specifications, pricing, and details of an existing product.',
@@ -102,6 +110,7 @@ export class CatalogController {
   }
 
   @Patch('products/:id/status')
+  @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @ApiOperation({
     summary: 'Toggle product active/published status',
     description: 'Updates publication status (isActive: true/false) of a product.',
@@ -116,6 +125,7 @@ export class CatalogController {
   }
 
   @Delete('products/:id')
+  @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Delete or archive a product',

@@ -1,9 +1,15 @@
 import React from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { AdminAccessDenied } from '../../pages/AdminAccessDenied';
+import type { AdminPermission } from '@repo/types';
 
-export const ProtectedRoute: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+export interface ProtectedRouteProps {
+  requiredPermissions?: (AdminPermission | string)[] | AdminPermission | string;
+}
+
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredPermissions }) => {
+  const { isAuthenticated, isLoading, hasPermission } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -22,6 +28,21 @@ export const ProtectedRoute: React.FC = () => {
   if (!isAuthenticated) {
     const redirectUrl = encodeURIComponent(location.pathname + location.search);
     return <Navigate to={`/admin/login?redirect=${redirectUrl}`} replace />;
+  }
+
+  if (requiredPermissions) {
+    const permissionsToCheck = Array.isArray(requiredPermissions)
+      ? requiredPermissions
+      : [requiredPermissions];
+
+    const hasAll = permissionsToCheck.every((perm) => hasPermission(perm));
+    if (!hasAll) {
+      return (
+        <AdminAccessDenied
+          requiredPermission={permissionsToCheck.join(', ')}
+        />
+      );
+    }
   }
 
   return <Outlet />;

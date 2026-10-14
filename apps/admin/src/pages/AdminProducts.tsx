@@ -13,6 +13,8 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { productRequester } from '../api/requester/productRequester';
 import { useProducts } from '../hooks/useProducts';
+import { PermissionGate } from '../components/common';
+import { AdminPermission } from '@repo/types';
 import type { Product } from '../data/products';
 import type { QueryProductsInput } from '@repo/validators';
 
@@ -140,13 +142,15 @@ export default function AdminProducts() {
           : `${products.length} of ${total} products displayed`
       })`}
       actionButton={
-        <Link
-          to="/admin/products/new"
-          className="bg-brand-brown hover:bg-brand-dark-brown text-white px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 rounded-xs shadow-2xs"
-        >
-          <Plus size={15} />
-          <span>{t('productList.addProduct')}</span>
-        </Link>
+        <PermissionGate permission={AdminPermission.CATALOG_WRITE}>
+          <Link
+            to="/admin/products/new"
+            className="bg-brand-brown hover:bg-brand-dark-brown text-white px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 rounded-xs shadow-2xs"
+          >
+            <Plus size={15} />
+            <span>{t('productList.addProduct')}</span>
+          </Link>
+        </PermissionGate>
       }
     >
       <div className="space-y-4">

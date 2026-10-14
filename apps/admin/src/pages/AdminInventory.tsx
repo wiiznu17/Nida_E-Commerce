@@ -18,6 +18,8 @@ import {
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
+import { PermissionGate } from '../components/common';
+import { AdminPermission } from '@repo/types';
 import type { InventoryItem } from '../data/adminData';
 import { INITIAL_INVENTORY } from '../data/adminData';
 
@@ -435,15 +437,24 @@ export default function AdminInventory() {
 
                             {/* Actions */}
                             <TableCell className="text-right">
-                              <button
-                                onClick={() => {
-                                  setAdjustTarget(item);
-                                  setAdjustQuantity(10);
-                                }}
-                                className="bg-brand-brown hover:bg-brand-dark-brown text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xs transition-colors inline-flex items-center space-x-1 shadow-2xs cursor-pointer"
+                              <PermissionGate
+                                permission={AdminPermission.INVENTORY_ADJUST}
+                                fallback={
+                                  <span className="text-[10px] text-gray-400 font-mono italic">
+                                    {t('common.readOnly') || 'Read-Only'}
+                                  </span>
+                                }
                               >
-                                <span>{t('inventory.adjustBtn') || 'ปรับสต็อก'}</span>
-                              </button>
+                                <button
+                                  onClick={() => {
+                                    setAdjustTarget(item);
+                                    setAdjustQuantity(10);
+                                  }}
+                                  className="bg-brand-brown hover:bg-brand-dark-brown text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-xs transition-colors inline-flex items-center space-x-1 shadow-2xs cursor-pointer"
+                                >
+                                  <span>{t('inventory.adjustBtn') || 'ปรับสต็อก'}</span>
+                                </button>
+                              </PermissionGate>
                             </TableCell>
                           </TableRow>
                         );

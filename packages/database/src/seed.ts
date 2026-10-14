@@ -5,6 +5,7 @@ import {
   CATEGORIES_SEED_DATA,
   PRODUCTS_SEED_DATA,
 } from './catalog-seed.data.js';
+import { syncRbac } from './seed-rbac.js';
 
 const prisma = new PrismaClient();
 
@@ -44,18 +45,17 @@ async function main() {
   await prisma.otpVerification.deleteMany({});
   await prisma.user.deleteMany({});
 
-  // 2. Create Roles & Super Admin
-  console.log('👑 Creating Roles and Super Admin...');
-  const superAdminRole = await prisma.role.create({
-    data: {
-      roleCode: 'SUPER_ADMIN',
-      roleName: 'Super Administrator',
-      description: 'Full system control and configuration',
-    },
+  // 2. Create Roles, Permissions, and Admins
+  await syncRbac(prisma);
+
+  const superAdminRole = await prisma.role.findUniqueOrThrow({
+    where: { roleCode: 'SUPER_ADMIN' },
   });
 
-  const admin = await prisma.adminUser.create({
-    data: {
+  const admin = await prisma.adminUser.upsert({
+    where: { email: 'admin@nida-apparel.com' },
+    update: { roleId: superAdminRole.id },
+    create: {
       username: 'superadmin',
       email: 'admin@nida-apparel.com',
       passwordHash: '$2b$10$/45cqjrkP0Gy4P0tjZeBJe5XyQ0u1vpEhkTI1A14DnM2Y9Kxa6dL.', // bcrypt hash for "admin123"

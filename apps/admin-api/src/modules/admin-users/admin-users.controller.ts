@@ -11,9 +11,10 @@ import {
 } from '@nestjs/common';
 import { AdminUsersService } from './admin-users.service.js';
 import { InviteAdminUserDto } from './dto/admin-user.dto.js';
-import { Roles, CurrentAdmin } from '../auth/decorators/index.js';
+import { Roles, RequirePermissions, CurrentAdmin } from '../auth/decorators/index.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import {
+  AdminPermission,
   AdminRoleCode,
   type ApiAdminUser,
   type ApiAdminRole,
@@ -24,6 +25,7 @@ import {
 @Controller('admin/users')
 @UseGuards(RolesGuard)
 @Roles(AdminRoleCode.SUPER_ADMIN)
+@RequirePermissions(AdminPermission.ADMIN_USERS_MANAGE)
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 

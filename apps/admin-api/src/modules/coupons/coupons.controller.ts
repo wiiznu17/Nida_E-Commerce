@@ -14,6 +14,8 @@ import { CouponsService } from './coupons.service.js';
 import { ValidateCouponDto } from './dto/validate-coupon.dto.js';
 import { CalculateCheckoutDto } from './dto/calculate-checkout.dto.js';
 import { CreateCouponDto } from './dto/create-coupon.dto.js';
+import { RequirePermissions } from '../auth/decorators/index.js';
+import { AdminPermission } from '@repo/types';
 
 @ApiTags('Coupons & Checkout')
 @Controller()
@@ -21,6 +23,7 @@ export class CouponsController {
   constructor(private readonly couponsService: CouponsService) {}
 
   @Get('coupons')
+  @RequirePermissions(AdminPermission.COUPONS_READ)
   @ApiOperation({
     summary: 'ดึงรายการคูปองส่วนลดทั้งหมดสำหรับจัดการหลังบ้าน',
     description: 'ส่งคืนรายการคูปองโปรโมชันทั้งหมดพร้อมสถิติการใช้งาน',
@@ -31,6 +34,7 @@ export class CouponsController {
   }
 
   @Post('coupons')
+  @RequirePermissions(AdminPermission.COUPONS_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'สร้างคูปองส่วนลดใหม่',
@@ -43,6 +47,7 @@ export class CouponsController {
   }
 
   @Patch('coupons/:identifier/toggle')
+  @RequirePermissions(AdminPermission.COUPONS_MANAGE)
   @ApiOperation({
     summary: 'เปิด/ปิดการใช้งานคูปองส่วนลด',
     description: 'สลับสถานะ isActive ของคูปองโดยระบุ ID หรือ Code',
@@ -55,6 +60,7 @@ export class CouponsController {
   }
 
   @Delete('coupons/:identifier')
+  @RequirePermissions(AdminPermission.COUPONS_MANAGE)
   @ApiOperation({
     summary: 'ลบคูปองส่วนลดออกจากระบบ',
     description: 'ลบคูปองโปรโมชันถาวรโดยระบุ ID หรือ Code',

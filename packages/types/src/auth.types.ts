@@ -22,6 +22,109 @@ export enum AdminPermission {
   AUDIT_LOGS_READ = 'AUDIT_LOGS_READ',
 }
 
+export const ROLE_DEFAULT_PERMISSIONS: Record<AdminRoleCode, AdminPermission[]> = {
+  [AdminRoleCode.SUPER_ADMIN]: [
+    AdminPermission.CATALOG_READ,
+    AdminPermission.CATALOG_WRITE,
+    AdminPermission.INVENTORY_READ,
+    AdminPermission.INVENTORY_ADJUST,
+    AdminPermission.ORDERS_READ,
+    AdminPermission.ORDERS_FULFILL,
+    AdminPermission.COUPONS_READ,
+    AdminPermission.COUPONS_MANAGE,
+    AdminPermission.ADMIN_USERS_MANAGE,
+    AdminPermission.AUDIT_LOGS_READ,
+  ],
+  [AdminRoleCode.INVENTORY_MANAGER]: [
+    AdminPermission.CATALOG_READ,
+    AdminPermission.INVENTORY_READ,
+    AdminPermission.INVENTORY_ADJUST,
+    AdminPermission.ORDERS_READ,
+  ],
+  [AdminRoleCode.ORDER_MANAGER]: [
+    AdminPermission.CATALOG_READ,
+    AdminPermission.INVENTORY_READ,
+    AdminPermission.ORDERS_READ,
+    AdminPermission.ORDERS_FULFILL,
+  ],
+  [AdminRoleCode.MARKETING_ADMIN]: [
+    AdminPermission.CATALOG_READ,
+    AdminPermission.ORDERS_READ,
+    AdminPermission.COUPONS_READ,
+    AdminPermission.COUPONS_MANAGE,
+  ],
+};
+
+export interface PermissionDefinition {
+  code: AdminPermission;
+  module: string;
+  nameKey: string;
+  descriptionKey: string;
+}
+
+export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
+  {
+    code: AdminPermission.CATALOG_READ,
+    module: 'CATALOG',
+    nameKey: 'permissions.catalogReadName',
+    descriptionKey: 'permissions.catalogReadDesc',
+  },
+  {
+    code: AdminPermission.CATALOG_WRITE,
+    module: 'CATALOG',
+    nameKey: 'permissions.catalogWriteName',
+    descriptionKey: 'permissions.catalogWriteDesc',
+  },
+  {
+    code: AdminPermission.INVENTORY_READ,
+    module: 'INVENTORY',
+    nameKey: 'permissions.inventoryReadName',
+    descriptionKey: 'permissions.inventoryReadDesc',
+  },
+  {
+    code: AdminPermission.INVENTORY_ADJUST,
+    module: 'INVENTORY',
+    nameKey: 'permissions.inventoryAdjustName',
+    descriptionKey: 'permissions.inventoryAdjustDesc',
+  },
+  {
+    code: AdminPermission.ORDERS_READ,
+    module: 'ORDERS',
+    nameKey: 'permissions.ordersReadName',
+    descriptionKey: 'permissions.ordersReadDesc',
+  },
+  {
+    code: AdminPermission.ORDERS_FULFILL,
+    module: 'ORDERS',
+    nameKey: 'permissions.ordersFulfillName',
+    descriptionKey: 'permissions.ordersFulfillDesc',
+  },
+  {
+    code: AdminPermission.COUPONS_READ,
+    module: 'PROMOTIONS',
+    nameKey: 'permissions.couponsReadName',
+    descriptionKey: 'permissions.couponsReadDesc',
+  },
+  {
+    code: AdminPermission.COUPONS_MANAGE,
+    module: 'PROMOTIONS',
+    nameKey: 'permissions.couponsManageName',
+    descriptionKey: 'permissions.couponsManageDesc',
+  },
+  {
+    code: AdminPermission.ADMIN_USERS_MANAGE,
+    module: 'STAFF',
+    nameKey: 'permissions.adminUsersManageName',
+    descriptionKey: 'permissions.adminUsersManageDesc',
+  },
+  {
+    code: AdminPermission.AUDIT_LOGS_READ,
+    module: 'SECURITY',
+    nameKey: 'permissions.auditLogsReadName',
+    descriptionKey: 'permissions.auditLogsReadDesc',
+  },
+];
+
 export interface ApiAdminRole {
   id: string;
   roleCode: string;

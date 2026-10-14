@@ -5,6 +5,7 @@ import { RedisModule } from './core/redis/redis.module.js';
 import { MailerModule } from './core/mailer/mailer.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard.js';
+import { PermissionsGuard } from './modules/auth/guards/permissions.guard.js';
 import { AdminUsersModule } from './modules/admin-users/admin-users.module.js';
 import { CatalogModule } from './modules/catalog/catalog.module.js';
 import { CouponsModule } from './modules/coupons/coupons.module.js';
@@ -37,6 +38,10 @@ import { AppService } from './app.service.js';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
   ],
 })

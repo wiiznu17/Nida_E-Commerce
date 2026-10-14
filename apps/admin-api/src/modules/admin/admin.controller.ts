@@ -19,8 +19,8 @@ import { AdminService } from './admin.service.js';
 import { RestockInventoryDto } from './dto/restock-inventory.dto.js';
 import { FulfillOrderDto } from './dto/fulfill-order.dto.js';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto.js';
-import { Department, type ApiAdminUser } from '@repo/types';
-import { CurrentAdmin } from '../auth/decorators/index.js';
+import { AdminPermission, Department, type ApiAdminUser } from '@repo/types';
+import { CurrentAdmin, RequirePermissions } from '../auth/decorators/index.js';
 
 @ApiTags('Admin Back-Office')
 @Controller('admin')
@@ -28,6 +28,7 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get('orders')
+  @RequirePermissions(AdminPermission.ORDERS_READ)
   @ApiOperation({
     summary: 'ดูรายการคำสั่งซื้อของแอดมินทั้งหมด (Admin Orders)',
     description: 'ดึงรายการคำสั่งซื้อทั้งหมดพร้อมรายการสินค้าและข้อมูลการจัดส่ง',
@@ -38,6 +39,7 @@ export class AdminController {
   }
 
   @Get('inventory')
+  @RequirePermissions(AdminPermission.INVENTORY_READ)
   @ApiOperation({
     summary: 'ดูรายการสต็อกสินค้าคงคลังทั้งหมด (Inventory List)',
     description:
@@ -57,6 +59,7 @@ export class AdminController {
   }
 
   @Get('inventory/movements')
+  @RequirePermissions(AdminPermission.INVENTORY_READ)
   @ApiOperation({
     summary: 'ดูประวัติการเคลื่อนไหวของสต็อก (Stock Movement History)',
     description: 'ดึงรายการ Audit Log การเติมสต็อก ปรับยอดสต็อก และตัดสต็อกสินค้า',
@@ -67,6 +70,7 @@ export class AdminController {
   }
 
   @Post(['inventory/restock', 'inventory/adjust'])
+  @RequirePermissions(AdminPermission.INVENTORY_ADJUST)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'ปรับปรุงสต็อกสินค้าเข้า/ออกคลัง (Restock / Adjust Inventory)',
@@ -86,6 +90,7 @@ export class AdminController {
   }
 
   @Post('orders/:identifier/fulfill')
+  @RequirePermissions(AdminPermission.ORDERS_FULFILL)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'แอดมินยืนยันจัดส่งสินค้า (Fulfill Order)',
@@ -106,6 +111,7 @@ export class AdminController {
   }
 
   @Post('shipments/:shipmentId/update-status')
+  @RequirePermissions(AdminPermission.ORDERS_FULFILL)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'อัปเดตสถานะการจัดส่งพัสดุ (Update Shipment Status)',

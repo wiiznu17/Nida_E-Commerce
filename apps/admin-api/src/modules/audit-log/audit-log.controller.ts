@@ -7,9 +7,10 @@ import {
 } from '@nestjs/common';
 import { AuditLogService } from './audit-log.service.js';
 import { AuditLogQueryDto } from './dto/audit-log-query.dto.js';
-import { Roles } from '../auth/decorators/roles.decorator.js';
+import { Roles, RequirePermissions } from '../auth/decorators/index.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import {
+  AdminPermission,
   AdminRoleCode,
   type ApiAuditLog,
   type ApiResponse,
@@ -20,6 +21,7 @@ import {
 @Controller('admin/audit-logs')
 @UseGuards(RolesGuard)
 @Roles(AdminRoleCode.SUPER_ADMIN)
+@RequirePermissions(AdminPermission.AUDIT_LOGS_READ)
 export class AuditLogController {
   constructor(private readonly auditLogService: AuditLogService) {}
 

@@ -12,6 +12,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { OrdersService } from './orders.service.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
 import { OrderStatus } from '@repo/database';
+import { AdminPermission } from '@repo/types';
+import { RequirePermissions } from '../auth/decorators/index.js';
 
 @ApiTags('Orders & Shipments')
 @Controller()
@@ -36,6 +38,7 @@ export class OrdersController {
   }
 
   @Get('orders')
+  @RequirePermissions(AdminPermission.ORDERS_READ)
   @ApiOperation({
     summary: 'ดูรายการคำสั่งซื้อทั้งหมด (Get All Orders)',
     description: 'ดึงรายการคำสั่งซื้อทั้งหมดสำหรับแอดมินและประวัติคำสั่งซื้อ',
@@ -46,6 +49,7 @@ export class OrdersController {
   }
 
   @Get('orders/:orderNumber')
+  @RequirePermissions(AdminPermission.ORDERS_READ)
   @ApiOperation({
     summary: 'ดูรายละเอียดคำสั่งซื้อตาม Order Number',
     description:
@@ -62,6 +66,7 @@ export class OrdersController {
   }
 
   @Patch('orders/:id/status')
+  @RequirePermissions(AdminPermission.ORDERS_FULFILL)
   @ApiOperation({
     summary: 'อัปเดตสถานะคำสั่งซื้อ (Update Order Status)',
     description: 'เปลี่ยนสถานะของคำสั่งซื้อ เช่น PAID, SHIPPED, DELIVERED หรือ CANCELLED',

@@ -29,8 +29,8 @@ import {
   promotionsApi,
   type CreateCouponPayload,
 } from '../api/requester/promotionRequester';
-import type { ApiCoupon } from '@repo/types';
-import { DiscountType } from '@repo/types';
+import { PermissionGate } from '../components/common';
+import { AdminPermission, type ApiCoupon, DiscountType } from '@repo/types';
 
 type StatusTab = 'ALL' | 'ACTIVE' | 'EXPIRED' | 'INACTIVE';
 type SortOption = 'newest' | 'oldest' | 'codeAsc' | 'codeDesc' | 'expiringSoon';
@@ -397,16 +397,18 @@ export default function AdminPromotions() {
           : `${filteredCoupons.length} of ${couponsList.length} promo codes`
       })`}
       actionButton={
-        <button
-          onClick={() => {
-            setFormError(null);
-            setIsAddModalOpen(true);
-          }}
-          className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 shadow-xs cursor-pointer"
-        >
-          <Plus size={15} />
-          <span>{t('promotions.createBtn')}</span>
-        </button>
+        <PermissionGate permission={AdminPermission.COUPONS_MANAGE}>
+          <button
+            onClick={() => {
+              setFormError(null);
+              setIsAddModalOpen(true);
+            }}
+            className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 shadow-xs cursor-pointer"
+          >
+            <Plus size={15} />
+            <span>{t('promotions.createBtn')}</span>
+          </button>
+        </PermissionGate>
       }
     >
       <div className="space-y-4">

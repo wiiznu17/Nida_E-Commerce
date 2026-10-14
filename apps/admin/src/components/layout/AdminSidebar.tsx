@@ -21,6 +21,7 @@ import { STOREFRONT_URL } from '../../config';
 import { orderRequester } from '../../api/requester/orderRequester';
 import { inventoryRequester } from '../../api/requester/inventoryRequester';
 import { SignOutConfirmModal } from '../common/SignOutConfirmModal';
+import { AdminPermission } from '@repo/types';
 
 export interface AdminSidebarProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ export interface AdminSidebarProps {
 
 export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const { language, setLanguage, t } = useLanguage();
-  const { admin } = useAuth();
+  const { admin, hasPermission } = useAuth();
   const location = useLocation();
 
   const [pendingOrdersCount, setPendingOrdersCount] = useState<number>(0);
@@ -54,9 +55,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       .catch(() => {});
   }, [location.pathname]);
 
-  const isSuperAdmin = admin?.role?.roleCode === 'SUPER_ADMIN';
-
-  const navigationSections = [
+  const rawSections = [
     {
       group: t('nav.overview'),
       items: [
@@ -68,6 +67,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           icon: LayoutDashboard,
           badge: null,
           badgeColor: undefined,
+          permission: undefined,
         },
       ],
     },
@@ -82,6 +82,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           icon: ShoppingBag,
           badge: null,
           badgeColor: undefined,
+          permission: AdminPermission.CATALOG_READ,
         },
         {
           id: 'inventory',
@@ -91,6 +92,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           icon: Boxes,
           badge: lowStockCount > 0 ? lowStockCount : null,
           badgeColor: 'bg-brand-yellow text-brand-dark-brown font-black',
+          permission: AdminPermission.INVENTORY_READ,
         },
         {
           id: 'inventoryAudit',
@@ -100,6 +102,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           icon: History,
           badge: null,
           badgeColor: undefined,
+          permission: AdminPermission.INVENTORY_READ,
         },
       ],
     },
@@ -114,6 +117,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           icon: Package,
           badge: pendingOrdersCount > 0 ? pendingOrdersCount : null,
           badgeColor: 'bg-red-500 text-white font-bold',
+          permission: AdminPermission.ORDERS_READ,
         },
         {
           id: 'promotions',
@@ -123,37 +127,45 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           icon: Tag,
           badge: null,
           badgeColor: undefined,
+          permission: AdminPermission.COUPONS_READ,
         },
       ],
     },
-    ...(isSuperAdmin
-      ? [
-          {
-            group: t('nav.systemManagement'),
-            items: [
-              {
-                id: 'users',
-                path: '/admin/users',
-                altPath: '/users',
-                label: t('nav.staffManagement'),
-                icon: Users,
-                badge: null,
-                badgeColor: undefined,
-              },
-              {
-                id: 'auditLogs',
-                path: '/admin/audit-logs',
-                altPath: '/audit-logs',
-                label: t('nav.auditLogs'),
-                icon: ShieldAlert,
-                badge: null,
-                badgeColor: undefined,
-              },
-            ],
-          },
-        ]
-      : []),
+    {
+      group: t('nav.systemManagement'),
+      items: [
+        {
+          id: 'users',
+          path: '/admin/users',
+          altPath: '/users',
+          label: t('nav.staffManagement'),
+          icon: Users,
+          badge: null,
+          badgeColor: undefined,
+          permission: AdminPermission.ADMIN_USERS_MANAGE,
+        },
+        {
+          id: 'auditLogs',
+          path: '/admin/audit-logs',
+          altPath: '/audit-logs',
+          label: t('nav.auditLogs'),
+          icon: ShieldAlert,
+          badge: null,
+          badgeColor: undefined,
+          permission: AdminPermission.AUDIT_LOGS_READ,
+        },
+      ],
+    },
   ];
+
+  const navigationSections = rawSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) =>
+        item.permission ? hasPermission(item.permission) : true,
+      ),
+    }))
+    .filter((section) => section.items.length > 0);
 
   const initial = admin?.fullName
     ? admin.fullName.charAt(0).toUpperCase()
