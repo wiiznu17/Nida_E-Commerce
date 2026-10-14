@@ -6,7 +6,7 @@ import type {
   PaginatedResponse,
   ProductSkuVariant,
 } from '@repo/types';
-import type { QueryProductsInput, CreateProductInput } from '@repo/validators';
+import type { QueryProductsInput, CreateProductInput, CreateCategoryInput, UpdateCategoryInput } from '@repo/validators';
 
 export const productRequester = {
   async getAll(): Promise<ApiProduct[]> {
@@ -29,12 +29,27 @@ export const productRequester = {
     return data;
   },
 
-  async getCategories(department?: string): Promise<ApiCategory[]> {
+  async getCategories(department?: string, includeInactive = false): Promise<ApiCategory[]> {
+    const params: Record<string, string | boolean | undefined> = {};
+    if (department) params.department = department;
+    if (includeInactive) params.includeInactive = true;
     const data = await apiClient.get<ApiCategory[]>(
       '/catalog/categories',
-      department ? { department } : undefined,
+      params as Record<string, string | number | boolean | undefined>,
     );
     return data;
+  },
+
+  async createCategory(data: CreateCategoryInput): Promise<ApiCategory> {
+    return apiClient.post<ApiCategory>('/catalog/categories', data);
+  },
+
+  async updateCategory(id: string, data: UpdateCategoryInput): Promise<ApiCategory> {
+    return apiClient.patch<ApiCategory>(`/catalog/categories/${id}`, data);
+  },
+
+  async deleteCategory(id: string): Promise<{ success: boolean; message: string }> {
+    return apiClient.delete<{ success: boolean; message: string }>(`/catalog/categories/${id}`);
   },
 
   async getBySlug(slugOrId: string): Promise<ApiProductDetail> {

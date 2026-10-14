@@ -83,4 +83,86 @@ describe('CatalogService - getCategories', () => {
       }),
     );
   });
+
+  describe('createCategory', () => {
+    it('creates a category with auto-generated slug if omitted', async () => {
+      prismaMock.category.findUnique = vi.fn().mockResolvedValue(null);
+      prismaMock.category.create = vi.fn().mockResolvedValue({
+        id: 'cat-new-1',
+        name: 'New Arrivals',
+        nameTh: 'สินค้ามาใหม่',
+        slug: 'new-arrivals',
+        department: Department.WOMEN,
+        parentId: null,
+        displayOrder: 0,
+        isActive: true,
+        children: [],
+        _count: { products: 0 },
+      });
+
+      const result = await service.createCategory({
+        name: 'New Arrivals',
+        nameTh: 'สินค้ามาใหม่',
+        department: Department.WOMEN,
+      });
+
+      expect(prismaMock.category.create).toHaveBeenCalled();
+      expect(result.id).toBe('cat-new-1');
+      expect(result.slug).toBe('new-arrivals');
+    });
+  });
+
+  describe('updateCategory', () => {
+    it('updates existing category fields successfully', async () => {
+      prismaMock.category.findUnique = vi.fn().mockResolvedValue({
+        id: 'cat-1',
+        name: 'Old Name',
+        slug: 'old-slug',
+      });
+      prismaMock.category.update = vi.fn().mockResolvedValue({
+        id: 'cat-1',
+        name: 'Updated Name',
+        slug: 'old-slug',
+        department: Department.WOMEN,
+        displayOrder: 5,
+        isActive: true,
+        children: [],
+        _count: { products: 2 },
+      });
+
+      const result = await service.updateCategory('cat-1', {
+        name: 'Updated Name',
+        displayOrder: 5,
+      });
+
+      expect(prismaMock.category.update).toHaveBeenCalled();
+      expect(result.name).toBe('Updated Name');
+    });
+  });
+
+  describe('deleteCategory', () => {
+    it('deletes category if no products or children attached', async () => {
+      prismaMock.category.findUnique = vi.fn().mockResolvedValue({
+        id: 'cat-del-1',
+        name: 'Empty Category',
+        _count: { products: 0, children: 0 },
+      });
+      prismaMock.category.delete = vi.fn().mockResolvedValue({});
+
+      const result = await service.deleteCategory('cat-del-1');
+
+      expect(prismaMock.category.delete).toHaveBeenCalledWith({ where: { id: 'cat-del-1' } });
+      expect(result.success).toBe(true);
+    });
+
+    it('throws BadRequestException if category has products', async () => {
+      prismaMock.category.findUnique = vi.fn().mockResolvedValue({
+        id: 'cat-has-prod',
+        name: 'Has Products',
+        _count: { products: 5, children: 0 },
+      });
+
+      await expect(service.deleteCategory('cat-has-prod')).rejects.toThrow();
+    });
+  });
 });

@@ -1,17 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { AlertCircle } from 'lucide-react';
 import {
-  PRODUCT_DEPARTMENTS,
-  PRODUCT_CATEGORIES,
-  PRODUCT_SUB_CATEGORIES,
   findMarketingTagByLabel,
   type MarketingTagOption,
-  getSubCategoriesFor,
-  findSubCategoryByLabel,
-  findSubCategoryByKey,
-  type ProductCategory,
   type ProductSkuVariant as SkuVariant,
+  type ApiCategory,
 } from '@repo/types';
+import { productRequester } from '../../api/requester/productRequester';
 import { useLanguage } from '../../context/LanguageContext';
 import { ProductPreviewModal } from './ProductPreviewModal';
 import { PublishConfirmModal } from './PublishConfirmModal';
@@ -58,21 +53,14 @@ export function ProductForm({
   const [department, setDepartment] = useState(initialData?.department || 'women');
   const [category, setCategory] = useState(initialData?.category || 'apparel');
 
-  // Taxonomy Enum Matching
-  const initialSubCatMatch =
-    (initialData?.subCategory && findSubCategoryByLabel(initialData.subCategory)) ||
-    (initialData?.subCategoryTh && findSubCategoryByLabel(initialData.subCategoryTh)) ||
-    getSubCategoriesFor(initialData?.category || 'apparel', initialData?.department || 'women')[0] ||
-    PRODUCT_SUB_CATEGORIES[0];
-
   const [subCategoryKey, setSubCategoryKey] = useState<string>(
-    initialSubCatMatch?.key || 'SWEATERS_AND_KNITS',
+    initialData?.subCategory || 'sweaters-knits',
   );
   const [subCategory, setSubCategory] = useState<string>(
-    initialSubCatMatch?.labelEn || initialData?.subCategory || 'Sweaters & Knits',
+    initialData?.subCategory || 'Sweaters & Knits',
   );
   const [subCategoryTh, setSubCategoryTh] = useState<string>(
-    initialSubCatMatch?.labelTh || initialData?.subCategoryTh || 'สเวตเตอร์และเสื้อไหมพรม',
+    initialData?.subCategoryTh || 'สเวตเตอร์และเสื้อไหมพรม',
   );
 
   // Marketing Tag Enum Matching
@@ -305,68 +293,124 @@ export function ProductForm({
     setSkuList(updated);
   };
 
-  // Computed Taxonomy Options & Cascades
-  const currentDeptConfig = PRODUCT_DEPARTMENTS.find((d) => d.id === department);
-  const availableCategories = PRODUCT_CATEGORIES.filter((cat) =>
-    currentDeptConfig ? currentDeptConfig.allowedCategories.includes(cat.id) : true,
-  );
-  const availableSubCategories = getSubCategoriesFor(category, department);
+  // Dynamic Database Categories & Cascades
+  const [dbCategories, setDbCategories] = useState<ApiCategory[]>([]);
+
+  useEffect(() => {
+    productRequester
+      .getCategories()
+      .then((cats) => {
+        setDbCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
+
+  const availableCategories = useMemo(() => {
+    const deptUpper = department.toUpperCase();
+    return dbCategories
+      .filter((c) => !c.parentId && c.department.toUpperCase() === deptUpper)
+      .map((c) => ({
+        id: c.slug,
+        label: isTh && c.nameTh ? c.nameTh : c.name,
+        labelEn: c.name,
+        labelTh: c.nameTh ?? undefined,
+      }));
+  }, [dbCategories, department, isTh]);
+
+  const selectedParentCat = useMemo(() => {
+    return dbCategories.find(
+      (c) =>
+        !c.parentId &&
+        (c.slug.toLowerCase() === category.toLowerCase() ||
+          c.name.toLowerCase() === category.toLowerCase()),
+    );
+  }, [dbCategories, category]);
+
+  const availableSubCategories = useMemo(() => {
+    if (!selectedParentCat?.children || selectedParentCat.children.length === 0) {
+      if (selectedParentCat) {
+        return [
+          {
+            id: selectedParentCat.slug,
+            label: isTh && selectedParentCat.nameTh ? selectedParentCat.nameTh : selectedParentCat.name,
+            labelEn: selectedParentCat.name,
+            labelTh: selectedParentCat.nameTh ?? undefined,
+          },
+        ];
+      }
+      return [];
+    }
+    return selectedParentCat.children.map((sub) => ({
+      id: sub.slug,
+      label: isTh && sub.nameTh ? sub.nameTh : sub.name,
+      labelEn: sub.name,
+      labelTh: sub.nameTh ?? undefined,
+    }));
+  }, [selectedParentCat, isTh]);
 
   const handleDepartmentChange = (newDept: string) => {
     setDepartment(newDept);
     if (variantMode === 'matrix') {
       setSkuList(buildSkuMatrix(selectedColors, activeSizes, skuList, newDept));
     }
-    const deptConfig = PRODUCT_DEPARTMENTS.find((d) => d.id === newDept);
-    let nextCategory = category;
-    if (deptConfig && !deptConfig.allowedCategories.includes(category as ProductCategory)) {
-      nextCategory = deptConfig.allowedCategories[0];
-      setCategory(nextCategory);
-    }
-    const validSubs = getSubCategoriesFor(nextCategory, newDept);
-    if (validSubs.length > 0) {
-      const stillValid = validSubs.find((s) => s.key === subCategoryKey);
-      if (stillValid) {
-        setSubCategory(stillValid.labelEn);
-        setSubCategoryTh(stillValid.labelTh);
+    const deptUpper = newDept.toUpperCase();
+    const validCats = dbCategories.filter((c) => !c.parentId && c.department.toUpperCase() === deptUpper);
+    if (validCats.length > 0) {
+      const nextCat = validCats[0];
+      setCategory(nextCat.slug);
+      if (nextCat.children && nextCat.children.length > 0) {
+        const firstSub = nextCat.children[0];
+        setSubCategoryKey(firstSub.slug);
+        setSubCategory(firstSub.name);
+        setSubCategoryTh(firstSub.nameTh || firstSub.name);
       } else {
-        setSubCategoryKey(validSubs[0].key);
-        setSubCategory(validSubs[0].labelEn);
-        setSubCategoryTh(validSubs[0].labelTh);
+        setSubCategoryKey(nextCat.slug);
+        setSubCategory(nextCat.name);
+        setSubCategoryTh(nextCat.nameTh || nextCat.name);
       }
     }
   };
 
   const handleCategoryChange = (newCat: string) => {
     setCategory(newCat);
-    if (newCat === 'shoes' && activeSizes.includes('S')) {
+    if (newCat.includes('shoes') && activeSizes.includes('S')) {
       applySizePreset('shoes');
     } else if (
-      (newCat === 'bags' || newCat === 'home' || newCat === 'accessories') &&
+      (newCat.includes('bags') || newCat.includes('home') || newCat.includes('accessories')) &&
       (activeSizes.includes('S') || activeSizes.includes('US 8'))
     ) {
       applySizePreset('onesize');
     }
-    const validSubs = getSubCategoriesFor(newCat, department);
-    if (validSubs.length > 0) {
-      const stillValid = validSubs.find((s) => s.key === subCategoryKey);
-      if (stillValid) {
-        setSubCategory(stillValid.labelEn);
-        setSubCategoryTh(stillValid.labelTh);
-      } else {
-        setSubCategoryKey(validSubs[0].key);
-        setSubCategory(validSubs[0].labelEn);
-        setSubCategoryTh(validSubs[0].labelTh);
-      }
+    const parentCat = dbCategories.find(
+      (c) => !c.parentId && (c.slug === newCat || c.id === newCat),
+    );
+    if (parentCat?.children && parentCat.children.length > 0) {
+      const firstSub = parentCat.children[0];
+      setSubCategoryKey(firstSub.slug);
+      setSubCategory(firstSub.name);
+      setSubCategoryTh(firstSub.nameTh || firstSub.name);
+    } else if (parentCat) {
+      setSubCategoryKey(parentCat.slug);
+      setSubCategory(parentCat.name);
+      setSubCategoryTh(parentCat.nameTh || parentCat.name);
     }
   };
 
   const handleSubCategoryChange = (newKey: string) => {
-    const match = findSubCategoryByKey(newKey);
-    if (match) {
-      setSubCategoryKey(match.key);
-      setSubCategory(match.labelEn);
-      setSubCategoryTh(match.labelTh);
+    setSubCategoryKey(newKey);
+    let matchedSub = selectedParentCat?.children?.find(
+      (s) => s.slug === newKey || s.name === newKey || s.id === newKey,
+    );
+    if (!matchedSub) {
+      matchedSub = dbCategories.find(
+        (c) => c.slug === newKey || c.name === newKey || c.id === newKey,
+      );
+    }
+    if (matchedSub) {
+      setSubCategory(matchedSub.name);
+      setSubCategoryTh(matchedSub.nameTh || matchedSub.name);
+    } else {
+      setSubCategory(newKey);
     }
   };
 

@@ -19,6 +19,7 @@ export interface ApiCategory {
   parentId?: string;
   children?: ApiCategory[];
   productCount?: number;
+  isActive?: boolean;
 }
 
 export interface ApiProduct {

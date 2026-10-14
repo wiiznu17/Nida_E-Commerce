@@ -10,6 +10,7 @@ import { AdminResetPassword } from './pages/AdminResetPassword';
 
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
+import AdminCategories from './pages/AdminCategories';
 import AdminProductCreate from './pages/AdminProductCreate';
 import AdminProductEdit from './pages/AdminProductEdit';
 import AdminOrders from './pages/AdminOrders';
@@ -53,6 +54,8 @@ const router = createBrowserRouter([
         children: [
           { path: '/products', element: <AdminProducts /> },
           { path: '/admin/products', element: <AdminProducts /> },
+          { path: '/categories', element: <AdminCategories /> },
+          { path: '/admin/categories', element: <AdminCategories /> },
         ],
       },
 

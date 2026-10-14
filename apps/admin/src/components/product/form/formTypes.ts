@@ -1,10 +1,15 @@
 import type {
   ProductSkuVariant as SkuVariant,
   MarketingTagOption,
-  CategoryOption,
-  SubCategoryOption,
 } from '@repo/types';
 import type { CreateProductInput } from '@repo/validators';
+
+export interface CategorySelectItem {
+  id: string;
+  label: string;
+  labelEn: string;
+  labelTh?: string;
+}
 
 export type { SkuVariant };
 export type ProductFormData = CreateProductInput;
@@ -91,14 +96,14 @@ export interface FormTaxonomySectionProps {
   isTh?: boolean;
   department: string;
   category: string;
-  subCategoryKey: string;
+  subCategoryKey?: string;
   subCategory: string;
   subCategoryTh: string;
-  availableCategories: CategoryOption[];
-  availableSubCategories: SubCategoryOption[];
+  availableCategories: CategorySelectItem[];
+  availableSubCategories: CategorySelectItem[];
   onDepartmentChange: (dept: string) => void;
   onCategoryChange: (cat: string) => void;
-  onSubCategoryChange: (key: string) => void;
+  onSubCategoryChange: (keyOrName: string) => void;
 }
 
 export interface FormMarketingTagSectionProps {

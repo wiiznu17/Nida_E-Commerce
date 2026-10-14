@@ -55,12 +55,12 @@ export function FormTaxonomySection({
           onChange={onCategoryChange}
           options={availableCategories.map((cat) => ({
             value: cat.id,
-            label: isTh ? cat.labelTh : cat.labelEn,
+            label: isTh && cat.labelTh ? `${cat.labelTh} (${cat.labelEn})` : cat.label,
           }))}
         />
       </div>
 
-      {/* Sub-Category Enum Dropdown */}
+      {/* Sub-Category Dropdown */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <label className="text-[11px] font-bold text-gray-700">
@@ -71,35 +71,33 @@ export function FormTaxonomySection({
           </span>
         </div>
         <DropdownSelect
-          value={subCategoryKey}
+          value={subCategoryKey || subCategory}
           onChange={onSubCategoryChange}
           options={availableSubCategories.map((sub) => ({
-            value: sub.key,
-            label: isTh ? `${sub.labelTh} (${sub.labelEn})` : sub.labelEn,
+            value: sub.id,
+            label: isTh && sub.labelTh ? `${sub.labelTh} (${sub.labelEn})` : sub.label,
           }))}
         />
 
-        {/* Fixed Taxonomy Info Box */}
-        <div className="bg-brand-cream border border-brand-border rounded-md p-2.5 space-y-2 mt-2">
-          <div className="grid grid-cols-2 gap-2 text-[10px]">
-            <div className="bg-white p-1.5 rounded-sm border border-gray-100">
-              <span className="text-gray-400 block font-medium">EN Label</span>
-              <span className="font-bold text-brand-brown truncate block" title={subCategory}>
-                {subCategory}
-              </span>
-            </div>
-            <div className="bg-white p-1.5 rounded-sm border border-gray-100">
-              <span className="text-gray-400 block font-medium">TH Label</span>
-              <span className="font-bold text-brand-brown truncate block" title={subCategoryTh}>
-                {subCategoryTh}
-              </span>
+        {/* Selected Category Info Box */}
+        {(subCategory || subCategoryTh) && (
+          <div className="bg-brand-cream border border-brand-border rounded-md p-2.5 space-y-2 mt-2">
+            <div className="grid grid-cols-2 gap-2 text-[10px]">
+              <div className="bg-white p-1.5 rounded-sm border border-gray-100">
+                <span className="text-gray-400 block font-medium">EN Label</span>
+                <span className="font-bold text-brand-brown truncate block" title={subCategory}>
+                  {subCategory || '-'}
+                </span>
+              </div>
+              <div className="bg-white p-1.5 rounded-sm border border-gray-100">
+                <span className="text-gray-400 block font-medium">TH Label</span>
+                <span className="font-bold text-brand-brown truncate block" title={subCategoryTh}>
+                  {subCategoryTh || '-'}
+                </span>
+              </div>
             </div>
           </div>
-
-          <p className="text-[10px] text-gray-400 leading-tight">
-            {t('product.taxonomyLockNote')}
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );

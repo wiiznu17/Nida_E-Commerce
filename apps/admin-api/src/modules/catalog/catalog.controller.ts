@@ -15,11 +15,14 @@ import { ApiOperation, ApiParam, ApiTags, ApiResponse } from '@nestjs/swagger';
 import { CatalogService } from './catalog.service.js';
 import { QueryProductsDto } from './dto/query-products.dto.js';
 import { CreateProductDto } from './dto/create-product.dto.js';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto.js';
 import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
 import {
   createProductSchema,
   queryProductsSchema,
   updateProductStatusSchema,
+  createCategorySchema,
+  updateCategorySchema,
 } from '@repo/validators';
 import { AdminPermission } from '@repo/types';
 import { RequirePermissions } from '../auth/decorators/index.js';
@@ -34,10 +37,45 @@ export class CatalogController {
   @ApiOperation({
     summary: 'Get all categories',
     description:
-      'Retrieve all active categories, optionally filtered by department (WOMEN, MEN, BAGS, SHOES, etc.)',
+      'Retrieve categories, optionally filtered by department and include inactive.',
   })
-  getCategories(@Query('department') department?: string) {
-    return this.catalogService.getCategories(department);
+  getCategories(
+    @Query('department') department?: string,
+    @Query('includeInactive') includeInactive?: string,
+  ) {
+    const showAll = includeInactive === 'true' || includeInactive === '1';
+    return this.catalogService.getCategories(department, showAll);
+  }
+
+  @Post('categories')
+  @RequirePermissions(AdminPermission.CATALOG_WRITE)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new category or sub-category' })
+  createCategory(
+    @Body(new ZodValidationPipe(createCategorySchema))
+    dto: CreateCategoryDto,
+  ) {
+    return this.catalogService.createCategory(dto);
+  }
+
+  @Patch('categories/:id')
+  @RequirePermissions(AdminPermission.CATALOG_WRITE)
+  @ApiOperation({ summary: 'Update an existing category' })
+  @ApiParam({ name: 'id', description: 'Category UUID' })
+  updateCategory(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateCategorySchema))
+    dto: UpdateCategoryDto,
+  ) {
+    return this.catalogService.updateCategory(id, dto);
+  }
+
+  @Delete('categories/:id')
+  @RequirePermissions(AdminPermission.CATALOG_WRITE)
+  @ApiOperation({ summary: 'Delete a category' })
+  @ApiParam({ name: 'id', description: 'Category UUID' })
+  deleteCategory(@Param('id') id: string) {
+    return this.catalogService.deleteCategory(id);
   }
 
   @Get('products')
