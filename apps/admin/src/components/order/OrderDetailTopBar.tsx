@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Send, Check } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Send, Check, Printer } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import type { AdminOrder } from '../../data/adminData';
 
@@ -12,6 +12,7 @@ export interface OrderDetailTopBarProps {
   onSaveStatus: () => void;
   liveTrackingUrl: string;
   onOpenFulfill: () => void;
+  onOpenPrint: () => void;
   trackingNumber?: string;
   onScrollTo: (elementId: string) => void;
 }
@@ -25,6 +26,7 @@ export function OrderDetailTopBar({
   onSaveStatus,
   liveTrackingUrl,
   onOpenFulfill,
+  onOpenPrint,
   trackingNumber,
   onScrollTo,
 }: OrderDetailTopBarProps) {
@@ -111,6 +113,16 @@ export function OrderDetailTopBar({
           <ExternalLink size={13} />
           <span className="hidden sm:inline">{t('orders.detail.liveTracking')}</span>
         </a>
+
+        <button
+          type="button"
+          onClick={onOpenPrint}
+          className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-brand-brown hover:text-brand-dark-brown bg-white hover:bg-gray-100 border border-brand-border rounded-xs transition-colors cursor-pointer shadow-2xs"
+          title={t('orders.print.printAction')}
+        >
+          <Printer size={13} />
+          <span>{t('orders.print.printButton')}</span>
+        </button>
 
         {!trackingNumber ? (
           <button

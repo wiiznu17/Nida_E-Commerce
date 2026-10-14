@@ -9,6 +9,7 @@ import {
   OrderDetailItemsSection,
   OrderDetailShippingCard,
   OrderDetailCustomerCard,
+  OrderPrintModal,
 } from '../components/order';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
@@ -27,6 +28,9 @@ export default function AdminOrderDetail() {
   const [selectedStatus, setSelectedStatus] = useState<AdminOrder['status']>('PAID');
   const [isUpdating, setIsUpdating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Print modal state
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   // Fulfill modal states
   const [isFulfillModalOpen, setIsFulfillModalOpen] = useState(false);
@@ -180,6 +184,7 @@ export default function AdminOrderDetail() {
           onSaveStatus={handleSaveStatus}
           liveTrackingUrl={liveTrackingUrl}
           onOpenFulfill={handleOpenFulfillModal}
+          onOpenPrint={() => setIsPrintModalOpen(true)}
           trackingNumber={order.trackingNumber}
           onScrollTo={handleScrollTo}
         />
@@ -320,6 +325,12 @@ export default function AdminOrderDetail() {
           </div>
         </div>
       )}
+
+      <OrderPrintModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        orders={order ? [order] : []}
+      />
     </AdminLayout>
   );
 }

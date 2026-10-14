@@ -3,3 +3,4 @@ export * from './OrderDetailStatusCard';
 export * from './OrderDetailItemsSection';
 export * from './OrderDetailShippingCard';
 export * from './OrderDetailCustomerCard';
+export * from './print';

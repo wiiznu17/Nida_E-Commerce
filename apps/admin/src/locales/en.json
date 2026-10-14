@@ -450,6 +450,24 @@
       "orderNotFound": "Order Not Found",
       "orderNotFoundDesc": "The requested order does not exist or invalid order identifier.",
       "totalItems": "Total Items"
+    },
+    "bulk": {
+      "selectedCount": "{count} orders selected",
+      "printLabels": "Print Shipping Labels",
+      "printSlips": "Print Packing Slips",
+      "clearSelection": "Clear Selection"
+    },
+    "print": {
+      "modalTitle": "Warehouse Document Printing",
+      "shippingLabelTab": "Shipping Label (100x150 mm)",
+      "packingSlipTab": "Packing Slip",
+      "printAction": "Print Documents",
+      "printButton": "Print Documents",
+      "selectedOrders": "orders selected",
+      "moreItems": "+ {count} more items in package",
+      "labelHint": "Standard 100x150 mm (A6) format optimized for thermal label printers.",
+      "slipHint": "Standard A4/A5 document for parcel inclusion and dispatch inspection.",
+      "close": "Close"
     }
   },
   "promotions": {

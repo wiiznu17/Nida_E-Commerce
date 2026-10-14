@@ -1,6 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, Truck, ExternalLink, Eye, X, MapPin, CreditCard, Send, Search, RotateCcw } from 'lucide-react';
+import {
+  Package,
+  Truck,
+  ExternalLink,
+  Eye,
+  X,
+  MapPin,
+  CreditCard,
+  Send,
+  Search,
+  RotateCcw,
+  Printer,
+  FileText,
+  Tag,
+} from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
   DropdownSelect,
@@ -22,6 +36,7 @@ import { STOREFRONT_URL } from '../config';
 import type { AdminOrder } from '../data/adminData';
 import { INITIAL_ORDERS } from '../data/adminData';
 import { PermissionGate } from '../components/common';
+import { OrderPrintModal, type PrintDocumentType } from '../components/order';
 import { AdminPermission, type ApiOrder, type OrderStatus } from '@repo/types';
 
 export function mapApiOrderToAdminOrder(api: ApiOrder): AdminOrder {
@@ -74,6 +89,12 @@ export default function AdminOrders() {
   const [courier, setCourier] = useState('Kerry Express TH');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Bulk selection & Print states
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [ordersToPrint, setOrdersToPrint] = useState<AdminOrder[]>([]);
+  const [printDocType, setPrintDocType] = useState<PrintDocumentType>('LABEL');
 
   const loadOrders = async () => {
     try {
@@ -208,6 +229,34 @@ export default function AdminOrders() {
 
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleToggleSelectAll = () => {
+    if (selectedOrderIds.length === paginatedOrders.length && paginatedOrders.length > 0) {
+      setSelectedOrderIds([]);
+    } else {
+      setSelectedOrderIds(paginatedOrders.map((o) => o.id));
+    }
+  };
+
+  const handleToggleSelectRow = (id: string) => {
+    setSelectedOrderIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
+  };
+
+  const handleOpenPrintSingle = (order: AdminOrder) => {
+    setOrdersToPrint([order]);
+    setPrintDocType('LABEL');
+    setIsPrintModalOpen(true);
+  };
+
+  const handleOpenBulkPrint = (type: PrintDocumentType) => {
+    const targetOrders = ordersList.filter((o) => selectedOrderIds.includes(o.id));
+    if (targetOrders.length === 0) return;
+    setOrdersToPrint(targetOrders);
+    setPrintDocType(type);
+    setIsPrintModalOpen(true);
+  };
 
   const getStatusBadgeStyle = (status: AdminOrder['status']) => {
     switch (status) {
@@ -429,6 +478,18 @@ export default function AdminOrders() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12 text-center">
+                    <input
+                      type="checkbox"
+                      checked={
+                        paginatedOrders.length > 0 &&
+                        paginatedOrders.every((o) => selectedOrderIds.includes(o.id))
+                      }
+                      onChange={handleToggleSelectAll}
+                      aria-label="Select all orders"
+                      className="rounded-xs border-gray-300 text-brand-brown focus:ring-brand-brown cursor-pointer"
+                    />
+                  </TableHead>
                   <TableHead className="w-48">{t('orders.table.orderNumber')}</TableHead>
                   <TableHead className="w-56">{t('orders.table.customer')}</TableHead>
                   <TableHead className="min-w-[200px]">{t('orders.table.items')}</TableHead>
@@ -441,7 +502,7 @@ export default function AdminOrders() {
               <TableBody>
                 {paginatedOrders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="p-8">
+                    <TableCell colSpan={8} className="p-8">
                       <EmptyState
                         icon={Package}
                         title={t('orders.emptyTitle')}
@@ -451,7 +512,21 @@ export default function AdminOrders() {
                   </TableRow>
                 ) : (
                   paginatedOrders.map((order) => (
-                    <TableRow key={order.id}>
+                    <TableRow
+                      key={order.id}
+                      className={selectedOrderIds.includes(order.id) ? 'bg-amber-50/40' : ''}
+                    >
+                      {/* Checkbox */}
+                      <TableCell className="text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedOrderIds.includes(order.id)}
+                          onChange={() => handleToggleSelectRow(order.id)}
+                          aria-label={`Select order ${order.orderNumber}`}
+                          className="rounded-xs border-gray-300 text-brand-brown focus:ring-brand-brown cursor-pointer"
+                        />
+                      </TableCell>
+
                       {/* Order # & Date */}
                       <TableCell>
                         <Link
@@ -552,14 +627,24 @@ export default function AdminOrders() {
 
                       {/* Actions */}
                       <TableCell className="text-right">
-                        <Link
-                          to={`/admin/orders/${order.orderNumber}`}
-                          className="inline-flex items-center space-x-1 p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors whitespace-nowrap"
-                          title={t('orders.detail.viewInvoice')}
-                        >
-                          <Eye size={15} />
-                          <span className="font-bold text-[11px] whitespace-nowrap">{t('orders.detail.viewDetails')}</span>
-                        </Link>
+                        <div className="inline-flex items-center space-x-1">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPrintSingle(order)}
+                            className="inline-flex items-center p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors"
+                            title={t('orders.print.printAction')}
+                          >
+                            <Printer size={15} />
+                          </button>
+                          <Link
+                            to={`/admin/orders/${order.orderNumber}`}
+                            className="inline-flex items-center space-x-1 p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors whitespace-nowrap"
+                            title={t('orders.detail.viewInvoice')}
+                          >
+                            <Eye size={15} />
+                            <span className="font-bold text-[11px] whitespace-nowrap">{t('orders.detail.viewDetails')}</span>
+                          </Link>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -791,6 +876,58 @@ export default function AdminOrders() {
           </div>
         </div>
       )}
+
+      {/* Floating Bulk Action Bar */}
+      {selectedOrderIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#2B1810] text-[#FAF7F2] px-5 py-3 rounded-md shadow-2xl border border-white/20 flex items-center space-x-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="text-xs font-bold font-mono">
+              {t('orders.bulk.selectedCount').replace('{count}', String(selectedOrderIds.length))}
+            </span>
+          </div>
+
+          <div className="h-4 w-px bg-white/20" />
+
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => handleOpenBulkPrint('LABEL')}
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-brand-amber hover:bg-amber-600 text-white rounded-xs text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs"
+            >
+              <Tag size={13} />
+              <span>{t('orders.bulk.printLabels')}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleOpenBulkPrint('PACKING_SLIP')}
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-[#FAF7F2] rounded-xs text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border border-white/20"
+            >
+              <FileText size={13} />
+              <span>{t('orders.bulk.printSlips')}</span>
+            </button>
+          </div>
+
+          <div className="h-4 w-px bg-white/20" />
+
+          <button
+            type="button"
+            onClick={() => setSelectedOrderIds([])}
+            className="text-xs text-gray-300 hover:text-white underline cursor-pointer"
+          >
+            {t('orders.bulk.clearSelection')}
+          </button>
+        </div>
+      )}
+
+      {/* Print Document Modal */}
+      <OrderPrintModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        orders={ordersToPrint}
+        initialDocType={printDocType}
+      />
     </AdminLayout>
   );
 }

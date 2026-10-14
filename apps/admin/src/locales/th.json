@@ -450,6 +450,24 @@
       "orderNotFound": "ไม่พบข้อมูลคำสั่งซื้อนี้",
       "orderNotFoundDesc": "อาจไม่มีคำสั่งซื้อนี้อยู่ในระบบ หรือรหัสออเดอร์ไม่ถูกต้อง",
       "totalItems": "จำนวนสินค้ารวม"
+    },
+    "bulk": {
+      "selectedCount": "เลือก {count} คำสั่งซื้อ",
+      "printLabels": "พิมพ์ใบปะหน้าพัสดุ",
+      "printSlips": "พิมพ์ใบจัดส่งสินค้า",
+      "clearSelection": "ยกเลิกการเลือก"
+    },
+    "print": {
+      "modalTitle": "พิมพ์เอกสารคลังสินค้า",
+      "shippingLabelTab": "ใบปะหน้าพัสดุ (100x150 mm)",
+      "packingSlipTab": "ใบจัดส่งสินค้า (Packing Slip)",
+      "printAction": "พิมพ์เอกสาร",
+      "printButton": "พิมพ์เอกสาร",
+      "selectedOrders": "ออเดอร์ที่เลือก",
+      "moreItems": "+ อีก {count} รายการในบรรจุภัณฑ์",
+      "labelHint": "ขนาดมาตรฐาน 100x150 มม. (A6) สำหรับเครื่องพิมพ์ความร้อน (Thermal Label Printer)",
+      "slipHint": "ขนาดมาตรฐาน A4/A5 สำหรับแนบในกล่องพัสดุและตรวจสอบรายการสินค้า",
+      "close": "ปิด"
     }
   },
   "promotions": {
