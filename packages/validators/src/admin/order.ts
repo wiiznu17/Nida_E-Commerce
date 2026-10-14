@@ -36,7 +36,10 @@ export function validateOrderStatusTransition(
 
   const allowedNext = ALLOWED_STATUS_TRANSITIONS[currentStatus];
   if (!allowedNext || !allowedNext.includes(newStatus)) {
-    const nextList = allowedNext && allowedNext.length > 0 ? allowedNext.join(', ') : 'None (Terminal state)';
+    const nextList =
+      allowedNext && allowedNext.length > 0
+        ? allowedNext.join(', ')
+        : 'None (Terminal state)';
     return {
       isValid: false,
       error: `Invalid status transition from "${currentStatus}" to "${newStatus}". Order status must progress step-by-step: PAID -> PROCESSING -> SHIPPED -> DELIVERED. Allowed next: ${nextList}.`,
@@ -55,31 +58,31 @@ export function validateOrderStatusTransition(
   return { isValid: true };
 }
 
-export const orderItemSchema = z.object({
-  variantId: z.string().uuid({ message: 'Invalid variant ID format' }),
-  quantity: z.number().int().min(1, { message: 'Quantity must be at least 1' }),
+/**
+ * Admin Fulfill Order Schema
+ */
+export const fulfillOrderSchema = z.object({
+  carrierCode: z.enum(['KERRY_EXPRESS', 'FLASH_EXPRESS', 'THAILAND_POST_EMS', 'DHL_EXPRESS']),
+  trackingNumber: z.string().trim().min(3, 'Tracking number must be at least 3 characters'),
+  adminNote: z.string().trim().optional(),
 });
 
-export const shippingAddressSchema = z.object({
-  recipientName: z.string().min(1, { message: 'Recipient name is required' }),
-  phone: z.string().min(9, { message: 'Phone number must be at least 9 digits' }),
-  addressLine1: z.string().min(1, { message: 'Address line 1 is required' }),
-  addressLine2: z.string().optional(),
-  subdistrict: z.string().min(1, { message: 'Subdistrict is required' }),
-  district: z.string().min(1, { message: 'District is required' }),
-  province: z.string().min(1, { message: 'Province is required' }),
-  postalCode: z.string().length(5, { message: 'Postal code must be 5 digits' }),
+export type FulfillOrderInput = z.infer<typeof fulfillOrderSchema>;
+
+/**
+ * Admin Update Shipment Status Schema
+ */
+export const updateShipmentStatusSchema = z.object({
+  status: z.enum([
+    'LABEL_CREATED',
+    'PICKED_UP',
+    'IN_TRANSIT',
+    'OUT_FOR_DELIVERY',
+    'DELIVERED',
+    'FAILED',
+  ]),
+  location: z.string().trim().optional(),
+  description: z.string().trim().optional(),
 });
 
-export const createOrderSchema = z.object({
-  items: z.array(orderItemSchema).min(1, { message: 'Order must contain at least 1 item' }),
-  shippingAddress: shippingAddressSchema,
-  paymentMethod: z.enum(['PROMPTPAY', 'CREDIT_CARD', 'BANK_TRANSFER', 'COD']),
-  couponCode: z.string().optional(),
-  userId: z.string().uuid().optional(),
-});
-
-export type OrderItemInput = z.infer<typeof orderItemSchema>;
-export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;
-export type CreateOrderInput = z.infer<typeof createOrderSchema>;
-
+export type UpdateShipmentStatusInput = z.infer<typeof updateShipmentStatusSchema>;

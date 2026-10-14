@@ -35,7 +35,7 @@ export const updateCustomerProfileSchema = z.object({
 export type UpdateCustomerProfileInput = z.infer<typeof updateCustomerProfileSchema>;
 
 /**
- * Customer Address Schema
+ * Customer Shipping / Billing Address Schema
  */
 export const customerAddressSchema = z.object({
   recipientName: z.string().trim().min(1, 'Recipient name is required'),
