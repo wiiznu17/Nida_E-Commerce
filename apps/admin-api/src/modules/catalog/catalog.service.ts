@@ -156,13 +156,13 @@ export class CatalogService {
 
     if (existing._count.products > 0) {
       throw new BadRequestException(
-        `Cannot delete category "${existing.name}" because it contains ${existing._count.products} product(s). Please reassign or delete the products first.`,
+        `Cannot delete category "${existing.name}" because it contains ${existing._count.products} product(s). Please reassign all products to another category first, or deactivate it (isActive: false) instead.`,
       );
     }
 
     if (existing._count.children > 0) {
       throw new BadRequestException(
-        `Cannot delete category "${existing.name}" because it has ${existing._count.children} child sub-categories. Please reassign or delete the sub-categories first.`,
+        `Cannot delete category "${existing.name}" because it has ${existing._count.children} child sub-categories. Please delete or reassign sub-categories first.`,
       );
     }
 

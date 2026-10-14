@@ -36,6 +36,7 @@ export default function AdminCategories() {
   // Delete confirmation dialog state
   const [deletingCategory, setDeletingCategory] = useState<ApiCategory | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeactivating, setIsDeactivating] = useState(false);
 
   // Status toggling state
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -223,6 +224,24 @@ export default function AdminCategories() {
     }
   };
 
+  // Deactivate Category from Delete Modal
+  const handleDeactivateCategory = async (cat: ApiCategory) => {
+    setIsDeactivating(true);
+    try {
+      await productRequester.updateCategory(cat.id, { isActive: false });
+      setCategories((prev) =>
+        prev.map((c) => (c.id === cat.id ? { ...c, isActive: false } : c)),
+      );
+      showToast(t('category.deactivateSuccess'), 'success');
+      setDeletingCategory(null);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : t('category.saveError');
+      showToast(errMsg, 'error');
+    } finally {
+      setIsDeactivating(false);
+    }
+  };
+
   // Toggle Category Status (Active / Inactive)
   const handleToggleStatus = async (cat: ApiCategory) => {
     setTogglingId(cat.id);
@@ -341,8 +360,10 @@ export default function AdminCategories() {
         category={deletingCategory}
         isOpen={!!deletingCategory}
         isDeleting={isDeleting}
+        isDeactivating={isDeactivating}
         onClose={() => setDeletingCategory(null)}
         onConfirm={handleConfirmDelete}
+        onDeactivate={handleDeactivateCategory}
       />
     </AdminLayout>
   );

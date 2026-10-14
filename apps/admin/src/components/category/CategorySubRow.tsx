@@ -113,13 +113,27 @@ export function CategorySubRow({
             >
               <Edit2 size={13} />
             </button>
-            <button
-              onClick={() => onDelete(subCat)}
-              className="p-1 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xs transition-colors cursor-pointer"
-              title={t('category.modal.cancel')}
-            >
-              <Trash2 size={13} />
-            </button>
+            {(() => {
+              const productCount = subCat.productCount ?? 0;
+              const isBlocked = productCount > 0;
+              const deleteTooltip = isBlocked
+                ? t('category.tooltipHasProducts').replace('{count}', String(productCount))
+                : t('productList.delete');
+
+              return (
+                <button
+                  onClick={() => onDelete(subCat)}
+                  className={`p-1 rounded-xs transition-colors cursor-pointer ${
+                    isBlocked
+                      ? 'text-stone-300 hover:text-amber-600 hover:bg-amber-50'
+                      : 'text-stone-400 hover:text-red-600 hover:bg-red-50'
+                  }`}
+                  title={deleteTooltip}
+                >
+                  <Trash2 size={13} />
+                </button>
+              );
+            })()}
           </PermissionGate>
         </div>
       </td>

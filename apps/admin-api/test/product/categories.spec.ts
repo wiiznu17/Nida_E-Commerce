@@ -162,7 +162,21 @@ describe('CatalogService - getCategories', () => {
         _count: { products: 5, children: 0 },
       });
 
-      await expect(service.deleteCategory('cat-has-prod')).rejects.toThrow();
+      await expect(service.deleteCategory('cat-has-prod')).rejects.toThrow(
+        /contains 5 product\(s\)/,
+      );
+    });
+
+    it('throws BadRequestException if category has children', async () => {
+      prismaMock.category.findUnique = vi.fn().mockResolvedValue({
+        id: 'cat-has-children',
+        name: 'Parent Cat',
+        _count: { products: 0, children: 2 },
+      });
+
+      await expect(service.deleteCategory('cat-has-children')).rejects.toThrow(
+        /has 2 child sub-categories/,
+      );
     });
   });
 });

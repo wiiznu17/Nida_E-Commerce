@@ -172,13 +172,29 @@ export function CategoryMainRow({
             >
               <Edit2 size={14} />
             </button>
-            <button
-              onClick={() => onDelete(mainCat)}
-              className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xs transition-colors cursor-pointer"
-              title={t('category.modal.cancel')}
-            >
-              <Trash2 size={14} />
-            </button>
+            {(() => {
+              const productCount = mainCat.productCount ?? 0;
+              const isBlocked = productCount > 0 || hasSubs;
+              const deleteTooltip = productCount > 0
+                ? t('category.tooltipHasProducts').replace('{count}', String(productCount))
+                : hasSubs
+                  ? t('category.tooltipHasChildren')
+                  : t('productList.delete');
+
+              return (
+                <button
+                  onClick={() => onDelete(mainCat)}
+                  className={`p-1.5 rounded-xs transition-colors cursor-pointer ${
+                    isBlocked
+                      ? 'text-stone-300 hover:text-amber-600 hover:bg-amber-50'
+                      : 'text-stone-400 hover:text-red-600 hover:bg-red-50'
+                  }`}
+                  title={deleteTooltip}
+                >
+                  <Trash2 size={14} />
+                </button>
+              );
+            })()}
           </PermissionGate>
         </div>
       </td>
