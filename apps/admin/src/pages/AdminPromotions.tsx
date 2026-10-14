@@ -24,7 +24,6 @@ import {
   EmptyState,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
-import { INITIAL_COUPONS } from '../data/adminData';
 import {
   promotionsApi,
   type CreateCouponPayload,
@@ -38,7 +37,7 @@ type SortOption = 'newest' | 'oldest' | 'codeAsc' | 'codeDesc' | 'expiringSoon';
 export default function AdminPromotions() {
   const { t, language } = useLanguage();
 
-  const [couponsList, setCouponsList] = useState<ApiCoupon[]>(INITIAL_COUPONS);
+  const [couponsList, setCouponsList] = useState<ApiCoupon[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -94,13 +93,14 @@ export default function AdminPromotions() {
       setIsLoading(true);
       setApiError(null);
       const data = await promotionsApi.getAll();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setCouponsList(data);
       } else {
-        setCouponsList(INITIAL_COUPONS);
+        setCouponsList([]);
       }
-    } catch {
-      setCouponsList(INITIAL_COUPONS);
+    } catch (err: unknown) {
+      console.warn('Backend coupons unavailable:', err);
+      setCouponsList([]);
     } finally {
       setIsLoading(false);
     }

@@ -4,10 +4,10 @@ import { NIDA_SENDER_INFO, PACKING_POLICY_NOTES } from './printConstants';
 import { OrderBarcode } from './OrderBarcode';
 
 export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => {
-  const courier = order.courierName || 'Kerry Express';
+  const courier = order.shipments?.[0]?.courierName || 'Kerry Express';
 
   const subtotal = (order.items ?? []).reduce(
-    (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1),
+    (sum, item) => sum + (item.unitPrice ?? 0) * (item.quantity ?? 1),
     0,
   );
 
@@ -37,7 +37,7 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
             #{order.orderNumber}
           </div>
           <div className="text-[11px] text-black/70 font-mono mt-1">
-            Date: {new Date(order.createdAt).toLocaleDateString('th-TH')}
+            Date: {new Date(order.placedAt).toLocaleDateString('th-TH')}
           </div>
           <div className="mt-2">
             <OrderBarcode value={order.orderNumber} height={36} showText={false} />
@@ -51,16 +51,13 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
           <h3 className="font-black text-[10px] uppercase tracking-wider text-black/60 mb-1.5">
             DELIVER TO / ข้อมูลผู้รับพัสดุ
           </h3>
-          <p className="font-bold text-sm text-black">{order.customerName}</p>
+          <p className="font-bold text-sm text-black">{order.shippingAddress?.recipientName || 'Valued Customer'}</p>
           <p className="text-black/80 mt-1 leading-relaxed">
-            {order.shippingAddress}<br />
-            {order.city} {order.postalCode}
+            {order.shippingAddress?.addressLine1 || '-'}<br />
+            {order.shippingAddress?.province || '-'} {order.shippingAddress?.postalCode || '-'}
           </p>
           <p className="font-mono text-xs text-black/80 mt-1.5">
-            Phone: {order.customerPhone}
-          </p>
-          <p className="font-mono text-xs text-black/80">
-            Email: {order.customerEmail}
+            Phone: {order.shippingAddress?.phone || '-'}
           </p>
         </div>
 
@@ -76,11 +73,11 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
               </div>
               <div className="flex justify-between">
                 <span className="text-black/60">Tracking No. / เลขพัสดุ:</span>
-                <span className="font-mono font-bold">{order.trackingNumber || 'Pending Dispatch'}</span>
+                <span className="font-mono font-bold">{order.shipments?.[0]?.trackingNumber || 'Pending Dispatch'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black/60">Payment Method / การชำระ:</span>
-                <span className="font-semibold uppercase">{order.paymentMethod}</span>
+                <span className="font-semibold uppercase">{order.payment?.paymentMethod || 'CREDIT_CARD'}</span>
               </div>
             </div>
           </div>
@@ -103,8 +100,7 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
             <tr className="border-b-2 border-black text-[10px] font-black uppercase tracking-wider">
               <th className="py-2 w-12 text-center">#</th>
               <th className="py-2">ITEM DESCRIPTION / รายละเอียดสินค้า</th>
-              <th className="py-2 text-center w-24">SIZE / ไซส์</th>
-              <th className="py-2 text-center w-24">COLOR / สี</th>
+              <th className="py-2 text-center w-36">VARIANT / ตัวเลือก</th>
               <th className="py-2 text-center w-16">QTY / จำนวน</th>
               <th className="py-2 text-right w-28">PRICE / ราคา</th>
               <th className="py-2 text-right w-28">AMOUNT / รวม</th>
@@ -112,7 +108,7 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
           </thead>
           <tbody className="divide-y divide-black/10 text-xs">
             {(order.items ?? []).map((item, index) => {
-              const itemTotal = (item.price ?? 0) * (item.quantity ?? 1);
+              const itemTotal = (item.unitPrice ?? 0) * (item.quantity ?? 1);
               return (
                 <tr key={index}>
                   <td className="py-3 text-center font-mono text-black/50">
@@ -121,23 +117,20 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
                   <td className="py-3 pr-2">
                     <div className="font-bold text-black">{item.productName}</div>
                     <div className="text-[10px] font-mono text-black/50">
-                      SKU: {item.productId.slice(0, 8).toUpperCase()}
+                      SKU: {item.id.slice(0, 8).toUpperCase()}
                     </div>
                   </td>
-                  <td className="py-3 text-center font-mono font-bold">
-                    {item.size}
-                  </td>
-                  <td className="py-3 text-center text-black/80">
-                    {item.color}
+                  <td className="py-3 text-center font-mono font-bold text-black/80">
+                    {item.variantInfo || 'Standard'}
                   </td>
                   <td className="py-3 text-center font-mono font-bold text-sm">
                     {item.quantity}
                   </td>
                   <td className="py-3 text-right font-mono">
-                    ฿{(item.price ?? 0).toLocaleString()}
+                    ${(item.unitPrice ?? 0).toLocaleString()}
                   </td>
                   <td className="py-3 text-right font-mono font-bold">
-                    ฿{itemTotal.toLocaleString()}
+                    ${itemTotal.toLocaleString()}
                   </td>
                 </tr>
               );

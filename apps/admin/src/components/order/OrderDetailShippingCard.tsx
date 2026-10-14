@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Truck, Copy, Check, Send } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import type { OrderStatus } from '@repo/types';
 
 export interface OrderDetailShippingCardProps {
   courierName?: string;
   trackingNumber?: string;
-  status: string;
-  createdAt: string;
+  status: OrderStatus;
+  placedAt: string;
   onOpenFulfill: () => void;
 }
 
@@ -14,10 +15,10 @@ export function OrderDetailShippingCard({
   courierName,
   trackingNumber,
   status,
-  createdAt,
+  placedAt,
   onOpenFulfill,
 }: OrderDetailShippingCardProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -40,9 +41,7 @@ export function OrderDetailShippingCard({
               {t('orders.detail.shippingTitle')}
             </h3>
             <p className="text-[11px] text-gray-500 mt-0.5">
-              {language === 'th'
-                ? 'ข้อมูลผู้ให้บริการจัดส่งและเลขติดตามสถานะพัสดุ'
-                : 'Carrier details and parcel tracking code'}
+              {t('orders.detail.shippingSubtitle')}
             </p>
           </div>
           <Truck size={16} className="text-brand-amber" />
@@ -65,12 +64,12 @@ export function OrderDetailShippingCard({
                     {copied ? (
                       <>
                         <Check size={12} className="text-emerald-600" />
-                        <span className="text-emerald-700">{language === 'th' ? 'คัดลอกแล้ว' : 'Copied'}</span>
+                        <span className="text-emerald-700">{t('orders.detail.copied')}</span>
                       </>
                     ) : (
                       <>
                         <Copy size={12} />
-                        <span>{language === 'th' ? 'คัดลอก' : 'Copy'}</span>
+                        <span>{t('orders.detail.copy')}</span>
                       </>
                     )}
                   </button>
@@ -86,20 +85,20 @@ export function OrderDetailShippingCard({
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="p-3 bg-gray-50 border border-gray-200 rounded-xs">
                   <span className="text-[10px] font-bold uppercase text-gray-400 block">
-                    {language === 'th' ? 'สถานะจัดส่ง' : 'Fulfillment Status'}
+                    {t('orders.detail.fulfillmentStatus')}
                   </span>
                   <span className="font-black text-brand-brown mt-0.5 block">
                     {status === 'SHIPPED' || status === 'DELIVERED'
-                      ? language === 'th' ? 'ส่งมอบให้ขนส่งแล้ว' : 'Dispatched'
-                      : language === 'th' ? 'รอการส่งมอบ' : 'Pending'}
+                      ? t('orders.detail.dispatched')
+                      : t('orders.detail.pendingDispatch')}
                   </span>
                 </div>
                 <div className="p-3 bg-gray-50 border border-gray-200 rounded-xs">
                   <span className="text-[10px] font-bold uppercase text-gray-400 block">
-                    {language === 'th' ? 'วันที่เริ่มจัดส่ง' : 'Dispatch Date'}
+                    {t('orders.detail.dispatchDate')}
                   </span>
                   <span className="font-mono font-bold text-gray-700 mt-0.5 block truncate">
-                    {createdAt}
+                    {placedAt}
                   </span>
                 </div>
               </div>
@@ -108,12 +107,10 @@ export function OrderDetailShippingCard({
             <div className="p-6 text-center bg-gray-50 border border-dashed border-gray-300 rounded-xs space-y-2">
               <Truck size={24} className="mx-auto text-gray-400" />
               <div className="font-bold text-gray-700">
-                {language === 'th' ? 'ยังไม่ได้ระบุหมายเลขพัสดุ' : 'No tracking code assigned yet'}
+                {t('orders.detail.noTrackingTitle')}
               </div>
               <p className="text-[11px] text-gray-500 max-w-sm mx-auto">
-                {language === 'th'
-                  ? 'เมื่อเตรียมพัสดุเสร็จสิ้น ให้บันทึกเลขพัสดุเพื่อให้ลูกค้าสามารถติดตามพัสดุได้'
-                  : 'Assign carrier tracking number when the order is ready for dispatch.'}
+                {t('orders.detail.noTrackingDesc')}
               </p>
             </div>
           )}
@@ -121,28 +118,24 @@ export function OrderDetailShippingCard({
       </div>
 
       {/* Footer Action */}
-      <div className="p-4 border-t border-brand-cream bg-gray-50/50 flex justify-end">
-        {status !== 'PROCESSING' && !trackingNumber ? (
-          <span className="text-[11px] text-gray-400 font-mono italic py-1.5 px-3">
-            {language === 'th'
-              ? 'รอเปลี่ยนสถานะเป็น PROCESSING ก่อนจัดส่ง'
-              : 'Awaiting PROCESSING state before dispatch'}
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={onOpenFulfill}
-            className="inline-flex items-center space-x-1.5 px-4 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer"
-          >
-            <Send size={13} />
-            <span>
-              {trackingNumber
-                ? language === 'th' ? 'แก้ไขข้อมูลพัสดุ' : 'Update Shipping Code'
-                : t('orders.fulfill.addTracking')}
+      {!trackingNumber ? (
+        <div className="p-4 border-t border-brand-cream bg-gray-50/50 flex justify-end">
+          {status !== 'PROCESSING' ? (
+            <span className="text-[11px] text-gray-400 font-mono italic py-1.5 px-3">
+              {t('orders.detail.awaitingProcessing')}
             </span>
-          </button>
-        )}
-      </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenFulfill}
+              className="inline-flex items-center space-x-1.5 px-4 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer"
+            >
+              <Send size={13} />
+              <span>{t('orders.fulfill.addTracking')}</span>
+            </button>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

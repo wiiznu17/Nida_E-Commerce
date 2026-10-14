@@ -21,7 +21,6 @@ import { inventoryRequester } from '../api/requester/inventoryRequester';
 import { PermissionGate } from '../components/common';
 import { AdminPermission } from '@repo/types';
 import type { InventoryItem } from '../data/adminData';
-import { INITIAL_INVENTORY } from '../data/adminData';
 
 export default function AdminInventory() {
   const { t, language } = useLanguage();
@@ -48,7 +47,7 @@ export default function AdminInventory() {
   const loadInventory = async () => {
     try {
       const apiItems = await inventoryRequester.getInventory();
-      if (apiItems && apiItems.length > 0) {
+      if (apiItems) {
         setInventoryList(
           apiItems.map((api) => ({
             id: api.id,
@@ -68,11 +67,11 @@ export default function AdminInventory() {
           })),
         );
       } else {
-        setInventoryList(INITIAL_INVENTORY);
+        setInventoryList([]);
       }
     } catch (err: unknown) {
-      console.warn('Backend inventory unavailable, using initial data:', err);
-      setInventoryList(INITIAL_INVENTORY);
+      console.warn('Backend inventory unavailable:', err);
+      setInventoryList([]);
     }
   };
 

@@ -6,8 +6,8 @@ import { useLanguage } from '../../../context/LanguageContext';
 
 export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order }) => {
   const { t } = useLanguage();
-  const trackingCode = order.trackingNumber || `NIDA-${order.orderNumber}`;
-  const courier = order.courierName || 'Kerry Express';
+  const trackingCode = order.shipments?.[0]?.trackingNumber || `NIDA-${order.orderNumber}`;
+  const courier = order.shipments?.[0]?.courierName || 'Kerry Express';
 
   const totalQuantity = (order.items ?? []).reduce(
     (sum, item) => sum + (item.quantity ?? 1),
@@ -47,20 +47,20 @@ export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order })
           <span className="text-[10px] font-black uppercase tracking-wider bg-black text-white px-1.5 py-0.5">
             TO / ผู้รับ
           </span>
-          <span className="text-xs font-mono font-black">{order.customerPhone}</span>
+          <span className="text-xs font-mono font-black">{order.shippingAddress?.phone || '-'}</span>
         </div>
         <div className="text-sm font-bold text-black mb-1">
-          {order.customerName}
+          {order.shippingAddress?.recipientName || 'Valued Customer'}
         </div>
         <div className="text-xs text-black leading-snug">
-          {order.shippingAddress}
+          {order.shippingAddress?.addressLine1 || '-'}
         </div>
         <div className="flex items-end justify-between mt-2 pt-1">
           <div className="text-xs font-semibold">
-            {order.city}
+            {order.shippingAddress?.province || '-'}
           </div>
           <div className="border-2 border-black px-2 py-0.5 font-mono text-lg font-black tracking-wider">
-            {order.postalCode}
+            {order.shippingAddress?.postalCode || '-'}
           </div>
         </div>
       </div>
@@ -87,7 +87,7 @@ export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order })
           {(order.items ?? []).slice(0, 4).map((item, index) => (
             <div key={index} className="flex justify-between text-[10px] font-mono">
               <span className="truncate max-w-[200px]">
-                • {item.productName} ({item.size})
+                • {item.productName} ({item.variantInfo || 'Standard'})
               </span>
               <span className="font-bold shrink-0">x{item.quantity}</span>
             </div>
@@ -105,7 +105,7 @@ export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order })
 
       {/* Signature & Date Footer */}
       <div className="mt-3 pt-2 border-t border-black flex justify-between text-[9px] text-black/80 font-mono">
-        <span>DATE: {new Date(order.createdAt).toLocaleDateString('th-TH')}</span>
+        <span>DATE: {new Date(order.placedAt).toLocaleDateString('th-TH')}</span>
         <span>SIGNATURE: ____________________</span>
       </div>
     </div>

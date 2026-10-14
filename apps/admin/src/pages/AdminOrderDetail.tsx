@@ -13,21 +13,19 @@ import {
   OrderFulfillModal,
 } from '../components/order';
 import { useLanguage } from '../context/LanguageContext';
-import { orderRequester, mapApiOrderToAdminOrder } from '../api/requester/orderRequester';
+import { orderRequester } from '../api/requester/orderRequester';
 import { formatOrderDateTime } from '../utils';
 import { STOREFRONT_URL } from '../config';
-import type { AdminOrder } from '../data/adminData';
-import { INITIAL_ORDERS } from '../data/adminData';
-import type { OrderStatus } from '@repo/types';
+import type { ApiOrder, OrderStatus } from '@repo/types';
 import { validateOrderStatusTransition } from '@repo/validators';
 
 export default function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t, isTh, language } = useLanguage();
 
-  const [order, setOrder] = useState<AdminOrder | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<AdminOrder['status']>('PAID');
+  const [order, setOrder] = useState<ApiOrder | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PAID');
   const [isUpdating, setIsUpdating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -42,24 +40,14 @@ export default function AdminOrderDetail() {
     try {
       const apiOrder = await orderRequester.getByNumber(id);
       if (apiOrder) {
-        const mapped = mapApiOrderToAdminOrder(apiOrder);
-        setOrder(mapped);
-        setSelectedStatus(mapped.status);
+        setOrder(apiOrder);
+        setSelectedStatus(apiOrder.status);
         return;
       }
-    } catch {
-      // Fallback to local admin orders seed
+    } catch (err: unknown) {
+      console.warn('Failed to load order from API:', err);
     }
-
-    const localFound = INITIAL_ORDERS.find(
-      (o) => o.id === id || o.orderNumber.toLowerCase() === id.toLowerCase(),
-    );
-    if (localFound) {
-      setOrder(localFound);
-      setSelectedStatus(localFound.status);
-    } else {
-      setOrder(null);
-    }
+    setOrder(null);
   };
 
   useEffect(() => {
@@ -78,33 +66,33 @@ export default function AdminOrderDetail() {
     }
   };
 
+  const primaryShipment = order?.shipments?.[0];
+  const trackingNumber = primaryShipment?.trackingNumber;
+  const courierName = primaryShipment?.courierName;
+  const hasTracking = Boolean(trackingNumber?.trim());
+
   const hasUnsavedStatus = Boolean(order && selectedStatus !== order.status);
 
   const handleSaveStatus = async () => {
     if (!order || !hasUnsavedStatus) return;
 
-    const hasTracking = Boolean(order.trackingNumber?.trim());
     const validation = validateOrderStatusTransition(
-      order.status as OrderStatus,
-      selectedStatus as OrderStatus,
+      order.status,
+      selectedStatus,
       hasTracking,
     );
 
     if (!validation.isValid) {
       if (selectedStatus === 'SHIPPED' && order.status === 'PROCESSING' && !hasTracking) {
-        showToast(
-          language === 'th'
-            ? 'กรุณาระบุเลขพัสดุ (Tracking Number) เพื่อจัดส่งสินค้า'
-            : 'Please specify carrier tracking number to dispatch this order',
-        );
+        showToast(t('orders.detail.specifyTrackingRequired'));
         setIsFulfillModalOpen(true);
         return;
       }
 
       showToast(
-        language === 'th'
-          ? (validation.errorTh ?? validation.error ?? 'ไม่สามารถเปลี่ยนสถานะได้')
-          : (validation.error ?? 'Invalid status transition'),
+        isTh
+          ? (validation.errorTh ?? validation.error ?? t('orders.detail.statusTransitionFailed'))
+          : (validation.error ?? t('orders.detail.statusTransitionFailed')),
       );
       setSelectedStatus(order.status);
       return;
@@ -112,12 +100,12 @@ export default function AdminOrderDetail() {
 
     setIsUpdating(true);
     try {
-      await orderRequester.updateStatus(order.id, selectedStatus as OrderStatus);
+      await orderRequester.updateStatus(order.id, selectedStatus);
       await loadOrder();
       showToast(
-        language === 'th'
-          ? `อัปเดตสถานะออเดอร์ #${order.orderNumber} เป็น ${selectedStatus} เรียบร้อยแล้ว`
-          : `Order #${order.orderNumber} status updated to ${selectedStatus}`,
+        t('orders.detail.statusUpdatedToast')
+          .replace('{orderNumber}', order.orderNumber)
+          .replace('{status}', selectedStatus),
       );
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'Failed to update order status');
@@ -159,13 +147,13 @@ export default function AdminOrderDetail() {
   return (
     <AdminLayout
       title={`${t('orders.detail.orderPrefix')}${order.orderNumber}`}
-      subtitle={`${t('orders.detail.orderedAt')} ${formatOrderDateTime(order.createdAt, language)} • ${order.customerName}`}
+      subtitle={`${t('orders.detail.orderedAt')} ${formatOrderDateTime(order.placedAt, language)} • ${order.shippingAddress?.recipientName ?? 'Valued Customer'}`}
     >
       <div className="space-y-5">
         {/* Sticky Top Bar matching FormTopBar */}
         <OrderDetailTopBar
           orderNumber={order.orderNumber}
-          createdAt={formatOrderDateTime(order.createdAt, language)}
+          placedAt={formatOrderDateTime(order.placedAt, language)}
           status={order.status}
           isUpdating={isUpdating}
           hasUnsavedStatus={hasUnsavedStatus}
@@ -173,7 +161,7 @@ export default function AdminOrderDetail() {
           liveTrackingUrl={liveTrackingUrl}
           onOpenFulfill={handleOpenFulfillModal}
           onOpenPrint={() => setIsPrintModalOpen(true)}
-          trackingNumber={order.trackingNumber}
+          trackingNumber={trackingNumber}
           onScrollTo={handleScrollTo}
         />
 
@@ -200,10 +188,10 @@ export default function AdminOrderDetail() {
               currentStatus={order.status}
               selectedStatus={selectedStatus}
               onStatusChange={setSelectedStatus}
-              hasTracking={Boolean(order.trackingNumber)}
+              hasTracking={hasTracking}
               totalAmount={order.totalAmount}
               totalItems={order.items.reduce((sum, i) => sum + i.quantity, 0)}
-              paymentMethod={order.paymentMethod}
+              paymentMethod={order.payment?.paymentMethod ?? 'CREDIT_CARD'}
               hasUnsavedStatus={hasUnsavedStatus}
               isUpdating={isUpdating}
               onSaveStatus={handleSaveStatus}
@@ -216,23 +204,18 @@ export default function AdminOrderDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           <div className="lg:col-span-7 flex flex-col">
             <OrderDetailShippingCard
-              courierName={order.courierName}
-              trackingNumber={order.trackingNumber}
+              courierName={courierName}
+              trackingNumber={trackingNumber}
               status={order.status}
-              createdAt={formatOrderDateTime(order.createdAt, language)}
+              placedAt={formatOrderDateTime(order.placedAt, language)}
               onOpenFulfill={handleOpenFulfillModal}
             />
           </div>
 
           <div className="lg:col-span-5 flex flex-col">
             <OrderDetailCustomerCard
-              customerName={order.customerName}
-              customerEmail={order.customerEmail}
-              customerPhone={order.customerPhone}
               shippingAddress={order.shippingAddress}
-              city={order.city}
-              postalCode={order.postalCode}
-              paymentMethod={order.paymentMethod}
+              payment={order.payment}
               status={order.status}
             />
           </div>
@@ -245,17 +228,32 @@ export default function AdminOrderDetail() {
           isOpen={isFulfillModalOpen}
           onClose={() => setIsFulfillModalOpen(false)}
           orderNumber={order.orderNumber}
-          initialCourier={order.courierName}
-          initialTrackingNumber={order.trackingNumber}
-          onSuccess={(courierName, trackingNumber) => {
+          initialCourier={courierName}
+          initialTrackingNumber={trackingNumber}
+          onSuccess={(newCourier, newTracking) => {
             setOrder((prev) =>
-              prev ? { ...prev, status: 'SHIPPED', courierName, trackingNumber } : null,
+              prev
+                ? {
+                    ...prev,
+                    status: 'SHIPPED',
+                    shipments: [
+                      {
+                        id: prev.shipments?.[0]?.id ?? `ship-${Date.now()}`,
+                        courierName: newCourier,
+                        trackingNumber: newTracking,
+                        status: 'IN_TRANSIT',
+                        shippedAt: new Date().toISOString(),
+                        timeline: prev.shipments?.[0]?.timeline ?? [],
+                      },
+                    ],
+                  }
+                : null,
             );
             setSelectedStatus('SHIPPED');
             showToast(
-              language === 'th'
-                ? `บันทึกการจัดส่งพัสดุสำหรับออเดอร์ #${order.orderNumber} สำเร็จ`
-                : `Order #${order.orderNumber} dispatched with tracking ${trackingNumber}`,
+              t('orders.detail.dispatchSuccessToast')
+                .replace('{orderNumber}', order.orderNumber)
+                .replace('{tracking}', newTracking),
             );
             loadOrder();
           }}

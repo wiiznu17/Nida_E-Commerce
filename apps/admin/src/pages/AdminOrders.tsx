@@ -28,15 +28,14 @@ import {
   Pagination,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
-import { orderRequester, mapApiOrderToAdminOrder } from '../api/requester/orderRequester';
+import { orderRequester } from '../api/requester/orderRequester';
 import { formatOrderDateTime } from '../utils';
 import { STOREFRONT_URL } from '../config';
-import type { AdminOrder } from '../data/adminData';
-import { INITIAL_ORDERS } from '../data/adminData';
 import { PermissionGate } from '../components/common';
 import { OrderPrintModal, OrderFulfillModal, type PrintDocumentType } from '../components/order';
 import {
   AdminPermission,
+  type ApiOrder,
   type OrderStatus,
 } from '@repo/types';
 import {
@@ -46,7 +45,7 @@ import {
 
 export default function AdminOrders() {
   const { t, language } = useLanguage();
-  const [ordersList, setOrdersList] = useState<AdminOrder[]>([]);
+  const [ordersList, setOrdersList] = useState<ApiOrder[]>([]);
 
   // Filter & Search states
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -60,27 +59,23 @@ export default function AdminOrders() {
   const [pageSize, setPageSize] = useState(10);
 
   // Modals & interaction states
-  const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<ApiOrder | null>(null);
   const [isFulfillModalOpen, setIsFulfillModalOpen] = useState(false);
-  const [orderToFulfill, setOrderToFulfill] = useState<AdminOrder | null>(null);
+  const [orderToFulfill, setOrderToFulfill] = useState<ApiOrder | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Print states
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-  const [ordersToPrint, setOrdersToPrint] = useState<AdminOrder[]>([]);
+  const [ordersToPrint, setOrdersToPrint] = useState<ApiOrder[]>([]);
   const [printDocType, setPrintDocType] = useState<PrintDocumentType>('LABEL');
 
   const loadOrders = async () => {
     try {
       const apiOrders = await orderRequester.getOrders();
-      if (apiOrders && apiOrders.length > 0) {
-        setOrdersList(apiOrders.map(mapApiOrderToAdminOrder));
-      } else {
-        setOrdersList((prev) => (prev.length > 0 ? prev : INITIAL_ORDERS));
-      }
+      setOrdersList(apiOrders ?? []);
     } catch (err: unknown) {
-      console.warn('Backend orders unavailable, keeping seed orders:', err);
-      setOrdersList((prev) => (prev.length > 0 ? prev : INITIAL_ORDERS));
+      console.warn('Backend orders unavailable:', err);
+      setOrdersList([]);
     }
   };
 
@@ -113,19 +108,20 @@ export default function AdminOrders() {
     setCurrentPage(1);
   };
 
-  const handleOpenFulfill = (order: AdminOrder) => {
+  const handleOpenFulfill = (order: ApiOrder) => {
     setOrderToFulfill(order);
     setIsFulfillModalOpen(true);
   };
 
-  const handleQuickStatusChange = async (orderId: string, newStatus: AdminOrder['status']) => {
+  const handleQuickStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     const targetOrder = ordersList.find((o) => o.id === orderId || o.orderNumber === orderId);
     if (!targetOrder || newStatus === targetOrder.status) return;
 
-    const hasTracking = Boolean(targetOrder.trackingNumber?.trim());
+    const primaryShipment = targetOrder.shipments?.[0];
+    const hasTracking = Boolean(primaryShipment?.trackingNumber?.trim());
     const validation = validateOrderStatusTransition(
-      targetOrder.status as OrderStatus,
-      newStatus as OrderStatus,
+      targetOrder.status,
+      newStatus,
       hasTracking,
     );
 
@@ -149,7 +145,7 @@ export default function AdminOrders() {
     }
 
     try {
-      await orderRequester.updateStatus(orderId, newStatus as OrderStatus);
+      await orderRequester.updateStatus(orderId, newStatus);
       await loadOrders();
       showToast(
         language === 'th'
@@ -177,25 +173,31 @@ export default function AdminOrders() {
       const matchesStatus = statusFilter === 'ALL' || order.status === statusFilter;
 
       const query = appliedSearch.toLowerCase();
+      const primaryShipment = order.shipments?.[0];
+      const trackingNumber = primaryShipment?.trackingNumber;
+      const recipientName = order.shippingAddress?.recipientName ?? '';
+      const phone = order.shippingAddress?.phone ?? '';
+      const paymentMethod = order.payment?.paymentMethod ?? '';
+
       const matchesSearch =
         !query ||
         order.orderNumber.toLowerCase().includes(query) ||
-        order.customerName.toLowerCase().includes(query) ||
-        order.customerEmail.toLowerCase().includes(query) ||
-        order.customerPhone.toLowerCase().includes(query) ||
-        (order.trackingNumber && order.trackingNumber.toLowerCase().includes(query));
+        recipientName.toLowerCase().includes(query) ||
+        phone.toLowerCase().includes(query) ||
+        (trackingNumber && trackingNumber.toLowerCase().includes(query));
 
       const matchesPayment =
         paymentFilter === 'ALL' ||
-        (paymentFilter === 'CREDIT_CARD' && order.paymentMethod.toLowerCase().includes('credit')) ||
-        (paymentFilter === 'PROMPTPAY' && order.paymentMethod.toLowerCase().includes('promptpay')) ||
-        (paymentFilter === 'BANK_TRANSFER' && order.paymentMethod.toLowerCase().includes('bank'));
+        paymentMethod === paymentFilter ||
+        (paymentFilter === 'CREDIT_CARD' && paymentMethod.toLowerCase().includes('credit')) ||
+        (paymentFilter === 'PROMPTPAY' && paymentMethod.toLowerCase().includes('promptpay')) ||
+        (paymentFilter === 'BANK_TRANSFER' && paymentMethod.toLowerCase().includes('bank'));
 
       return matchesStatus && matchesSearch && matchesPayment;
     })
     .sort((a, b) => {
-      if (sortBy === 'newest') return b.createdAt.localeCompare(a.createdAt);
-      if (sortBy === 'oldest') return a.createdAt.localeCompare(b.createdAt);
+      if (sortBy === 'newest') return b.placedAt.localeCompare(a.placedAt);
+      if (sortBy === 'oldest') return a.placedAt.localeCompare(b.placedAt);
       if (sortBy === 'amount_desc') return b.totalAmount - a.totalAmount;
       if (sortBy === 'amount_asc') return a.totalAmount - b.totalAmount;
       return 0;
@@ -204,13 +206,13 @@ export default function AdminOrders() {
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  const handleOpenPrintSingle = (order: AdminOrder) => {
+  const handleOpenPrintSingle = (order: ApiOrder) => {
     setOrdersToPrint([order]);
     setPrintDocType('LABEL');
     setIsPrintModalOpen(true);
   };
 
-  const getStatusBadgeStyle = (status: AdminOrder['status']) => {
+  const getStatusBadgeStyle = (status: OrderStatus) => {
     switch (status) {
       case 'DELIVERED':
         return 'bg-emerald-50 text-emerald-900 border-emerald-300';
@@ -463,23 +465,23 @@ export default function AdminOrders() {
                           {order.orderNumber}
                         </Link>
                         <div className="text-[10px] text-gray-500 font-medium mt-0.5">
-                          {formatOrderDateTime(order.createdAt, language)}
+                          {formatOrderDateTime(order.placedAt, language)}
                         </div>
                       </TableCell>
 
                       {/* Customer */}
                       <TableCell>
                         <div className="font-bold text-brand-brown text-xs">
-                          {order.customerName}
+                          {order.shippingAddress?.recipientName ?? 'Valued Customer'}
                         </div>
                       </TableCell>
 
                       {/* Purchased Items */}
                       <TableCell>
                         <div className="flex items-center space-x-2.5">
-                          {order.items[0]?.image ? (
+                          {order.items[0]?.imageUrl ? (
                             <img
-                              src={order.items[0].image}
+                              src={order.items[0].imageUrl}
                               alt=""
                               className="w-9 h-11 object-cover rounded-xs border border-gray-200 flex-shrink-0"
                               onError={(e) => {
@@ -492,7 +494,7 @@ export default function AdminOrders() {
                               {order.items[0]?.productName}
                             </div>
                             <div className="text-[10px] text-gray-500 mt-0.5">
-                              {language === 'th' ? 'ไซส์' : 'Size'} {order.items[0]?.size} • {order.items[0]?.quantity}{' '}
+                              {order.items[0]?.variantInfo} • {order.items[0]?.quantity}{' '}
                               {t('orders.detail.pieces')}
                               {order.items.length > 1 &&
                                 ` ${t('orders.detail.plusMore').replace('{count}', String(order.items.length - 1))}`}
@@ -506,24 +508,28 @@ export default function AdminOrders() {
                         <div className="font-mono font-bold text-brand-brown text-xs">
                           ${order.totalAmount.toFixed(2)}
                         </div>
-                        <div className="text-[10px] text-gray-500 mt-0.5">{order.paymentMethod}</div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">
+                          {order.payment?.paymentMethod ?? 'CREDIT_CARD'}
+                        </div>
                       </TableCell>
 
                       {/* Status Selector */}
                       <TableCell className="text-center">
                         {(() => {
-                          const allowedNext = ALLOWED_STATUS_TRANSITIONS[order.status as OrderStatus] ?? [];
+                          const primaryShipment = order.shipments?.[0];
+                          const trackingNumber = primaryShipment?.trackingNumber;
+                          const allowedNext = ALLOWED_STATUS_TRANSITIONS[order.status] ?? [];
                           const rowStatusOptions = [
                             { value: order.status, label: order.status },
                             ...allowedNext.map((s) => ({
                               value: s,
-                              label: s === 'SHIPPED' && !order.trackingNumber ? `${s} (+Tracking)` : s,
+                              label: s === 'SHIPPED' && !trackingNumber ? `${s} (+Tracking)` : s,
                             })),
                           ];
                           return (
                             <DropdownSelect
                               value={order.status}
-                              onChange={(val) => handleQuickStatusChange(order.id, val as AdminOrder['status'])}
+                              onChange={(val) => handleQuickStatusChange(order.id, val as OrderStatus)}
                               options={rowStatusOptions}
                               className={`text-[10px] font-black uppercase h-7 px-2 py-0.5 w-full justify-between ${getStatusBadgeStyle(
                                 order.status,
@@ -535,25 +541,15 @@ export default function AdminOrders() {
 
                       {/* Courier & Tracking */}
                       <TableCell>
-                        {order.trackingNumber ? (
-                          <div className="flex items-center justify-between gap-1.5">
-                            <div className="min-w-0">
-                              <div className="font-mono font-bold text-brand-brown text-[11px] flex items-center">
-                                <Truck size={12} className="mr-1 text-brand-amber flex-shrink-0" />
-                                <span className="truncate">{order.trackingNumber}</span>
-                              </div>
-                              <div className="text-[10px] text-gray-500 mt-0.5 truncate">
-                                {order.courierName || 'Kerry Express'}
-                              </div>
+                        {order.shipments?.[0]?.trackingNumber ? (
+                          <div className="min-w-0">
+                            <div className="font-mono font-bold text-brand-brown text-[11px] flex items-center">
+                              <Truck size={12} className="mr-1 text-brand-amber flex-shrink-0" />
+                              <span className="truncate">{order.shipments[0].trackingNumber}</span>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => handleOpenFulfill(order)}
-                              title={language === 'th' ? 'แก้ไขเลขพัสดุ' : 'Edit tracking code'}
-                              className="text-[10px] text-brand-amber hover:text-amber-700 font-bold underline cursor-pointer whitespace-nowrap"
-                            >
-                              {language === 'th' ? 'แก้ไข' : 'Edit'}
-                            </button>
+                            <div className="text-[10px] text-gray-500 mt-0.5 truncate">
+                              {order.shipments[0].courierName || 'Kerry Express'}
+                            </div>
                           </div>
                         ) : order.status === 'PROCESSING' ? (
                           <PermissionGate
@@ -628,13 +624,26 @@ export default function AdminOrders() {
           isOpen={isFulfillModalOpen}
           onClose={() => setIsFulfillModalOpen(false)}
           orderNumber={orderToFulfill.orderNumber}
-          initialCourier={orderToFulfill.courierName}
-          initialTrackingNumber={orderToFulfill.trackingNumber}
+          initialCourier={orderToFulfill.shipments?.[0]?.courierName}
+          initialTrackingNumber={orderToFulfill.shipments?.[0]?.trackingNumber}
           onSuccess={(courierName, trackingNum) => {
             setOrdersList((prev) =>
               prev.map((o) =>
                 o.id === orderToFulfill.id
-                  ? { ...o, status: 'SHIPPED', courierName, trackingNumber: trackingNum }
+                  ? {
+                      ...o,
+                      status: 'SHIPPED',
+                      shipments: [
+                        {
+                          id: o.shipments?.[0]?.id ?? `ship-${Date.now()}`,
+                          courierName,
+                          trackingNumber: trackingNum,
+                          status: 'IN_TRANSIT',
+                          shippedAt: new Date().toISOString(),
+                          timeline: o.shipments?.[0]?.timeline ?? [],
+                        },
+                      ],
+                    }
                   : o,
               ),
             );
@@ -662,7 +671,7 @@ export default function AdminOrders() {
                   {selectedOrder.orderNumber}
                 </h3>
                 <p className="text-xs text-gray-400">
-                  {t('orders.detail.orderedAt')} {selectedOrder.createdAt}
+                  {t('orders.detail.orderedAt')} {formatOrderDateTime(selectedOrder.placedAt, language)}
                 </p>
               </div>
               <button
@@ -681,13 +690,17 @@ export default function AdminOrders() {
                   <MapPin size={12} className="mr-1 text-brand-amber" />
                   {t('orders.detail.shippingAddress')}
                 </div>
-                <p className="font-bold text-brand-brown text-sm">{selectedOrder.customerName}</p>
-                <p className="text-gray-600 mt-0.5">{selectedOrder.shippingAddress}</p>
+                <p className="font-bold text-brand-brown text-sm">
+                  {selectedOrder.shippingAddress?.recipientName ?? 'Valued Customer'}
+                </p>
+                <p className="text-gray-600 mt-0.5">
+                  {selectedOrder.shippingAddress?.addressLine1 ?? '-'}
+                </p>
                 <p className="text-gray-600">
-                  {selectedOrder.city} {selectedOrder.postalCode}
+                  {selectedOrder.shippingAddress?.province ?? ''} {selectedOrder.shippingAddress?.postalCode ?? ''}
                 </p>
                 <p className="text-gray-500 mt-1">
-                  {t('orders.detail.phone')} {selectedOrder.customerPhone}
+                  {t('orders.detail.phone')} {selectedOrder.shippingAddress?.phone ?? '-'}
                 </p>
               </div>
               <div>
@@ -697,17 +710,21 @@ export default function AdminOrders() {
                 </div>
                 <p className="text-gray-700">
                   {t('orders.detail.paymentMethod')}{' '}
-                  <strong className="text-brand-brown">{selectedOrder.paymentMethod}</strong>
+                  <strong className="text-brand-brown">
+                    {selectedOrder.payment?.paymentMethod ?? 'CREDIT_CARD'}
+                  </strong>
                 </p>
                 <p className="text-gray-700 mt-1">
                   {t('orders.detail.status')}{' '}
                   <strong className="text-brand-amber">{selectedOrder.status}</strong>
                 </p>
-                {selectedOrder.trackingNumber && (
+                {selectedOrder.shipments?.[0]?.trackingNumber && (
                   <p className="text-gray-700 mt-1">
                     {t('orders.detail.tracking')}{' '}
-                    <span className="font-mono font-bold text-brand-brown">{selectedOrder.trackingNumber}</span>{' '}
-                    ({selectedOrder.courierName})
+                    <span className="font-mono font-bold text-brand-brown">
+                      {selectedOrder.shipments[0].trackingNumber}
+                    </span>{' '}
+                    ({selectedOrder.shipments[0].courierName})
                   </p>
                 )}
               </div>
@@ -722,25 +739,30 @@ export default function AdminOrders() {
               {selectedOrder.items.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100 text-xs">
                   <div className="flex items-center space-x-3">
-                    <img
-                      src={item.image}
-                      alt={item.productName}
-                      className="w-12 h-14 object-cover border border-gray-200"
-                    />
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.productName}
+                        className="w-12 h-14 object-cover border border-gray-200"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    ) : null}
                     <div>
                       <div className="font-bold text-brand-brown text-sm">{item.productName}</div>
                       <div className="text-gray-500">
-                        {t('orders.detail.size')} {item.size} • {t('orders.detail.color')} {item.color} •{' '}
+                        {item.variantInfo} •{' '}
                         {t('orders.detail.quantity')} {item.quantity} {t('orders.detail.pieces')}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="font-bold font-mono text-brand-brown text-sm">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${(item.unitPrice * item.quantity).toFixed(2)}
                     </div>
                     <div className="text-gray-400 text-[11px]">
-                      ${item.price.toFixed(2)} {t('orders.detail.perUnit')}
+                      ${item.unitPrice.toFixed(2)} {t('orders.detail.perUnit')}
                     </div>
                   </div>
                 </div>

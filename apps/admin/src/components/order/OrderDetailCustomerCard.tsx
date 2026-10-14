@@ -1,29 +1,27 @@
 import { MapPin, CreditCard, Mail, Phone, User } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import type { AdminOrder } from '../../data/adminData';
+import type { ApiOrderAddress, ApiPaymentSummary, OrderStatus } from '@repo/types';
 
 export interface OrderDetailCustomerCardProps {
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  shippingAddress: string;
-  city: string;
-  postalCode: string;
-  paymentMethod: string;
-  status: AdminOrder['status'];
+  shippingAddress?: ApiOrderAddress;
+  payment?: ApiPaymentSummary;
+  status: OrderStatus;
+  customerEmail?: string;
 }
 
 export function OrderDetailCustomerCard({
-  customerName,
-  customerEmail,
-  customerPhone,
   shippingAddress,
-  city,
-  postalCode,
-  paymentMethod,
+  payment,
   status,
+  customerEmail = 'customer@nida.com',
 }: OrderDetailCustomerCardProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
+  const recipientName = shippingAddress?.recipientName ?? 'Valued Customer';
+  const phone = shippingAddress?.phone ?? '-';
+  const addressLine1 = shippingAddress?.addressLine1 ?? '-';
+  const province = shippingAddress?.province ?? '-';
+  const postalCode = shippingAddress?.postalCode ?? '-';
+  const paymentMethod = payment?.paymentMethod ?? 'CREDIT_CARD';
 
   return (
     <div
@@ -38,9 +36,7 @@ export function OrderDetailCustomerCard({
               {t('orders.detail.customerTitle')}
             </h3>
             <p className="text-[11px] text-gray-500 mt-0.5">
-              {language === 'th'
-                ? 'ข้อมูลผู้รับ สถานที่จัดส่ง และช่องทางการชำระเงิน'
-                : 'Customer recipient, shipping address, and payment method'}
+              {t('orders.detail.customerSubtitle')}
             </p>
           </div>
           <User size={16} className="text-brand-amber" />
@@ -52,10 +48,10 @@ export function OrderDetailCustomerCard({
           <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xs space-y-2">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-full bg-brand-brown text-white flex items-center justify-center font-black text-xs">
-                {customerName.slice(0, 1).toUpperCase()}
+                {recipientName.slice(0, 1).toUpperCase()}
               </div>
               <div>
-                <div className="font-bold text-brand-brown text-sm">{customerName}</div>
+                <div className="font-bold text-brand-brown text-sm">{recipientName}</div>
                 <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                   {t('orders.detail.recipient')}
                 </div>
@@ -69,7 +65,7 @@ export function OrderDetailCustomerCard({
               </div>
               <div className="flex items-center space-x-2">
                 <Phone size={13} className="text-gray-400 flex-shrink-0" />
-                <span className="font-mono">{customerPhone}</span>
+                <span className="font-mono">{phone}</span>
               </div>
             </div>
           </div>
@@ -80,9 +76,9 @@ export function OrderDetailCustomerCard({
               <MapPin size={12} className="mr-1 text-brand-amber" />
               <span>{t('orders.detail.deliveryAddress')}</span>
             </div>
-            <p className="font-bold text-brand-brown">{shippingAddress}</p>
+            <p className="font-bold text-brand-brown">{addressLine1}</p>
             <p className="text-gray-600">
-              {city} {postalCode}
+              {province} {postalCode}
             </p>
           </div>
 
@@ -106,8 +102,8 @@ export function OrderDetailCustomerCard({
                 }`}
               >
                 {status === 'CANCELLED'
-                  ? language === 'th' ? 'ยกเลิก' : 'Cancelled'
-                  : language === 'th' ? 'ชำระเงินสำเร็จ' : 'Captured'}
+                  ? t('orders.detail.paymentCancelled')
+                  : t('orders.detail.paymentCaptured')}
               </span>
             </div>
           </div>

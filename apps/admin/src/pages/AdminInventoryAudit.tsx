@@ -18,13 +18,12 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
 import type { StockMovement } from '../data/adminData';
-import { INITIAL_MOVEMENTS } from '../data/adminData';
 
 export default function AdminInventoryAudit() {
   const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
 
-  const [movementsList, setMovementsList] = useState<StockMovement[]>(INITIAL_MOVEMENTS);
+  const [movementsList, setMovementsList] = useState<StockMovement[]>([]);
   const [typeFilter, setTypeFilter] = useState<'all' | 'RESTOCK' | 'ORDER_DEDUCT' | 'DAMAGE' | 'ADJUSTMENT'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'qty_desc' | 'qty_asc'>('newest');
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
@@ -37,7 +36,7 @@ export default function AdminInventoryAudit() {
   const loadMovements = async () => {
     try {
       const data = await inventoryRequester.getMovements();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setMovementsList(
           data.map((m) => ({
             id: m.id,
@@ -51,9 +50,12 @@ export default function AdminInventoryAudit() {
             timestamp: m.createdAt.replace('T', ' ').slice(0, 16),
           })),
         );
+      } else {
+        setMovementsList([]);
       }
-    } catch {
-      // Gracefully maintain INITIAL_MOVEMENTS if endpoint fails or empty
+    } catch (err: unknown) {
+      console.warn('Backend movements unavailable:', err);
+      setMovementsList([]);
     }
   };
 

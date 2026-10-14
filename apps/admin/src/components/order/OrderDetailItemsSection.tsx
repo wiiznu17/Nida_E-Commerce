@@ -1,19 +1,19 @@
 import { Package } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import type { AdminOrder } from '../../data/adminData';
+import type { ApiOrderItem } from '@repo/types';
 
 export interface OrderDetailItemsSectionProps {
-  items: AdminOrder['items'];
+  items: ApiOrderItem[];
   totalAmount: number;
 }
 
 export function OrderDetailItemsSection({
-  items,
+  items = [],
   totalAmount,
 }: OrderDetailItemsSectionProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + (item.unitPrice ?? 0) * (item.quantity ?? 1), 0);
 
   return (
     <div
@@ -28,13 +28,11 @@ export function OrderDetailItemsSection({
               {t('orders.detail.itemsTitle')}
             </h3>
             <p className="text-[11px] text-gray-500 mt-0.5">
-              {language === 'th'
-                ? `ประกอบด้วยสินค้าทั้งหมด ${items.length} รายการที่สั่งซื้อ`
-                : `Total ${items.length} items included in this order`}
+              {t('orders.detail.itemsSubtitle').replace('{count}', String(items.length))}
             </p>
           </div>
           <span className="font-mono text-xs font-bold text-gray-500">
-            {items.reduce((acc, i) => acc + i.quantity, 0)} {t('orders.detail.pieces')}
+            {items.reduce((acc, i) => acc + (i.quantity ?? 1), 0)} {t('orders.detail.pieces')}
           </span>
         </div>
 
@@ -43,21 +41,21 @@ export function OrderDetailItemsSection({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50/50 text-[10px] font-black uppercase tracking-wider text-gray-500">
-                <th className="py-2.5 px-4 w-16 text-center">{language === 'th' ? 'รูป' : 'Image'}</th>
-                <th className="py-2.5 px-4 min-w-[180px]">{language === 'th' ? 'สินค้า / ขนาด / สี' : 'Product & Variant'}</th>
-                <th className="py-2.5 px-4 w-28 text-right">{language === 'th' ? 'ราคาต่อชิ้น' : 'Unit Price'}</th>
-                <th className="py-2.5 px-4 w-20 text-center">{language === 'th' ? 'จำนวน' : 'Qty'}</th>
-                <th className="py-2.5 px-4 w-28 text-right">{language === 'th' ? 'ยอดรวม' : 'Line Total'}</th>
+                <th className="py-2.5 px-4 w-16 text-center">{t('orders.detail.tableImage')}</th>
+                <th className="py-2.5 px-4 min-w-[180px]">{t('orders.detail.tableProductVariant')}</th>
+                <th className="py-2.5 px-4 w-28 text-right">{t('orders.detail.tableUnitPrice')}</th>
+                <th className="py-2.5 px-4 w-20 text-center">{t('orders.detail.tableQuantity')}</th>
+                <th className="py-2.5 px-4 w-28 text-right">{t('orders.detail.tableLineTotal')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {items.map((item, index) => (
-                <tr key={index} className="hover:bg-brand-cream/30 transition-colors">
+                <tr key={item.id || index} className="hover:bg-brand-cream/30 transition-colors">
                   {/* Image */}
                   <td className="py-3 px-4 text-center">
-                    {item.image ? (
+                    {item.imageUrl ? (
                       <img
-                        src={item.image}
+                        src={item.imageUrl}
                         alt={item.productName}
                         className="w-12 h-14 object-cover border border-gray-200 rounded-2xs inline-block"
                       />
@@ -75,19 +73,14 @@ export function OrderDetailItemsSection({
                     </div>
                     <div className="flex items-center space-x-2 mt-1">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[10px] font-bold bg-brand-cream border border-brand-border text-brand-brown">
-                        {language === 'th' ? 'ไซส์' : 'Size'}: {item.size}
+                        {item.variantInfo || 'Standard'}
                       </span>
-                      {item.color && item.color !== 'Standard' && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[10px] font-bold bg-gray-100 text-gray-700">
-                          {item.color}
-                        </span>
-                      )}
                     </div>
                   </td>
 
                   {/* Unit Price */}
                   <td className="py-3 px-4 text-right font-mono font-bold text-gray-700">
-                    ${item.price.toFixed(2)}
+                    ${(item.unitPrice ?? 0).toFixed(2)}
                   </td>
 
                   {/* Quantity */}
@@ -97,7 +90,7 @@ export function OrderDetailItemsSection({
 
                   {/* Line Total */}
                   <td className="py-3 px-4 text-right font-mono font-black text-brand-brown text-sm">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ${((item.unitPrice ?? 0) * (item.quantity ?? 1)).toFixed(2)}
                   </td>
                 </tr>
               ))}

@@ -1,7 +1,6 @@
 import { Check, Clock, Truck, CheckCircle2, XCircle } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect } from '../ui';
-import type { AdminOrder } from '../../data/adminData';
 import {
   ALLOWED_STATUS_TRANSITIONS,
   validateOrderStatusTransition,
@@ -9,9 +8,9 @@ import {
 import type { OrderStatus } from '@repo/types';
 
 export interface OrderDetailStatusCardProps {
-  currentStatus: AdminOrder['status'];
-  selectedStatus: AdminOrder['status'];
-  onStatusChange: (status: AdminOrder['status']) => void;
+  currentStatus: OrderStatus;
+  selectedStatus: OrderStatus;
+  onStatusChange: (status: OrderStatus) => void;
   hasTracking: boolean;
   totalAmount: number;
   totalItems: number;
@@ -37,23 +36,25 @@ export function OrderDetailStatusCard({
 }: OrderDetailStatusCardProps) {
   const { t } = useLanguage();
 
-  const milestones: { key: AdminOrder['status']; label: string; icon: typeof Check }[] = [
+  const milestones: { key: OrderStatus; label: string; icon: typeof Check }[] = [
     { key: 'PAID', label: t('orders.detail.stepPaid'), icon: Check },
     { key: 'PROCESSING', label: t('orders.detail.stepProcessing'), icon: Clock },
     { key: 'SHIPPED', label: t('orders.detail.stepShipped'), icon: Truck },
     { key: 'DELIVERED', label: t('orders.detail.stepDelivered'), icon: CheckCircle2 },
   ];
 
-  const getStepState = (stepKey: AdminOrder['status']) => {
+  const getStepState = (stepKey: OrderStatus) => {
     if (selectedStatus === 'CANCELLED') return 'cancelled';
 
-    const orderHierarchy: Record<AdminOrder['status'], number> = {
+    const orderHierarchy: Record<OrderStatus, number> = {
       PENDING: 0,
       PAID: 1,
+      PREORDER_AWAITING_STOCK: 2,
       PROCESSING: 2,
       SHIPPED: 3,
       DELIVERED: 4,
       CANCELLED: 0,
+      REFUNDED: 0,
     };
 
     const currentLevel = orderHierarchy[selectedStatus] ?? 0;
@@ -64,17 +65,17 @@ export function OrderDetailStatusCard({
     return 'pending';
   };
 
-  const allowedNext = ALLOWED_STATUS_TRANSITIONS[currentStatus as OrderStatus] ?? [];
+  const allowedNext = ALLOWED_STATUS_TRANSITIONS[currentStatus] ?? [];
 
-  const handleStatusSelect = (val: AdminOrder['status']) => {
+  const handleStatusSelect = (val: OrderStatus) => {
     if (val === currentStatus) {
       onStatusChange(val);
       return;
     }
 
     const validation = validateOrderStatusTransition(
-      currentStatus as OrderStatus,
-      val as OrderStatus,
+      currentStatus,
+      val,
       hasTracking,
     );
 
@@ -133,7 +134,7 @@ export function OrderDetailStatusCard({
             </label>
             <DropdownSelect
               value={selectedStatus}
-              onChange={(val) => handleStatusSelect(val as AdminOrder['status'])}
+              onChange={(val) => handleStatusSelect(val as OrderStatus)}
               options={statusOptions}
             />
           </div>

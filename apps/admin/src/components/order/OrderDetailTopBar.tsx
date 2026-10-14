@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, Send, Check, Printer } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import type { AdminOrder } from '../../data/adminData';
+import type { OrderStatus } from '@repo/types';
 
 export interface OrderDetailTopBarProps {
   orderNumber: string;
-  createdAt: string;
-  status: AdminOrder['status'];
+  placedAt: string;
+  status: OrderStatus;
   isUpdating: boolean;
   hasUnsavedStatus: boolean;
   onSaveStatus: () => void;
@@ -19,7 +19,7 @@ export interface OrderDetailTopBarProps {
 
 export function OrderDetailTopBar({
   orderNumber,
-  createdAt,
+  placedAt,
   status,
   isUpdating,
   hasUnsavedStatus,
@@ -71,7 +71,7 @@ export function OrderDetailTopBar({
             {status}
           </span>
           <span className="hidden md:inline-block text-[11px] text-gray-400 font-mono">
-            {createdAt}
+            {placedAt}
           </span>
         </div>
 

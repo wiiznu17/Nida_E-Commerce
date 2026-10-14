@@ -21,16 +21,16 @@ import {
   TableCell,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
-import { orderRequester, mapApiOrderToAdminOrder } from '../api/requester/orderRequester';
+import { orderRequester } from '../api/requester/orderRequester';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
-import type { AdminOrder, InventoryItem } from '../data/adminData';
-import { INITIAL_ORDERS, INITIAL_INVENTORY } from '../data/adminData';
-import type { OrderStatus } from '@repo/types';
+import type { InventoryItem } from '../data/adminData';
+import type { ApiOrder, OrderStatus } from '@repo/types';
+import { formatOrderDateTime } from '../utils';
 
 export default function AdminDashboard() {
   const { language } = useLanguage();
-  const [ordersList, setOrdersList] = useState<AdminOrder[]>(INITIAL_ORDERS);
-  const [inventoryList, setInventoryList] = useState<InventoryItem[]>(INITIAL_INVENTORY);
+  const [ordersList, setOrdersList] = useState<ApiOrder[]>([]);
+  const [inventoryList, setInventoryList] = useState<InventoryItem[]>([]);
   const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('today');
 
   const loadData = async () => {
@@ -39,31 +39,27 @@ export default function AdminDashboard() {
         orderRequester.getOrders().catch(() => []),
         inventoryRequester.getInventory().catch(() => []),
       ]);
-      if (apiOrders.length > 0) {
-        setOrdersList(apiOrders.map(mapApiOrderToAdminOrder));
-      }
-      if (apiInv.length > 0) {
-        setInventoryList(
-          apiInv.map((api) => ({
-            id: api.id,
-            sku: api.sku,
-            productId: api.productId,
-            productName: api.productName,
-            department: String(api.department),
-            category: api.categoryName,
-            size: api.size,
-            colorName: api.colorName,
-            colorHex: api.colorHex,
-            availableStock: api.quantityAvailable,
-            reservedStock: api.quantityReserved,
-            lowStockThreshold: api.lowStockThreshold,
-            price: api.price,
-            image: api.imageUrl ?? '',
-          })),
-        );
-      }
-    } catch {
-      // Fallback to initial seeds
+      setOrdersList(apiOrders ?? []);
+      setInventoryList(
+        apiInv.map((api) => ({
+          id: api.id,
+          sku: api.sku,
+          productId: api.productId,
+          productName: api.productName,
+          department: String(api.department),
+          category: api.categoryName,
+          size: api.size,
+          colorName: api.colorName,
+          colorHex: api.colorHex,
+          availableStock: api.quantityAvailable,
+          reservedStock: api.quantityReserved,
+          lowStockThreshold: api.lowStockThreshold,
+          price: api.price,
+          image: api.imageUrl ?? '',
+        })),
+      );
+    } catch (err: unknown) {
+      console.warn('Backend dashboard data unavailable:', err);
     }
   };
 
@@ -73,12 +69,12 @@ export default function AdminDashboard() {
 
   const updateOrderStatus = async (
     orderId: string,
-    newStatus: AdminOrder['status'],
+    newStatus: OrderStatus,
     courierName?: string,
     trackingNumber?: string,
   ) => {
     try {
-      await orderRequester.updateStatus(orderId, newStatus as OrderStatus, courierName, trackingNumber);
+      await orderRequester.updateStatus(orderId, newStatus, courierName, trackingNumber);
       await loadData();
     } catch {
       setOrdersList((prev) =>
@@ -468,12 +464,16 @@ export default function AdminDashboard() {
                   <TableCell className="font-mono font-bold text-brand-brown">
                     {order.orderNumber}
                     <span className="block text-[10px] font-sans text-gray-400 font-normal mt-0.5">
-                      {order.createdAt}
+                      {formatOrderDateTime(order.placedAt, language)}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <div className="font-bold text-brand-brown">{order.customerName}</div>
-                    <div className="text-[11px] text-gray-500">{order.customerEmail}</div>
+                    <div className="font-bold text-brand-brown">
+                      {order.shippingAddress?.recipientName ?? 'Valued Customer'}
+                    </div>
+                    <div className="text-[11px] text-gray-500">
+                      {order.shippingAddress?.phone ?? '-'}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <span className="text-gray-800">

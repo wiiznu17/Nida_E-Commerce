@@ -1,20 +1,20 @@
-import type { AdminOrder } from '../../../data/adminData';
+import type { ApiOrder } from '@repo/types';
 
 export type PrintDocumentType = 'LABEL' | 'PACKING_SLIP';
 
 export interface OrderPrintModalProps {
   isOpen: boolean;
   onClose: () => void;
-  orders: AdminOrder[];
+  orders: ApiOrder[];
   initialDocType?: PrintDocumentType;
 }
 
 export interface OrderShippingLabelProps {
-  order: AdminOrder;
+  order: ApiOrder;
 }
 
 export interface OrderPackingSlipProps {
-  order: AdminOrder;
+  order: ApiOrder;
 }
 
 export interface OrderBarcodeProps {
