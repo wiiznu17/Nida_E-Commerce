@@ -9,7 +9,14 @@ import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RedisService } from '../../core/redis/redis.service.js';
 import { MailerService } from '../../core/mailer/mailer.service.js';
 import { InviteAdminUserDto } from './dto/admin-user.dto.js';
-import type { ApiAdminUser, ApiAdminRole, InviteAdminResponse } from '@repo/types';
+import {
+  AuditActionType,
+  AdminPermission,
+  type ApiAdminUser,
+  type ApiAdminRole,
+  type InviteAdminResponse,
+} from '@repo/types';
+import { AuditLogService } from '../audit-log/audit-log.service.js';
 
 const INVITE_TOKEN_EXPIRATION_SECONDS = 172800; // 48 hours
 
@@ -19,6 +26,7 @@ export class AdminUsersService {
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
     private readonly mailer: MailerService,
+    private readonly auditLog: AuditLogService,
   ) {}
 
   async getAdminUsers(): Promise<ApiAdminUser[]> {
@@ -163,6 +171,20 @@ export class AdminUsersService {
       createdAt: newAdmin.createdAt.toISOString(),
     };
 
+    void this.auditLog.recordLog({
+      actionType: AuditActionType.CREATE,
+      targetTable: 'admin_users',
+      targetId: newAdmin.id,
+      permission: AdminPermission.ADMIN_USERS_MANAGE,
+      performedRole: role.roleCode,
+      newValuesJson: {
+        email: newAdmin.email,
+        fullName: newAdmin.fullName,
+        username: newAdmin.username,
+        roleCode: role.roleCode,
+      },
+    });
+
     return {
       adminUser: apiAdmin,
       inviteToken,
@@ -213,6 +235,23 @@ export class AdminUsersService {
     if (!updated.isActive) {
       await this.redis.revokeAllUserSessions(targetId);
     }
+
+    void this.auditLog.recordLog({
+      adminId: currentAdminId,
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'admin_users',
+      targetId: updated.id,
+      permission: AdminPermission.ADMIN_USERS_MANAGE,
+      performedRole: updated.role.roleCode,
+      oldValuesJson: {
+        isActive: target.isActive,
+        email: target.email,
+        fullName: target.fullName,
+      },
+      newValuesJson: {
+        isActive: updated.isActive,
+      },
+    });
 
     return {
       id: updated.id,

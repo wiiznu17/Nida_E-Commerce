@@ -14,3 +14,4 @@ export * from './inventory.types.js';
 export * from './user.types.js';
 export * from './auth.types.js';
 export * from './taxonomy.js';
+export * from './audit.types.js';

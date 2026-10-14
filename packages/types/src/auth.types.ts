@@ -19,6 +19,7 @@ export enum AdminPermission {
   COUPONS_READ = 'COUPONS_READ',
   COUPONS_MANAGE = 'COUPONS_MANAGE',
   ADMIN_USERS_MANAGE = 'ADMIN_USERS_MANAGE',
+  AUDIT_LOGS_READ = 'AUDIT_LOGS_READ',
 }
 
 export interface ApiAdminRole {

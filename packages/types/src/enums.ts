@@ -101,6 +101,16 @@ export const RefundStatus = {
 } as const;
 export type RefundStatus = (typeof RefundStatus)[keyof typeof RefundStatus];
 
+// --- Audit Action ---
+export const AuditActionType = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  STATUS_CHANGE: 'STATUS_CHANGE',
+  REFUND: 'REFUND',
+} as const;
+export type AuditActionType = (typeof AuditActionType)[keyof typeof AuditActionType];
+
 // ====================================================
 // UI-only Enums (ไม่มีใน Prisma schema)
 // ====================================================

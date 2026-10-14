@@ -12,6 +12,7 @@ import { OrdersModule } from './modules/orders/orders.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { UploadModule } from './modules/upload/upload.module.js';
+import { AuditLogModule } from './modules/audit-log/audit-log.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -28,6 +29,7 @@ import { AppService } from './app.service.js';
     AdminModule,
     HealthModule,
     UploadModule,
+    AuditLogModule,
   ],
   controllers: [AppController],
   providers: [

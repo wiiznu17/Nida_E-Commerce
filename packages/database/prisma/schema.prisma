@@ -699,14 +699,18 @@ model AdminAuditLog {
   actionType    AuditActionType @map("action_type")
   targetTable   String          @map("target_table") @db.VarChar(50)
   targetId      String          @map("target_id") @db.VarChar(100)
+  permission    String?         @map("permission") @db.VarChar(50)
+  performedRole String?         @map("performed_role") @db.VarChar(50)
   oldValuesJson Json?           @map("old_values_json")
   newValuesJson Json?           @map("new_values_json")
   ipAddress     String?         @map("ip_address") @db.VarChar(45)
+  userAgent     String?         @map("user_agent") @db.VarChar(255)
   createdAt     DateTime        @default(now()) @map("created_at")
 
   admin         AdminUser?      @relation(fields: [adminId], references: [id], onDelete: SetNull)
 
   @@index([targetTable, targetId])
+  @@index([permission])
   @@index([createdAt])
   @@map("admin_audit_logs")
 }

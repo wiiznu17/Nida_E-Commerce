@@ -11,6 +11,7 @@ import {
   ExternalLink,
   X,
   ShieldCheck,
+  ShieldAlert,
   LogOut,
 } from 'lucide-react';
 import { NidaLogo } from '../common/NidaLogo';
@@ -136,6 +137,15 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                 altPath: '/users',
                 label: t('nav.staffManagement'),
                 icon: Users,
+                badge: null,
+                badgeColor: undefined,
+              },
+              {
+                id: 'auditLogs',
+                path: '/admin/audit-logs',
+                altPath: '/audit-logs',
+                label: t('nav.auditLogs'),
+                icon: ShieldAlert,
                 badge: null,
                 badgeColor: undefined,
               },

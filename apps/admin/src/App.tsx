@@ -18,6 +18,7 @@ import AdminInventory from './pages/AdminInventory';
 import AdminInventoryAudit from './pages/AdminInventoryAudit';
 import AdminPromotions from './pages/AdminPromotions';
 import { AdminUsers } from './pages/AdminUsers';
+import AdminAuditLogs from './pages/AdminAuditLogs';
 
 const router = createBrowserRouter([
   // Public-only Auth Routes (If already logged in, redirect to /admin)
@@ -59,6 +60,8 @@ const router = createBrowserRouter([
       { path: '/admin/promotions', element: <AdminPromotions /> },
       { path: '/users', element: <AdminUsers /> },
       { path: '/admin/users', element: <AdminUsers /> },
+      { path: '/audit-logs', element: <AdminAuditLogs /> },
+      { path: '/admin/audit-logs', element: <AdminAuditLogs /> },
     ],
   },
 

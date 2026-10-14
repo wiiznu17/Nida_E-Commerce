@@ -8,12 +8,14 @@ import { RestockInventoryDto } from './dto/restock-inventory.dto.js';
 import { FulfillOrderDto } from './dto/fulfill-order.dto.js';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto.js';
 import type { InventoryItemWithRelations } from './types/admin.payloads.js';
-import type {
-  ApiInventoryItem,
-  ApiStockMovement,
-  ApiShipment,
-  ApiOrder,
-  ShipmentTimelineEntry,
+import {
+  AuditActionType,
+  AdminPermission,
+  type ApiInventoryItem,
+  type ApiStockMovement,
+  type ApiShipment,
+  type ApiOrder,
+  type ShipmentTimelineEntry,
 } from '@repo/types';
 import {
   StockChangeType,
@@ -22,13 +24,17 @@ import {
   Department,
   Prisma,
 } from '@repo/database';
+import { AuditLogService } from '../audit-log/audit-log.service.js';
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLog?: AuditLogService,
+  ) {}
 
   async getInventory(
     department?: Department,
@@ -163,6 +169,24 @@ export class AdminService {
       return updatedItem;
     });
 
+    void this.auditLog?.recordLog({
+      adminId: adminId ?? null,
+      actionType: AuditActionType.UPDATE,
+      targetTable: 'inventory_items',
+      targetId: updated.id,
+      permission: AdminPermission.INVENTORY_ADJUST,
+      oldValuesJson: {
+        quantityAvailable: inventoryItem.quantityAvailable,
+        sku: inventoryItem.variant.skuCode,
+      },
+      newValuesJson: {
+        quantityAvailable: newBalance,
+        quantityChange: quantity,
+        changeType: resolvedChangeType,
+        reasonNote,
+      },
+    });
+
     return this.mapInventoryItem(updated);
   }
 
@@ -248,6 +272,21 @@ export class AdminService {
       return createdShipment;
     });
 
+    void this.auditLog?.recordLog({
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'orders',
+      targetId: order.id,
+      permission: AdminPermission.ORDERS_FULFILL,
+      oldValuesJson: {
+        status: order.status,
+      },
+      newValuesJson: {
+        status: OrderStatus.SHIPPED,
+        courierName: dto.courierName,
+        trackingNumber: dto.trackingNumber,
+      },
+    });
+
     return {
       message: 'Order fulfilled successfully',
       orderNumber: order.orderNumber,
@@ -301,6 +340,20 @@ export class AdminService {
       }
 
       return updatedShipment;
+    });
+
+    void this.auditLog?.recordLog({
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'shipments',
+      targetId: updated.id,
+      permission: AdminPermission.ORDERS_FULFILL,
+      oldValuesJson: {
+        status: shipment.status,
+      },
+      newValuesJson: {
+        status: dto.status,
+        statusTitle: dto.statusTitle,
+      },
     });
 
     const freshLogs = await this.prisma.shipmentLog.findMany({
