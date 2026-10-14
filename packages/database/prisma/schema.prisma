@@ -46,6 +46,7 @@ enum PaymentMethod {
   CREDIT_CARD
   PROMPTPAY
   BANK_TRANSFER
+  COD
 }
 
 enum PaymentStatus {
@@ -76,6 +77,13 @@ enum ShipmentStatus {
   OUT_FOR_DELIVERY
   DELIVERED
   FAILED
+}
+
+enum CarrierCode {
+  KERRY_EXPRESS
+  FLASH_EXPRESS
+  THAILAND_POST_EMS
+  DHL_EXPRESS
 }
 
 enum DiscountType {
@@ -469,6 +477,7 @@ model Refund {
 model Shipment {
   id                String         @id @default(uuid()) @db.Uuid
   orderId           String         @map("order_id") @db.Uuid
+  carrierCode       CarrierCode?   @map("carrier_code")
   courierName       String         @map("courier_name") @db.VarChar(100)
   trackingNumber    String         @map("tracking_number") @db.VarChar(100)
   status            ShipmentStatus @default(LABEL_CREATED)

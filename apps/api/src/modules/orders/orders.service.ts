@@ -15,6 +15,7 @@ import type {
   TrackingResult,
   PaymentMethod,
   ShipmentStatus,
+  CarrierCode,
 } from '@repo/types';
 import {
   OrderStatus,
@@ -454,6 +455,7 @@ export class CustomerOrdersService {
     } | null;
     shipments: Array<{
       id: string;
+      carrierCode?: CarrierCode | null;
       courierName: string;
       trackingNumber: string;
       status: ShipmentStatus;
@@ -500,6 +502,7 @@ export class CustomerOrdersService {
 
     const shipments: ApiShipment[] = order.shipments.map((s) => ({
       id: s.id,
+      carrierCode: (s.carrierCode as CarrierCode | null) ?? undefined,
       courierName: s.courierName,
       trackingNumber: s.trackingNumber,
       status: s.status,

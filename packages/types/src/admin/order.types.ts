@@ -2,13 +2,9 @@
 // @repo/types — Admin Order Fulfillment & Carrier Types
 // ====================================================
 
-import type { ShipmentStatus } from '../common/enums.js';
+import type { CarrierCode, ShipmentStatus } from '../common/enums.js';
 
-export type CarrierCode =
-  | 'KERRY_EXPRESS'
-  | 'FLASH_EXPRESS'
-  | 'THAILAND_POST_EMS'
-  | 'DHL_EXPRESS';
+export type { CarrierCode };
 
 export interface CarrierBookingRequest {
   orderId: string;

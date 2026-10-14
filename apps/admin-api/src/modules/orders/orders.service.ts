@@ -380,6 +380,7 @@ export class OrdersService {
     await this.prisma.shipment.create({
       data: {
         orderId: existing.id,
+        carrierCode,
         courierName: booking.courierName,
         trackingNumber: booking.trackingNumber,
         status: ShipmentStatus.LABEL_CREATED,
@@ -503,6 +504,7 @@ export class OrdersService {
   private mapShipment(shipment: ShipmentWithLogs): ApiShipment {
     return {
       id: shipment.id,
+      carrierCode: (shipment.carrierCode as CarrierCode | null) ?? undefined,
       courierName: shipment.courierName,
       trackingNumber: shipment.trackingNumber,
       status: shipment.status as ShipmentStatus,

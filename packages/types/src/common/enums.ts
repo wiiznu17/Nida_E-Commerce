@@ -1,6 +1,7 @@
 // ====================================================
-// @repo/types — Shared Enums
+// @repo/types — Prisma Database Schema Enums
 // ====================================================
+// 100% matched with packages/database/prisma/schema.prisma
 // Uses `as const` object + type union pattern for 100% compatibility
 // with Prisma 7 generated enums and string literals.
 
@@ -33,6 +34,7 @@ export const PaymentMethod = {
   CREDIT_CARD: 'CREDIT_CARD',
   PROMPTPAY: 'PROMPTPAY',
   BANK_TRANSFER: 'BANK_TRANSFER',
+  COD: 'COD',
 } as const;
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
 
@@ -55,6 +57,15 @@ export const ShipmentStatus = {
   FAILED: 'FAILED',
 } as const;
 export type ShipmentStatus = (typeof ShipmentStatus)[keyof typeof ShipmentStatus];
+
+// --- Logistics & Carriers ---
+export const CarrierCode = {
+  KERRY_EXPRESS: 'KERRY_EXPRESS',
+  FLASH_EXPRESS: 'FLASH_EXPRESS',
+  THAILAND_POST_EMS: 'THAILAND_POST_EMS',
+  DHL_EXPRESS: 'DHL_EXPRESS',
+} as const;
+export type CarrierCode = (typeof CarrierCode)[keyof typeof CarrierCode];
 
 // --- Coupon & Promotion ---
 export const DiscountType = {
@@ -85,6 +96,16 @@ export const MembershipTier = {
 } as const;
 export type MembershipTier = (typeof MembershipTier)[keyof typeof MembershipTier];
 
+// --- Loyalty & Points ---
+export const PointChangeType = {
+  EARNED_ORDER: 'EARNED_ORDER',
+  REDEEMED_CHECKOUT: 'REDEEMED_CHECKOUT',
+  REFUND_CANCEL: 'REFUND_CANCEL',
+  MANUAL_ADJUSTMENT: 'MANUAL_ADJUSTMENT',
+  EXPIRED: 'EXPIRED',
+} as const;
+export type PointChangeType = (typeof PointChangeType)[keyof typeof PointChangeType];
+
 // --- Return ---
 export const ReturnStatus = {
   REQUESTED: 'REQUESTED',
@@ -112,38 +133,10 @@ export const AuditActionType = {
 } as const;
 export type AuditActionType = (typeof AuditActionType)[keyof typeof AuditActionType];
 
-// ====================================================
-// UI-only Enums (ไม่มีใน Prisma schema)
-// ====================================================
-
-export const SortBy = {
-  NEWEST: 'newest',
-  PRICE_ASC: 'price_asc',
-  PRICE_DESC: 'price_desc',
-  BESTSELLER: 'bestseller',
-  RATING: 'rating',
+// --- CMS & Marketing ---
+export const BannerPlacement = {
+  HERO_HOME: 'HERO_HOME',
+  COLLECTION_TOP: 'COLLECTION_TOP',
+  PROMO_BAR: 'PROMO_BAR',
 } as const;
-export type SortBy = (typeof SortBy)[keyof typeof SortBy];
-
-export const ProductTag = {
-  BESTSELLER: 'BESTSELLER',
-  NEW_ARRIVAL: 'NEW ARRIVAL',
-  SALE: 'SALE',
-  LIMITED_EDITION: 'LIMITED EDITION',
-  EXCLUSIVE: 'EXCLUSIVE',
-  PRE_ORDER: 'PRE-ORDER',
-} as const;
-export type ProductTag = (typeof ProductTag)[keyof typeof ProductTag];
-
-// --- Media & Storage ---
-export const UploadFolder = {
-  PRODUCTS: 'products',
-  CATEGORIES: 'categories',
-  BANNERS: 'banners',
-  AVATARS: 'avatars',
-  REVIEWS: 'reviews',
-  SLIPS: 'slips',
-  TEMP: 'temp',
-} as const;
-export type UploadFolder = (typeof UploadFolder)[keyof typeof UploadFolder];
-
+export type BannerPlacement = (typeof BannerPlacement)[keyof typeof BannerPlacement];

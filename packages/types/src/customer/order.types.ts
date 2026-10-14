@@ -2,7 +2,7 @@
 // @repo/types — Customer Order & Tracking Types (Storefront)
 // ====================================================
 
-import type { OrderStatus, PaymentMethod, PaymentStatus, ShipmentStatus } from '../common/enums.js';
+import type { CarrierCode, OrderStatus, PaymentMethod, PaymentStatus, ShipmentStatus } from '../common/enums.js';
 
 export interface ApiOrder {
   id: string;
@@ -60,6 +60,7 @@ export interface ApiPaymentSummary {
 
 export interface ApiShipment {
   id: string;
+  carrierCode?: CarrierCode;
   courierName: string;
   trackingNumber: string;
   status: ShipmentStatus;
