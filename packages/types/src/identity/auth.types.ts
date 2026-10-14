@@ -229,3 +229,28 @@ export interface ResetPasswordDto {
   token: string;
   password: string;
 }
+
+// ====================================================
+// CUSTOMER AUTH & OTP TYPES (Storefront)
+// ====================================================
+
+export interface RequestOtpResponse {
+  success: boolean;
+  message: string;
+  expiresInSeconds: number;
+}
+
+export interface VerifyOtpResponse {
+  success: boolean;
+  accessToken: string;
+  user: import('./user.types.js').ApiUser;
+  isNewUser: boolean;
+}
+
+export interface CustomerJwtPayload {
+  sub: string;
+  email: string;
+  role: 'CUSTOMER';
+  iat?: number;
+  exp?: number;
+}

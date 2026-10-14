@@ -74,7 +74,7 @@ export default function AdminInventoryAudit() {
   const restockCount = movementsList.filter((m) => m.changeType === 'RESTOCK').length;
   const orderDeductCount = movementsList.filter((m) => m.changeType === 'ORDER_DEDUCT').length;
   const damageCount = movementsList.filter((m) => m.changeType === 'DAMAGE').length;
-  const adjustmentCount = movementsList.filter((m) => m.changeType === 'ADJUSTMENT').length;
+  const adjustmentCount = movementsList.filter((m) => m.changeType === 'MANUAL_ADJUSTMENT').length;
 
   // Filtered and Sorted Movements
   const filteredMovements = movementsList
@@ -97,7 +97,7 @@ export default function AdminInventoryAudit() {
     })
     .sort((a, b) => {
       if (sortBy === 'newest') return b.createdAt.localeCompare(a.createdAt);
-      if (sortBy === 'oldest') return a.createdAt.localeCompare(b.createdAt);
+      if (sortBy === 'oldest') return a.createdAt.localeCompare(a.createdAt);
       if (sortBy === 'qty_desc') return b.quantityChange - a.quantityChange;
       if (sortBy === 'qty_asc') return a.quantityChange - b.quantityChange;
       return 0;
@@ -129,7 +129,7 @@ export default function AdminInventoryAudit() {
             {language === 'th' ? 'ชำรุด / QC' : 'Damage / QC'}
           </span>
         );
-      case 'ADJUSTMENT':
+      case 'MANUAL_ADJUSTMENT':
         return (
           <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
             {language === 'th' ? 'ปรับยอดตรวจนับ' : 'Adjustment'}
@@ -242,15 +242,15 @@ export default function AdminInventoryAudit() {
 
               <button
                 type="button"
-                onClick={() => handleTypeFilterChange('ADJUSTMENT')}
+                onClick={() => handleTypeFilterChange('MANUAL_ADJUSTMENT')}
                 className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-all cursor-pointer ${
-                  typeFilter === 'ADJUSTMENT'
+                  typeFilter === 'MANUAL_ADJUSTMENT'
                     ? 'bg-amber-600 text-white shadow-2xs font-black'
                     : 'text-amber-800 hover:bg-amber-50'
                 }`}
               >
                 <span
-                  className={`w-1.5 h-1.5 rounded-full ${typeFilter === 'ADJUSTMENT' ? 'bg-white' : 'bg-amber-500'}`}
+                  className={`w-1.5 h-1.5 rounded-full ${typeFilter === 'MANUAL_ADJUSTMENT' ? 'bg-white' : 'bg-amber-500'}`}
                 />
                 <span>
                   {t('inventoryAudit.filterAdjustment') || 'ปรับยอดตรวจนับ'} ({adjustmentCount})
@@ -291,7 +291,7 @@ export default function AdminInventoryAudit() {
                   value={typeFilter}
                   onChange={(val) => {
                     setTypeFilter(
-                      val as 'all' | 'RESTOCK' | 'ORDER_DEDUCT' | 'DAMAGE' | 'ADJUSTMENT',
+                      val as 'all' | 'RESTOCK' | 'ORDER_DEDUCT' | 'DAMAGE' | 'MANUAL_ADJUSTMENT',
                     );
                     setCurrentPage(1);
                   }}
@@ -313,7 +313,7 @@ export default function AdminInventoryAudit() {
                       label: language === 'th' ? 'ชำรุด (DAMAGE)' : 'Damage / QC',
                     },
                     {
-                      value: 'ADJUSTMENT',
+                      value: 'MANUAL_ADJUSTMENT',
                       label: language === 'th' ? 'ปรับยอด (ADJUST)' : 'Adjustment',
                     },
                   ]}
