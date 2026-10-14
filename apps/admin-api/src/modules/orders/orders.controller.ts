@@ -11,6 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { OrdersService } from './orders.service.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
+import { CarrierBookingDto } from './dto/carrier-booking.dto.js';
 import { OrderStatus } from '@repo/database';
 import { AdminPermission } from '@repo/types';
 import { RequirePermissions } from '../auth/decorators/index.js';
@@ -82,6 +83,25 @@ export class OrdersController {
       body.courierName,
       body.trackingNumber,
     );
+  }
+
+  @Post('orders/:id/carrier-booking')
+  @RequirePermissions(AdminPermission.ORDERS_FULFILL)
+  @ApiOperation({
+    summary: 'จองเลขพัสดุผ่านระบบขนส่งอัตโนมัติ (Carrier API Booking)',
+    description:
+      'จำลองการยิง API ไปยังระบบขนส่ง (Kerry / Flash / ไปรษณีย์ไทย / DHL) เพื่อจอง Tracking Number สร้าง Shipment และปรับสถานะออเดอร์เป็น SHIPPED',
+  })
+  @ApiParam({ name: 'id', description: 'Order ID หรือ Order Number' })
+  @ApiResponse({
+    status: 200,
+    description: 'จองเลขพัสดุสำเร็จ พร้อมอัปเดตข้อมูลการจัดส่ง',
+  })
+  async bookCarrierShipment(
+    @Param('id') id: string,
+    @Body() dto: CarrierBookingDto,
+  ) {
+    return this.ordersService.fulfillWithCarrier(id, dto.carrierCode);
   }
 
   @Get('shipments/track/:trackingNumber')

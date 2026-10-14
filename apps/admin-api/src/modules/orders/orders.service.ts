@@ -17,6 +17,7 @@ import type {
   ApiShipment,
   ShipmentTimelineEntry,
   TrackingResult,
+  CarrierCode,
 } from '@repo/types';
 import {
   OrderStatus,
@@ -24,12 +25,15 @@ import {
   PaymentStatus,
   ShipmentStatus,
 } from '@repo/database';
+import { validateOrderStatusTransition } from '@repo/validators';
+import { CarrierMockService } from './carrier/index.js';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService,
+    private readonly carrierMockService: CarrierMockService,
   ) {}
 
   async createOrder(dto: CreateOrderDto): Promise<ApiOrder> {
@@ -263,26 +267,136 @@ export class OrdersService {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
     const existing = await this.prisma.order.findFirst({
       where: isUuid ? { OR: [{ id }, { orderNumber: id }] } : { orderNumber: id },
+      include: {
+        shipments: {
+          orderBy: { createdAt: 'desc' },
+        },
+      },
     });
 
     if (!existing) {
       throw new NotFoundException(`Order "${id}" not found`);
     }
 
+    const hasTracking = Boolean(
+      trackingNumber?.trim() ||
+        existing.shipments?.some((s) => Boolean(s.trackingNumber?.trim())),
+    );
+
+    const validation = validateOrderStatusTransition(
+      existing.status as OrderStatus,
+      status,
+      hasTracking,
+    );
+
+    if (!validation.isValid) {
+      throw new BadRequestException(validation.error);
+    }
+
     if (courierName && trackingNumber) {
-      await this.prisma.shipment.create({
-        data: {
-          orderId: existing.id,
-          courierName,
-          trackingNumber,
-          status: ShipmentStatus.LABEL_CREATED,
-        },
-      });
+      const existingShipment = existing.shipments?.[0];
+      if (existingShipment) {
+        await this.prisma.shipment.update({
+          where: { id: existingShipment.id },
+          data: {
+            courierName,
+            trackingNumber: trackingNumber.trim(),
+            status: ShipmentStatus.LABEL_CREATED,
+          },
+        });
+      } else {
+        await this.prisma.shipment.create({
+          data: {
+            orderId: existing.id,
+            courierName,
+            trackingNumber: trackingNumber.trim(),
+            status: ShipmentStatus.LABEL_CREATED,
+          },
+        });
+      }
     }
 
     const updated = await this.prisma.order.update({
       where: { id: existing.id },
       data: { status },
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    images: { where: { isPrimary: true }, take: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+        shipments: {
+          include: { logs: { orderBy: { logTimestamp: 'desc' } } },
+          orderBy: { createdAt: 'desc' },
+        },
+        payment: true,
+      },
+    });
+
+    return this.mapOrder(updated);
+  }
+
+  async fulfillWithCarrier(
+    id: string,
+    carrierCode: CarrierCode,
+  ): Promise<ApiOrder> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const existing = await this.prisma.order.findFirst({
+      where: isUuid ? { OR: [{ id }, { orderNumber: id }] } : { orderNumber: id },
+      include: {
+        shipments: {
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Order "${id}" not found`);
+    }
+
+    const validation = validateOrderStatusTransition(
+      existing.status as OrderStatus,
+      OrderStatus.SHIPPED,
+      true,
+    );
+
+    if (!validation.isValid) {
+      throw new BadRequestException(validation.error);
+    }
+
+    const booking = await this.carrierMockService.bookConsignment(
+      existing.orderNumber,
+      carrierCode,
+    );
+
+    await this.prisma.shipment.create({
+      data: {
+        orderId: existing.id,
+        courierName: booking.courierName,
+        trackingNumber: booking.trackingNumber,
+        status: ShipmentStatus.LABEL_CREATED,
+        estimatedDelivery: booking.estimatedDelivery,
+        logs: {
+          create: {
+            statusTitle: booking.initialLogTitle,
+            statusDescription: booking.initialLogDescription,
+            location: booking.initialLocation,
+          },
+        },
+      },
+    });
+
+    const updated = await this.prisma.order.update({
+      where: { id: existing.id },
+      data: { status: OrderStatus.SHIPPED },
       include: {
         items: {
           include: {

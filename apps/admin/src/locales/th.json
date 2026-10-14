@@ -396,6 +396,9 @@
       "orderPrefix": "ออเดอร์ #",
       "courierPartner": "บริษัทขนส่ง (Courier Partner)",
       "trackingNumber": "หมายเลขพัสดุ (Tracking Number) *",
+      "autoGenerateTracking": "ขอเลขพัสดุอัตโนมัติ (Carrier API)",
+      "bookingInProgress": "กำลังขอเลขพัสดุ...",
+      "autoBookSuccess": "ออกเลขพัสดุ {tracking} จากระบบขนส่งสำเร็จ",
       "dispatchNote": "เมื่อกดยืนยัน ระบบจะปรับสถานะออเดอร์เป็น SHIPPED และลูกค้าสามารถติดตามสถานะสดได้ทันที",
       "cancel": "ยกเลิก",
       "confirm": "ยืนยันการจัดส่ง"

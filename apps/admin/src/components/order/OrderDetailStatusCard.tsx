@@ -2,27 +2,38 @@ import { Check, Clock, Truck, CheckCircle2, XCircle } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect } from '../ui';
 import type { AdminOrder } from '../../data/adminData';
+import {
+  ALLOWED_STATUS_TRANSITIONS,
+  validateOrderStatusTransition,
+} from '@repo/validators';
+import type { OrderStatus } from '@repo/types';
 
 export interface OrderDetailStatusCardProps {
+  currentStatus: AdminOrder['status'];
   selectedStatus: AdminOrder['status'];
   onStatusChange: (status: AdminOrder['status']) => void;
+  hasTracking: boolean;
   totalAmount: number;
   totalItems: number;
   paymentMethod: string;
   hasUnsavedStatus: boolean;
   isUpdating: boolean;
   onSaveStatus: () => void;
+  onOpenFulfill?: () => void;
 }
 
 export function OrderDetailStatusCard({
+  currentStatus,
   selectedStatus,
   onStatusChange,
+  hasTracking,
   totalAmount,
   totalItems,
   paymentMethod,
   hasUnsavedStatus,
   isUpdating,
   onSaveStatus,
+  onOpenFulfill,
 }: OrderDetailStatusCardProps) {
   const { t } = useLanguage();
 
@@ -52,6 +63,36 @@ export function OrderDetailStatusCard({
     if (currentLevel === stepLevel) return 'active';
     return 'pending';
   };
+
+  const allowedNext = ALLOWED_STATUS_TRANSITIONS[currentStatus as OrderStatus] ?? [];
+
+  const handleStatusSelect = (val: AdminOrder['status']) => {
+    if (val === currentStatus) {
+      onStatusChange(val);
+      return;
+    }
+
+    const validation = validateOrderStatusTransition(
+      currentStatus as OrderStatus,
+      val as OrderStatus,
+      hasTracking,
+    );
+
+    if (!validation.isValid && val === 'SHIPPED' && !hasTracking && onOpenFulfill) {
+      onOpenFulfill();
+      return;
+    }
+
+    onStatusChange(val);
+  };
+
+  const statusOptions = [
+    { value: currentStatus, label: `${currentStatus} (${t('orders.status.current') || 'Current'})` },
+    ...allowedNext.map((s) => ({
+      value: s,
+      label: s === 'SHIPPED' && !hasTracking ? `${s} (+Tracking)` : s,
+    })),
+  ];
 
   return (
     <div className="bg-white border border-brand-border rounded-md shadow-2xs overflow-hidden flex flex-col justify-between h-full">
@@ -92,14 +133,8 @@ export function OrderDetailStatusCard({
             </label>
             <DropdownSelect
               value={selectedStatus}
-              onChange={(val) => onStatusChange(val as AdminOrder['status'])}
-              options={[
-                { value: 'PAID', label: 'PAID (ชำระแล้ว)' },
-                { value: 'PROCESSING', label: 'PROCESSING (รอจัดเตรียม)' },
-                { value: 'SHIPPED', label: 'SHIPPED (จัดส่งแล้ว)' },
-                { value: 'DELIVERED', label: 'DELIVERED (ส่งมอบสำเร็จ)' },
-                { value: 'CANCELLED', label: 'CANCELLED (ยกเลิก)' },
-              ]}
+              onChange={(val) => handleStatusSelect(val as AdminOrder['status'])}
+              options={statusOptions}
             />
           </div>
 

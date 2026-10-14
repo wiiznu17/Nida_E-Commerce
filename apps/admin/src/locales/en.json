@@ -396,6 +396,9 @@
       "orderPrefix": "Order #",
       "courierPartner": "Courier Partner",
       "trackingNumber": "Tracking Number *",
+      "autoGenerateTracking": "Auto-Generate (Carrier API)",
+      "bookingInProgress": "Booking Tracking...",
+      "autoBookSuccess": "Carrier Tracking {tracking} generated successfully",
       "dispatchNote": "Upon confirmation, order status updates to SHIPPED and customers can track in real-time.",
       "cancel": "Cancel",
       "confirm": "Confirm Dispatch"

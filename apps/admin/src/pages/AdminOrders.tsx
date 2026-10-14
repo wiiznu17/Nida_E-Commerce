@@ -8,12 +8,9 @@ import {
   X,
   MapPin,
   CreditCard,
-  Send,
   Search,
   RotateCcw,
   Printer,
-  FileText,
-  Tag,
 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
@@ -36,8 +33,16 @@ import { STOREFRONT_URL } from '../config';
 import type { AdminOrder } from '../data/adminData';
 import { INITIAL_ORDERS } from '../data/adminData';
 import { PermissionGate } from '../components/common';
-import { OrderPrintModal, type PrintDocumentType } from '../components/order';
-import { AdminPermission, type ApiOrder, type OrderStatus } from '@repo/types';
+import { OrderPrintModal, OrderFulfillModal, type PrintDocumentType } from '../components/order';
+import {
+  AdminPermission,
+  type ApiOrder,
+  type OrderStatus,
+} from '@repo/types';
+import {
+  ALLOWED_STATUS_TRANSITIONS,
+  validateOrderStatusTransition,
+} from '@repo/validators';
 
 export function mapApiOrderToAdminOrder(api: ApiOrder): AdminOrder {
   return {
@@ -67,6 +72,27 @@ export function mapApiOrderToAdminOrder(api: ApiOrder): AdminOrder {
   };
 }
 
+export function formatOrderDateTime(dateStr: string, language: string): string {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const dateFormatted = d.toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+    const timeFormatted = d.toLocaleTimeString(language === 'th' ? 'th-TH' : 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    return `${dateFormatted}, ${timeFormatted}`;
+  } catch {
+    return dateStr;
+  }
+}
+
 export default function AdminOrders() {
   const { t, language } = useLanguage();
   const [ordersList, setOrdersList] = useState<AdminOrder[]>([]);
@@ -86,12 +112,9 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
   const [isFulfillModalOpen, setIsFulfillModalOpen] = useState(false);
   const [orderToFulfill, setOrderToFulfill] = useState<AdminOrder | null>(null);
-  const [courier, setCourier] = useState('Kerry Express TH');
-  const [trackingNumber, setTrackingNumber] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Bulk selection & Print states
-  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  // Print states
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [ordersToPrint, setOrdersToPrint] = useState<AdminOrder[]>([]);
   const [printDocType, setPrintDocType] = useState<PrintDocumentType>('LABEL');
@@ -102,11 +125,11 @@ export default function AdminOrders() {
       if (apiOrders && apiOrders.length > 0) {
         setOrdersList(apiOrders.map(mapApiOrderToAdminOrder));
       } else {
-        setOrdersList(INITIAL_ORDERS);
+        setOrdersList((prev) => (prev.length > 0 ? prev : INITIAL_ORDERS));
       }
     } catch (err: unknown) {
-      console.warn('Backend orders unavailable, using seed orders:', err);
-      setOrdersList(INITIAL_ORDERS);
+      console.warn('Backend orders unavailable, keeping seed orders:', err);
+      setOrdersList((prev) => (prev.length > 0 ? prev : INITIAL_ORDERS));
     }
   };
 
@@ -141,52 +164,52 @@ export default function AdminOrders() {
 
   const handleOpenFulfill = (order: AdminOrder) => {
     setOrderToFulfill(order);
-    setTrackingNumber(order.trackingNumber || `KER-${Math.floor(100000000 + Math.random() * 900000000)}TH`);
     setIsFulfillModalOpen(true);
   };
 
-  const handleFulfillSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!orderToFulfill) return;
+  const handleQuickStatusChange = async (orderId: string, newStatus: AdminOrder['status']) => {
+    const targetOrder = ordersList.find((o) => o.id === orderId || o.orderNumber === orderId);
+    if (!targetOrder || newStatus === targetOrder.status) return;
 
-    try {
-      await orderRequester.fulfill(orderToFulfill.orderNumber, {
-        courierName: courier,
-        trackingNumber,
-      });
-      await loadOrders();
-    } catch {
-      setOrdersList((prev) =>
-        prev.map((o) =>
-          o.id === orderToFulfill.id
-            ? { ...o, status: 'SHIPPED', courierName: courier, trackingNumber }
-            : o,
-        ),
+    const hasTracking = Boolean(targetOrder.trackingNumber?.trim());
+    const validation = validateOrderStatusTransition(
+      targetOrder.status as OrderStatus,
+      newStatus as OrderStatus,
+      hasTracking,
+    );
+
+    if (!validation.isValid) {
+      if (newStatus === 'SHIPPED' && targetOrder.status === 'PROCESSING' && !hasTracking) {
+        showToast(
+          language === 'th'
+            ? 'กรุณาระบุเลขพัสดุ (Tracking Number) เพื่อจัดส่งสินค้า'
+            : 'Please specify carrier tracking number to dispatch this order',
+        );
+        handleOpenFulfill(targetOrder);
+        return;
+      }
+
+      showToast(
+        language === 'th'
+          ? (validation.errorTh ?? validation.error ?? 'ไม่สามารถเปลี่ยนสถานะได้')
+          : (validation.error ?? 'Invalid status transition'),
       );
+      return;
     }
 
-    setIsFulfillModalOpen(false);
-    showToast(
-      language === 'th'
-        ? `อัปเดตคำสั่งซื้อ #${orderToFulfill.orderNumber} เป็น 'จัดส่งแล้ว' พร้อมเลขพัสดุ ${trackingNumber}`
-        : `Order #${orderToFulfill.orderNumber} fulfilled with tracking ${trackingNumber}`,
-    );
-  };
-
-  const handleQuickStatusChange = async (orderId: string, newStatus: AdminOrder['status']) => {
     try {
       await orderRequester.updateStatus(orderId, newStatus as OrderStatus);
       await loadOrders();
-    } catch {
-      setOrdersList((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
+      showToast(
+        language === 'th'
+          ? `เปลี่ยนสถานะคำสั่งซื้อเป็น ${newStatus} เรียบร้อยแล้ว`
+          : `Order status updated to ${newStatus}`,
+      );
+    } catch (err: unknown) {
+      showToast(
+        err instanceof Error ? err.message : 'Failed to update order status',
       );
     }
-    showToast(
-      language === 'th'
-        ? `เปลี่ยนสถานะคำสั่งซื้อเป็น ${newStatus} เรียบร้อยแล้ว`
-        : `Order status updated to ${newStatus}`,
-    );
   };
 
   // Status counts for top tabs
@@ -230,31 +253,9 @@ export default function AdminOrders() {
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  const handleToggleSelectAll = () => {
-    if (selectedOrderIds.length === paginatedOrders.length && paginatedOrders.length > 0) {
-      setSelectedOrderIds([]);
-    } else {
-      setSelectedOrderIds(paginatedOrders.map((o) => o.id));
-    }
-  };
-
-  const handleToggleSelectRow = (id: string) => {
-    setSelectedOrderIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
-  };
-
   const handleOpenPrintSingle = (order: AdminOrder) => {
     setOrdersToPrint([order]);
     setPrintDocType('LABEL');
-    setIsPrintModalOpen(true);
-  };
-
-  const handleOpenBulkPrint = (type: PrintDocumentType) => {
-    const targetOrders = ordersList.filter((o) => selectedOrderIds.includes(o.id));
-    if (targetOrders.length === 0) return;
-    setOrdersToPrint(targetOrders);
-    setPrintDocType(type);
     setIsPrintModalOpen(true);
   };
 
@@ -478,31 +479,19 @@ export default function AdminOrders() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-12 text-center">
-                    <input
-                      type="checkbox"
-                      checked={
-                        paginatedOrders.length > 0 &&
-                        paginatedOrders.every((o) => selectedOrderIds.includes(o.id))
-                      }
-                      onChange={handleToggleSelectAll}
-                      aria-label="Select all orders"
-                      className="rounded-xs border-gray-300 text-brand-brown focus:ring-brand-brown cursor-pointer"
-                    />
-                  </TableHead>
-                  <TableHead className="w-48">{t('orders.table.orderNumber')}</TableHead>
-                  <TableHead className="w-56">{t('orders.table.customer')}</TableHead>
-                  <TableHead className="min-w-[200px]">{t('orders.table.items')}</TableHead>
-                  <TableHead className="w-32 text-right">{t('orders.table.total')}</TableHead>
-                  <TableHead className="w-36 text-center">{t('orders.table.status')}</TableHead>
-                  <TableHead className="w-48">{t('orders.table.courier')}</TableHead>
-                  <TableHead className="w-32 text-right whitespace-nowrap">{t('orders.table.actions')}</TableHead>
+                  <TableHead className="w-[15%] min-w-[125px]">{t('orders.table.orderNumber')}</TableHead>
+                  <TableHead className="w-[12%] min-w-[100px]">{t('orders.table.customer')}</TableHead>
+                  <TableHead className="w-[31%] min-w-[200px]">{t('orders.table.items')}</TableHead>
+                  <TableHead className="w-[10%] min-w-[80px] text-right">{t('orders.table.total')}</TableHead>
+                  <TableHead className="w-[13%] min-w-[110px] text-center">{t('orders.table.status')}</TableHead>
+                  <TableHead className="w-[13%] min-w-[120px]">{t('orders.table.courier')}</TableHead>
+                  <TableHead className="w-[6%] min-w-[65px] text-right">{t('orders.table.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedOrders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="p-8">
+                    <TableCell colSpan={7} className="p-8">
                       <EmptyState
                         icon={Package}
                         title={t('orders.emptyTitle')}
@@ -512,52 +501,46 @@ export default function AdminOrders() {
                   </TableRow>
                 ) : (
                   paginatedOrders.map((order) => (
-                    <TableRow
-                      key={order.id}
-                      className={selectedOrderIds.includes(order.id) ? 'bg-amber-50/40' : ''}
-                    >
-                      {/* Checkbox */}
-                      <TableCell className="text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedOrderIds.includes(order.id)}
-                          onChange={() => handleToggleSelectRow(order.id)}
-                          aria-label={`Select order ${order.orderNumber}`}
-                          className="rounded-xs border-gray-300 text-brand-brown focus:ring-brand-brown cursor-pointer"
-                        />
-                      </TableCell>
+                    <TableRow key={order.id}>
 
                       {/* Order # & Date */}
-                      <TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <Link
                           to={`/admin/orders/${order.orderNumber}`}
-                          className="font-mono font-black text-brand-brown text-sm hover:underline hover:text-brand-dark-brown"
+                          className="font-mono font-bold text-brand-brown text-xs hover:underline hover:text-brand-dark-brown block"
                         >
                           {order.orderNumber}
                         </Link>
-                        <div className="text-[11px] text-gray-400 font-normal mt-0.5">{order.createdAt}</div>
+                        <div className="text-[10px] text-gray-500 font-medium mt-0.5">
+                          {formatOrderDateTime(order.createdAt, language)}
+                        </div>
                       </TableCell>
 
                       {/* Customer */}
                       <TableCell>
-                        <div className="font-bold text-brand-brown">{order.customerName}</div>
-                        <div className="text-[11px] text-gray-500 truncate max-w-[200px]">{order.customerEmail}</div>
-                        <div className="text-[11px] text-gray-400 font-mono">{order.customerPhone}</div>
+                        <div className="font-bold text-brand-brown text-xs">
+                          {order.customerName}
+                        </div>
                       </TableCell>
 
                       {/* Purchased Items */}
                       <TableCell>
-                        <div className="flex items-center space-x-2">
-                          {order.items[0]?.image && (
+                        <div className="flex items-center space-x-2.5">
+                          {order.items[0]?.image ? (
                             <img
                               src={order.items[0].image}
                               alt=""
-                              className="w-8 h-10 object-cover border border-gray-200 flex-shrink-0"
+                              className="w-9 h-11 object-cover rounded-xs border border-gray-200 flex-shrink-0"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                              }}
                             />
-                          )}
-                          <div>
-                            <div className="font-bold text-gray-800 line-clamp-1">{order.items[0]?.productName}</div>
-                            <div className="text-[10px] text-gray-500">
+                          ) : null}
+                          <div className="min-w-0 flex-1">
+                            <div className="font-bold text-gray-800 text-xs leading-snug line-clamp-2">
+                              {order.items[0]?.productName}
+                            </div>
+                            <div className="text-[10px] text-gray-500 mt-0.5">
                               {language === 'th' ? 'ไซส์' : 'Size'} {order.items[0]?.size} • {order.items[0]?.quantity}{' '}
                               {t('orders.detail.pieces')}
                               {order.items.length > 1 &&
@@ -568,44 +551,60 @@ export default function AdminOrders() {
                       </TableCell>
 
                       {/* Amount & Payment Method */}
-                      <TableCell className="text-right">
-                        <div className="font-mono font-black text-brand-brown text-sm">
+                      <TableCell className="text-right whitespace-nowrap">
+                        <div className="font-mono font-bold text-brand-brown text-xs">
                           ${order.totalAmount.toFixed(2)}
                         </div>
                         <div className="text-[10px] text-gray-500 mt-0.5">{order.paymentMethod}</div>
                       </TableCell>
 
                       {/* Status Selector */}
-                      <TableCell>
-                        <DropdownSelect
-                          value={order.status}
-                          onChange={(val) => handleQuickStatusChange(order.id, val as AdminOrder['status'])}
-                          options={[
-                            { value: 'PAID', label: 'PAID' },
-                            { value: 'PROCESSING', label: 'PROCESSING' },
-                            { value: 'SHIPPED', label: 'SHIPPED' },
-                            { value: 'DELIVERED', label: 'DELIVERED' },
-                            { value: 'CANCELLED', label: 'CANCELLED' },
-                          ]}
-                          className={`text-[11px] font-black uppercase h-7.5 px-2.5 py-1 ${getStatusBadgeStyle(
-                            order.status,
-                          )}`}
-                        />
+                      <TableCell className="text-center">
+                        {(() => {
+                          const allowedNext = ALLOWED_STATUS_TRANSITIONS[order.status as OrderStatus] ?? [];
+                          const rowStatusOptions = [
+                            { value: order.status, label: order.status },
+                            ...allowedNext.map((s) => ({
+                              value: s,
+                              label: s === 'SHIPPED' && !order.trackingNumber ? `${s} (+Tracking)` : s,
+                            })),
+                          ];
+                          return (
+                            <DropdownSelect
+                              value={order.status}
+                              onChange={(val) => handleQuickStatusChange(order.id, val as AdminOrder['status'])}
+                              options={rowStatusOptions}
+                              className={`text-[10px] font-black uppercase h-7 px-2 py-0.5 w-full justify-between ${getStatusBadgeStyle(
+                                order.status,
+                              )}`}
+                            />
+                          );
+                        })()}
                       </TableCell>
 
                       {/* Courier & Tracking */}
                       <TableCell>
                         {order.trackingNumber ? (
-                          <div>
-                            <div className="font-mono font-bold text-brand-brown text-[11px] flex items-center">
-                              <Truck size={12} className="mr-1 text-brand-amber flex-shrink-0" />
-                              <span className="truncate">{order.trackingNumber}</span>
+                          <div className="flex items-center justify-between gap-1.5">
+                            <div className="min-w-0">
+                              <div className="font-mono font-bold text-brand-brown text-[11px] flex items-center">
+                                <Truck size={12} className="mr-1 text-brand-amber flex-shrink-0" />
+                                <span className="truncate">{order.trackingNumber}</span>
+                              </div>
+                              <div className="text-[10px] text-gray-500 mt-0.5 truncate">
+                                {order.courierName || 'Kerry Express'}
+                              </div>
                             </div>
-                            <div className="text-[10px] text-gray-500 mt-0.5 truncate">
-                              {order.courierName || 'Kerry Express'}
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenFulfill(order)}
+                              title={language === 'th' ? 'แก้ไขเลขพัสดุ' : 'Edit tracking code'}
+                              className="text-[10px] text-brand-amber hover:text-amber-700 font-bold underline cursor-pointer whitespace-nowrap"
+                            >
+                              {language === 'th' ? 'แก้ไข' : 'Edit'}
+                            </button>
                           </div>
-                        ) : (
+                        ) : order.status === 'PROCESSING' ? (
                           <PermissionGate
                             permission={AdminPermission.ORDERS_FULFILL}
                             fallback={
@@ -617,32 +616,37 @@ export default function AdminOrders() {
                             <button
                               type="button"
                               onClick={() => handleOpenFulfill(order)}
-                              className="bg-brand-brown hover:bg-brand-dark-brown text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-xs transition-colors cursor-pointer whitespace-nowrap"
+                              className="bg-brand-brown hover:bg-brand-dark-brown text-white text-[10px] font-bold uppercase px-2 py-1 rounded-xs transition-colors cursor-pointer whitespace-nowrap"
                             >
                               {t('orders.fulfill.addTracking')}
                             </button>
                           </PermissionGate>
+                        ) : (
+                          <span className="text-[10px] text-gray-400 font-mono italic">
+                            {order.status === 'PAID'
+                              ? language === 'th' ? 'รอเตรียมสินค้า' : 'Awaiting Prep'
+                              : t('orders.status.unfulfilled') || 'Pending'}
+                          </span>
                         )}
                       </TableCell>
 
                       {/* Actions */}
-                      <TableCell className="text-right">
-                        <div className="inline-flex items-center space-x-1">
+                      <TableCell className="text-right whitespace-nowrap">
+                        <div className="inline-flex items-center justify-end space-x-1">
                           <button
                             type="button"
                             onClick={() => handleOpenPrintSingle(order)}
-                            className="inline-flex items-center p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors"
+                            className="p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors"
                             title={t('orders.print.printAction')}
                           >
                             <Printer size={15} />
                           </button>
                           <Link
                             to={`/admin/orders/${order.orderNumber}`}
-                            className="inline-flex items-center space-x-1 p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors whitespace-nowrap"
-                            title={t('orders.detail.viewInvoice')}
+                            className="p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors"
+                            title={t('orders.detail.viewDetails')}
                           >
                             <Eye size={15} />
-                            <span className="font-bold text-[11px] whitespace-nowrap">{t('orders.detail.viewDetails')}</span>
                           </Link>
                         </div>
                       </TableCell>
@@ -668,81 +672,29 @@ export default function AdminOrders() {
       </div>
 
       {/* Fulfill / Add Tracking Modal */}
-      {isFulfillModalOpen && orderToFulfill && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/50 backdrop-blur-xs">
-          <div className="bg-white border border-brand-border max-w-md w-full p-6 shadow-2xl relative">
-            <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200">
-              <div>
-                <h3 className="text-base font-black uppercase text-brand-brown">
-                  {t('orders.fulfill.modalTitle')}
-                </h3>
-                <p className="text-xs text-gray-500">
-                  {t('orders.fulfill.orderPrefix')}
-                  {orderToFulfill.orderNumber}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsFulfillModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleFulfillSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                  {t('orders.fulfill.courierPartner')}
-                </label>
-                <DropdownSelect
-                  value={courier}
-                  onChange={setCourier}
-                  options={[
-                    { value: 'Kerry Express TH', label: 'Kerry Express TH' },
-                    { value: 'Flash Express', label: 'Flash Express' },
-                    { value: 'Thailand Post EMS', label: 'Thailand Post EMS' },
-                    { value: 'DHL Express International', label: 'DHL Express International' },
-                  ]}
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                  {t('orders.fulfill.trackingNumber')}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={trackingNumber}
-                  onChange={(e) => setTrackingNumber(e.target.value)}
-                  className="w-full border border-gray-300 px-3 py-2 font-mono font-bold text-sm focus:outline-none focus:border-brand-brown"
-                />
-              </div>
-
-              <p className="text-[11px] text-gray-500">
-                {t('orders.fulfill.dispatchNote')}
-              </p>
-
-              <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setIsFulfillModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 font-bold text-gray-600 hover:bg-gray-100 cursor-pointer"
-                >
-                  {t('orders.fulfill.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white font-bold uppercase tracking-wider shadow-xs flex items-center space-x-1.5 cursor-pointer"
-                >
-                  <Send size={14} />
-                  <span>{t('orders.fulfill.confirm')}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {orderToFulfill && (
+        <OrderFulfillModal
+          isOpen={isFulfillModalOpen}
+          onClose={() => setIsFulfillModalOpen(false)}
+          orderNumber={orderToFulfill.orderNumber}
+          initialCourier={orderToFulfill.courierName}
+          initialTrackingNumber={orderToFulfill.trackingNumber}
+          onSuccess={(courierName, trackingNum) => {
+            setOrdersList((prev) =>
+              prev.map((o) =>
+                o.id === orderToFulfill.id
+                  ? { ...o, status: 'SHIPPED', courierName, trackingNumber: trackingNum }
+                  : o,
+              ),
+            );
+            showToast(
+              language === 'th'
+                ? `อัปเดตคำสั่งซื้อ #${orderToFulfill.orderNumber} เป็น 'จัดส่งแล้ว' พร้อมเลขพัสดุ ${trackingNum}`
+                : `Order #${orderToFulfill.orderNumber} fulfilled with tracking ${trackingNum}`,
+            );
+            loadOrders();
+          }}
+        />
       )}
 
       {/* Order Detail Modal */}
@@ -874,50 +826,6 @@ export default function AdminOrders() {
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Floating Bulk Action Bar */}
-      {selectedOrderIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#2B1810] text-[#FAF7F2] px-5 py-3 rounded-md shadow-2xl border border-white/20 flex items-center space-x-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span className="text-xs font-bold font-mono">
-              {t('orders.bulk.selectedCount').replace('{count}', String(selectedOrderIds.length))}
-            </span>
-          </div>
-
-          <div className="h-4 w-px bg-white/20" />
-
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => handleOpenBulkPrint('LABEL')}
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-brand-amber hover:bg-amber-600 text-white rounded-xs text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-xs"
-            >
-              <Tag size={13} />
-              <span>{t('orders.bulk.printLabels')}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleOpenBulkPrint('PACKING_SLIP')}
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-[#FAF7F2] rounded-xs text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border border-white/20"
-            >
-              <FileText size={13} />
-              <span>{t('orders.bulk.printSlips')}</span>
-            </button>
-          </div>
-
-          <div className="h-4 w-px bg-white/20" />
-
-          <button
-            type="button"
-            onClick={() => setSelectedOrderIds([])}
-            className="text-xs text-gray-300 hover:text-white underline cursor-pointer"
-          >
-            {t('orders.bulk.clearSelection')}
-          </button>
         </div>
       )}
 

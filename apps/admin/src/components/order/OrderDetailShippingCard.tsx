@@ -122,18 +122,26 @@ export function OrderDetailShippingCard({
 
       {/* Footer Action */}
       <div className="p-4 border-t border-brand-cream bg-gray-50/50 flex justify-end">
-        <button
-          type="button"
-          onClick={onOpenFulfill}
-          className="inline-flex items-center space-x-1.5 px-4 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer"
-        >
-          <Send size={13} />
-          <span>
-            {trackingNumber
-              ? language === 'th' ? 'แก้ไขข้อมูลพัสดุ' : 'Update Shipping Code'
-              : t('orders.fulfill.addTracking')}
+        {status !== 'PROCESSING' && !trackingNumber ? (
+          <span className="text-[11px] text-gray-400 font-mono italic py-1.5 px-3">
+            {language === 'th'
+              ? 'รอเปลี่ยนสถานะเป็น PROCESSING ก่อนจัดส่ง'
+              : 'Awaiting PROCESSING state before dispatch'}
           </span>
-        </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onOpenFulfill}
+            className="inline-flex items-center space-x-1.5 px-4 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer"
+          >
+            <Send size={13} />
+            <span>
+              {trackingNumber
+                ? language === 'th' ? 'แก้ไขข้อมูลพัสดุ' : 'Update Shipping Code'
+                : t('orders.fulfill.addTracking')}
+            </span>
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Package, X, Send } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { Alert, EmptyState, DropdownSelect } from '../components/ui';
+import { Alert, EmptyState } from '../components/ui';
 import {
   OrderDetailTopBar,
   OrderDetailStatusCard,
@@ -10,14 +10,16 @@ import {
   OrderDetailShippingCard,
   OrderDetailCustomerCard,
   OrderPrintModal,
+  OrderFulfillModal,
 } from '../components/order';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
 import { STOREFRONT_URL } from '../config';
 import type { AdminOrder } from '../data/adminData';
 import { INITIAL_ORDERS } from '../data/adminData';
-import { mapApiOrderToAdminOrder } from './AdminOrders';
+import { mapApiOrderToAdminOrder, formatOrderDateTime } from './AdminOrders';
 import type { OrderStatus } from '@repo/types';
+import { validateOrderStatusTransition } from '@repo/validators';
 
 export default function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -32,10 +34,8 @@ export default function AdminOrderDetail() {
   // Print modal state
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
-  // Fulfill modal states
+  // Fulfill modal state
   const [isFulfillModalOpen, setIsFulfillModalOpen] = useState(false);
-  const [courier, setCourier] = useState('Kerry Express TH');
-  const [trackingNumberInput, setTrackingNumberInput] = useState('');
 
   const loadOrder = async () => {
     if (!id) return;
@@ -45,8 +45,6 @@ export default function AdminOrderDetail() {
         const mapped = mapApiOrderToAdminOrder(apiOrder);
         setOrder(mapped);
         setSelectedStatus(mapped.status);
-        if (mapped.courierName) setCourier(mapped.courierName);
-        if (mapped.trackingNumber) setTrackingNumberInput(mapped.trackingNumber);
         return;
       }
     } catch {
@@ -59,8 +57,6 @@ export default function AdminOrderDetail() {
     if (localFound) {
       setOrder(localFound);
       setSelectedStatus(localFound.status);
-      if (localFound.courierName) setCourier(localFound.courierName);
-      if (localFound.trackingNumber) setTrackingNumberInput(localFound.trackingNumber);
     } else {
       setOrder(null);
     }
@@ -86,60 +82,52 @@ export default function AdminOrderDetail() {
 
   const handleSaveStatus = async () => {
     if (!order || !hasUnsavedStatus) return;
+
+    const hasTracking = Boolean(order.trackingNumber?.trim());
+    const validation = validateOrderStatusTransition(
+      order.status as OrderStatus,
+      selectedStatus as OrderStatus,
+      hasTracking,
+    );
+
+    if (!validation.isValid) {
+      if (selectedStatus === 'SHIPPED' && order.status === 'PROCESSING' && !hasTracking) {
+        showToast(
+          language === 'th'
+            ? 'กรุณาระบุเลขพัสดุ (Tracking Number) เพื่อจัดส่งสินค้า'
+            : 'Please specify carrier tracking number to dispatch this order',
+        );
+        setIsFulfillModalOpen(true);
+        return;
+      }
+
+      showToast(
+        language === 'th'
+          ? (validation.errorTh ?? validation.error ?? 'ไม่สามารถเปลี่ยนสถานะได้')
+          : (validation.error ?? 'Invalid status transition'),
+      );
+      setSelectedStatus(order.status);
+      return;
+    }
+
     setIsUpdating(true);
     try {
       await orderRequester.updateStatus(order.id, selectedStatus as OrderStatus);
-      setOrder((prev) => (prev ? { ...prev, status: selectedStatus } : null));
-    } catch {
-      setOrder((prev) => (prev ? { ...prev, status: selectedStatus } : null));
-    } finally {
-      setIsUpdating(false);
+      await loadOrder();
       showToast(
         language === 'th'
           ? `อัปเดตสถานะออเดอร์ #${order.orderNumber} เป็น ${selectedStatus} เรียบร้อยแล้ว`
           : `Order #${order.orderNumber} status updated to ${selectedStatus}`,
       );
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Failed to update order status');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleOpenFulfillModal = () => {
-    if (!order) return;
-    setTrackingNumberInput(
-      order.trackingNumber || `KER-${Math.floor(100000000 + Math.random() * 900000000)}TH`,
-    );
     setIsFulfillModalOpen(true);
-  };
-
-  const handleFulfillSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!order) return;
-
-    try {
-      await orderRequester.fulfill(order.orderNumber, {
-        courierName: courier,
-        trackingNumber: trackingNumberInput,
-      });
-      await loadOrder();
-    } catch {
-      setOrder((prev) =>
-        prev
-          ? {
-              ...prev,
-              status: 'SHIPPED',
-              courierName: courier,
-              trackingNumber: trackingNumberInput,
-            }
-          : null,
-      );
-      setSelectedStatus('SHIPPED');
-    }
-
-    setIsFulfillModalOpen(false);
-    showToast(
-      language === 'th'
-        ? `บันทึกการจัดส่งพัสดุสำหรับออเดอร์ #${order.orderNumber} สำเร็จ`
-        : `Order #${order.orderNumber} dispatched with tracking ${trackingNumberInput}`,
-    );
   };
 
   if (!order) {
@@ -171,13 +159,13 @@ export default function AdminOrderDetail() {
   return (
     <AdminLayout
       title={`${t('orders.detail.orderPrefix')}${order.orderNumber}`}
-      subtitle={`${t('orders.detail.orderedAt')} ${order.createdAt} • ${order.customerName}`}
+      subtitle={`${t('orders.detail.orderedAt')} ${formatOrderDateTime(order.createdAt, language)} • ${order.customerName}`}
     >
       <div className="space-y-5">
         {/* Sticky Top Bar matching FormTopBar */}
         <OrderDetailTopBar
           orderNumber={order.orderNumber}
-          createdAt={order.createdAt}
+          createdAt={formatOrderDateTime(order.createdAt, language)}
           status={order.status}
           isUpdating={isUpdating}
           hasUnsavedStatus={hasUnsavedStatus}
@@ -209,14 +197,17 @@ export default function AdminOrderDetail() {
 
           <div className="lg:col-span-4 flex flex-col">
             <OrderDetailStatusCard
+              currentStatus={order.status}
               selectedStatus={selectedStatus}
               onStatusChange={setSelectedStatus}
+              hasTracking={Boolean(order.trackingNumber)}
               totalAmount={order.totalAmount}
               totalItems={order.items.reduce((sum, i) => sum + i.quantity, 0)}
               paymentMethod={order.paymentMethod}
               hasUnsavedStatus={hasUnsavedStatus}
               isUpdating={isUpdating}
               onSaveStatus={handleSaveStatus}
+              onOpenFulfill={handleOpenFulfillModal}
             />
           </div>
         </div>
@@ -228,7 +219,7 @@ export default function AdminOrderDetail() {
               courierName={order.courierName}
               trackingNumber={order.trackingNumber}
               status={order.status}
-              createdAt={order.createdAt}
+              createdAt={formatOrderDateTime(order.createdAt, language)}
               onOpenFulfill={handleOpenFulfillModal}
             />
           </div>
@@ -249,81 +240,26 @@ export default function AdminOrderDetail() {
       </div>
 
       {/* Fulfill / Add Tracking Modal */}
-      {isFulfillModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/50 backdrop-blur-xs">
-          <div className="bg-white border border-brand-border max-w-md w-full p-6 shadow-2xl relative rounded-xs">
-            <div className="flex justify-between items-center pb-3 mb-4 border-b border-gray-200">
-              <div>
-                <h3 className="text-base font-black uppercase text-brand-brown">
-                  {t('orders.fulfill.modalTitle')}
-                </h3>
-                <p className="text-xs text-gray-500">
-                  {t('orders.fulfill.orderPrefix')}
-                  {order.orderNumber}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsFulfillModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleFulfillSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                  {t('orders.fulfill.courierPartner')}
-                </label>
-                <DropdownSelect
-                  value={courier}
-                  onChange={setCourier}
-                  options={[
-                    { value: 'Kerry Express TH', label: 'Kerry Express TH' },
-                    { value: 'Flash Express', label: 'Flash Express' },
-                    { value: 'Thailand Post EMS', label: 'Thailand Post EMS' },
-                    { value: 'DHL Express International', label: 'DHL Express International' },
-                  ]}
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
-                  {t('orders.fulfill.trackingNumber')}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={trackingNumberInput}
-                  onChange={(e) => setTrackingNumberInput(e.target.value)}
-                  className="w-full border border-gray-300 px-3 py-2 font-mono font-bold text-sm focus:outline-none focus:border-brand-brown rounded-xs"
-                />
-              </div>
-
-              <p className="text-[11px] text-gray-500">
-                {t('orders.fulfill.dispatchNote')}
-              </p>
-
-              <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setIsFulfillModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 font-bold text-gray-600 hover:bg-gray-100 rounded-xs cursor-pointer"
-                >
-                  {t('orders.fulfill.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white font-bold uppercase tracking-wider shadow-xs flex items-center space-x-1.5 rounded-xs cursor-pointer"
-                >
-                  <Send size={14} />
-                  <span>{t('orders.fulfill.confirm')}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {order && (
+        <OrderFulfillModal
+          isOpen={isFulfillModalOpen}
+          onClose={() => setIsFulfillModalOpen(false)}
+          orderNumber={order.orderNumber}
+          initialCourier={order.courierName}
+          initialTrackingNumber={order.trackingNumber}
+          onSuccess={(courierName, trackingNumber) => {
+            setOrder((prev) =>
+              prev ? { ...prev, status: 'SHIPPED', courierName, trackingNumber } : null,
+            );
+            setSelectedStatus('SHIPPED');
+            showToast(
+              language === 'th'
+                ? `บันทึกการจัดส่งพัสดุสำหรับออเดอร์ #${order.orderNumber} สำเร็จ`
+                : `Order #${order.orderNumber} dispatched with tracking ${trackingNumber}`,
+            );
+            loadOrder();
+          }}
+        />
       )}
 
       <OrderPrintModal

@@ -2,11 +2,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OrdersService } from './orders.service.js';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PaymentMethod, OrderStatus, ShipmentStatus } from '@repo/types';
+import { CarrierMockService } from './carrier/index.js';
 
 describe('OrdersService', () => {
   let service: OrdersService;
   let prismaMock: any;
   let couponsServiceMock: any;
+  let carrierMockService: CarrierMockService;
 
   beforeEach(() => {
     prismaMock = {
@@ -16,6 +18,8 @@ describe('OrdersService', () => {
       order: {
         create: vi.fn(),
         findUnique: vi.fn(),
+        findFirst: vi.fn(),
+        update: vi.fn(),
       },
       orderItem: {
         create: vi.fn(),
@@ -40,6 +44,7 @@ describe('OrdersService', () => {
       },
       shipment: {
         findFirst: vi.fn(),
+        create: vi.fn(),
       },
       $transaction: vi.fn(async (callback) => callback(prismaMock)),
     };
@@ -48,7 +53,13 @@ describe('OrdersService', () => {
       calculateCheckout: vi.fn(),
     };
 
-    service = new OrdersService(prismaMock, couponsServiceMock);
+    carrierMockService = new CarrierMockService();
+
+    service = new OrdersService(
+      prismaMock,
+      couponsServiceMock,
+      carrierMockService,
+    );
   });
 
   describe('createOrder', () => {
@@ -330,4 +341,153 @@ describe('OrdersService', () => {
       expect(result.shipment.timeline).toHaveLength(1);
     });
   });
+
+  describe('fulfillWithCarrier', () => {
+    it('throws NotFoundException if order does not exist', async () => {
+      prismaMock.order.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.fulfillWithCarrier('NON_EXISTING', 'FLASH_EXPRESS'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('books consignment, creates shipment and updates order to SHIPPED', async () => {
+      const mockOrder = {
+        id: 'order-123',
+        orderNumber: 'NIDA-20261014-ABC1',
+        status: OrderStatus.PROCESSING,
+        currency: 'THB',
+        placedAt: new Date(),
+        items: [],
+        shippingAddressSnapshot: {
+          recipientName: 'Test Recipient',
+          phone: '0812345678',
+        },
+        payment: null,
+        shipments: [],
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(mockOrder);
+      prismaMock.shipment.create.mockResolvedValue({
+        id: 'ship-new',
+        orderId: mockOrder.id,
+        courierName: 'Flash Express',
+        trackingNumber: 'TH1234567890A',
+        status: ShipmentStatus.LABEL_CREATED,
+        logs: [],
+      });
+      prismaMock.order.update.mockResolvedValue({
+        ...mockOrder,
+        status: OrderStatus.SHIPPED,
+        shipments: [
+          {
+            id: 'ship-new',
+            courierName: 'Flash Express',
+            trackingNumber: 'TH1234567890A',
+            status: ShipmentStatus.LABEL_CREATED,
+            logs: [],
+          },
+        ],
+      });
+
+      const result = await service.fulfillWithCarrier(
+        mockOrder.id,
+        'FLASH_EXPRESS',
+      );
+
+      expect(prismaMock.shipment.create).toHaveBeenCalled();
+      expect(prismaMock.order.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: mockOrder.id },
+          data: { status: OrderStatus.SHIPPED },
+        }),
+      );
+      expect(result.status).toBe(OrderStatus.SHIPPED);
+      expect(result.shipments[0]?.courierName).toBe('Flash Express');
+    });
+  });
+
+  describe('updateOrderStatus', () => {
+    it('throws BadRequestException if transition skips steps (e.g. PAID to DELIVERED)', async () => {
+      const mockOrder = {
+        id: 'ord-step-1',
+        orderNumber: 'NIDA-STEP-01',
+        status: OrderStatus.PAID,
+        shipments: [],
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(mockOrder);
+
+      await expect(
+        service.updateOrderStatus(mockOrder.id, OrderStatus.DELIVERED),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException if transitioning to SHIPPED without tracking number', async () => {
+      const mockOrder = {
+        id: 'ord-step-2',
+        orderNumber: 'NIDA-STEP-02',
+        status: OrderStatus.PROCESSING,
+        shipments: [],
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(mockOrder);
+
+      await expect(
+        service.updateOrderStatus(mockOrder.id, OrderStatus.SHIPPED),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('successfully transitions from PROCESSING to SHIPPED when tracking number is provided', async () => {
+      const mockOrder = {
+        id: 'ord-step-3',
+        orderNumber: 'NIDA-STEP-03',
+        status: OrderStatus.PROCESSING,
+        currency: 'THB',
+        placedAt: new Date(),
+        items: [],
+        shippingAddressSnapshot: {
+          recipientName: 'Recipient 3',
+          phone: '0899999999',
+        },
+        payment: null,
+        shipments: [],
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(mockOrder);
+      prismaMock.shipment.create.mockResolvedValue({
+        id: 'ship-3',
+        orderId: mockOrder.id,
+        courierName: 'Kerry Express TH',
+        trackingNumber: 'KER-123456TH',
+        status: ShipmentStatus.LABEL_CREATED,
+        logs: [],
+      });
+      prismaMock.order.update.mockResolvedValue({
+        ...mockOrder,
+        status: OrderStatus.SHIPPED,
+        shipments: [
+          {
+            id: 'ship-3',
+            courierName: 'Kerry Express TH',
+            trackingNumber: 'KER-123456TH',
+            status: ShipmentStatus.LABEL_CREATED,
+            logs: [],
+          },
+        ],
+      });
+
+      const result = await service.updateOrderStatus(
+        mockOrder.id,
+        OrderStatus.SHIPPED,
+        'Kerry Express TH',
+        'KER-123456TH',
+      );
+
+      expect(prismaMock.shipment.create).toHaveBeenCalled();
+      expect(result.status).toBe(OrderStatus.SHIPPED);
+      expect(result.shipments[0]?.trackingNumber).toBe('KER-123456TH');
+    });
+  });
 });
+

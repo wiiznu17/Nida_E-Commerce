@@ -16,6 +16,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@repo/types": "*",
     "zod": "^4.6.5"
   },
   "devDependencies": {

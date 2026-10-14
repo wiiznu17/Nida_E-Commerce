@@ -6,6 +6,7 @@ import {
   PRODUCTS_SEED_DATA,
 } from './catalog-seed.data.js';
 import { syncRbac } from './seed-rbac.js';
+import { seedOrders } from './seed-orders.js';
 
 const prisma = new PrismaClient();
 
@@ -221,6 +222,8 @@ async function main() {
       },
     ],
   });
+
+  await seedOrders();
 
   console.log('✅ Seeding completed successfully!');
   console.log('--------------------------------------------------');

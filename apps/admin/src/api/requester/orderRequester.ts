@@ -1,5 +1,5 @@
 import { apiClient } from '../client';
-import type { ApiOrder, OrderStatus } from '@repo/types';
+import type { ApiOrder, OrderStatus, CarrierCode } from '@repo/types';
 
 export interface FulfillOrderPayload {
   courierName: string;
@@ -10,7 +10,7 @@ export interface FulfillOrderPayload {
 
 export const orderRequester = {
   async getOrders(): Promise<ApiOrder[]> {
-    const data = await apiClient.get<ApiOrder[]>('/admin/orders');
+    const data = await apiClient.get<ApiOrder[]>('/orders');
     return data;
   },
 
@@ -34,7 +34,18 @@ export const orderRequester = {
   },
 
   async fulfill(orderIdentifier: string, payload: FulfillOrderPayload): Promise<unknown> {
-    const data = await apiClient.post(`/admin/orders/${orderIdentifier}/fulfill`, payload);
+    const data = await apiClient.post(`/orders/${orderIdentifier}/fulfill`, payload);
+    return data;
+  },
+
+  async bookCarrier(
+    orderIdOrNumber: string,
+    carrierCode: CarrierCode,
+  ): Promise<ApiOrder> {
+    const data = await apiClient.post<ApiOrder>(
+      `/orders/${orderIdOrNumber}/carrier-booking`,
+      { carrierCode },
+    );
     return data;
   },
 };
