@@ -1,5 +1,5 @@
 // ====================================================
-// @repo/types — User Types (ผู้ใช้ & ที่อยู่)
+// @repo/types — Customer Profile & Address Types
 // ====================================================
 
 import type { MembershipTier } from '../common/enums.js';

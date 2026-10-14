@@ -1,5 +1,5 @@
 // ====================================================
-// @repo/types — Cart Types (ตะกร้าสินค้า)
+// @repo/types — Customer Cart & Checkout Calculation Types
 // ====================================================
 
 export interface ApiCartItem {
@@ -25,8 +25,6 @@ export interface ApiCart {
   itemCount: number;
   subtotal: number;
 }
-
-// ----- Checkout Calculation -----
 
 export interface CheckoutCalculation {
   items: CheckoutLineItem[];

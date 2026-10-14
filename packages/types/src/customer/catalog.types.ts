@@ -1,10 +1,8 @@
 // ====================================================
-// @repo/types — Catalog Types (สินค้า & หมวดหมู่)
+// @repo/types — Customer Catalog Types (Storefront)
 // ====================================================
 
 import type { Department } from '../common/enums.js';
-
-// ----- Categories -----
 
 export interface ApiCategory {
   id: string;
@@ -22,8 +20,6 @@ export interface ApiCategory {
   children?: ApiCategory[];
   productCount?: number;
 }
-
-// ----- Product (List Item — สำหรับแสดงในหน้ารวม) -----
 
 export interface ApiProduct {
   id: string;
@@ -54,8 +50,6 @@ export interface ApiColorSwatch {
   hex: string;
 }
 
-// ----- Product Detail (หน้า PDP — รายละเอียดสินค้า) -----
-
 export interface ApiProductDetail {
   id: string;
   name: string;
@@ -76,7 +70,6 @@ export interface ApiProductDetail {
   rating?: number;
   reviewsCount?: number;
 
-  // Pre-order info
   isPreorder: boolean;
   preorderReleaseDate?: string;
   preorderLimit?: number;
@@ -105,24 +98,8 @@ export interface ApiProductVariant {
   inStock: boolean;
   quantityAvailable: number;
 
-  // Shipping dimensions
   weightGrams: number;
   lengthCm?: number;
   widthCm?: number;
   heightCm?: number;
 }
-
-// ----- Product Sku Variant (สำหรับแบบฟอร์มสร้าง/แก้ไขสินค้า) -----
-
-export interface ProductSkuVariant {
-  sku: string;
-  size: string;
-  colorName: string;
-  colorHex: string;
-  stock: number;
-  lowStockThreshold: number;
-  priceAdjustment: number;
-  barcode?: string | null;
-  weightGrams?: number | null;
-}
-

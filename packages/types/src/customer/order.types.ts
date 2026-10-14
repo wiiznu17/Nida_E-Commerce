@@ -1,10 +1,8 @@
 // ====================================================
-// @repo/types — Order Types (คำสั่งซื้อ & Shipment)
+// @repo/types — Customer Order & Tracking Types (Storefront)
 // ====================================================
 
 import type { OrderStatus, PaymentMethod, PaymentStatus, ShipmentStatus } from '../common/enums.js';
-
-// ----- Order -----
 
 export interface ApiOrder {
   id: string;
@@ -12,7 +10,6 @@ export interface ApiOrder {
   status: OrderStatus;
   hasPreorderItems: boolean;
 
-  // ยอดเงิน
   subtotal: number;
   discountTotal: number;
   shippingFee: number;
@@ -21,18 +18,10 @@ export interface ApiOrder {
   currency: string;
   promoCodeUsed?: string;
 
-  // รายการ
   items: ApiOrderItem[];
-
-  // ที่อยู่จัดส่ง (Snapshot ณ ตอนสั่ง)
   shippingAddress: ApiOrderAddress;
-
-  // การชำระเงิน
   payment?: ApiPaymentSummary;
-
-  // การจัดส่ง
   shipments: ApiShipment[];
-
   placedAt: string;
 }
 
@@ -69,8 +58,6 @@ export interface ApiPaymentSummary {
   paidAt?: string;
 }
 
-// ----- Shipment & Tracking -----
-
 export interface ApiShipment {
   id: string;
   courierName: string;
@@ -90,36 +77,8 @@ export interface ShipmentTimelineEntry {
   timestamp: string;
 }
 
-// ----- Tracking Page (สำหรับหน้า /track-order) -----
-
 export interface TrackingResult {
   orderNumber: string;
   orderStatus: OrderStatus;
   shipment: ApiShipment;
 }
-
-// ----- Carrier Integration (จำลองระบบเชื่อมต่อขนส่ง) -----
-
-export type CarrierCode =
-  | 'KERRY_EXPRESS'
-  | 'FLASH_EXPRESS'
-  | 'THAILAND_POST_EMS'
-  | 'DHL_EXPRESS';
-
-export interface CarrierBookingRequest {
-  orderId: string;
-  carrierCode: CarrierCode;
-}
-
-export interface CarrierBookingResult {
-  orderId: string;
-  orderNumber: string;
-  carrierCode: CarrierCode;
-  courierName: string;
-  trackingNumber: string;
-  status: ShipmentStatus;
-  estimatedDelivery: string;
-  bookedAt: string;
-}
-
-

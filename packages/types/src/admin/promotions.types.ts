@@ -1,5 +1,5 @@
 // ====================================================
-// @repo/types — Coupon Types (คูปอง & โปรโมชัน)
+// @repo/types — Admin Coupon & Promotions Types
 // ====================================================
 
 import type { DiscountType, MembershipTier } from '../common/enums.js';
@@ -19,8 +19,6 @@ export interface ApiCoupon {
   expiresAt: string;
   isActive: boolean;
 }
-
-// ----- Validation Result -----
 
 export interface CouponValidationResult {
   valid: boolean;

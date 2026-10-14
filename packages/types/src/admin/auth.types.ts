@@ -1,5 +1,5 @@
 // ====================================================
-// RBAC & PERMISSION CONSTANTS & TYPES
+// @repo/types — Admin Auth & RBAC Types
 // ====================================================
 
 export enum AdminRoleCode {
@@ -145,15 +145,11 @@ export interface ApiAdminUser {
   createdAt: string;
 }
 
-// ====================================================
-// AUTH REQUEST & RESPONSE PAYLOADS
-// ====================================================
-
 export interface AdminLoginResponse {
   accessToken: string;
   refreshToken: string;
   tokenType: 'Bearer';
-  expiresIn: number; // วินาที เช่น 900 (15 นาที)
+  expiresIn: number;
   admin: ApiAdminUser;
 }
 
@@ -165,7 +161,7 @@ export interface AdminRefreshResponse {
 }
 
 export interface AdminJwtPayload {
-  sub: string; // AdminUser UUID
+  sub: string;
   username: string;
   email: string;
   roleCode: string;
@@ -187,10 +183,6 @@ export interface RedisSessionData {
   createdAt: string;
   lastRotatedAt?: string;
 }
-
-// ====================================================
-// INVITATION & PASSWORD LIFECYCLE DTO & RESPONSES
-// ====================================================
 
 export interface InviteAdminDto {
   fullName: string;
@@ -228,29 +220,4 @@ export interface ForgotPasswordDto {
 export interface ResetPasswordDto {
   token: string;
   password: string;
-}
-
-// ====================================================
-// CUSTOMER AUTH & OTP TYPES (Storefront)
-// ====================================================
-
-export interface RequestOtpResponse {
-  success: boolean;
-  message: string;
-  expiresInSeconds: number;
-}
-
-export interface VerifyOtpResponse {
-  success: boolean;
-  accessToken: string;
-  user: import('./user.types.js').ApiUser;
-  isNewUser: boolean;
-}
-
-export interface CustomerJwtPayload {
-  sub: string;
-  email: string;
-  role: 'CUSTOMER';
-  iat?: number;
-  exp?: number;
 }

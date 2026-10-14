@@ -1,5 +1,5 @@
 // ====================================================
-// @repo/types — Inventory Types (สต็อก & การเคลื่อนไหว)
+// @repo/types — Admin Inventory Types
 // ====================================================
 
 import type { Department, StockChangeType } from '../common/enums.js';
