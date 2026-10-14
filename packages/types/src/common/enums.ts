@@ -68,12 +68,14 @@ export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType];
 export const StockChangeType = {
   RESTOCK: 'RESTOCK',
   MANUAL_ADJUSTMENT: 'MANUAL_ADJUSTMENT',
+  ADJUSTMENT: 'ADJUSTMENT',
   ORDER_DEDUCT: 'ORDER_DEDUCT',
   PREORDER_RECEIVE: 'PREORDER_RECEIVE',
   DAMAGE: 'DAMAGE',
   RETURNED: 'RETURNED',
 } as const;
 export type StockChangeType = (typeof StockChangeType)[keyof typeof StockChangeType];
+export type StockMovementType = StockChangeType;
 
 // --- Customer ---
 export const MembershipTier = {

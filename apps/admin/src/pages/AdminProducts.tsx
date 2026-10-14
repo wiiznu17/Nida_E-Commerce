@@ -14,8 +14,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { productRequester } from '../api/requester/productRequester';
 import { useProducts } from '../hooks/useProducts';
 import { PermissionGate } from '../components/common';
-import { AdminPermission } from '@repo/types';
-import type { Product } from '../data/products';
+import { AdminPermission, type ApiProduct, type ApiInventoryItem } from '@repo/types';
+import { inventoryRequester } from '../api/requester/inventoryRequester';
 import type { QueryProductsInput } from '@repo/validators';
 
 export default function AdminProducts() {
@@ -28,6 +28,7 @@ export default function AdminProducts() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; label: string }>>([]);
+  const [inventoryList, setInventoryList] = useState<ApiInventoryItem[]>([]);
   const [statusCounts, setStatusCounts] = useState<{ total: number; published: number; draft: number }>({
     total: 0,
     published: 0,
@@ -43,6 +44,10 @@ export default function AdminProducts() {
 
   useEffect(() => {
     fetchStatusCounts();
+    inventoryRequester
+      .getInventory()
+      .then(setInventoryList)
+      .catch(() => {});
   }, [fetchStatusCounts]);
 
   const queryParams = useMemo((): QueryProductsInput => {
@@ -108,7 +113,7 @@ export default function AdminProducts() {
     }
   };
 
-  const handleToggleStatus = async (product: Product) => {
+  const handleToggleStatus = async (product: ApiProduct) => {
     const nextStatus = product.isActive === false ? true : false;
     setTogglingId(product.id);
     try {
@@ -174,7 +179,7 @@ export default function AdminProducts() {
         <div className="space-y-0">
           <ProductListTable
             products={products}
-            inventoryList={[]}
+            inventoryList={inventoryList}
             togglingId={togglingId}
             isLoading={isLoading}
             onToggleStatus={handleToggleStatus}

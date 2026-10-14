@@ -2,7 +2,7 @@
 // @repo/types — User Types (ผู้ใช้ & ที่อยู่)
 // ====================================================
 
-import type { MembershipTier } from './enums.js';
+import type { MembershipTier } from '../common/enums.js';
 
 export interface ApiUser {
   id: string;

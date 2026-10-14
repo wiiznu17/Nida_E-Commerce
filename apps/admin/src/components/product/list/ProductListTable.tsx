@@ -12,15 +12,14 @@ import {
   TableHead,
   TableCell,
 } from '../../ui';
-import type { Product } from '../../../data/products';
-import type { InventoryItem } from '../../../data/adminData';
+import type { ApiProduct, ApiInventoryItem } from '@repo/types';
 
 interface ProductListTableProps {
-  products: Product[];
-  inventoryList: InventoryItem[];
+  products: ApiProduct[];
+  inventoryList: ApiInventoryItem[];
   togglingId: string | null;
   isLoading?: boolean;
-  onToggleStatus: (product: Product) => void;
+  onToggleStatus: (product: ApiProduct) => void;
   onDelete: (id: string, name: string) => void;
 }
 
@@ -41,7 +40,7 @@ export function ProductListTable({
         inv.productName.toLowerCase() === productName.toLowerCase(),
     );
     if (matched.length > 0) {
-      return matched.reduce((sum, item) => sum + item.availableStock, 0);
+      return matched.reduce((sum, item) => sum + item.quantityAvailable, 0);
     }
     return 20; // fallback default
   };
@@ -97,7 +96,7 @@ export function ProductListTable({
                 <TableCell className="text-center">
                   <div className="w-11 h-14 bg-gray-100 border border-brand-border rounded-xs overflow-hidden mx-auto">
                     <img
-                      src={product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200'}
+                      src={product.primaryImage || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200'}
                       alt={product.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
@@ -135,9 +134,9 @@ export function ProductListTable({
                 {/* Price */}
                 <TableCell className="text-right">
                   <div className="font-mono font-bold text-gray-900">
-                    ฿{product.price.toLocaleString()}
+                    ฿{product.basePrice.toLocaleString()}
                   </div>
-                  {product.originalPrice && product.originalPrice > product.price && (
+                  {product.originalPrice && product.originalPrice > product.basePrice && (
                     <div className="text-[10px] font-mono text-gray-400 line-through">
                       ฿{product.originalPrice.toLocaleString()}
                     </div>
@@ -147,7 +146,7 @@ export function ProductListTable({
                 {/* Category / Department */}
                 <TableCell className="text-center">
                   <span className="inline-block bg-brand-cream border border-brand-border text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded-xs uppercase tracking-tight">
-                    {product.subCategory || product.category}
+                    {language === 'th' && product.categoryNameTh ? product.categoryNameTh : product.categoryName}
                   </span>
                   <div className="text-[10px] text-gray-400 uppercase tracking-widest mt-0.5">
                     {product.department}

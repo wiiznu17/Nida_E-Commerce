@@ -2,7 +2,7 @@
 // @repo/types — Coupon Types (คูปอง & โปรโมชัน)
 // ====================================================
 
-import type { DiscountType, MembershipTier } from './enums.js';
+import type { DiscountType, MembershipTier } from '../common/enums.js';
 
 export interface ApiCoupon {
   id: string;

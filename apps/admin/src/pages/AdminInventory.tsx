@@ -19,14 +19,13 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
 import { PermissionGate } from '../components/common';
-import { AdminPermission } from '@repo/types';
-import type { InventoryItem } from '../data/adminData';
+import { AdminPermission, type ApiInventoryItem } from '@repo/types';
 
 export default function AdminInventory() {
   const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
 
-  const [inventoryList, setInventoryList] = useState<InventoryItem[]>([]);
+  const [inventoryList, setInventoryList] = useState<ApiInventoryItem[]>([]);
 
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
@@ -39,7 +38,7 @@ export default function AdminInventory() {
   const [pageSize, setPageSize] = useState(10);
 
   // Adjust stock modal state
-  const [adjustTarget, setAdjustTarget] = useState<InventoryItem | null>(null);
+  const [adjustTarget, setAdjustTarget] = useState<ApiInventoryItem | null>(null);
   const [adjustQuantity, setAdjustQuantity] = useState<number>(10);
   const [adjustReason, setAdjustReason] = useState('นำเข้าล็อตใหม่จากโรงงานตัดเย็บ (Restocked)');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -47,28 +46,7 @@ export default function AdminInventory() {
   const loadInventory = async () => {
     try {
       const apiItems = await inventoryRequester.getInventory();
-      if (apiItems) {
-        setInventoryList(
-          apiItems.map((api) => ({
-            id: api.id,
-            sku: api.sku,
-            productId: api.productId,
-            productName: api.productName,
-            department: String(api.department),
-            category: api.categoryName,
-            size: api.size,
-            colorName: api.colorName,
-            colorHex: api.colorHex,
-            availableStock: api.quantityAvailable,
-            reservedStock: api.quantityReserved,
-            lowStockThreshold: api.lowStockThreshold,
-            price: api.price,
-            image: api.imageUrl ?? '',
-          })),
-        );
-      } else {
-        setInventoryList([]);
-      }
+      setInventoryList(apiItems ?? []);
     } catch (err: unknown) {
       console.warn('Backend inventory unavailable:', err);
       setInventoryList([]);
@@ -143,16 +121,16 @@ export default function AdminInventory() {
       if (!matchesSearch || !matchesDept) return false;
 
       if (stockFilter === 'low') {
-        return item.availableStock > 0 && item.availableStock <= item.lowStockThreshold;
+        return item.quantityAvailable > 0 && item.quantityAvailable <= item.lowStockThreshold;
       }
       if (stockFilter === 'out') {
-        return item.availableStock === 0;
+        return item.quantityAvailable === 0;
       }
       return true;
     })
     .sort((a, b) => {
-      if (sortBy === 'stock_asc') return a.availableStock - b.availableStock;
-      if (sortBy === 'stock_desc') return b.availableStock - a.availableStock;
+      if (sortBy === 'stock_asc') return a.quantityAvailable - b.quantityAvailable;
+      if (sortBy === 'stock_desc') return b.quantityAvailable - a.quantityAvailable;
       return a.sku.localeCompare(b.sku);
     });
 
@@ -160,9 +138,9 @@ export default function AdminInventory() {
   const paginatedInventory = filteredInventory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const lowStockCount = inventoryList.filter(
-    (i) => i.availableStock > 0 && i.availableStock <= i.lowStockThreshold,
+    (i) => i.quantityAvailable > 0 && i.quantityAvailable <= i.lowStockThreshold,
   ).length;
-  const outOfStockCount = inventoryList.filter((i) => i.availableStock === 0).length;
+  const outOfStockCount = inventoryList.filter((i) => i.quantityAvailable === 0).length;
 
   return (
     <AdminLayout
@@ -361,8 +339,8 @@ export default function AdminInventory() {
                       </TableRow>
                     ) : (
                       paginatedInventory.map((item) => {
-                        const isLowStock = item.availableStock <= item.lowStockThreshold && item.availableStock > 0;
-                        const isOutOfStock = item.availableStock === 0;
+                        const isLowStock = item.quantityAvailable <= item.lowStockThreshold && item.quantityAvailable > 0;
+                        const isOutOfStock = item.quantityAvailable === 0;
 
                         return (
                           <TableRow key={item.id} className="group">
@@ -370,7 +348,7 @@ export default function AdminInventory() {
                             <TableCell className="text-center">
                               <div className="w-11 h-14 bg-gray-100 border border-brand-border rounded-xs overflow-hidden mx-auto flex-shrink-0">
                                 <img
-                                  src={item.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200'}
+                                  src={item.imageUrl || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200'}
                                   alt={item.productName}
                                   className="w-full h-full object-cover"
                                 />
@@ -409,7 +387,7 @@ export default function AdminInventory() {
                                     isOutOfStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-emerald-700'
                                   }`}
                                 >
-                                  {item.availableStock}
+                                  {item.quantityAvailable}
                                 </span>
                                 {isLowStock && (
                                   <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-1.5 py-0.5 rounded-xs">
@@ -426,7 +404,7 @@ export default function AdminInventory() {
 
                             {/* Reserved */}
                             <TableCell className="text-center font-mono text-gray-500">
-                              {item.reservedStock} {language === 'th' ? 'ชิ้น' : 'pcs'}
+                              {item.quantityReserved} {language === 'th' ? 'ชิ้น' : 'pcs'}
                             </TableCell>
 
                             {/* Threshold */}
@@ -497,7 +475,7 @@ export default function AdminInventory() {
               <div className="font-bold text-brand-brown">{adjustTarget.productName}</div>
               <div className="text-gray-500 mt-0.5">
                 ขนาด {adjustTarget.size} • สี {adjustTarget.colorName} • สต็อกปัจจุบัน:{' '}
-                <strong className="text-brand-brown">{adjustTarget.availableStock} ชิ้น</strong>
+                <strong className="text-brand-brown">{adjustTarget.quantityAvailable} ชิ้น</strong>
               </div>
             </div>
 
@@ -530,7 +508,7 @@ export default function AdminInventory() {
                   </button>
                 </div>
                 <span className="text-[11px] text-gray-500 block mt-1">
-                  สต็อกใหม่หลังปรับ: <strong>{Math.max(0, adjustTarget.availableStock + adjustQuantity)} ชิ้น</strong>
+                  สต็อกใหม่หลังปรับ: <strong>{Math.max(0, adjustTarget.quantityAvailable + adjustQuantity)} ชิ้น</strong>
                 </span>
               </div>
 

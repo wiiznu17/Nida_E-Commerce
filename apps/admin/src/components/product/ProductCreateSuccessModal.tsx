@@ -1,13 +1,12 @@
 import { CheckCircle2, List, Plus, ExternalLink, X, Package } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import type { Product } from '../../data/products';
-import type { SkuVariant } from '../../data/adminData';
+import type { ApiProductDetail, ProductSkuVariant } from '@repo/types';
 
 export interface ProductCreateSuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product: Product | null;
-  skus?: SkuVariant[];
+  product: ApiProductDetail | null;
+  skus?: ProductSkuVariant[];
   onViewList: () => void;
   onCreateAnother: () => void;
   onViewStore?: () => void;
@@ -70,9 +69,9 @@ export function ProductCreateSuccessModal({
           {/* Product Snapshot Card */}
           <div className="mt-5 bg-brand-cream border border-brand-border rounded-lg p-4">
             <div className="flex items-center space-x-4">
-              {product.image ? (
+              {product.images?.[0]?.imageUrl ? (
                 <img
-                  src={product.image}
+                  src={product.images[0].imageUrl}
                   alt={product.name}
                   className="w-16 h-20 object-cover rounded-md border border-brand-border bg-white shrink-0 shadow-2xs"
                 />
@@ -85,7 +84,7 @@ export function ProductCreateSuccessModal({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 bg-white border border-brand-border px-2 py-0.5 rounded-sm">
-                    {product.department?.toUpperCase() || 'CATALOG'}
+                    {String(product.department || 'CATALOG').toUpperCase()}
                   </span>
                   <span className="inline-flex items-center space-x-1 text-[10px] font-semibold px-2 py-0.5 rounded-sm border bg-white border-stone-200 text-stone-600">
                     <span
@@ -106,9 +105,9 @@ export function ProductCreateSuccessModal({
 
                 <div className="mt-2 flex items-baseline space-x-2">
                   <span className="text-sm font-black text-brand-brown">
-                    ${Number(product.price).toLocaleString()}
+                    ${Number(product.basePrice).toLocaleString()}
                   </span>
-                  {product.originalPrice && product.originalPrice > product.price && (
+                  {product.originalPrice && product.originalPrice > product.basePrice && (
                     <span className="text-xs text-stone-400 line-through">
                       ${Number(product.originalPrice).toLocaleString()}
                     </span>

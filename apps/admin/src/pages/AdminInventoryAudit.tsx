@@ -17,14 +17,14 @@ import {
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
-import type { StockMovement } from '../data/adminData';
+import type { ApiStockMovement, StockMovementType } from '@repo/types';
 
 export default function AdminInventoryAudit() {
   const { t, language } = useLanguage();
   const [searchParams] = useSearchParams();
 
-  const [movementsList, setMovementsList] = useState<StockMovement[]>([]);
-  const [typeFilter, setTypeFilter] = useState<'all' | 'RESTOCK' | 'ORDER_DEDUCT' | 'DAMAGE' | 'ADJUSTMENT'>('all');
+  const [movementsList, setMovementsList] = useState<ApiStockMovement[]>([]);
+  const [typeFilter, setTypeFilter] = useState<'all' | StockMovementType>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'qty_desc' | 'qty_asc'>('newest');
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
   const [appliedSearch, setAppliedSearch] = useState(searchParams.get('search') || '');
@@ -37,19 +37,7 @@ export default function AdminInventoryAudit() {
     try {
       const data = await inventoryRequester.getMovements();
       if (Array.isArray(data)) {
-        setMovementsList(
-          data.map((m) => ({
-            id: m.id,
-            sku: m.sku,
-            productName: m.productName,
-            changeType: m.changeType as StockMovement['changeType'],
-            quantityChange: m.quantityChange,
-            balanceAfter: m.balanceAfter,
-            reason: m.reason ?? '',
-            adminName: m.adminName ?? 'System / Admin',
-            timestamp: m.createdAt.replace('T', ' ').slice(0, 16),
-          })),
-        );
+        setMovementsList(data);
       } else {
         setMovementsList([]);
       }
@@ -77,7 +65,7 @@ export default function AdminInventoryAudit() {
     setCurrentPage(1);
   };
 
-  const handleTypeFilterChange = (type: 'all' | 'RESTOCK' | 'ORDER_DEDUCT' | 'DAMAGE' | 'ADJUSTMENT') => {
+  const handleTypeFilterChange = (type: 'all' | StockMovementType) => {
     setTypeFilter(type);
     setCurrentPage(1);
   };
@@ -96,8 +84,8 @@ export default function AdminInventoryAudit() {
         !query ||
         m.sku.toLowerCase().includes(query) ||
         m.productName.toLowerCase().includes(query) ||
-        m.reason.toLowerCase().includes(query) ||
-        m.adminName.toLowerCase().includes(query);
+        (m.reason ?? '').toLowerCase().includes(query) ||
+        (m.adminName ?? '').toLowerCase().includes(query);
 
       if (!matchesSearch) return false;
 
@@ -108,8 +96,8 @@ export default function AdminInventoryAudit() {
       return true;
     })
     .sort((a, b) => {
-      if (sortBy === 'newest') return b.timestamp.localeCompare(a.timestamp);
-      if (sortBy === 'oldest') return a.timestamp.localeCompare(b.timestamp);
+      if (sortBy === 'newest') return b.createdAt.localeCompare(a.createdAt);
+      if (sortBy === 'oldest') return a.createdAt.localeCompare(b.createdAt);
       if (sortBy === 'qty_desc') return b.quantityChange - a.quantityChange;
       if (sortBy === 'qty_asc') return a.quantityChange - b.quantityChange;
       return 0;
@@ -121,7 +109,7 @@ export default function AdminInventoryAudit() {
     currentPage * pageSize,
   );
 
-  const getChangeTypeBadge = (changeType: StockMovement['changeType']) => {
+  const getChangeTypeBadge = (changeType: StockMovementType) => {
     switch (changeType) {
       case 'RESTOCK':
         return (
@@ -418,7 +406,7 @@ export default function AdminInventoryAudit() {
                     <TableRow key={m.id} className="group">
                       {/* Timestamp */}
                       <TableCell className="font-mono text-gray-500 text-xs whitespace-nowrap">
-                        {m.timestamp}
+                        {m.createdAt ? m.createdAt.replace('T', ' ').slice(0, 16) : '-'}
                       </TableCell>
 
                       {/* SKU */}
@@ -450,12 +438,12 @@ export default function AdminInventoryAudit() {
 
                       {/* Reason */}
                       <TableCell className="text-gray-700 text-xs leading-relaxed">
-                        {m.reason}
+                        {m.reason || '-'}
                       </TableCell>
 
                       {/* Operator */}
                       <TableCell className="text-right text-xs font-semibold text-brand-brown whitespace-nowrap">
-                        {m.adminName}
+                        {m.adminName || 'System / Admin'}
                       </TableCell>
                     </TableRow>
                   ))

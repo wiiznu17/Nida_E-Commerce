@@ -9,8 +9,8 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { productsApi, extractApiError } from '../api';
 import { STOREFRONT_URL } from '../config';
-import type { Product } from '../data/products';
-import type { SkuVariant } from '../data/adminData';
+import type { ApiProductDetail, ProductSkuVariant } from '@repo/types';
+import type { CreateProductInput } from '@repo/validators';
 
 export default function AdminProductCreate() {
   const { t, isTh } = useLanguage();
@@ -18,8 +18,8 @@ export default function AdminProductCreate() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Success Modal State
-  const [createdProduct, setCreatedProduct] = useState<Product | null>(null);
-  const [createdSkus, setCreatedSkus] = useState<SkuVariant[]>([]);
+  const [createdProduct, setCreatedProduct] = useState<ApiProductDetail | null>(null);
+  const [createdSkus, setCreatedSkus] = useState<ProductSkuVariant[]>([]);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   // Error Modal State
@@ -28,7 +28,7 @@ export default function AdminProductCreate() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [formResetKey, setFormResetKey] = useState(0);
 
-  const handleCreate = async (data: Omit<Product, 'id'>, skus?: SkuVariant[]) => {
+  const handleCreate = async (data: CreateProductInput, skus?: ProductSkuVariant[]) => {
     setIsSubmitting(true);
     try {
       const apiResponse = await productsApi.create(data, skus);

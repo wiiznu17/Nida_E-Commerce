@@ -23,14 +23,13 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
-import type { InventoryItem } from '../data/adminData';
-import type { ApiOrder, OrderStatus } from '@repo/types';
+import type { ApiOrder, OrderStatus, ApiInventoryItem } from '@repo/types';
 import { formatOrderDateTime } from '../utils';
 
 export default function AdminDashboard() {
   const { language } = useLanguage();
   const [ordersList, setOrdersList] = useState<ApiOrder[]>([]);
-  const [inventoryList, setInventoryList] = useState<InventoryItem[]>([]);
+  const [inventoryList, setInventoryList] = useState<ApiInventoryItem[]>([]);
   const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('today');
 
   const loadData = async () => {
@@ -40,24 +39,7 @@ export default function AdminDashboard() {
         inventoryRequester.getInventory().catch(() => []),
       ]);
       setOrdersList(apiOrders ?? []);
-      setInventoryList(
-        apiInv.map((api) => ({
-          id: api.id,
-          sku: api.sku,
-          productId: api.productId,
-          productName: api.productName,
-          department: String(api.department),
-          category: api.categoryName,
-          size: api.size,
-          colorName: api.colorName,
-          colorHex: api.colorHex,
-          availableStock: api.quantityAvailable,
-          reservedStock: api.quantityReserved,
-          lowStockThreshold: api.lowStockThreshold,
-          price: api.price,
-          image: api.imageUrl ?? '',
-        })),
-      );
+      setInventoryList(apiInv ?? []);
     } catch (err: unknown) {
       console.warn('Backend dashboard data unavailable:', err);
     }
@@ -86,7 +68,7 @@ export default function AdminDashboard() {
   // Metrics calculations
   const totalRevenue = ordersList.reduce((sum, ord) => sum + ord.totalAmount, 0);
   const pendingOrders = ordersList.filter((o) => o.status === 'PROCESSING' || o.status === 'PAID');
-  const lowStockItems = inventoryList.filter((i) => i.availableStock <= i.lowStockThreshold);
+  const lowStockItems = inventoryList.filter((i) => i.quantityAvailable <= i.lowStockThreshold);
 
   // Status Badge Helper
   const renderStatusBadge = (status: string) => {

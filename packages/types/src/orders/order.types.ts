@@ -2,7 +2,7 @@
 // @repo/types — Order Types (คำสั่งซื้อ & Shipment)
 // ====================================================
 
-import type { OrderStatus, PaymentMethod, PaymentStatus, ShipmentStatus } from './enums.js';
+import type { OrderStatus, PaymentMethod, PaymentStatus, ShipmentStatus } from '../common/enums.js';
 
 // ----- Order -----
 

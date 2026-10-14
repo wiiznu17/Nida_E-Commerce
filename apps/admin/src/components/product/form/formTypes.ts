@@ -1,11 +1,18 @@
-import type { Product } from '../../../data/products';
-import type { SkuVariant } from '../../../data/adminData';
-import type { MarketingTagOption, CategoryOption, SubCategoryOption } from '@repo/types';
+import type {
+  ProductSkuVariant as SkuVariant,
+  MarketingTagOption,
+  CategoryOption,
+  SubCategoryOption,
+} from '@repo/types';
+import type { CreateProductInput } from '@repo/validators';
+
+export type { SkuVariant };
+export type ProductFormData = CreateProductInput;
 
 export interface ProductFormProps {
-  initialData?: Partial<Product>;
+  initialData?: Partial<CreateProductInput> | null;
   initialSkus?: SkuVariant[];
-  onSubmit: (data: Omit<Product, 'id'>, skus?: SkuVariant[]) => void;
+  onSubmit: (data: CreateProductInput, skus?: SkuVariant[]) => void;
   isEdit?: boolean;
   isSubmitting?: boolean;
 }

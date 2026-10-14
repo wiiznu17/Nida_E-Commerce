@@ -10,9 +10,9 @@ import {
   findSubCategoryByLabel,
   findSubCategoryByKey,
   type ProductCategory,
+  type ProductSkuVariant as SkuVariant,
 } from '@repo/types';
 import { useLanguage } from '../../context/LanguageContext';
-import type { SkuVariant } from '../../data/adminData';
 import { ProductPreviewModal } from './ProductPreviewModal';
 import { PublishConfirmModal } from './PublishConfirmModal';
 import { UnsavedChangesModal } from '../common';
@@ -494,6 +494,7 @@ export function ProductForm({
         name: name.trim(),
         nameTh: nameTh.trim() || undefined,
         price: numericPrice,
+        basePrice: numericPrice,
         originalPrice: numericOriginal > 0 ? numericOriginal : undefined,
         image: image.trim(),
         secondaryImage: secondaryImage.trim() || undefined,
@@ -511,6 +512,8 @@ export function ProductForm({
         colorImages: Object.keys(colorImages).length > 0 ? colorImages : undefined,
         rating: initialData?.rating ?? 5.0,
         reviewsCount: initialData?.reviewsCount ?? 0,
+        isPreorder: tag === 'PRE-ORDER' || Boolean(initialData?.isPreorder),
+        skus: finalSkus,
         isActive: finalActive,
       },
       finalSkus,

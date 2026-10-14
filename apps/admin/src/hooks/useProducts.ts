@@ -2,35 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { productRequester } from '../api/requester/productRequester';
 import type { ApiProduct } from '@repo/types';
 import type { QueryProductsInput } from '@repo/validators';
-import type { Product } from '../data/products';
-
-export function mapApiProductToProduct(api: ApiProduct): Product {
-  return {
-    id: api.id,
-    slug: api.slug,
-    name: api.name,
-    nameTh: api.nameTh,
-    price: api.basePrice,
-    originalPrice: api.originalPrice,
-    image: api.primaryImage ?? '',
-    secondaryImage: api.secondaryImage,
-    category: api.categorySlug,
-    subCategory: api.categoryName,
-    subCategoryTh: api.categoryNameTh,
-    department: api.department?.toLowerCase(),
-    tag: api.tag,
-    tagTh: api.tagTh,
-    colors: api.colors?.map((c) => c.hex) ?? [],
-    rating: api.rating ?? 5.0,
-    reviewsCount: api.reviewsCount ?? 0,
-    isPreorder: api.isPreorder,
-    isActive: api.isActive ?? true,
-  };
-}
 
 export function useProducts(params: Partial<QueryProductsInput> = {}) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [rawApiProducts, setRawApiProducts] = useState<ApiProduct[]>([]);
+  const [products, setProducts] = useState<ApiProduct[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -43,14 +17,12 @@ export function useProducts(params: Partial<QueryProductsInput> = {}) {
       const response = await productRequester.getProducts(params);
       if (response) {
         if ('data' in response && Array.isArray(response.data)) {
-          setRawApiProducts(response.data);
-          setProducts(response.data.map(mapApiProductToProduct));
+          setProducts(response.data);
           setTotal(response.pagination?.total ?? response.data.length);
           setTotalPages(response.pagination?.totalPages ?? 1);
         } else if (Array.isArray(response)) {
           const list = response as unknown as ApiProduct[];
-          setRawApiProducts(list);
-          setProducts(list.map(mapApiProductToProduct));
+          setProducts(list);
           setTotal(list.length);
           setTotalPages(1);
         }
@@ -78,7 +50,6 @@ export function useProducts(params: Partial<QueryProductsInput> = {}) {
 
   return {
     products,
-    rawApiProducts,
     total,
     totalPages,
     isLoading,

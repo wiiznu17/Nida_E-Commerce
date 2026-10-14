@@ -2,7 +2,7 @@
 // @repo/types — Inventory Types (สต็อก & การเคลื่อนไหว)
 // ====================================================
 
-import type { Department, StockChangeType } from './enums.js';
+import type { Department, StockChangeType } from '../common/enums.js';
 
 export interface ApiInventoryItem {
   id: string;

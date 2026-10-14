@@ -1,4 +1,4 @@
-import type { SkuVariant } from '../../../data/adminData';
+import type { ProductSkuVariant as SkuVariant } from '@repo/types';
 
 export const PRESET_COLORS = [
   { name: 'Nida Espresso', hex: '#2B1810' },

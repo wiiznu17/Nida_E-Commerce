@@ -2,7 +2,7 @@
 // @repo/types — Catalog Types (สินค้า & หมวดหมู่)
 // ====================================================
 
-import type { Department } from './enums.js';
+import type { Department } from '../common/enums.js';
 
 // ----- Categories -----
 
@@ -111,3 +111,18 @@ export interface ApiProductVariant {
   widthCm?: number;
   heightCm?: number;
 }
+
+// ----- Product Sku Variant (สำหรับแบบฟอร์มสร้าง/แก้ไขสินค้า) -----
+
+export interface ProductSkuVariant {
+  sku: string;
+  size: string;
+  colorName: string;
+  colorHex: string;
+  stock: number;
+  lowStockThreshold: number;
+  priceAdjustment: number;
+  barcode?: string | null;
+  weightGrams?: number | null;
+}
+
