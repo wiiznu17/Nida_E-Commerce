@@ -105,9 +105,6 @@ export const MARKETING_TAGS: MarketingTagOption[] = [
   },
 ];
 
-export function findMarketingTagByKey(key: string): MarketingTagOption | undefined {
-  return MARKETING_TAGS.find((t) => t.key === key);
-}
 
 export function findMarketingTagByLabel(labelEnOrTh: string): MarketingTagOption | undefined {
   const normalized = labelEnOrTh.trim().toUpperCase();

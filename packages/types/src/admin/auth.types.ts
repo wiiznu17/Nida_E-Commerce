@@ -197,11 +197,6 @@ export interface InviteAdminResponse {
   inviteLink?: string;
 }
 
-export interface VerifyTokenQueryDto {
-  token: string;
-  type: 'invite' | 'reset';
-}
-
 export interface VerifyTokenResponse {
   valid: boolean;
   email?: string;
@@ -211,10 +206,6 @@ export interface VerifyTokenResponse {
 export interface SetupPasswordDto {
   token: string;
   password: string;
-}
-
-export interface ForgotPasswordDto {
-  email: string;
 }
 
 export interface ResetPasswordDto {

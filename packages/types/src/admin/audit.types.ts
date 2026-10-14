@@ -29,17 +29,6 @@ export interface ApiAuditLog {
   createdAt: string;
 }
 
-export interface AuditLogFilterQuery {
-  page?: number;
-  limit?: number;
-  targetTable?: string;
-  actionType?: AuditActionType;
-  permission?: string;
-  adminId?: string;
-  search?: string;
-  startDate?: string;
-  endDate?: string;
-}
 
 export interface AuditLogStats {
   totalLogs: number;

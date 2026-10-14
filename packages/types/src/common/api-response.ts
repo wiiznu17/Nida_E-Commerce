@@ -36,7 +36,3 @@ export interface ApiError {
   details?: Record<string, unknown>;
 }
 
-/**
- * Union type สำหรับ Frontend ที่รับทั้ง success และ error
- */
-export type ApiResult<T> = ApiResponse<T> | ApiError;

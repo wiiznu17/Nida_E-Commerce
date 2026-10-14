@@ -4,7 +4,6 @@
 
 import type { CarrierCode, ShipmentStatus } from '../common/enums.js';
 
-export type { CarrierCode };
 
 export interface CarrierBookingRequest {
   orderId: string;
