@@ -28,7 +28,8 @@ import {
   Pagination,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
-import { orderRequester } from '../api/requester/orderRequester';
+import { orderRequester, mapApiOrderToAdminOrder } from '../api/requester/orderRequester';
+import { formatOrderDateTime } from '../utils';
 import { STOREFRONT_URL } from '../config';
 import type { AdminOrder } from '../data/adminData';
 import { INITIAL_ORDERS } from '../data/adminData';
@@ -36,62 +37,12 @@ import { PermissionGate } from '../components/common';
 import { OrderPrintModal, OrderFulfillModal, type PrintDocumentType } from '../components/order';
 import {
   AdminPermission,
-  type ApiOrder,
   type OrderStatus,
 } from '@repo/types';
 import {
   ALLOWED_STATUS_TRANSITIONS,
   validateOrderStatusTransition,
 } from '@repo/validators';
-
-export function mapApiOrderToAdminOrder(api: ApiOrder): AdminOrder {
-  return {
-    id: api.id,
-    orderNumber: api.orderNumber,
-    customerName: api.shippingAddress?.recipientName || 'Valued Customer',
-    customerEmail: 'customer@nida.com',
-    customerPhone: api.shippingAddress?.phone || '-',
-    shippingAddress: api.shippingAddress?.addressLine1 || '-',
-    city: api.shippingAddress?.province || '-',
-    postalCode: api.shippingAddress?.postalCode || '-',
-    items: (api.items ?? []).map((i) => ({
-      productId: i.id,
-      productName: i.productName,
-      size: i.variantInfo,
-      color: 'Standard',
-      quantity: i.quantity,
-      price: i.unitPrice,
-      image: i.imageUrl ?? '',
-    })),
-    totalAmount: api.totalAmount,
-    paymentMethod: api.payment?.paymentMethod ?? 'CREDIT_CARD',
-    status: api.status as AdminOrder['status'],
-    courierName: api.shipments?.[0]?.courierName,
-    trackingNumber: api.shipments?.[0]?.trackingNumber,
-    createdAt: api.placedAt,
-  };
-}
-
-export function formatOrderDateTime(dateStr: string, language: string): string {
-  if (!dateStr) return '-';
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    const dateFormatted = d.toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-    const timeFormatted = d.toLocaleTimeString(language === 'th' ? 'th-TH' : 'en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-    return `${dateFormatted}, ${timeFormatted}`;
-  } catch {
-    return dateStr;
-  }
-}
 
 export default function AdminOrders() {
   const { t, language } = useLanguage();

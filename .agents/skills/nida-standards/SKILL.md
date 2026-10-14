@@ -76,6 +76,14 @@ apps/admin/src/components/
 - Never leave obsolete `.tsx` or `.ts` files in the repository.
 - Ensure all imports across the codebase are updated to the new structure.
 
+### 1.5 Separation of Concerns: No Utility/Mapper Functions in Main Page Files (ห้ามเขียนฟังก์ชันย่อย/Helper/Mapper ในไฟล์หน้า Page เด็ดขาด)
+- **Zero Helper Function Pollution in Pages**: Never write data transformation/mapper functions (e.g. `mapApiXToY`), formatters (date, currency, string), or calculation helpers directly inside page components (`apps/admin/src/pages/*.tsx`).
+- **Strictly No Cross-Page Imports**: Never export functions or constants from a page file for other pages or components to import (e.g. `import { mapApiOrderToAdminOrder } from './AdminOrders'`). Pages are top-level route targets, not reusable utility libraries. Cross-page imports cause tight coupling, circular dependencies, and bundle bloating.
+- **Dedicated Extraction Locations**:
+  - **Data Transformers / API Mappers**: Place alongside the relevant API requester in `apps/admin/src/api/requester/` (e.g. `orderRequester.ts`, `productRequester.ts`).
+  - **General Formatters & Helpers**: Place in `apps/admin/src/utils/` (e.g. `src/utils/date.ts`, `src/utils/formatters.ts`) and export via `src/utils/index.ts`.
+  - **Component-Specific Pure Helpers**: Extract into domain utility or constant files within that domain's folder (e.g. `components/order/orderHelpers.ts`).
+
 ---
 
 ## 2. Internationalization (i18n) & Localization

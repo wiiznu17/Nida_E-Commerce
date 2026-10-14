@@ -21,9 +21,8 @@ import {
   TableCell,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
-import { orderRequester } from '../api/requester/orderRequester';
+import { orderRequester, mapApiOrderToAdminOrder } from '../api/requester/orderRequester';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
-import { mapApiOrderToAdminOrder } from './AdminOrders';
 import type { AdminOrder, InventoryItem } from '../data/adminData';
 import { INITIAL_ORDERS, INITIAL_INVENTORY } from '../data/adminData';
 import type { OrderStatus } from '@repo/types';

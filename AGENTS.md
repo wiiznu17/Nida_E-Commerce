@@ -11,6 +11,10 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 - **Separate Types & Constants**: Place enums, select options, and constants in `*Constants.ts` and interfaces in `*Types.ts`.
 - **Barrel Exports**: Every directory must have an `index.ts` re-exporting its contents. The root `components/index.ts` exports all modules.
 - **Immediate Cleanup**: When moving or replacing components, **delete the old files immediately**. Never leave dead duplicate code.
+- **No Helper/Utility/Mapper Pollution in Pages (ห้ามเขียนฟังก์ชันย่อย/Helper/Mapper ในไฟล์หน้า Page เด็ดขาด)**:
+  - Do NOT write helper functions, formatters (date, currency), or API entity mappers (`mapApiXToY`) directly inside page files (`apps/admin/src/pages/*.tsx`).
+  - **Zero Cross-Page Imports**: Never export functions from a Page file for other Pages to import. Pages are route entry-points, not shared utility modules.
+  - Extract API mappers to `apps/admin/src/api/requester/` and general formatters/helpers to `apps/admin/src/utils/` (e.g. `src/utils/date.ts`).
 
 ---
 
