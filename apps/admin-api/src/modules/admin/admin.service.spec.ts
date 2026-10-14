@@ -12,6 +12,7 @@ describe('AdminService', () => {
       findUnique: ReturnType<typeof vi.fn>;
       findFirst: ReturnType<typeof vi.fn>;
       update: ReturnType<typeof vi.fn>;
+      updateMany: ReturnType<typeof vi.fn>;
     };
     stockMovement: {
       create: ReturnType<typeof vi.fn>;
@@ -40,6 +41,7 @@ describe('AdminService', () => {
         findUnique: vi.fn(),
         findFirst: vi.fn(),
         update: vi.fn(),
+        updateMany: vi.fn(),
       },
       stockMovement: {
         create: vi.fn(),
@@ -97,6 +99,7 @@ describe('AdminService', () => {
           product: { category: { department: 'WOMEN' }, images: [] },
         },
       });
+      prismaMock.inventoryItem.updateMany.mockResolvedValue({ count: 0 });
 
       await expect(
         service.restock({
@@ -105,6 +108,16 @@ describe('AdminService', () => {
           reasonNote: 'Too much reduction',
         }),
       ).rejects.toThrow(BadRequestException);
+
+      expect(prismaMock.inventoryItem.updateMany).toHaveBeenCalledWith({
+        where: {
+          id: 'inv-1',
+          quantityAvailable: { gte: 10 },
+        },
+        data: expect.objectContaining({
+          quantityAvailable: { decrement: 10 },
+        }),
+      });
     });
 
     it('successfully increases stock and creates RESTOCK movement', async () => {
@@ -136,6 +149,10 @@ describe('AdminService', () => {
         ...mockItem,
         quantityAvailable: 25,
       });
+      prismaMock.inventoryItem.findUnique.mockResolvedValue({
+        ...mockItem,
+        quantityAvailable: 25,
+      });
 
       const result = await service.restock({
         variantId: 'inv-1',
@@ -144,6 +161,12 @@ describe('AdminService', () => {
       });
 
       expect(result.quantityAvailable).toBe(25);
+      expect(prismaMock.inventoryItem.update).toHaveBeenCalledWith({
+        where: { id: 'inv-1' },
+        data: expect.objectContaining({
+          quantityAvailable: { increment: 15 },
+        }),
+      });
       expect(prismaMock.stockMovement.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           variantId: 'var-1',
@@ -179,7 +202,8 @@ describe('AdminService', () => {
       };
 
       prismaMock.inventoryItem.findFirst.mockResolvedValue(mockItem);
-      prismaMock.inventoryItem.update.mockResolvedValue({
+      prismaMock.inventoryItem.updateMany.mockResolvedValue({ count: 1 });
+      prismaMock.inventoryItem.findUnique.mockResolvedValue({
         ...mockItem,
         quantityAvailable: 15,
       });
@@ -192,6 +216,15 @@ describe('AdminService', () => {
       });
 
       expect(result.quantityAvailable).toBe(15);
+      expect(prismaMock.inventoryItem.updateMany).toHaveBeenCalledWith({
+        where: {
+          id: 'inv-1',
+          quantityAvailable: { gte: 5 },
+        },
+        data: expect.objectContaining({
+          quantityAvailable: { decrement: 5 },
+        }),
+      });
       expect(prismaMock.stockMovement.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           variantId: 'var-1',

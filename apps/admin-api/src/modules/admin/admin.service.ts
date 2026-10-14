@@ -121,13 +121,6 @@ export class AdminService {
       );
     }
 
-    const newBalance = inventoryItem.quantityAvailable + quantity;
-    if (newBalance < 0) {
-      throw new BadRequestException(
-        `Cannot reduce stock below zero. Current stock: ${inventoryItem.quantityAvailable}, adjustment: ${quantity}`,
-      );
-    }
-
     const resolvedChangeType =
       changeType ??
       (quantity >= 0
@@ -135,12 +128,36 @@ export class AdminService {
         : StockChangeType.MANUAL_ADJUSTMENT);
 
     const updated = await this.prisma.$transaction(async (tx) => {
-      const updatedItem = await tx.inventoryItem.update({
+      if (quantity < 0) {
+        const absQty = Math.abs(quantity);
+        const updateResult = await tx.inventoryItem.updateMany({
+          where: {
+            id: inventoryItem.id,
+            quantityAvailable: { gte: absQty },
+          },
+          data: {
+            quantityAvailable: { decrement: absQty },
+            lastCountedAt: new Date(),
+          },
+        });
+
+        if (updateResult.count === 0) {
+          throw new BadRequestException(
+            `Cannot reduce stock below zero. Current stock: ${inventoryItem.quantityAvailable}, adjustment: ${quantity}`,
+          );
+        }
+      } else {
+        await tx.inventoryItem.update({
+          where: { id: inventoryItem.id },
+          data: {
+            quantityAvailable: { increment: quantity },
+            lastCountedAt: new Date(),
+          },
+        });
+      }
+
+      const updatedItem = await tx.inventoryItem.findUnique({
         where: { id: inventoryItem.id },
-        data: {
-          quantityAvailable: newBalance,
-          lastCountedAt: new Date(),
-        },
         include: {
           variant: {
             include: {
@@ -155,13 +172,17 @@ export class AdminService {
         },
       });
 
+      if (!updatedItem) {
+        throw new NotFoundException(`Inventory item for "${identifier}" not found`);
+      }
+
       await tx.stockMovement.create({
         data: {
           variantId: inventoryItem.variantId,
           adminId: adminId ?? null,
           changeType: resolvedChangeType,
           quantityChange: quantity,
-          balanceAfter: newBalance,
+          balanceAfter: updatedItem.quantityAvailable,
           reasonNote,
         },
       });
@@ -180,7 +201,7 @@ export class AdminService {
         sku: inventoryItem.variant.skuCode,
       },
       newValuesJson: {
-        quantityAvailable: newBalance,
+        quantityAvailable: updated.quantityAvailable,
         quantityChange: quantity,
         changeType: resolvedChangeType,
         reasonNote,
