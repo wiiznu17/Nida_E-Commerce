@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useCatalog } from '@/context/CatalogContext';
 import { useCart } from '@/context/CartContext';
+import { fetchCatalogProductsWithMeta } from '@/lib/catalogApi';
 import type { StorefrontProduct } from '@repo/types';
 import {
   SearchTopBar,
@@ -11,189 +11,99 @@ import {
   SearchProductGrid,
   SearchEmptyState,
   SearchMobileDrawer,
-  INITIAL_FILTER_STATE,
-  type FilterState,
-  type SearchFilterOptions,
+  useSearchFilters,
 } from '@/components/search';
 
 function SearchPageContent() {
-  const searchParams = useSearchParams();
-  const query = searchParams.get('q')?.trim() || '';
-
-  const { productsList } = useCatalog();
+  const { productsList, categories } = useCatalog();
   const { addToCart } = useCart();
 
   const [isFilterVisible, setIsFilterVisible] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
+  const [serverProducts, setServerProducts] = useState<StorefrontProduct[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Distinct filter options extracted from catalog
-  const filterOptions = useMemo<SearchFilterOptions>(() => {
-    const deptSet = new Set<string>();
-    const subCatMap = new Map<string, { key: string; labelEn: string; labelTh: string }>();
-    const colorSet = new Set<string>();
+  const {
+    query,
+    filters,
+    filterOptions,
+    activeFilterCount,
+    toggleDepartment,
+    toggleSubCategory,
+    toggleColor,
+    handlePriceRangeChange,
+    handleToggleOnSale,
+    handleToggleNewArrivals,
+    handleSortChange,
+    clearAllFilters,
+  } = useSearchFilters({ productsList, categories });
 
-    productsList.forEach((p) => {
-      if (p.department) deptSet.add(p.department.toLowerCase());
-      if (p.category) deptSet.add(p.category.toLowerCase());
+  // Server Search Fetch Effect
+  useEffect(() => {
+    let isCancelled = false;
+    setIsLoading(true);
 
-      if (p.subCategory) {
-        subCatMap.set(p.subCategory, {
-          key: p.subCategory,
-          labelEn: p.subCategory,
-          labelTh: p.subCategoryTh || p.subCategory,
-        });
-      }
+    let minPrice: number | undefined;
+    let maxPrice: number | undefined;
+    if (filters.priceRange === 'under100') {
+      minPrice = 0;
+      maxPrice = 100;
+    } else if (filters.priceRange === '100-200') {
+      minPrice = 100;
+      maxPrice = 200;
+    } else if (filters.priceRange === 'over200') {
+      minPrice = 200;
+    }
 
-      if (p.colors && Array.isArray(p.colors)) {
-        p.colors.forEach((c) => colorSet.add(c));
-      }
-    });
-
-    return {
-      departments: Array.from(deptSet),
-      subCategories: Array.from(subCatMap.values()),
-      colors: Array.from(colorSet),
+    const sortMap: Record<string, 'featured' | 'newest' | 'price_asc' | 'price_desc'> = {
+      featured: 'featured',
+      newest: 'newest',
+      'price-asc': 'price_asc',
+      'price-desc': 'price_desc',
     };
-  }, [productsList]);
 
-  // Toggle filter handlers
-  const toggleDepartment = (dept: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      departments: prev.departments.includes(dept)
-        ? prev.departments.filter((d) => d !== dept)
-        : [...prev.departments, dept],
-    }));
-  };
+    fetchCatalogProductsWithMeta({
+      search: query || undefined,
+      department: filters.departments.length === 1 ? filters.departments[0] : undefined,
+      subCategory: filters.subCategories.length === 1 ? filters.subCategories[0] : undefined,
+      minPrice,
+      maxPrice,
+      colors: filters.colors.length > 0 ? filters.colors : undefined,
+      tag: filters.onSale ? 'SALE' : filters.newArrivals ? 'NEW' : undefined,
+      sortBy: sortMap[filters.sortBy] ?? 'featured',
+      limit: 48,
+    })
+      .then((res) => {
+        if (!isCancelled) {
+          let products = res.products;
+          if (filters.departments.length > 1) {
+            products = products.filter((p) =>
+              filters.departments.some((d) => (p.department || '').toLowerCase().includes(d))
+            );
+          }
+          if (filters.subCategories.length > 1) {
+            products = products.filter((p) =>
+              p.subCategory && filters.subCategories.includes(p.subCategory)
+            );
+          }
 
-  const toggleSubCategory = (subCat: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      subCategories: prev.subCategories.includes(subCat)
-        ? prev.subCategories.filter((s) => s !== subCat)
-        : [...prev.subCategories, subCat],
-    }));
-  };
-
-  const toggleColor = (colorHex: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      colors: prev.colors.includes(colorHex)
-        ? prev.colors.filter((c) => c !== colorHex)
-        : [...prev.colors, colorHex],
-    }));
-  };
-
-  const handlePriceRangeChange = (priceRange: FilterState['priceRange']) => {
-    setFilters((prev) => ({ ...prev, priceRange }));
-  };
-
-  const handleToggleOnSale = (onSale: boolean) => {
-    setFilters((prev) => ({ ...prev, onSale }));
-  };
-
-  const handleToggleNewArrivals = (newArrivals: boolean) => {
-    setFilters((prev) => ({ ...prev, newArrivals }));
-  };
-
-  const handleSortChange = (sortBy: FilterState['sortBy']) => {
-    setFilters((prev) => ({ ...prev, sortBy }));
-  };
-
-  const clearAllFilters = () => {
-    setFilters({
-      ...INITIAL_FILTER_STATE,
-      sortBy: filters.sortBy,
-    });
-  };
-
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    count += filters.departments.length;
-    count += filters.subCategories.length;
-    count += filters.colors.length;
-    if (filters.priceRange !== null) count += 1;
-    if (filters.onSale) count += 1;
-    if (filters.newArrivals) count += 1;
-    return count;
-  }, [filters]);
-
-  // Main filtered & sorted product list
-  const filteredProducts = useMemo(() => {
-    let result = productsList.slice();
-
-    if (query) {
-      const q = query.toLowerCase();
-      result = result.filter((p) => {
-        return (
-          p.name.toLowerCase().includes(q) ||
-          (p.nameTh && p.nameTh.toLowerCase().includes(q)) ||
-          p.category.toLowerCase().includes(q) ||
-          (p.department && p.department.toLowerCase().includes(q)) ||
-          (p.subCategory && p.subCategory.toLowerCase().includes(q)) ||
-          (p.subCategoryTh && p.subCategoryTh.toLowerCase().includes(q)) ||
-          (p.description && p.description.toLowerCase().includes(q)) ||
-          (p.descriptionTh && p.descriptionTh.toLowerCase().includes(q)) ||
-          (p.tag && p.tag.toLowerCase().includes(q))
-        );
+          setServerProducts(products);
+          setTotalCount(res.total);
+          setIsLoading(false);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!isCancelled) {
+          console.warn('[SearchPage] Server search error:', err);
+          setIsLoading(false);
+        }
       });
-    }
 
-    if (filters.departments.length > 0) {
-      result = result.filter((p) => {
-        const pDept = (p.department || p.category || '').toLowerCase();
-        return filters.departments.some(
-          (d) => pDept.includes(d) || (d === 'bags' && pDept.includes('bag'))
-        );
-      });
-    }
-
-    if (filters.subCategories.length > 0) {
-      result = result.filter((p) => {
-        return p.subCategory && filters.subCategories.includes(p.subCategory);
-      });
-    }
-
-    if (filters.priceRange) {
-      if (filters.priceRange === 'under100') {
-        result = result.filter((p) => p.price < 100);
-      } else if (filters.priceRange === '100-200') {
-        result = result.filter((p) => p.price >= 100 && p.price <= 200);
-      } else if (filters.priceRange === 'over200') {
-        result = result.filter((p) => p.price > 200);
-      }
-    }
-
-    if (filters.colors.length > 0) {
-      result = result.filter((p) => {
-        if (!p.colors || !Array.isArray(p.colors)) return false;
-        return p.colors.some((c) => filters.colors.includes(c));
-      });
-    }
-
-    if (filters.onSale) {
-      result = result.filter((p) => Boolean(p.originalPrice && p.originalPrice > p.price));
-    }
-
-    if (filters.newArrivals) {
-      result = result.filter((p) => {
-        const tag = (p.tag || '').toLowerCase();
-        const tagTh = (p.tagTh || '').toLowerCase();
-        return tag.includes('new') || tagTh.includes('ใหม่');
-      });
-    }
-
-    if (filters.sortBy === 'price-asc') {
-      result.sort((a, b) => a.price - b.price);
-    } else if (filters.sortBy === 'price-desc') {
-      result.sort((a, b) => b.price - a.price);
-    } else if (filters.sortBy === 'newest') {
-      result.sort((a, b) => b.id.localeCompare(a.id));
-    }
-
-    return result;
-  }, [productsList, query, filters]);
+    return () => {
+      isCancelled = true;
+    };
+  }, [query, filters]);
 
   const handleAddToCart = (product: StorefrontProduct) => {
     addToCart(product, 'M', product.colors?.[0] || '#2B1810');
@@ -204,7 +114,7 @@ function SearchPageContent() {
       {/* 1. Sticky Control Bar */}
       <SearchTopBar
         query={query}
-        totalCount={filteredProducts.length}
+        totalCount={totalCount}
         isFilterVisible={isFilterVisible}
         activeFilterCount={activeFilterCount}
         sortBy={filters.sortBy}
@@ -214,12 +124,12 @@ function SearchPageContent() {
       />
 
       {/* 2. Main Content Layout: Sidebar + Grid */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-8">
-          {/* Collapsible Left Desktop Sidebar */}
+          {/* Collapsible Left Filter Sidebar */}
           {isFilterVisible && (
-            <aside className="hidden md:block w-60 lg:w-64 shrink-0 transition-all duration-300">
-              <div className="sticky top-40 max-h-[calc(100vh-180px)] overflow-y-auto pr-3">
+            <aside className="hidden lg:block w-64 shrink-0">
+              <div className="sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto pr-2 pb-12">
                 <SearchFilterSidebar
                   filters={filters}
                   filterOptions={filterOptions}
@@ -236,13 +146,17 @@ function SearchPageContent() {
             </aside>
           )}
 
-          {/* Product Grid or Empty State */}
+          {/* Product Grid Area */}
           <main className="flex-1 min-w-0">
-            {filteredProducts.length === 0 ? (
+            {isLoading ? (
+              <div className="py-24 text-center">
+                <div className="inline-block w-8 h-8 border-2 border-[#2B1810] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : serverProducts.length === 0 ? (
               <SearchEmptyState onClearAll={clearAllFilters} />
             ) : (
               <SearchProductGrid
-                products={filteredProducts}
+                products={serverProducts}
                 isFilterVisible={isFilterVisible}
                 onAddToCart={handleAddToCart}
               />
@@ -251,11 +165,11 @@ function SearchPageContent() {
         </div>
       </div>
 
-      {/* 3. Mobile Filter Drawer */}
+      {/* 3. Mobile Slide-Over Drawer */}
       <SearchMobileDrawer
         isOpen={isMobileFilterOpen}
         onClose={() => setIsMobileFilterOpen(false)}
-        totalCount={filteredProducts.length}
+        totalCount={totalCount}
       >
         <SearchFilterSidebar
           filters={filters}
@@ -278,7 +192,7 @@ export default function SearchPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-white py-20 flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-[#2B1810] border-t-transparent rounded-full animate-spin" />
         </div>
       }

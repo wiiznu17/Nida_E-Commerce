@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Check, RotateCcw } from 'lucide-react';
+import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import type { SearchFilterSidebarProps, FilterState } from './searchTypes';
-import { DEPARTMENT_LABELS, COLOR_NAMES } from './searchConstants';
+import { DEPARTMENT_LABELS } from './searchConstants';
+import { SearchColorFilter } from './SearchColorFilter';
 
 export function SearchFilterSidebar({
   filters,
@@ -104,21 +105,21 @@ export function SearchFilterSidebar({
           </button>
           {openSections.category && (
             <div className="mt-3 space-y-2 max-h-56 overflow-y-auto pr-1">
-              {filterOptions.subCategories.map((sub) => {
-                const isChecked = filters.subCategories.includes(sub.key);
-                const label = language === 'th' ? sub.labelTh : sub.labelEn;
+              {filterOptions.subCategories.map((cat) => {
+                const isChecked = filters.subCategories.includes(cat.key);
+                const label = language === 'th' ? cat.labelTh : cat.labelEn;
                 return (
                   <label
-                    key={sub.key}
+                    key={cat.key}
                     className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]"
                   >
                     <input
                       type="checkbox"
                       checked={isChecked}
-                      onChange={() => onToggleSubCategory(sub.key)}
+                      onChange={() => onToggleSubCategory(cat.key)}
                       className="w-4 h-4 rounded border-gray-300 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
                     />
-                    <span className="truncate">{label}</span>
+                    <span className="line-clamp-1">{label}</span>
                   </label>
                 );
               })}
@@ -183,50 +184,11 @@ export function SearchFilterSidebar({
             {openSections.color ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
           {openSections.color && (
-            <div className="mt-3 grid grid-cols-4 gap-2.5">
-              {filterOptions.colors.map((colorHex) => {
-                const isSelected = filters.colors.includes(colorHex);
-                const colorInfo = COLOR_NAMES[colorHex];
-                const displayName = colorInfo
-                  ? language === 'th'
-                    ? colorInfo.th
-                    : colorInfo.en
-                  : colorHex;
-
-                return (
-                  <button
-                    key={colorHex}
-                    type="button"
-                    onClick={() => onToggleColor(colorHex)}
-                    title={displayName}
-                    className="flex flex-col items-center group py-1 cursor-pointer"
-                  >
-                    <div
-                      className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
-                        isSelected
-                          ? 'border-[#2B1810] ring-2 ring-[#2B1810] scale-110'
-                          : 'border-gray-300 hover:scale-105'
-                      }`}
-                      style={{ backgroundColor: colorHex }}
-                    >
-                      {isSelected && (
-                        <Check
-                          size={12}
-                          className={
-                            colorHex === '#FFFFFF' || colorHex === '#F59E0B' || colorHex === '#D4B996'
-                              ? 'text-black'
-                              : 'text-white'
-                          }
-                        />
-                      )}
-                    </div>
-                    <span className="text-[10px] text-gray-500 mt-1 line-clamp-1 text-center font-medium">
-                      {displayName}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            <SearchColorFilter
+              availableColors={filterOptions.colors}
+              selectedColors={filters.colors}
+              onToggleColor={onToggleColor}
+            />
           )}
         </div>
       )}

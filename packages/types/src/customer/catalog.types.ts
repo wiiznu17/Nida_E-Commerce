@@ -108,10 +108,14 @@ export interface ApiProductVariant {
 export interface StoreQueryProductsParams {
   department?: string;
   category?: string;
+  subCategory?: string;
   search?: string;
   tag?: string;
   isPreorder?: boolean;
-  sortBy?: 'newest' | 'price_asc' | 'price_desc';
+  minPrice?: number;
+  maxPrice?: number;
+  colors?: string[];
+  sortBy?: 'featured' | 'newest' | 'price_asc' | 'price-asc' | 'price_desc' | 'price-desc';
   page?: number;
   limit?: number;
 }

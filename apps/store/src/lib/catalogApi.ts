@@ -117,9 +117,16 @@ export function mapApiProductToStorefront(
   };
 }
 
-export async function fetchCatalogProducts(
+export interface CatalogProductsResult {
+  products: StorefrontProduct[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export async function fetchCatalogProductsWithMeta(
   params?: StoreQueryProductsParams,
-): Promise<StorefrontProduct[]> {
+): Promise<CatalogProductsResult> {
   try {
     const searchParams = new URLSearchParams();
     if (params?.department && params.department !== 'all') {
@@ -128,11 +135,23 @@ export async function fetchCatalogProducts(
     if (params?.category && params.category !== 'all') {
       searchParams.set('category', params.category);
     }
+    if (params?.subCategory) {
+      searchParams.set('subCategory', params.subCategory);
+    }
     if (params?.search) {
       searchParams.set('search', params.search);
     }
     if (params?.tag) {
       searchParams.set('tag', params.tag);
+    }
+    if (params?.minPrice !== undefined) {
+      searchParams.set('minPrice', String(params.minPrice));
+    }
+    if (params?.maxPrice !== undefined) {
+      searchParams.set('maxPrice', String(params.maxPrice));
+    }
+    if (params?.colors && params.colors.length > 0) {
+      searchParams.set('colors', params.colors.join(','));
     }
     if (params?.isPreorder !== undefined) {
       searchParams.set('isPreorder', String(params.isPreorder));
@@ -164,13 +183,27 @@ export async function fetchCatalogProducts(
 
     if (!itemsList) throw new Error('Invalid response structure');
 
-    return itemsList.map((item) =>
+    const products = itemsList.map((item) =>
       mapApiProductToStorefront(item as Record<string, unknown>),
     );
+
+    const pagination = (body.pagination ?? {}) as Record<string, unknown>;
+    const total = typeof pagination.total === 'number' ? pagination.total : products.length;
+    const page = typeof pagination.page === 'number' ? pagination.page : 1;
+    const totalPages = typeof pagination.totalPages === 'number' ? pagination.totalPages : 1;
+
+    return { products, total, page, totalPages };
   } catch (err) {
-    console.warn('[catalogApi] fetchCatalogProducts error:', err);
-    return [];
+    console.warn('[catalogApi] fetchCatalogProductsWithMeta error:', err);
+    return { products: [], total: 0, page: 1, totalPages: 1 };
   }
+}
+
+export async function fetchCatalogProducts(
+  params?: StoreQueryProductsParams,
+): Promise<StorefrontProduct[]> {
+  const result = await fetchCatalogProductsWithMeta(params);
+  return result.products;
 }
 
 export async function fetchProductByIdOrSlug(

@@ -28,8 +28,12 @@ export class CustomerCatalogService {
     const {
       department,
       category,
+      subCategory,
       search,
       tag,
+      minPrice,
+      maxPrice,
+      colors,
       isPreorder,
       sortBy = 'newest',
       page = 1,
@@ -46,10 +50,15 @@ export class CustomerCatalogService {
       where['OR'] = [
         { name: { contains: search, mode: 'insensitive' } },
         { nameTh: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { descriptionTh: { contains: search, mode: 'insensitive' } },
+        { tag: { contains: search, mode: 'insensitive' } },
+        { category: { name: { contains: search, mode: 'insensitive' } } },
+        { category: { nameTh: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
-    if (department || category) {
+    if (department || category || subCategory) {
       const categoryFilter: Record<string, unknown> = {};
       if (
         department &&
@@ -59,8 +68,15 @@ export class CustomerCatalogService {
       ) {
         categoryFilter['department'] = department.toUpperCase() as Department;
       }
-      if (category) {
+      if (category && category !== 'all') {
         categoryFilter['slug'] = category;
+      }
+      if (subCategory) {
+        categoryFilter['OR'] = [
+          { name: { contains: subCategory, mode: 'insensitive' } },
+          { nameTh: { contains: subCategory, mode: 'insensitive' } },
+          { slug: subCategory },
+        ];
       }
       where['category'] = categoryFilter;
     }
@@ -69,13 +85,33 @@ export class CustomerCatalogService {
       where['tag'] = tag;
     }
 
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      const priceFilter: Record<string, number> = {};
+      if (minPrice !== undefined) priceFilter['gte'] = minPrice;
+      if (maxPrice !== undefined) priceFilter['lte'] = maxPrice;
+      where['basePrice'] = priceFilter;
+    }
+
+    if (colors && colors.length > 0) {
+      where['variants'] = {
+        some: {
+          hex: { in: colors, mode: 'insensitive' },
+        },
+      };
+    }
+
     if (isPreorder !== undefined) {
       where['isPreorder'] = isPreorder;
     }
 
     let orderBy: Record<string, 'asc' | 'desc'> = { createdAt: 'desc' };
-    if (sortBy === 'price_asc') orderBy = { basePrice: 'asc' };
-    else if (sortBy === 'price_desc') orderBy = { basePrice: 'desc' };
+    if (sortBy === 'price_asc' || sortBy === 'price-asc') {
+      orderBy = { basePrice: 'asc' };
+    } else if (sortBy === 'price_desc' || sortBy === 'price-desc') {
+      orderBy = { basePrice: 'desc' };
+    } else if (sortBy === 'newest') {
+      orderBy = { createdAt: 'desc' };
+    }
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({

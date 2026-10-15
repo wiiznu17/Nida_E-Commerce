@@ -17,31 +17,47 @@ export class CustomerCatalogController {
   @ApiOperation({ summary: 'List storefront products' })
   @ApiQuery({ name: 'department', required: false })
   @ApiQuery({ name: 'category', required: false })
+  @ApiQuery({ name: 'subCategory', required: false })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'tag', required: false })
+  @ApiQuery({ name: 'minPrice', required: false, type: Number })
+  @ApiQuery({ name: 'maxPrice', required: false, type: Number })
+  @ApiQuery({ name: 'colors', required: false, type: String })
   @ApiQuery({ name: 'isPreorder', required: false, type: Boolean })
   @ApiQuery({
     name: 'sortBy',
     required: false,
-    enum: ['newest', 'price_asc', 'price_desc'],
+    enum: ['featured', 'newest', 'price_asc', 'price-asc', 'price_desc', 'price-desc'],
   })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   async getProducts(
     @Query('department') department?: string,
     @Query('category') category?: string,
+    @Query('subCategory') subCategory?: string,
     @Query('search') search?: string,
     @Query('tag') tag?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('colors') colors?: string,
     @Query('isPreorder') isPreorder?: string,
-    @Query('sortBy') sortBy?: 'newest' | 'price_asc' | 'price_desc',
+    @Query('sortBy') sortBy?: 'featured' | 'newest' | 'price_asc' | 'price-asc' | 'price_desc' | 'price-desc',
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ): Promise<PaginatedResponse<ApiProduct>> {
+    const parsedColors = colors ? colors.split(',').map((c) => c.trim()).filter(Boolean) : undefined;
+    const parsedMinPrice = minPrice !== undefined && minPrice !== '' ? Number(minPrice) : undefined;
+    const parsedMaxPrice = maxPrice !== undefined && maxPrice !== '' ? Number(maxPrice) : undefined;
+
     return this.catalogService.getProducts({
       department,
       category,
+      subCategory,
       search,
       tag,
+      minPrice: parsedMinPrice,
+      maxPrice: parsedMaxPrice,
+      colors: parsedColors,
       isPreorder: isPreorder !== undefined ? isPreorder === 'true' : undefined,
       sortBy,
       page: page ? Math.max(1, Number(page)) : 1,
