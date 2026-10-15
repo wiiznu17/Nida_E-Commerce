@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import type { FilterState, SearchFilterOptions } from './searchTypes';
+import type { FilterState, CatalogFilterOptions } from '../catalog/catalogTypes';
 import type { StorefrontProduct } from '@repo/types';
 
 interface UseSearchFiltersParams {
@@ -25,7 +25,6 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     const deptParam = searchParams.get('department')?.trim() ?? '';
     const subCatParam = searchParams.get('subCategory')?.trim() ?? '';
     const priceParam = (searchParams.get('priceRange')?.trim() as FilterState['priceRange']) ?? null;
-    const colorsParam = searchParams.get('colors')?.trim() ?? '';
     const onSaleParam = searchParams.get('onSale') === 'true';
     const newArrivalsParam = searchParams.get('newArrivals') === 'true';
     const sortParam = (searchParams.get('sort')?.trim() as FilterState['sortBy']) ?? 'featured';
@@ -34,7 +33,6 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
       departments: deptParam ? deptParam.split(',').filter(Boolean) : [],
       subCategories: subCatParam ? subCatParam.split(',').filter(Boolean) : [],
       priceRange: priceParam,
-      colors: colorsParam ? colorsParam.split(',').filter(Boolean) : [],
       onSale: onSaleParam,
       newArrivals: newArrivalsParam,
       sortBy: sortParam,
@@ -50,7 +48,6 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     if (next.departments.length > 0) sp.set('department', next.departments.join(','));
     if (next.subCategories.length > 0) sp.set('subCategory', next.subCategories.join(','));
     if (next.priceRange) sp.set('priceRange', next.priceRange);
-    if (next.colors.length > 0) sp.set('colors', next.colors.join(','));
     if (next.onSale) sp.set('onSale', 'true');
     if (next.newArrivals) sp.set('newArrivals', 'true');
     if (next.sortBy && next.sortBy !== 'featured') sp.set('sort', next.sortBy);
@@ -59,10 +56,9 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
   };
 
   // Distinct filter options extracted from catalog & categories tree
-  const filterOptions = useMemo<SearchFilterOptions>(() => {
+  const filterOptions = useMemo<CatalogFilterOptions>(() => {
     const deptSet = new Set<string>();
     const subCatMap = new Map<string, { key: string; labelEn: string; labelTh: string }>();
-    const colorSet = new Set<string>();
 
     categories.forEach((cat) => {
       if (cat.department) deptSet.add(cat.department.toLowerCase());
@@ -84,15 +80,11 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
           labelTh: p.subCategoryTh ?? p.subCategory,
         });
       }
-      if (p.colors && Array.isArray(p.colors)) {
-        p.colors.forEach((c) => colorSet.add(c));
-      }
     });
 
     return {
       departments: Array.from(deptSet),
       subCategories: Array.from(subCatMap.values()),
-      colors: Array.from(colorSet),
     };
   }, [productsList, categories]);
 
@@ -108,13 +100,6 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
       ? filters.subCategories.filter((s) => s !== subCat)
       : [...filters.subCategories, subCat];
     updateUrlFilters({ subCategories });
-  };
-
-  const toggleColor = (colorHex: string) => {
-    const colors = filters.colors.includes(colorHex)
-      ? filters.colors.filter((c) => c !== colorHex)
-      : [...filters.colors, colorHex];
-    updateUrlFilters({ colors });
   };
 
   const handlePriceRangeChange = (priceRange: FilterState['priceRange']) => {
@@ -141,7 +126,6 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     let count = 0;
     count += filters.departments.length;
     count += filters.subCategories.length;
-    count += filters.colors.length;
     if (filters.priceRange !== null) count += 1;
     if (filters.onSale) count += 1;
     if (filters.newArrivals) count += 1;
@@ -155,7 +139,6 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     activeFilterCount,
     toggleDepartment,
     toggleSubCategory,
-    toggleColor,
     handlePriceRangeChange,
     handleToggleOnSale,
     handleToggleNewArrivals,

@@ -11,13 +11,14 @@ import {
   getProductTag,
 } from '@/context/LanguageContext';
 import type { StorefrontProduct } from '@repo/types';
-import type { SearchProductGridProps } from './searchTypes';
+import type { CatalogProductGridProps } from './catalogTypes';
 
-export function SearchProductGrid({
+
+export function CatalogProductGrid({
   products,
   isFilterVisible,
   onAddToCart,
-}: SearchProductGridProps) {
+}: CatalogProductGridProps) {
   const { language, t } = useLanguage();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [addedProductId, setAddedProductId] = useState<string | null>(null);

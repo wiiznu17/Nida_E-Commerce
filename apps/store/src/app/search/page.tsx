@@ -6,13 +6,16 @@ import { useCart } from '@/context/CartContext';
 import { fetchCatalogProductsWithMeta } from '@/lib/catalogApi';
 import type { StorefrontProduct } from '@repo/types';
 import {
-  SearchTopBar,
-  SearchFilterSidebar,
-  SearchProductGrid,
+  CatalogTopBar,
+  CatalogFilterSidebar,
+  CatalogProductGrid,
+  CatalogMobileDrawer,
+} from '@/components/catalog';
+import {
   SearchEmptyState,
-  SearchMobileDrawer,
   useSearchFilters,
 } from '@/components/search';
+
 
 function SearchPageContent() {
   const { productsList, categories } = useCatalog();
@@ -31,7 +34,6 @@ function SearchPageContent() {
     activeFilterCount,
     toggleDepartment,
     toggleSubCategory,
-    toggleColor,
     handlePriceRangeChange,
     handleToggleOnSale,
     handleToggleNewArrivals,
@@ -69,7 +71,6 @@ function SearchPageContent() {
       subCategory: filters.subCategories.length === 1 ? filters.subCategories[0] : undefined,
       minPrice,
       maxPrice,
-      colors: filters.colors.length > 0 ? filters.colors : undefined,
       tag: filters.onSale ? 'SALE' : filters.newArrivals ? 'NEW' : undefined,
       sortBy: sortMap[filters.sortBy] ?? 'featured',
       limit: 48,
@@ -112,8 +113,8 @@ function SearchPageContent() {
   return (
     <div className="min-h-screen bg-white font-sans">
       {/* 1. Sticky Control Bar */}
-      <SearchTopBar
-        query={query}
+      <CatalogTopBar
+        searchQuery={query}
         totalCount={totalCount}
         isFilterVisible={isFilterVisible}
         activeFilterCount={activeFilterCount}
@@ -130,13 +131,12 @@ function SearchPageContent() {
           {isFilterVisible && (
             <aside className="hidden lg:block w-64 shrink-0">
               <div className="sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto pr-2 pb-12">
-                <SearchFilterSidebar
+                <CatalogFilterSidebar
                   filters={filters}
                   filterOptions={filterOptions}
                   activeFilterCount={activeFilterCount}
                   onToggleDepartment={toggleDepartment}
                   onToggleSubCategory={toggleSubCategory}
-                  onToggleColor={toggleColor}
                   onPriceRangeChange={handlePriceRangeChange}
                   onToggleOnSale={handleToggleOnSale}
                   onToggleNewArrivals={handleToggleNewArrivals}
@@ -155,7 +155,7 @@ function SearchPageContent() {
             ) : serverProducts.length === 0 ? (
               <SearchEmptyState onClearAll={clearAllFilters} />
             ) : (
-              <SearchProductGrid
+              <CatalogProductGrid
                 products={serverProducts}
                 isFilterVisible={isFilterVisible}
                 onAddToCart={handleAddToCart}
@@ -166,24 +166,23 @@ function SearchPageContent() {
       </div>
 
       {/* 3. Mobile Slide-Over Drawer */}
-      <SearchMobileDrawer
+      <CatalogMobileDrawer
         isOpen={isMobileFilterOpen}
         onClose={() => setIsMobileFilterOpen(false)}
         totalCount={totalCount}
       >
-        <SearchFilterSidebar
+        <CatalogFilterSidebar
           filters={filters}
           filterOptions={filterOptions}
           activeFilterCount={activeFilterCount}
           onToggleDepartment={toggleDepartment}
           onToggleSubCategory={toggleSubCategory}
-          onToggleColor={toggleColor}
           onPriceRangeChange={handlePriceRangeChange}
           onToggleOnSale={handleToggleOnSale}
           onToggleNewArrivals={handleToggleNewArrivals}
           onClearAll={clearAllFilters}
         />
-      </SearchMobileDrawer>
+      </CatalogMobileDrawer>
     </div>
   );
 }

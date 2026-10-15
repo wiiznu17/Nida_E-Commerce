@@ -3,29 +3,26 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import type { SearchFilterSidebarProps, FilterState } from './searchTypes';
-import { DEPARTMENT_LABELS } from './searchConstants';
-import { SearchColorFilter } from './SearchColorFilter';
+import type { CatalogFilterSidebarProps } from './catalogTypes';
+import { STANDARD_DEPARTMENTS, DEPARTMENT_LABELS, PRICE_OPTIONS } from './catalogConstants';
 
-export function SearchFilterSidebar({
+export function CatalogFilterSidebar({
   filters,
   filterOptions,
   activeFilterCount,
   onToggleDepartment,
   onToggleSubCategory,
-  onToggleColor,
   onPriceRangeChange,
   onToggleOnSale,
   onToggleNewArrivals,
   onClearAll,
-}: SearchFilterSidebarProps) {
+}: CatalogFilterSidebarProps) {
   const { language, t } = useLanguage();
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     gender: true,
     category: true,
     price: true,
-    color: true,
     offers: true,
   });
 
@@ -35,6 +32,11 @@ export function SearchFilterSidebar({
       [section]: !prev[section],
     }));
   };
+
+  const departmentsToRender =
+    filterOptions.departments.length > 0
+      ? filterOptions.departments
+      : (STANDARD_DEPARTMENTS as readonly string[]);
 
   return (
     <div className="space-y-6 text-sm">
@@ -67,21 +69,25 @@ export function SearchFilterSidebar({
         </button>
         {openSections.gender && (
           <div className="mt-3 space-y-2">
-            {['women', 'men', 'kids', 'bags', 'shoes', 'home'].map((dept) => {
-              const isChecked = filters.departments.includes(dept);
+            {departmentsToRender.map((dept) => {
+              const normalized = dept.toLowerCase();
+              const isChecked = filters.departments.includes(normalized);
               const label =
-                language === 'th'
-                  ? DEPARTMENT_LABELS[dept]?.th || dept
-                  : DEPARTMENT_LABELS[dept]?.en || dept;
+                DEPARTMENT_LABELS[normalized]
+                  ? language === 'th'
+                    ? DEPARTMENT_LABELS[normalized].th
+                    : DEPARTMENT_LABELS[normalized].en
+                  : dept;
+
               return (
                 <label
-                  key={dept}
+                  key={normalized}
                   className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]"
                 >
                   <input
                     type="checkbox"
                     checked={isChecked}
-                    onChange={() => onToggleDepartment(dept)}
+                    onChange={() => onToggleDepartment(normalized)}
                     className="w-4 h-4 rounded border-gray-300 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
                   />
                   <span>{label}</span>
@@ -140,24 +146,20 @@ export function SearchFilterSidebar({
         </button>
         {openSections.price && (
           <div className="mt-3 space-y-2">
-            {[
-              { id: 'under100', label: t('search.under100') },
-              { id: '100-200', label: t('search.between100And200') },
-              { id: 'over200', label: t('search.over200') },
-            ].map((option) => (
+            {PRICE_OPTIONS.map((option) => (
               <label
                 key={option.id}
                 className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]"
               >
                 <input
                   type="radio"
-                  name="priceRange"
+                  name="catalogPriceRange"
                   checked={filters.priceRange === option.id}
-                  onChange={() =>
-                    onPriceRangeChange(
-                      filters.priceRange === option.id ? null : (option.id as FilterState['priceRange'])
-                    )
-                  }
+                  onChange={() => {
+                    if (filters.priceRange !== option.id) {
+                      onPriceRangeChange(option.id);
+                    }
+                  }}
                   onClick={() => {
                     if (filters.priceRange === option.id) {
                       onPriceRangeChange(null);
@@ -165,35 +167,14 @@ export function SearchFilterSidebar({
                   }}
                   className="w-4 h-4 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
                 />
-                <span>{option.label}</span>
+                <span>{t(option.i18nKey)}</span>
               </label>
             ))}
           </div>
         )}
       </div>
 
-      {/* 4. Color Swatches */}
-      {filterOptions.colors.length > 0 && (
-        <div className="border-b border-[#EAE3D9] pb-5">
-          <button
-            type="button"
-            onClick={() => toggleSection('color')}
-            className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-[#2B1810] py-1 text-left cursor-pointer"
-          >
-            <span>{t('search.color')}</span>
-            {openSections.color ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
-          {openSections.color && (
-            <SearchColorFilter
-              availableColors={filterOptions.colors}
-              selectedColors={filters.colors}
-              onToggleColor={onToggleColor}
-            />
-          )}
-        </div>
-      )}
-
-      {/* 5. Special Offers */}
+      {/* 4. Special Offers */}
       <div className="pb-2">
         <button
           type="button"
