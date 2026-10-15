@@ -810,49 +810,154 @@ export class CatalogService {
     const basePrice =
       dto.basePrice ?? dto.price ?? (Number(existing.basePrice) || 0);
 
-    await this.prisma.product.update({
-      where: { id: existing.id },
-      data: {
+    let categoryId = existing.categoryId;
+    if (dto.category) {
+      const category = await this.resolveCategory(dto.category, dto.department);
+      categoryId = category.id;
+    }
+
+    const hasImageUpdate =
+      dto.image !== undefined ||
+      dto.secondaryImage !== undefined ||
+      dto.colorImages !== undefined;
+
+    let imageList:
+      | Array<{
+          imageUrl: string;
+          isPrimary: boolean;
+          displayOrder: number;
+          altText?: string;
+        }>
+      | undefined;
+
+    if (hasImageUpdate) {
+      imageList = await this.commitAndPrepareImages({
+        ...dto,
         name: dto.name ?? existing.name,
-        nameTh: dto.nameTh !== undefined ? dto.nameTh : existing.nameTh,
-        description:
-          dto.description !== undefined
-            ? dto.description
-            : existing.description,
-        descriptionTh:
-          dto.descriptionTh !== undefined
-            ? dto.descriptionTh
-            : existing.descriptionTh,
-        materialsCare:
-          dto.materialsCare !== undefined
-            ? dto.materialsCare
-            : existing.materialsCare,
-        materialsCareTh:
-          dto.materialsCareTh !== undefined
-            ? dto.materialsCareTh
-            : existing.materialsCareTh,
-        basePrice,
-        originalPrice:
-          dto.originalPrice !== undefined
-            ? dto.originalPrice
-            : existing.originalPrice,
-        tag: dto.tag !== undefined ? dto.tag : existing.tag,
-        tagTh: dto.tagTh !== undefined ? dto.tagTh : existing.tagTh,
-        isPreorder:
-          dto.isPreorder !== undefined ? dto.isPreorder : existing.isPreorder,
-        preorderReleaseDate: dto.preorderReleaseDate
-          ? new Date(dto.preorderReleaseDate)
-          : existing.preorderReleaseDate,
-        preorderLimit:
-          dto.preorderLimit !== undefined
-            ? dto.preorderLimit
-            : existing.preorderLimit,
-        preorderDepositAmount:
-          dto.preorderDepositAmount !== undefined
-            ? dto.preorderDepositAmount
-            : existing.preorderDepositAmount,
-        isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
-      },
+      } as CreateProductDto);
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.product.update({
+        where: { id: existing.id },
+        data: {
+          name: dto.name ?? existing.name,
+          nameTh: dto.nameTh !== undefined ? dto.nameTh : existing.nameTh,
+          description:
+            dto.description !== undefined
+              ? dto.description
+              : existing.description,
+          descriptionTh:
+            dto.descriptionTh !== undefined
+              ? dto.descriptionTh
+              : existing.descriptionTh,
+          materialsCare:
+            dto.materialsCare !== undefined
+              ? dto.materialsCare
+              : existing.materialsCare,
+          materialsCareTh:
+            dto.materialsCareTh !== undefined
+              ? dto.materialsCareTh
+              : existing.materialsCareTh,
+          basePrice,
+          originalPrice:
+            dto.originalPrice !== undefined
+              ? dto.originalPrice
+              : existing.originalPrice,
+          categoryId,
+          tag: dto.tag !== undefined ? dto.tag : existing.tag,
+          tagTh: dto.tagTh !== undefined ? dto.tagTh : existing.tagTh,
+          isPreorder:
+            dto.isPreorder !== undefined ? dto.isPreorder : existing.isPreorder,
+          preorderReleaseDate: dto.preorderReleaseDate
+            ? new Date(dto.preorderReleaseDate)
+            : existing.preorderReleaseDate,
+          preorderLimit:
+            dto.preorderLimit !== undefined
+              ? dto.preorderLimit
+              : existing.preorderLimit,
+          preorderDepositAmount:
+            dto.preorderDepositAmount !== undefined
+              ? dto.preorderDepositAmount
+              : existing.preorderDepositAmount,
+          isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
+        },
+      });
+
+      if (imageList !== undefined && imageList.length > 0) {
+        await tx.productImage.deleteMany({
+          where: { productId: existing.id },
+        });
+
+        for (const img of imageList) {
+          await tx.productImage.create({
+            data: {
+              productId: existing.id,
+              imageUrl: img.imageUrl,
+              displayOrder: img.displayOrder,
+              isPrimary: img.isPrimary,
+              altText: img.altText ?? null,
+            },
+          });
+        }
+      }
+
+      if (dto.skus && Array.isArray(dto.skus) && dto.skus.length > 0) {
+        for (const skuItem of dto.skus) {
+          const existingVariant = await tx.productVariant.findFirst({
+            where: {
+              productId: existing.id,
+              skuCode: skuItem.sku,
+            },
+          });
+
+          if (existingVariant) {
+            await tx.productVariant.update({
+              where: { id: existingVariant.id },
+              data: {
+                size: skuItem.size,
+                colorName: skuItem.colorName,
+                colorHex: skuItem.colorHex,
+                priceAdjustment: skuItem.priceAdjustment ?? 0,
+                barcode: skuItem.barcode ?? null,
+              },
+            });
+
+            if (skuItem.stock !== undefined) {
+              await tx.inventoryItem.updateMany({
+                where: { variantId: existingVariant.id },
+                data: {
+                  quantityAvailable: skuItem.stock,
+                  lowStockThreshold: skuItem.lowStockThreshold ?? 5,
+                },
+              });
+            }
+          } else {
+            const newVariant = await tx.productVariant.create({
+              data: {
+                productId: existing.id,
+                skuCode: skuItem.sku,
+                size: skuItem.size,
+                colorName: skuItem.colorName,
+                colorHex: skuItem.colorHex,
+                priceAdjustment: skuItem.priceAdjustment ?? 0,
+                barcode: skuItem.barcode ?? null,
+                weightGrams: skuItem.weightGrams ?? 300,
+              },
+            });
+
+            await tx.inventoryItem.create({
+              data: {
+                variantId: newVariant.id,
+                quantityAvailable: skuItem.stock ?? 0,
+                quantityReserved: 0,
+                preorderBooked: 0,
+                lowStockThreshold: skuItem.lowStockThreshold ?? 5,
+              },
+            });
+          }
+        }
+      }
     });
 
     return this.getProductBySlug(existing.slug);

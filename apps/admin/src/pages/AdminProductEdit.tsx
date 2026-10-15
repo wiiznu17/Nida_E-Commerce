@@ -43,8 +43,14 @@ export default function AdminProductEdit() {
           price: detail.basePrice,
           basePrice: detail.basePrice,
           originalPrice: detail.originalPrice,
-          image: detail.images?.[0]?.imageUrl ?? '',
-          secondaryImage: detail.images?.[1]?.imageUrl,
+          image:
+            detail.images?.find((img) => img.isPrimary)?.imageUrl ??
+            detail.images?.[0]?.imageUrl ??
+            '',
+          secondaryImage:
+            detail.images?.find((img) => !img.isPrimary)?.imageUrl ??
+            detail.images?.[1]?.imageUrl,
+
           category: detail.category?.slug ?? 'apparel',
           department: detail.department?.toLowerCase() ?? 'women',
           subCategory: detail.category?.name,

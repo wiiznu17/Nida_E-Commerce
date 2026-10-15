@@ -9,7 +9,9 @@ import {
   Search,
   RotateCcw,
   Filter,
+  ImageIcon,
 } from 'lucide-react';
+
 import { AdminLayout } from '../components/layout';
 import {
   DropdownSelect,
@@ -441,17 +443,19 @@ export default function AdminInventory() {
                       <TableRow key={item.id} className="group">
                         {/* Image */}
                         <TableCell className="text-center">
-                          <div className="w-11 h-14 bg-gray-100 border border-brand-border rounded-xs overflow-hidden mx-auto flex-shrink-0">
-                            <img
-                              src={
-                                item.imageUrl ||
-                                'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200'
-                              }
-                              alt={item.productName}
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="w-11 h-14 bg-gray-100 border border-brand-border rounded-xs overflow-hidden mx-auto flex-shrink-0 flex items-center justify-center">
+                            {item.imageUrl ? (
+                              <img
+                                src={item.imageUrl}
+                                alt={item.productName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <ImageIcon size={16} className="text-gray-400" />
+                            )}
                           </div>
                         </TableCell>
+
 
                         {/* SKU & Dept */}
                         <TableCell>

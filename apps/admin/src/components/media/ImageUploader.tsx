@@ -233,11 +233,8 @@ export function ImageUploader({
                 src={value}
                 alt="Product preview"
                 className="w-full h-full object-cover object-center transition-transform group-hover:scale-105 duration-300"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800';
-                }}
               />
+
             </div>
 
             {/* Overlay Actions */}

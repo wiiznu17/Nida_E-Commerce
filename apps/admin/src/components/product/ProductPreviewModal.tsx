@@ -120,11 +120,8 @@ export function ProductPreviewModal({
                     src={image}
                     alt={name || 'Preview'}
                     className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800';
-                    }}
                   />
+
                 ) : (
                   <div className="text-center p-4">
                     <ImageIcon

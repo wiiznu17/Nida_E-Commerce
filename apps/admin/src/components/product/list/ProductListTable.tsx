@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Boxes, Edit, Eye, Trash2, ShoppingBag, Loader2 } from 'lucide-react';
+import { Boxes, Edit, Eye, Trash2, ShoppingBag, Loader2, ImageIcon } from 'lucide-react';
+
+
 import { useLanguage } from '../../../context/LanguageContext';
 import { STOREFRONT_URL } from '../../../config';
 import {
@@ -107,18 +109,20 @@ export function ProductListTable({
               <TableRow key={product.id} className="group">
                 {/* Image */}
                 <TableCell className="text-center">
-                  <div className="w-11 h-14 bg-gray-100 border border-brand-border rounded-xs overflow-hidden mx-auto">
-                    <img
-                      src={
-                        product.primaryImage ||
-                        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200'
-                      }
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+                  <div className="w-11 h-14 bg-gray-100 border border-brand-border rounded-xs overflow-hidden mx-auto flex items-center justify-center">
+                    {product.primaryImage ? (
+                      <img
+                        src={product.primaryImage}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <ImageIcon size={16} className="text-gray-400" />
+                    )}
                   </div>
                 </TableCell>
+
 
                 {/* Name & Subtitle */}
                 <TableCell>
