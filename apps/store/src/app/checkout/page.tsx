@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
 import {
   CreditCard,
@@ -10,23 +12,56 @@ import {
   Check,
   QrCode,
   Building2,
+  AlertCircle,
+  Loader2,
+  Lock,
 } from 'lucide-react';
+import { createCustomerOrder, type CreateCustomerOrderPayload } from '@/lib/customerApi';
+import { PaymentMethod } from '@repo/types';
 
 export default function CheckoutPage() {
-  const { items, cartTotal, setIsCartOpen } = useCart();
+  const { items, cartTotal, setIsCartOpen, clearCart } = useCart();
+  const { user, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { language, t } = useLanguage();
   const router = useRouter();
+
   const [step, setStep] = useState<'shipping' | 'payment'>('shipping');
   const [promoCode, setPromoCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<
-    'card' | 'promptpay' | 'bank'
-  >('card');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'promptpay' | 'bank'>('card');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderError, setOrderError] = useState('');
+
+  // Shipping Form State (Autofilled from authenticated User profile)
+  const [shippingData, setShippingData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
+  });
 
   // Close cart drawer when entering checkout
-  React.useEffect(() => {
+  useEffect(() => {
     setIsCartOpen(false);
   }, [setIsCartOpen]);
+
+  // Autofill shipping info whenever user logs in or profile loads
+  useEffect(() => {
+    if (user) {
+      setShippingData((prev) => ({
+        firstName: prev.firstName || user.firstName || '',
+        lastName: prev.lastName || user.lastName || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        address: prev.address || user.address || '',
+        city: prev.city || user.city || (language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'),
+        postalCode: prev.postalCode || user.postalCode || '10110',
+      }));
+    }
+  }, [user, language]);
 
   const discountAmount = discountApplied ? cartTotal * 0.2 : 0;
   const shippingCost = cartTotal >= 100 ? 0 : 9.99;
@@ -43,7 +78,7 @@ export default function CheckoutPage() {
         </h1>
         <button
           onClick={() => router.push('/')}
-          className="bg-[#2B1810] text-white px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-[#D97706] transition-colors"
+          className="bg-[#2B1810] text-white px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-[#D97706] transition-colors cursor-pointer"
         >
           {t('checkout.returnToShop')}
         </button>
@@ -64,13 +99,93 @@ export default function CheckoutPage() {
     window.scrollTo(0, 0);
   };
 
-  const handlePaymentSubmit = (e: React.FormEvent) => {
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/order-success');
+    setIsSubmitting(true);
+    setOrderError('');
+
+    try {
+      let mappedMethod: PaymentMethod = PaymentMethod.CREDIT_CARD;
+      if (paymentMethod === 'promptpay') {
+        mappedMethod = PaymentMethod.PROMPTPAY;
+      } else if (paymentMethod === 'bank') {
+        mappedMethod = PaymentMethod.BANK_TRANSFER;
+      }
+
+      const recipientName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
+
+      const payload: CreateCustomerOrderPayload = {
+        items: items.map((item) => ({
+          variantId: item.variantId || item.id,
+          quantity: item.quantity,
+        })),
+        shippingAddress: {
+          recipientName: recipientName || user?.fullName || 'Customer',
+          phone: shippingData.phone || '0812345678',
+          addressLine1: shippingData.address || 'Sukhumvit 24',
+          subdistrict: 'Klongtoey',
+          district: shippingData.city || 'Klongtoey',
+          province: 'Bangkok',
+          postalCode: shippingData.postalCode || '10110',
+        },
+        paymentMethod: mappedMethod,
+        customerEmail: shippingData.email || user?.email,
+        couponCode: discountApplied ? promoCode.trim().toUpperCase() : undefined,
+      };
+
+      const createdOrder = await createCustomerOrder(payload, token);
+      clearCart();
+      router.push(`/order-success?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}`);
+    } catch (err: unknown) {
+      setOrderError(
+        err instanceof Error
+          ? err.message
+          : 'เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ กรุณาลองใหม่อีกครั้ง',
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans">
+      {/* Checkout Member Login Banner */}
+      {!isAuthenticated && !isAuthLoading && (
+        <div className="mb-8 p-4 bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center space-x-3">
+            <Lock size={18} className="text-[#D97706] shrink-0" />
+            <div>
+              <p className="text-xs font-bold text-[#2B1810]">
+                {language === 'th'
+                  ? 'เข้าสู่ระบบด้วย OTP เพื่อผูกประวัติคำสั่งซื้อและสะสมแต้มสมาชิก'
+                  : 'Sign in with OTP to link this order to your account and earn rewards'}
+              </p>
+              <p className="text-[11px] text-gray-500">
+                {language === 'th'
+                  ? 'หากเป็นลูกค้าใหม่ ระบบจะสร้างบัญชีให้คุณโดยอัตโนมัติ'
+                  : 'New customer? We will create your account automatically'}
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/login?redirect=/checkout"
+            className="px-4 py-2 bg-[#2B1810] hover:bg-[#D97706] text-white text-xs font-black uppercase tracking-wider transition-colors shrink-0"
+          >
+            {t('auth.signInBtn')}
+          </Link>
+        </div>
+      )}
+
+      {orderError && (
+        <div className="mb-8 p-4 bg-red-50 border border-red-200 text-red-700 text-xs flex items-start space-x-3">
+          <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-600" />
+          <div>
+            <p className="font-bold">เกิดข้อผิดพลาดในการสั่งซื้อ</p>
+            <p className="mt-0.5">{orderError}</p>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row gap-12">
         {/* Left Column - Forms */}
         <div className="flex-1 lg:max-w-2xl">
@@ -102,23 +217,31 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.firstName')}
+                      {t('checkout.firstName')} *
                     </label>
                     <input
                       type="text"
                       required
-                      defaultValue="Phannida"
+                      value={shippingData.firstName}
+                      onChange={(e) =>
+                        setShippingData({ ...shippingData, firstName: e.target.value })
+                      }
+                      placeholder="Phannida"
                       className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.lastName')}
+                      {t('checkout.lastName')} *
                     </label>
                     <input
                       type="text"
                       required
-                      defaultValue="Wissanu"
+                      value={shippingData.lastName}
+                      onChange={(e) =>
+                        setShippingData({ ...shippingData, lastName: e.target.value })
+                      }
+                      placeholder="Wissanu"
                       className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
                     />
                   </div>
@@ -127,23 +250,31 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.email')}
+                      {t('checkout.email')} *
                     </label>
                     <input
                       type="email"
                       required
-                      defaultValue="customer@nida.com"
+                      value={shippingData.email}
+                      onChange={(e) =>
+                        setShippingData({ ...shippingData, email: e.target.value })
+                      }
+                      placeholder="customer@nida.com"
                       className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.phone')}
+                      {t('checkout.phone')} *
                     </label>
                     <input
                       type="tel"
                       required
-                      defaultValue="081-234-5678"
+                      value={shippingData.phone}
+                      onChange={(e) =>
+                        setShippingData({ ...shippingData, phone: e.target.value })
+                      }
+                      placeholder="081-234-5678"
                       className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
                     />
                   </div>
@@ -151,12 +282,16 @@ export default function CheckoutPage() {
 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    {t('checkout.address')}
+                    {t('checkout.address')} *
                   </label>
                   <input
                     type="text"
                     required
-                    defaultValue="108 Sukhumvit Soi 24"
+                    value={shippingData.address}
+                    onChange={(e) =>
+                      setShippingData({ ...shippingData, address: e.target.value })
+                    }
+                    placeholder="108 Sukhumvit Soi 24"
                     className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
                   />
                 </div>
@@ -164,25 +299,31 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.city')}
+                      {t('checkout.city')} *
                     </label>
                     <input
                       type="text"
                       required
-                      defaultValue={
-                        language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'
+                      value={shippingData.city}
+                      onChange={(e) =>
+                        setShippingData({ ...shippingData, city: e.target.value })
                       }
+                      placeholder="Bangkok"
                       className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.postalCode')}
+                      {t('checkout.postalCode')} *
                     </label>
                     <input
                       type="text"
                       required
-                      defaultValue="10110"
+                      value={shippingData.postalCode}
+                      onChange={(e) =>
+                        setShippingData({ ...shippingData, postalCode: e.target.value })
+                      }
+                      placeholder="10110"
                       className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
                     />
                   </div>
@@ -191,7 +332,7 @@ export default function CheckoutPage() {
                 <div className="pt-4">
                   <button
                     type="submit"
-                    className="w-full bg-[#2B1810] hover:bg-[#D97706] text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md"
+                    className="w-full bg-[#2B1810] hover:bg-[#D97706] text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg cursor-pointer"
                   >
                     {t('checkout.continueToPayment')}
                   </button>
@@ -200,23 +341,14 @@ export default function CheckoutPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              <h2 className="text-2xl font-black text-[#2B1810] uppercase tracking-tight">
-                {t('checkout.paymentMethod')}
-              </h2>
-
-              <div className="border border-gray-200 bg-gray-50 p-4 flex justify-between items-center text-xs">
-                <div>
-                  <span className="text-gray-500 font-bold uppercase block mb-0.5">
-                    {language === 'th' ? 'จัดส่งไปยัง:' : 'Ship To:'}
-                  </span>
-                  <span className="font-semibold text-gray-800">
-                    108 Sukhumvit Soi 24,{' '}
-                    {language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'} 10110
-                  </span>
-                </div>
+              <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                <h2 className="text-2xl font-black text-[#2B1810] uppercase tracking-tight">
+                  {t('checkout.paymentMethod')}
+                </h2>
                 <button
+                  type="button"
                   onClick={() => setStep('shipping')}
-                  className="font-black text-[#D97706] underline uppercase"
+                  className="text-xs font-bold text-[#2B1810] hover:text-[#D97706] underline uppercase tracking-wider"
                 >
                   {language === 'th' ? 'แก้ไขที่อยู่' : 'Edit'}
                 </button>
@@ -227,7 +359,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('card')}
-                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all ${
+                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                     paymentMethod === 'card'
                       ? 'border-[#2B1810] bg-[#2B1810] text-white'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
@@ -239,7 +371,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('promptpay')}
-                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all ${
+                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                     paymentMethod === 'promptpay'
                       ? 'border-[#2B1810] bg-[#2B1810] text-white'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
@@ -251,7 +383,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('bank')}
-                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all ${
+                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                     paymentMethod === 'bank'
                       ? 'border-[#2B1810] bg-[#2B1810] text-white'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
@@ -267,7 +399,7 @@ export default function CheckoutPage() {
                   <div className="border-2 border-[#2B1810] p-6 bg-white shadow-xs">
                     <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
                       <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
-                        {t('checkout.creditCard')}
+                        {t('checkout.creditCard')} (Sandbox Test Mode)
                       </span>
                       <CreditCard size={20} className="text-[#2B1810]" />
                     </div>
@@ -275,9 +407,7 @@ export default function CheckoutPage() {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                          {language === 'th'
-                            ? 'หมายเลขบัตร *'
-                            : 'Card Number *'}
+                          {language === 'th' ? 'หมายเลขบัตร *' : 'Card Number *'}
                         </label>
                         <input
                           type="text"
@@ -290,9 +420,7 @@ export default function CheckoutPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                            {language === 'th'
-                              ? 'วันหมดอายุ (MM/YY) *'
-                              : 'Exp Date (MM/YY) *'}
+                            {language === 'th' ? 'วันหมดอายุ (MM/YY) *' : 'Exp Date (MM/YY) *'}
                           </label>
                           <input
                             type="text"
@@ -316,9 +444,7 @@ export default function CheckoutPage() {
 
                       <div>
                         <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                          {language === 'th'
-                            ? 'ชื่อบนบัตร *'
-                            : 'Name On Card *'}
+                          {language === 'th' ? 'ชื่อบนบัตร *' : 'Name On Card *'}
                         </label>
                         <input
                           type="text"
@@ -338,8 +464,8 @@ export default function CheckoutPage() {
                     </div>
                     <p className="text-xs font-bold text-[#2B1810]">
                       {language === 'th'
-                        ? 'สแกน QR Code ผ่านแอปพลิเคชันธนาคารเพื่อชำระเงินทันที'
-                        : 'Scan the QR Code with any Thai mobile banking app for instant payment'}
+                        ? 'สแกน QR Code เพื่อชำระเงินจำลอง (ระบบจะตัดสต็อกทันทีเมื่อกดสั่งซื้อ)'
+                        : 'Scan QR Code for PromptPay payment (Stock will deduct upon order)'}
                     </p>
                     <p className="text-[11px] text-gray-500">
                       NIDA OFFICIAL STORE • PROMPTPAY ID: 0105567891234
@@ -350,30 +476,18 @@ export default function CheckoutPage() {
                 {paymentMethod === 'bank' && (
                   <div className="border-2 border-[#2B1810] p-6 bg-white shadow-xs space-y-3 text-xs">
                     <h4 className="font-bold text-[#2B1810]">
-                      {language === 'th'
-                        ? 'รายละเอียดบัญชีธนาคารสำหรับโอนเงิน:'
-                        : 'Bank Account Information:'}
+                      {language === 'th' ? 'รายละเอียดบัญชีธนาคารสำหรับโอนเงิน:' : 'Bank Account Information:'}
                     </h4>
                     <div className="bg-[#FAF7F2] p-3 border border-gray-200 space-y-1">
                       <p>
-                        <strong>
-                          {language === 'th' ? 'ธนาคาร:' : 'Bank:'}
-                        </strong>{' '}
-                        กสิกรไทย (Kasikornbank - KBANK)
+                        <strong>{language === 'th' ? 'ธนาคาร:' : 'Bank:'}</strong> กสิกรไทย (Kasikornbank - KBANK)
                       </p>
                       <p>
-                        <strong>
-                          {language === 'th' ? 'ชื่อบัญชี:' : 'Account Name:'}
-                        </strong>{' '}
-                        บริษัท นิดา แบรนด์ส จำกัด (Nida Brands Co., Ltd.)
+                        <strong>{language === 'th' ? 'ชื่อบัญชี:' : 'Account Name:'}</strong> บริษัท นิดา แบรนด์ส จำกัด (Nida Brands Co., Ltd.)
                       </p>
                       <p>
-                        <strong>
-                          {language === 'th' ? 'เลขที่บัญชี:' : 'Account No:'}
-                        </strong>{' '}
-                        <span className="font-mono font-bold text-[#D97706]">
-                          098-1-23456-7
-                        </span>
+                        <strong>{language === 'th' ? 'เลขที่บัญชี:' : 'Account No:'}</strong>{' '}
+                        <span className="font-mono font-bold text-[#D97706]">098-1-23456-7</span>
                       </p>
                     </div>
                   </div>
@@ -387,14 +501,23 @@ export default function CheckoutPage() {
                 <div className="pt-4 space-y-3">
                   <button
                     type="submit"
-                    className="w-full bg-[#2B1810] hover:bg-[#D97706] text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg"
+                    disabled={isSubmitting}
+                    className="w-full bg-[#2B1810] hover:bg-[#D97706] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg flex items-center justify-center space-x-2 cursor-pointer"
                   >
-                    {t('checkout.placeOrder')} (${finalTotal.toFixed(2)})
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>กำลังประมวลผลคำสั่งซื้อ...</span>
+                      </>
+                    ) : (
+                      <span>{t('checkout.placeOrder')} (${finalTotal.toFixed(2)})</span>
+                    )}
                   </button>
                   <button
                     type="button"
+                    disabled={isSubmitting}
                     onClick={() => setStep('shipping')}
-                    className="w-full py-2.5 text-center text-xs font-bold text-gray-600 hover:text-[#2B1810] uppercase tracking-wider"
+                    className="w-full py-2.5 text-center text-xs font-bold text-gray-600 hover:text-[#2B1810] uppercase tracking-wider cursor-pointer"
                   >
                     {t('checkout.backToShipping')}
                   </button>
@@ -415,77 +538,68 @@ export default function CheckoutPage() {
             {items.map((item, index) => {
               const itemTitle = getProductTitle(item, language);
               return (
-                <div
-                  key={`${item.id}-${index}`}
-                  className="flex gap-3 pb-3 border-b border-gray-200"
-                >
-                  <div className="w-16 h-20 bg-gray-100 relative flex-shrink-0">
+                <div key={`${item.variantId || item.id}-${index}`} className="flex gap-4 items-center">
+                  <div className="w-16 h-20 bg-gray-100 flex-shrink-0 relative border border-gray-200">
                     <img
                       src={item.image}
-                      alt={itemTitle}
+                      alt={item.name}
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute -top-1.5 -right-1.5 bg-[#2B1810] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                    <span className="absolute -top-1.5 -right-1.5 bg-[#2B1810] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                       {item.quantity}
                     </span>
                   </div>
-                  <div className="flex-1 flex flex-col justify-center text-xs">
-                    <h4 className="font-bold text-[#2B1810] line-clamp-1">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-xs text-[#2B1810] truncate">
                       {itemTitle}
                     </h4>
-                    <p className="text-gray-500 uppercase font-semibold mt-0.5">
+                    <p className="text-[10px] text-gray-500 uppercase font-semibold">
                       {item.selectedColor} • {item.selectedSize}
                     </p>
-                    <span className="font-black text-[#2B1810] mt-1">
+                    <p className="text-xs font-black text-[#2B1810] mt-1">
                       ${(item.price * item.quantity).toFixed(2)}
-                    </span>
+                    </p>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Promo Code Box */}
-          <div className="border-t border-gray-300 pt-4 mb-4">
-            {discountApplied ? (
-              <div className="bg-emerald-50 border border-emerald-300 p-3 rounded-xs text-xs flex items-center justify-between text-emerald-800 font-bold">
-                <span className="flex items-center">
-                  <Check size={14} className="mr-1" />{' '}
-                  {language === 'th'
-                    ? 'ใช้งานโค้ด NIDA20 (-20%)'
-                    : 'NIDA20 Applied (-20%)'}
-                </span>
-                <span>-${discountAmount.toFixed(2)}</span>
-              </div>
-            ) : (
-              <form onSubmit={handleApplyPromo} className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder={t('checkout.promoCode')}
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  className="flex-1 bg-white border border-gray-300 px-3 py-2 text-xs uppercase font-bold focus:outline-none focus:border-[#2B1810]"
-                />
-                <button
-                  type="submit"
-                  className="bg-[#2B1810] text-white text-xs font-black uppercase tracking-wider px-4 py-2 hover:bg-[#D97706] transition-colors"
-                >
-                  {t('checkout.apply')}
-                </button>
-              </form>
-            )}
-          </div>
+          {/* Promo Code Input */}
+          <form
+            onSubmit={handleApplyPromo}
+            className="flex gap-2 mb-6 pb-6 border-b border-gray-300"
+          >
+            <input
+              type="text"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
+              placeholder={t('checkout.promoPlaceholder')}
+              className="flex-1 border border-gray-300 px-3 py-2 text-xs uppercase focus:outline-none focus:border-[#2B1810] bg-white font-mono"
+            />
+            <button
+              type="submit"
+              className="bg-[#2B1810] hover:bg-[#D97706] text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+            >
+              {t('checkout.apply')}
+            </button>
+          </form>
 
-          {/* Cost Line Items */}
-          <div className="border-t border-gray-300 py-3 space-y-2 text-xs font-semibold text-gray-700">
+          {discountApplied && (
+            <div className="flex items-center space-x-1.5 text-xs text-emerald-700 font-bold mb-4 bg-emerald-50 p-2 border border-emerald-200">
+              <Check size={14} />
+              <span>Promo code NIDA20 applied (20% OFF)</span>
+            </div>
+          )}
+
+          {/* Cost Breakdown */}
+          <div className="space-y-2.5 text-xs font-semibold text-gray-600 pb-4 border-b border-gray-300">
             <div className="flex justify-between">
-              <span>{t('cart.subtotal')}</span>
-              <span className="font-bold text-[#2B1810]">
-                ${cartTotal.toFixed(2)}
-              </span>
+              <span>{t('checkout.subtotal')}</span>
+              <span className="text-[#2B1810]">${cartTotal.toFixed(2)}</span>
             </div>
             {discountApplied && (
-              <div className="flex justify-between text-emerald-700">
+              <div className="flex justify-between text-emerald-700 font-bold">
                 <span>{t('checkout.discount')}</span>
                 <span>-${discountAmount.toFixed(2)}</span>
               </div>
@@ -494,9 +608,9 @@ export default function CheckoutPage() {
               <span>{t('checkout.shipping')}</span>
               <span>
                 {shippingCost === 0 ? (
-                  <strong className="text-emerald-700">
+                  <span className="text-emerald-700 font-bold uppercase">
                     {t('checkout.free')}
-                  </strong>
+                  </span>
                 ) : (
                   `$${shippingCost.toFixed(2)}`
                 )}
@@ -504,12 +618,12 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Final Total */}
-          <div className="border-t-2 border-[#2B1810] pt-4 flex justify-between items-baseline">
-            <span className="text-xs font-black uppercase tracking-widest text-[#2B1810]">
-              {t('checkout.total')} (USD)
+          {/* Total Amount */}
+          <div className="flex justify-between items-center pt-4">
+            <span className="font-black text-sm uppercase text-[#2B1810]">
+              {t('checkout.total')}
             </span>
-            <span className="text-2xl font-black text-[#2B1810]">
+            <span className="font-black text-xl text-[#2B1810]">
               ${finalTotal.toFixed(2)}
             </span>
           </div>

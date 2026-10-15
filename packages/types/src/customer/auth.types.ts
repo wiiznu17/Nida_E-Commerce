@@ -8,6 +8,7 @@ export interface RequestOtpResponse {
   success: boolean;
   message: string;
   expiresInSeconds: number;
+  devOtpCode?: string;
 }
 
 export interface VerifyOtpResponse {

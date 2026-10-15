@@ -1,28 +1,40 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { KeyRound, ArrowRight } from 'lucide-react';
+import { KeyRound, ArrowRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { verifyOtp, requestOtp } from '@/lib/customerApi';
 
 function VerifyOTPContent() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [resendTimer, setResendTimer] = useState(30);
-  const [sampleCodeNotification, setSampleCodeNotification] =
-    useState('829410');
+  const [resendTimer, setResendTimer] = useState(60);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
+  const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
+
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { setSession } = useAuth();
   const { language, t } = useLanguage();
 
-  const email = searchParams.get('email') || 'customer@nida.com';
-  const initialData = {
-    firstName: searchParams.get('firstName') || undefined,
-    lastName: searchParams.get('lastName') || undefined,
-    phone: searchParams.get('phone') || undefined,
-  };
+  const email = searchParams.get('email') || '';
+  const redirect = searchParams.get('redirect') || '';
+
+  // Retrieve initial dev OTP hint if saved
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedDevCode = sessionStorage.getItem('nida_dev_otp');
+      if (savedDevCode) {
+        setDevOtpHint(savedDevCode);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (resendTimer > 0) {
@@ -31,17 +43,17 @@ function VerifyOTPContent() {
     }
   }, [resendTimer]);
 
-  const handleChange = (element: HTMLInputElement, index: number) => {
-    const val = element.value;
-    if (isNaN(Number(val))) return;
+  const handleChange = (val: string, index: number) => {
+    if (val && !/^\d+$/.test(val)) return;
 
     const newOtp = [...otp];
     newOtp[index] = val.substring(val.length - 1);
     setOtp(newOtp);
+    setErrorMessage('');
 
     // Focus next input
-    if (val !== '' && element.nextElementSibling) {
-      (element.nextElementSibling as HTMLInputElement).focus();
+    if (val !== '' && index < 5) {
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
@@ -49,33 +61,86 @@ function VerifyOTPContent() {
     e: React.KeyboardEvent<HTMLInputElement>,
     index: number,
   ) => {
-    if (
-      e.key === 'Backspace' &&
-      !otp[index] &&
-      e.currentTarget.previousElementSibling
-    ) {
-      (e.currentTarget.previousElementSibling as HTMLInputElement).focus();
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').trim();
+    if (/^\d{6}$/.test(pasted)) {
+      const digits = pasted.split('');
+      setOtp(digits);
+      inputRefs.current[5]?.focus();
     }
   };
 
   const handleAutoFill = () => {
-    const digits = sampleCodeNotification.split('');
-    setOtp(digits);
+    if (devOtpHint && devOtpHint.length === 6) {
+      const digits = devOtpHint.split('');
+      setOtp(digits);
+      inputRefs.current[5]?.focus();
+    }
   };
 
-  const handleResend = () => {
-    setResendTimer(30);
-    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setSampleCodeNotification(newCode);
-    setOtp(['', '', '', '', '', '']);
+  const handleResend = async () => {
+    if (resendTimer > 0 || isResending || !email) return;
+
+    setIsResending(true);
+    setErrorMessage('');
+    setInfoMessage('');
+
+    try {
+      const res = await requestOtp(email);
+      setResendTimer(60);
+      setInfoMessage('ส่งรหัส OTP ชุดใหม่ไปยังอีเมลเรียบร้อยแล้ว');
+      if (res.devOtpCode) {
+        setDevOtpHint(res.devOtpCode);
+        sessionStorage.setItem('nida_dev_otp', res.devOtpCode);
+      }
+      setOtp(['', '', '', '', '', '']);
+      inputRefs.current[0]?.focus();
+    } catch (err: unknown) {
+      setErrorMessage(
+        err instanceof Error ? err.message : 'ไม่สามารถส่งรหัสใหม่ได้ในขณะนี้',
+      );
+    } finally {
+      setIsResending(false);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join('');
-    if (code.length === 6) {
-      login(email, initialData);
-      router.push('/profile');
+    if (code.length !== 6 || !email) return;
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      const result = await verifyOtp(email, code);
+      setSession(result.accessToken, result.user);
+
+      // Clean up dev hint
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('nida_dev_otp');
+      }
+
+      // Route to destination
+      if (redirect) {
+        router.push(redirect);
+      } else {
+        router.push('/profile');
+      }
+    } catch (err: unknown) {
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : 'รหัส OTP ไม่ถูกต้องหรือหมดอายุแล้ว กรุณาลองใหม่อีกครั้ง',
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,44 +163,62 @@ function VerifyOTPContent() {
       <p className="text-center text-gray-500 font-medium text-xs mb-6 leading-relaxed">
         {t('auth.verifyOtpSubtitle')}
         <br />
-        <strong className="text-[#2B1810] text-sm">{email}</strong>
+        <strong className="text-[#2B1810] text-sm font-bold">{email || 'customer@nida.com'}</strong>
       </p>
 
-      {/* Instant Sandbox Helper Banner */}
-      <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-3 mb-6 rounded-xs">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block">
-              {language === 'th'
-                ? 'รหัส OTP จำลอง (Demo)'
-                : 'Simulated Test Code'}
-            </span>
-            <span className="text-lg font-mono font-black text-[#2B1810] tracking-widest">
-              {sampleCodeNotification}
-            </span>
+      {/* Dev Sandbox Helper Banner */}
+      {devOtpHint && (
+        <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-3 mb-6 rounded-xs">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block">
+                {language === 'th' ? 'รหัส OTP ในระบบ (Dev / Sandbox)' : 'Dev Sandbox OTP'}
+              </span>
+              <span className="text-lg font-mono font-black text-[#2B1810] tracking-widest">
+                {devOtpHint}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleAutoFill}
+              className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[11px] font-bold px-3 py-1.5 rounded-xs transition-colors uppercase cursor-pointer"
+            >
+              {language === 'th' ? 'กดกรอกอัตโนมัติ' : 'Auto-Fill'}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleAutoFill}
-            className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[11px] font-bold px-3 py-1.5 rounded-xs transition-colors uppercase"
-          >
-            {language === 'th' ? 'กดกรอกอัตโนมัติ' : 'Auto-Fill'}
-          </button>
         </div>
-      </div>
+      )}
+
+      {errorMessage && (
+        <div className="mb-6 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs flex items-start space-x-2.5">
+          <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600" />
+          <span className="leading-relaxed">{errorMessage}</span>
+        </div>
+      )}
+
+      {infoMessage && (
+        <div className="mb-6 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
+          {infoMessage}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="flex justify-between gap-2 max-w-xs mx-auto">
           {otp.map((digit, index) => (
             <input
               key={index}
-              className="w-11 h-14 border-2 border-gray-300 text-center text-xl font-bold font-mono bg-white text-[#2B1810] focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810] transition-colors"
+              ref={(el) => {
+                inputRefs.current[index] = el;
+              }}
+              className="w-11 h-14 border-2 border-gray-300 text-center text-xl font-bold font-mono bg-white text-[#2B1810] focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810] transition-colors disabled:bg-gray-100"
               type="text"
               inputMode="numeric"
               maxLength={1}
               value={digit}
-              onChange={(e) => handleChange(e.target, index)}
+              disabled={isLoading}
+              onChange={(e) => handleChange(e.target.value, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
+              onPaste={handlePaste}
               onFocus={(e) => e.target.select()}
               required
             />
@@ -144,11 +227,20 @@ function VerifyOTPContent() {
 
         <button
           type="submit"
-          disabled={otp.join('').length !== 6}
-          className="w-full bg-[#2B1810] hover:bg-[#D97706] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2"
+          disabled={otp.join('').length !== 6 || isLoading}
+          className="w-full bg-[#2B1810] hover:bg-[#D97706] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer"
         >
-          <span>{t('auth.verifyBtn')}</span>
-          <ArrowRight size={16} />
+          {isLoading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              <span>กำลังตรวจสอบรหัส...</span>
+            </>
+          ) : (
+            <>
+              <span>{t('auth.verifyBtn')}</span>
+              <ArrowRight size={16} />
+            </>
+          )}
         </button>
       </form>
 
@@ -158,24 +250,26 @@ function VerifyOTPContent() {
           {resendTimer > 0 ? (
             <span className="text-gray-400 font-semibold">
               {language === 'th'
-                ? `ขอรหัสใหม่ได้ใน (${resendTimer}s)`
-                : `Resend in (${resendTimer}s)`}
+                ? `ส่งใหม่ได้ใน ${resendTimer} วินาที`
+                : `Resend in ${resendTimer}s`}
             </span>
           ) : (
             <button
               onClick={handleResend}
-              className="font-bold text-[#D97706] hover:underline"
+              disabled={isResending}
+              className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1 cursor-pointer disabled:text-gray-400"
             >
-              {t('auth.resendCode')}
+              {isResending ? 'กำลังส่ง...' : t('auth.resendBtn')}
             </button>
           )}
         </p>
+
         <div>
           <Link
             href="/login"
-            className="text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-[#2B1810]"
+            className="text-xs font-bold text-gray-400 hover:text-[#2B1810] uppercase tracking-wider inline-block"
           >
-            {language === 'th' ? '← ใช้อีเมลอื่น' : '← Change Email'}
+            ← {t('auth.backToSignIn')}
           </Link>
         </div>
       </div>
@@ -188,8 +282,8 @@ export default function VerifyOTPPage() {
     <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-[#FAF7F2] font-sans">
       <Suspense
         fallback={
-          <div className="text-xs uppercase font-bold text-gray-500">
-            Loading verification...
+          <div className="p-12 text-center">
+            <Loader2 size={24} className="animate-spin mx-auto text-[#2B1810]" />
           </div>
         }
       >

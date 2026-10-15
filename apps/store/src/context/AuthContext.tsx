@@ -4,79 +4,118 @@ import React, {
   createContext,
   useContext,
   useState,
+  useEffect,
   type ReactNode,
 } from 'react';
+import type { ApiUser } from '@repo/types';
+import { getCustomerProfile } from '@/lib/customerApi';
 
-export type User = {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
+export type User = ApiUser & {
   address?: string;
   city?: string;
   postalCode?: string;
-  tier?: string;
-  points?: number;
 };
 
 type AuthContextType = {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
-  login: (email: string, initialData?: Partial<User>) => void;
+  isLoading: boolean;
+  setSession: (token: string, user: ApiUser) => void;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
 };
 
+const TOKEN_KEY = 'nida_customer_jwt_token';
+const USER_CACHE_KEY = 'nida_customer_user_cache';
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>({
-    id: 'user_1',
-    email: 'phannida@nida.com',
-    firstName: 'พรรณนิดา',
-    lastName: 'วิศณุ',
-    phone: '081-892-3456',
-    address: '108 สุขุมวิท ซอย 24 คลองเตย',
-    city: 'กรุงเทพมหานคร',
-    postalCode: '10110',
-    tier: 'NIDA VIP GOLD',
-    points: 1250,
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = (email: string, initialData?: Partial<User>) => {
-    setUser({
-      id: `user_${Date.now()}`,
-      email,
-      firstName:
-        initialData?.firstName ||
-        (email.includes('phannida') ? 'พรรณนิดา' : 'Nida'),
-      lastName:
-        initialData?.lastName ||
-        (email.includes('phannida') ? 'วิศณุ' : 'Customer'),
-      phone: initialData?.phone || '081-234-5678',
-      address: initialData?.address || '108 สุขุมวิท ซอย 24',
-      city: initialData?.city || 'กรุงเทพมหานคร',
-      postalCode: initialData?.postalCode || '10110',
-      tier: 'NIDA VIP GOLD',
-      points: 1250,
-      ...initialData,
-    });
+  // Restore authenticated session from localStorage on mount
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const storedToken = localStorage.getItem(TOKEN_KEY);
+        const cachedUser = localStorage.getItem(USER_CACHE_KEY);
+
+        if (cachedUser) {
+          try {
+            setUser(JSON.parse(cachedUser));
+          } catch {
+            // Ignore parse errors
+          }
+        }
+
+        if (storedToken) {
+          setToken(storedToken);
+          const liveProfile = await getCustomerProfile(storedToken);
+          setUser((prev) => ({ ...prev, ...liveProfile }));
+          localStorage.setItem(USER_CACHE_KEY, JSON.stringify(liveProfile));
+        }
+      } catch {
+        // Token expired or invalid, reset
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_CACHE_KEY);
+        setToken(null);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreSession();
+  }, []);
+
+  const setSession = (newToken: string, newUser: ApiUser) => {
+    setToken(newToken);
+    setUser(newUser);
+    try {
+      localStorage.setItem(TOKEN_KEY, newToken);
+      localStorage.setItem(USER_CACHE_KEY, JSON.stringify(newUser));
+    } catch {
+      // Ignore
+    }
   };
 
   const logout = () => {
+    setToken(null);
     setUser(null);
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_CACHE_KEY);
+    } catch {
+      // Ignore
+    }
   };
 
   const updateProfile = (data: Partial<User>) => {
     if (user) {
-      setUser({ ...user, ...data });
+      const updated = { ...user, ...data };
+      setUser(updated);
+      try {
+        localStorage.setItem(USER_CACHE_KEY, JSON.stringify(updated));
+      } catch {
+        // Ignore
+      }
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, logout, updateProfile }}
+      value={{
+        user,
+        token,
+        isAuthenticated: Boolean(user && token),
+        isLoading,
+        setSession,
+        logout,
+        updateProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>

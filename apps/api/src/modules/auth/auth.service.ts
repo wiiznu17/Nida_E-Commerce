@@ -66,10 +66,13 @@ export class CustomerAuthService {
       `OTP generated and dispatched for customer email: ${email}`,
     );
 
+    const isDev = process.env.NODE_ENV !== 'production';
+
     return {
       success: true,
       message: 'รหัส OTP ถูกส่งไปยังอีเมลเรียบร้อยแล้ว (OTP sent successfully)',
       expiresInSeconds,
+      ...(isDev ? { devOtpCode: otpCode } : {}),
     };
   }
 

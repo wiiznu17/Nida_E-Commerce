@@ -76,6 +76,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else {
       this.logger.error('Unhandled exception:', exception);
       message = 'An unexpected server error occurred';
+      if (process.env.NODE_ENV !== 'production') {
+        details = {
+          devError: exception instanceof Error ? exception.message : String(exception),
+          devStack: exception instanceof Error ? exception.stack : undefined,
+        };
+      }
     }
 
     const body: ApiError = {

@@ -40,12 +40,12 @@ export default function ProductDetailPage() {
     useState<StorefrontProduct | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
-  // Match from CatalogContext or fetched directly
+  // Match from CatalogContext or fetched directly (prefer fetchedProduct with full variants)
   const catalogProduct = productsList.find((p) => p.id === id || p.slug === id);
-  const product = catalogProduct ?? fetchedProduct;
+  const product = fetchedProduct ?? catalogProduct;
 
   useEffect(() => {
-    if (!catalogProduct && id) {
+    if ((!fetchedProduct || !fetchedProduct.variants || fetchedProduct.variants.length === 0) && id) {
       let isMounted = true;
       setIsFetching(true);
       fetchProductByIdOrSlug(id)
@@ -59,7 +59,7 @@ export default function ProductDetailPage() {
         isMounted = false;
       };
     }
-  }, [catalogProduct, id]);
+  }, [id, fetchedProduct]);
 
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('');

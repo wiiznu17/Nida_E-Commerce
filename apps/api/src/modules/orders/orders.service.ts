@@ -67,7 +67,34 @@ export class CustomerOrdersService {
     const variantMap = new Map(variants.map((v) => [v.id, v]));
 
     for (const item of items) {
-      const v = variantMap.get(item.variantId);
+      let v = variantMap.get(item.variantId);
+      if (!v) {
+        const fallback = await this.prisma.productVariant.findFirst({
+          where: {
+            OR: [
+              { id: item.variantId },
+              { productId: item.variantId },
+              { product: { slug: item.variantId } },
+            ],
+          },
+          include: {
+            product: {
+              include: {
+                images: {
+                  where: { isPrimary: true },
+                  take: 1,
+                },
+              },
+            },
+            inventoryItem: true,
+          },
+        });
+        if (fallback) {
+          v = fallback;
+          variantMap.set(item.variantId, fallback);
+        }
+      }
+
       if (!v) {
         throw new NotFoundException(
           `Product variant "${item.variantId}" not found`,
@@ -551,6 +578,7 @@ export class CustomerOrdersService {
     return {
       id: order.id,
       orderNumber: order.orderNumber,
+      userId: order.userId ?? undefined,
       status: order.status,
       hasPreorderItems: order.hasPreorderItems,
       subtotal: Number(order.subtotal),

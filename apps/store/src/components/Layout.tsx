@@ -16,6 +16,8 @@ import {
   Check,
   Truck,
   ShieldCheck,
+  Minus,
+  Plus,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -1508,8 +1510,15 @@ export function Footer() {
 
 // Sliding Cart Drawer
 export function CartDrawer() {
-  const { isCartOpen, setIsCartOpen, items, cartTotal, removeFromCart } =
-    useCart();
+  const {
+    isCartOpen,
+    setIsCartOpen,
+    items,
+    cartTotal,
+    removeFromCart,
+    updateQuantity,
+  } = useCart();
+  const { isAuthenticated } = useAuth();
   const { language, t } = useLanguage();
   const router = useRouter();
 
@@ -1600,7 +1609,7 @@ export function CartDrawer() {
           ) : (
             items.map((item, index) => (
               <div
-                key={`${item.id}-${index}`}
+                key={`${item.variantId || item.id}-${index}`}
                 className="flex gap-4 pb-6 border-b border-gray-100"
               >
                 <div className="w-20 h-26 bg-gray-100 flex-shrink-0 relative">
@@ -1619,20 +1628,52 @@ export function CartDrawer() {
                       {item.selectedColor} • {t('cart.size')}:{' '}
                       {item.selectedSize}
                     </p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      {t('cart.qty')}: {item.quantity}
-                    </p>
                   </div>
                   <div className="flex justify-between items-center mt-3">
-                    <span className="font-black text-sm text-[#2B1810]">
-                      ${item.price * item.quantity}
-                    </span>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-xs uppercase font-bold text-gray-400 hover:text-[#D97706] transition-colors underline"
-                    >
-                      {t('cart.remove')}
-                    </button>
+                    {/* Quantity Selector */}
+                    <div className="flex items-center border border-gray-300">
+                      <button
+                        onClick={() =>
+                          updateQuantity(
+                            item.variantId || item.id,
+                            item.quantity - 1,
+                          )
+                        }
+                        className="px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="px-3 py-1 text-xs font-bold text-[#2B1810]">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() =>
+                          updateQuantity(
+                            item.variantId || item.id,
+                            item.quantity + 1,
+                          )
+                        }
+                        className="px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
+                        aria-label="Increase quantity"
+                      >
+                        <Plus size={12} />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <span className="font-black text-sm text-[#2B1810]">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </span>
+                      <button
+                        onClick={() =>
+                          removeFromCart(item.variantId || item.id)
+                        }
+                        className="text-xs uppercase font-bold text-gray-400 hover:text-[#D97706] transition-colors underline"
+                      >
+                        {t('cart.remove')}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1654,7 +1695,7 @@ export function CartDrawer() {
             </p>
             <div className="space-y-2">
               <Link
-                href="/checkout"
+                href={isAuthenticated ? '/checkout' : '/login?redirect=/checkout'}
                 onClick={() => setIsCartOpen(false)}
                 className="w-full py-4 bg-[#2B1810] hover:bg-[#D97706] text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md"
               >

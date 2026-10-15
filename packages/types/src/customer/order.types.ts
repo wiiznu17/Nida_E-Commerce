@@ -13,6 +13,7 @@ import type {
 export interface ApiOrder {
   id: string;
   orderNumber: string;
+  userId?: string;
   status: OrderStatus;
   hasPreorderItems: boolean;
 
