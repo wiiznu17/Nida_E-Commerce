@@ -1,12 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useMemo, type ReactNode } from 'react';
-import type { ApiCategory } from '@repo/types';
-import { products as fallbackProducts, type Product } from '@/data/products';
+import type { ApiCategory, StorefrontProduct } from '@repo/types';
 import { fetchCatalogProducts, fetchCatalogCategories } from '@/lib/catalogApi';
 
 interface CatalogContextType {
-  productsList: Product[];
+  productsList: StorefrontProduct[];
   categories: ApiCategory[];
   parentCategories: ApiCategory[];
   categoriesByDept: Record<string, ApiCategory[]>;
@@ -14,27 +13,25 @@ interface CatalogContextType {
   isLoadingCategories: boolean;
   refreshCatalog: () => Promise<void>;
   refreshCategories: () => Promise<void>;
-  getProduct: (idOrSlug: string) => Product | undefined;
+  getProduct: (idOrSlug: string) => StorefrontProduct | undefined;
   getCategoryBySlug: (slug: string) => ApiCategory | undefined;
 }
 
 const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 
 export function CatalogProvider({ children }: { children: ReactNode }) {
-  const [productsList, setProductsList] = useState<Product[]>(fallbackProducts);
+  const [productsList, setProductsList] = useState<StorefrontProduct[]>([]);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   const loadProducts = async () => {
     setIsLoading(true);
     try {
       const liveProducts = await fetchCatalogProducts();
-      if (liveProducts && liveProducts.length > 0) {
-        setProductsList(liveProducts);
-      }
+      setProductsList(liveProducts);
     } catch (err) {
-      console.warn('CatalogProvider: Using fallback products', err);
+      console.warn('CatalogProvider: Failed to load products', err);
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +83,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
     return map;
   }, [parentCategories]);
 
-  const getProduct = (idOrSlug: string): Product | undefined => {
+  const getProduct = (idOrSlug: string): StorefrontProduct | undefined => {
     return productsList.find((p) => p.id === idOrSlug || p.slug === idOrSlug);
   };
 

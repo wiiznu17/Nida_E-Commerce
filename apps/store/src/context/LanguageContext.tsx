@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { Product } from '../data/products';
+import type { StorefrontProduct } from '@repo/types';
 
 export type Language = 'th' | 'en';
 
@@ -461,30 +461,31 @@ export const useLanguage = () => {
 };
 
 // Localized Product Accessor Helpers
-export function getProductTitle(product: Product, lang: Language): string {
+export function getProductTitle(product: StorefrontProduct, lang: Language): string {
   if (lang === 'th' && product.nameTh) {
     return product.nameTh;
   }
   return product.name;
 }
 
-export function getProductSubCategory(product: Product, lang: Language): string {
+export function getProductSubCategory(product: StorefrontProduct, lang: Language): string {
   if (lang === 'th' && product.subCategoryTh) {
     return product.subCategoryTh;
   }
-  return product.subCategory || product.category;
+  return product.subCategory ?? product.category;
 }
 
-export function getProductTag(product: Product, lang: Language): string | undefined {
+export function getProductTag(product: StorefrontProduct, lang: Language): string | undefined {
   if (lang === 'th' && product.tagTh) {
     return product.tagTh;
   }
   return product.tag;
 }
 
-export function getProductDescription(product: Product, lang: Language): string | undefined {
+export function getProductDescription(product: StorefrontProduct, lang: Language): string | undefined {
   if (lang === 'th' && product.descriptionTh) {
     return product.descriptionTh;
   }
   return product.description;
 }
+

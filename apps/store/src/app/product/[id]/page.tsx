@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCatalog } from '@/context/CatalogContext';
+import { fetchProductByIdOrSlug } from '@/lib/catalogApi';
+import type { StorefrontProduct } from '@repo/types';
 import {
   useLanguage,
   getProductTitle,
@@ -13,61 +15,163 @@ import {
   getProductTag,
   getProductDescription,
 } from '@/context/LanguageContext';
-import { ChevronDown, Star, Heart, Truck, RefreshCw, ShieldCheck, Check, Sparkles, ShoppingBag } from 'lucide-react';
+import {
+  ChevronDown,
+  Star,
+  Heart,
+  Truck,
+  RefreshCw,
+  ShieldCheck,
+  Check,
+  Sparkles,
+  ShoppingBag,
+} from 'lucide-react';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const { productsList } = useCatalog();
-  const product =
-    productsList.find((p) => p.id === id || p.slug === id) ||
-    productsList[0]!;
+  const { productsList, isLoading: isCatalogLoading } = useCatalog();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { language, t } = useLanguage();
   const isTh = language === 'th';
 
+  const [fetchedProduct, setFetchedProduct] = useState<StorefrontProduct | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
+
+  // Match from CatalogContext or fetched directly
+  const catalogProduct = productsList.find((p) => p.id === id || p.slug === id);
+  const product = catalogProduct ?? fetchedProduct;
+
+  useEffect(() => {
+    if (!catalogProduct && id) {
+      let isMounted = true;
+      setIsFetching(true);
+      fetchProductByIdOrSlug(id)
+        .then((p) => {
+          if (isMounted && p) setFetchedProduct(p);
+        })
+        .finally(() => {
+          if (isMounted) setIsFetching(false);
+        });
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [catalogProduct, id]);
+
   const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState(
-    product.colors && product.colors.length > 0
-      ? language === 'th'
-        ? 'สีกรมท่าคลาสสิก'
-        : 'Classic Navy'
-      : language === 'th'
-        ? 'มาตรฐาน'
-        : 'Standard',
-  );
-  const [mainImage, setMainImage] = useState(product.image);
+  const [selectedColor, setSelectedColor] = useState('');
+  const [mainImage, setMainImage] = useState('');
   const [openAccordion, setOpenAccordion] = useState<string | null>('details');
   const [isAdded, setIsAdded] = useState(false);
 
-  const sizes =
-    product.department === 'shoes'
-      ? ['US 8', 'US 8.5', 'US 9', 'US 9.5', 'US 10', 'US 11']
-      : product.category === 'bags' || product.category === 'home'
-        ? [language === 'th' ? 'ไซส์เดียว' : 'ONE SIZE']
-        : ['XS', 'S', 'M', 'L', 'XL'];
+  // Available colors derived from product
+  const availableColors = useMemo(() => {
+    if (!product) return [];
+    if (product.colorSwatches && product.colorSwatches.length > 0) {
+      return product.colorSwatches.map((s) => ({
+        hex: s.hex,
+        name: isTh && s.nameTh ? s.nameTh : s.name,
+      }));
+    }
+    if (product.colors && product.colors.length > 0) {
+      return product.colors.map((c, i) => ({
+        hex: c,
+        name: i === 0 ? (isTh ? 'สีกรมท่าคลาสสิก' : 'Classic Navy') : (isTh ? `สีที่ ${i + 1}` : `Color ${i + 1}`),
+      }));
+    }
+    return [{ hex: '#2B1810', name: isTh ? 'มาตรฐาน' : 'Standard' }];
+  }, [product, isTh]);
+
+  // Sync main image & color when product is loaded
+  useEffect(() => {
+    if (product) {
+      if (product.image) setMainImage(product.image);
+      if (availableColors.length > 0) {
+        setSelectedColor(availableColors[0]?.name ?? (isTh ? 'มาตรฐาน' : 'Standard'));
+      }
+    }
+  }, [product?.id, availableColors, isTh]);
+
+  // Derived sizes from variants or department defaults
+  const sizes = useMemo(() => {
+    if (!product) return ['S', 'M', 'L'];
+    if (product.variants && product.variants.length > 0) {
+      const uniqueSizes = Array.from(new Set(product.variants.map((v) => v.size).filter(Boolean)));
+      if (uniqueSizes.length > 0) return uniqueSizes;
+    }
+    if (product.department === 'shoes') {
+      return ['US 8', 'US 8.5', 'US 9', 'US 9.5', 'US 10', 'US 11'];
+    }
+    if (product.category === 'bags' || product.category === 'home') {
+      return [isTh ? 'ไซส์เดียว' : 'ONE SIZE'];
+    }
+    return ['XS', 'S', 'M', 'L', 'XL'];
+  }, [product, isTh]);
+
+  // Image list
+  const images = useMemo(() => {
+    if (!product) return [];
+    const list: string[] = [];
+    if (product.image) list.push(product.image);
+    if (product.secondaryImage && !list.includes(product.secondaryImage)) {
+      list.push(product.secondaryImage);
+    }
+    if (product.images) {
+      for (const img of product.images) {
+        if (img.imageUrl && !list.includes(img.imageUrl)) {
+          list.push(img.imageUrl);
+        }
+      }
+    }
+    return list.length > 0 ? list.slice(0, 5) : [product.image].filter(Boolean);
+  }, [product]);
+
+  if (!product) {
+    if (isCatalogLoading || isFetching) {
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center font-sans">
+          <div className="w-10 h-10 border-2 border-[#2B1810] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-xs uppercase tracking-widest text-stone-500 font-bold">
+            {t('common.loading') ?? 'Loading product...'}
+          </p>
+        </div>
+      );
+    }
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center font-sans">
+        <h2 className="text-2xl font-black uppercase text-[#2B1810] mb-3">
+          {t('catalog.noProducts') ?? 'Product Not Found'}
+        </h2>
+        <p className="text-xs text-stone-500 mb-6">
+          {isTh
+            ? 'ไม่พบสินค้าที่คุณค้นหา หรือสินค้าอาจถูกย้ายไปแล้ว'
+            : 'The product you are looking for does not exist or has been moved.'}
+        </p>
+        <Link
+          href="/collections/all"
+          className="inline-flex items-center px-6 py-3 bg-[#2B1810] text-white text-xs font-black uppercase tracking-widest hover:bg-[#D97706] transition-colors"
+        >
+          {isTh ? 'กลับไปหน้าคอลเลกชัน' : 'BACK TO COLLECTIONS'}
+        </Link>
+      </div>
+    );
+  }
 
   const isWish = isInWishlist(product.id);
   const title = getProductTitle(product, language);
-  const subCategory = getProductSubCategory(product, language);
+  const subCategory = getProductSubCategory(product, language) || product.category;
   const tag = getProductTag(product, language) || product.tag;
   const description = getProductDescription(product, language);
 
-  // Additional imagery (incorporates color-specific photos)
-  const colorImagesList = product.colorImages
-    ? Object.values(product.colorImages).filter(Boolean)
-    : [];
-  const images = Array.from(
-    new Set(
-      [
-        product.image,
-        product.secondaryImage,
-        ...colorImagesList,
-        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      ].filter(Boolean) as string[],
-    ),
-  ).slice(0, 5);
+  const materialsText = isTh && product.materialsCareTh
+    ? product.materialsCareTh
+    : product.materialsCare
+      ? product.materialsCare
+      : isTh
+        ? 'ผลิตจากเส้นใยธรรมชาติคุณภาพสูง ผ่านการคัดสรรอย่างประณีตตามมาตรฐานความยั่งยืน ซักเครื่องด้วยน้ำเย็นในโหมดถนอมผ้า ตากในที่ร่ม ห้ามใช้น้ำยาฟอกขาว'
+        : '100% Certified Organic Cotton & Fine European Wool. Machine wash cold with like colors, gentle cycle. Tumble dry low or lay flat to dry. Do not bleach.';
 
   const handleAddToCart = () => {
     addToCart(product, selectedSize, selectedColor);
@@ -79,6 +183,8 @@ export default function ProductDetailPage() {
     .filter((p) => p.id !== product.id && (p.department === product.department || p.category === product.category))
     .slice(0, 4);
 
+  const activeDisplayImage = mainImage || product.image;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
       {/* Breadcrumbs */}
@@ -87,7 +193,10 @@ export default function ProductDetailPage() {
           {t('product.home')}
         </Link>
         <span>/</span>
-        <Link href={`/collections/${product.department || product.category}`} className="hover:text-[#2B1810]">
+        <Link
+          href={`/collections/${product.department?.toLowerCase() || product.category?.toLowerCase() || 'all'}`}
+          className="hover:text-[#2B1810]"
+        >
           {subCategory.toUpperCase()}
         </Link>
         <span>/</span>
@@ -102,7 +211,7 @@ export default function ProductDetailPage() {
               key={idx}
               onClick={() => setMainImage(img)}
               className={`aspect-[3/4] bg-gray-100 overflow-hidden border-2 transition-all ${
-                mainImage === img ? 'border-[#2B1810] shadow-sm' : 'border-transparent hover:border-gray-300'
+                activeDisplayImage === img ? 'border-[#2B1810] shadow-sm' : 'border-transparent hover:border-gray-300'
               }`}
             >
               <img
@@ -117,7 +226,7 @@ export default function ProductDetailPage() {
         {/* Main Image Stage (Center) */}
         <div className="col-span-1 lg:col-span-6 bg-[#FAF7F2] aspect-[3/4] relative overflow-hidden border border-gray-200">
           <img
-            src={mainImage}
+            src={activeDisplayImage}
             alt={title}
             className="w-full h-full object-cover object-center transition-transform duration-500"
           />
@@ -160,7 +269,7 @@ export default function ProductDetailPage() {
                 ))}
               </div>
               <span className="text-xs font-bold text-gray-600">
-                {product.rating || 4.9} ({product.reviewsCount || 128} {language === 'th' ? 'รีวิว' : 'reviews'})
+                {product.rating || 4.9} ({product.reviewsCount || 128} {isTh ? 'รีวิว' : 'reviews'})
               </span>
             </div>
           </div>
@@ -172,7 +281,7 @@ export default function ProductDetailPage() {
               <>
                 <span className="text-base text-gray-400 line-through font-semibold">${product.originalPrice}</span>
                 <span className="bg-[#D97706] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-xs">
-                  {language === 'th' ? 'ประหยัด ' : 'SAVE '}
+                  {isTh ? 'ประหยัด ' : 'SAVE '}
                   {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
                 </span>
               </>
@@ -184,11 +293,11 @@ export default function ProductDetailPage() {
             <div className="flex items-center space-x-2">
               <Sparkles size={16} className="text-[#D97706]" />
               <span className="text-[#2B1810] font-bold">
-                {language === 'th' ? 'ลดเพิ่ม 20% ด้วยโค้ดส่วนลด: ' : 'Extra 20% off with promo code: '}
+                {isTh ? 'ลดเพิ่ม 20% ด้วยโค้ดส่วนลด: ' : 'Extra 20% off with promo code: '}
                 <strong className="text-[#D97706]">NIDA20</strong>
               </span>
             </div>
-            <span className="text-gray-500 text-[11px] font-semibold">{language === 'th' ? 'ในตะกร้า' : 'In cart'}</span>
+            <span className="text-gray-500 text-[11px] font-semibold">{isTh ? 'ในตะกร้า' : 'In cart'}</span>
           </div>
 
           {/* Color Selection */}
@@ -199,45 +308,32 @@ export default function ProductDetailPage() {
               </span>
             </div>
             <div className="flex items-center space-x-3">
-              {(product.colors || ['#2B1810', '#FFFFFF', '#F59E0B']).map((col, i) => {
-                const colorLabel =
-                  i === 0
-                    ? language === 'th'
-                      ? 'เอสเพรสโซบราวน์'
-                      : 'Espresso Brown'
-                    : i === 1
-                      ? language === 'th'
-                        ? 'ไอวอรีไวท์'
-                        : 'Ivory White'
-                      : language === 'th'
-                        ? 'ฮันนี่โกลด์'
-                        : 'Honey Gold';
-                return (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      setSelectedColor(colorLabel);
-                      if (product.colorImages && product.colorImages[col]) {
-                        setMainImage(product.colorImages[col]);
+              {availableColors.map((col, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setSelectedColor(col.name);
+                  }}
+                  className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${
+                    selectedColor === col.name
+                      ? 'border-[#2B1810] scale-110 ring-2 ring-[#D97706]'
+                      : 'border-gray-300 hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: col.hex }}
+                  title={col.name}
+                >
+                  {selectedColor === col.name && (
+                    <Check
+                      size={14}
+                      className={
+                        col.hex === '#FFFFFF' || col.hex === '#FAF7F2' || col.hex === '#F59E0B'
+                          ? 'text-black'
+                          : 'text-white'
                       }
-                    }}
-                    className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${
-                      selectedColor === colorLabel
-                        ? 'border-[#2B1810] scale-110 ring-2 ring-[#D97706]'
-                        : 'border-gray-300 hover:scale-105'
-                    }`}
-                    style={{ backgroundColor: col }}
-                    title={colorLabel}
-                  >
-                    {selectedColor === colorLabel && (
-                      <Check
-                        size={14}
-                        className={col === '#FFFFFF' || col === '#F59E0B' ? 'text-black' : 'text-white'}
-                      />
-                    )}
-                  </button>
-                );
-              })}
+                    />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -295,10 +391,10 @@ export default function ProductDetailPage() {
               <Heart size={16} className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''} />
               <span>
                 {isWish
-                  ? language === 'th'
+                  ? isTh
                     ? 'บันทึกในรายการที่ถูกใจแล้ว'
                     : 'SAVED TO WISHLIST'
-                  : language === 'th'
+                  : isTh
                     ? 'เพิ่มลงรายการที่ถูกใจ'
                     : 'ADD TO WISHLIST'}
               </span>
@@ -310,8 +406,8 @@ export default function ProductDetailPage() {
             <div className="flex items-center space-x-3">
               <Truck size={18} className="text-[#D97706] flex-shrink-0" />
               <span>
-                <strong>{language === 'th' ? 'จัดส่งมาตรฐานฟรี' : 'Free standard shipping'}</strong>{' '}
-                {language === 'th'
+                <strong>{isTh ? 'จัดส่งมาตรฐานฟรี' : 'Free standard shipping'}</strong>{' '}
+                {isTh
                   ? 'เมื่อสั่งซื้อครบ $100 ขึ้นไป พัสดุถึงภายใน 2-4 วันทำการ'
                   : 'on orders over $100. Arrives in 2-4 business days.'}
               </span>
@@ -320,18 +416,18 @@ export default function ProductDetailPage() {
               <RefreshCw size={18} className="text-[#D97706] flex-shrink-0" />
               <span>
                 <strong>
-                  {language === 'th' ? 'เปลี่ยนและคืนสินค้าได้ใน 30 วัน' : 'Free 30-day returns & exchanges'}
+                  {isTh ? 'เปลี่ยนและคืนสินค้าได้ใน 30 วัน' : 'Free 30-day returns & exchanges'}
                 </strong>{' '}
-                {language === 'th' ? 'สะดวกสบายทั้งหน้าร้านและทางพัสดุ' : 'in-store or by mail.'}
+                {isTh ? 'สะดวกสบายทั้งหน้าร้านและทางพัสดุ' : 'in-store or by mail.'}
               </span>
             </div>
             <div className="flex items-center space-x-3">
               <ShieldCheck size={18} className="text-[#D97706] flex-shrink-0" />
               <span>
                 <strong>
-                  {language === 'th' ? 'การันตีคุณภาพของแท้ 100%' : '100% Guaranteed Authentic Nida Craft'}
+                  {isTh ? 'การันตีคุณภาพของแท้ 100%' : '100% Guaranteed Authentic Nida Craft'}
                 </strong>{' '}
-                {language === 'th'
+                {isTh
                   ? 'ตัดเย็บประณีตด้วยเส้นใยธรรมชาติอย่างยั่งยืน'
                   : 'with sustainable materials.'}
               </span>
@@ -357,22 +453,22 @@ export default function ProductDetailPage() {
                   <p>{description}</p>
                   <ul className="list-disc pl-4 space-y-1">
                     <li>
-                      {language === 'th'
+                      {isTh
                         ? 'ป้ายริบบิ้นแถบสามสีเอกลักษณ์ Nida ชายเสื้อ'
                         : 'Signature Nida tri-color flag tab on hem'}
                     </li>
                     <li>
-                      {language === 'th'
+                      {isTh
                         ? 'โครงเสื้อทรงคลาสสิก สวมใส่สบาย คล่องตัว'
                         : 'Regular classic fit with relaxed shoulders'}
                     </li>
                     <li>
-                      {language === 'th'
+                      {isTh
                         ? 'เดินด้ายประณีตทุกจุด พร้อมอะไหล่สั่งทำพิเศษ'
                         : 'Reinforced stitching and custom engraved accents'}
                     </li>
                     <li>
-                      {language === 'th'
+                      {isTh
                         ? 'คัดสรรเส้นใยธรรมชาติด้วยมาตรฐานความยั่งยืน'
                         : 'Ethically sourced natural fibres'}
                     </li>
@@ -395,9 +491,7 @@ export default function ProductDetailPage() {
               </button>
               {openAccordion === 'materials' && (
                 <div className="pb-4 text-xs text-gray-600 leading-relaxed">
-                  {language === 'th'
-                    ? 'ผลิตจากผ้าคอตตอนออร์แกนิก 100% และผ้าวูลเกรดยุโรป ซักเครื่องด้วยน้ำเย็นในโหมดถนอมผ้า ปั่นแห้งความร้อนต่ำหรือตากในที่ร่ม ห้ามใช้น้ำยาฟอกขาว'
-                    : '100% Certified Organic Cotton & Fine European Wool. Machine wash cold with like colors, gentle cycle. Tumble dry low or lay flat to dry. Do not bleach.'}
+                  {materialsText}
                 </div>
               )}
             </div>
@@ -417,12 +511,12 @@ export default function ProductDetailPage() {
               {openAccordion === 'delivery' && (
                 <div className="pb-4 text-xs text-gray-600 leading-relaxed space-y-1">
                   <p>
-                    {language === 'th'
+                    {isTh
                       ? '• จัดส่งภายใน 1-3 วันทำการสำหรับกรุงเทพฯ และ 2-4 วันสำหรับต่างจังหวัด'
                       : '• Standard delivery in 2-4 business days.'}
                   </p>
                   <p>
-                    {language === 'th'
+                    {isTh
                       ? '• สามารถเปลี่ยนหรือคืนสินค้าได้ภายใน 30 วันนับจากวันที่ได้รับสินค้า โดยสินค้าต้องอยู่ในสภาพสมบูรณ์พร้อมป้ายราคา'
                       : '• 30-day exchange and return policy provided items are unworn and tags intact.'}
                   </p>
@@ -438,7 +532,7 @@ export default function ProductDetailPage() {
         <div className="flex justify-between items-end mb-8">
           <div>
             <span className="text-xs font-black uppercase tracking-widest text-[#D97706]">
-              {language === 'th' ? 'สินค้าคู่ควร' : 'CURATED PAIRINGS'}
+              {isTh ? 'สินค้าคู่ควร' : 'CURATED PAIRINGS'}
             </span>
             <h2 className="text-2xl font-black uppercase text-[#2B1810] tracking-tight">
               {t('product.youMayAlsoLike')}
@@ -448,7 +542,7 @@ export default function ProductDetailPage() {
             href="/collections/all"
             className="text-xs font-bold uppercase tracking-wider text-[#2B1810] hover:text-[#D97706]"
           >
-            {language === 'th' ? 'ดูทั้งหมด →' : 'VIEW ALL →'}
+            {isTh ? 'ดูทั้งหมด →' : 'VIEW ALL →'}
           </Link>
         </div>
 
@@ -458,7 +552,7 @@ export default function ProductDetailPage() {
             const pTag = getProductTag(p, language) || p.tag;
 
             return (
-              <Link href={`/product/${p.id}`} key={p.id} className="group block bg-white">
+              <Link href={`/product/${p.slug || p.id}`} key={p.id} className="group block bg-white">
                 <div className="aspect-[3/4] bg-[#FAF7F2] mb-3 overflow-hidden border border-gray-100 relative">
                   <img
                     src={p.image}

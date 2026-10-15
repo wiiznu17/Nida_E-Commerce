@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCatalog } from '@/context/CatalogContext';
-import type { Product } from '@/data/products';
+import type { StorefrontProduct } from '@repo/types';
 import {
   useLanguage,
   getProductTitle,
@@ -256,7 +256,7 @@ export default function CollectionPage() {
     }));
   }, [category, matchedCategory, language, productsList]);
 
-  const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
+  const handleQuickAdd = (e: React.MouseEvent, product: StorefrontProduct) => {
     e.preventDefault();
     e.stopPropagation();
     const defaultSize =

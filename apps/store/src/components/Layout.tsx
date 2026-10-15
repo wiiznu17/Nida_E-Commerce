@@ -23,7 +23,6 @@ import { useWishlist } from '../context/WishlistContext';
 import { useLanguage, getProductTitle, getProductTag } from '../context/LanguageContext';
 import { useCatalog } from '../context/CatalogContext';
 import type { ApiCategory } from '@repo/types';
-import { products } from '../data/products';
 
 // Signature tri-color emblem: Brown, White, Yellow
 export function NidaLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
@@ -411,7 +410,7 @@ export function Header() {
   const { wishlistCount } = useWishlist();
   const { isAuthenticated } = useAuth();
   const { language, setLanguage, t } = useLanguage();
-  const { categoriesByDept } = useCatalog();
+  const { categoriesByDept, productsList } = useCatalog();
   const pathname = usePathname();
 
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
@@ -430,7 +429,7 @@ export function Header() {
   const searchResults =
     searchQuery.trim() === ''
       ? []
-      : products
+      : productsList
           .filter((p) => {
             const q = searchQuery.toLowerCase();
             return (

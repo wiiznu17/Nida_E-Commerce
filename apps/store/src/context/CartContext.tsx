@@ -1,13 +1,13 @@
 'use client';
 
 import React, { createContext, useContext, useState, type ReactNode } from 'react';
-import type { Product } from '@/data/products';
+import type { StorefrontProduct } from '@repo/types';
 
-export type CartItem = Product & { quantity: number; selectedSize: string; selectedColor: string };
+export type CartItem = StorefrontProduct & { quantity: number; selectedSize: string; selectedColor: string };
 
 type CartContextType = {
   items: CartItem[];
-  addToCart: (product: Product, size: string, color: string) => void;
+  addToCart: (product: StorefrontProduct, size: string, color: string) => void;
   removeFromCart: (id: string) => void;
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
@@ -20,7 +20,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const addToCart = (product: Product, size: string, color: string) => {
+  const addToCart = (product: StorefrontProduct, size: string, color: string) => {
     setItems((prev) => {
       const existing = prev.find(
         (item) => item.id === product.id && item.selectedSize === size && item.selectedColor === color,
