@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { OrdersService } from './orders.service.js';
-import { CreateOrderDto } from './dto/create-order.dto.js';
+import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto.js';
 import { CarrierBookingDto } from './dto/carrier-booking.dto.js';
 import { OrderStatus } from '@repo/database';
 import { AdminPermission } from '@repo/types';
@@ -74,14 +74,11 @@ export class OrdersController {
       'เปลี่ยนสถานะของคำสั่งซื้อ เช่น PAID, SHIPPED, DELIVERED หรือ CANCELLED',
   })
   @ApiParam({ name: 'id', description: 'Order ID หรือ Order Number' })
+  @ApiResponse({ status: 200, description: 'อัปเดตสถานะคำสั่งซื้อสำเร็จ' })
+  @ApiResponse({ status: 404, description: 'ไม่พบคำสั่งซื้อ' })
   async updateOrderStatus(
     @Param('id') id: string,
-    @Body()
-    body: {
-      status: OrderStatus;
-      courierName?: string;
-      trackingNumber?: string;
-    },
+    @Body() body: UpdateOrderStatusDto,
   ) {
     return this.ordersService.updateOrderStatus(
       id,

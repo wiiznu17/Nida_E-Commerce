@@ -13,6 +13,7 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { PaymentMethod } from '@repo/types';
+import { OrderStatus } from '@repo/database';
 
 export class OrderItemInputDto {
   @ApiProperty({
@@ -126,4 +127,30 @@ export class CreateOrderDto {
   @IsOptional()
   @IsUUID()
   userId?: string;
+}
+
+export class UpdateOrderStatusDto {
+  @ApiProperty({
+    description: 'สถานะใหม่ของคำสั่งซื้อ',
+    enum: OrderStatus,
+    example: OrderStatus.PAID,
+  })
+  @IsEnum(OrderStatus)
+  status!: OrderStatus;
+
+  @ApiPropertyOptional({
+    description: 'ชื่อบริษัทขนส่ง (ระบุเมื่อเปลี่ยนสถานะเป็น SHIPPED)',
+    example: 'Flash Express',
+  })
+  @IsOptional()
+  @IsString()
+  courierName?: string;
+
+  @ApiPropertyOptional({
+    description: 'หมายเลขติดตามพัสดุ (ระบุเมื่อเปลี่ยนสถานะเป็น SHIPPED)',
+    example: 'TH1234567890',
+  })
+  @IsOptional()
+  @IsString()
+  trackingNumber?: string;
 }

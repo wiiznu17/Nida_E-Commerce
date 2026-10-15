@@ -74,17 +74,39 @@ export class AdminController {
     return this.adminService.getStockMovements();
   }
 
-  @Post(['inventory/restock', 'inventory/adjust'])
+  @Post('inventory/restock')
   @RequirePermissions(AdminPermission.INVENTORY_ADJUST)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'ปรับปรุงสต็อกสินค้าเข้า/ออกคลัง (Restock / Adjust Inventory)',
+    operationId: 'restockInventory',
+    summary: 'ปรับปรุงสต็อกสินค้าเข้า/ออกคลัง (Restock Inventory)',
     description:
       'ปรับจำนวนสต็อกสินค้าในคลัง (บวก/ลบ) พร้อมบันทึก StockMovement Audit Trail อัตโนมัติ',
   })
   @ApiResponse({ status: 200, description: 'ปรับสต็อกสินค้าสำเร็จ' })
   @ApiResponse({ status: 404, description: 'ไม่พบสินค้า Variant ที่ระบุ' })
   async restock(
+    @Body() dto: RestockInventoryDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
+  ) {
+    return this.adminService.restock({
+      ...dto,
+      adminId: admin?.id ?? dto.adminId,
+    });
+  }
+
+  @Post('inventory/adjust')
+  @RequirePermissions(AdminPermission.INVENTORY_ADJUST)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    operationId: 'adjustInventory',
+    summary: 'ปรับยอดสินค้าคงคลัง (Adjust Inventory)',
+    description:
+      'ปรับจำนวนสต็อกสินค้าในคลัง (บวก/ลบ) สำหรับการตรวจนับสต็อก',
+  })
+  @ApiResponse({ status: 200, description: 'ปรับสต็อกสินค้าสำเร็จ' })
+  @ApiResponse({ status: 404, description: 'ไม่พบสินค้า Variant ที่ระบุ' })
+  async adjust(
     @Body() dto: RestockInventoryDto,
     @CurrentAdmin() admin: ApiAdminUser | null,
   ) {

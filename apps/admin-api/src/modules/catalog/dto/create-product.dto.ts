@@ -1,4 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+
 import {
   IsString,
   IsNotEmpty,
@@ -261,3 +262,15 @@ export class CreateProductDto {
   @IsBoolean()
   isActive?: boolean;
 }
+
+export class UpdateProductDto extends PartialType(CreateProductDto) {}
+
+export class UpdateProductStatusDto {
+  @ApiProperty({
+    description: 'Publication status: true for Published, false for Draft',
+    example: true,
+  })
+  @IsBoolean()
+  isActive: boolean;
+}
+

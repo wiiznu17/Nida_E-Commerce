@@ -9,6 +9,12 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { AdminUsersService } from './admin-users.service.js';
 import { InviteAdminUserDto } from './dto/admin-user.dto.js';
 import {
@@ -22,10 +28,11 @@ import {
   AdminRoleCode,
   type ApiAdminUser,
   type ApiAdminRole,
-  type ApiResponse,
+  type ApiResponse as ApiGenericResponse,
   type InviteAdminResponse,
 } from '@repo/types';
 
+@ApiTags('Admin Users')
 @Controller('admin/users')
 @UseGuards(RolesGuard)
 @Roles(AdminRoleCode.SUPER_ADMIN)
@@ -34,7 +41,12 @@ export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
 
   @Get()
-  async getAdminUsers(): Promise<ApiResponse<ApiAdminUser[]>> {
+  @ApiOperation({
+    summary: 'List all admin users',
+    description: 'Retrieve all back-office administrative staff accounts with their assigned roles.',
+  })
+  @ApiResponse({ status: 200, description: 'List of admin users' })
+  async getAdminUsers(): Promise<ApiGenericResponse<ApiAdminUser[]>> {
     const data = await this.adminUsersService.getAdminUsers();
     return {
       success: true,
@@ -43,7 +55,12 @@ export class AdminUsersController {
   }
 
   @Get('roles')
-  async getRoles(): Promise<ApiResponse<ApiAdminRole[]>> {
+  @ApiOperation({
+    summary: 'List system roles',
+    description: 'Retrieve predefined administrative roles and their permission sets.',
+  })
+  @ApiResponse({ status: 200, description: 'List of system roles' })
+  async getRoles(): Promise<ApiGenericResponse<ApiAdminRole[]>> {
     const data = await this.adminUsersService.getRoles();
     return {
       success: true,
@@ -53,9 +70,15 @@ export class AdminUsersController {
 
   @Post('invite')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Invite new admin user',
+    description: 'Generate an invitation token and send onboarding setup email to new staff member.',
+  })
+  @ApiResponse({ status: 201, description: 'Invitation created and dispatched' })
+  @ApiResponse({ status: 409, description: 'Email already registered' })
   async inviteAdmin(
     @Body() dto: InviteAdminUserDto,
-  ): Promise<ApiResponse<InviteAdminResponse>> {
+  ): Promise<ApiGenericResponse<InviteAdminResponse>> {
     const data = await this.adminUsersService.inviteAdmin(dto);
     return {
       success: true,
@@ -64,10 +87,18 @@ export class AdminUsersController {
   }
 
   @Patch(':id/toggle')
+  @ApiOperation({
+    summary: 'Toggle admin active status',
+    description: 'Activate or suspend an admin user account. Super admin cannot suspend themselves.',
+  })
+  @ApiParam({ name: 'id', description: 'Admin user UUID' })
+  @ApiResponse({ status: 200, description: 'Status toggled successfully' })
+  @ApiResponse({ status: 400, description: 'Cannot suspend own account' })
+  @ApiResponse({ status: 404, description: 'Admin user not found' })
   async toggleActive(
     @Param('id') targetId: string,
     @CurrentAdmin() currentAdmin: ApiAdminUser,
-  ): Promise<ApiResponse<ApiAdminUser>> {
+  ): Promise<ApiGenericResponse<ApiAdminUser>> {
     const data = await this.adminUsersService.toggleActiveStatus(
       targetId,
       currentAdmin.id,

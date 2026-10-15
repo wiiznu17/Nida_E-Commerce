@@ -9,7 +9,8 @@ import { HttpExceptionFilter } from './core/filters/http-exception.filter.js';
 import { TransformInterceptor } from './core/interceptors/transform.interceptor.js';
 
 // Automatically load .env file for Node.js process
-if (typeof (process as any).loadEnvFile === 'function') {
+const nodeProcess = process as unknown as { loadEnvFile?: (path: string) => void };
+if (typeof nodeProcess.loadEnvFile === 'function') {
   const envCandidates = [
     path.resolve(process.cwd(), '.env'),
     path.resolve(process.cwd(), 'apps/admin-api/.env'),
@@ -17,7 +18,7 @@ if (typeof (process as any).loadEnvFile === 'function') {
   for (const envPath of envCandidates) {
     if (fs.existsSync(envPath)) {
       try {
-        (process as any).loadEnvFile(envPath);
+        nodeProcess.loadEnvFile(envPath);
         break;
       } catch {}
     }
@@ -51,16 +52,14 @@ async function bootstrap() {
       'API documentation for Nida Modern Classic Apparel & Lifestyle Platform (Storefront & Admin)',
     )
     .setVersion('1.0')
+    .addTag('Auth', 'Admin authentication, token refresh & password setup')
+    .addTag('Admin Users', 'Back-office staff accounts & system roles')
     .addTag('Catalog', 'Categories, Products, Variants & Pre-order')
-    .addTag(
-      'Coupons & Checkout',
-      'Coupon validation, Pro-rata discount distribution & Checkout calculations',
-    )
+    .addTag('Admin Back-Office', 'Back-office operations, Inventory restock & Order fulfillment')
     .addTag('Orders & Shipments', 'Order placement, Payments & Tracking')
-    .addTag(
-      'Admin Back-Office',
-      'Back-office operations, Inventory restock & Order fulfillment',
-    )
+    .addTag('Coupons & Checkout', 'Coupon validation, Pro-rata discount distribution & Checkout calculations')
+    .addTag('Audit Logs', 'Security audit trails & administrative operation history')
+    .addTag('Upload', 'Image upload & media management')
     .addTag('Health', 'Liveness and readiness probes')
     .addBearerAuth()
     .build();

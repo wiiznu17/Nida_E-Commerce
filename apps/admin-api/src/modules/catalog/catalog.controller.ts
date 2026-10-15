@@ -11,10 +11,21 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiBody,
+  ApiTags,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { CatalogService } from './catalog.service.js';
 import { QueryProductsDto } from './dto/query-products.dto.js';
-import { CreateProductDto } from './dto/create-product.dto.js';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  UpdateProductStatusDto,
+} from './dto/create-product.dto.js';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto.js';
 import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
 import {
@@ -28,7 +39,7 @@ import { AdminPermission } from '@repo/types';
 import { RequirePermissions } from '../auth/decorators/index.js';
 
 @ApiTags('Catalog')
-@Controller(['catalog', ''])
+@Controller('catalog')
 export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}
 
@@ -38,6 +49,23 @@ export class CatalogController {
     summary: 'Get all categories',
     description:
       'Retrieve categories, optionally filtered by department and include inactive.',
+  })
+  @ApiQuery({
+    name: 'department',
+    required: false,
+    description: 'Filter categories by department code (WOMEN, MEN, KIDS, BAGS, SHOES, HOME)',
+    example: 'WOMEN',
+  })
+  @ApiQuery({
+    name: 'includeInactive',
+    required: false,
+    type: Boolean,
+    description: 'Include inactive/hidden categories',
+    example: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of categories retrieved successfully',
   })
   getCategories(
     @Query('department') department?: string,
@@ -51,6 +79,10 @@ export class CatalogController {
   @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new category or sub-category' })
+  @ApiResponse({
+    status: 201,
+    description: 'Category created successfully',
+  })
   createCategory(
     @Body(new ZodValidationPipe(createCategorySchema))
     dto: CreateCategoryDto,
@@ -62,6 +94,10 @@ export class CatalogController {
   @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @ApiOperation({ summary: 'Update an existing category' })
   @ApiParam({ name: 'id', description: 'Category UUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Category updated successfully',
+  })
   updateCategory(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateCategorySchema))
@@ -74,6 +110,10 @@ export class CatalogController {
   @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @ApiOperation({ summary: 'Delete a category' })
   @ApiParam({ name: 'id', description: 'Category UUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Category deleted successfully',
+  })
   deleteCategory(@Param('id') id: string) {
     return this.catalogService.deleteCategory(id);
   }
@@ -84,6 +124,10 @@ export class CatalogController {
     summary: 'Search & list products',
     description:
       'Search products with filtering, sorting, and pagination. Supports department, category, tag, pre-order, and text search.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of matching products with pagination metadata',
   })
   getProducts(
     @Query(new ZodValidationPipe(queryProductsSchema))
@@ -98,6 +142,10 @@ export class CatalogController {
     summary: 'Get product status counts',
     description: 'Retrieve counts for all, published, and draft products',
   })
+  @ApiResponse({
+    status: 200,
+    description: 'Total counts breakdown: { all, published, draft }',
+  })
   getProductCounts() {
     return this.catalogService.getProductCounts();
   }
@@ -109,7 +157,19 @@ export class CatalogController {
     description:
       'Retrieve full product details including variants, images, inventory status, and pre-order info.',
   })
-  @ApiParam({ name: 'slug', example: 'iconic-cable-knit-crewneck-sweater' })
+  @ApiParam({
+    name: 'slug',
+    description: 'Product slug or UUID',
+    example: 'iconic-cable-knit-crewneck-sweater',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Full product detail specifications and SKU variants',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+  })
   getProductBySlug(@Param('slug') slug: string) {
     return this.catalogService.getProductBySlug(slug);
   }
@@ -139,12 +199,28 @@ export class CatalogController {
   @ApiOperation({
     summary: 'Update product details',
     description:
-      'Update catalog specifications, pricing, and details of an existing product.',
+      'Update catalog specifications, pricing, gallery images, and SKU variants of an existing product.',
   })
-  @ApiParam({ name: 'id', description: 'Product UUID or slug' })
+  @ApiParam({
+    name: 'id',
+    description: 'Product UUID or slug identifier',
+    example: '9e169d9c-5036-414a-adf7-f1248625a3a0',
+  })
+  @ApiBody({
+    type: UpdateProductDto,
+    description: 'Product fields to update (supports partial updates, image changes, and SKU additions)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product updated successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+  })
   updateProduct(
     @Param('id') id: string,
-    @Body() dto: Partial<CreateProductDto>,
+    @Body() dto: UpdateProductDto,
   ) {
     return this.catalogService.updateProduct(id, dto);
   }
@@ -154,13 +230,29 @@ export class CatalogController {
   @ApiOperation({
     summary: 'Toggle product active/published status',
     description:
-      'Updates publication status (isActive: true/false) of a product.',
+      'Updates publication status (isActive: true for Published, false for Draft) of a product.',
   })
-  @ApiParam({ name: 'id', description: 'Product UUID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Product UUID',
+    example: '9e169d9c-5036-414a-adf7-f1248625a3a0',
+  })
+  @ApiBody({
+    type: UpdateProductStatusDto,
+    description: 'Active status payload',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Publication status updated successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+  })
   toggleProductStatus(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateProductStatusSchema))
-    body: { isActive: boolean },
+    body: UpdateProductStatusDto,
   ) {
     return this.catalogService.toggleProductStatus(id, Boolean(body.isActive));
   }
@@ -174,6 +266,14 @@ export class CatalogController {
       'Deletes a product, or archives it if associated with order history.',
   })
   @ApiParam({ name: 'id', description: 'Product UUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product deleted or archived successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+  })
   deleteProduct(@Param('id') id: string) {
     return this.catalogService.deleteProduct(id);
   }
