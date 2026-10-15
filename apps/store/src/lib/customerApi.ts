@@ -5,6 +5,8 @@ import type {
   RequestOtpResponse,
   VerifyOtpResponse,
   PaymentMethod,
+  CouponValidationResult,
+  CheckoutCalculation,
 } from '@repo/types';
 
 const API_BASE_URL =
@@ -168,3 +170,62 @@ export async function getOrderDetail(
 
   return data;
 }
+
+/**
+ * Validate promotional coupon code and calculate discount.
+ */
+export async function validateCoupon(
+  code: string,
+  orderAmount: number,
+  userId?: string,
+): Promise<CouponValidationResult> {
+  const res = await fetch(`${API_BASE_URL}/coupons/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      code: code.trim().toUpperCase(),
+      orderAmount,
+      userId,
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || 'Failed to validate coupon');
+  }
+
+  return data;
+}
+
+export interface CalculateCheckoutPayload {
+  items: Array<{
+    variantId: string;
+    quantity: number;
+  }>;
+  couponCode?: string;
+  userId?: string;
+}
+
+/**
+ * Calculate checkout totals including pro-rata discount, shipping fee, and tax.
+ */
+export async function calculateCheckout(
+  payload: CalculateCheckoutPayload,
+): Promise<CheckoutCalculation> {
+  const res = await fetch(`${API_BASE_URL}/checkout/calculate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...payload,
+      couponCode: payload.couponCode ? payload.couponCode.trim().toUpperCase() : undefined,
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || 'Failed to calculate checkout');
+  }
+
+  return data;
+}
+

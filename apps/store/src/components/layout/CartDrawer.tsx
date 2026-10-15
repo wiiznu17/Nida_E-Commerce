@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingBag, X, Check, Minus, Plus } from 'lucide-react';
+import { ShoppingBag, X, Check, Minus, Plus, Tag, Loader2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
@@ -16,10 +16,31 @@ export function CartDrawer() {
     cartTotal,
     removeFromCart,
     updateQuantity,
+    appliedCoupon,
+    discountAmount,
+    shippingFee,
+    isFreeShipping,
+    freeShippingRemaining,
+    freeShippingProgress,
+    finalTotal,
+    couponError,
+    isApplyingCoupon,
+    applyCoupon,
+    removeCoupon,
   } = useCart();
   const { isAuthenticated } = useAuth();
   const { language, t } = useLanguage();
   const router = useRouter();
+  const [promoInput, setPromoInput] = useState('');
+
+  const handleApplyPromo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!promoInput.trim()) return;
+    const res = await applyCoupon(promoInput);
+    if (res.success) {
+      setPromoInput('');
+    }
+  };
 
   if (!isCartOpen) return null;
 
@@ -52,9 +73,9 @@ export function CartDrawer() {
 
         {/* Free Shipping Progress Meter */}
         <div className="bg-brand-warm-cream p-4 border-b border-brand-border text-xs">
-          {cartTotal >= 100 ? (
+          {isFreeShipping ? (
             <div className="text-emerald-700 font-bold flex items-center">
-              <Check size={16} className="mr-1.5" />{' '}
+              <Check size={16} className="mr-1.5 shrink-0" />{' '}
               {t('cart.freeShippingQualified')}
             </div>
           ) : (
@@ -62,18 +83,16 @@ export function CartDrawer() {
               <div className="flex justify-between font-semibold mb-1 text-gray-700">
                 <span>
                   {t('cart.freeShippingAddMore')}
-                  {(100 - cartTotal).toFixed(2)}
+                  {freeShippingRemaining.toFixed(2)}
                   {t('cart.forFreeShipping')}
                 </span>
-                <span>
-                  {Math.min(100, Math.round((cartTotal / 100) * 100))}%
-                </span>
+                <span className="font-mono">{freeShippingProgress}%</span>
               </div>
               <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
                 <div
                   className="bg-brand-yellow h-full transition-all duration-500"
                   style={{
-                    width: `${Math.min(100, (cartTotal / 100) * 100)}%`,
+                    width: `${freeShippingProgress}%`,
                   }}
                 />
               </div>
@@ -184,30 +203,121 @@ export function CartDrawer() {
 
         {/* Checkout Footer */}
         {items.length > 0 && (
-          <div className="p-6 border-t border-gray-200 bg-brand-warm-cream">
-            <div className="flex justify-between items-center mb-2 text-xs font-semibold text-gray-600 uppercase">
-              <span>{t('cart.subtotal')}</span>
-              <span className="text-base font-black text-brand-brown">
-                ${cartTotal.toFixed(2)}
-              </span>
+          <div className="p-5 border-t border-gray-200 bg-brand-warm-cream space-y-4">
+            {/* Promo Code Input or Applied Badge */}
+            {appliedCoupon ? (
+              <div className="p-2.5 bg-emerald-50 border border-emerald-300 rounded-xs flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Tag size={14} className="text-emerald-700 shrink-0" />
+                  <div>
+                    <span className="text-xs font-black tracking-wider uppercase text-emerald-900 font-mono">
+                      {appliedCoupon.code}
+                    </span>
+                    <span className="text-[11px] text-emerald-700 ml-2">
+                      ({appliedCoupon.discountType === 'PERCENTAGE'
+                        ? `${appliedCoupon.discountValue}% OFF`
+                        : appliedCoupon.discountType === 'FREE_SHIPPING'
+                          ? t('cart.freeShippingEligible')
+                          : `$${appliedCoupon.discountValue} OFF`})
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeCoupon}
+                  className="text-gray-400 hover:text-rose-600 transition-colors p-1 cursor-pointer"
+                  title={t('cart.removePromo')}
+                  aria-label={t('cart.removePromo')}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <div>
+                <form onSubmit={handleApplyPromo} className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                      placeholder={t('cart.promoCodePlaceholder')}
+                      className="w-full text-xs font-mono px-3 py-2 bg-white border border-brand-border focus:border-brand-brown focus:outline-hidden uppercase placeholder:normal-case placeholder:text-gray-400"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isApplyingCoupon || !promoInput.trim()}
+                    className="px-4 py-2 bg-brand-brown text-white text-xs font-black uppercase tracking-wider hover:bg-brand-amber transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center shrink-0"
+                  >
+                    {isApplyingCoupon ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      t('cart.applyPromo')
+                    )}
+                  </button>
+                </form>
+                {couponError && (
+                  <p className="text-[11px] text-rose-600 mt-1.5 font-medium">
+                    {couponError}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Price Breakdown */}
+            <div className="space-y-1.5 text-xs border-t border-brand-border pt-3">
+              <div className="flex justify-between items-center text-gray-600">
+                <span>{t('cart.subtotal')}</span>
+                <span className="font-bold text-brand-brown">
+                  ${cartTotal.toFixed(2)}
+                </span>
+              </div>
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center text-emerald-700 font-medium">
+                  <span>{t('cart.discountLabel')}</span>
+                  <span className="font-bold">-${discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center text-gray-600">
+                <span>{t('cart.shippingEst')}</span>
+                <span className="font-bold text-brand-brown">
+                  {isFreeShipping ? (
+                    <span className="text-emerald-700 font-black">
+                      {t('cart.freeShipping')}
+                    </span>
+                  ) : (
+                    `$${shippingFee.toFixed(2)}`
+                  )}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center pt-2 border-t border-brand-border/60 text-sm font-black text-brand-brown">
+                <span className="uppercase tracking-wider">{t('cart.total')}</span>
+                <span className="text-base">${finalTotal.toFixed(2)}</span>
+              </div>
             </div>
-            <p className="text-[11px] text-gray-500 mb-4">
+
+            <p className="text-[10px] text-gray-400">
               {t('cart.disclaimer')}
             </p>
-            <div className="space-y-2">
+
+            <div className="space-y-2 pt-1">
               <Link
                 href={isAuthenticated ? '/checkout' : '/login?redirect=/checkout'}
                 onClick={() => setIsCartOpen(false)}
-                className="w-full py-4 bg-brand-brown hover:bg-brand-amber text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md cursor-pointer"
+                className="w-full py-3.5 bg-brand-brown hover:bg-brand-amber text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md cursor-pointer"
               >
                 {t('cart.checkoutBtn')}
               </Link>
               <button
+                type="button"
                 onClick={() => {
                   setIsCartOpen(false);
                   router.push('/collections/all');
                 }}
-                className="w-full py-2.5 text-center text-xs font-bold text-gray-600 hover:text-brand-brown transition-colors uppercase tracking-wider cursor-pointer"
+                className="w-full py-2 text-center text-xs font-bold text-gray-500 hover:text-brand-brown transition-colors uppercase tracking-wider cursor-pointer"
               >
                 {t('cart.continueShopping')}
               </button>

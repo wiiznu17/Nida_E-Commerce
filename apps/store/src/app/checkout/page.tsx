@@ -15,19 +15,34 @@ import {
   AlertCircle,
   Loader2,
   Lock,
+  Tag,
+  X,
 } from 'lucide-react';
 import { createCustomerOrder, type CreateCustomerOrderPayload } from '@/lib/customerApi';
 import { PaymentMethod } from '@repo/types';
 
 export default function CheckoutPage() {
-  const { items, cartTotal, setIsCartOpen, clearCart } = useCart();
+  const {
+    items,
+    cartTotal,
+    setIsCartOpen,
+    clearCart,
+    appliedCoupon,
+    discountAmount,
+    shippingFee,
+    isFreeShipping,
+    finalTotal,
+    couponError,
+    isApplyingCoupon,
+    applyCoupon,
+    removeCoupon,
+  } = useCart();
   const { user, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { language, t } = useLanguage();
   const router = useRouter();
 
   const [step, setStep] = useState<'shipping' | 'payment'>('shipping');
   const [promoCode, setPromoCode] = useState('');
-  const [discountApplied, setDiscountApplied] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'promptpay' | 'bank'>('card');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderError, setOrderError] = useState('');
@@ -63,13 +78,6 @@ export default function CheckoutPage() {
     }
   }, [user, language]);
 
-  const discountAmount = discountApplied ? cartTotal * 0.2 : 0;
-  const shippingCost = cartTotal >= 100 ? 0 : 9.99;
-  const finalTotal = Math.max(
-    0,
-    cartTotal - discountAmount + (items.length > 0 ? shippingCost : 0),
-  );
-
   if (items.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 font-sans">
@@ -86,10 +94,12 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleApplyPromo = (e: React.FormEvent) => {
+  const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (promoCode.trim().toUpperCase() === 'NIDA20') {
-      setDiscountApplied(true);
+    if (!promoCode.trim()) return;
+    const res = await applyCoupon(promoCode);
+    if (res.success) {
+      setPromoCode('');
     }
   };
 
@@ -130,7 +140,7 @@ export default function CheckoutPage() {
         },
         paymentMethod: mappedMethod,
         customerEmail: shippingData.email || user?.email,
-        couponCode: discountApplied ? promoCode.trim().toUpperCase() : undefined,
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
       };
 
       const createdOrder = await createCustomerOrder(payload, token);
@@ -565,40 +575,69 @@ export default function CheckoutPage() {
             })}
           </div>
 
-          {/* Promo Code Input */}
-          <form
-            onSubmit={handleApplyPromo}
-            className="flex gap-2 mb-6 pb-6 border-b border-gray-300"
-          >
-            <input
-              type="text"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
-              placeholder={t('checkout.promoPlaceholder')}
-              className="flex-1 border border-gray-300 px-3 py-2 text-xs uppercase focus:outline-none focus:border-brand-brown bg-white font-mono"
-            />
-            <button
-              type="submit"
-              className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
-            >
-              {t('checkout.apply')}
-            </button>
-          </form>
-
-          {discountApplied && (
-            <div className="flex items-center space-x-1.5 text-xs text-emerald-700 font-bold mb-4 bg-emerald-50 p-2 border border-emerald-200">
-              <Check size={14} />
-              <span>Promo code NIDA20 applied (20% OFF)</span>
+          {/* Promo Code Input or Applied Banner */}
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between text-xs text-emerald-800 font-bold mb-6 bg-emerald-50 p-3 border border-emerald-300 rounded-xs">
+              <div className="flex items-center space-x-2">
+                <Tag size={16} className="text-emerald-700 shrink-0" />
+                <div>
+                  <span className="font-mono uppercase tracking-wider">{appliedCoupon.code}</span>
+                  <span className="text-[11px] text-emerald-600 block font-normal">
+                    {appliedCoupon.discountType === 'PERCENTAGE'
+                      ? `${appliedCoupon.discountValue}% OFF${appliedCoupon.maxDiscountAmount ? ` (Max $${appliedCoupon.maxDiscountAmount})` : ''}`
+                      : appliedCoupon.discountType === 'FREE_SHIPPING'
+                        ? t('checkout.freeShippingQualified')
+                        : `$${appliedCoupon.discountValue} OFF`}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={removeCoupon}
+                className="text-gray-400 hover:text-rose-600 transition-colors p-1 cursor-pointer"
+                title={t('checkout.removeCoupon')}
+                aria-label={t('checkout.removeCoupon')}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <div className="mb-6 pb-6 border-b border-gray-300">
+              <form onSubmit={handleApplyPromo} className="flex gap-2">
+                <input
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                  placeholder={t('checkout.promoCode')}
+                  className="flex-1 border border-gray-300 px-3 py-2 text-xs uppercase focus:outline-hidden focus:border-brand-brown bg-white font-mono placeholder:normal-case placeholder:text-gray-400"
+                />
+                <button
+                  type="submit"
+                  disabled={isApplyingCoupon || !promoCode.trim()}
+                  className="bg-brand-brown hover:bg-brand-amber disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                >
+                  {isApplyingCoupon ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    t('checkout.apply')
+                  )}
+                </button>
+              </form>
+              {couponError && (
+                <p className="text-[11px] text-rose-600 mt-2 font-medium">
+                  {couponError}
+                </p>
+              )}
             </div>
           )}
 
           {/* Cost Breakdown */}
           <div className="space-y-2.5 text-xs font-semibold text-gray-600 pb-4 border-b border-gray-300">
             <div className="flex justify-between">
-              <span>{t('checkout.subtotal')}</span>
-              <span className="text-brand-brown">${cartTotal.toFixed(2)}</span>
+              <span>{t('checkout.orderSummary')}</span>
+              <span className="text-brand-brown font-bold">${cartTotal.toFixed(2)}</span>
             </div>
-            {discountApplied && (
+            {discountAmount > 0 && (
               <div className="flex justify-between text-emerald-700 font-bold">
                 <span>{t('checkout.discount')}</span>
                 <span>-${discountAmount.toFixed(2)}</span>
@@ -607,14 +646,17 @@ export default function CheckoutPage() {
             <div className="flex justify-between">
               <span>{t('checkout.shipping')}</span>
               <span>
-                {shippingCost === 0 ? (
+                {isFreeShipping ? (
                   <span className="text-emerald-700 font-bold uppercase">
                     {t('checkout.free')}
                   </span>
                 ) : (
-                  `$${shippingCost.toFixed(2)}`
+                  `$${shippingFee.toFixed(2)}`
                 )}
               </span>
+            </div>
+            <div className="text-[10px] text-gray-400 pt-1">
+              {t('checkout.taxIncluded')}
             </div>
           </div>
 
