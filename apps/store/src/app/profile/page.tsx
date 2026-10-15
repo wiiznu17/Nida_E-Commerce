@@ -76,17 +76,17 @@ export default function ProfilePage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
       {/* Header Banner */}
-      <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-6 sm:p-8 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="bg-brand-warm-cream border border-brand-border p-6 sm:p-8 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-full bg-[#2B1810] text-[#F59E0B] flex items-center justify-center font-black text-2xl border-2 border-[#F59E0B] shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-brand-brown text-brand-yellow flex items-center justify-center font-black text-2xl border-2 border-brand-yellow shadow-sm">
             {user.firstName ? user.firstName.charAt(0).toUpperCase() : 'N'}
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-[#2B1810] uppercase tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-brand-brown uppercase tracking-tight">
                 {user.firstName} {user.lastName}
               </h1>
-              <span className="bg-[#2B1810] text-[#F59E0B] text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">
+              <span className="bg-brand-brown text-brand-yellow text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">
                 {user.tier || 'VIP GOLD'}
               </span>
             </div>
@@ -102,7 +102,7 @@ export default function ProfilePage() {
             <span className="text-[10px] font-bold uppercase text-gray-500 tracking-wider block">
               {language === 'th' ? 'คะแนนสะสม' : 'Rewards Points'}
             </span>
-            <span className="text-lg font-black text-[#2B1810]">
+            <span className="text-lg font-black text-brand-brown">
               {user.points || 1250} PTS
             </span>
           </div>
@@ -128,8 +128,8 @@ export default function ProfilePage() {
             onClick={() => setActiveTab('profile')}
             className={`w-full flex items-center space-x-3 px-4 py-3 text-xs font-black uppercase tracking-wider transition-colors text-left ${
               activeTab === 'profile'
-                ? 'bg-[#2B1810] text-white shadow-xs'
-                : 'bg-white hover:bg-gray-100 text-[#2B1810] border border-gray-200'
+                ? 'bg-brand-brown text-white shadow-xs'
+                : 'bg-white hover:bg-gray-100 text-brand-brown border border-gray-200'
             }`}
           >
             <UserIcon size={16} />
@@ -140,8 +140,8 @@ export default function ProfilePage() {
             onClick={() => setActiveTab('orders')}
             className={`w-full flex items-center space-x-3 px-4 py-3 text-xs font-black uppercase tracking-wider transition-colors text-left ${
               activeTab === 'orders'
-                ? 'bg-[#2B1810] text-white shadow-xs'
-                : 'bg-white hover:bg-gray-100 text-[#2B1810] border border-gray-200'
+                ? 'bg-brand-brown text-white shadow-xs'
+                : 'bg-white hover:bg-gray-100 text-brand-brown border border-gray-200'
             }`}
           >
             <Package size={16} />
@@ -152,8 +152,8 @@ export default function ProfilePage() {
             onClick={() => setActiveTab('addresses')}
             className={`w-full flex items-center space-x-3 px-4 py-3 text-xs font-black uppercase tracking-wider transition-colors text-left ${
               activeTab === 'addresses'
-                ? 'bg-[#2B1810] text-white shadow-xs'
-                : 'bg-white hover:bg-gray-100 text-[#2B1810] border border-gray-200'
+                ? 'bg-brand-brown text-white shadow-xs'
+                : 'bg-white hover:bg-gray-100 text-brand-brown border border-gray-200'
             }`}
           >
             <MapPin size={16} />
@@ -161,8 +161,8 @@ export default function ProfilePage() {
           </button>
 
           {/* VIP Perks Card */}
-          <div className="p-4 bg-[#FAF7F2] border border-[#EAE3D9] mt-6">
-            <div className="flex items-center space-x-2 text-[#D97706] mb-2">
+          <div className="p-4 bg-brand-warm-cream border border-brand-border mt-6">
+            <div className="flex items-center space-x-2 text-brand-amber mb-2">
               <Sparkles size={16} />
               <span className="text-xs font-black uppercase tracking-wider">
                 {language === 'th' ? 'สิทธิประโยชน์สมาชิก' : 'Member Perks'}
@@ -195,7 +195,7 @@ export default function ProfilePage() {
             <div>
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                 <div>
-                  <h2 className="text-xl font-black text-[#2B1810] uppercase tracking-tight">
+                  <h2 className="text-xl font-black text-brand-brown uppercase tracking-tight">
                     {t('auth.tabProfile')}
                   </h2>
                   <p className="text-xs text-gray-500">
@@ -207,7 +207,7 @@ export default function ProfilePage() {
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-[#D97706] hover:underline"
+                    className="flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-brand-amber hover:underline"
                   >
                     <Edit3 size={14} />
                     <span>{t('auth.editProfile')}</span>
@@ -228,7 +228,7 @@ export default function ProfilePage() {
                         value={formData.firstName}
                         onChange={handleChange}
                         required
-                        className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#2B1810]"
+                        className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
                       />
                     </div>
                     <div>
@@ -241,7 +241,7 @@ export default function ProfilePage() {
                         value={formData.lastName}
                         onChange={handleChange}
                         required
-                        className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#2B1810]"
+                        className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
                       />
                     </div>
                   </div>
@@ -274,14 +274,14 @@ export default function ProfilePage() {
                       value={formData.phone}
                       onChange={handleChange}
                       required
-                      className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#2B1810]"
+                      className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
                     />
                   </div>
 
                   <div className="flex space-x-3 pt-4">
                     <button
                       type="submit"
-                      className="bg-[#2B1810] hover:bg-[#D97706] text-white px-6 py-2.5 text-xs font-black uppercase tracking-wider transition-colors shadow-xs"
+                      className="bg-brand-brown hover:bg-brand-amber text-white px-6 py-2.5 text-xs font-black uppercase tracking-wider transition-colors shadow-xs"
                     >
                       {t('auth.saveChanges')}
                     </button>
@@ -296,12 +296,12 @@ export default function ProfilePage() {
                 </form>
               ) : (
                 <div className="space-y-6 max-w-xl">
-                  <div className="grid grid-cols-2 gap-6 bg-[#FAF7F2] p-4 border border-[#EAE3D9]">
+                  <div className="grid grid-cols-2 gap-6 bg-brand-warm-cream p-4 border border-brand-border">
                     <div>
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
                         {t('auth.firstName')}
                       </p>
-                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">
+                      <p className="text-sm font-bold text-brand-brown mt-0.5">
                         {user.firstName || 'Phannida'}
                       </p>
                     </div>
@@ -309,20 +309,20 @@ export default function ProfilePage() {
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
                         {t('auth.lastName')}
                       </p>
-                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">
+                      <p className="text-sm font-bold text-brand-brown mt-0.5">
                         {user.lastName || 'Wissanu'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6 bg-[#FAF7F2] p-4 border border-[#EAE3D9]">
+                  <div className="grid grid-cols-2 gap-6 bg-brand-warm-cream p-4 border border-brand-border">
                     <div>
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
                         {language === 'th'
                           ? 'อีเมลยืนยันแล้ว'
                           : 'Verified Email'}
                       </p>
-                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">
+                      <p className="text-sm font-bold text-brand-brown mt-0.5">
                         {user.email}
                       </p>
                     </div>
@@ -330,7 +330,7 @@ export default function ProfilePage() {
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
                         {t('auth.phone')}
                       </p>
-                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">
+                      <p className="text-sm font-bold text-brand-brown mt-0.5">
                         {user.phone || '081-892-3456'}
                       </p>
                     </div>
@@ -353,7 +353,7 @@ export default function ProfilePage() {
           {activeTab === 'orders' && (
             <div>
               <div className="mb-6 pb-4 border-b border-gray-200">
-                <h2 className="text-xl font-black text-[#2B1810] uppercase tracking-tight">
+                <h2 className="text-xl font-black text-brand-brown uppercase tracking-tight">
                   {t('auth.tabOrders')}
                 </h2>
                 <p className="text-xs text-gray-500">
@@ -365,11 +365,11 @@ export default function ProfilePage() {
 
               <div className="space-y-6">
                 {/* Active Order Item */}
-                <div className="border border-gray-200 p-6 bg-white hover:border-[#2B1810] transition-colors">
+                <div className="border border-gray-200 p-6 bg-white hover:border-brand-brown transition-colors">
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-4 mb-4 border-b border-gray-200">
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="font-black text-sm text-[#2B1810]">
+                        <span className="font-black text-sm text-brand-brown">
                           {t('trackOrder.order')} #NIDA-918274
                         </span>
                         <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-xs">
@@ -388,13 +388,13 @@ export default function ProfilePage() {
                         <span className="text-[10px] uppercase font-bold text-gray-400 block">
                           {t('checkout.total')}
                         </span>
-                        <span className="text-base font-black text-[#2B1810]">
+                        <span className="text-base font-black text-brand-brown">
                           $340.00
                         </span>
                       </div>
                       <Link
                         href="/track-order/918274"
-                        className="bg-[#2B1810] hover:bg-[#D97706] text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center"
+                        className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center"
                       >
                         <span>{t('orderSuccess.trackOrder')}</span>
                         <ArrowRight size={14} className="ml-1" />
@@ -411,7 +411,7 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div className="text-xs">
-                      <h4 className="font-bold text-[#2B1810] text-sm">
+                      <h4 className="font-bold text-brand-brown text-sm">
                         {language === 'th'
                           ? 'เสื้อโค้ทเทรนช์ ดับเบิลเบรสต์ เฮอริเทจ'
                           : 'Heritage Double-Breasted Trench Coat'}
@@ -431,7 +431,7 @@ export default function ProfilePage() {
                   <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-4 mb-4 border-b border-gray-200">
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="font-black text-sm text-[#2B1810]">
+                        <span className="font-black text-sm text-brand-brown">
                           {t('trackOrder.order')} #NIDA-847291
                         </span>
                         <span className="bg-emerald-100 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-xs">
@@ -448,7 +448,7 @@ export default function ProfilePage() {
                       <span className="text-[10px] uppercase font-bold text-gray-400 block">
                         {t('checkout.total')}
                       </span>
-                      <span className="text-base font-black text-[#2B1810]">
+                      <span className="text-base font-black text-brand-brown">
                         $129.00
                       </span>
                     </div>
@@ -462,7 +462,7 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div className="text-xs">
-                      <h4 className="font-bold text-[#2B1810] text-sm">
+                      <h4 className="font-bold text-brand-brown text-sm">
                         {language === 'th'
                           ? 'สเวตเตอร์ไหมพรมถักลายเคเบิล ซิกเนเจอร์'
                           : 'Iconic Cable-Knit Crewneck Sweater'}
@@ -483,7 +483,7 @@ export default function ProfilePage() {
             <div>
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                 <div>
-                  <h2 className="text-xl font-black text-[#2B1810] uppercase tracking-tight">
+                  <h2 className="text-xl font-black text-brand-brown uppercase tracking-tight">
                     {t('auth.tabAddresses')}
                   </h2>
                   <p className="text-xs text-gray-500">
@@ -495,20 +495,20 @@ export default function ProfilePage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border-2 border-[#2B1810] p-5 bg-[#FAF7F2] relative">
+                <div className="border-2 border-brand-brown p-5 bg-brand-warm-cream relative">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-black uppercase tracking-wider text-[#2B1810] flex items-center">
-                      <MapPin size={14} className="mr-1 text-[#D97706]" />{' '}
+                    <span className="text-xs font-black uppercase tracking-wider text-brand-brown flex items-center">
+                      <MapPin size={14} className="mr-1 text-brand-amber" />{' '}
                       {language === 'th'
                         ? 'ที่อยู่หลัก (DEFAULT)'
                         : 'PRIMARY ADDRESS'}
                     </span>
-                    <span className="text-[10px] bg-[#2B1810] text-white px-2 py-0.5 font-bold uppercase">
+                    <span className="text-[10px] bg-brand-brown text-white px-2 py-0.5 font-bold uppercase">
                       {language === 'th' ? 'บ้าน' : 'HOME'}
                     </span>
                   </div>
                   <div className="text-xs text-gray-700 leading-relaxed font-medium space-y-1">
-                    <p className="font-bold text-[#2B1810] text-sm">
+                    <p className="font-bold text-brand-brown text-sm">
                       {user.firstName} {user.lastName}
                     </p>
                     <p>{formData.address}</p>
@@ -534,7 +534,7 @@ export default function ProfilePage() {
                   </p>
                   <button
                     onClick={() => setActiveTab('profile')}
-                    className="text-xs font-black uppercase text-[#2B1810] hover:text-[#D97706] underline"
+                    className="text-xs font-black uppercase text-brand-brown hover:text-brand-amber underline"
                   >
                     {language === 'th'
                       ? 'แก้ไขที่อยู่หลัก'

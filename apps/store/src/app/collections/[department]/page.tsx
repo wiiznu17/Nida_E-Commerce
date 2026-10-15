@@ -249,7 +249,7 @@ function CollectionDepartmentContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
         {isLoading && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-2xs z-10 flex items-start justify-center pt-24 transition-opacity">
-            <div className="w-8 h-8 border-2 border-[#2B1810] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -279,7 +279,7 @@ export default function CollectionDepartmentPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-white py-20 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#2B1810] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

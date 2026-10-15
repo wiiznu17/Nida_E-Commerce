@@ -37,13 +37,13 @@ export function HeaderSearchBar({
         <div
           className={`relative flex items-center transition-all duration-300 rounded-full border ${
             isSearchFocused
-              ? 'w-60 lg:w-72 bg-white border-[#2B1810] shadow-md ring-1 ring-[#2B1810]/20'
-              : 'w-40 lg:w-52 bg-[#FAF7F2] hover:bg-[#F3EFEA] border-transparent'
+              ? 'w-60 lg:w-72 bg-white border-brand-brown shadow-md ring-1 ring-brand-brown/20'
+              : 'w-40 lg:w-52 bg-brand-warm-cream hover:bg-brand-border/40 border-transparent'
           }`}
         >
           <button
             type="submit"
-            className="pl-3 pr-2 py-2 text-[#2B1810] hover:text-[#D97706] transition-colors flex items-center justify-center cursor-pointer"
+            className="pl-3 pr-2 py-2 text-brand-brown hover:text-brand-amber transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Search"
           >
             <Search size={16} strokeWidth={2.2} />
@@ -54,13 +54,13 @@ export function HeaderSearchBar({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
-            className="w-full bg-transparent py-2 pr-7 text-xs font-medium text-[#2B1810] placeholder-gray-400 outline-none"
+            className="w-full bg-transparent py-2 pr-7 text-xs font-medium text-brand-brown placeholder-gray-400 outline-none"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 text-gray-400 hover:text-[#2B1810] p-0.5 rounded-full cursor-pointer"
+              className="absolute right-2 text-gray-400 hover:text-brand-brown p-0.5 rounded-full cursor-pointer"
               aria-label="Clear Search"
             >
               <X size={14} />
@@ -71,7 +71,7 @@ export function HeaderSearchBar({
 
       {/* Autocomplete Flyout Dropdown */}
       {isSearchFocused && (
-        <div className="absolute right-0 top-full mt-2 w-80 lg:w-96 bg-white border border-[#EAE3D9] shadow-2xl rounded-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 top-full mt-2 w-80 lg:w-96 bg-white border border-brand-border shadow-2xl rounded-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
           {searchQuery.trim() === '' ? (
             <div>
               <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 mb-2.5">
@@ -83,7 +83,7 @@ export function HeaderSearchBar({
                     key={term}
                     type="button"
                     onClick={() => handleQuickKeyword(term)}
-                    className="text-xs bg-[#FAF7F2] hover:bg-[#2B1810] hover:text-white px-3 py-1.5 rounded-full text-[#2B1810] transition-colors font-medium border border-[#EAE3D9]/60 cursor-pointer"
+                    className="text-xs bg-brand-warm-cream hover:bg-brand-brown hover:text-white px-3 py-1.5 rounded-full text-brand-brown transition-colors font-medium border border-brand-border/60 cursor-pointer"
                   >
                     {term}
                   </button>
@@ -99,7 +99,7 @@ export function HeaderSearchBar({
                 <button
                   type="button"
                   onClick={() => handleSearchSubmit()}
-                  className="text-[11px] font-bold text-[#D97706] hover:underline cursor-pointer"
+                  className="text-[11px] font-bold text-brand-amber hover:underline cursor-pointer"
                 >
                   {t('search.viewAll')}
                 </button>
@@ -116,7 +116,7 @@ export function HeaderSearchBar({
                       key={product.id}
                       href={`/product/${product.id}`}
                       onClick={() => setIsSearchFocused(false)}
-                      className="flex items-center space-x-3 p-1.5 hover:bg-[#FAF7F2] rounded-lg transition-colors group"
+                      className="flex items-center space-x-3 p-1.5 hover:bg-brand-warm-cream rounded-lg transition-colors group"
                     >
                       <img
                         src={product.image}
@@ -124,7 +124,7 @@ export function HeaderSearchBar({
                         className="w-10 h-10 object-cover rounded-md flex-shrink-0 bg-gray-100"
                       />
                       <div className="flex-1 min-w-0 text-left">
-                        <p className="text-xs font-semibold text-[#2B1810] truncate group-hover:text-[#D97706]">
+                        <p className="text-xs font-semibold text-brand-brown truncate group-hover:text-brand-amber">
                           {getProductTitle(product, language)}
                         </p>
                         <p className="text-[11px] text-gray-500">
@@ -139,7 +139,7 @@ export function HeaderSearchBar({
               <button
                 type="button"
                 onClick={() => handleSearchSubmit()}
-                className="w-full mt-3 py-2 text-center text-xs font-bold text-[#2B1810] bg-[#FAF7F2] hover:bg-[#2B1810] hover:text-white rounded-lg transition-colors border border-[#EAE3D9] cursor-pointer"
+                className="w-full mt-3 py-2 text-center text-xs font-bold text-brand-brown bg-brand-warm-cream hover:bg-brand-brown hover:text-white rounded-lg transition-colors border border-brand-border cursor-pointer"
               >
                 {t('search.resultsFor')} &quot;{searchQuery}&quot;
               </button>

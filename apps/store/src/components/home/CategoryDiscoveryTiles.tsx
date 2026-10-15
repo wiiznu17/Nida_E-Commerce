@@ -36,13 +36,13 @@ export const CategoryDiscoveryTiles: React.FC = () => {
   ];
 
   return (
-    <section className="bg-[#FAF7F2] py-20 border-t border-[#EAE3D9]">
+    <section className="bg-brand-warm-cream py-20 border-t border-brand-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <span className="text-xs font-black tracking-[0.25em] text-[#D97706] uppercase block mb-2">
+          <span className="text-xs font-black tracking-[0.25em] text-brand-amber uppercase block mb-2">
             {t('home.discoverDept')}
           </span>
-          <h2 className="text-3xl font-black text-[#2B1810] uppercase tracking-tight">
+          <h2 className="text-3xl font-black text-brand-brown uppercase tracking-tight">
             {t('home.essentialCategories')}
           </h2>
         </div>
@@ -60,7 +60,7 @@ export const CategoryDiscoveryTiles: React.FC = () => {
                   alt={cat.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/80 via-transparent to-transparent flex flex-col justify-end p-5">
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/80 via-transparent to-transparent flex flex-col justify-end p-5">
                   <span className="text-white font-black text-sm uppercase tracking-wider">
                     {cat.title}
                   </span>

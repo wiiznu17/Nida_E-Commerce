@@ -13,9 +13,9 @@ export function SearchEmptyState({ onClearAll }: SearchEmptyStateProps) {
   const { language, t } = useLanguage();
 
   return (
-    <div className="text-center py-20 bg-[#FAF7F2]/60 border border-[#EAE3D9] rounded-2xl p-8 max-w-xl mx-auto">
+    <div className="text-center py-20 bg-brand-warm-cream/60 border border-brand-border rounded-2xl p-8 max-w-xl mx-auto">
       <SearchIcon size={44} strokeWidth={1.5} className="mx-auto text-gray-400 mb-3" />
-      <h3 className="text-lg font-black uppercase text-[#2B1810] tracking-tight">
+      <h3 className="text-lg font-black uppercase text-brand-brown tracking-tight">
         {t('search.noResults')}
       </h3>
       <p className="text-xs text-gray-500 mt-2 max-w-md mx-auto leading-relaxed">
@@ -27,13 +27,13 @@ export function SearchEmptyState({ onClearAll }: SearchEmptyStateProps) {
         <button
           type="button"
           onClick={onClearAll}
-          className="px-5 py-2.5 bg-[#2B1810] hover:bg-[#D97706] text-white text-xs font-black uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
+          className="px-5 py-2.5 bg-brand-brown hover:bg-brand-amber text-white text-xs font-black uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
         >
           {t('search.clearAll')}
         </button>
         <Link
           href="/collections/all"
-          className="px-5 py-2.5 bg-white border border-[#2B1810] text-[#2B1810] hover:bg-[#FAF7F2] text-xs font-black uppercase tracking-wider rounded-xs transition-colors"
+          className="px-5 py-2.5 bg-white border border-brand-brown text-brand-brown hover:bg-brand-warm-cream text-xs font-black uppercase tracking-wider rounded-xs transition-colors"
         >
           {t('search.allProducts')}
         </Link>

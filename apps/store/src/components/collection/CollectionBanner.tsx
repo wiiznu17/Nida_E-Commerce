@@ -14,7 +14,7 @@ export function CollectionBanner({
   const { language } = useLanguage();
 
   return (
-    <div className="bg-[#2B1810] text-white py-12 sm:py-16 px-4 relative overflow-hidden">
+    <div className="bg-brand-brown text-white py-12 sm:py-16 px-4 relative overflow-hidden">
       {bgImage && (
         <div className="absolute inset-0 opacity-20">
           <img
@@ -33,11 +33,11 @@ export function CollectionBanner({
           <span>/</span>
           <span>{language === 'th' ? 'คอลเลกชัน' : 'COLLECTIONS'}</span>
           <span>/</span>
-          <span className="text-[#F59E0B]">{title}</span>
+          <span className="text-brand-yellow">{title}</span>
         </div>
 
         {bannerTag && (
-          <span className="inline-block bg-[#F59E0B] text-[#2B1810] text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 mb-3">
+          <span className="inline-block bg-brand-yellow text-brand-brown text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 mb-3">
             {bannerTag}
           </span>
         )}

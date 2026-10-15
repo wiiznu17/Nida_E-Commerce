@@ -51,7 +51,7 @@ export function CatalogProductGrid({
             className="group flex flex-col bg-white relative text-left"
           >
             {/* Product Image Frame */}
-            <div className="relative aspect-[3/4] bg-[#FAF7F2] overflow-hidden mb-3 border border-gray-100 rounded-sm">
+            <div className="relative aspect-[3/4] bg-brand-warm-cream overflow-hidden mb-3 border border-gray-100 rounded-sm">
               <Link href={`/product/${product.id}`} className="block w-full h-full">
                 <img
                   src={product.image}
@@ -76,12 +76,12 @@ export function CatalogProductGrid({
               <button
                 type="button"
                 onClick={() => toggleWishlist(product.id)}
-                className="absolute top-2.5 right-2.5 p-2 bg-white/90 hover:bg-white text-[#2B1810] rounded-full shadow-xs transition-colors hover:text-[#D97706] cursor-pointer"
+                className="absolute top-2.5 right-2.5 p-2 bg-white/90 hover:bg-white text-brand-brown rounded-full shadow-xs transition-colors hover:text-brand-amber cursor-pointer"
                 aria-label="Save to wishlist"
               >
                 <Heart
                   size={16}
-                  className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''}
+                  className={isWish ? 'fill-brand-amber text-brand-amber' : ''}
                 />
               </button>
 
@@ -94,7 +94,7 @@ export function CatalogProductGrid({
                   className={`w-full py-2.5 font-black text-[11px] uppercase tracking-widest transition-colors shadow-md flex items-center justify-center space-x-1.5 rounded-xs cursor-pointer ${
                     isJustAdded
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-[#2B1810] hover:bg-[#D97706] text-white'
+                      : 'bg-brand-brown hover:bg-brand-amber text-white'
                   }`}
                 >
                   {isJustAdded ? (
@@ -136,14 +136,14 @@ export function CatalogProductGrid({
             {/* Title */}
             <Link
               href={`/product/${product.id}`}
-              className="text-xs font-bold text-[#2B1810] group-hover:text-[#D97706] transition-colors line-clamp-1"
+              className="text-xs font-bold text-brand-brown group-hover:text-brand-amber transition-colors line-clamp-1"
             >
               {title}
             </Link>
 
             {/* Price */}
             <div className="mt-1 flex items-center space-x-2">
-              <span className="text-xs font-bold text-[#2B1810]">
+              <span className="text-xs font-bold text-brand-brown">
                 ${product.price}
               </span>
               {product.originalPrice && product.originalPrice > product.price && (

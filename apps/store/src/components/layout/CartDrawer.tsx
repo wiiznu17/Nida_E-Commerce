@@ -27,14 +27,14 @@ export function CartDrawer() {
     <div className="fixed inset-0 z-50 flex justify-end font-sans">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-[#2B1810]/40 backdrop-blur-xs transition-opacity"
+        className="absolute inset-0 bg-brand-brown/40 backdrop-blur-xs transition-opacity"
         onClick={() => setIsCartOpen(false)}
       />
 
       {/* Drawer */}
-      <div className="relative w-full max-w-md bg-white text-[#2B1810] h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out border-l-4 border-[#2B1810]">
+      <div className="relative w-full max-w-md bg-white text-brand-brown h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out border-l-4 border-brand-brown">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 bg-[#2B1810] text-white flex justify-between items-center">
+        <div className="p-6 border-b border-gray-200 bg-brand-brown text-white flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <ShoppingBag size={20} />
             <h2 className="font-black text-sm tracking-widest uppercase">
@@ -43,7 +43,7 @@ export function CartDrawer() {
           </div>
           <button
             onClick={() => setIsCartOpen(false)}
-            className="hover:text-[#F59E0B] p-1 transition-colors cursor-pointer"
+            className="hover:text-brand-yellow p-1 transition-colors cursor-pointer"
             aria-label={t('common.close')}
           >
             <X size={22} />
@@ -51,7 +51,7 @@ export function CartDrawer() {
         </div>
 
         {/* Free Shipping Progress Meter */}
-        <div className="bg-[#FAF7F2] p-4 border-b border-[#EAE3D9] text-xs">
+        <div className="bg-brand-warm-cream p-4 border-b border-brand-border text-xs">
           {cartTotal >= 100 ? (
             <div className="text-emerald-700 font-bold flex items-center">
               <Check size={16} className="mr-1.5" />{' '}
@@ -71,7 +71,7 @@ export function CartDrawer() {
               </div>
               <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-[#F59E0B] h-full transition-all duration-500"
+                  className="bg-brand-yellow h-full transition-all duration-500"
                   style={{
                     width: `${Math.min(100, (cartTotal / 100) * 100)}%`,
                   }}
@@ -90,7 +90,7 @@ export function CartDrawer() {
                 strokeWidth={1}
                 className="mx-auto text-gray-300"
               />
-              <p className="text-base font-bold text-[#2B1810]">
+              <p className="text-base font-bold text-brand-brown">
                 {t('cart.emptyTitle')}
               </p>
               <p className="text-xs text-gray-500 max-w-xs mx-auto">
@@ -101,7 +101,7 @@ export function CartDrawer() {
                   setIsCartOpen(false);
                   router.push('/collections/all');
                 }}
-                className="inline-block bg-[#2B1810] hover:bg-[#D97706] text-white px-6 py-3 font-black text-xs uppercase tracking-widest transition-colors cursor-pointer"
+                className="inline-block bg-brand-brown hover:bg-brand-amber text-white px-6 py-3 font-black text-xs uppercase tracking-widest transition-colors cursor-pointer"
               >
                 {t('cart.startShopping')}
               </button>
@@ -121,7 +121,7 @@ export function CartDrawer() {
                 </div>
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-bold text-xs uppercase text-[#2B1810] line-clamp-1">
+                    <h3 className="font-bold text-xs uppercase text-brand-brown line-clamp-1">
                       {getProductTitle(item, language)}
                     </h3>
                     <p className="text-[11px] text-gray-500 mt-1">
@@ -163,14 +163,14 @@ export function CartDrawer() {
                     </div>
 
                     <div className="flex items-center space-x-3">
-                      <span className="font-black text-sm text-[#2B1810]">
+                      <span className="font-black text-sm text-brand-brown">
                         ${(item.price * item.quantity).toFixed(2)}
                       </span>
                       <button
                         onClick={() =>
                           removeFromCart(item.variantId || item.id)
                         }
-                        className="text-xs uppercase font-bold text-gray-400 hover:text-[#D97706] transition-colors underline cursor-pointer"
+                        className="text-xs uppercase font-bold text-gray-400 hover:text-brand-amber transition-colors underline cursor-pointer"
                       >
                         {t('cart.remove')}
                       </button>
@@ -184,10 +184,10 @@ export function CartDrawer() {
 
         {/* Checkout Footer */}
         {items.length > 0 && (
-          <div className="p-6 border-t border-gray-200 bg-[#FAF7F2]">
+          <div className="p-6 border-t border-gray-200 bg-brand-warm-cream">
             <div className="flex justify-between items-center mb-2 text-xs font-semibold text-gray-600 uppercase">
               <span>{t('cart.subtotal')}</span>
-              <span className="text-base font-black text-[#2B1810]">
+              <span className="text-base font-black text-brand-brown">
                 ${cartTotal.toFixed(2)}
               </span>
             </div>
@@ -198,7 +198,7 @@ export function CartDrawer() {
               <Link
                 href={isAuthenticated ? '/checkout' : '/login?redirect=/checkout'}
                 onClick={() => setIsCartOpen(false)}
-                className="w-full py-4 bg-[#2B1810] hover:bg-[#D97706] text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md cursor-pointer"
+                className="w-full py-4 bg-brand-brown hover:bg-brand-amber text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md cursor-pointer"
               >
                 {t('cart.checkoutBtn')}
               </Link>
@@ -207,7 +207,7 @@ export function CartDrawer() {
                   setIsCartOpen(false);
                   router.push('/collections/all');
                 }}
-                className="w-full py-2.5 text-center text-xs font-bold text-gray-600 hover:text-[#2B1810] transition-colors uppercase tracking-wider cursor-pointer"
+                className="w-full py-2.5 text-center text-xs font-bold text-gray-600 hover:text-brand-brown transition-colors uppercase tracking-wider cursor-pointer"
               >
                 {t('cart.continueShopping')}
               </button>

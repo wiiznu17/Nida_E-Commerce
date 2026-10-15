@@ -9,7 +9,7 @@ export const HeroBillboard: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative w-full min-h-[580px] lg:min-h-[720px] bg-[#2B1810] flex items-center overflow-hidden">
+    <section className="relative w-full min-h-[580px] lg:min-h-[720px] bg-brand-brown flex items-center overflow-hidden">
       {/* Background Image with subtle editorial zoom */}
       <div className="absolute inset-0">
         <img
@@ -17,15 +17,15 @@ export const HeroBillboard: React.FC = () => {
           alt="Nida Modern Heritage Campaign"
           className="w-full h-full object-cover object-center opacity-65 scale-105 transition-transform duration-1000 ease-out"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810] via-[#2B1810]/40 to-transparent lg:bg-gradient-to-r lg:from-[#2B1810]/90 lg:via-[#2B1810]/50 lg:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-brown via-brand-brown/40 to-transparent lg:bg-gradient-to-r lg:from-brand-brown/90 lg:via-brand-brown/50 lg:to-transparent" />
       </div>
 
       {/* Content Box */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-20 w-full">
         <div className="max-w-2xl text-white">
           {/* Campaign Tag */}
-          <div className="inline-flex items-center space-x-2 bg-[#F59E0B] text-[#2B1810] px-3 py-1 text-xs font-black uppercase tracking-[0.2em] mb-6">
-            <Sparkles size={13} className="text-[#2B1810]" />
+          <div className="inline-flex items-center space-x-2 bg-brand-yellow text-brand-brown px-3 py-1 text-xs font-black uppercase tracking-[0.2em] mb-6">
+            <Sparkles size={13} className="text-brand-brown" />
             <span>{t('home.heroTag')}</span>
           </div>
 
@@ -45,19 +45,19 @@ export const HeroBillboard: React.FC = () => {
           <div className="flex flex-wrap gap-4 pt-2">
             <Link
               href="/collections/women"
-              className="bg-white hover:bg-gray-100 text-[#2B1810] px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg hover:shadow-xl hover:translate-y-[-1px] text-center cursor-pointer"
+              className="bg-white hover:bg-gray-100 text-brand-brown px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg hover:shadow-xl hover:translate-y-[-1px] text-center cursor-pointer"
             >
               {t('home.shopWomen')}
             </Link>
             <Link
               href="/collections/men"
-              className="bg-[#2B1810] hover:bg-[#D97706] border-2 border-white text-white px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg text-center cursor-pointer"
+              className="bg-brand-brown hover:bg-brand-amber border-2 border-white text-white px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg text-center cursor-pointer"
             >
               {t('home.shopMen')}
             </Link>
             <Link
               href="/collections/sale"
-              className="bg-[#F59E0B] hover:bg-[#D97706] text-[#2B1810] px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg text-center cursor-pointer"
+              className="bg-brand-yellow hover:bg-brand-amber text-brand-brown px-8 py-4 font-black text-xs tracking-[0.2em] uppercase transition-all shadow-lg text-center cursor-pointer"
             >
               {t('home.shopSale')}
             </Link>

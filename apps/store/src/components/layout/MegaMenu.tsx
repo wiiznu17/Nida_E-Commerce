@@ -19,7 +19,7 @@ export function MegaMenu({
 }: MegaMenuProps) {
   return (
     <div
-      className="absolute top-full left-0 w-full bg-white border-b-2 border-[#2B1810] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+      className="absolute top-full left-0 w-full bg-white border-b-2 border-brand-brown shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -29,7 +29,7 @@ export function MegaMenu({
           <div className="col-span-8 grid grid-cols-3 gap-8">
             {departmentData.categories.map((group, idx) => (
               <div key={idx} className="space-y-4">
-                <h4 className="text-xs font-black tracking-[0.2em] text-[#2B1810] uppercase pb-2 border-b border-[#EAE3D9]">
+                <h4 className="text-xs font-black tracking-[0.2em] text-brand-brown uppercase pb-2 border-b border-brand-border">
                   {group.title}
                 </h4>
                 <ul className="space-y-2.5">
@@ -37,7 +37,7 @@ export function MegaMenu({
                     <li key={lIdx}>
                       <Link
                         href={link.href}
-                        className="text-xs font-medium text-gray-700 hover:text-[#D97706] transition-colors block py-0.5"
+                        className="text-xs font-medium text-gray-700 hover:text-brand-amber transition-colors block py-0.5"
                       >
                         {link.label}
                       </Link>
@@ -49,19 +49,19 @@ export function MegaMenu({
           </div>
 
           {/* Campaign Promotional Highlight Tile */}
-          <div className="col-span-4 border-l border-[#EAE3D9] pl-8">
-            <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-4 group cursor-pointer hover:border-[#2B1810] transition-all">
+          <div className="col-span-4 border-l border-brand-border pl-8">
+            <div className="bg-brand-warm-cream border border-brand-border p-4 group cursor-pointer hover:border-brand-brown transition-all">
               <div className="relative aspect-[16/10] overflow-hidden mb-4 bg-gray-200">
                 <img
                   src={departmentData.promo.image}
                   alt={departmentData.promo.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-                <span className="absolute top-3 left-3 bg-[#2B1810] text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5">
+                <span className="absolute top-3 left-3 bg-brand-brown text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5">
                   {departmentData.promo.tag}
                 </span>
               </div>
-              <h5 className="font-bold text-sm text-[#2B1810] mb-1">
+              <h5 className="font-bold text-sm text-brand-brown mb-1">
                 {departmentData.promo.title}
               </h5>
               <p className="text-xs text-gray-600 mb-3 line-clamp-2">
@@ -69,7 +69,7 @@ export function MegaMenu({
               </p>
               <Link
                 href={departmentData.promo.link}
-                className="inline-flex items-center text-xs font-black tracking-widest uppercase text-[#2B1810] group-hover:text-[#D97706] transition-colors"
+                className="inline-flex items-center text-xs font-black tracking-widest uppercase text-brand-brown group-hover:text-brand-amber transition-colors"
               >
                 {shopThisEditLabel}{' '}
                 <ArrowRight

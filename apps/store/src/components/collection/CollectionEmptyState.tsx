@@ -14,7 +14,7 @@ export function CollectionEmptyState({ onResetFilters }: CollectionEmptyStatePro
   return (
     <div className="text-center py-24 space-y-4">
       <ShoppingBag size={48} strokeWidth={1} className="mx-auto text-gray-300" />
-      <h3 className="text-xl font-bold text-[#2B1810]">
+      <h3 className="text-xl font-bold text-brand-brown">
         {t('catalog.noProducts')}
       </h3>
       <p className="text-sm text-gray-500 max-w-sm mx-auto">
@@ -25,7 +25,7 @@ export function CollectionEmptyState({ onResetFilters }: CollectionEmptyStatePro
       <button
         type="button"
         onClick={onResetFilters}
-        className="bg-[#2B1810] text-white text-xs font-black uppercase tracking-widest px-6 py-3 hover:bg-[#D97706] transition-colors cursor-pointer rounded-xs"
+        className="bg-brand-brown text-white text-xs font-black uppercase tracking-widest px-6 py-3 hover:bg-brand-amber transition-colors cursor-pointer rounded-xs"
       >
         {t('catalog.resetFilters')}
       </button>

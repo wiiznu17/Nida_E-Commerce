@@ -46,7 +46,7 @@ export function MobileNavDrawer({
           <NidaLogo size="sm" />
           <button
             onClick={onClose}
-            className="p-1 text-gray-600 hover:text-[#2B1810]"
+            className="p-1 text-gray-600 hover:text-brand-brown"
             aria-label={t('common.close', 'Close')}
           >
             <X size={24} />
@@ -61,8 +61,8 @@ export function MobileNavDrawer({
               onClick={() => onSelectLanguage('th')}
               className={`px-3 py-1 text-xs font-black rounded-xs transition-colors ${
                 language === 'th'
-                  ? 'bg-[#2B1810] text-white'
-                  : 'text-gray-600 hover:text-[#2B1810]'
+                  ? 'bg-brand-brown text-white'
+                  : 'text-gray-600 hover:text-brand-brown'
               }`}
             >
               ภาษาไทย (TH)
@@ -72,8 +72,8 @@ export function MobileNavDrawer({
               onClick={() => onSelectLanguage('en')}
               className={`px-3 py-1 text-xs font-black rounded-xs transition-colors ${
                 language === 'en'
-                  ? 'bg-[#2B1810] text-white'
-                  : 'text-gray-600 hover:text-[#2B1810]'
+                  ? 'bg-brand-brown text-white'
+                  : 'text-gray-600 hover:text-brand-brown'
               }`}
             >
               English (EN)
@@ -96,7 +96,7 @@ export function MobileNavDrawer({
                     href={item.path}
                     onClick={onClose}
                     className={`text-sm font-black tracking-wider uppercase ${
-                      item.isSale ? 'text-[#D97706]' : 'text-[#2B1810]'
+                      item.isSale ? 'text-brand-amber' : 'text-brand-brown'
                     }`}
                   >
                     {item.label}
@@ -104,7 +104,7 @@ export function MobileNavDrawer({
                   {hasSubcategories && (
                     <button
                       onClick={() => toggleAccordion(item.id)}
-                      className="p-1 text-gray-500 hover:text-[#2B1810]"
+                      className="p-1 text-gray-500 hover:text-brand-brown"
                       aria-label={item.label}
                     >
                       <ChevronDown
@@ -118,7 +118,7 @@ export function MobileNavDrawer({
                 </div>
 
                 {activeAccordion === item.id && hasSubcategories && (
-                  <div className="mt-3 pl-3 space-y-2 border-l-2 border-[#2B1810]">
+                  <div className="mt-3 pl-3 space-y-2 border-l-2 border-brand-brown">
                     {megaMenuData[item.id].categories
                       .flatMap((c) => c.links)
                       .map((link, idx) => (
@@ -126,7 +126,7 @@ export function MobileNavDrawer({
                           key={idx}
                           href={link.href}
                           onClick={onClose}
-                          className="block text-xs font-medium text-gray-600 hover:text-[#D97706] py-1"
+                          className="block text-xs font-medium text-gray-600 hover:text-brand-amber py-1"
                         >
                           {link.label}
                         </Link>
@@ -139,15 +139,15 @@ export function MobileNavDrawer({
         </div>
 
         {/* Footer Navigation Links */}
-        <div className="pt-6 border-t border-gray-200 space-y-3 text-xs font-semibold text-[#2B1810]">
+        <div className="pt-6 border-t border-gray-200 space-y-3 text-xs font-semibold text-brand-brown">
           <Link
             href="/wishlist"
             onClick={onClose}
-            className="flex items-center justify-between py-1 hover:text-[#D97706] transition-colors"
+            className="flex items-center justify-between py-1 hover:text-brand-amber transition-colors"
           >
             <span>{t('nav.wishlist')}</span>
             {wishlistCount > 0 && (
-              <span className="bg-[#F59E0B] text-[#2B1810] text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="bg-brand-yellow text-brand-brown text-[10px] font-bold px-2 py-0.5 rounded-full">
                 {wishlistCount}
               </span>
             )}
@@ -155,14 +155,14 @@ export function MobileNavDrawer({
           <Link
             href="/about"
             onClick={onClose}
-            className="block py-1 hover:text-[#D97706] transition-colors"
+            className="block py-1 hover:text-brand-amber transition-colors"
           >
             {t('nav.about')}
           </Link>
           <Link
             href={isAuthenticated ? '/profile' : '/login'}
             onClick={onClose}
-            className="block py-1 hover:text-[#D97706] transition-colors"
+            className="block py-1 hover:text-brand-amber transition-colors"
           >
             {isAuthenticated ? t('nav.account') : t('nav.signIn')}
           </Link>

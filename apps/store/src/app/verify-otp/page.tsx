@@ -145,43 +145,43 @@ function VerifyOTPContent() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white border border-[#EAE3D9] p-8 sm:p-10 shadow-sm relative">
+    <div className="w-full max-w-md bg-white border border-brand-border p-8 sm:p-10 shadow-sm relative">
       {/* Nida Flag Ribbon */}
       <div className="flex w-16 h-2 mx-auto mb-6">
-        <div className="w-1/3 bg-[#2B1810]"></div>
+        <div className="w-1/3 bg-brand-brown"></div>
         <div className="w-1/3 bg-white border-y border-gray-200"></div>
-        <div className="w-1/3 bg-[#F59E0B]"></div>
+        <div className="w-1/3 bg-brand-yellow"></div>
       </div>
 
-      <div className="flex justify-center mb-3 text-[#D97706]">
+      <div className="flex justify-center mb-3 text-brand-amber">
         <KeyRound size={32} />
       </div>
 
-      <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-[#2B1810] mb-2">
+      <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-brand-brown mb-2">
         {t('auth.verifyOtpTitle')}
       </h1>
       <p className="text-center text-gray-500 font-medium text-xs mb-6 leading-relaxed">
         {t('auth.verifyOtpSubtitle')}
         <br />
-        <strong className="text-[#2B1810] text-sm font-bold">{email || 'customer@nida.com'}</strong>
+        <strong className="text-brand-brown text-sm font-bold">{email || 'customer@nida.com'}</strong>
       </p>
 
       {/* Dev Sandbox Helper Banner */}
       {devOtpHint && (
-        <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-3 mb-6 rounded-xs">
+        <div className="bg-brand-warm-cream border border-brand-border p-3 mb-6 rounded-xs">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block">
                 {language === 'th' ? 'รหัส OTP ในระบบ (Dev / Sandbox)' : 'Dev Sandbox OTP'}
               </span>
-              <span className="text-lg font-mono font-black text-[#2B1810] tracking-widest">
+              <span className="text-lg font-mono font-black text-brand-brown tracking-widest">
                 {devOtpHint}
               </span>
             </div>
             <button
               type="button"
               onClick={handleAutoFill}
-              className="bg-[#2B1810] hover:bg-[#D97706] text-white text-[11px] font-bold px-3 py-1.5 rounded-xs transition-colors uppercase cursor-pointer"
+              className="bg-brand-brown hover:bg-brand-amber text-white text-[11px] font-bold px-3 py-1.5 rounded-xs transition-colors uppercase cursor-pointer"
             >
               {language === 'th' ? 'กดกรอกอัตโนมัติ' : 'Auto-Fill'}
             </button>
@@ -210,7 +210,7 @@ function VerifyOTPContent() {
               ref={(el) => {
                 inputRefs.current[index] = el;
               }}
-              className="w-11 h-14 border-2 border-gray-300 text-center text-xl font-bold font-mono bg-white text-[#2B1810] focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810] transition-colors disabled:bg-gray-100"
+              className="w-11 h-14 border-2 border-gray-300 text-center text-xl font-bold font-mono bg-white text-brand-brown focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown transition-colors disabled:bg-gray-100"
               type="text"
               inputMode="numeric"
               maxLength={1}
@@ -228,7 +228,7 @@ function VerifyOTPContent() {
         <button
           type="submit"
           disabled={otp.join('').length !== 6 || isLoading}
-          className="w-full bg-[#2B1810] hover:bg-[#D97706] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer"
+          className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer"
         >
           {isLoading ? (
             <>
@@ -257,7 +257,7 @@ function VerifyOTPContent() {
             <button
               onClick={handleResend}
               disabled={isResending}
-              className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1 cursor-pointer disabled:text-gray-400"
+              className="font-bold text-brand-brown hover:text-brand-amber underline ml-1 cursor-pointer disabled:text-gray-400"
             >
               {isResending ? 'กำลังส่ง...' : t('auth.resendBtn')}
             </button>
@@ -267,7 +267,7 @@ function VerifyOTPContent() {
         <div>
           <Link
             href="/login"
-            className="text-xs font-bold text-gray-400 hover:text-[#2B1810] uppercase tracking-wider inline-block"
+            className="text-xs font-bold text-gray-400 hover:text-brand-brown uppercase tracking-wider inline-block"
           >
             ← {t('auth.backToSignIn')}
           </Link>
@@ -279,11 +279,11 @@ function VerifyOTPContent() {
 
 export default function VerifyOTPPage() {
   return (
-    <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-[#FAF7F2] font-sans">
+    <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-brand-warm-cream font-sans">
       <Suspense
         fallback={
           <div className="p-12 text-center">
-            <Loader2 size={24} className="animate-spin mx-auto text-[#2B1810]" />
+            <Loader2 size={24} className="animate-spin mx-auto text-brand-brown" />
           </div>
         }
       >

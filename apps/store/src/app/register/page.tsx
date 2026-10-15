@@ -33,16 +33,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-[#FAF7F2] font-sans">
-      <div className="w-full max-w-md bg-white border border-[#EAE3D9] p-8 sm:p-10 shadow-sm relative">
+    <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-brand-warm-cream font-sans">
+      <div className="w-full max-w-md bg-white border border-brand-border p-8 sm:p-10 shadow-sm relative">
         {/* Nida Flag Ribbon */}
         <div className="flex w-16 h-2 mx-auto mb-6">
-          <div className="w-1/3 bg-[#2B1810]"></div>
+          <div className="w-1/3 bg-brand-brown"></div>
           <div className="w-1/3 bg-white border-y border-gray-200"></div>
-          <div className="w-1/3 bg-[#F59E0B]"></div>
+          <div className="w-1/3 bg-brand-yellow"></div>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-[#2B1810] mb-2">
+        <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-brand-brown mb-2">
           {t('auth.registerTitle')}
         </h1>
         <p className="text-center text-gray-500 font-medium text-xs mb-8">
@@ -50,8 +50,8 @@ export default function RegisterPage() {
         </p>
 
         {/* Perk Callout */}
-        <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-3 rounded-xs flex items-center space-x-2 text-xs text-[#2B1810] mb-6">
-          <Sparkles size={16} className="text-[#D97706] flex-shrink-0" />
+        <div className="bg-brand-warm-cream border border-brand-border p-3 rounded-xs flex items-center space-x-2 text-xs text-brand-brown mb-6">
+          <Sparkles size={16} className="text-brand-amber flex-shrink-0" />
           <span className="font-semibold">{t('auth.registerPerk')}</span>
         </div>
 
@@ -71,7 +71,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
                 placeholder="Phannida"
-                className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]"
+                className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown"
               />
             </div>
             <div>
@@ -88,7 +88,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
                 placeholder="Wissanu"
-                className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]"
+                className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown"
               />
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               placeholder="customer@nida.com"
-              className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]"
+              className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown"
             />
           </div>
 
@@ -125,7 +125,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               placeholder="081-234-5678"
-              className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]"
+              className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown"
             />
           </div>
 
@@ -136,7 +136,7 @@ export default function RegisterPage() {
               checked={formData.agreeTerms}
               onChange={handleChange}
               required
-              className="mt-1 accent-[#2B1810]"
+              className="mt-1 accent-brand-brown"
             />
             <label
               htmlFor="agreeTerms"
@@ -153,7 +153,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full bg-[#2B1810] hover:bg-[#D97706] text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md mt-4 flex items-center justify-center space-x-2"
+            className="w-full bg-brand-brown hover:bg-brand-amber text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md mt-4 flex items-center justify-center space-x-2"
           >
             <UserPlus size={16} />
             <span>{t('auth.createAccountBtn')}</span>
@@ -165,7 +165,7 @@ export default function RegisterPage() {
             {t('auth.alreadyMember')}{' '}
             <Link
               href="/login"
-              className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1"
+              className="font-bold text-brand-brown hover:text-brand-amber underline ml-1"
             >
               {t('nav.signIn')}
             </Link>

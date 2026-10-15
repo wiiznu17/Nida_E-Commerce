@@ -73,12 +73,12 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 font-sans">
-        <h1 className="text-2xl font-black text-[#2B1810] uppercase tracking-wider mb-4">
+        <h1 className="text-2xl font-black text-brand-brown uppercase tracking-wider mb-4">
           {t('checkout.emptyBag')}
         </h1>
         <button
           onClick={() => router.push('/')}
-          className="bg-[#2B1810] text-white px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-[#D97706] transition-colors cursor-pointer"
+          className="bg-brand-brown text-white px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-brand-amber transition-colors cursor-pointer"
         >
           {t('checkout.returnToShop')}
         </button>
@@ -151,11 +151,11 @@ export default function CheckoutPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans">
       {/* Checkout Member Login Banner */}
       {!isAuthenticated && !isAuthLoading && (
-        <div className="mb-8 p-4 bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="mb-8 p-4 bg-brand-warm-cream border border-brand-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <Lock size={18} className="text-[#D97706] shrink-0" />
+            <Lock size={18} className="text-brand-amber shrink-0" />
             <div>
-              <p className="text-xs font-bold text-[#2B1810]">
+              <p className="text-xs font-bold text-brand-brown">
                 {language === 'th'
                   ? 'เข้าสู่ระบบด้วย OTP เพื่อผูกประวัติคำสั่งซื้อและสะสมแต้มสมาชิก'
                   : 'Sign in with OTP to link this order to your account and earn rewards'}
@@ -169,7 +169,7 @@ export default function CheckoutPage() {
           </div>
           <Link
             href="/login?redirect=/checkout"
-            className="px-4 py-2 bg-[#2B1810] hover:bg-[#D97706] text-white text-xs font-black uppercase tracking-wider transition-colors shrink-0"
+            className="px-4 py-2 bg-brand-brown hover:bg-brand-amber text-white text-xs font-black uppercase tracking-wider transition-colors shrink-0"
           >
             {t('auth.signInBtn')}
           </Link>
@@ -193,7 +193,7 @@ export default function CheckoutPage() {
           <div className="flex items-center space-x-3 text-xs font-black uppercase tracking-[0.2em] mb-8 pb-4 border-b border-gray-200">
             <span
               className={
-                step === 'shipping' ? 'text-[#2B1810]' : 'text-gray-400'
+                step === 'shipping' ? 'text-brand-brown' : 'text-gray-400'
               }
             >
               {t('checkout.step1')}
@@ -201,7 +201,7 @@ export default function CheckoutPage() {
             <span className="text-gray-300">/</span>
             <span
               className={
-                step === 'payment' ? 'text-[#2B1810]' : 'text-gray-400'
+                step === 'payment' ? 'text-brand-brown' : 'text-gray-400'
               }
             >
               {t('checkout.step2')}
@@ -210,7 +210,7 @@ export default function CheckoutPage() {
 
           {step === 'shipping' ? (
             <div className="space-y-6">
-              <h2 className="text-2xl font-black text-[#2B1810] uppercase tracking-tight">
+              <h2 className="text-2xl font-black text-brand-brown uppercase tracking-tight">
                 {t('checkout.shippingAddress')}
               </h2>
               <form onSubmit={handleShippingSubmit} className="space-y-5">
@@ -227,7 +227,7 @@ export default function CheckoutPage() {
                         setShippingData({ ...shippingData, firstName: e.target.value })
                       }
                       placeholder="Phannida"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
+                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
                     />
                   </div>
                   <div>
@@ -242,7 +242,7 @@ export default function CheckoutPage() {
                         setShippingData({ ...shippingData, lastName: e.target.value })
                       }
                       placeholder="Wissanu"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
+                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
                     />
                   </div>
                 </div>
@@ -260,7 +260,7 @@ export default function CheckoutPage() {
                         setShippingData({ ...shippingData, email: e.target.value })
                       }
                       placeholder="customer@nida.com"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
+                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
                     />
                   </div>
                   <div>
@@ -275,7 +275,7 @@ export default function CheckoutPage() {
                         setShippingData({ ...shippingData, phone: e.target.value })
                       }
                       placeholder="081-234-5678"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
+                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
                     />
                   </div>
                 </div>
@@ -292,7 +292,7 @@ export default function CheckoutPage() {
                       setShippingData({ ...shippingData, address: e.target.value })
                     }
                     placeholder="108 Sukhumvit Soi 24"
-                    className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
+                    className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
                   />
                 </div>
 
@@ -309,7 +309,7 @@ export default function CheckoutPage() {
                         setShippingData({ ...shippingData, city: e.target.value })
                       }
                       placeholder="Bangkok"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
+                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
                     />
                   </div>
                   <div>
@@ -324,7 +324,7 @@ export default function CheckoutPage() {
                         setShippingData({ ...shippingData, postalCode: e.target.value })
                       }
                       placeholder="10110"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
+                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
                     />
                   </div>
                 </div>
@@ -332,7 +332,7 @@ export default function CheckoutPage() {
                 <div className="pt-4">
                   <button
                     type="submit"
-                    className="w-full bg-[#2B1810] hover:bg-[#D97706] text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg cursor-pointer"
+                    className="w-full bg-brand-brown hover:bg-brand-amber text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg cursor-pointer"
                   >
                     {t('checkout.continueToPayment')}
                   </button>
@@ -342,13 +342,13 @@ export default function CheckoutPage() {
           ) : (
             <div className="space-y-6">
               <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                <h2 className="text-2xl font-black text-[#2B1810] uppercase tracking-tight">
+                <h2 className="text-2xl font-black text-brand-brown uppercase tracking-tight">
                   {t('checkout.paymentMethod')}
                 </h2>
                 <button
                   type="button"
                   onClick={() => setStep('shipping')}
-                  className="text-xs font-bold text-[#2B1810] hover:text-[#D97706] underline uppercase tracking-wider"
+                  className="text-xs font-bold text-brand-brown hover:text-brand-amber underline uppercase tracking-wider"
                 >
                   {language === 'th' ? 'แก้ไขที่อยู่' : 'Edit'}
                 </button>
@@ -361,7 +361,7 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod('card')}
                   className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                     paymentMethod === 'card'
-                      ? 'border-[#2B1810] bg-[#2B1810] text-white'
+                      ? 'border-brand-brown bg-brand-brown text-white'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
                   }`}
                 >
@@ -373,7 +373,7 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod('promptpay')}
                   className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                     paymentMethod === 'promptpay'
-                      ? 'border-[#2B1810] bg-[#2B1810] text-white'
+                      ? 'border-brand-brown bg-brand-brown text-white'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
                   }`}
                 >
@@ -385,7 +385,7 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod('bank')}
                   className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                     paymentMethod === 'bank'
-                      ? 'border-[#2B1810] bg-[#2B1810] text-white'
+                      ? 'border-brand-brown bg-brand-brown text-white'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
                   }`}
                 >
@@ -396,12 +396,12 @@ export default function CheckoutPage() {
 
               <form onSubmit={handlePaymentSubmit} className="space-y-5">
                 {paymentMethod === 'card' && (
-                  <div className="border-2 border-[#2B1810] p-6 bg-white shadow-xs">
+                  <div className="border-2 border-brand-brown p-6 bg-white shadow-xs">
                     <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                      <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+                      <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
                         {t('checkout.creditCard')} (Sandbox Test Mode)
                       </span>
-                      <CreditCard size={20} className="text-[#2B1810]" />
+                      <CreditCard size={20} className="text-brand-brown" />
                     </div>
 
                     <div className="space-y-4">
@@ -413,7 +413,7 @@ export default function CheckoutPage() {
                           type="text"
                           defaultValue="4242 •••• •••• 4242"
                           required
-                          className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#2B1810]"
+                          className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
                         />
                       </div>
 
@@ -426,7 +426,7 @@ export default function CheckoutPage() {
                             type="text"
                             defaultValue="12/28"
                             required
-                            className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#2B1810]"
+                            className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
                           />
                         </div>
                         <div>
@@ -437,7 +437,7 @@ export default function CheckoutPage() {
                             type="text"
                             defaultValue="789"
                             required
-                            className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#2B1810]"
+                            className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
                           />
                         </div>
                       </div>
@@ -450,7 +450,7 @@ export default function CheckoutPage() {
                           type="text"
                           defaultValue="PHANNIDA W."
                           required
-                          className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#2B1810]"
+                          className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
                         />
                       </div>
                     </div>
@@ -458,11 +458,11 @@ export default function CheckoutPage() {
                 )}
 
                 {paymentMethod === 'promptpay' && (
-                  <div className="border-2 border-[#2B1810] p-6 bg-white shadow-xs text-center space-y-4">
-                    <div className="inline-block bg-[#FAF7F2] p-4 border border-gray-200">
-                      <QrCode size={120} className="mx-auto text-[#2B1810]" />
+                  <div className="border-2 border-brand-brown p-6 bg-white shadow-xs text-center space-y-4">
+                    <div className="inline-block bg-brand-warm-cream p-4 border border-gray-200">
+                      <QrCode size={120} className="mx-auto text-brand-brown" />
                     </div>
-                    <p className="text-xs font-bold text-[#2B1810]">
+                    <p className="text-xs font-bold text-brand-brown">
                       {language === 'th'
                         ? 'สแกน QR Code เพื่อชำระเงินจำลอง (ระบบจะตัดสต็อกทันทีเมื่อกดสั่งซื้อ)'
                         : 'Scan QR Code for PromptPay payment (Stock will deduct upon order)'}
@@ -474,11 +474,11 @@ export default function CheckoutPage() {
                 )}
 
                 {paymentMethod === 'bank' && (
-                  <div className="border-2 border-[#2B1810] p-6 bg-white shadow-xs space-y-3 text-xs">
-                    <h4 className="font-bold text-[#2B1810]">
+                  <div className="border-2 border-brand-brown p-6 bg-white shadow-xs space-y-3 text-xs">
+                    <h4 className="font-bold text-brand-brown">
                       {language === 'th' ? 'รายละเอียดบัญชีธนาคารสำหรับโอนเงิน:' : 'Bank Account Information:'}
                     </h4>
-                    <div className="bg-[#FAF7F2] p-3 border border-gray-200 space-y-1">
+                    <div className="bg-brand-warm-cream p-3 border border-gray-200 space-y-1">
                       <p>
                         <strong>{language === 'th' ? 'ธนาคาร:' : 'Bank:'}</strong> กสิกรไทย (Kasikornbank - KBANK)
                       </p>
@@ -487,7 +487,7 @@ export default function CheckoutPage() {
                       </p>
                       <p>
                         <strong>{language === 'th' ? 'เลขที่บัญชี:' : 'Account No:'}</strong>{' '}
-                        <span className="font-mono font-bold text-[#D97706]">098-1-23456-7</span>
+                        <span className="font-mono font-bold text-brand-amber">098-1-23456-7</span>
                       </p>
                     </div>
                   </div>
@@ -502,7 +502,7 @@ export default function CheckoutPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-[#2B1810] hover:bg-[#D97706] disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg flex items-center justify-center space-x-2 cursor-pointer"
+                    className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg flex items-center justify-center space-x-2 cursor-pointer"
                   >
                     {isSubmitting ? (
                       <>
@@ -517,7 +517,7 @@ export default function CheckoutPage() {
                     type="button"
                     disabled={isSubmitting}
                     onClick={() => setStep('shipping')}
-                    className="w-full py-2.5 text-center text-xs font-bold text-gray-600 hover:text-[#2B1810] uppercase tracking-wider cursor-pointer"
+                    className="w-full py-2.5 text-center text-xs font-bold text-gray-600 hover:text-brand-brown uppercase tracking-wider cursor-pointer"
                   >
                     {t('checkout.backToShipping')}
                   </button>
@@ -528,8 +528,8 @@ export default function CheckoutPage() {
         </div>
 
         {/* Right Column - Order Summary & Promo Code */}
-        <div className="lg:w-96 bg-[#FAF7F2] p-6 h-fit border border-[#EAE3D9] shadow-xs">
-          <h3 className="font-black text-sm uppercase tracking-wider text-[#2B1810] pb-3 border-b border-gray-300 mb-4">
+        <div className="lg:w-96 bg-brand-warm-cream p-6 h-fit border border-brand-border shadow-xs">
+          <h3 className="font-black text-sm uppercase tracking-wider text-brand-brown pb-3 border-b border-gray-300 mb-4">
             {t('checkout.orderSummary')} ({items.length} {t('catalog.items')})
           </h3>
 
@@ -545,18 +545,18 @@ export default function CheckoutPage() {
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute -top-1.5 -right-1.5 bg-[#2B1810] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1.5 -right-1.5 bg-brand-brown text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                       {item.quantity}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-xs text-[#2B1810] truncate">
+                    <h4 className="font-bold text-xs text-brand-brown truncate">
                       {itemTitle}
                     </h4>
                     <p className="text-[10px] text-gray-500 uppercase font-semibold">
                       {item.selectedColor} • {item.selectedSize}
                     </p>
-                    <p className="text-xs font-black text-[#2B1810] mt-1">
+                    <p className="text-xs font-black text-brand-brown mt-1">
                       ${(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
@@ -575,11 +575,11 @@ export default function CheckoutPage() {
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
               placeholder={t('checkout.promoPlaceholder')}
-              className="flex-1 border border-gray-300 px-3 py-2 text-xs uppercase focus:outline-none focus:border-[#2B1810] bg-white font-mono"
+              className="flex-1 border border-gray-300 px-3 py-2 text-xs uppercase focus:outline-none focus:border-brand-brown bg-white font-mono"
             />
             <button
               type="submit"
-              className="bg-[#2B1810] hover:bg-[#D97706] text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+              className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
             >
               {t('checkout.apply')}
             </button>
@@ -596,7 +596,7 @@ export default function CheckoutPage() {
           <div className="space-y-2.5 text-xs font-semibold text-gray-600 pb-4 border-b border-gray-300">
             <div className="flex justify-between">
               <span>{t('checkout.subtotal')}</span>
-              <span className="text-[#2B1810]">${cartTotal.toFixed(2)}</span>
+              <span className="text-brand-brown">${cartTotal.toFixed(2)}</span>
             </div>
             {discountApplied && (
               <div className="flex justify-between text-emerald-700 font-bold">
@@ -620,10 +620,10 @@ export default function CheckoutPage() {
 
           {/* Total Amount */}
           <div className="flex justify-between items-center pt-4">
-            <span className="font-black text-sm uppercase text-[#2B1810]">
+            <span className="font-black text-sm uppercase text-brand-brown">
               {t('checkout.total')}
             </span>
-            <span className="font-black text-xl text-[#2B1810]">
+            <span className="font-black text-xl text-brand-brown">
               ${finalTotal.toFixed(2)}
             </span>
           </div>

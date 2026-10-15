@@ -55,7 +55,7 @@ export function CollectionControlBar({
               onClick={() => onToggleGridCols(4)}
               className={`p-1.5 transition-colors cursor-pointer ${
                 gridCols === 4
-                  ? 'text-[#2B1810]'
+                  ? 'text-brand-brown'
                   : 'text-gray-300 hover:text-gray-500'
               }`}
               title="4 Columns"
@@ -67,7 +67,7 @@ export function CollectionControlBar({
               onClick={() => onToggleGridCols(3)}
               className={`p-1.5 transition-colors cursor-pointer ${
                 gridCols === 3
-                  ? 'text-[#2B1810]'
+                  ? 'text-brand-brown'
                   : 'text-gray-300 hover:text-gray-500'
               }`}
               title="3 Columns"
@@ -81,7 +81,7 @@ export function CollectionControlBar({
             <button
               type="button"
               onClick={() => setIsSortOpen(!isSortOpen)}
-              className="flex items-center text-xs font-bold text-[#2B1810] hover:text-[#D97706] uppercase tracking-wider py-2 cursor-pointer"
+              className="flex items-center text-xs font-bold text-brand-brown hover:text-brand-amber uppercase tracking-wider py-2 cursor-pointer"
             >
               <span className="text-gray-400 mr-1.5">
                 {t('catalog.sortBy')}:
@@ -102,7 +102,7 @@ export function CollectionControlBar({
                     }}
                     className={`w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-50 flex items-center justify-between cursor-pointer ${
                       sortBy === opt.id
-                        ? 'text-[#D97706] font-bold bg-[#FAF7F2]'
+                        ? 'text-brand-amber font-bold bg-brand-warm-cream'
                         : 'text-gray-700'
                     }`}
                   >

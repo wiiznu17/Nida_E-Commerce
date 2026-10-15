@@ -15,10 +15,10 @@ export const PromoRibbon: React.FC = () => {
   };
 
   return (
-    <section className="bg-[#2B1810] text-white py-8 border-y-4 border-[#F59E0B]">
+    <section className="bg-brand-brown text-white py-8 border-y-4 border-brand-yellow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
         <div>
-          <div className="inline-block bg-[#F59E0B] text-[#2B1810] text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 mb-2">
+          <div className="inline-block bg-brand-yellow text-brand-brown text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 mb-2">
             {t('home.promoRibbonTag')}
           </div>
           <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
@@ -33,7 +33,7 @@ export const PromoRibbon: React.FC = () => {
           </span>
           <button
             onClick={handleCopyCode}
-            className="bg-white text-[#2B1810] hover:bg-[#F59E0B] hover:text-[#2B1810] font-black text-xs uppercase tracking-wider px-4 py-2 transition-colors flex items-center cursor-pointer"
+            className="bg-white text-brand-brown hover:bg-brand-yellow hover:text-brand-brown font-black text-xs uppercase tracking-wider px-4 py-2 transition-colors flex items-center cursor-pointer"
           >
             {copiedCode ? (
               <>

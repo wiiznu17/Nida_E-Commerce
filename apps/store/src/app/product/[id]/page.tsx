@@ -144,7 +144,7 @@ export default function ProductDetailPage() {
     if (isCatalogLoading || isFetching) {
       return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center font-sans">
-          <div className="w-10 h-10 border-2 border-[#2B1810] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-10 h-10 border-2 border-brand-brown border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-xs uppercase tracking-widest text-stone-500 font-bold">
             {t('common.loading') ?? 'Loading product...'}
           </p>
@@ -153,7 +153,7 @@ export default function ProductDetailPage() {
     }
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center font-sans">
-        <h2 className="text-2xl font-black uppercase text-[#2B1810] mb-3">
+        <h2 className="text-2xl font-black uppercase text-brand-brown mb-3">
           {t('catalog.noProducts') ?? 'Product Not Found'}
         </h2>
         <p className="text-xs text-stone-500 mb-6">
@@ -163,7 +163,7 @@ export default function ProductDetailPage() {
         </p>
         <Link
           href="/collections/all"
-          className="inline-flex items-center px-6 py-3 bg-[#2B1810] text-white text-xs font-black uppercase tracking-widest hover:bg-[#D97706] transition-colors"
+          className="inline-flex items-center px-6 py-3 bg-brand-brown text-white text-xs font-black uppercase tracking-widest hover:bg-brand-amber transition-colors"
         >
           {isTh ? 'กลับไปหน้าคอลเลกชัน' : 'BACK TO COLLECTIONS'}
         </Link>
@@ -207,18 +207,18 @@ export default function ProductDetailPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
       {/* Breadcrumbs */}
       <div className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-8">
-        <Link href="/" className="hover:text-[#2B1810]">
+        <Link href="/" className="hover:text-brand-brown">
           {t('product.home')}
         </Link>
         <span>/</span>
         <Link
           href={`/collections/${product.department?.toLowerCase() || product.category?.toLowerCase() || 'all'}`}
-          className="hover:text-[#2B1810]"
+          className="hover:text-brand-brown"
         >
           {subCategory.toUpperCase()}
         </Link>
         <span>/</span>
-        <span className="text-[#2B1810] truncate max-w-xs">{title}</span>
+        <span className="text-brand-brown truncate max-w-xs">{title}</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10">
@@ -230,7 +230,7 @@ export default function ProductDetailPage() {
               onClick={() => setMainImage(img)}
               className={`aspect-[3/4] bg-gray-100 overflow-hidden border-2 transition-all ${
                 activeDisplayImage === img
-                  ? 'border-[#2B1810] shadow-sm'
+                  ? 'border-brand-brown shadow-sm'
                   : 'border-transparent hover:border-gray-300'
               }`}
             >
@@ -244,7 +244,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Main Image Stage (Center) */}
-        <div className="col-span-1 lg:col-span-6 bg-[#FAF7F2] aspect-[3/4] relative overflow-hidden border border-gray-200">
+        <div className="col-span-1 lg:col-span-6 bg-brand-warm-cream aspect-[3/4] relative overflow-hidden border border-gray-200">
           <img
             src={activeDisplayImage}
             alt={title}
@@ -262,12 +262,12 @@ export default function ProductDetailPage() {
           )}
           <button
             onClick={() => toggleWishlist(product.id)}
-            className="absolute top-4 right-4 p-2.5 bg-white/95 hover:bg-white text-[#2B1810] rounded-full shadow-md transition-colors hover:text-[#D97706]"
+            className="absolute top-4 right-4 p-2.5 bg-white/95 hover:bg-white text-brand-brown rounded-full shadow-md transition-colors hover:text-brand-amber"
             aria-label={t('product.saveWishlist')}
           >
             <Heart
               size={20}
-              className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''}
+              className={isWish ? 'fill-brand-amber text-brand-amber' : ''}
             />
           </button>
         </div>
@@ -279,9 +279,9 @@ export default function ProductDetailPage() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <div className="flex w-10 h-1.5">
-                  <div className="w-1/3 bg-[#2B1810]"></div>
+                  <div className="w-1/3 bg-brand-brown"></div>
                   <div className="w-1/3 bg-white border-y border-gray-200"></div>
-                  <div className="w-1/3 bg-[#F59E0B]"></div>
+                  <div className="w-1/3 bg-brand-yellow"></div>
                 </div>
                 <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">
                   NIDA • {subCategory}
@@ -296,7 +296,7 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#2B1810]">
+            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-brand-brown">
               {title}
             </h1>
 
@@ -320,7 +320,7 @@ export default function ProductDetailPage() {
 
           {/* Pricing with Strikethrough */}
           <div className="flex items-baseline space-x-3 pb-4 border-b border-gray-200">
-            <span className="text-3xl font-black text-[#2B1810]">
+            <span className="text-3xl font-black text-brand-brown">
               ${product.price}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
@@ -328,7 +328,7 @@ export default function ProductDetailPage() {
                 <span className="text-base text-gray-400 line-through font-semibold">
                   ${product.originalPrice}
                 </span>
-                <span className="bg-[#D97706] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-xs">
+                <span className="bg-brand-amber text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-xs">
                   {isTh ? 'ประหยัด ' : 'SAVE '}
                   {Math.round(
                     ((product.originalPrice - product.price) /
@@ -342,14 +342,14 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Special Promo Callout Box */}
-          <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-3.5 rounded-xs flex items-center justify-between text-xs">
+          <div className="bg-brand-warm-cream border border-brand-border p-3.5 rounded-xs flex items-center justify-between text-xs">
             <div className="flex items-center space-x-2">
-              <Sparkles size={16} className="text-[#D97706]" />
-              <span className="text-[#2B1810] font-bold">
+              <Sparkles size={16} className="text-brand-amber" />
+              <span className="text-brand-brown font-bold">
                 {isTh
                   ? 'ลดเพิ่ม 20% ด้วยโค้ดส่วนลด: '
                   : 'Extra 20% off with promo code: '}
-                <strong className="text-[#D97706]">NIDA20</strong>
+                <strong className="text-brand-amber">NIDA20</strong>
               </span>
             </div>
             <span className="text-gray-500 text-[11px] font-semibold">
@@ -360,7 +360,7 @@ export default function ProductDetailPage() {
           {/* Color Selection */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+              <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
                 {t('product.selectColor')}:{' '}
                 <span className="font-semibold text-gray-600">
                   {selectedColor}
@@ -376,7 +376,7 @@ export default function ProductDetailPage() {
                   }}
                   className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${
                     selectedColor === col.name
-                      ? 'border-[#2B1810] scale-110 ring-2 ring-[#D97706]'
+                      ? 'border-brand-brown scale-110 ring-2 ring-brand-amber'
                       : 'border-gray-300 hover:scale-105'
                   }`}
                   style={{ backgroundColor: col.hex }}
@@ -402,10 +402,10 @@ export default function ProductDetailPage() {
           {/* Size Selection */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+              <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
                 {t('product.selectSize')}
               </span>
-              <button className="text-xs font-bold text-[#2B1810] hover:text-[#D97706] underline tracking-wider">
+              <button className="text-xs font-bold text-brand-brown hover:text-brand-amber underline tracking-wider">
                 {t('product.sizeGuide')}
               </button>
             </div>
@@ -416,8 +416,8 @@ export default function ProductDetailPage() {
                   onClick={() => setSelectedSize(size)}
                   className={`py-3 text-xs font-black tracking-wider uppercase border transition-all ${
                     selectedSize === size
-                      ? 'bg-[#2B1810] text-white border-[#2B1810] shadow-xs'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-[#2B1810]'
+                      ? 'bg-brand-brown text-white border-brand-brown shadow-xs'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-brand-brown'
                   }`}
                 >
                   {size}
@@ -434,7 +434,7 @@ export default function ProductDetailPage() {
               className={`w-full py-4 text-xs uppercase tracking-[0.2em] font-black transition-all flex justify-center items-center space-x-2 shadow-lg ${
                 isAdded
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-[#2B1810] hover:bg-[#D97706] text-white hover:shadow-xl'
+                  : 'bg-brand-brown hover:bg-brand-amber text-white hover:shadow-xl'
               }`}
             >
               {isAdded ? (
@@ -450,11 +450,11 @@ export default function ProductDetailPage() {
 
             <button
               onClick={() => toggleWishlist(product.id)}
-              className="w-full py-3 text-xs uppercase tracking-widest font-black border border-gray-300 text-[#2B1810] hover:bg-gray-50 flex items-center justify-center space-x-2 transition-colors"
+              className="w-full py-3 text-xs uppercase tracking-widest font-black border border-gray-300 text-brand-brown hover:bg-gray-50 flex items-center justify-center space-x-2 transition-colors"
             >
               <Heart
                 size={16}
-                className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''}
+                className={isWish ? 'fill-brand-amber text-brand-amber' : ''}
               />
               <span>
                 {isWish
@@ -471,7 +471,7 @@ export default function ProductDetailPage() {
           {/* Delivery & Guarantees */}
           <div className="border-t border-gray-200 pt-6 space-y-3 text-xs text-gray-600">
             <div className="flex items-center space-x-3">
-              <Truck size={18} className="text-[#D97706] flex-shrink-0" />
+              <Truck size={18} className="text-brand-amber flex-shrink-0" />
               <span>
                 <strong>
                   {isTh ? 'จัดส่งมาตรฐานฟรี' : 'Free standard shipping'}
@@ -482,7 +482,7 @@ export default function ProductDetailPage() {
               </span>
             </div>
             <div className="flex items-center space-x-3">
-              <RefreshCw size={18} className="text-[#D97706] flex-shrink-0" />
+              <RefreshCw size={18} className="text-brand-amber flex-shrink-0" />
               <span>
                 <strong>
                   {isTh
@@ -495,7 +495,7 @@ export default function ProductDetailPage() {
               </span>
             </div>
             <div className="flex items-center space-x-3">
-              <ShieldCheck size={18} className="text-[#D97706] flex-shrink-0" />
+              <ShieldCheck size={18} className="text-brand-amber flex-shrink-0" />
               <span>
                 <strong>
                   {isTh
@@ -519,7 +519,7 @@ export default function ProductDetailPage() {
                     openAccordion === 'details' ? null : 'details',
                   )
                 }
-                className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-[#2B1810]"
+                className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-brand-brown"
               >
                 <span>{t('product.details')}</span>
                 <ChevronDown
@@ -564,7 +564,7 @@ export default function ProductDetailPage() {
                     openAccordion === 'materials' ? null : 'materials',
                   )
                 }
-                className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-[#2B1810]"
+                className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-brand-brown"
               >
                 <span>{t('product.materials')}</span>
                 <ChevronDown
@@ -587,7 +587,7 @@ export default function ProductDetailPage() {
                     openAccordion === 'delivery' ? null : 'delivery',
                   )
                 }
-                className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-[#2B1810]"
+                className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-brand-brown"
               >
                 <span>{t('product.deliveryReturns')}</span>
                 <ChevronDown
@@ -618,16 +618,16 @@ export default function ProductDetailPage() {
       <div className="mt-24 pt-12 border-t border-gray-200">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <span className="text-xs font-black uppercase tracking-widest text-[#D97706]">
+            <span className="text-xs font-black uppercase tracking-widest text-brand-amber">
               {isTh ? 'สินค้าคู่ควร' : 'CURATED PAIRINGS'}
             </span>
-            <h2 className="text-2xl font-black uppercase text-[#2B1810] tracking-tight">
+            <h2 className="text-2xl font-black uppercase text-brand-brown tracking-tight">
               {t('product.youMayAlsoLike')}
             </h2>
           </div>
           <Link
             href="/collections/all"
-            className="text-xs font-bold uppercase tracking-wider text-[#2B1810] hover:text-[#D97706]"
+            className="text-xs font-bold uppercase tracking-wider text-brand-brown hover:text-brand-amber"
           >
             {isTh ? 'ดูทั้งหมด →' : 'VIEW ALL →'}
           </Link>
@@ -643,7 +643,7 @@ export default function ProductDetailPage() {
                 key={p.id}
                 className="group block bg-white"
               >
-                <div className="aspect-[3/4] bg-[#FAF7F2] mb-3 overflow-hidden border border-gray-100 relative">
+                <div className="aspect-[3/4] bg-brand-warm-cream mb-3 overflow-hidden border border-gray-100 relative">
                   <img
                     src={p.image}
                     alt={pTitle}
@@ -660,10 +660,10 @@ export default function ProductDetailPage() {
                     </div>
                   )}
                 </div>
-                <h3 className="text-xs font-bold text-[#2B1810] group-hover:text-[#D97706] line-clamp-1 mb-1">
+                <h3 className="text-xs font-bold text-brand-brown group-hover:text-brand-amber line-clamp-1 mb-1">
                   {pTitle}
                 </h3>
-                <p className="text-xs font-black text-[#2B1810]">${p.price}</p>
+                <p className="text-xs font-black text-brand-brown">${p.price}</p>
               </Link>
             );
           })}

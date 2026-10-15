@@ -66,10 +66,10 @@ export const TrendingProductsSection: React.FC = () => {
       {/* Section Header & Department Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 pb-4 border-b border-gray-200 gap-4">
         <div>
-          <span className="text-xs font-black tracking-[0.25em] text-[#D97706] uppercase block mb-1">
+          <span className="text-xs font-black tracking-[0.25em] text-brand-amber uppercase block mb-1">
             {t('home.dontMissOut')}
           </span>
-          <h2 className="text-3xl font-black text-[#2B1810] uppercase tracking-tight">
+          <h2 className="text-3xl font-black text-brand-brown uppercase tracking-tight">
             {t('home.trendingTitle')}
           </h2>
         </div>
@@ -82,8 +82,8 @@ export const TrendingProductsSection: React.FC = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`text-xs font-black uppercase tracking-wider px-4 py-2 border transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === tab.id
-                  ? 'bg-[#2B1810] text-white border-[#2B1810]'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-[#2B1810]'
+                  ? 'bg-brand-brown text-white border-brand-brown'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-brand-brown'
               }`}
             >
               {tab.label}
@@ -110,7 +110,7 @@ export const TrendingProductsSection: React.FC = () => {
       <div className="text-center mt-12">
         <Link
           href="/collections/all"
-          className="inline-flex items-center border-2 border-[#2B1810] text-[#2B1810] hover:bg-[#2B1810] hover:text-white px-8 py-3.5 font-black text-xs uppercase tracking-[0.2em] transition-all cursor-pointer"
+          className="inline-flex items-center border-2 border-brand-brown text-brand-brown hover:bg-brand-brown hover:text-white px-8 py-3.5 font-black text-xs uppercase tracking-[0.2em] transition-all cursor-pointer"
         >
           {t('home.viewAllProducts')} ({productsList.length}){' '}
           <ChevronRight size={16} className="ml-1" />

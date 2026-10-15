@@ -38,11 +38,11 @@ export function CatalogTopBar({
       : t('search.featured');
 
   return (
-    <div className="sticky top-16 md:top-20 z-20 bg-white/95 backdrop-blur-md border-b border-[#EAE3D9] transition-all duration-200">
+    <div className="sticky top-16 md:top-20 z-20 bg-white/95 backdrop-blur-md border-b border-brand-border transition-all duration-200">
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
         {/* Left: Title or Search Query and Count */}
         <div className="flex items-baseline space-x-2.5 min-w-0">
-          <h1 className="text-base sm:text-lg font-black tracking-tight text-[#2B1810] uppercase truncate">
+          <h1 className="text-base sm:text-lg font-black tracking-tight text-brand-brown uppercase truncate">
             {title ? (
               title
             ) : searchQuery ? (
@@ -64,14 +64,14 @@ export function CatalogTopBar({
           <button
             type="button"
             onClick={onToggleFilter}
-            className="hidden lg:inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-bold tracking-wider uppercase text-[#2B1810] hover:bg-[#FAF7F2] rounded-xs border border-[#EAE3D9] transition-colors cursor-pointer"
+            className="hidden lg:inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-bold tracking-wider uppercase text-brand-brown hover:bg-brand-warm-cream rounded-xs border border-brand-border transition-colors cursor-pointer"
           >
             <SlidersHorizontal size={14} />
             <span>
               {isFilterVisible ? t('search.hideFilters') : t('search.showFilters')}
             </span>
             {activeFilterCount > 0 && (
-              <span className="ml-1 w-4 h-4 rounded-full bg-[#2B1810] text-white text-[9px] flex items-center justify-center font-bold">
+              <span className="ml-1 w-4 h-4 rounded-full bg-brand-brown text-white text-[9px] flex items-center justify-center font-bold">
                 {activeFilterCount}
               </span>
             )}
@@ -81,12 +81,12 @@ export function CatalogTopBar({
           <button
             type="button"
             onClick={onOpenMobileFilter}
-            className="lg:hidden inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold tracking-wider uppercase text-[#2B1810] border border-[#EAE3D9] rounded-xs hover:bg-[#FAF7F2] cursor-pointer"
+            className="lg:hidden inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold tracking-wider uppercase text-brand-brown border border-brand-border rounded-xs hover:bg-brand-warm-cream cursor-pointer"
           >
             <SlidersHorizontal size={13} />
             <span>{t('search.filter')}</span>
             {activeFilterCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-[#2B1810] text-white text-[9px] flex items-center justify-center font-bold">
+              <span className="w-4 h-4 rounded-full bg-brand-brown text-white text-[9px] flex items-center justify-center font-bold">
                 {activeFilterCount}
               </span>
             )}
@@ -97,7 +97,7 @@ export function CatalogTopBar({
             <button
               type="button"
               onClick={() => setIsSortOpen(!isSortOpen)}
-              className="inline-flex items-center space-x-2 px-3 py-2 text-xs font-bold tracking-wider uppercase text-[#2B1810] hover:bg-[#FAF7F2] rounded-xs border border-[#EAE3D9] transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-2 px-3 py-2 text-xs font-bold tracking-wider uppercase text-brand-brown hover:bg-brand-warm-cream rounded-xs border border-brand-border transition-colors cursor-pointer"
             >
               <span className="text-gray-500 hidden sm:inline">{t('search.sortBy')}:</span>
               <span>{currentSortLabel}</span>
@@ -108,7 +108,7 @@ export function CatalogTopBar({
             </button>
 
             {isSortOpen && (
-              <div className="absolute right-0 mt-1 w-48 bg-white border border-[#EAE3D9] shadow-lg rounded-xs py-1 z-30 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="absolute right-0 mt-1 w-48 bg-white border border-brand-border shadow-lg rounded-xs py-1 z-30 animate-in fade-in slide-in-from-top-1 duration-150">
                 {SORT_OPTIONS.map((option) => {
                   const isSelected = sortBy === option.id;
                   return (
@@ -121,12 +121,12 @@ export function CatalogTopBar({
                       }}
                       className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between transition-colors cursor-pointer ${
                         isSelected
-                          ? 'font-black text-[#2B1810] bg-[#FAF7F2]'
-                          : 'font-medium text-gray-700 hover:bg-[#FAF7F2]'
+                          ? 'font-black text-brand-brown bg-brand-warm-cream'
+                          : 'font-medium text-gray-700 hover:bg-brand-warm-cream'
                       }`}
                     >
                       <span>{t(option.i18nKey)}</span>
-                      {isSelected && <Check size={13} className="text-[#2B1810]" />}
+                      {isSelected && <Check size={13} className="text-brand-brown" />}
                     </button>
                   );
                 })}

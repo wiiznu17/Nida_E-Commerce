@@ -39,7 +39,7 @@ export function ProductBadge({
   const customLabel = language === 'th' && tagTh ? tagTh : rawTag;
   return (
     <span
-      className={`inline-flex items-center bg-[#2B1810] text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 shadow-2xs rounded-xs select-none ${className}`}
+      className={`inline-flex items-center bg-brand-brown text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 shadow-2xs rounded-xs select-none ${className}`}
     >
       {customLabel}
     </span>

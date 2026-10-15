@@ -9,7 +9,10 @@
   --color-brand-yellow: #F59E0B;
   --color-brand-amber: #D97706;
   --color-brand-warm-cream: #FAF7F2;
+  --color-brand-cream: #FAF7F2;
   --color-brand-border: #EAE3D9;
+
+  --color-brand-gold: #FBBF24;
 
   --color-aura-bg: #FFFFFF;
   --color-aura-text: #2B1810;
@@ -19,6 +22,6 @@
 
 @layer base {
   body {
-    @apply bg-white text-[#2B1810] font-sans antialiased selection:bg-[#2B1810] selection:text-[#FBBF24];
+    @apply bg-white text-brand-brown font-sans antialiased selection:bg-brand-brown selection:text-brand-gold;
   }
 }

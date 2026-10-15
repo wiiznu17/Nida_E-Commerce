@@ -40,14 +40,14 @@ export function CatalogFilterSidebar({
     <div className="space-y-6 text-sm">
       {/* Active Filters Clear All */}
       {activeFilterCount > 0 && (
-        <div className="pb-4 border-b border-[#EAE3D9] flex items-center justify-between">
-          <span className="text-xs font-bold text-[#2B1810]">
+        <div className="pb-4 border-b border-brand-border flex items-center justify-between">
+          <span className="text-xs font-bold text-brand-brown">
             {activeFilterCount} {language === 'th' ? 'ตัวกรองที่เลือก' : 'Filters Active'}
           </span>
           <button
             type="button"
             onClick={onClearAll}
-            className="inline-flex items-center text-xs font-bold text-[#D97706] hover:underline cursor-pointer"
+            className="inline-flex items-center text-xs font-bold text-brand-amber hover:underline cursor-pointer"
           >
             <RotateCcw size={12} className="mr-1" />
             {t('search.clearAll')}
@@ -56,11 +56,11 @@ export function CatalogFilterSidebar({
       )}
 
       {/* 1. Department / Gender */}
-      <div className="border-b border-[#EAE3D9] pb-5">
+      <div className="border-b border-brand-border pb-5">
         <button
           type="button"
           onClick={() => toggleSection('gender')}
-          className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-[#2B1810] py-1 text-left cursor-pointer"
+          className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-brand-brown py-1 text-left cursor-pointer"
         >
           <span>{t('search.gender')}</span>
           {openSections.gender ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -80,13 +80,13 @@ export function CatalogFilterSidebar({
               return (
                 <label
                   key={normalized}
-                  className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]"
+                  className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-brand-brown"
                 >
                   <input
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => onToggleDepartment(normalized)}
-                    className="w-4 h-4 rounded border-gray-300 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
+                    className="w-4 h-4 rounded border-gray-300 text-brand-brown focus:ring-brand-brown accent-brand-brown"
                   />
                   <span>{label}</span>
                 </label>
@@ -98,11 +98,11 @@ export function CatalogFilterSidebar({
 
       {/* 2. Category / Sub-Category */}
       {filterOptions.subCategories.length > 0 && (
-        <div className="border-b border-[#EAE3D9] pb-5">
+        <div className="border-b border-brand-border pb-5">
           <button
             type="button"
             onClick={() => toggleSection('category')}
-            className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-[#2B1810] py-1 text-left cursor-pointer"
+            className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-brand-brown py-1 text-left cursor-pointer"
           >
             <span>{t('search.category')}</span>
             {openSections.category ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -115,13 +115,13 @@ export function CatalogFilterSidebar({
                 return (
                   <label
                     key={cat.key}
-                    className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]"
+                    className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-brand-brown"
                   >
                     <input
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => onToggleSubCategory(cat.key)}
-                      className="w-4 h-4 rounded border-gray-300 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
+                      className="w-4 h-4 rounded border-gray-300 text-brand-brown focus:ring-brand-brown accent-brand-brown"
                     />
                     <span className="line-clamp-1">{label}</span>
                   </label>
@@ -133,11 +133,11 @@ export function CatalogFilterSidebar({
       )}
 
       {/* 3. Shop by Price */}
-      <div className="border-b border-[#EAE3D9] pb-5">
+      <div className="border-b border-brand-border pb-5">
         <button
           type="button"
           onClick={() => toggleSection('price')}
-          className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-[#2B1810] py-1 text-left cursor-pointer"
+          className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-brand-brown py-1 text-left cursor-pointer"
         >
           <span>{t('search.price')}</span>
           {openSections.price ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -147,7 +147,7 @@ export function CatalogFilterSidebar({
             {PRICE_OPTIONS.map((option) => (
               <label
                 key={option.id}
-                className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]"
+                className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-brand-brown"
               >
                 <input
                   type="radio"
@@ -163,7 +163,7 @@ export function CatalogFilterSidebar({
                       onPriceRangeChange(null);
                     }
                   }}
-                  className="w-4 h-4 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
+                  className="w-4 h-4 text-brand-brown focus:ring-brand-brown accent-brand-brown"
                 />
                 <span>{t(option.i18nKey)}</span>
               </label>
@@ -177,7 +177,7 @@ export function CatalogFilterSidebar({
         <button
           type="button"
           onClick={() => toggleSection('badges')}
-          className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-[#2B1810] py-1 text-left cursor-pointer"
+          className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-brand-brown py-1 text-left cursor-pointer"
         >
           <span>
             {t('search.productBadges') ??
@@ -199,14 +199,14 @@ export function CatalogFilterSidebar({
               return (
                 <label
                   key={tagPreset.key}
-                  className="flex items-center justify-between space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]"
+                  className="flex items-center justify-between space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-brand-brown"
                 >
                   <div className="flex items-center space-x-2.5">
                     <input
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => onToggleTag(tagPreset.labelEn)}
-                      className="w-4 h-4 rounded border-gray-300 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
+                      className="w-4 h-4 rounded border-gray-300 text-brand-brown focus:ring-brand-brown accent-brand-brown"
                     />
                     <span>{label}</span>
                   </div>

@@ -41,7 +41,7 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
   return (
     <div className="group flex flex-col bg-white relative">
       {/* Product Image Container */}
-      <div className="relative aspect-[3/4] bg-[#FAF7F2] overflow-hidden mb-4 border border-gray-100">
+      <div className="relative aspect-[3/4] bg-brand-warm-cream overflow-hidden mb-4 border border-gray-100">
         <Link href={`/product/${product.id}`} className="block w-full h-full">
           <img
             src={product.image}
@@ -64,12 +64,12 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
         {/* Wishlist Heart Toggle */}
         <button
           onClick={() => onToggleWishlist(product.id)}
-          className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white text-[#2B1810] rounded-full shadow-xs transition-colors hover:text-[#D97706] cursor-pointer"
+          className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white text-brand-brown rounded-full shadow-xs transition-colors hover:text-brand-amber cursor-pointer"
           aria-label="Save to wishlist"
         >
           <Heart
             size={16}
-            className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''}
+            className={isWish ? 'fill-brand-amber text-brand-amber' : ''}
           />
         </button>
 
@@ -81,7 +81,7 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
             className={`w-full py-3 font-black text-xs uppercase tracking-widest transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer ${
               isJustAdded
                 ? 'bg-emerald-600 text-white'
-                : 'bg-[#2B1810] hover:bg-[#D97706] text-white'
+                : 'bg-brand-brown hover:bg-brand-amber text-white'
             }`}
           >
             {isJustAdded ? (
@@ -123,14 +123,14 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
 
       <Link
         href={`/product/${product.id}`}
-        className="font-bold text-sm text-[#2B1810] group-hover:text-[#D97706] transition-colors line-clamp-1 mb-2"
+        className="font-bold text-sm text-brand-brown group-hover:text-brand-amber transition-colors line-clamp-1 mb-2"
       >
         {title}
       </Link>
 
       {/* Price Display */}
       <div className="mt-auto flex items-center space-x-2">
-        <span className="font-black text-base text-[#2B1810]">
+        <span className="font-black text-base text-brand-brown">
           ${product.price}
         </span>
         {product.originalPrice && product.originalPrice > product.price && (
@@ -139,7 +139,7 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
           </span>
         )}
         {discountPercent > 0 && (
-          <span className="text-[10px] font-black text-[#D97706] uppercase">
+          <span className="text-[10px] font-black text-brand-amber uppercase">
             {discountPercent}% OFF
           </span>
         )}

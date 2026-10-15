@@ -28,15 +28,15 @@ export function HeaderNav({
             href={dept.path}
             className={`text-xs font-bold tracking-[0.12em] py-7 transition-colors flex items-center whitespace-nowrap border-b-2 ${
               dept.isSale
-                ? 'text-[#D97706] hover:text-[#B45309] border-transparent hover:border-[#D97706]'
+                ? 'text-brand-amber hover:text-amber-700 border-transparent hover:border-brand-amber'
                 : activeMegaMenu === dept.id
-                  ? 'text-[#2B1810] border-[#2B1810]'
-                  : 'text-[#2B1810] hover:text-[#D97706] border-transparent'
+                  ? 'text-brand-brown border-brand-brown'
+                  : 'text-brand-brown hover:text-brand-amber border-transparent'
             }`}
           >
             {dept.label}
             {dept.isSale && (
-              <span className="ml-1.5 bg-[#F59E0B] text-[#2B1810] text-[9px] px-1.5 py-0.2 font-black rounded-xs">
+              <span className="ml-1.5 bg-brand-yellow text-brand-brown text-[9px] px-1.5 py-0.2 font-black rounded-xs">
                 50% OFF
               </span>
             )}

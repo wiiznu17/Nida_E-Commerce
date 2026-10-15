@@ -147,13 +147,13 @@ export function Header() {
       />
 
       {/* 2. Main Header Bar */}
-      <div className="border-b border-[#EAE3D9] bg-white relative">
+      <div className="border-b border-brand-border bg-white relative">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 h-20 flex items-center justify-between">
           {/* Mobile Hamburger Button */}
           <div className="flex items-center lg:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-[#2B1810] p-2 hover:bg-gray-100 rounded-xs transition-colors"
+              className="text-brand-brown p-2 hover:bg-gray-100 rounded-xs transition-colors"
               aria-label={t('nav.toggleMenu')}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -192,7 +192,7 @@ export function Header() {
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="text-[#2B1810] hover:text-[#D97706] p-1.5 transition-colors relative flex md:hidden items-center"
+              className="text-brand-brown hover:text-brand-amber p-1.5 transition-colors relative flex md:hidden items-center"
               aria-label={t('nav.search')}
             >
               <Search size={20} strokeWidth={2} />

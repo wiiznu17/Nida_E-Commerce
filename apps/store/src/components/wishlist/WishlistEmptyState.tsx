@@ -14,11 +14,11 @@ export function WishlistEmptyState({
 
   if (isFiltered) {
     return (
-      <div className="text-center py-20 bg-[#FAF7F2]/60 border border-[#EAE3D9] rounded-2xl p-8 max-w-xl mx-auto">
-        <div className="w-16 h-16 rounded-full bg-white border border-[#EAE3D9] flex items-center justify-center mx-auto mb-4 text-gray-400">
+      <div className="text-center py-20 bg-brand-warm-cream/60 border border-brand-border rounded-2xl p-8 max-w-xl mx-auto">
+        <div className="w-16 h-16 rounded-full bg-white border border-brand-border flex items-center justify-center mx-auto mb-4 text-gray-400">
           <SlidersHorizontal size={24} strokeWidth={1.5} />
         </div>
-        <h2 className="text-lg font-black uppercase text-[#2B1810] tracking-tight">
+        <h2 className="text-lg font-black uppercase text-brand-brown tracking-tight">
           {language === 'th'
             ? 'ไม่พบสินค้าตามตัวกรองที่เลือก'
             : 'NO ITEMS MATCH YOUR FILTERS'}
@@ -32,7 +32,7 @@ export function WishlistEmptyState({
           <button
             type="button"
             onClick={onClearFilters}
-            className="inline-flex items-center justify-center bg-[#2B1810] text-white text-xs font-black uppercase tracking-widest px-6 py-3.5 hover:bg-[#D97706] transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center bg-brand-brown text-white text-xs font-black uppercase tracking-widest px-6 py-3.5 hover:bg-brand-amber transition-colors cursor-pointer"
           >
             <span>{t('search.clearAll')}</span>
           </button>
@@ -42,11 +42,11 @@ export function WishlistEmptyState({
   }
 
   return (
-    <div className="text-center py-20 bg-[#FAF7F2]/60 border border-[#EAE3D9] rounded-2xl p-8 max-w-xl mx-auto">
-      <div className="w-16 h-16 rounded-full bg-white border border-[#EAE3D9] flex items-center justify-center mx-auto mb-4 text-gray-400">
+    <div className="text-center py-20 bg-brand-warm-cream/60 border border-brand-border rounded-2xl p-8 max-w-xl mx-auto">
+      <div className="w-16 h-16 rounded-full bg-white border border-brand-border flex items-center justify-center mx-auto mb-4 text-gray-400">
         <Heart size={28} strokeWidth={1.5} />
       </div>
-      <h2 className="text-lg font-black uppercase text-[#2B1810] tracking-tight">
+      <h2 className="text-lg font-black uppercase text-brand-brown tracking-tight">
         {t('wishlistPage.emptyTitle')}
       </h2>
       <p className="text-xs text-gray-500 mt-2 max-w-md mx-auto leading-relaxed">
@@ -55,7 +55,7 @@ export function WishlistEmptyState({
       <div className="mt-6">
         <Link
           href="/collections/all"
-          className="inline-flex items-center justify-center bg-[#2B1810] text-white text-xs font-black uppercase tracking-widest px-6 py-3.5 hover:bg-[#D97706] transition-colors"
+          className="inline-flex items-center justify-center bg-brand-brown text-white text-xs font-black uppercase tracking-widest px-6 py-3.5 hover:bg-brand-amber transition-colors"
         >
           <span>{t('wishlistPage.exploreCatalog')}</span>
           <ArrowRight size={14} className="ml-2" />

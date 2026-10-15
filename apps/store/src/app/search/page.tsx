@@ -148,7 +148,7 @@ function SearchPageContent() {
           <main className="flex-1 min-w-0">
             {isLoading ? (
               <div className="py-24 text-center">
-                <div className="inline-block w-8 h-8 border-2 border-[#2B1810] border-t-transparent rounded-full animate-spin" />
+                <div className="inline-block w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
               </div>
             ) : serverProducts.length === 0 ? (
               <SearchEmptyState onClearAll={clearAllFilters} />
@@ -189,7 +189,7 @@ export default function SearchPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-white flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-[#2B1810] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

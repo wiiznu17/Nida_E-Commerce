@@ -8,16 +8,16 @@ export const BrandStoryBanner: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative bg-[#2B1810] text-white py-24 overflow-hidden">
+    <section className="relative bg-brand-brown text-white py-24 overflow-hidden">
       <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
         <div className="flex justify-center mb-6">
           <div className="flex w-16 h-2">
-            <div className="w-1/3 bg-[#2B1810]" />
+            <div className="w-1/3 bg-brand-brown" />
             <div className="w-1/3 bg-white" />
-            <div className="w-1/3 bg-[#F59E0B]" />
+            <div className="w-1/3 bg-brand-yellow" />
           </div>
         </div>
-        <span className="text-xs font-black tracking-[0.3em] uppercase text-[#F59E0B] block mb-4">
+        <span className="text-xs font-black tracking-[0.3em] uppercase text-brand-yellow block mb-4">
           {t('home.heritageTag')}
         </span>
         <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white mb-6">
@@ -31,7 +31,7 @@ export const BrandStoryBanner: React.FC = () => {
         <div className="flex justify-center gap-4">
           <Link
             href="/about"
-            className="bg-white hover:bg-gray-100 text-[#2B1810] px-8 py-4 font-black text-xs uppercase tracking-[0.2em] transition-colors cursor-pointer"
+            className="bg-white hover:bg-gray-100 text-brand-brown px-8 py-4 font-black text-xs uppercase tracking-[0.2em] transition-colors cursor-pointer"
           >
             {t('home.readOurStory')}
           </Link>

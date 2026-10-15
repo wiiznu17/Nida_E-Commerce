@@ -50,7 +50,7 @@ export default function OrderTrackingPage() {
       <div className="mb-6">
         <Link
           href="/profile"
-          className="inline-flex items-center text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#2B1810]"
+          className="inline-flex items-center text-xs font-black uppercase tracking-wider text-gray-500 hover:text-brand-brown"
         >
           <ArrowLeft size={14} className="mr-1.5" />{' '}
           {t('trackOrder.backToProfile')}
@@ -58,13 +58,13 @@ export default function OrderTrackingPage() {
       </div>
 
       {/* Header */}
-      <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-6 sm:p-8 mb-8">
+      <div className="bg-brand-warm-cream border border-brand-border p-6 sm:p-8 mb-8">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
-            <span className="text-[10px] uppercase font-black tracking-widest text-[#D97706] block mb-1">
+            <span className="text-[10px] uppercase font-black tracking-widest text-brand-amber block mb-1">
               {t('trackOrder.liveStatus')}
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-[#2B1810] uppercase tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-brand-brown uppercase tracking-tight">
               {t('trackOrder.order')} #{orderId || 'NIDA-918274'}
             </h1>
             <p className="text-xs text-gray-600 mt-1">
@@ -79,7 +79,7 @@ export default function OrderTrackingPage() {
             </p>
           </div>
           <div className="text-left sm:text-right">
-            <span className="inline-block bg-[#2B1810] text-[#F59E0B] text-xs font-black px-3 py-1 uppercase tracking-wider">
+            <span className="inline-block bg-brand-brown text-brand-yellow text-xs font-black px-3 py-1 uppercase tracking-wider">
               {t('trackOrder.inTransit')}
             </span>
             <p className="text-xs text-gray-500 mt-1">
@@ -92,7 +92,7 @@ export default function OrderTrackingPage() {
 
       {/* Tracking Stepper */}
       <div className="border border-gray-200 bg-white p-6 sm:p-10 mb-8 shadow-xs">
-        <h2 className="text-sm font-black uppercase tracking-wider text-[#2B1810] mb-8 pb-3 border-b border-gray-200">
+        <h2 className="text-sm font-black uppercase tracking-wider text-brand-brown mb-8 pb-3 border-b border-gray-200">
           {t('trackOrder.milestones')}
         </h2>
 
@@ -100,7 +100,7 @@ export default function OrderTrackingPage() {
           {/* Desktop Progress Bar Line */}
           <div className="absolute top-6 left-8 right-8 h-1 bg-gray-200 hidden sm:block -z-0">
             <div
-              className="h-full bg-[#2B1810] transition-all duration-700"
+              className="h-full bg-brand-brown transition-all duration-700"
               style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
             />
           </div>
@@ -118,8 +118,8 @@ export default function OrderTrackingPage() {
                 >
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-colors mr-4 sm:mr-0 sm:mb-3 shadow-xs
-                    ${isCompleted ? 'bg-[#2B1810] text-[#F59E0B] border-2 border-[#2B1810]' : 'bg-gray-100 text-gray-400 border border-gray-300'}
-                    ${isCurrent ? 'ring-4 ring-[#FDE68A]' : ''}
+                    ${isCompleted ? 'bg-brand-brown text-brand-yellow border-2 border-brand-brown' : 'bg-gray-100 text-gray-400 border border-gray-300'}
+                    ${isCurrent ? 'ring-4 ring-amber-200' : ''}
                   `}
                   >
                     <Icon size={20} strokeWidth={2} />
@@ -127,7 +127,7 @@ export default function OrderTrackingPage() {
 
                   <div className="flex flex-col sm:items-center">
                     <p
-                      className={`text-xs font-black uppercase tracking-wider ${isCompleted ? 'text-[#2B1810]' : 'text-gray-400'}`}
+                      className={`text-xs font-black uppercase tracking-wider ${isCompleted ? 'text-brand-brown' : 'text-gray-400'}`}
                     >
                       {step.title}
                     </p>
@@ -148,7 +148,7 @@ export default function OrderTrackingPage() {
           </h3>
           <div className="text-xs space-y-2 text-gray-600">
             <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
-              <span className="font-semibold text-[#2B1810]">
+              <span className="font-semibold text-brand-brown">
                 {language === 'th'
                   ? 'ศูนย์กระจายสินค้าวังน้อย'
                   : 'Wang Noi Distribution Hub'}
@@ -160,7 +160,7 @@ export default function OrderTrackingPage() {
               </span>
             </div>
             <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
-              <span className="font-semibold text-[#2B1810]">
+              <span className="font-semibold text-brand-brown">
                 {language === 'th'
                   ? 'คลังสินค้า Nida (กรุงเทพฯ)'
                   : 'Nida Fulfillment Center (Bangkok)'}
@@ -172,7 +172,7 @@ export default function OrderTrackingPage() {
               </span>
             </div>
             <div className="flex justify-between items-center py-1.5">
-              <span className="font-semibold text-[#2B1810]">
+              <span className="font-semibold text-brand-brown">
                 {language === 'th'
                   ? 'ระบบรับคำสั่งซื้อ'
                   : 'Order Placed & Confirmed'}
@@ -190,11 +190,11 @@ export default function OrderTrackingPage() {
       {/* Package Items & Delivery Address Card */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="border border-gray-200 bg-white p-6">
-          <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810] mb-4 pb-2 border-b border-gray-200">
+          <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown mb-4 pb-2 border-b border-gray-200">
             {language === 'th' ? 'ที่อยู่จัดส่งสินค้า' : 'Destination Address'}
           </h3>
           <div className="text-xs text-gray-600 space-y-1">
-            <p className="font-bold text-[#2B1810] text-sm">
+            <p className="font-bold text-brand-brown text-sm">
               {language === 'th' ? 'คุณพรรณนิดา วิศณุ' : 'Phannida Wissanu'}
             </p>
             <p>108 Sukhumvit Soi 24, Klongtoey</p>
@@ -213,7 +213,7 @@ export default function OrderTrackingPage() {
 
         <div className="border border-gray-200 bg-white p-6 flex flex-col justify-between">
           <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810] mb-4 pb-2 border-b border-gray-200">
+            <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown mb-4 pb-2 border-b border-gray-200">
               {language === 'th'
                 ? 'ฝ่ายบริการช่วยเหลือลูกค้า'
                 : 'Nida Support Desk'}
@@ -227,7 +227,7 @@ export default function OrderTrackingPage() {
           <div className="flex gap-3">
             <a
               href="tel:021234567"
-              className="flex-1 bg-[#2B1810] hover:bg-[#D97706] text-white py-2.5 text-center text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1"
+              className="flex-1 bg-brand-brown hover:bg-brand-amber text-white py-2.5 text-center text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1"
             >
               <Phone size={14} />
               <span>

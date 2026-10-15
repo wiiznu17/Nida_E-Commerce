@@ -10,7 +10,7 @@ export function Footer() {
   const { t } = useLanguage();
 
   return (
-    <footer className="bg-[#2B1810] text-white pt-16 pb-12 mt-20 border-t-4 border-[#F59E0B] font-sans">
+    <footer className="bg-brand-brown text-white pt-16 pb-12 mt-20 border-t-4 border-brand-yellow font-sans">
       {/* Newsletter Signup Banner */}
       <FooterNewsletter t={t} />
 
@@ -23,9 +23,9 @@ export function Footer() {
               NIDA
             </span>
             <div className="flex w-14 h-1.5 mt-1">
-              <div className="w-1/3 bg-[#2B1810]"></div>
+              <div className="w-1/3 bg-brand-brown"></div>
               <div className="w-1/3 bg-white"></div>
-              <div className="w-1/3 bg-[#F59E0B]"></div>
+              <div className="w-1/3 bg-brand-yellow"></div>
             </div>
           </div>
           <p className="text-xs text-gray-300 leading-relaxed mb-6 font-normal">
@@ -33,11 +33,11 @@ export function Footer() {
           </p>
           <div className="flex items-center space-x-4 text-xs text-gray-300">
             <span className="flex items-center">
-              <Truck size={14} className="mr-1 text-[#F59E0B]" />{' '}
+              <Truck size={14} className="mr-1 text-brand-yellow" />{' '}
               {t('footer.fastDelivery')}
             </span>
             <span className="flex items-center">
-              <ShieldCheck size={14} className="mr-1 text-[#F59E0B]" />{' '}
+              <ShieldCheck size={14} className="mr-1 text-brand-yellow" />{' '}
               {t('footer.securePay')}
             </span>
           </div>
@@ -141,7 +141,7 @@ export function Footer() {
             <li>
               <Link
                 href="/collections/sale"
-                className="text-[#F59E0B] font-bold hover:underline"
+                className="text-brand-yellow font-bold hover:underline"
               >
                 {t('nav.sale')} (50% OFF)
               </Link>

@@ -11,10 +11,10 @@ export const SplitEditorialBento: React.FC = () => {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
       <div className="text-center max-w-xl mx-auto mb-12">
-        <span className="text-xs font-black tracking-[0.25em] text-[#D97706] uppercase block mb-2">
+        <span className="text-xs font-black tracking-[0.25em] text-brand-amber uppercase block mb-2">
           {t('home.curatedStories')}
         </span>
-        <h2 className="text-3xl sm:text-4xl font-black text-[#2B1810] uppercase tracking-tight">
+        <h2 className="text-3xl sm:text-4xl font-black text-brand-brown uppercase tracking-tight">
           {t('home.seasonalSpotlight')}
         </h2>
       </div>
@@ -27,7 +27,7 @@ export const SplitEditorialBento: React.FC = () => {
             alt="Women's New Season"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/90 via-[#2B1810]/30 to-transparent flex flex-col justify-end p-8 sm:p-10">
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/90 via-brand-brown/30 to-transparent flex flex-col justify-end p-8 sm:p-10">
             <span className="text-[11px] font-black tracking-[0.25em] text-white/80 uppercase mb-2">
               {t('home.storyWomenTag')}
             </span>
@@ -40,7 +40,7 @@ export const SplitEditorialBento: React.FC = () => {
             <div>
               <Link
                 href="/collections/women"
-                className="inline-flex items-center bg-white text-[#2B1810] hover:bg-[#F59E0B] hover:text-[#2B1810] px-6 py-3 font-black text-xs tracking-widest uppercase transition-all shadow-md cursor-pointer"
+                className="inline-flex items-center bg-white text-brand-brown hover:bg-brand-yellow hover:text-brand-brown px-6 py-3 font-black text-xs tracking-widest uppercase transition-all shadow-md cursor-pointer"
               >
                 {t('home.discoverWomen')}
                 <ArrowRight size={14} className="ml-2" />
@@ -56,7 +56,7 @@ export const SplitEditorialBento: React.FC = () => {
             alt="Men's New Season"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/90 via-[#2B1810]/30 to-transparent flex flex-col justify-end p-8 sm:p-10">
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/90 via-brand-brown/30 to-transparent flex flex-col justify-end p-8 sm:p-10">
             <span className="text-[11px] font-black tracking-[0.25em] text-white/80 uppercase mb-2">
               {t('home.storyMenTag')}
             </span>
@@ -69,7 +69,7 @@ export const SplitEditorialBento: React.FC = () => {
             <div>
               <Link
                 href="/collections/men"
-                className="inline-flex items-center bg-white text-[#2B1810] hover:bg-[#F59E0B] hover:text-[#2B1810] px-6 py-3 font-black text-xs tracking-widest uppercase transition-all shadow-md cursor-pointer"
+                className="inline-flex items-center bg-white text-brand-brown hover:bg-brand-yellow hover:text-brand-brown px-6 py-3 font-black text-xs tracking-widest uppercase transition-all shadow-md cursor-pointer"
               >
                 {t('home.discoverMen')}
                 <ArrowRight size={14} className="ml-2" />

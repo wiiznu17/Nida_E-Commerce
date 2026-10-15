@@ -51,15 +51,15 @@ function LoginFormContent() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white border border-[#EAE3D9] p-8 sm:p-10 shadow-sm relative">
+    <div className="w-full max-w-md bg-white border border-brand-border p-8 sm:p-10 shadow-sm relative">
       {/* Nida Flag Ribbon */}
       <div className="flex w-16 h-2 mx-auto mb-6">
-        <div className="w-1/3 bg-[#2B1810]"></div>
+        <div className="w-1/3 bg-brand-brown"></div>
         <div className="w-1/3 bg-white border-y border-gray-200"></div>
-        <div className="w-1/3 bg-[#F59E0B]"></div>
+        <div className="w-1/3 bg-brand-yellow"></div>
       </div>
 
-      <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-[#2B1810] mb-2">
+      <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-brand-brown mb-2">
         {t('auth.signInTitle')}
       </h1>
       <p className="text-center text-gray-500 font-medium text-xs mb-8">
@@ -90,7 +90,7 @@ function LoginFormContent() {
               required
               disabled={isLoading}
               placeholder="customer@nida.com"
-              className="w-full border border-gray-300 px-3 py-2.5 pl-10 text-sm focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810] disabled:bg-gray-50"
+              className="w-full border border-gray-300 px-3 py-2.5 pl-10 text-sm focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown disabled:bg-gray-50"
             />
             <Mail
               size={18}
@@ -107,7 +107,7 @@ function LoginFormContent() {
         <button
           type="submit"
           disabled={isLoading || !email}
-          className="w-full bg-[#2B1810] hover:bg-[#D97706] disabled:bg-gray-300 text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer disabled:cursor-not-allowed"
+          className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-300 text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
@@ -132,14 +132,14 @@ function LoginFormContent() {
           <button
             type="button"
             onClick={() => handleQuickDemo('phannida@nida.com')}
-            className="text-xs bg-gray-100 hover:bg-gray-200 text-[#2B1810] font-semibold px-2.5 py-1 rounded-xs transition-colors"
+            className="text-xs bg-gray-100 hover:bg-gray-200 text-brand-brown font-semibold px-2.5 py-1 rounded-xs transition-colors"
           >
             phannida@nida.com
           </button>
           <button
             type="button"
             onClick={() => handleQuickDemo('customer@example.com')}
-            className="text-xs bg-gray-100 hover:bg-gray-200 text-[#2B1810] font-semibold px-2.5 py-1 rounded-xs transition-colors"
+            className="text-xs bg-gray-100 hover:bg-gray-200 text-brand-brown font-semibold px-2.5 py-1 rounded-xs transition-colors"
           >
             customer@example.com
           </button>
@@ -151,7 +151,7 @@ function LoginFormContent() {
           {t('auth.noAccount')}{' '}
           <Link
             href="/register"
-            className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1"
+            className="font-bold text-brand-brown hover:text-brand-amber underline ml-1"
           >
             {t('auth.joinClub')}
           </Link>
@@ -163,11 +163,11 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-[#FAF7F2] font-sans">
+    <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-brand-warm-cream font-sans">
       <Suspense
         fallback={
           <div className="p-12 text-center">
-            <Loader2 size={24} className="animate-spin mx-auto text-[#2B1810]" />
+            <Loader2 size={24} className="animate-spin mx-auto text-brand-brown" />
           </div>
         }
       >

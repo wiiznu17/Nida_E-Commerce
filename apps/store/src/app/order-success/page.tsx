@@ -33,12 +33,12 @@ function OrderSuccessContent() {
   const displayOrderNumber = order?.orderNumber || rawOrderNumber;
 
   return (
-    <div className="max-w-xl w-full bg-white border border-[#EAE3D9] p-8 sm:p-10 text-center shadow-sm">
+    <div className="max-w-xl w-full bg-white border border-brand-border p-8 sm:p-10 text-center shadow-sm">
       {/* Nida Flag Ribbon */}
       <div className="flex w-16 h-2 mx-auto mb-6">
-        <div className="w-1/3 bg-[#2B1810]"></div>
+        <div className="w-1/3 bg-brand-brown"></div>
         <div className="w-1/3 bg-white border-y border-gray-200"></div>
-        <div className="w-1/3 bg-[#F59E0B]"></div>
+        <div className="w-1/3 bg-brand-yellow"></div>
       </div>
 
       <div className="flex justify-center mb-4">
@@ -47,7 +47,7 @@ function OrderSuccessContent() {
         </div>
       </div>
 
-      <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#2B1810] mb-2">
+      <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-brand-brown mb-2">
         {t('orderSuccess.title')}
       </h1>
       <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-6 font-medium">
@@ -55,11 +55,11 @@ function OrderSuccessContent() {
       </p>
 
       {/* Order Number Box */}
-      <div className="border border-[#EAE3D9] bg-[#FAF7F2] p-5 mb-6 text-left sm:text-center">
+      <div className="border border-brand-border bg-brand-warm-cream p-5 mb-6 text-left sm:text-center">
         <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mb-1">
           {t('orderSuccess.orderNumberLabel')}
         </p>
-        <p className="text-2xl font-black font-mono text-[#2B1810] tracking-wider">
+        <p className="text-2xl font-black font-mono text-brand-brown tracking-wider">
           #{displayOrderNumber}
         </p>
         <p className="text-xs text-emerald-700 font-bold mt-1.5 flex items-center justify-start sm:justify-center">
@@ -78,18 +78,18 @@ function OrderSuccessContent() {
             {order.items.map((item, idx) => (
               <div key={idx} className="flex justify-between items-center text-xs">
                 <div className="truncate mr-2">
-                  <p className="font-bold text-[#2B1810] truncate">{item.productName}</p>
+                  <p className="font-bold text-brand-brown truncate">{item.productName}</p>
                   <p className="text-[10px] text-gray-500">
                     {item.variantInfo} • จำนวน: {item.quantity}
                   </p>
                 </div>
-                <span className="font-bold text-[#2B1810] shrink-0">
+                <span className="font-bold text-brand-brown shrink-0">
                   ${(Number(item.unitPrice) * item.quantity).toFixed(2)}
                 </span>
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between font-black text-sm text-[#2B1810]">
+          <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between font-black text-sm text-brand-brown">
             <span>ยอดชำระสุทธิ</span>
             <span>${Number(order.totalAmount).toFixed(2)}</span>
           </div>
@@ -99,7 +99,7 @@ function OrderSuccessContent() {
       <div className="flex flex-col space-y-3">
         <Link
           href={`/track-order/${encodeURIComponent(displayOrderNumber)}`}
-          className="w-full bg-[#2B1810] hover:bg-[#D97706] text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2"
+          className="w-full bg-brand-brown hover:bg-brand-amber text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2"
         >
           <Package size={16} />
           <span>{t('orderSuccess.trackOrder')}</span>
@@ -107,7 +107,7 @@ function OrderSuccessContent() {
         </Link>
         <Link
           href="/"
-          className="w-full py-3.5 text-xs font-black uppercase tracking-[0.2em] text-[#2B1810] hover:text-[#D97706] border border-gray-300 hover:border-[#2B1810] transition-colors flex items-center justify-center space-x-2"
+          className="w-full py-3.5 text-xs font-black uppercase tracking-[0.2em] text-brand-brown hover:text-brand-amber border border-gray-300 hover:border-brand-brown transition-colors flex items-center justify-center space-x-2"
         >
           <ShoppingBag size={16} />
           <span>{t('orderSuccess.continueShopping')}</span>
@@ -119,11 +119,11 @@ function OrderSuccessContent() {
 
 export default function OrderSuccessPage() {
   return (
-    <div className="min-h-[75vh] flex flex-col items-center justify-center px-4 py-16 bg-[#FAF7F2] font-sans">
+    <div className="min-h-[75vh] flex flex-col items-center justify-center px-4 py-16 bg-brand-warm-cream font-sans">
       <Suspense
         fallback={
           <div className="p-12 text-center">
-            <Loader2 size={24} className="animate-spin mx-auto text-[#2B1810]" />
+            <Loader2 size={24} className="animate-spin mx-auto text-brand-brown" />
           </div>
         }
       >
