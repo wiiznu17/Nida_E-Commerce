@@ -8,7 +8,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { ApiUser } from '@repo/types';
-import { getCustomerProfile } from '@/lib/customerApi';
+import { authRequester } from '@/api';
 
 export type User = ApiUser & {
   address?: string;
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (storedToken) {
           setToken(storedToken);
-          const liveProfile = await getCustomerProfile(storedToken);
+          const liveProfile = await authRequester.getProfile(storedToken);
           setUser((prev) => ({ ...prev, ...liveProfile }));
           localStorage.setItem(USER_CACHE_KEY, JSON.stringify(liveProfile));
         }

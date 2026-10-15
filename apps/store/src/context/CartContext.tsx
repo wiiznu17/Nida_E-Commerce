@@ -8,7 +8,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { StorefrontProduct, ApiCoupon, DiscountType } from '@repo/types';
-import { validateCoupon } from '@/lib/customerApi';
+import { couponRequester } from '@/api';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -236,7 +236,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCouponError(null);
 
     try {
-      const res = await validateCoupon(code, cartTotal, user?.id);
+      const res = await couponRequester.validate(code, cartTotal, user?.id);
       if (res.valid && res.coupon) {
         setAppliedCoupon(res.coupon);
         setCouponCode(res.coupon.code);

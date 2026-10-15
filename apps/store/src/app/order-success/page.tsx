@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { CheckCircle2, ArrowRight, Package, ShoppingBag, Loader2 } from 'lucide-react';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
-import { getOrderDetail } from '@/lib/customerApi';
+import { orderRequester } from '@/api';
 import type { ApiOrder } from '@repo/types';
 
 function OrderSuccessContent() {
@@ -21,7 +21,8 @@ function OrderSuccessContent() {
   useEffect(() => {
     if (rawOrderNumber && !rawOrderNumber.includes('DEMO')) {
       setIsLoading(true);
-      getOrderDetail(rawOrderNumber, token)
+      orderRequester
+        .getOrderDetail(rawOrderNumber, token)
         .then((data) => setOrder(data))
         .catch(() => {
           // If not found or guest, keep fallback display

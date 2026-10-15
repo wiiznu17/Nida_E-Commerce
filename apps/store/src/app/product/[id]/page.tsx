@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCatalog } from '@/context/CatalogContext';
-import { fetchProductByIdOrSlug } from '@/lib/catalogApi';
+import { catalogRequester } from '@/api';
 import type { StorefrontProduct } from '@repo/types';
 import { ProductBadge } from '@/components/ui';
 import {
@@ -48,7 +48,8 @@ export default function ProductDetailPage() {
     if ((!fetchedProduct || !fetchedProduct.variants || fetchedProduct.variants.length === 0) && id) {
       let isMounted = true;
       setIsFetching(true);
-      fetchProductByIdOrSlug(id)
+      catalogRequester
+        .getProductByIdOrSlug(id)
         .then((p) => {
           if (isMounted && p) setFetchedProduct(p);
         })

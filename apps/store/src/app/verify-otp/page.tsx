@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { KeyRound, ArrowRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
-import { verifyOtp, requestOtp } from '@/lib/customerApi';
+import { authRequester, extractApiError } from '@/api';
 
 function VerifyOTPContent() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -92,7 +92,7 @@ function VerifyOTPContent() {
     setInfoMessage('');
 
     try {
-      const res = await requestOtp(email);
+      const res = await authRequester.requestOtp(email);
       setResendTimer(60);
       setInfoMessage('ส่งรหัส OTP ชุดใหม่ไปยังอีเมลเรียบร้อยแล้ว');
       if (res.devOtpCode) {
@@ -102,9 +102,13 @@ function VerifyOTPContent() {
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } catch (err: unknown) {
-      setErrorMessage(
-        err instanceof Error ? err.message : 'ไม่สามารถส่งรหัสใหม่ได้ในขณะนี้',
+      const extracted = extractApiError(
+        err,
+        language === 'th'
+          ? 'ไม่สามารถส่งรหัสใหม่ได้ในขณะนี้'
+          : 'Unable to resend OTP at this time.',
       );
+      setErrorMessage(extracted.message);
     } finally {
       setIsResending(false);
     }
@@ -119,7 +123,7 @@ function VerifyOTPContent() {
     setErrorMessage('');
 
     try {
-      const result = await verifyOtp(email, code);
+      const result = await authRequester.verifyOtp(email, code);
       setSession(result.accessToken, result.user);
 
       // Clean up dev hint
@@ -134,11 +138,13 @@ function VerifyOTPContent() {
         router.push('/profile');
       }
     } catch (err: unknown) {
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : 'รหัส OTP ไม่ถูกต้องหรือหมดอายุแล้ว กรุณาลองใหม่อีกครั้ง',
+      const extracted = extractApiError(
+        err,
+        language === 'th'
+          ? 'รหัส OTP ไม่ถูกต้องหรือหมดอายุแล้ว กรุณาลองใหม่อีกครั้ง'
+          : 'Invalid or expired OTP code. Please try again.',
       );
+      setErrorMessage(extracted.message);
     } finally {
       setIsLoading(false);
     }

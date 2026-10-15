@@ -5,7 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useCatalog } from '@/context/CatalogContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { fetchCatalogProductsWithMeta } from '@/lib/catalogApi';
+import { catalogRequester } from '@/api';
 import type { StorefrontProduct } from '@repo/types';
 import {
   CollectionBanner,
@@ -140,7 +140,7 @@ function CollectionDepartmentContent() {
       'price-desc': 'price_desc',
     };
 
-    fetchCatalogProductsWithMeta({
+    catalogRequester.getProductsWithMeta({
       department:
         department !== 'all' && department !== 'sale' ? department : undefined,
       category: selectedCategory ?? undefined,

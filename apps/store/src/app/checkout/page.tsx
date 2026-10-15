@@ -18,7 +18,11 @@ import {
   Tag,
   X,
 } from 'lucide-react';
-import { createCustomerOrder, type CreateCustomerOrderPayload } from '@/lib/customerApi';
+import {
+  orderRequester,
+  extractApiError,
+  type CreateCustomerOrderPayload,
+} from '@/api';
 import { PaymentMethod } from '@repo/types';
 
 export default function CheckoutPage() {
@@ -143,15 +147,17 @@ export default function CheckoutPage() {
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,
       };
 
-      const createdOrder = await createCustomerOrder(payload, token);
+      const createdOrder = await orderRequester.createOrder(payload, token);
       clearCart();
       router.push(`/order-success?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}`);
     } catch (err: unknown) {
-      setOrderError(
-        err instanceof Error
-          ? err.message
-          : 'เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ กรุณาลองใหม่อีกครั้ง',
+      const extracted = extractApiError(
+        err,
+        language === 'th'
+          ? 'เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ กรุณาลองใหม่อีกครั้ง'
+          : 'Failed to create order. Please try again.',
       );
+      setOrderError(extracted.message);
     } finally {
       setIsSubmitting(false);
     }

@@ -9,7 +9,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { ApiCategory, StorefrontProduct } from '@repo/types';
-import { fetchCatalogProducts, fetchCatalogCategories } from '@/lib/catalogApi';
+import { catalogRequester } from '@/api';
 
 interface CatalogContextType {
   productsList: StorefrontProduct[];
@@ -35,7 +35,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   const loadProducts = async () => {
     setIsLoading(true);
     try {
-      const liveProducts = await fetchCatalogProducts();
+      const liveProducts = await catalogRequester.getProducts();
       setProductsList(liveProducts);
     } catch (err) {
       console.warn('CatalogProvider: Failed to load products', err);
@@ -47,7 +47,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   const loadCategories = async () => {
     setIsLoadingCategories(true);
     try {
-      const liveCats = await fetchCatalogCategories();
+      const liveCats = await catalogRequester.getCategories();
       if (liveCats && liveCats.length > 0) {
         setCategories(liveCats);
       }

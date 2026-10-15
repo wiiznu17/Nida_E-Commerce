@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LogIn, ShieldCheck, Mail, Loader2, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { requestOtp } from '@/lib/customerApi';
+import { authRequester, extractApiError } from '@/api';
 
 function LoginFormContent() {
   const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect');
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +24,7 @@ function LoginFormContent() {
     setErrorMessage('');
 
     try {
-      const res = await requestOtp(email.trim());
+      const res = await authRequester.requestOtp(email.trim());
       if (res.devOtpCode && typeof window !== 'undefined') {
         sessionStorage.setItem('nida_dev_otp', res.devOtpCode);
       }
@@ -35,11 +35,13 @@ function LoginFormContent() {
         `/verify-otp?email=${encodeURIComponent(email.trim())}${redirectParam}`,
       );
     } catch (err: unknown) {
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : 'เกิดข้อผิดพลาดในการขอรหัส OTP กรุณาลองใหม่อีกครั้ง',
+      const extracted = extractApiError(
+        err,
+        language === 'th'
+          ? 'เกิดข้อผิดพลาดในการขอรหัส OTP กรุณาลองใหม่อีกครั้ง'
+          : 'Failed to request OTP code. Please try again.',
       );
+      setErrorMessage(extracted.message);
     } finally {
       setIsLoading(false);
     }

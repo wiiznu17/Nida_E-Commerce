@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useCatalog } from '@/context/CatalogContext';
 import { useCart } from '@/context/CartContext';
-import { fetchCatalogProductsWithMeta } from '@/lib/catalogApi';
+import { catalogRequester } from '@/api';
 import type { StorefrontProduct } from '@repo/types';
 import {
   CatalogTopBar,
@@ -64,7 +64,7 @@ function SearchPageContent() {
       'price-desc': 'price_desc',
     };
 
-    fetchCatalogProductsWithMeta({
+    catalogRequester.getProductsWithMeta({
       search: query || undefined,
       department: filters.departments.length === 1 ? filters.departments[0] : undefined,
       subCategory: filters.subCategories.length === 1 ? filters.subCategories[0] : undefined,
