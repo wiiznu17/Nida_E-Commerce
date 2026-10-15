@@ -727,8 +727,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full bg-white shadow-xs font-sans">
       {/* 1. TOP UTILITY PROMO BANNER (Signature Brown Bar with Warm Yellow Accents) */}
-      <div className="bg-[#2B1810] text-white text-[11px] font-semibold tracking-wider uppercase py-2 px-4 border-b border-[#1E110A]">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <div className="bg-[#2B1810] text-white text-[11px] font-semibold tracking-wider uppercase py-2 border-b border-[#1E110A]">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex justify-between items-center">
           <div className="hidden lg:flex items-center space-x-6 text-white/80">
             <span className="flex items-center hover:text-white transition-colors cursor-pointer">
               <MapPin size={12} className="mr-1.5 text-[#F59E0B]" />{' '}
@@ -800,7 +800,7 @@ export function Header() {
 
       {/* 2. MAIN HEADER BAR */}
       <div className="border-b border-[#EAE3D9] bg-white relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 h-20 flex items-center justify-between">
           {/* Mobile Hamburger Button */}
           <div className="flex items-center lg:hidden">
             <button
@@ -813,24 +813,24 @@ export function Header() {
           </div>
 
           {/* Brand Logo with Tri-Color Flag */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link href="/" className="flex items-center">
               <NidaLogo size="md" />
             </Link>
           </div>
 
           {/* Primary Department Navigation (Desktop Mega Menu Triggers) */}
-          <nav className="hidden lg:flex items-center space-x-8 h-full">
+          <nav className="hidden lg:flex items-center space-x-5 xl:space-x-8 h-full">
             {navDepartments.map((dept) => (
               <div
                 key={dept.id}
-                className="h-full flex items-center relative"
+                className="h-full flex items-center relative flex-shrink-0"
                 onMouseEnter={() => handleMouseEnter(dept.id)}
                 onMouseLeave={handleMouseLeave}
               >
                 <Link
                   href={dept.path}
-                  className={`text-xs font-bold tracking-[0.15em] py-7 transition-colors flex items-center border-b-2 ${
+                  className={`text-xs font-bold tracking-[0.12em] py-7 transition-colors flex items-center whitespace-nowrap border-b-2 ${
                     dept.isSale
                       ? 'text-[#D97706] hover:text-[#B45309] border-transparent hover:border-[#D97706]'
                       : activeMegaMenu === dept.id
@@ -850,7 +850,7 @@ export function Header() {
           </nav>
 
           {/* Right Action Icons (Search, Wishlist, Profile, Bag) */}
-          <div className="flex items-center space-x-5">
+          <div className="flex items-center space-x-3 sm:space-x-5 flex-shrink-0">
             {/* Search Button / Bar trigger */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -911,7 +911,7 @@ export function Header() {
             onMouseEnter={() => handleMouseEnter(activeMegaMenu)}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="max-w-7xl mx-auto px-8 py-10">
+            <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-10">
               <div className="grid grid-cols-12 gap-8">
                 {/* Category Links Columns */}
                 <div className="col-span-8 grid grid-cols-3 gap-8">
