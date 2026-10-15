@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct } from '@repo/types';
 import { INITIAL_FILTER_STATE } from '../catalog/catalogConstants';
 import type {
   FilterState,
@@ -9,7 +9,7 @@ import type {
   FilterCategoryOption,
 } from '../catalog/catalogTypes';
 
-export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
+export function useWishlistFilters(rawWishlistProducts: ApiProduct[]) {
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
 
   // Distinct filter options extracted from the user's wishlist items
@@ -20,12 +20,12 @@ export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
     rawWishlistProducts.forEach((p) => {
       if (p.department) deptSet.add(p.department.toLowerCase());
 
-      const subKey = p.subCategory || p.category;
+      const subKey = p.categoryName || p.categorySlug;
       if (subKey) {
         subCatMap.set(subKey, {
           key: subKey,
-          labelEn: p.subCategory || p.category,
-          labelTh: p.subCategoryTh || p.subCategory || p.category,
+          labelEn: p.categoryName || p.categorySlug,
+          labelTh: p.categoryNameTh || p.categoryName || p.categorySlug,
         });
       }
     });
@@ -56,8 +56,8 @@ export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
     // 2. SubCategory / Category filter
     if (filters.subCategories.length > 0) {
       list = list.filter((p) => {
-        const sub = p.subCategory ?? '';
-        const cat = p.category ?? '';
+        const sub = p.categoryName ?? '';
+        const cat = p.categorySlug ?? '';
         return filters.subCategories.some((sc) => sc === sub || sc === cat);
       });
     }
@@ -65,11 +65,11 @@ export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
     // 3. Price range filter
     if (filters.priceRange) {
       if (filters.priceRange === 'under100') {
-        list = list.filter((p) => p.price < 100);
+        list = list.filter((p) => p.basePrice < 100);
       } else if (filters.priceRange === '100-200') {
-        list = list.filter((p) => p.price >= 100 && p.price <= 200);
+        list = list.filter((p) => p.basePrice >= 100 && p.basePrice <= 200);
       } else if (filters.priceRange === 'over200') {
-        list = list.filter((p) => p.price > 200);
+        list = list.filter((p) => p.basePrice > 200);
       }
     }
 
@@ -89,9 +89,9 @@ export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
 
     // 5. Sorting
     if (filters.sortBy === 'price-asc') {
-      list.sort((a, b) => a.price - b.price);
+      list.sort((a, b) => a.basePrice - b.basePrice);
     } else if (filters.sortBy === 'price-desc') {
-      list.sort((a, b) => b.price - a.price);
+      list.sort((a, b) => b.basePrice - a.basePrice);
     } else if (filters.sortBy === 'newest') {
       list.sort((a, b) => {
         if (a.tag === 'NEW' && b.tag !== 'NEW') return -1;

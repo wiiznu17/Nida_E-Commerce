@@ -6,7 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { useCatalog } from '@/context/CatalogContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { catalogRequester } from '@/api';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct } from '@repo/types';
 import {
   CollectionBanner,
   CollectionCategoryNav,
@@ -47,7 +47,7 @@ function CollectionDepartmentContent() {
   const { language } = useLanguage();
 
   const [gridCols, setGridCols] = useState<3 | 4>(4);
-  const [serverProducts, setServerProducts] = useState<StorefrontProduct[]>([]);
+  const [serverProducts, setServerProducts] = useState<ApiProduct[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -199,17 +199,18 @@ function CollectionDepartmentContent() {
   const currentTag = matchedCategory?.bannerTag ?? deptData?.bannerTag;
   const currentBgImage = matchedCategory?.bannerImage ?? deptData?.bgImage;
 
-  const handleAddToCart = (product: StorefrontProduct) => {
+  const handleAddToCart = (product: ApiProduct) => {
+    const dept = (product.department || '').toLowerCase();
     const defaultSize =
-      product.department === 'shoes'
+      dept === 'shoes'
         ? 'US 9'
-        : product.category === 'bags' || product.category === 'home'
+        : product.categorySlug === 'bags' || dept === 'home'
           ? 'One Size'
           : 'M';
     const defaultColor =
       product.colors && product.colors.length > 0
-        ? product.colors[0]
-        : '#2B1810';
+        ? product.colors[0]?.name || product.colors[0]?.hex
+        : 'Standard';
     addToCart(product, defaultSize, defaultColor);
   };
 

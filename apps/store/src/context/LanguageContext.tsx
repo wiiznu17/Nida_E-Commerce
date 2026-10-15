@@ -7,11 +7,26 @@ import React, {
   useEffect,
   type ReactNode,
 } from 'react';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct, ApiProductDetail } from '@repo/types';
 import th from '../locales/th.json';
 import en from '../locales/en.json';
 
 export type Language = 'th' | 'en';
+
+export interface LocalizedProductLike {
+  name: string;
+  nameTh?: string;
+  categoryName?: string;
+  categoryNameTh?: string;
+  categorySlug?: string;
+  category?: string | { name?: string; nameTh?: string; slug?: string };
+  subCategory?: string;
+  subCategoryTh?: string;
+  tag?: string;
+  tagTh?: string;
+  description?: string;
+  descriptionTh?: string;
+}
 
 export const locales: Record<Language, Record<string, unknown>> = { th, en };
 
@@ -126,7 +141,7 @@ export const useLanguage = () => {
 
 // Localized Product Accessor Helpers
 export function getProductTitle(
-  product: StorefrontProduct,
+  product: LocalizedProductLike,
   lang: Language,
 ): string {
   if (lang === 'th' && product.nameTh) {
@@ -136,17 +151,30 @@ export function getProductTitle(
 }
 
 export function getProductSubCategory(
-  product: StorefrontProduct,
+  product: LocalizedProductLike,
   lang: Language,
 ): string {
-  if (lang === 'th' && product.subCategoryTh) {
-    return product.subCategoryTh;
+  const catObj =
+    typeof product.category === 'object' && product.category !== null
+      ? product.category
+      : undefined;
+
+  if (lang === 'th') {
+    if (product.categoryNameTh) return product.categoryNameTh;
+    if (catObj?.nameTh) return catObj.nameTh;
+    if (product.subCategoryTh) return product.subCategoryTh;
   }
-  return product.subCategory ?? product.category;
+
+  return (
+    product.categoryName ??
+    catObj?.name ??
+    product.subCategory ??
+    (typeof product.category === 'string' ? product.category : product.categorySlug ?? '')
+  );
 }
 
 export function getProductTag(
-  product: StorefrontProduct,
+  product: LocalizedProductLike,
   lang: Language,
 ): string | undefined {
   if (lang === 'th' && product.tagTh) {
@@ -156,7 +184,7 @@ export function getProductTag(
 }
 
 export function getProductDescription(
-  product: StorefrontProduct,
+  product: LocalizedProductLike,
   lang: Language,
 ): string | undefined {
   if (lang === 'th' && product.descriptionTh) {

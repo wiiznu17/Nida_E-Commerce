@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Search, X } from 'lucide-react';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct } from '@repo/types';
 
 export interface HeaderSearchBarProps {
   searchQuery: string;
@@ -12,7 +12,7 @@ export interface HeaderSearchBarProps {
   isSearchFocused: boolean;
   setIsSearchFocused: (focused: boolean) => void;
   searchContainerRef: React.RefObject<HTMLDivElement | null>;
-  searchResults: StorefrontProduct[];
+  searchResults: ApiProduct[];
   trendingQueries: string[];
   handleSearchSubmit: (e?: React.FormEvent) => void;
   handleQuickKeyword: (term: string) => void;
@@ -114,12 +114,12 @@ export function HeaderSearchBar({
                   {searchResults.map((product) => (
                     <Link
                       key={product.id}
-                      href={`/product/${product.id}`}
+                      href={`/product/${product.slug || product.id}`}
                       onClick={() => setIsSearchFocused(false)}
                       className="flex items-center space-x-3 p-1.5 hover:bg-brand-warm-cream rounded-lg transition-colors group"
                     >
                       <img
-                        src={product.image}
+                        src={product.primaryImage || ''}
                         alt={product.name}
                         className="w-10 h-10 object-cover rounded-md flex-shrink-0 bg-gray-100"
                       />
@@ -128,7 +128,7 @@ export function HeaderSearchBar({
                           {getProductTitle(product, language)}
                         </p>
                         <p className="text-[11px] text-gray-500">
-                          ${product.price}
+                          ${product.basePrice}
                         </p>
                       </div>
                     </Link>

@@ -62,10 +62,10 @@ export function Header() {
         return (
           p.name.toLowerCase().includes(q) ||
           (p.nameTh && p.nameTh.toLowerCase().includes(q)) ||
-          p.category.toLowerCase().includes(q) ||
+          p.categorySlug.toLowerCase().includes(q) ||
           (p.department && p.department.toLowerCase().includes(q)) ||
-          (p.subCategory && p.subCategory.toLowerCase().includes(q)) ||
-          (p.subCategoryTh && p.subCategoryTh.toLowerCase().includes(q))
+          (p.categoryName && p.categoryName.toLowerCase().includes(q)) ||
+          (p.categoryNameTh && p.categoryNameTh.toLowerCase().includes(q))
         );
       })
       .slice(0, 6);

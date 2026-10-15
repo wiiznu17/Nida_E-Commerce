@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCatalog } from '@/context/CatalogContext';
 import { catalogRequester } from '@/api';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct, ApiProductDetail } from '@repo/types';
 import { ProductBadge } from '@/components/ui';
 import {
   useLanguage,
@@ -37,15 +37,21 @@ export default function ProductDetailPage() {
   const isTh = language === 'th';
 
   const [fetchedProduct, setFetchedProduct] =
-    useState<StorefrontProduct | null>(null);
+    useState<ApiProductDetail | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
   // Match from CatalogContext or fetched directly (prefer fetchedProduct with full variants)
   const catalogProduct = productsList.find((p) => p.id === id || p.slug === id);
-  const product = fetchedProduct ?? catalogProduct;
+  const product: ApiProductDetail | ApiProduct | undefined =
+    fetchedProduct ?? catalogProduct;
 
   useEffect(() => {
-    if ((!fetchedProduct || !fetchedProduct.variants || fetchedProduct.variants.length === 0) && id) {
+    if (
+      (!fetchedProduct ||
+        !fetchedProduct.variants ||
+        fetchedProduct.variants.length === 0) &&
+      id
+    ) {
       let isMounted = true;
       setIsFetching(true);
       catalogRequester
@@ -71,32 +77,53 @@ export default function ProductDetailPage() {
   // Available colors derived from product
   const availableColors = useMemo(() => {
     if (!product) return [];
-    if (product.colorSwatches && product.colorSwatches.length > 0) {
-      return product.colorSwatches.map((s) => ({
-        hex: s.hex,
-        name: isTh && s.nameTh ? s.nameTh : s.name,
-      }));
+    const map = new Map<string, { hex: string; name: string }>();
+
+    if (
+      'variants' in product &&
+      Array.isArray(product.variants) &&
+      product.variants.length > 0
+    ) {
+      for (const v of product.variants) {
+        if (!map.has(v.colorHex)) {
+          map.set(v.colorHex, {
+            hex: v.colorHex,
+            name: isTh && v.colorNameTh ? v.colorNameTh : v.colorName,
+          });
+        }
+      }
+    } else if (
+      'colors' in product &&
+      Array.isArray(product.colors) &&
+      product.colors.length > 0
+    ) {
+      for (const c of product.colors) {
+        if (typeof c === 'object' && c !== null && 'hex' in c) {
+          map.set(c.hex, {
+            hex: c.hex,
+            name: isTh && c.nameTh ? c.nameTh : c.name,
+          });
+        }
+      }
     }
-    if (product.colors && product.colors.length > 0) {
-      return product.colors.map((c, i) => ({
-        hex: c,
-        name:
-          i === 0
-            ? isTh
-              ? 'สีกรมท่าคลาสสิก'
-              : 'Classic Navy'
-            : isTh
-              ? `สีที่ ${i + 1}`
-              : `Color ${i + 1}`,
-      }));
-    }
-    return [{ hex: '#2B1810', name: isTh ? 'มาตรฐาน' : 'Standard' }];
+
+    return map.size > 0
+      ? Array.from(map.values())
+      : [{ hex: '#2B1810', name: isTh ? 'มาตรฐาน' : 'Standard' }];
   }, [product, isTh]);
 
   // Sync main image & color when product is loaded
   useEffect(() => {
     if (product) {
-      if (product.image) setMainImage(product.image);
+      const defaultImg =
+        'primaryImage' in product && typeof product.primaryImage === 'string'
+          ? product.primaryImage
+          : 'images' in product && Array.isArray(product.images)
+            ? (product.images.find((img) => img.isPrimary)?.imageUrl ??
+              product.images[0]?.imageUrl ??
+              '')
+            : '';
+      if (defaultImg) setMainImage(defaultImg);
       if (availableColors.length > 0) {
         setSelectedColor(
           availableColors[0]?.name ?? (isTh ? 'มาตรฐาน' : 'Standard'),
@@ -108,16 +135,29 @@ export default function ProductDetailPage() {
   // Derived sizes from variants or department defaults
   const sizes = useMemo(() => {
     if (!product) return ['S', 'M', 'L'];
-    if (product.variants && product.variants.length > 0) {
+    if (
+      'variants' in product &&
+      product.variants &&
+      product.variants.length > 0
+    ) {
       const uniqueSizes = Array.from(
         new Set(product.variants.map((v) => v.size).filter(Boolean)),
       );
       if (uniqueSizes.length > 0) return uniqueSizes;
     }
-    if (product.department === 'shoes') {
+    const dept = (product.department || '').toLowerCase();
+    if (dept === 'shoes') {
       return ['US 8', 'US 8.5', 'US 9', 'US 9.5', 'US 10', 'US 11'];
     }
-    if (product.category === 'bags' || product.category === 'home') {
+    const catSlug =
+      'categorySlug' in product
+        ? product.categorySlug
+        : 'category' in product &&
+            typeof product.category === 'object' &&
+            product.category !== null
+          ? product.category.slug
+          : '';
+    if (catSlug === 'bags' || dept === 'home') {
       return [isTh ? 'ไซส์เดียว' : 'ONE SIZE'];
     }
     return ['XS', 'S', 'M', 'L', 'XL'];
@@ -127,19 +167,42 @@ export default function ProductDetailPage() {
   const images = useMemo(() => {
     if (!product) return [];
     const list: string[] = [];
-    if (product.image) list.push(product.image);
-    if (product.secondaryImage && !list.includes(product.secondaryImage)) {
-      list.push(product.secondaryImage);
-    }
-    if (product.images) {
+    if ('images' in product && Array.isArray(product.images)) {
       for (const img of product.images) {
         if (img.imageUrl && !list.includes(img.imageUrl)) {
           list.push(img.imageUrl);
         }
       }
     }
-    return list.length > 0 ? list.slice(0, 5) : [product.image].filter(Boolean);
+    if (
+      'primaryImage' in product &&
+      product.primaryImage &&
+      !list.includes(product.primaryImage)
+    ) {
+      list.unshift(product.primaryImage);
+    }
+    if (
+      'secondaryImage' in product &&
+      product.secondaryImage &&
+      !list.includes(product.secondaryImage)
+    ) {
+      list.push(product.secondaryImage);
+    }
+    return list.length > 0 ? list.slice(0, 5) : [];
   }, [product]);
+
+  const currentVariant = useMemo(() => {
+    if (!product || !('variants' in product) || !product.variants) return undefined;
+    return (
+      product.variants.find((v) => {
+        const matchSize = v.size.toLowerCase() === selectedSize.toLowerCase();
+        const matchColor =
+          v.colorName.toLowerCase() === selectedColor.toLowerCase() ||
+          v.colorHex.toLowerCase() === selectedColor.toLowerCase();
+        return matchSize && matchColor;
+      }) ?? product.variants[0]
+    );
+  }, [product, selectedSize, selectedColor]);
 
   if (!product) {
     if (isCatalogLoading || isFetching) {
@@ -174,21 +237,33 @@ export default function ProductDetailPage() {
 
   const isWish = isInWishlist(product.id);
   const title = getProductTitle(product, language);
-  const subCategory =
-    getProductSubCategory(product, language) || product.category;
+  const subCategory = getProductSubCategory(product, language);
   const description = getProductDescription(product, language);
 
+  const categorySlug =
+    'categorySlug' in product
+      ? product.categorySlug
+      : 'category' in product &&
+          typeof product.category === 'object' &&
+          product.category !== null
+        ? product.category.slug
+        : 'all';
+
+  const displayPrice = currentVariant?.price ?? product.basePrice;
+  const displayOriginalPrice =
+    currentVariant?.compareAtPrice ?? product.originalPrice;
+
   const materialsText =
-    isTh && product.materialsCareTh
+    isTh && 'materialsCareTh' in product && product.materialsCareTh
       ? product.materialsCareTh
-      : product.materialsCare
+      : 'materialsCare' in product && product.materialsCare
         ? product.materialsCare
         : isTh
           ? 'ผลิตจากเส้นใยธรรมชาติคุณภาพสูง ผ่านการคัดสรรอย่างประณีตตามมาตรฐานความยั่งยืน ซักเครื่องด้วยน้ำเย็นในโหมดถนอมผ้า ตากในที่ร่ม ห้ามใช้น้ำยาฟอกขาว'
           : '100% Certified Organic Cotton & Fine European Wool. Machine wash cold with like colors, gentle cycle. Tumble dry low or lay flat to dry. Do not bleach.';
 
   const handleAddToCart = () => {
-    addToCart(product, selectedSize, selectedColor);
+    addToCart(product, selectedSize, selectedColor, currentVariant?.id);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2500);
   };
@@ -198,11 +273,11 @@ export default function ProductDetailPage() {
       (p) =>
         p.id !== product.id &&
         (p.department === product.department ||
-          p.category === product.category),
+          p.categorySlug === categorySlug),
     )
     .slice(0, 4);
 
-  const activeDisplayImage = mainImage || product.image;
+  const activeDisplayImage = mainImage || (images[0] ?? '');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
@@ -213,7 +288,7 @@ export default function ProductDetailPage() {
         </Link>
         <span>/</span>
         <Link
-          href={`/collections/${product.department?.toLowerCase() || product.category?.toLowerCase() || 'all'}`}
+          href={`/collections/${product.department?.toLowerCase() || 'all'}`}
           className="hover:text-brand-brown"
         >
           {subCategory.toUpperCase()}
@@ -322,18 +397,18 @@ export default function ProductDetailPage() {
           {/* Pricing with Strikethrough */}
           <div className="flex items-baseline space-x-3 pb-4 border-b border-gray-200">
             <span className="text-3xl font-black text-brand-brown">
-              ${product.price}
+              ${displayPrice}
             </span>
-            {product.originalPrice && product.originalPrice > product.price && (
+            {displayOriginalPrice && displayOriginalPrice > displayPrice && (
               <>
                 <span className="text-base text-gray-400 line-through font-semibold">
-                  ${product.originalPrice}
+                  ${displayOriginalPrice}
                 </span>
                 <span className="bg-brand-amber text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-xs">
                   {isTh ? 'ประหยัด ' : 'SAVE '}
                   {Math.round(
-                    ((product.originalPrice - product.price) /
-                      product.originalPrice) *
+                    ((displayOriginalPrice - displayPrice) /
+                      displayOriginalPrice) *
                       100,
                   )}
                   %
@@ -646,7 +721,7 @@ export default function ProductDetailPage() {
               >
                 <div className="aspect-[3/4] bg-brand-warm-cream mb-3 overflow-hidden border border-gray-100 relative">
                   <img
-                    src={p.image}
+                    src={p.primaryImage || ''}
                     alt={pTitle}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -664,7 +739,7 @@ export default function ProductDetailPage() {
                 <h3 className="text-xs font-bold text-brand-brown group-hover:text-brand-amber line-clamp-1 mb-1">
                   {pTitle}
                 </h3>
-                <p className="text-xs font-black text-brand-brown">${p.price}</p>
+                <p className="text-xs font-black text-brand-brown">${p.basePrice}</p>
               </Link>
             );
           })}

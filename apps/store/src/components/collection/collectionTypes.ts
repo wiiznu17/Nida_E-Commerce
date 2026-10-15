@@ -1,4 +1,4 @@
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct } from '@repo/types';
 
 export interface DepartmentMeta {
   title: string;
@@ -46,7 +46,7 @@ export interface CollectionControlBarProps {
 }
 
 export interface CollectionProductGridProps {
-  products: StorefrontProduct[];
+  products: ApiProduct[];
   gridCols: 3 | 4;
-  onAddToCart: (product: StorefrontProduct) => void;
+  onAddToCart: (product: ApiProduct) => void;
 }

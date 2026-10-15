@@ -3,10 +3,10 @@
 import { useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import type { FilterState, CatalogFilterOptions } from '../catalog/catalogTypes';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct } from '@repo/types';
 
 interface UseSearchFiltersParams {
-  productsList: StorefrontProduct[];
+  productsList: ApiProduct[];
   categories: Array<{
     id: string;
     name: string;
@@ -85,11 +85,11 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
 
     productsList.forEach((p) => {
       if (p.department) deptSet.add(p.department.toLowerCase());
-      if (p.subCategory) {
-        subCatMap.set(p.subCategory, {
-          key: p.subCategory,
-          labelEn: p.subCategory,
-          labelTh: p.subCategoryTh ?? p.subCategory,
+      if (p.categoryName) {
+        subCatMap.set(p.categoryName, {
+          key: p.categoryName,
+          labelEn: p.categoryName,
+          labelTh: p.categoryNameTh ?? p.categoryName,
         });
       }
     });

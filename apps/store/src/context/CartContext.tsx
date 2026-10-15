@@ -7,24 +7,44 @@ import React, {
   useEffect,
   type ReactNode,
 } from 'react';
-import type { StorefrontProduct, ApiCoupon, DiscountType } from '@repo/types';
+import type {
+  ApiProduct,
+  ApiProductDetail,
+  ApiCoupon,
+  DiscountType,
+} from '@repo/types';
 import { couponRequester } from '@/api';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 
-export type CartItem = StorefrontProduct & {
+export interface CartItem {
+  id: string;
+  productId: string;
+  slug: string;
+  name: string;
+  nameTh?: string;
+  price: number;
+  basePrice?: number;
+  originalPrice?: number;
+  image: string;
+  primaryImage?: string;
+  department?: string;
+  categorySlug?: string;
+  categoryName?: string;
+  categoryNameTh?: string;
   variantId: string;
   sku: string;
   quantity: number;
   selectedSize: string;
   selectedColor: string;
   maxStock: number;
-};
+  isPreorder?: boolean;
+}
 
 export type CartContextType = {
   items: CartItem[];
   addToCart: (
-    product: StorefrontProduct,
+    product: ApiProduct | ApiProductDetail,
     size?: string,
     color?: string,
     variantId?: string,
@@ -271,16 +291,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addToCart = (
-    product: StorefrontProduct,
+    product: ApiProduct | ApiProductDetail,
     size?: string,
     color?: string,
     explicitVariantId?: string,
   ) => {
+    const rawColors = 'colors' in product && Array.isArray(product.colors) ? product.colors : [];
+    const firstColor =
+      rawColors.length > 0
+        ? typeof rawColors[0] === 'string'
+          ? rawColors[0]
+          : rawColors[0].name
+        : 'Classic';
+
     const chosenSize = size || 'M';
-    const chosenColor = color || (product.colors?.[0] ?? 'Classic');
+    const chosenColor = color || firstColor;
+
+    const variants =
+      'variants' in product && Array.isArray(product.variants)
+        ? product.variants
+        : undefined;
 
     // Resolve variant matching chosen size & color
-    const matchedVariant = product.variants?.find((v) => {
+    const matchedVariant = variants?.find((v) => {
       const matchSize =
         !chosenSize || v.size.toLowerCase() === chosenSize.toLowerCase();
       const matchColor =
@@ -288,17 +321,48 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         v.colorName.toLowerCase() === chosenColor.toLowerCase() ||
         v.colorHex.toLowerCase() === chosenColor.toLowerCase();
       return matchSize && matchColor;
-    }) ?? product.variants?.[0];
+    }) ?? variants?.[0];
 
     const variantId = explicitVariantId || matchedVariant?.id || product.id;
     const sku = matchedVariant?.sku || product.slug || variantId;
     const maxStock = matchedVariant?.quantityAvailable ?? 99;
 
+    const primaryImage =
+      'primaryImage' in product && typeof product.primaryImage === 'string'
+        ? product.primaryImage
+        : 'images' in product && Array.isArray(product.images)
+          ? (product.images.find((img) => img.isPrimary)?.imageUrl ??
+            product.images[0]?.imageUrl ??
+            '')
+          : '';
+
+    const price = matchedVariant?.price ?? product.basePrice;
+    const originalPrice = matchedVariant?.compareAtPrice ?? product.originalPrice;
+    const department = String(product.department ?? '').toLowerCase();
+    const categorySlug =
+      'categorySlug' in product && typeof product.categorySlug === 'string'
+        ? product.categorySlug
+        : 'category' in product && typeof product.category === 'object' && product.category !== null
+          ? product.category.slug
+          : 'apparel';
+    const categoryName =
+      'categoryName' in product && typeof product.categoryName === 'string'
+        ? product.categoryName
+        : 'category' in product && typeof product.category === 'object' && product.category !== null
+          ? product.category.name
+          : undefined;
+    const categoryNameTh =
+      'categoryNameTh' in product && typeof product.categoryNameTh === 'string'
+        ? product.categoryNameTh
+        : 'category' in product && typeof product.category === 'object' && product.category !== null
+          ? product.category.nameTh
+          : undefined;
+
     setItems((prev) => {
       const existing = prev.find(
         (item) =>
           item.variantId === variantId ||
-          (item.id === product.id &&
+          (item.productId === product.id &&
             item.selectedSize === chosenSize &&
             item.selectedColor === chosenColor),
       );
@@ -313,13 +377,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return [
         ...prev,
         {
-          ...product,
+          id: `${product.slug || product.id}-${chosenSize}-${chosenColor}`,
+          productId: product.id,
+          slug: product.slug,
+          name: product.name,
+          nameTh: product.nameTh,
+          price,
+          basePrice: product.basePrice,
+          originalPrice,
+          image: primaryImage,
+          primaryImage,
+          department,
+          categorySlug,
+          categoryName,
+          categoryNameTh,
           variantId,
           sku,
           quantity: 1,
           selectedSize: chosenSize,
           selectedColor: chosenColor,
           maxStock,
+          isPreorder: product.isPreorder,
         },
       ];
     });

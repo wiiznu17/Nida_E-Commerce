@@ -10,9 +10,8 @@ import {
   getProductSubCategory,
 } from '@/context/LanguageContext';
 import { ProductBadge } from '@/components/ui';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct } from '@repo/types';
 import type { CatalogProductGridProps } from './catalogTypes';
-
 
 export function CatalogProductGrid({
   products,
@@ -23,7 +22,7 @@ export function CatalogProductGrid({
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
-  const handleQuickAdd = (e: React.MouseEvent, product: StorefrontProduct) => {
+  const handleQuickAdd = (e: React.MouseEvent, product: ApiProduct) => {
     e.preventDefault();
     e.stopPropagation();
     onAddToCart(product);
@@ -44,6 +43,8 @@ export function CatalogProductGrid({
         const isJustAdded = addedProductId === product.id;
         const title = getProductTitle(product, language);
         const subCategory = getProductSubCategory(product, language);
+        const productHref = `/product/${product.slug || product.id}`;
+        const displayImage = product.primaryImage || '';
 
         return (
           <div
@@ -52,9 +53,9 @@ export function CatalogProductGrid({
           >
             {/* Product Image Frame */}
             <div className="relative aspect-[3/4] bg-brand-warm-cream overflow-hidden mb-3 border border-gray-100 rounded-sm">
-              <Link href={`/product/${product.id}`} className="block w-full h-full">
+              <Link href={productHref} className="block w-full h-full">
                 <img
-                  src={product.image}
+                  src={displayImage}
                   alt={title}
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                   loading="lazy"
@@ -113,11 +114,12 @@ export function CatalogProductGrid({
             {/* Color Swatches */}
             {product.colors && product.colors.length > 0 && (
               <div className="flex items-center space-x-1 mb-1.5">
-                {product.colors.slice(0, 5).map((colorHex, i) => (
+                {product.colors.slice(0, 5).map((color, i) => (
                   <span
                     key={i}
                     className="w-3 h-3 rounded-full border border-gray-300 inline-block shadow-2xs"
-                    style={{ backgroundColor: colorHex }}
+                    style={{ backgroundColor: color.hex }}
+                    title={language === 'th' && color.nameTh ? color.nameTh : color.name}
                   />
                 ))}
                 {product.colors.length > 5 && (
@@ -135,7 +137,7 @@ export function CatalogProductGrid({
 
             {/* Title */}
             <Link
-              href={`/product/${product.id}`}
+              href={productHref}
               className="text-xs font-bold text-brand-brown group-hover:text-brand-amber transition-colors line-clamp-1"
             >
               {title}
@@ -144,9 +146,9 @@ export function CatalogProductGrid({
             {/* Price */}
             <div className="mt-1 flex items-center space-x-2">
               <span className="text-xs font-bold text-brand-brown">
-                ${product.price}
+                ${product.basePrice}
               </span>
-              {product.originalPrice && product.originalPrice > product.price && (
+              {product.originalPrice && product.originalPrice > product.basePrice && (
                 <span className="text-[11px] text-gray-400 line-through">
                   ${product.originalPrice}
                 </span>

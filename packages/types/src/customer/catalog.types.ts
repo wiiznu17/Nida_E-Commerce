@@ -121,38 +121,6 @@ export interface StoreQueryProductsParams {
 }
 
 /**
- * Unified Storefront Product display type.
- * Used across all store pages: Homepage, Collection, PDP, Cart, Search.
- * Replaces the old local Product type from apps/store/src/data/products.ts
+ * @deprecated Use ApiProduct or ApiProductDetail directly.
  */
-export interface StorefrontProduct {
-  id: string;
-  slug: string;
-  name: string;
-  nameTh?: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  secondaryImage?: string;
-  department: string;
-  category: string;
-  subCategory?: string;
-  subCategoryTh?: string;
-  tag?: string;
-  tagTh?: string;
-  description?: string;
-  descriptionTh?: string;
-  materialsCare?: string;
-  materialsCareTh?: string;
-  colors: string[];
-  colorSwatches?: ApiColorSwatch[];
-  images?: ApiProductImage[];
-  variants?: ApiProductVariant[];
-  rating?: number;
-  reviewsCount?: number;
-  inStock?: boolean;
-  isPreorder?: boolean;
-  preorderReleaseDate?: string;
-  preorderLimit?: number;
-  preorderDepositAmount?: number;
-}
+export type StorefrontProduct = ApiProduct;

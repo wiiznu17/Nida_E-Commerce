@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useCatalog } from '@/context/CatalogContext';
 import { useCart } from '@/context/CartContext';
 import { catalogRequester } from '@/api';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct } from '@repo/types';
 import {
   CatalogTopBar,
   CatalogFilterSidebar,
@@ -23,7 +23,7 @@ function SearchPageContent() {
 
   const [isFilterVisible, setIsFilterVisible] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [serverProducts, setServerProducts] = useState<StorefrontProduct[]>([]);
+  const [serverProducts, setServerProducts] = useState<ApiProduct[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -84,7 +84,7 @@ function SearchPageContent() {
           }
           if (filters.subCategories.length > 1) {
             products = products.filter((p) =>
-              p.subCategory && filters.subCategories.includes(p.subCategory)
+              p.categoryName && filters.subCategories.includes(p.categoryName)
             );
           }
 
@@ -105,8 +105,12 @@ function SearchPageContent() {
     };
   }, [query, filters]);
 
-  const handleAddToCart = (product: StorefrontProduct) => {
-    addToCart(product, 'M', product.colors?.[0] || '#2B1810');
+  const handleAddToCart = (product: ApiProduct) => {
+    const defaultColor =
+      product.colors && product.colors.length > 0
+        ? product.colors[0]?.name || product.colors[0]?.hex
+        : 'Standard';
+    addToCart(product, 'M', defaultColor);
   };
 
   return (

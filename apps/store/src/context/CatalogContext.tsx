@@ -8,11 +8,11 @@ import React, {
   useMemo,
   type ReactNode,
 } from 'react';
-import type { ApiCategory, StorefrontProduct } from '@repo/types';
+import type { ApiCategory, ApiProduct } from '@repo/types';
 import { catalogRequester } from '@/api';
 
 interface CatalogContextType {
-  productsList: StorefrontProduct[];
+  productsList: ApiProduct[];
   categories: ApiCategory[];
   parentCategories: ApiCategory[];
   categoriesByDept: Record<string, ApiCategory[]>;
@@ -20,14 +20,14 @@ interface CatalogContextType {
   isLoadingCategories: boolean;
   refreshCatalog: () => Promise<void>;
   refreshCategories: () => Promise<void>;
-  getProduct: (idOrSlug: string) => StorefrontProduct | undefined;
+  getProduct: (idOrSlug: string) => ApiProduct | undefined;
   getCategoryBySlug: (slug: string) => ApiCategory | undefined;
 }
 
 const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 
 export function CatalogProvider({ children }: { children: ReactNode }) {
-  const [productsList, setProductsList] = useState<StorefrontProduct[]>([]);
+  const [productsList, setProductsList] = useState<ApiProduct[]>([]);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -90,7 +90,7 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
     return map;
   }, [parentCategories]);
 
-  const getProduct = (idOrSlug: string): StorefrontProduct | undefined => {
+  const getProduct = (idOrSlug: string): ApiProduct | undefined => {
     return productsList.find((p) => p.id === idOrSlug || p.slug === idOrSlug);
   };
 

@@ -7,16 +7,16 @@
 
 import {
   catalogRequester,
-  mapApiProductToStorefront,
   type CatalogProductsResult,
 } from '@/api';
 import type {
   ApiCategory,
-  StorefrontProduct,
+  ApiProduct,
+  ApiProductDetail,
   StoreQueryProductsParams,
 } from '@repo/types';
 
-export { mapApiProductToStorefront, type CatalogProductsResult };
+export { type CatalogProductsResult };
 
 export async function fetchCatalogProductsWithMeta(
   params?: StoreQueryProductsParams,
@@ -26,13 +26,13 @@ export async function fetchCatalogProductsWithMeta(
 
 export async function fetchCatalogProducts(
   params?: StoreQueryProductsParams,
-): Promise<StorefrontProduct[]> {
+): Promise<ApiProduct[]> {
   return catalogRequester.getProducts(params);
 }
 
 export async function fetchProductByIdOrSlug(
   idOrSlug: string,
-): Promise<StorefrontProduct | null> {
+): Promise<ApiProductDetail | null> {
   return catalogRequester.getProductByIdOrSlug(idOrSlug);
 }
 

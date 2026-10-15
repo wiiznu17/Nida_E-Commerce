@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCatalog } from '@/context/CatalogContext';
 import { useLanguage } from '@/context/LanguageContext';
-import type { StorefrontProduct } from '@repo/types';
+import type { ApiProduct } from '@repo/types';
 import { HomeProductCard } from './HomeProductCard';
 
 export type TrendingTab = 'all' | 'women' | 'men' | 'bags';
@@ -24,29 +24,31 @@ export const TrendingProductsSection: React.FC = () => {
   // Filter products for trending section from live catalog
   const trendingProducts = productsList
     .filter((p) => {
+      const dept = (p.department || '').toLowerCase();
       if (activeTab === 'all') return true;
-      if (activeTab === 'women') return p.department === 'women';
-      if (activeTab === 'men') return p.department === 'men';
+      if (activeTab === 'women') return dept === 'women';
+      if (activeTab === 'men') return dept === 'men';
       if (activeTab === 'bags')
-        return p.department === 'bags' || p.department === 'shoes';
+        return dept === 'bags' || dept === 'shoes';
       return true;
     })
     .slice(0, 8);
 
-  const handleQuickAdd = (e: React.MouseEvent, product: StorefrontProduct) => {
+  const handleQuickAdd = (e: React.MouseEvent, product: ApiProduct) => {
     e.preventDefault();
     e.stopPropagation();
 
+    const dept = (product.department || '').toLowerCase();
     const defaultSize =
-      product.department === 'shoes'
+      dept === 'shoes'
         ? 'US 9'
-        : product.category === 'bags' || product.category === 'home'
+        : product.categorySlug === 'bags' || dept === 'home'
           ? 'One Size'
           : 'M';
 
     const defaultColor =
       product.colors && product.colors.length > 0
-        ? 'Navy / Classic'
+        ? product.colors[0]?.name || 'Navy / Classic'
         : 'Standard';
 
     addToCart(product, defaultSize, defaultColor);
