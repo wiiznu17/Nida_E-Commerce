@@ -42,12 +42,12 @@ export class CustomerCatalogService {
 
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = {
+    const where: Prisma.ProductWhereInput = {
       isActive: true, // Storefront only shows active products
     };
 
     if (search) {
-      where['OR'] = [
+      where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { nameTh: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
@@ -59,49 +59,49 @@ export class CustomerCatalogService {
     }
 
     if (department || category || subCategory) {
-      const categoryFilter: Record<string, unknown> = {};
+      const categoryFilter: Prisma.CategoryWhereInput = {};
       if (
         department &&
         Object.values(Department).includes(
           department.toUpperCase() as Department,
         )
       ) {
-        categoryFilter['department'] = department.toUpperCase() as Department;
+        categoryFilter.department = department.toUpperCase() as Department;
       }
       if (category && category !== 'all') {
-        categoryFilter['slug'] = category;
+        categoryFilter.slug = category;
       }
       if (subCategory) {
-        categoryFilter['OR'] = [
+        categoryFilter.OR = [
           { name: { contains: subCategory, mode: 'insensitive' } },
           { nameTh: { contains: subCategory, mode: 'insensitive' } },
           { slug: subCategory },
         ];
       }
-      where['category'] = categoryFilter;
+      where.category = categoryFilter;
     }
 
     if (tag) {
-      where['tag'] = tag;
+      where.tag = tag;
     }
 
     if (minPrice !== undefined || maxPrice !== undefined) {
-      const priceFilter: Record<string, number> = {};
-      if (minPrice !== undefined) priceFilter['gte'] = minPrice;
-      if (maxPrice !== undefined) priceFilter['lte'] = maxPrice;
-      where['basePrice'] = priceFilter;
+      const priceFilter: Prisma.DecimalFilter = {};
+      if (minPrice !== undefined) priceFilter.gte = minPrice;
+      if (maxPrice !== undefined) priceFilter.lte = maxPrice;
+      where.basePrice = priceFilter;
     }
 
     if (colors && colors.length > 0) {
-      where['variants'] = {
+      where.variants = {
         some: {
-          hex: { in: colors, mode: 'insensitive' },
+          colorHex: { in: colors, mode: 'insensitive' },
         },
       };
     }
 
     if (isPreorder !== undefined) {
-      where['isPreorder'] = isPreorder;
+      where.isPreorder = isPreorder;
     }
 
     let orderBy: Record<string, 'asc' | 'desc'> = { createdAt: 'desc' };
@@ -115,7 +115,7 @@ export class CustomerCatalogService {
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
-        where: where as any,
+        where,
         include: {
           category: true,
           images: { orderBy: { displayOrder: 'asc' }, take: 2 },
@@ -128,7 +128,7 @@ export class CustomerCatalogService {
         skip,
         take: limit,
       }),
-      this.prisma.product.count({ where: where as any }),
+      this.prisma.product.count({ where }),
     ]);
 
     const items: ApiProduct[] = products.map((p) => {

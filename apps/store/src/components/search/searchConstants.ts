@@ -30,6 +30,3 @@ export const COLOR_NAMES: Record<string, { en: string; th: string }> = {
   '#1E3A8A': { en: 'Navy Blue', th: 'น้ำเงินเนวี' },
   '#365314': { en: 'Olive Green', th: 'เขียวโอลีฟ' },
 };
-
-export const DEFAULT_PRODUCT_FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';

@@ -13,9 +13,6 @@ import {
 import type { StorefrontProduct } from '@repo/types';
 import type { CollectionProductGridProps } from './collectionTypes';
 
-const DEFAULT_FALLBACK_IMG =
-  'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-
 export function CollectionProductGrid({
   products,
   gridCols,
@@ -57,12 +54,10 @@ export function CollectionProductGrid({
             <div className="relative aspect-[3/4] bg-[#FAF7F2] overflow-hidden mb-4 border border-gray-100 rounded-sm">
               <Link href={`/product/${product.id}`} className="block w-full h-full">
                 <img
-                  src={product.image || DEFAULT_FALLBACK_IMG}
+                  src={product.image}
                   alt={title}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMG;
-                  }}
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                  loading="lazy"
                 />
               </Link>
 

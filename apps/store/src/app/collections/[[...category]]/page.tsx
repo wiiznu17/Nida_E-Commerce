@@ -66,10 +66,19 @@ function CollectionPageContent() {
       return c.slug === category || c.parentId === matchedCategory?.id;
     });
 
-    return matchingCats.map((c) => ({
-      key: c.name,
-      label: language === 'th' && c.nameTh ? c.nameTh : c.name,
-    }));
+    const seen = new Set<string>();
+    const result: SubCategoryItem[] = [];
+    for (const c of matchingCats) {
+      const cleanName = c.name?.trim();
+      if (cleanName && !seen.has(cleanName)) {
+        seen.add(cleanName);
+        result.push({
+          key: cleanName,
+          label: language === 'th' && c.nameTh ? c.nameTh : cleanName,
+        });
+      }
+    }
+    return result;
   }, [category, isDepartment, matchedCategory, categories, language]);
 
   // URL state update handler

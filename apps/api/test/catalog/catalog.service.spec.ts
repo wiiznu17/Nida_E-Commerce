@@ -94,7 +94,7 @@ describe('CustomerCatalogService', () => {
             basePrice: { gte: 50, lte: 100 },
             variants: {
               some: {
-                hex: { in: ['#2B1810'], mode: 'insensitive' },
+                colorHex: { in: ['#2B1810'], mode: 'insensitive' },
               },
             },
             category: expect.objectContaining({

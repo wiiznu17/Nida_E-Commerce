@@ -12,7 +12,6 @@ import {
 } from '@/context/LanguageContext';
 import type { StorefrontProduct } from '@repo/types';
 import type { SearchProductGridProps } from './searchTypes';
-import { DEFAULT_PRODUCT_FALLBACK_IMAGE } from './searchConstants';
 
 export function SearchProductGrid({
   products,
@@ -55,12 +54,10 @@ export function SearchProductGrid({
             <div className="relative aspect-[3/4] bg-[#FAF7F2] overflow-hidden mb-3 border border-gray-100 rounded-sm">
               <Link href={`/product/${product.id}`} className="block w-full h-full">
                 <img
-                  src={product.image || DEFAULT_PRODUCT_FALLBACK_IMAGE}
+                  src={product.image}
                   alt={title}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = DEFAULT_PRODUCT_FALLBACK_IMAGE;
-                  }}
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                  loading="lazy"
                 />
               </Link>
 

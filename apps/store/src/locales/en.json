@@ -313,5 +313,18 @@
     "cancel": "Cancel",
     "profileUpdated": "Profile updated successfully!",
     "logout": "Sign Out"
+  },
+  "wishlistPage": {
+    "title": "MY WISHLIST",
+    "subtitle": "Your curated selection of saved heritage staples and seasonal essentials.",
+    "itemsCount": "items saved",
+    "itemCount": "item saved",
+    "emptyTitle": "YOUR WISHLIST IS EMPTY",
+    "emptyDesc": "Explore our timeless collections and save your favorite silhouettes for later.",
+    "exploreCatalog": "EXPLORE COLLECTIONS",
+    "addToBag": "ADD TO BAG",
+    "remove": "Remove",
+    "clearAll": "Clear Wishlist",
+    "itemRemoved": "Removed from wishlist"
   }
 }

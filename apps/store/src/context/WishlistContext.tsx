@@ -20,7 +20,7 @@ const WishlistContext = createContext<WishlistContextType | undefined>(
 );
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  const [wishlist, setWishlist] = useState<string[]>(['w1', 'm1']);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
   useEffect(() => {
     try {

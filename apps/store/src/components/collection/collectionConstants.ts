@@ -1,6 +1,18 @@
 import type { DepartmentMeta } from './collectionTypes';
 
 export const DEPARTMENT_INFO: Record<string, DepartmentMeta> = {
+  all: {
+    title: 'ALL COLLECTIONS',
+    titleTh: 'คอลเลกชันทั้งหมด',
+    subtitle:
+      'Explore our complete catalog of timeless silhouettes, heritage staples, and modern essentials.',
+    subtitleTh:
+      'สำรวจแคตตาล็อกสินค้าครบครัน ทั้งซิลูเอทคลาสสิกเหนือกาลเวลา และไอเทมจำเป็นในชีวิตประจำวัน',
+    bannerTag: 'NIDA CURATED',
+    bannerTagTh: 'คัดสรรโดย NIDA',
+    bgImage:
+      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
+  },
   women: {
     title: "WOMEN'S COLLECTION",
     titleTh: 'คอลเลกชันสำหรับผู้หญิง',

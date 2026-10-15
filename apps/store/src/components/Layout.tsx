@@ -912,7 +912,7 @@ export function Header() {
 
             {/* Wishlist Link */}
             <Link
-              href="/collections/all"
+              href="/wishlist"
               className="text-[#2B1810] hover:text-[#D97706] p-1.5 transition-colors relative hidden sm:flex items-center"
               title={t('nav.wishlist')}
             >
@@ -1203,6 +1203,18 @@ export function Header() {
             </div>
 
             <div className="pt-6 border-t border-gray-200 space-y-3 text-xs font-semibold text-[#2B1810]">
+              <Link
+                href="/wishlist"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-between py-1"
+              >
+                <span>{t('nav.wishlist')}</span>
+                {wishlistCount > 0 && (
+                  <span className="bg-[#F59E0B] text-[#2B1810] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
               <Link
                 href="/about"
                 onClick={() => setIsMobileMenuOpen(false)}
