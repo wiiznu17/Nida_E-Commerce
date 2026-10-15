@@ -297,9 +297,11 @@ export class CouponsService {
     for (let i = 0; i < lineItems.length; i++) {
       const item = lineItems[i]!;
       if (i === lineItems.length - 1) {
-        item.discountShare = Math.round((discountTotal - allocatedDiscount) * 100) / 100;
+        item.discountShare =
+          Math.round((discountTotal - allocatedDiscount) * 100) / 100;
       } else {
-        item.discountShare = Math.round((item.subtotal / subtotal) * discountTotal * 100) / 100;
+        item.discountShare =
+          Math.round((item.subtotal / subtotal) * discountTotal * 100) / 100;
         allocatedDiscount += item.discountShare;
       }
       item.netPrice = Math.max(0, item.subtotal - item.discountShare);

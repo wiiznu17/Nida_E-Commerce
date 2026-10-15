@@ -6,7 +6,11 @@ export interface AdminPageHeaderProps {
   actionButton?: React.ReactNode;
 }
 
-export function AdminPageHeader({ title, subtitle, actionButton }: AdminPageHeaderProps) {
+export function AdminPageHeader({
+  title,
+  subtitle,
+  actionButton,
+}: AdminPageHeaderProps) {
   return (
     <div className="bg-white border-b border-brand-border py-3.5 sm:py-4 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -14,7 +18,11 @@ export function AdminPageHeader({ title, subtitle, actionButton }: AdminPageHead
           <h1 className="text-xl sm:text-2xl font-black text-brand-brown uppercase tracking-tight">
             {title}
           </h1>
-          {subtitle && <p className="text-xs text-gray-500 font-medium mt-0.5">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-xs text-gray-500 font-medium mt-0.5">
+              {subtitle}
+            </p>
+          )}
         </div>
 
         {actionButton && <div className="flex-shrink-0">{actionButton}</div>}

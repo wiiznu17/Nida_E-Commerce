@@ -1,4 +1,12 @@
-import { ChevronDown, ChevronRight, Folder, FolderOpen, FolderPlus, Edit2, Trash2 } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  FolderOpen,
+  FolderPlus,
+  Edit2,
+  Trash2,
+} from 'lucide-react';
 import { AdminPermission, type ApiCategory } from '@repo/types';
 import { PermissionGate } from '../common';
 import { useLanguage } from '../../context/LanguageContext';
@@ -45,7 +53,9 @@ export function CategoryMainRow({
             className={`p-1 rounded-xs text-stone-500 hover:text-brand-brown hover:bg-stone-200/60 transition-transform cursor-pointer ${
               !hasSubs ? 'opacity-40 hover:opacity-100' : ''
             }`}
-            title={isExpanded ? t('category.collapseAll') : t('category.expandAll')}
+            title={
+              isExpanded ? t('category.collapseAll') : t('category.expandAll')
+            }
           >
             {isExpanded ? (
               <ChevronDown size={16} className="text-brand-brown" />
@@ -78,7 +88,10 @@ export function CategoryMainRow({
                       : 'bg-stone-100 text-stone-400'
                   }`}
                 >
-                  {t('category.subcategoriesCount').replace('{count}', String(subsCount))}
+                  {t('category.subcategoriesCount').replace(
+                    '{count}',
+                    String(subsCount),
+                  )}
                 </span>
               </div>
               <span className="text-[11px] text-stone-400">
@@ -175,11 +188,15 @@ export function CategoryMainRow({
             {(() => {
               const productCount = mainCat.productCount ?? 0;
               const isBlocked = productCount > 0 || hasSubs;
-              const deleteTooltip = productCount > 0
-                ? t('category.tooltipHasProducts').replace('{count}', String(productCount))
-                : hasSubs
-                  ? t('category.tooltipHasChildren')
-                  : t('productList.delete');
+              const deleteTooltip =
+                productCount > 0
+                  ? t('category.tooltipHasProducts').replace(
+                      '{count}',
+                      String(productCount),
+                    )
+                  : hasSubs
+                    ? t('category.tooltipHasChildren')
+                    : t('productList.delete');
 
               return (
                 <button

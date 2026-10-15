@@ -53,7 +53,10 @@ export function ImageCropModal({
       const effectiveW = isRotated ? naturalSize.height : naturalSize.width;
       const effectiveH = isRotated ? naturalSize.width : naturalSize.height;
 
-      return Math.max(VIEWPORT_WIDTH / effectiveW, VIEWPORT_HEIGHT / effectiveH);
+      return Math.max(
+        VIEWPORT_WIDTH / effectiveW,
+        VIEWPORT_HEIGHT / effectiveH,
+      );
     },
     [naturalSize, rotation, VIEWPORT_WIDTH, VIEWPORT_HEIGHT],
   );
@@ -61,13 +64,17 @@ export function ImageCropModal({
   // Calculate boundary limits: image can NEVER be dragged past its borders
   const getPanLimits = useCallback(
     (currentZoom: number, currentRotation: number) => {
-      if (!naturalSize.width || !naturalSize.height) return { maxPanX: 0, maxPanY: 0, baseScale: 1, currentScale: 1 };
+      if (!naturalSize.width || !naturalSize.height)
+        return { maxPanX: 0, maxPanY: 0, baseScale: 1, currentScale: 1 };
 
       const isRotated = currentRotation === 90 || currentRotation === 270;
       const effectiveW = isRotated ? naturalSize.height : naturalSize.width;
       const effectiveH = isRotated ? naturalSize.width : naturalSize.height;
 
-      const baseScale = Math.max(VIEWPORT_WIDTH / effectiveW, VIEWPORT_HEIGHT / effectiveH);
+      const baseScale = Math.max(
+        VIEWPORT_WIDTH / effectiveW,
+        VIEWPORT_HEIGHT / effectiveH,
+      );
       const currentScale = baseScale * currentZoom;
 
       const scaledW = effectiveW * currentScale;
@@ -225,7 +232,10 @@ export function ImageCropModal({
       ctx.translate(targetWidth / 2, targetHeight / 2);
 
       // Apply Pan (scaled to target resolution)
-      ctx.translate(finalPan.x * outputScaleMultiplier, finalPan.y * outputScaleMultiplier);
+      ctx.translate(
+        finalPan.x * outputScaleMultiplier,
+        finalPan.y * outputScaleMultiplier,
+      );
 
       // Apply Rotation
       ctx.rotate((rotation * Math.PI) / 180);
@@ -254,7 +264,9 @@ export function ImageCropModal({
 
           const baseName = originalFileName.replace(/\.[^/.]+$/, '');
           const newFileName = `${baseName || 'product'}-3x4-${Date.now().toString().slice(-4)}.webp`;
-          const croppedFile = new File([blob], newFileName, { type: 'image/webp' });
+          const croppedFile = new File([blob], newFileName, {
+            type: 'image/webp',
+          });
 
           setIsProcessing(false);
           onConfirm(croppedFile);
@@ -284,7 +296,9 @@ export function ImageCropModal({
             </div>
             <div>
               <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
-                {isTh ? 'ครอบตัดรูปภาพสินค้า (3:4)' : 'Crop Product Image (3:4)'}
+                {isTh
+                  ? 'ครอบตัดรูปภาพสินค้า (3:4)'
+                  : 'Crop Product Image (3:4)'}
               </h3>
               <p className="text-[10px] text-gray-500">
                 {isTh
@@ -424,30 +438,34 @@ export function ImageCropModal({
 
         {/* Footer Buttons */}
         <div className="px-5 py-3 bg-brand-cream border-t border-brand-border flex items-center justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isProcessing}
-              className="px-3.5 py-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              {isTh ? 'ยกเลิก' : 'Cancel'}
-            </button>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isProcessing}
+            className="px-3.5 py-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+          >
+            {isTh ? 'ยกเลิก' : 'Cancel'}
+          </button>
 
-            <button
-              type="button"
-              onClick={handleConfirmCrop}
-              disabled={isProcessing || !imageLoaded}
-              className="px-4 py-1.5 text-xs font-black uppercase tracking-wider text-brand-dark-brown bg-brand-yellow hover:bg-brand-amber rounded-md shadow-xs transition-colors inline-flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer"
-            >
-              {isProcessing ? (
-                <span>{isTh ? 'กำลังครอบตัดและแปลงไฟล์...' : 'Processing...'}</span>
-              ) : (
-                <>
-                  <Check size={14} />
-                  <span>{isTh ? 'ครอบตัด & บันทึกรูป 3:4' : 'Apply 3:4 Crop'}</span>
-                </>
-              )}
-            </button>
+          <button
+            type="button"
+            onClick={handleConfirmCrop}
+            disabled={isProcessing || !imageLoaded}
+            className="px-4 py-1.5 text-xs font-black uppercase tracking-wider text-brand-dark-brown bg-brand-yellow hover:bg-brand-amber rounded-md shadow-xs transition-colors inline-flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer"
+          >
+            {isProcessing ? (
+              <span>
+                {isTh ? 'กำลังครอบตัดและแปลงไฟล์...' : 'Processing...'}
+              </span>
+            ) : (
+              <>
+                <Check size={14} />
+                <span>
+                  {isTh ? 'ครอบตัด & บันทึกรูป 3:4' : 'Apply 3:4 Crop'}
+                </span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

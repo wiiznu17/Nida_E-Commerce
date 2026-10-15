@@ -37,7 +37,8 @@ export function CategoryDeleteDialog({
   const productCount = category.productCount ?? 0;
   const childCount = category.children?.length ?? 0;
   const isBlocked = productCount > 0 || childCount > 0;
-  const categoryName = isTh && category.nameTh ? category.nameTh : category.name;
+  const categoryName =
+    isTh && category.nameTh ? category.nameTh : category.name;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -59,12 +60,18 @@ export function CategoryDeleteDialog({
             <div className="mt-2 bg-amber-50/80 border border-amber-200 rounded-lg p-3.5 space-y-2 text-left">
               {productCount > 0 && (
                 <p className="text-xs text-amber-950 font-medium leading-relaxed">
-                  {t('category.deleteBlockedHasProducts').replace('{count}', String(productCount))}
+                  {t('category.deleteBlockedHasProducts').replace(
+                    '{count}',
+                    String(productCount),
+                  )}
                 </p>
               )}
               {childCount > 0 && (
                 <p className="text-xs text-amber-950 font-medium leading-relaxed">
-                  {t('category.deleteBlockedHasChildren').replace('{count}', String(childCount))}
+                  {t('category.deleteBlockedHasChildren').replace(
+                    '{count}',
+                    String(childCount),
+                  )}
                 </p>
               )}
               <div className="text-[11px] text-amber-900/80 leading-relaxed pt-2 border-t border-amber-200/60">
@@ -87,7 +94,9 @@ export function CategoryDeleteDialog({
                   disabled={isDeactivating}
                   className="bg-brand-brown hover:bg-brand-brown/90 text-white text-xs font-bold"
                 >
-                  {isDeactivating ? t('category.modal.saving') : t('category.deactivateNow')}
+                  {isDeactivating
+                    ? t('category.modal.saving')
+                    : t('category.deactivateNow')}
                 </Button>
               )}
             </DialogFooter>
@@ -102,7 +111,10 @@ export function CategoryDeleteDialog({
                 </DialogTitle>
               </div>
               <DialogDescription className="text-xs text-stone-600 leading-relaxed">
-                {t('category.deleteConfirmMessage').replace('{name}', categoryName)}
+                {t('category.deleteConfirmMessage').replace(
+                  '{name}',
+                  categoryName,
+                )}
               </DialogDescription>
             </DialogHeader>
 
@@ -121,7 +133,9 @@ export function CategoryDeleteDialog({
                 disabled={isDeleting}
                 className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold"
               >
-                {isDeleting ? t('category.modal.saving') : t('productList.delete')}
+                {isDeleting
+                  ? t('category.modal.saving')
+                  : t('productList.delete')}
               </Button>
             </DialogFooter>
           </>

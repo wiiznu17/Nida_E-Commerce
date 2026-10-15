@@ -35,7 +35,8 @@ export class UploadController {
           type: 'string',
           enum: Object.values(UploadFolder),
           default: UploadFolder.PRODUCTS,
-          description: 'Subfolder name (e.g. products, banners, categories, avatars, temp)',
+          description:
+            'Subfolder name (e.g. products, banners, categories, avatars, temp)',
         },
       },
     },
@@ -48,7 +49,9 @@ export class UploadController {
       fileFilter: (_req, file, callback) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp|avif)$/)) {
           return callback(
-            new BadRequestException('Only image files (jpg, jpeg, png, gif, webp, avif) are allowed'),
+            new BadRequestException(
+              'Only image files (jpg, jpeg, png, gif, webp, avif) are allowed',
+            ),
             false,
           );
         }

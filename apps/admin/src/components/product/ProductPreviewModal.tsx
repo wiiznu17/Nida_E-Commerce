@@ -127,7 +127,10 @@ export function ProductPreviewModal({
                   />
                 ) : (
                   <div className="text-center p-4">
-                    <ImageIcon size={28} className="mx-auto text-gray-300 mb-1" />
+                    <ImageIcon
+                      size={28}
+                      className="mx-auto text-gray-300 mb-1"
+                    />
                     <span className="text-gray-400 text-xs block">
                       {t('preview.noImage')}
                     </span>
@@ -182,9 +185,16 @@ export function ProductPreviewModal({
                       )}
                     </div>
                     <div className="flex items-center space-x-1.5 text-[9px] text-gray-500">
-                      <span className="text-emerald-700 font-bold">{t('product.discountPrice')}</span>
+                      <span className="text-emerald-700 font-bold">
+                        {t('product.discountPrice')}
+                      </span>
                       <span>•</span>
-                      <span>{t('product.fullPrice')}: <span className="line-through">${numericOriginal.toFixed(2)}</span></span>
+                      <span>
+                        {t('product.fullPrice')}:{' '}
+                        <span className="line-through">
+                          ${numericOriginal.toFixed(2)}
+                        </span>
+                      </span>
                     </div>
                   </div>
                 ) : (
@@ -255,7 +265,8 @@ export function ProductPreviewModal({
                         {t('product.saveDiscount')} {discountPercent}%
                       </span>
                       <span className="text-emerald-700 font-bold">
-                        {t('product.youSave')} ${(numericOriginal - numericPrice).toFixed(2)}
+                        {t('product.youSave')} $
+                        {(numericOriginal - numericPrice).toFixed(2)}
                       </span>
                     </div>
                   )}
@@ -300,7 +311,9 @@ export function ProductPreviewModal({
                   {t('preview.description')}
                 </label>
                 <p className="text-[11px] text-gray-600 line-clamp-3 leading-relaxed">
-                  {(isTh ? descriptionTh || description : description || descriptionTh) ||
+                  {(isTh
+                    ? descriptionTh || description
+                    : description || descriptionTh) ||
                     t('preview.noDescription')}
                 </p>
               </div>
@@ -312,7 +325,9 @@ export function ProductPreviewModal({
                     {t('preview.materialsCare')}
                   </label>
                   <p className="text-[11px] text-gray-600 italic">
-                    {isTh ? materialsCareTh || materialsCare : materialsCare || materialsCareTh}
+                    {isTh
+                      ? materialsCareTh || materialsCare
+                      : materialsCare || materialsCareTh}
                   </p>
                 </div>
               )}

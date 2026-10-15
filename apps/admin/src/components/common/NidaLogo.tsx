@@ -4,13 +4,16 @@ export interface NidaLogoProps {
 }
 
 export function NidaLogo({ size = 'md', dark = false }: NidaLogoProps) {
-  const textSize = size === 'lg' ? 'text-3xl' : size === 'sm' ? 'text-xl' : 'text-2xl';
+  const textSize =
+    size === 'lg' ? 'text-3xl' : size === 'sm' ? 'text-xl' : 'text-2xl';
   const textColor = dark ? 'text-white' : 'text-brand-brown';
 
   return (
     <div className="flex flex-col items-center group cursor-pointer">
       <div className="flex items-center space-x-2">
-        <span className={`font-sans font-black tracking-[0.28em] uppercase ${textColor} ${textSize}`}>
+        <span
+          className={`font-sans font-black tracking-[0.28em] uppercase ${textColor} ${textSize}`}
+        >
           NIDA
         </span>
       </div>

@@ -8,7 +8,9 @@ export interface ProtectedRouteProps {
   requiredPermissions?: (AdminPermission | string)[] | AdminPermission | string;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredPermissions }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  requiredPermissions,
+}) => {
   const { isAuthenticated, isLoading, hasPermission } = useAuth();
   const location = useLocation();
 
@@ -38,9 +40,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredPermissi
     const hasAll = permissionsToCheck.every((perm) => hasPermission(perm));
     if (!hasAll) {
       return (
-        <AdminAccessDenied
-          requiredPermission={permissionsToCheck.join(', ')}
-        />
+        <AdminAccessDenied requiredPermission={permissionsToCheck.join(', ')} />
       );
     }
   }

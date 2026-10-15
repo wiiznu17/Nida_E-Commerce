@@ -45,7 +45,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.client.on('error', (err: unknown) => {
         this.isConnected = false;
         const msg = err instanceof Error ? err.message : String(err);
-        this.logger.warn(`Redis connection failed: ${msg}. Using in-memory fallback.`);
+        this.logger.warn(
+          `Redis connection failed: ${msg}. Using in-memory fallback.`,
+        );
       });
 
       if (this.client) {
@@ -55,10 +57,15 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       }
     } catch {
       this.isConnected = false;
-      this.logger.warn('Could not connect to Redis server. Operating in in-memory fallback mode.');
+      this.logger.warn(
+        'Could not connect to Redis server. Operating in in-memory fallback mode.',
+      );
     }
 
-    this.cleanupInterval = setInterval(() => this.cleanupExpiredMemoryItems(), 60_000);
+    this.cleanupInterval = setInterval(
+      () => this.cleanupExpiredMemoryItems(),
+      60_000,
+    );
   }
 
   async onModuleDestroy() {
@@ -72,7 +79,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async checkRateLimit(key: string, limit: number, windowSeconds: number): Promise<RateLimitResult> {
+  async checkRateLimit(
+    key: string,
+    limit: number,
+    windowSeconds: number,
+  ): Promise<RateLimitResult> {
     const now = Math.floor(Date.now() / 1000);
     const windowKey = `ratelimit:${key}:${Math.floor(now / windowSeconds)}`;
 
@@ -89,7 +100,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
           retryAfter: windowSeconds,
         };
       } catch (err: unknown) {
-        this.logger.warn(`Redis rate-limit check failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis rate-limit check failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 

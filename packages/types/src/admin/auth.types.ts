@@ -22,7 +22,10 @@ export enum AdminPermission {
   AUDIT_LOGS_READ = 'AUDIT_LOGS_READ',
 }
 
-export const ROLE_DEFAULT_PERMISSIONS: Record<AdminRoleCode, AdminPermission[]> = {
+export const ROLE_DEFAULT_PERMISSIONS: Record<
+  AdminRoleCode,
+  AdminPermission[]
+> = {
   [AdminRoleCode.SUPER_ADMIN]: [
     AdminPermission.CATALOG_READ,
     AdminPermission.CATALOG_WRITE,

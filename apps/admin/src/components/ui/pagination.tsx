@@ -56,7 +56,8 @@ export function Pagination({
   };
 
   const pageNumbers = getPageNumbers();
-  const displayItemsLabel = itemLabel ?? (t('pagination.items') || t('productList.items') || 'items');
+  const displayItemsLabel =
+    itemLabel ?? (t('pagination.items') || t('productList.items') || 'items');
 
   return (
     <div
@@ -90,7 +91,9 @@ export function Pagination({
               className="w-16 h-7.5 px-2 bg-brand-cream text-xs font-semibold"
             />
             <span className="text-[11px] text-gray-400">
-              {t('pagination.perPage') || t('productList.perPage') || 'per page'}
+              {t('pagination.perPage') ||
+                t('productList.perPage') ||
+                'per page'}
             </span>
           </div>
         )}
@@ -118,7 +121,10 @@ export function Pagination({
         {pageNumbers.map((p, idx) => {
           if (p === 'ellipsis') {
             return (
-              <span key={`el-${idx}`} className="px-2 text-gray-400 select-none">
+              <span
+                key={`el-${idx}`}
+                className="px-2 text-gray-400 select-none"
+              >
                 ...
               </span>
             );

@@ -86,7 +86,11 @@ export function FormTopBar({
               : 'text-brand-yellow bg-brand-brown hover:bg-brand-dark-brown'
           }`}
         >
-          {publishStatus === 'published' ? <Globe size={14} /> : <FileText size={14} />}
+          {publishStatus === 'published' ? (
+            <Globe size={14} />
+          ) : (
+            <FileText size={14} />
+          )}
           <span>
             {isSubmitting
               ? t('common.saving')

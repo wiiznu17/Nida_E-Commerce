@@ -66,10 +66,10 @@ export function UnsavedChangesModal({
           {/* Action Callouts */}
           <div className="mt-5 p-3 rounded-xs bg-amber-50/70 border border-amber-200/60 text-[11px] text-amber-900 flex items-center space-x-2">
             <Info size={14} className="shrink-0 text-amber-700" />
-            <span className="font-bold shrink-0">{isTh ? 'คำแนะนำ:' : 'Tip:'}</span>
-            <span>
-              {t('unsaved.tip')}
+            <span className="font-bold shrink-0">
+              {isTh ? 'คำแนะนำ:' : 'Tip:'}
             </span>
+            <span>{t('unsaved.tip')}</span>
           </div>
 
           {/* Action Buttons */}

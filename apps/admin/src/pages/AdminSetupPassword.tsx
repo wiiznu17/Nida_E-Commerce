@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  AlertCircle,
+  ArrowRight,
+} from 'lucide-react';
 import { authRequester } from '../api/requester/authRequester';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -140,7 +146,11 @@ export const AdminSetupPassword: React.FC = () => {
                 {t('auth.invited_member')}
               </span>
               <span className="font-bold text-stone-900">{targetName}</span>
-              {targetEmail && <span className="block text-stone-500 text-[11px]">{targetEmail}</span>}
+              {targetEmail && (
+                <span className="block text-stone-500 text-[11px]">
+                  {targetEmail}
+                </span>
+              )}
             </div>
           )}
 
@@ -170,7 +180,11 @@ export const AdminSetupPassword: React.FC = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-3.5 text-stone-400 hover:text-stone-600 cursor-pointer"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>

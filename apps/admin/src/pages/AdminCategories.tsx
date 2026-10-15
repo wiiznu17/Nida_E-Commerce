@@ -1,7 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Plus } from 'lucide-react';
-import { AdminPermission, PRODUCT_DEPARTMENTS, type ApiCategory } from '@repo/types';
-import type { CreateCategoryInput, UpdateCategoryInput } from '@repo/validators';
+import {
+  AdminPermission,
+  PRODUCT_DEPARTMENTS,
+  type ApiCategory,
+} from '@repo/types';
+import type {
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from '@repo/validators';
 import { AdminLayout } from '../components/layout';
 import { PermissionGate } from '../components/common';
 import { Button, Alert } from '../components/ui';
@@ -23,18 +30,27 @@ export default function AdminCategories() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDept, setSelectedDept] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [toastMessage, setToastMessage] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
   // Expandable tree state: set of expanded main category IDs
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<ApiCategory | null>(null);
-  const [modalParentId, setModalParentId] = useState<string | undefined>(undefined);
+  const [editingCategory, setEditingCategory] = useState<ApiCategory | null>(
+    null,
+  );
+  const [modalParentId, setModalParentId] = useState<string | undefined>(
+    undefined,
+  );
 
   // Delete confirmation dialog state
-  const [deletingCategory, setDeletingCategory] = useState<ApiCategory | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<ApiCategory | null>(
+    null,
+  );
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeactivating, setIsDeactivating] = useState(false);
 
@@ -55,7 +71,8 @@ export default function AdminCategories() {
       );
       setCategories(data);
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : t('category.saveError');
+      const errMsg =
+        err instanceof Error ? err.message : t('category.saveError');
       showToast(errMsg, 'error');
     } finally {
       setIsLoading(false);
@@ -82,7 +99,11 @@ export default function AdminCategories() {
       }
     }
     for (const [key, list] of map.entries()) {
-      list.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0) || a.name.localeCompare(b.name));
+      list.sort(
+        (a, b) =>
+          (a.displayOrder ?? 0) - (b.displayOrder ?? 0) ||
+          a.name.localeCompare(b.name),
+      );
       map.set(key, list);
     }
     return map;
@@ -151,7 +172,10 @@ export default function AdminCategories() {
 
     return parentCategories
       .filter((mainCat) => {
-        if (selectedDept !== 'all' && mainCat.department?.toUpperCase() !== selectedDept.toUpperCase()) {
+        if (
+          selectedDept !== 'all' &&
+          mainCat.department?.toUpperCase() !== selectedDept.toUpperCase()
+        ) {
           return false;
         }
 
@@ -174,7 +198,11 @@ export default function AdminCategories() {
 
         return true;
       })
-      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0) || a.name.localeCompare(b.name));
+      .sort(
+        (a, b) =>
+          (a.displayOrder ?? 0) - (b.displayOrder ?? 0) ||
+          a.name.localeCompare(b.name),
+      );
   }, [parentCategories, selectedDept, searchQuery, subCategoryMap]);
 
   // Stats computation
@@ -191,7 +219,10 @@ export default function AdminCategories() {
     try {
       if (editingCategory) {
         const updatePayload: UpdateCategoryInput = { ...data };
-        await productRequester.updateCategory(editingCategory.id, updatePayload);
+        await productRequester.updateCategory(
+          editingCategory.id,
+          updatePayload,
+        );
       } else {
         await productRequester.createCategory(data);
       }
@@ -201,7 +232,8 @@ export default function AdminCategories() {
       setModalParentId(undefined);
       await loadCategories();
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : t('category.saveError');
+      const errMsg =
+        err instanceof Error ? err.message : t('category.saveError');
       showToast(errMsg, 'error');
       throw err;
     }
@@ -217,7 +249,8 @@ export default function AdminCategories() {
       setDeletingCategory(null);
       await loadCategories();
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : t('category.deleteError');
+      const errMsg =
+        err instanceof Error ? err.message : t('category.deleteError');
       showToast(errMsg, 'error');
     } finally {
       setIsDeleting(false);
@@ -235,7 +268,8 @@ export default function AdminCategories() {
       showToast(t('category.deactivateSuccess'), 'success');
       setDeletingCategory(null);
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : t('category.saveError');
+      const errMsg =
+        err instanceof Error ? err.message : t('category.saveError');
       showToast(errMsg, 'error');
     } finally {
       setIsDeactivating(false);
@@ -253,7 +287,8 @@ export default function AdminCategories() {
       );
       showToast(t('category.saveSuccess'), 'success');
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : t('category.saveError');
+      const errMsg =
+        err instanceof Error ? err.message : t('category.saveError');
       showToast(errMsg, 'error');
     } finally {
       setTogglingId(null);

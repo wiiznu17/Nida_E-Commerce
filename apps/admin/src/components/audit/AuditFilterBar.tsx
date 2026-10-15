@@ -28,7 +28,10 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
     { value: '', label: t('audit.filterAllActions') },
     { value: AuditActionType.CREATE, label: t('audit.actionCreate') },
     { value: AuditActionType.UPDATE, label: t('audit.actionUpdate') },
-    { value: AuditActionType.STATUS_CHANGE, label: t('audit.actionStatusChange') },
+    {
+      value: AuditActionType.STATUS_CHANGE,
+      label: t('audit.actionStatusChange'),
+    },
     { value: AuditActionType.DELETE, label: t('audit.actionDelete') },
     { value: AuditActionType.REFUND, label: t('audit.actionRefund') },
   ];

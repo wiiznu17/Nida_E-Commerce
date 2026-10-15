@@ -18,7 +18,9 @@ export default function AdminProductCreate() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Success Modal State
-  const [createdProduct, setCreatedProduct] = useState<ApiProductDetail | null>(null);
+  const [createdProduct, setCreatedProduct] = useState<ApiProductDetail | null>(
+    null,
+  );
   const [createdSkus, setCreatedSkus] = useState<ProductSkuVariant[]>([]);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
@@ -28,7 +30,10 @@ export default function AdminProductCreate() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [formResetKey, setFormResetKey] = useState(0);
 
-  const handleCreate = async (data: CreateProductInput, skus?: ProductSkuVariant[]) => {
+  const handleCreate = async (
+    data: CreateProductInput,
+    skus?: ProductSkuVariant[],
+  ) => {
     setIsSubmitting(true);
     try {
       const apiResponse = await productsApi.create(data, skus);
@@ -37,7 +42,10 @@ export default function AdminProductCreate() {
       setIsSuccessModalOpen(true);
     } catch (err: unknown) {
       console.error('Error creating product:', err);
-      const { message, issues } = extractApiError(err, t('common.createProductError'));
+      const { message, issues } = extractApiError(
+        err,
+        t('common.createProductError'),
+      );
       setErrorMessage(message);
       setValidationErrors(issues);
       setIsErrorModalOpen(true);
@@ -60,7 +68,10 @@ export default function AdminProductCreate() {
 
   const handleViewStore = () => {
     if (createdProduct?.slug) {
-      window.open(`${STOREFRONT_URL}/products/${createdProduct.slug}`, '_blank');
+      window.open(
+        `${STOREFRONT_URL}/products/${createdProduct.slug}`,
+        '_blank',
+      );
     }
   };
 

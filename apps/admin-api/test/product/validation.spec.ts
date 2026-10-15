@@ -182,15 +182,21 @@ describe('Product Zod Validation & ZodValidationPipe', () => {
     });
 
     it('rejects invalid sortBy value', () => {
-      const invalidSort = queryProductsSchema.safeParse({ sortBy: 'unknown_sort' });
+      const invalidSort = queryProductsSchema.safeParse({
+        sortBy: 'unknown_sort',
+      });
       expect(invalidSort.success).toBe(false);
     });
   });
 
   describe('updateProductStatusSchema', () => {
     it('coerces and validates boolean isActive', () => {
-      expect(updateProductStatusSchema.safeParse({ isActive: true }).success).toBe(true);
-      expect(updateProductStatusSchema.safeParse({ isActive: false }).success).toBe(true);
+      expect(
+        updateProductStatusSchema.safeParse({ isActive: true }).success,
+      ).toBe(true);
+      expect(
+        updateProductStatusSchema.safeParse({ isActive: false }).success,
+      ).toBe(true);
       expect(updateProductStatusSchema.safeParse({}).success).toBe(false);
     });
   });

@@ -1,11 +1,6 @@
 import React from 'react';
 import { User, Shield, Globe, Clock, Layers, FileCode } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { useLanguage } from '../../context/LanguageContext';
 import { AuditActionBadge } from './AuditActionBadge';
 import { TARGET_TABLE_KEYS } from './auditConstants';
@@ -26,23 +21,17 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
   const newValues = log.newValuesJson ?? null;
 
   const allKeys = Array.from(
-    new Set([
-      ...Object.keys(oldValues ?? {}),
-      ...Object.keys(newValues ?? {}),
-    ]),
+    new Set([...Object.keys(oldValues ?? {}), ...Object.keys(newValues ?? {})]),
   );
 
-  const formattedDate = new Date(log.createdAt).toLocaleString(
-    undefined,
-    {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    },
-  );
+  const formattedDate = new Date(log.createdAt).toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 
   const tableKey = TARGET_TABLE_KEYS[log.targetTable] ?? log.targetTable;
 
@@ -66,7 +55,9 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
             <div className="flex items-center gap-1.5 text-stone-600">
               <User className="w-3.5 h-3.5 text-stone-400" />
               <span className="font-medium text-stone-800 truncate">
-                {log.admin?.fullName ?? log.admin?.username ?? t('common.system')}
+                {log.admin?.fullName ??
+                  log.admin?.username ??
+                  t('common.system')}
               </span>
             </div>
 
@@ -80,7 +71,8 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
             <div className="flex items-center gap-1.5 text-stone-600">
               <Layers className="w-3.5 h-3.5 text-stone-400" />
               <span className="font-medium text-stone-800">
-                {t(tableKey)}: <span className="font-mono text-stone-600">{log.targetId}</span>
+                {t(tableKey)}:{' '}
+                <span className="font-mono text-stone-600">{log.targetId}</span>
               </span>
             </div>
 

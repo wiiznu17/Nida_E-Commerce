@@ -69,9 +69,14 @@ export function ProductCreateErrorModal({
               </span>
               <div className="bg-brand-cream border border-brand-border rounded-lg p-3.5 space-y-2 max-h-48 overflow-y-auto">
                 {validationErrors.map((item, idx) => (
-                  <div key={idx} className="flex items-start space-x-2 text-xs text-stone-700">
+                  <div
+                    key={idx}
+                    className="flex items-start space-x-2 text-xs text-stone-700"
+                  >
                     <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
-                    <span className="font-mono text-[11px] text-brand-brown leading-snug">{item}</span>
+                    <span className="font-mono text-[11px] text-brand-brown leading-snug">
+                      {item}
+                    </span>
                   </div>
                 ))}
               </div>

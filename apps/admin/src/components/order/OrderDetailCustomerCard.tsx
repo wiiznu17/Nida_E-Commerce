@@ -1,6 +1,10 @@
 import { MapPin, CreditCard, Mail, Phone, User } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import type { ApiOrderAddress, ApiPaymentSummary, OrderStatus } from '@repo/types';
+import type {
+  ApiOrderAddress,
+  ApiPaymentSummary,
+  OrderStatus,
+} from '@repo/types';
 
 export interface OrderDetailCustomerCardProps {
   shippingAddress?: ApiOrderAddress;
@@ -51,7 +55,9 @@ export function OrderDetailCustomerCard({
                 {recipientName.slice(0, 1).toUpperCase()}
               </div>
               <div>
-                <div className="font-bold text-brand-brown text-sm">{recipientName}</div>
+                <div className="font-bold text-brand-brown text-sm">
+                  {recipientName}
+                </div>
                 <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                   {t('orders.detail.recipient')}
                 </div>
@@ -89,11 +95,15 @@ export function OrderDetailCustomerCard({
               <span>{t('orders.detail.paymentInfo')}</span>
             </div>
             <div className="flex justify-between items-center text-xs">
-              <span className="text-gray-600">{t('orders.detail.paymentMethod')}</span>
+              <span className="text-gray-600">
+                {t('orders.detail.paymentMethod')}
+              </span>
               <strong className="text-brand-brown">{paymentMethod}</strong>
             </div>
             <div className="flex justify-between items-center text-xs pt-1">
-              <span className="text-gray-600">{t('orders.detail.transactionStatus')}</span>
+              <span className="text-gray-600">
+                {t('orders.detail.transactionStatus')}
+              </span>
               <span
                 className={`font-black text-[10px] uppercase px-1.5 py-0.5 rounded-2xs ${
                   status === 'CANCELLED'

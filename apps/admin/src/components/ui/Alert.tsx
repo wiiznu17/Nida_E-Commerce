@@ -1,5 +1,11 @@
 import * as React from 'react';
-import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
+import {
+  CheckCircle2,
+  AlertCircle,
+  AlertTriangle,
+  Info,
+  X,
+} from 'lucide-react';
 import { cn } from 'cn';
 
 export type AlertVariant = 'success' | 'error' | 'warning' | 'info';
@@ -14,7 +20,11 @@ export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const variantStyles: Record<
   AlertVariant,
-  { container: string; iconClass: string; icon: React.ComponentType<{ size?: number; className?: string }> }
+  {
+    container: string;
+    iconClass: string;
+    icon: React.ComponentType<{ size?: number; className?: string }>;
+  }
 > = {
   success: {
     container: 'bg-emerald-50/80 border-emerald-300 text-emerald-900',
@@ -61,7 +71,12 @@ export function Alert({
       {...props}
     >
       <div className="flex items-center space-x-2.5 min-w-0">
-        {showIcon && <IconComponent size={16} className={cn('shrink-0', current.iconClass)} />}
+        {showIcon && (
+          <IconComponent
+            size={16}
+            className={cn('shrink-0', current.iconClass)}
+          />
+        )}
         <div className="truncate">{message ?? children}</div>
       </div>
       {onClose && (

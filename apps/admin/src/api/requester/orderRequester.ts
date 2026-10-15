@@ -33,8 +33,14 @@ export const orderRequester = {
     return data;
   },
 
-  async fulfill(orderIdentifier: string, payload: FulfillOrderPayload): Promise<unknown> {
-    const data = await apiClient.post(`/orders/${orderIdentifier}/fulfill`, payload);
+  async fulfill(
+    orderIdentifier: string,
+    payload: FulfillOrderPayload,
+  ): Promise<unknown> {
+    const data = await apiClient.post(
+      `/orders/${orderIdentifier}/fulfill`,
+      payload,
+    );
     return data;
   },
 
@@ -44,7 +50,9 @@ export const orderRequester = {
   ): Promise<ApiOrder> {
     const data = await apiClient.post<ApiOrder>(
       `/orders/${orderIdOrNumber}/carrier-booking`,
-      { carrierCode },
+      {
+        carrierCode,
+      },
     );
     return data;
   },

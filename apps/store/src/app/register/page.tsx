@@ -27,7 +27,8 @@ export default function RegisterPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    const value =
+      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({ ...formData, [e.target.id]: value });
   };
 
@@ -93,7 +94,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1"
+            >
               {t('auth.emailLabel')}
             </label>
             <input
@@ -108,7 +112,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
+            <label
+              htmlFor="phone"
+              className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1"
+            >
               {t('auth.phone')}
             </label>
             <input
@@ -131,7 +138,10 @@ export default function RegisterPage() {
               required
               className="mt-1 accent-[#2B1810]"
             />
-            <label htmlFor="agreeTerms" className="text-xs text-gray-600 leading-snug">
+            <label
+              htmlFor="agreeTerms"
+              className="text-xs text-gray-600 leading-snug"
+            >
               {t('auth.agreeTerms')}
             </label>
           </div>
@@ -153,7 +163,10 @@ export default function RegisterPage() {
         <div className="mt-8 text-center pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-600">
             {t('auth.alreadyMember')}{' '}
-            <Link href="/login" className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1">
+            <Link
+              href="/login"
+              className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1"
+            >
               {t('nav.signIn')}
             </Link>
           </p>

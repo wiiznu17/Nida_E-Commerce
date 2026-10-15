@@ -133,7 +133,11 @@ export interface FormVariantsSectionProps {
   onCustomSizeInputChange: (val: string) => void;
   onAddCustomSize: () => void;
   onRegenerateMatrix: () => void;
-  onUpdateSkuRow: (index: number, field: keyof SkuVariant, value: SkuVariant[keyof SkuVariant]) => void;
+  onUpdateSkuRow: (
+    index: number,
+    field: keyof SkuVariant,
+    value: SkuVariant[keyof SkuVariant],
+  ) => void;
   onSingleSkuCodeChange: (val: string) => void;
   onSingleLowStockChange: (val: string | number) => void;
 }

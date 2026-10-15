@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from 'react';
 import type { StorefrontProduct } from '@repo/types';
 import th from '../locales/th.json';
 import en from '../locales/en.json';
@@ -9,7 +15,10 @@ export type Language = 'th' | 'en';
 
 export const locales: Record<Language, Record<string, unknown>> = { th, en };
 
-function getNestedValue(obj: Record<string, unknown>, path: string): string | undefined {
+function getNestedValue(
+  obj: Record<string, unknown>,
+  path: string,
+): string | undefined {
   if (!obj || typeof obj !== 'object') return undefined;
 
   // Direct property check first (for flat keys)
@@ -21,7 +30,11 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string | un
   const parts = path.split('.');
   let current: unknown = obj;
   for (const part of parts) {
-    if (current === null || current === undefined || typeof current !== 'object') {
+    if (
+      current === null ||
+      current === undefined ||
+      typeof current !== 'object'
+    ) {
       return undefined;
     }
     current = (current as Record<string, unknown>)[part];
@@ -37,7 +50,9 @@ interface LanguageContextType {
   t: (key: string, fallback?: string) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined,
+);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>('th');
@@ -110,28 +125,40 @@ export const useLanguage = () => {
 };
 
 // Localized Product Accessor Helpers
-export function getProductTitle(product: StorefrontProduct, lang: Language): string {
+export function getProductTitle(
+  product: StorefrontProduct,
+  lang: Language,
+): string {
   if (lang === 'th' && product.nameTh) {
     return product.nameTh;
   }
   return product.name;
 }
 
-export function getProductSubCategory(product: StorefrontProduct, lang: Language): string {
+export function getProductSubCategory(
+  product: StorefrontProduct,
+  lang: Language,
+): string {
   if (lang === 'th' && product.subCategoryTh) {
     return product.subCategoryTh;
   }
   return product.subCategory ?? product.category;
 }
 
-export function getProductTag(product: StorefrontProduct, lang: Language): string | undefined {
+export function getProductTag(
+  product: StorefrontProduct,
+  lang: Language,
+): string | undefined {
   if (lang === 'th' && product.tagTh) {
     return product.tagTh;
   }
   return product.tag;
 }
 
-export function getProductDescription(product: StorefrontProduct, lang: Language): string | undefined {
+export function getProductDescription(
+  product: StorefrontProduct,
+  lang: Language,
+): string | undefined {
   if (lang === 'th' && product.descriptionTh) {
     return product.descriptionTh;
   }

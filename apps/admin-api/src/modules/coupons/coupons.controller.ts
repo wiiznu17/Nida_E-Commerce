@@ -38,7 +38,8 @@ export class CouponsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'สร้างคูปองส่วนลดใหม่',
-    description: 'เพิ่มคูปองโปรโมชันใหม่เข้าสู่ระบบ พร้อมกำหนดเงื่อนไขส่วนลดและสิทธิ์การใช้งาน',
+    description:
+      'เพิ่มคูปองโปรโมชันใหม่เข้าสู่ระบบ พร้อมกำหนดเงื่อนไขส่วนลดและสิทธิ์การใช้งาน',
   })
   @ApiResponse({ status: 201, description: 'สร้างคูปองสำเร็จ' })
   @ApiResponse({ status: 409, description: 'รหัสคูปองซ้ำในระบบ' })

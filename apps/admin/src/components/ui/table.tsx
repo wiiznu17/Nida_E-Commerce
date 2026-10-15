@@ -3,15 +3,19 @@ import { cn } from 'cn';
 
 export interface TableContainerProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export const TableContainer = React.forwardRef<HTMLDivElement, TableContainerProps>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('bg-white border border-brand-border overflow-hidden rounded-xs shadow-2xs', className)}
-      {...props}
-    />
-  ),
-);
+export const TableContainer = React.forwardRef<
+  HTMLDivElement,
+  TableContainerProps
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'bg-white border border-brand-border overflow-hidden rounded-xs shadow-2xs',
+      className,
+    )}
+    {...props}
+  />
+));
 TableContainer.displayName = 'TableContainer';
 
 export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
@@ -23,7 +27,10 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
     <div className={cn('relative w-full overflow-x-auto', containerClassName)}>
       <table
         ref={ref}
-        className={cn('w-full text-left border-collapse text-xs caption-bottom', className)}
+        className={cn(
+          'w-full text-left border-collapse text-xs caption-bottom',
+          className,
+        )}
         {...props}
       />
     </div>
@@ -52,7 +59,10 @@ export const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn('divide-y divide-gray-100 font-medium text-gray-700', className)}
+    className={cn(
+      'divide-y divide-gray-100 font-medium text-gray-700',
+      className,
+    )}
     {...props}
   />
 ));
@@ -64,7 +74,10 @@ export const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn('border-t border-brand-border bg-brand-cream font-medium text-gray-700', className)}
+    className={cn(
+      'border-t border-brand-border bg-brand-cream font-medium text-gray-700',
+      className,
+    )}
     {...props}
   />
 ));
@@ -91,7 +104,10 @@ export const TableHead = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
-    className={cn('p-3.5 align-middle font-bold text-gray-600 [&:has([role=checkbox])]:pr-0', className)}
+    className={cn(
+      'p-3.5 align-middle font-bold text-gray-600 [&:has([role=checkbox])]:pr-0',
+      className,
+    )}
     {...props}
   />
 ));
@@ -103,7 +119,10 @@ export const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn('p-3.5 align-middle [&:has([role=checkbox])]:pr-0', className)}
+    className={cn(
+      'p-3.5 align-middle [&:has([role=checkbox])]:pr-0',
+      className,
+    )}
     {...props}
   />
 ));

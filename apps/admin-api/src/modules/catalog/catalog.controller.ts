@@ -124,7 +124,8 @@ export class CatalogController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Product created successfully with variants and inventory items.',
+    description:
+      'Product created successfully with variants and inventory items.',
   })
   createProduct(
     @Body(new ZodValidationPipe(createProductSchema))
@@ -137,7 +138,8 @@ export class CatalogController {
   @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @ApiOperation({
     summary: 'Update product details',
-    description: 'Update catalog specifications, pricing, and details of an existing product.',
+    description:
+      'Update catalog specifications, pricing, and details of an existing product.',
   })
   @ApiParam({ name: 'id', description: 'Product UUID or slug' })
   updateProduct(
@@ -151,7 +153,8 @@ export class CatalogController {
   @RequirePermissions(AdminPermission.CATALOG_WRITE)
   @ApiOperation({
     summary: 'Toggle product active/published status',
-    description: 'Updates publication status (isActive: true/false) of a product.',
+    description:
+      'Updates publication status (isActive: true/false) of a product.',
   })
   @ApiParam({ name: 'id', description: 'Product UUID' })
   toggleProductStatus(
@@ -167,11 +170,11 @@ export class CatalogController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Delete or archive a product',
-    description: 'Deletes a product, or archives it if associated with order history.',
+    description:
+      'Deletes a product, or archives it if associated with order history.',
   })
   @ApiParam({ name: 'id', description: 'Product UUID' })
   deleteProduct(@Param('id') id: string) {
     return this.catalogService.deleteProduct(id);
   }
 }
-

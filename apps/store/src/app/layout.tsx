@@ -28,9 +28,16 @@ export const metadata: Metadata = {
     "Discover Nida's iconic prep-inspired apparel, leather bags, footwear, and home lifestyle. Founded by Phannida — intentional design, uncomprised spirit.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="th" className={`${montserrat.variable} ${inter.variable} ${playfair.variable} h-full antialiased`}>
+    <html
+      lang="th"
+      className={`${montserrat.variable} ${inter.variable} ${playfair.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">
         <Providers>
           <Layout>{children}</Layout>

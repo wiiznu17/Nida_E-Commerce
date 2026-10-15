@@ -4,7 +4,10 @@ import { PassportModule } from '@nestjs/passport';
 import { CustomerAuthController } from './auth.controller.js';
 import { CustomerAuthService } from './auth.service.js';
 import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy.js';
-import { CustomerJwtGuard, OptionalCustomerJwtGuard } from './guards/customer-jwt.guard.js';
+import {
+  CustomerJwtGuard,
+  OptionalCustomerJwtGuard,
+} from './guards/customer-jwt.guard.js';
 
 @Module({
   imports: [

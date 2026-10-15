@@ -1,4 +1,9 @@
-import { Injectable, Logger, BadRequestException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  OnModuleInit,
+} from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -37,9 +42,12 @@ export class UploadService implements OnModuleInit {
 
   onModuleInit() {
     this.cleanupExpiredTempFiles();
-    setInterval(() => {
-      this.cleanupExpiredTempFiles();
-    }, 6 * 60 * 60 * 1000).unref();
+    setInterval(
+      () => {
+        this.cleanupExpiredTempFiles();
+      },
+      6 * 60 * 60 * 1000,
+    ).unref();
   }
 
   async uploadImage(
@@ -50,7 +58,10 @@ export class UploadService implements OnModuleInit {
       throw new BadRequestException('No file provided');
     }
 
-    const cleanFolder = subFolder.trim().replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
+    const cleanFolder = subFolder
+      .trim()
+      .replace(/[^a-zA-Z0-9_\-]/g, '')
+      .toLowerCase();
     const targetFolder = cleanFolder.length > 0 ? cleanFolder : 'products';
 
     const cloudinaryConfig = this.resolveCloudinaryConfig();
@@ -62,7 +73,9 @@ export class UploadService implements OnModuleInit {
           cloudinaryConfig,
           cloudinaryFolder,
         );
-        this.logger.log(`Successfully uploaded image to Cloudinary (${cloudinaryFolder}): ${resultUrl}`);
+        this.logger.log(
+          `Successfully uploaded image to Cloudinary (${cloudinaryFolder}): ${resultUrl}`,
+        );
         return { url: resultUrl, source: 'cloudinary' };
       } catch (err: unknown) {
         const errMsg = err instanceof Error ? err.message : String(err);
@@ -138,7 +151,9 @@ export class UploadService implements OnModuleInit {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Cloudinary API responded with status ${response.status}: ${errorText}`);
+      throw new Error(
+        `Cloudinary API responded with status ${response.status}: ${errorText}`,
+      );
     }
 
     const json = (await response.json()) as CloudinaryUploadResponse;
@@ -150,7 +165,10 @@ export class UploadService implements OnModuleInit {
     return resultUrl;
   }
 
-  private async saveLocally(file: UploadedFileDto, subFolder: string = 'products'): Promise<string> {
+  private async saveLocally(
+    file: UploadedFileDto,
+    subFolder: string = 'products',
+  ): Promise<string> {
     const uploadDir = path.join(process.cwd(), 'uploads', subFolder);
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
@@ -165,7 +183,10 @@ export class UploadService implements OnModuleInit {
     return this.buildLocalUrl(subFolder, filename);
   }
 
-  async commitTempImage(url?: string, targetSubFolder: string = 'products'): Promise<string> {
+  async commitTempImage(
+    url?: string,
+    targetSubFolder: string = 'products',
+  ): Promise<string> {
     if (!url || typeof url !== 'string') {
       return url ?? '';
     }
@@ -184,7 +205,9 @@ export class UploadService implements OnModuleInit {
 
         if (fs.existsSync(tempPath)) {
           await fs.promises.rename(tempPath, targetPath);
-          this.logger.log(`[Storage] Committed temp image to ${targetSubFolder}: ${filename}`);
+          this.logger.log(
+            `[Storage] Committed temp image to ${targetSubFolder}: ${filename}`,
+          );
         }
 
         return this.buildLocalUrl(targetSubFolder, filename);
@@ -219,7 +242,9 @@ export class UploadService implements OnModuleInit {
       }
 
       if (deletedCount > 0) {
-        this.logger.log(`[Storage Cleanup] Purged ${deletedCount} abandoned temp images.`);
+        this.logger.log(
+          `[Storage Cleanup] Purged ${deletedCount} abandoned temp images.`,
+        );
       }
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);

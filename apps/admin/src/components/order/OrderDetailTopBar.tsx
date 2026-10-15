@@ -111,7 +111,9 @@ export function OrderDetailTopBar({
           title={t('orders.detail.liveTracking')}
         >
           <ExternalLink size={13} />
-          <span className="hidden sm:inline">{t('orders.detail.liveTracking')}</span>
+          <span className="hidden sm:inline">
+            {t('orders.detail.liveTracking')}
+          </span>
         </a>
 
         <button
@@ -147,7 +149,9 @@ export function OrderDetailTopBar({
         >
           <Check size={14} />
           <span>
-            {isUpdating ? t('orders.detail.updatingStatus') : t('orders.detail.updateStatusBtn')}
+            {isUpdating
+              ? t('orders.detail.updatingStatus')
+              : t('orders.detail.updateStatusBtn')}
           </span>
         </button>
       </div>

@@ -10,7 +10,10 @@ import type { ApiError } from '@repo/types';
 import { HttpExceptionFilter } from '../../src/core/filters/http-exception.filter.js';
 
 describe('HttpExceptionFilter', () => {
-  const createMockHost = (jsonSpy: ReturnType<typeof vi.fn>, statusSpy: ReturnType<typeof vi.fn>): ArgumentsHost => {
+  const createMockHost = (
+    jsonSpy: ReturnType<typeof vi.fn>,
+    statusSpy: ReturnType<typeof vi.fn>,
+  ): ArgumentsHost => {
     const mockResponse = {
       status: statusSpy.mockReturnValue({ json: jsonSpy }),
       json: jsonSpy,
@@ -51,7 +54,10 @@ describe('HttpExceptionFilter', () => {
     const statusSpy = vi.fn();
     const host = createMockHost(jsonSpy, statusSpy);
 
-    const validationIssues = ['title: Title is required', 'price: Price must be at least 0'];
+    const validationIssues = [
+      'title: Title is required',
+      'price: Price must be at least 0',
+    ];
     const exception = new BadRequestException({
       statusCode: 400,
       error: 'Bad Request',
@@ -78,7 +84,10 @@ describe('HttpExceptionFilter', () => {
     const statusSpy = vi.fn();
     const host = createMockHost(jsonSpy, statusSpy);
 
-    const classValidatorMessages = ['email must be an email', 'name should not be empty'];
+    const classValidatorMessages = [
+      'email must be an email',
+      'name should not be empty',
+    ];
     const exception = new BadRequestException({
       statusCode: 400,
       error: 'Bad Request',

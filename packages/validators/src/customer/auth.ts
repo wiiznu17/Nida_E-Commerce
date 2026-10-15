@@ -32,7 +32,9 @@ export const updateCustomerProfileSchema = z.object({
   phone: z.string().trim().optional(),
 });
 
-export type UpdateCustomerProfileInput = z.infer<typeof updateCustomerProfileSchema>;
+export type UpdateCustomerProfileInput = z.infer<
+  typeof updateCustomerProfileSchema
+>;
 
 /**
  * Customer Shipping / Billing Address Schema

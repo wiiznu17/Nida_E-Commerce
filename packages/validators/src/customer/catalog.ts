@@ -17,9 +17,23 @@ export const queryProductsSchema = z.object({
     .union([z.boolean(), z.enum(['true', 'false'])])
     .transform((val) => val === true || val === 'true')
     .optional(),
-  sortBy: z.enum(['newest', 'price_asc', 'price_desc', 'bestseller']).optional().default('newest'),
-  page: z.coerce.number().int().min(1, 'Page must be at least 1').optional().default(1),
-  limit: z.coerce.number().int().min(1).max(100, 'Limit cannot exceed 100').optional().default(12),
+  sortBy: z
+    .enum(['newest', 'price_asc', 'price_desc', 'bestseller'])
+    .optional()
+    .default('newest'),
+  page: z.coerce
+    .number()
+    .int()
+    .min(1, 'Page must be at least 1')
+    .optional()
+    .default(1),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100, 'Limit cannot exceed 100')
+    .optional()
+    .default(12),
 });
 
 export type QueryProductsInput = z.infer<typeof queryProductsSchema>;

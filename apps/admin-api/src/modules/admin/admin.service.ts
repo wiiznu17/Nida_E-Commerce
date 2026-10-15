@@ -173,7 +173,9 @@ export class AdminService {
       });
 
       if (!updatedItem) {
-        throw new NotFoundException(`Inventory item for "${identifier}" not found`);
+        throw new NotFoundException(
+          `Inventory item for "${identifier}" not found`,
+        );
       }
 
       await tx.stockMovement.create({
@@ -425,7 +427,8 @@ export class AdminService {
     });
 
     return orders.map((order): ApiOrder => {
-      const address = (order.shippingAddressSnapshot as Record<string, unknown>) ?? {};
+      const address =
+        (order.shippingAddressSnapshot as Record<string, unknown>) ?? {};
       return {
         id: order.id,
         orderNumber: order.orderNumber,
@@ -454,7 +457,9 @@ export class AdminService {
           recipientName: String(address['recipientName'] ?? ''),
           phone: String(address['phone'] ?? ''),
           addressLine1: String(address['addressLine1'] ?? ''),
-          addressLine2: address['addressLine2'] ? String(address['addressLine2']) : undefined,
+          addressLine2: address['addressLine2']
+            ? String(address['addressLine2'])
+            : undefined,
           subdistrict: String(address['subdistrict'] ?? ''),
           district: String(address['district'] ?? ''),
           province: String(address['province'] ?? ''),

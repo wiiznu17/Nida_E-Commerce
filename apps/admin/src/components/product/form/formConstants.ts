@@ -49,12 +49,16 @@ export function getDepartmentCode(dept: string): string {
 }
 
 export function getColorName(hex: string): string {
-  const match = PRESET_COLORS.find((c) => c.hex.toLowerCase() === hex.toLowerCase());
+  const match = PRESET_COLORS.find(
+    (c) => c.hex.toLowerCase() === hex.toLowerCase(),
+  );
   return match ? match.name : 'Custom Color';
 }
 
 export function getColorCode(hex: string): string {
-  const match = PRESET_COLORS.find((c) => c.hex.toLowerCase() === hex.toLowerCase());
+  const match = PRESET_COLORS.find(
+    (c) => c.hex.toLowerCase() === hex.toLowerCase(),
+  );
   if (match) {
     if (match.name === 'Nida Espresso') return 'ESP';
     if (match.name === 'Pure White') return 'WHT';
@@ -83,7 +87,8 @@ export function buildSkuMatrix(
 
     for (const s of sizes) {
       const existing = currentSkus.find(
-        (item) => item.colorHex.toLowerCase() === c.toLowerCase() && item.size === s,
+        (item) =>
+          item.colorHex.toLowerCase() === c.toLowerCase() && item.size === s,
       );
 
       if (existing) {

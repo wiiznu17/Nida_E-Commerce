@@ -62,8 +62,16 @@ export function validateOrderStatusTransition(
  * Admin Fulfill Order Schema
  */
 export const fulfillOrderSchema = z.object({
-  carrierCode: z.enum(['KERRY_EXPRESS', 'FLASH_EXPRESS', 'THAILAND_POST_EMS', 'DHL_EXPRESS']),
-  trackingNumber: z.string().trim().min(3, 'Tracking number must be at least 3 characters'),
+  carrierCode: z.enum([
+    'KERRY_EXPRESS',
+    'FLASH_EXPRESS',
+    'THAILAND_POST_EMS',
+    'DHL_EXPRESS',
+  ]),
+  trackingNumber: z
+    .string()
+    .trim()
+    .min(3, 'Tracking number must be at least 3 characters'),
   adminNote: z.string().trim().optional(),
 });
 
@@ -85,4 +93,6 @@ export const updateShipmentStatusSchema = z.object({
   description: z.string().trim().optional(),
 });
 
-export type UpdateShipmentStatusInput = z.infer<typeof updateShipmentStatusSchema>;
+export type UpdateShipmentStatusInput = z.infer<
+  typeof updateShipmentStatusSchema
+>;

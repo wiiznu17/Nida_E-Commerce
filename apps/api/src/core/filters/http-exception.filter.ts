@@ -40,17 +40,25 @@ export class HttpExceptionFilter implements ExceptionFilter {
         }
 
         if (Array.isArray(res['issues'])) {
-          issues = res['issues'].filter((i): i is string => typeof i === 'string');
+          issues = res['issues'].filter(
+            (i): i is string => typeof i === 'string',
+          );
         } else if (Array.isArray(res['message'])) {
-          issues = res['message'].filter((i): i is string => typeof i === 'string');
+          issues = res['message'].filter(
+            (i): i is string => typeof i === 'string',
+          );
         } else if (
           typeof res['details'] === 'object' &&
           res['details'] !== null &&
-          Array.isArray((res['details'] as Record<string, unknown>)['validation'])
+          Array.isArray(
+            (res['details'] as Record<string, unknown>)['validation'],
+          )
         ) {
-          issues = ((res['details'] as Record<string, unknown>)['validation'] as unknown[]).filter(
-            (i): i is string => typeof i === 'string',
-          );
+          issues = (
+            (res['details'] as Record<string, unknown>)[
+              'validation'
+            ] as unknown[]
+          ).filter((i): i is string => typeof i === 'string');
         }
 
         if (typeof res['message'] === 'string' && res['message'].length > 0) {

@@ -9,7 +9,11 @@ export const createSkuVariantSchema = z.object({
   colorName: z.string().trim().min(1, 'Color name is required'),
   colorHex: z.string().trim().min(1, 'Color hex code is required'),
   stock: z.coerce.number().int().min(0, 'Stock cannot be negative').default(0),
-  lowStockThreshold: z.coerce.number().int().min(0, 'Low stock threshold cannot be negative').default(5),
+  lowStockThreshold: z.coerce
+    .number()
+    .int()
+    .min(0, 'Low stock threshold cannot be negative')
+    .default(5),
   priceAdjustment: z.coerce.number().default(0),
   barcode: z.string().trim().optional().nullable(),
   weightGrams: z.preprocess(
@@ -27,13 +31,33 @@ export const createProductSchema = z
   .object({
     name: z.string().trim().min(1, 'Product name is required'),
     nameTh: z.string().trim().optional().nullable(),
-    price: z.coerce.number().positive('Price must be greater than 0').optional().nullable(),
-    basePrice: z.coerce.number().positive('Base price must be greater than 0').optional().nullable(),
+    price: z.coerce
+      .number()
+      .positive('Price must be greater than 0')
+      .optional()
+      .nullable(),
+    basePrice: z.coerce
+      .number()
+      .positive('Base price must be greater than 0')
+      .optional()
+      .nullable(),
     originalPrice: z.preprocess(
-      (val) => (val === 0 || val === '' || val === null || val === undefined ? null : val),
-      z.coerce.number().positive('Original price must be greater than 0').optional().nullable(),
+      (val) =>
+        val === 0 || val === '' || val === null || val === undefined
+          ? null
+          : val,
+      z.coerce
+        .number()
+        .positive('Original price must be greater than 0')
+        .optional()
+        .nullable(),
     ),
-    image: z.string().trim().min(1, 'Primary cover image is required').optional().nullable(),
+    image: z
+      .string()
+      .trim()
+      .min(1, 'Primary cover image is required')
+      .optional()
+      .nullable(),
     secondaryImage: z.string().trim().optional().nullable(),
     category: z.string().trim().min(1, 'Category is required'),
     department: z.string().trim().optional().nullable(),
@@ -76,4 +100,6 @@ export const updateProductStatusSchema = z.object({
   isActive: z.coerce.boolean(),
 });
 
-export type UpdateProductStatusInput = z.infer<typeof updateProductStatusSchema>;
+export type UpdateProductStatusInput = z.infer<
+  typeof updateProductStatusSchema
+>;

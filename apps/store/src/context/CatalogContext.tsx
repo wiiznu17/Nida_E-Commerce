@@ -1,6 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useMemo, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  type ReactNode,
+} from 'react';
 import type { ApiCategory, StorefrontProduct } from '@repo/types';
 import { fetchCatalogProducts, fetchCatalogCategories } from '@/lib/catalogApi';
 
@@ -127,4 +134,3 @@ export function useCatalog() {
   }
   return context;
 }
-

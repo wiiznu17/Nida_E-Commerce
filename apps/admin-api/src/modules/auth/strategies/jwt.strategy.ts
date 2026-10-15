@@ -37,10 +37,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
 
     if (!admin || !admin.isActive) {
-      throw new UnauthorizedException('Account not found or has been deactivated');
+      throw new UnauthorizedException(
+        'Account not found or has been deactivated',
+      );
     }
 
-    const permissions = admin.role.rolePermissions.map((rp) => rp.permission.permissionCode);
+    const permissions = admin.role.rolePermissions.map(
+      (rp) => rp.permission.permissionCode,
+    );
 
     return {
       id: admin.id,

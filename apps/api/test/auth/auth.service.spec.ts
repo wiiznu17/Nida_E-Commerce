@@ -28,7 +28,9 @@ describe('CustomerAuthService', () => {
     };
 
     redisMock = {
-      checkRateLimit: vi.fn().mockResolvedValue({ allowed: true, remaining: 2, retryAfter: 60 }),
+      checkRateLimit: vi
+        .fn()
+        .mockResolvedValue({ allowed: true, remaining: 2, retryAfter: 60 }),
     };
 
     mailerMock = {
@@ -54,14 +56,20 @@ describe('CustomerAuthService', () => {
 
       expect(result.success).toBe(true);
       expect(result.expiresInSeconds).toBe(300);
-      expect((mailerMock as { sendOtpEmail: ReturnType<typeof vi.fn> }).sendOtpEmail).toHaveBeenCalledWith(
+      expect(
+        (mailerMock as { sendOtpEmail: ReturnType<typeof vi.fn> }).sendOtpEmail,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           to: email,
           otpCode: expect.stringMatching(/^\d{6}$/),
         }),
       );
       expect(
-        (prismaMock as { otpVerification: { create: ReturnType<typeof vi.fn> } }).otpVerification.create,
+        (
+          prismaMock as {
+            otpVerification: { create: ReturnType<typeof vi.fn> };
+          }
+        ).otpVerification.create,
       ).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
@@ -73,13 +81,17 @@ describe('CustomerAuthService', () => {
     });
 
     it('throws HttpException with 429 when OTP rate limit is exceeded', async () => {
-      (redisMock as { checkRateLimit: ReturnType<typeof vi.fn> }).checkRateLimit.mockResolvedValueOnce({
+      (
+        redisMock as { checkRateLimit: ReturnType<typeof vi.fn> }
+      ).checkRateLimit.mockResolvedValueOnce({
         allowed: false,
         remaining: 0,
         retryAfter: 120,
       });
 
-      await expect(service.requestOtp({ email: 'spam@nida.co' })).rejects.toThrowError();
+      await expect(
+        service.requestOtp({ email: 'spam@nida.co' }),
+      ).rejects.toThrowError();
     });
   });
 
@@ -97,12 +109,18 @@ describe('CustomerAuthService', () => {
       };
 
       (
-        prismaMock as { otpVerification: { findFirst: ReturnType<typeof vi.fn> } }
+        prismaMock as {
+          otpVerification: { findFirst: ReturnType<typeof vi.fn> };
+        }
       ).otpVerification.findFirst.mockResolvedValueOnce(validRecord);
 
-      (prismaMock as { user: { findUnique: ReturnType<typeof vi.fn> } }).user.findUnique.mockResolvedValueOnce(null);
+      (
+        prismaMock as { user: { findUnique: ReturnType<typeof vi.fn> } }
+      ).user.findUnique.mockResolvedValueOnce(null);
 
-      (prismaMock as { user: { create: ReturnType<typeof vi.fn> } }).user.create.mockResolvedValueOnce({
+      (
+        prismaMock as { user: { create: ReturnType<typeof vi.fn> } }
+      ).user.create.mockResolvedValueOnce({
         id: 'usr-new-1',
         email,
         fullName: null,
@@ -118,7 +136,11 @@ describe('CustomerAuthService', () => {
       expect(response.accessToken).toBe('mock-jwt-token');
       expect(response.user.email).toBe(email);
       expect(
-        (prismaMock as { otpVerification: { update: ReturnType<typeof vi.fn> } }).otpVerification.update,
+        (
+          prismaMock as {
+            otpVerification: { update: ReturnType<typeof vi.fn> };
+          }
+        ).otpVerification.update,
       ).toHaveBeenCalledWith({
         where: { id: 'otp-uuid-1' },
         data: { isUsed: true },
@@ -127,7 +149,9 @@ describe('CustomerAuthService', () => {
 
     it('rejects verification if OTP is expired or incorrect', async () => {
       (
-        prismaMock as { otpVerification: { findFirst: ReturnType<typeof vi.fn> } }
+        prismaMock as {
+          otpVerification: { findFirst: ReturnType<typeof vi.fn> };
+        }
       ).otpVerification.findFirst.mockResolvedValueOnce(null);
 
       await expect(

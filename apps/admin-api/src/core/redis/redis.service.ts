@@ -54,7 +54,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         maxRetriesPerRequest: 1,
         retryStrategy: (times) => {
           if (times > 3) {
-            this.logger.warn('Redis reconnection attempts exhausted, operating in memory fallback mode');
+            this.logger.warn(
+              'Redis reconnection attempts exhausted, operating in memory fallback mode',
+            );
             return null;
           }
           return Math.min(times * 200, 1000);
@@ -69,18 +71,24 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.client.on('error', (err: unknown) => {
         this.isConnected = false;
         const msg = err instanceof Error ? err.message : String(err);
-        this.logger.warn(`Redis connection error: ${msg}. Utilizing resilient in-memory fallback`);
+        this.logger.warn(
+          `Redis connection error: ${msg}. Utilizing resilient in-memory fallback`,
+        );
       });
 
       this.client.connect().catch((err: unknown) => {
         this.isConnected = false;
         const msg = err instanceof Error ? err.message : String(err);
-        this.logger.warn(`Initial Redis connection failed: ${msg}. In-memory store activated`);
+        this.logger.warn(
+          `Initial Redis connection failed: ${msg}. In-memory store activated`,
+        );
       });
     } catch (err: unknown) {
       this.isConnected = false;
       const msg = err instanceof Error ? err.message : String(err);
-      this.logger.warn(`Failed to initialize Redis client: ${msg}. In-memory fallback engaged`);
+      this.logger.warn(
+        `Failed to initialize Redis client: ${msg}. In-memory fallback engaged`,
+      );
     }
   }
 
@@ -98,7 +106,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   // REFRESH TOKEN SESSION MANAGEMENT
   // ====================================================
 
-  async setSession(tokenId: string, data: RedisSessionData, ttlSeconds: number): Promise<void> {
+  async setSession(
+    tokenId: string,
+    data: RedisSessionData,
+    ttlSeconds: number,
+  ): Promise<void> {
     const key = `admin:refresh:${tokenId}`;
     const payload = JSON.stringify(data);
 
@@ -107,7 +119,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.set(key, payload, 'EX', ttlSeconds);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis setSession failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis setSession failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -126,7 +140,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         if (!raw) return null;
         return JSON.parse(raw) as RedisSessionData;
       } catch (err: unknown) {
-        this.logger.warn(`Redis getSession failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis getSession failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -148,7 +164,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.del(key);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis deleteSession failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis deleteSession failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -167,7 +185,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.sadd(key, tokenId);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis addSessionToUser failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis addSessionToUser failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -187,7 +207,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.srem(key, tokenId);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis removeSessionFromUser failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis removeSessionFromUser failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -204,7 +226,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       try {
         return await this.client.smembers(key);
       } catch (err: unknown) {
-        this.logger.warn(`Redis getUserSessions failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis getUserSessions failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -226,7 +250,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         }
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis revokeAllUserSessions failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis revokeAllUserSessions failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -240,7 +266,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   // INVITATION ONE-TIME TOKENS
   // ====================================================
 
-  async setInviteToken(token: string, data: InviteTokenPayload, ttlSeconds: number): Promise<void> {
+  async setInviteToken(
+    token: string,
+    data: InviteTokenPayload,
+    ttlSeconds: number,
+  ): Promise<void> {
     const key = `admin:invite:${token}`;
     const payload = JSON.stringify(data);
 
@@ -249,7 +279,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.set(key, payload, 'EX', ttlSeconds);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis setInviteToken failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis setInviteToken failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -268,7 +300,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         if (!raw) return null;
         return JSON.parse(raw) as InviteTokenPayload;
       } catch (err: unknown) {
-        this.logger.warn(`Redis getInviteToken failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis getInviteToken failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -290,7 +324,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.del(key);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis deleteInviteToken failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis deleteInviteToken failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -301,7 +337,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   // PASSWORD RESET ONE-TIME TOKENS
   // ====================================================
 
-  async setResetToken(token: string, data: ResetTokenPayload, ttlSeconds: number): Promise<void> {
+  async setResetToken(
+    token: string,
+    data: ResetTokenPayload,
+    ttlSeconds: number,
+  ): Promise<void> {
     const key = `admin:reset_password:${token}`;
     const payload = JSON.stringify(data);
 
@@ -310,7 +350,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.set(key, payload, 'EX', ttlSeconds);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis setResetToken failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis setResetToken failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -329,7 +371,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         if (!raw) return null;
         return JSON.parse(raw) as ResetTokenPayload;
       } catch (err: unknown) {
-        this.logger.warn(`Redis getResetToken failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis getResetToken failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -351,7 +395,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.del(key);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis deleteResetToken failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis deleteResetToken failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -362,7 +408,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   // BRUTE-FORCE RATE LIMITING
   // ====================================================
 
-  async checkRateLimit(key: string, limit: number, windowSeconds: number): Promise<RateLimitResult> {
+  async checkRateLimit(
+    key: string,
+    limit: number,
+    windowSeconds: number,
+  ): Promise<RateLimitResult> {
     const redisKey = `login:rate:${key}`;
 
     if (this.isConnected && this.client) {
@@ -379,7 +429,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
           retryAfter: ttl > 0 ? ttl : windowSeconds,
         };
       } catch (err: unknown) {
-        this.logger.warn(`Redis checkRateLimit failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis checkRateLimit failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -415,7 +467,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.del(redisKey);
         return;
       } catch (err: unknown) {
-        this.logger.warn(`Redis clearRateLimit failed: ${err instanceof Error ? err.message : String(err)}`);
+        this.logger.warn(
+          `Redis clearRateLimit failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 

@@ -6,7 +6,10 @@ export type Language = 'th' | 'en';
 
 export const locales: Record<Language, Record<string, unknown>> = { th, en };
 
-function getNestedValue(obj: Record<string, unknown>, path: string): string | undefined {
+function getNestedValue(
+  obj: Record<string, unknown>,
+  path: string,
+): string | undefined {
   if (!obj || typeof obj !== 'object') return undefined;
 
   // Direct property check first (for flat keys)
@@ -18,7 +21,11 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string | un
   const parts = path.split('.');
   let current: unknown = obj;
   for (const part of parts) {
-    if (current === null || current === undefined || typeof current !== 'object') {
+    if (
+      current === null ||
+      current === undefined ||
+      typeof current !== 'object'
+    ) {
       return undefined;
     }
     current = (current as Record<string, unknown>)[part];
@@ -34,7 +41,9 @@ interface LanguageContextType {
   t: (key: string, fallback?: string) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined,
+);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
@@ -70,7 +79,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, isTh, setLanguage, toggleLanguage, t }}>
+    <LanguageContext.Provider
+      value={{ language, isTh, setLanguage, toggleLanguage, t }}
+    >
       {children}
     </LanguageContext.Provider>
   );

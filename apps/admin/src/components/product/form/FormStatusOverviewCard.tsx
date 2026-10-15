@@ -109,7 +109,10 @@ export function FormStatusOverviewCard({
         onClick={onShowPreview}
         className="w-full py-2 px-3 text-xs font-bold text-brand-brown bg-white hover:bg-amber-50/70 border border-brand-border hover:border-brand-amber rounded-md shadow-2xs transition-all flex items-center justify-center space-x-2 group cursor-pointer"
       >
-        <Eye size={15} className="text-brand-amber group-hover:scale-110 transition-transform" />
+        <Eye
+          size={15}
+          className="text-brand-amber group-hover:scale-110 transition-transform"
+        />
         <span>{t('product.previewStorefront')}</span>
       </button>
     </div>

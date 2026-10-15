@@ -11,7 +11,9 @@ import {
   type StoreQueryProductsParams,
 } from '@repo/types';
 
-type CategoryWithRelations = Prisma.CategoryGetPayload<Record<string, never>> & {
+type CategoryWithRelations = Prisma.CategoryGetPayload<
+  Record<string, never>
+> & {
   children?: CategoryWithRelations[];
   _count?: { products: number };
 };
@@ -20,7 +22,9 @@ type CategoryWithRelations = Prisma.CategoryGetPayload<Record<string, never>> & 
 export class CustomerCatalogService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getProducts(params: StoreQueryProductsParams = {}): Promise<PaginatedResponse<ApiProduct>> {
+  async getProducts(
+    params: StoreQueryProductsParams = {},
+  ): Promise<PaginatedResponse<ApiProduct>> {
     const {
       department,
       category,
@@ -47,7 +51,12 @@ export class CustomerCatalogService {
 
     if (department || category) {
       const categoryFilter: Record<string, unknown> = {};
-      if (department && Object.values(Department).includes(department.toUpperCase() as Department)) {
+      if (
+        department &&
+        Object.values(Department).includes(
+          department.toUpperCase() as Department,
+        )
+      ) {
         categoryFilter['department'] = department.toUpperCase() as Department;
       }
       if (category) {
@@ -98,7 +107,9 @@ export class CustomerCatalogService {
         }
       }
 
-      const inStock = p.variants.some((v) => (v.inventoryItem?.quantityAvailable ?? 0) > 0);
+      const inStock = p.variants.some(
+        (v) => (v.inventoryItem?.quantityAvailable ?? 0) > 0,
+      );
 
       return {
         id: p.id,
@@ -136,10 +147,15 @@ export class CustomerCatalogService {
   }
 
   async getProductBySlug(slugOrId: string): Promise<ApiProductDetail> {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        slugOrId,
+      );
 
     const product = await this.prisma.product.findFirst({
-      where: isUuid ? { OR: [{ id: slugOrId }, { slug: slugOrId }] } : { slug: slugOrId },
+      where: isUuid
+        ? { OR: [{ id: slugOrId }, { slug: slugOrId }] }
+        : { slug: slugOrId },
       include: {
         category: true,
         images: { orderBy: { displayOrder: 'asc' } },
@@ -164,7 +180,9 @@ export class CustomerCatalogService {
       materialsCare: product.materialsCare ?? undefined,
       materialsCareTh: product.materialsCareTh ?? undefined,
       basePrice: Number(product.basePrice),
-      originalPrice: product.originalPrice ? Number(product.originalPrice) : undefined,
+      originalPrice: product.originalPrice
+        ? Number(product.originalPrice)
+        : undefined,
       tag: product.tag ?? undefined,
       tagTh: product.tagTh ?? undefined,
       department: product.category.department,
@@ -186,7 +204,8 @@ export class CustomerCatalogService {
       })),
       variants: product.variants.map((v) => {
         const available = v.inventoryItem?.quantityAvailable ?? 0;
-        const variantPrice = Number(product.basePrice) + Number(v.priceAdjustment);
+        const variantPrice =
+          Number(product.basePrice) + Number(v.priceAdjustment);
         const variantComparePrice = product.originalPrice
           ? Number(product.originalPrice) + Number(v.priceAdjustment)
           : undefined;
@@ -221,7 +240,10 @@ export class CustomerCatalogService {
 
   async getCategories(department?: string): Promise<ApiCategory[]> {
     const where: Prisma.CategoryWhereInput = { isActive: true };
-    if (department && Object.values(Department).includes(department.toUpperCase() as Department)) {
+    if (
+      department &&
+      Object.values(Department).includes(department.toUpperCase() as Department)
+    ) {
       where.department = department.toUpperCase() as Department;
     }
 

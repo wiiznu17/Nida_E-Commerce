@@ -32,7 +32,8 @@ export function CategoryFilterBar({
         {/* Department Filter Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
           {departments.map((dept) => {
-            const isSelected = selectedDept.toLowerCase() === dept.id.toLowerCase();
+            const isSelected =
+              selectedDept.toLowerCase() === dept.id.toLowerCase();
             return (
               <button
                 key={dept.id}
@@ -56,11 +57,17 @@ export function CategoryFilterBar({
               type="button"
               onClick={onToggleExpandAll}
               className="px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-xs border border-brand-border bg-stone-50 hover:bg-stone-100 text-stone-700 inline-flex items-center space-x-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-2xs"
-              title={areAllExpanded ? t('category.collapseAll') : t('category.expandAll')}
+              title={
+                areAllExpanded
+                  ? t('category.collapseAll')
+                  : t('category.expandAll')
+              }
             >
               <ChevronsUpDown size={14} />
               <span className="hidden sm:inline">
-                {areAllExpanded ? t('category.collapseAll') : t('category.expandAll')}
+                {areAllExpanded
+                  ? t('category.collapseAll')
+                  : t('category.expandAll')}
               </span>
             </button>
           )}

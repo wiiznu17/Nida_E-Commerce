@@ -6,7 +6,10 @@ export interface UseUnsavedChangesOptions {
   isSubmitting?: boolean;
 }
 
-export function useUnsavedChanges({ isDirty, isSubmitting = false }: UseUnsavedChangesOptions) {
+export function useUnsavedChanges({
+  isDirty,
+  isSubmitting = false,
+}: UseUnsavedChangesOptions) {
   const shouldBlock = isDirty && !isSubmitting;
 
   // Guard against browser tab closing, refreshing, or hard navigation

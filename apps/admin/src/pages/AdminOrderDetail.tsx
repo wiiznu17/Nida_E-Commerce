@@ -83,7 +83,11 @@ export default function AdminOrderDetail() {
     );
 
     if (!validation.isValid) {
-      if (selectedStatus === 'SHIPPED' && order.status === 'PROCESSING' && !hasTracking) {
+      if (
+        selectedStatus === 'SHIPPED' &&
+        order.status === 'PROCESSING' &&
+        !hasTracking
+      ) {
         showToast(t('orders.detail.specifyTrackingRequired'));
         setIsFulfillModalOpen(true);
         return;
@@ -91,7 +95,9 @@ export default function AdminOrderDetail() {
 
       showToast(
         isTh
-          ? (validation.errorTh ?? validation.error ?? t('orders.detail.statusTransitionFailed'))
+          ? (validation.errorTh ??
+              validation.error ??
+              t('orders.detail.statusTransitionFailed'))
           : (validation.error ?? t('orders.detail.statusTransitionFailed')),
       );
       setSelectedStatus(order.status);
@@ -108,7 +114,9 @@ export default function AdminOrderDetail() {
           .replace('{status}', selectedStatus),
       );
     } catch (err: unknown) {
-      showToast(err instanceof Error ? err.message : 'Failed to update order status');
+      showToast(
+        err instanceof Error ? err.message : 'Failed to update order status',
+      );
     } finally {
       setIsUpdating(false);
     }
@@ -120,10 +128,7 @@ export default function AdminOrderDetail() {
 
   if (!order) {
     return (
-      <AdminLayout
-        title={t('orders.title')}
-        subtitle={t('orders.subtitle')}
-      >
+      <AdminLayout title={t('orders.title')} subtitle={t('orders.subtitle')}>
         <div className="bg-white border border-brand-border p-12 rounded-md shadow-2xs text-center space-y-4">
           <EmptyState
             icon={Package}

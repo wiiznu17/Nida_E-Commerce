@@ -50,7 +50,9 @@ async function request<T>(
 ): Promise<T> {
   const { params, headers = {}, ...rest } = options;
 
-  let url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  let url = endpoint.startsWith('http')
+    ? endpoint
+    : `${API_BASE_URL}${endpoint}`;
 
   if (params) {
     const searchParams = new URLSearchParams();
@@ -65,7 +67,10 @@ async function request<T>(
     }
   }
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('nida_auth_token') : null;
+  const token =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('nida_auth_token')
+      : null;
 
   const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -123,11 +128,14 @@ async function request<T>(
       }
 
       try {
-        const refreshResponse = await fetch(`${API_BASE_URL}/auth/admin/refresh`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken: currentRefreshToken }),
-        });
+        const refreshResponse = await fetch(
+          `${API_BASE_URL}/auth/admin/refresh`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken: currentRefreshToken }),
+          },
+        );
 
         if (!refreshResponse.ok) {
           throw new Error('Refresh token rejected');
@@ -168,7 +176,9 @@ async function request<T>(
       }
     }
 
-    const isJson = response.headers.get('content-type')?.includes('application/json');
+    const isJson = response.headers
+      .get('content-type')
+      ?.includes('application/json');
     const data = isJson ? await response.json() : await response.text();
 
     if (!response.ok) {
@@ -188,7 +198,12 @@ async function request<T>(
     }
 
     // Auto-unwrap standard NestJS TransformInterceptor response: { success: true, data: T }
-    if (data && typeof data === 'object' && 'data' in data && 'success' in data) {
+    if (
+      data &&
+      typeof data === 'object' &&
+      'data' in data &&
+      'success' in data
+    ) {
       return data.data as T;
     }
 
@@ -208,13 +223,18 @@ function upload<T>(
   formData: FormData,
   onProgress?: (percent: number) => void,
 ): Promise<T> {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const url = endpoint.startsWith('http')
+    ? endpoint
+    : `${API_BASE_URL}${endpoint}`;
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', url, true);
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('nida_auth_token') : null;
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('nida_auth_token')
+        : null;
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     }
@@ -229,7 +249,9 @@ function upload<T>(
     }
 
     xhr.onload = () => {
-      const isJson = xhr.getResponseHeader('content-type')?.includes('application/json');
+      const isJson = xhr
+        .getResponseHeader('content-type')
+        ?.includes('application/json');
       let data: unknown = xhr.responseText;
       if (isJson) {
         try {
@@ -266,8 +288,10 @@ function upload<T>(
 }
 
 export const apiClient = {
-  get: <T>(endpoint: string, params?: Record<string, string | number | boolean | undefined>) =>
-    request<T>(endpoint, { method: 'GET', params }),
+  get: <T>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean | undefined>,
+  ) => request<T>(endpoint, { method: 'GET', params }),
 
   post: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, { method: 'POST', body: JSON.stringify(body) }),
@@ -278,9 +302,11 @@ export const apiClient = {
   patch: <T>(endpoint: string, body?: unknown) =>
     request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(body) }),
 
-  delete: <T>(endpoint: string) =>
-    request<T>(endpoint, { method: 'DELETE' }),
+  delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
 
-  upload: <T>(endpoint: string, formData: FormData, onProgress?: (percent: number) => void) =>
-    upload<T>(endpoint, formData, onProgress),
+  upload: <T>(
+    endpoint: string,
+    formData: FormData,
+    onProgress?: (percent: number) => void,
+  ) => upload<T>(endpoint, formData, onProgress),
 };

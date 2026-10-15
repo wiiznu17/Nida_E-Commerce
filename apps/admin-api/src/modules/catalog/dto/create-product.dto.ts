@@ -45,44 +45,68 @@ export class CreateSkuVariantDto {
   @Min(0)
   lowStockThreshold?: number;
 
-  @ApiPropertyOptional({ description: 'Price adjustment over base price', example: 0 })
+  @ApiPropertyOptional({
+    description: 'Price adjustment over base price',
+    example: 0,
+  })
   @IsOptional()
   @IsNumber()
   priceAdjustment?: number;
 
-  @ApiPropertyOptional({ description: 'Barcode string', example: '8850123456789' })
+  @ApiPropertyOptional({
+    description: 'Barcode string',
+    example: '8850123456789',
+  })
   @IsOptional()
   @IsString()
   barcode?: string;
 
-  @ApiPropertyOptional({ description: 'Shipping weight in grams', example: 350 })
+  @ApiPropertyOptional({
+    description: 'Shipping weight in grams',
+    example: 350,
+  })
   @IsOptional()
   @IsNumber()
   weightGrams?: number;
 }
 
 export class CreateProductDto {
-  @ApiProperty({ description: 'Product name (English)', example: 'Iconic Cable-Knit Crewneck Sweater' })
+  @ApiProperty({
+    description: 'Product name (English)',
+    example: 'Iconic Cable-Knit Crewneck Sweater',
+  })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiPropertyOptional({ description: 'Product name (Thai)', example: 'สเวตเตอร์ถักเคเบิลไอคอนิค' })
+  @ApiPropertyOptional({
+    description: 'Product name (Thai)',
+    example: 'สเวตเตอร์ถักเคเบิลไอคอนิค',
+  })
   @IsOptional()
   @IsString()
   nameTh?: string;
 
-  @ApiPropertyOptional({ description: 'Base selling price (USD)', example: 129 })
+  @ApiPropertyOptional({
+    description: 'Base selling price (USD)',
+    example: 129,
+  })
   @IsOptional()
   @IsNumber()
   price?: number;
 
-  @ApiPropertyOptional({ description: 'Base selling price (alias for price)', example: 129 })
+  @ApiPropertyOptional({
+    description: 'Base selling price (alias for price)',
+    example: 129,
+  })
   @IsOptional()
   @IsNumber()
   basePrice?: number;
 
-  @ApiPropertyOptional({ description: 'Original strike-through price (USD)', example: 179 })
+  @ApiPropertyOptional({
+    description: 'Original strike-through price (USD)',
+    example: 179,
+  })
   @IsOptional()
   @IsNumber()
   originalPrice?: number;
@@ -97,32 +121,50 @@ export class CreateProductDto {
   @IsString()
   secondaryImage?: string;
 
-  @ApiProperty({ description: 'Category identifier or slug', example: 'apparel' })
+  @ApiProperty({
+    description: 'Category identifier or slug',
+    example: 'apparel',
+  })
   @IsString()
   @IsNotEmpty()
   category: string;
 
-  @ApiPropertyOptional({ description: 'Department code (WOMEN, MEN, BAGS, SHOES, HOME)', example: 'WOMEN' })
+  @ApiPropertyOptional({
+    description: 'Department code (WOMEN, MEN, BAGS, SHOES, HOME)',
+    example: 'WOMEN',
+  })
   @IsOptional()
   @IsString()
   department?: string;
 
-  @ApiPropertyOptional({ description: 'Sub-category name (EN)', example: 'Sweaters & Knits' })
+  @ApiPropertyOptional({
+    description: 'Sub-category name (EN)',
+    example: 'Sweaters & Knits',
+  })
   @IsOptional()
   @IsString()
   subCategory?: string;
 
-  @ApiPropertyOptional({ description: 'Sub-category name (TH)', example: 'สเวตเตอร์และเสื้อไหมพรม' })
+  @ApiPropertyOptional({
+    description: 'Sub-category name (TH)',
+    example: 'สเวตเตอร์และเสื้อไหมพรม',
+  })
   @IsOptional()
   @IsString()
   subCategoryTh?: string;
 
-  @ApiPropertyOptional({ description: 'Badge or promotional tag (EN)', example: 'BESTSELLER' })
+  @ApiPropertyOptional({
+    description: 'Badge or promotional tag (EN)',
+    example: 'BESTSELLER',
+  })
   @IsOptional()
   @IsString()
   tag?: string;
 
-  @ApiPropertyOptional({ description: 'Badge or promotional tag (TH)', example: 'สินค้าขายดี' })
+  @ApiPropertyOptional({
+    description: 'Badge or promotional tag (TH)',
+    example: 'สินค้าขายดี',
+  })
   @IsOptional()
   @IsString()
   tagTh?: string;
@@ -153,32 +195,48 @@ export class CreateProductDto {
   @IsString({ each: true })
   colors?: string[];
 
-  @ApiPropertyOptional({ description: 'Mapping of color names to dedicated image URLs' })
+  @ApiPropertyOptional({
+    description: 'Mapping of color names to dedicated image URLs',
+  })
   @IsOptional()
   @IsObject()
   colorImages?: Record<string, string>;
 
-  @ApiPropertyOptional({ description: 'Whether this product is pre-order', example: false })
+  @ApiPropertyOptional({
+    description: 'Whether this product is pre-order',
+    example: false,
+  })
   @IsOptional()
   @IsBoolean()
   isPreorder?: boolean;
 
-  @ApiPropertyOptional({ description: 'Expected release / ship date for pre-order' })
+  @ApiPropertyOptional({
+    description: 'Expected release / ship date for pre-order',
+  })
   @IsOptional()
   @IsString()
   preorderReleaseDate?: string;
 
-  @ApiPropertyOptional({ description: 'Maximum pre-order unit cap', example: 50 })
+  @ApiPropertyOptional({
+    description: 'Maximum pre-order unit cap',
+    example: 50,
+  })
   @IsOptional()
   @IsNumber()
   preorderLimit?: number;
 
-  @ApiPropertyOptional({ description: 'Pre-order deposit amount required', example: 50 })
+  @ApiPropertyOptional({
+    description: 'Pre-order deposit amount required',
+    example: 50,
+  })
   @IsOptional()
   @IsNumber()
   preorderDepositAmount?: number;
 
-  @ApiPropertyOptional({ description: 'SKU Variant list', type: [CreateSkuVariantDto] })
+  @ApiPropertyOptional({
+    description: 'SKU Variant list',
+    type: [CreateSkuVariantDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -195,7 +253,10 @@ export class CreateProductDto {
   @IsNumber()
   reviewsCount?: number;
 
-  @ApiPropertyOptional({ description: 'Publication status: true for Published, false for Draft', default: true })
+  @ApiPropertyOptional({
+    description: 'Publication status: true for Published, false for Draft',
+    default: true,
+  })
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;

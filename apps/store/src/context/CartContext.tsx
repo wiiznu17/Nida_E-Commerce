@@ -1,9 +1,18 @@
 'use client';
 
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+} from 'react';
 import type { StorefrontProduct } from '@repo/types';
 
-export type CartItem = StorefrontProduct & { quantity: number; selectedSize: string; selectedColor: string };
+export type CartItem = StorefrontProduct & {
+  quantity: number;
+  selectedSize: string;
+  selectedColor: string;
+};
 
 type CartContextType = {
   items: CartItem[];
@@ -20,15 +29,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const addToCart = (product: StorefrontProduct, size: string, color: string) => {
+  const addToCart = (
+    product: StorefrontProduct,
+    size: string,
+    color: string,
+  ) => {
     setItems((prev) => {
       const existing = prev.find(
-        (item) => item.id === product.id && item.selectedSize === size && item.selectedColor === color,
+        (item) =>
+          item.id === product.id &&
+          item.selectedSize === size &&
+          item.selectedColor === color,
       );
       if (existing) {
-        return prev.map((item) => (item === existing ? { ...item, quantity: item.quantity + 1 } : item));
+        return prev.map((item) =>
+          item === existing ? { ...item, quantity: item.quantity + 1 } : item,
+        );
       }
-      return [...prev, { ...product, quantity: 1, selectedSize: size, selectedColor: color }];
+      return [
+        ...prev,
+        { ...product, quantity: 1, selectedSize: size, selectedColor: color },
+      ];
     });
     setIsCartOpen(true);
   };
@@ -37,10 +58,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const cartTotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartTotal = items.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, isCartOpen, setIsCartOpen, cartTotal }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addToCart,
+        removeFromCart,
+        isCartOpen,
+        setIsCartOpen,
+        cartTotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

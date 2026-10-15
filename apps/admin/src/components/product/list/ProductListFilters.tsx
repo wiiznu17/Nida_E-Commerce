@@ -115,7 +115,11 @@ export function ProductListFilters({
         {/* Active Filter Hint */}
         <div className="hidden lg:flex items-center text-[11px] text-gray-400 space-x-1">
           <Filter size={12} />
-          <span>{language === 'th' ? 'เลือกตัวกรองแล้วกดปุ่ม "ค้นหา" เพื่อโหลดข้อมูล' : 'Configure filters and click "Search" to query'}</span>
+          <span>
+            {language === 'th'
+              ? 'เลือกตัวกรองแล้วกดปุ่ม "ค้นหา" เพื่อโหลดข้อมูล'
+              : 'Configure filters and click "Search" to query'}
+          </span>
         </div>
       </div>
 
@@ -136,7 +140,10 @@ export function ProductListFilters({
             <DropdownSelect
               value={staging.department}
               onChange={(val) => setStaging({ ...staging, department: val })}
-              options={departments.map((d) => ({ value: d.id, label: d.label }))}
+              options={departments.map((d) => ({
+                value: d.id,
+                label: d.label,
+              }))}
             />
           </div>
 
@@ -147,7 +154,10 @@ export function ProductListFilters({
               onChange={(val) => setStaging({ ...staging, category: val })}
               options={[
                 { value: 'all', label: t('productList.allCategories') },
-                ...availableCategories.map((c) => ({ value: c.id, label: c.label })),
+                ...availableCategories.map((c) => ({
+                  value: c.id,
+                  label: c.label,
+                })),
               ]}
             />
           </div>
@@ -157,9 +167,15 @@ export function ProductListFilters({
             <DropdownSelect
               value={staging.sortBy}
               onChange={(val) =>
-                setStaging({ ...staging, sortBy: val as ProductFilterState['sortBy'] })
+                setStaging({
+                  ...staging,
+                  sortBy: val as ProductFilterState['sortBy'],
+                })
               }
-              options={sortOptions.map((s) => ({ value: s.id, label: s.label }))}
+              options={sortOptions.map((s) => ({
+                value: s.id,
+                label: s.label,
+              }))}
             />
           </div>
 

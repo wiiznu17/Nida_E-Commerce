@@ -12,12 +12,17 @@ import type {
 } from '@repo/types';
 
 export const authRequester = {
-  login: async (credentials: { identifier: string; password: string }): Promise<AdminLoginResponse> => {
+  login: async (credentials: {
+    identifier: string;
+    password: string;
+  }): Promise<AdminLoginResponse> => {
     return apiClient.post<AdminLoginResponse>('/auth/admin/login', credentials);
   },
 
   refresh: async (refreshToken: string): Promise<AdminRefreshResponse> => {
-    return apiClient.post<AdminRefreshResponse>('/auth/admin/refresh', { refreshToken });
+    return apiClient.post<AdminRefreshResponse>('/auth/admin/refresh', {
+      refreshToken,
+    });
   },
 
   getMe: async (): Promise<ApiAdminUser> => {
@@ -25,27 +30,47 @@ export const authRequester = {
   },
 
   logout: async (refreshToken?: string): Promise<{ message: string }> => {
-    return apiClient.post<{ message: string }>('/auth/admin/logout', { refreshToken });
+    return apiClient.post<{ message: string }>('/auth/admin/logout', {
+      refreshToken,
+    });
   },
 
   logoutAll: async (): Promise<{ message: string }> => {
     return apiClient.post<{ message: string }>('/auth/admin/logout-all');
   },
 
-  verifyToken: async (token: string, type: 'invite' | 'reset'): Promise<VerifyTokenResponse> => {
-    return apiClient.get<VerifyTokenResponse>('/auth/admin/verify-token', { token, type });
+  verifyToken: async (
+    token: string,
+    type: 'invite' | 'reset',
+  ): Promise<VerifyTokenResponse> => {
+    return apiClient.get<VerifyTokenResponse>('/auth/admin/verify-token', {
+      token,
+      type,
+    });
   },
 
-  setupPassword: async (dto: SetupPasswordDto): Promise<{ message: string }> => {
-    return apiClient.post<{ message: string }>('/auth/admin/setup-password', dto);
+  setupPassword: async (
+    dto: SetupPasswordDto,
+  ): Promise<{ message: string }> => {
+    return apiClient.post<{ message: string }>(
+      '/auth/admin/setup-password',
+      dto,
+    );
   },
 
   forgotPassword: async (email: string): Promise<{ message: string }> => {
-    return apiClient.post<{ message: string }>('/auth/admin/forgot-password', { email });
+    return apiClient.post<{ message: string }>('/auth/admin/forgot-password', {
+      email,
+    });
   },
 
-  resetPassword: async (dto: ResetPasswordDto): Promise<{ message: string }> => {
-    return apiClient.post<{ message: string }>('/auth/admin/reset-password', dto);
+  resetPassword: async (
+    dto: ResetPasswordDto,
+  ): Promise<{ message: string }> => {
+    return apiClient.post<{ message: string }>(
+      '/auth/admin/reset-password',
+      dto,
+    );
   },
 
   // Admin users management

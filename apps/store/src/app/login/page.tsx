@@ -41,7 +41,10 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1"
+            >
               {t('auth.emailLabel')}
             </label>
             <div className="relative">
@@ -54,7 +57,10 @@ export default function LoginPage() {
                 placeholder="customer@nida.com"
                 className="w-full border border-gray-300 px-3 py-2.5 pl-10 text-sm focus:outline-none focus:border-[#2B1810] focus:ring-1 focus:ring-[#2B1810]"
               />
-              <Mail size={18} className="absolute left-3 top-3 text-gray-400 pointer-events-none" />
+              <Mail
+                size={18}
+                className="absolute left-3 top-3 text-gray-400 pointer-events-none"
+              />
             </div>
           </div>
 
@@ -98,7 +104,10 @@ export default function LoginPage() {
         <div className="mt-8 text-center pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-600">
             {t('auth.noAccount')}{' '}
-            <Link href="/register" className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1">
+            <Link
+              href="/register"
+              className="font-bold text-[#2B1810] hover:text-[#D97706] underline ml-1"
+            >
               {t('auth.joinClub')}
             </Link>
           </p>

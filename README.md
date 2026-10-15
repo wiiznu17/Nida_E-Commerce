@@ -112,9 +112,9 @@ npm run dev
 
 ### หรือเลือกรันเฉพาะระบบที่ต้องการ:
 
-| ระบบ                               | คำสั่งรัน           | URL ในการเข้าใช้งาน                                              |
-| :--------------------------------- | :------------------ | :--------------------------------------------------------------- |
-| **Store (หน้าร้าน)**                 | `npm run dev:store`     | [http://localhost:3000](http://localhost:3000)                   |
+| ระบบ                               | คำสั่งรัน               | URL ในการเข้าใช้งาน                                              |
+| :--------------------------------- | :---------------------- | :--------------------------------------------------------------- |
+| **Store (หน้าร้าน)**               | `npm run dev:store`     | [http://localhost:3000](http://localhost:3000)                   |
 | **Admin Portal (หลังบ้าน)**        | `npm run dev:admin`     | [http://localhost:5173](http://localhost:5173)                   |
 | **Admin API Server (NestJS)**      | `npm run dev:admin-api` | [http://localhost:4000](http://localhost:4000)                   |
 | **Interactive API Docs (Swagger)** | _(รัน API ก่อน)_        | [http://localhost:4000/api/docs](http://localhost:4000/api/docs) |

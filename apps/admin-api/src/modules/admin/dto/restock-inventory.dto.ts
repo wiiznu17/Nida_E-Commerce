@@ -12,7 +12,8 @@ import { StockChangeType } from '@repo/types';
 
 export class RestockInventoryDto {
   @ApiProperty({
-    description: 'Variant ID, Inventory ID หรือ SKU Code ของสินค้าที่ต้องการปรับสต็อก',
+    description:
+      'Variant ID, Inventory ID หรือ SKU Code ของสินค้าที่ต้องการปรับสต็อก',
     example: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
   })
   @IsString()
@@ -28,7 +29,8 @@ export class RestockInventoryDto {
   sku?: string;
 
   @ApiProperty({
-    description: 'จำนวนสินค้าที่ต้องการปรับ (เป็นบวกเพื่อเติมสต็อก หรือติดลบเพื่อปรับลดยอดสต็อก)',
+    description:
+      'จำนวนสินค้าที่ต้องการปรับ (เป็นบวกเพื่อเติมสต็อก หรือติดลบเพื่อปรับลดยอดสต็อก)',
     example: 10,
   })
   @IsInt()

@@ -1,7 +1,12 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { CustomerCatalogService } from './catalog.service.js';
-import type { ApiProduct, ApiProductDetail, ApiCategory, PaginatedResponse } from '@repo/types';
+import type {
+  ApiProduct,
+  ApiProductDetail,
+  ApiCategory,
+  PaginatedResponse,
+} from '@repo/types';
 
 @ApiTags('Storefront Catalog')
 @Controller('catalog')
@@ -15,7 +20,11 @@ export class CustomerCatalogController {
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'tag', required: false })
   @ApiQuery({ name: 'isPreorder', required: false, type: Boolean })
-  @ApiQuery({ name: 'sortBy', required: false, enum: ['newest', 'price_asc', 'price_desc'] })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['newest', 'price_asc', 'price_desc'],
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   async getProducts(
@@ -42,16 +51,23 @@ export class CustomerCatalogController {
 
   @Get('products/:slugOrId')
   @ApiOperation({ summary: 'Get product detail with live variant stock' })
-  @ApiResponse({ status: 200, description: 'Product detail including variant stock availability' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product detail including variant stock availability',
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  async getProductBySlug(@Param('slugOrId') slugOrId: string): Promise<ApiProductDetail> {
+  async getProductBySlug(
+    @Param('slugOrId') slugOrId: string,
+  ): Promise<ApiProductDetail> {
     return this.catalogService.getProductBySlug(slugOrId);
   }
 
   @Get('categories')
   @ApiOperation({ summary: 'List categories' })
   @ApiQuery({ name: 'department', required: false })
-  async getCategories(@Query('department') department?: string): Promise<ApiCategory[]> {
+  async getCategories(
+    @Query('department') department?: string,
+  ): Promise<ApiCategory[]> {
     return this.catalogService.getCategories(department);
   }
 }

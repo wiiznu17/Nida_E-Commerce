@@ -36,7 +36,8 @@ export default function ProductDetailPage() {
   const { language, t } = useLanguage();
   const isTh = language === 'th';
 
-  const [fetchedProduct, setFetchedProduct] = useState<StorefrontProduct | null>(null);
+  const [fetchedProduct, setFetchedProduct] =
+    useState<StorefrontProduct | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
   // Match from CatalogContext or fetched directly
@@ -78,7 +79,14 @@ export default function ProductDetailPage() {
     if (product.colors && product.colors.length > 0) {
       return product.colors.map((c, i) => ({
         hex: c,
-        name: i === 0 ? (isTh ? 'สีกรมท่าคลาสสิก' : 'Classic Navy') : (isTh ? `สีที่ ${i + 1}` : `Color ${i + 1}`),
+        name:
+          i === 0
+            ? isTh
+              ? 'สีกรมท่าคลาสสิก'
+              : 'Classic Navy'
+            : isTh
+              ? `สีที่ ${i + 1}`
+              : `Color ${i + 1}`,
       }));
     }
     return [{ hex: '#2B1810', name: isTh ? 'มาตรฐาน' : 'Standard' }];
@@ -89,7 +97,9 @@ export default function ProductDetailPage() {
     if (product) {
       if (product.image) setMainImage(product.image);
       if (availableColors.length > 0) {
-        setSelectedColor(availableColors[0]?.name ?? (isTh ? 'มาตรฐาน' : 'Standard'));
+        setSelectedColor(
+          availableColors[0]?.name ?? (isTh ? 'มาตรฐาน' : 'Standard'),
+        );
       }
     }
   }, [product?.id, availableColors, isTh]);
@@ -98,7 +108,9 @@ export default function ProductDetailPage() {
   const sizes = useMemo(() => {
     if (!product) return ['S', 'M', 'L'];
     if (product.variants && product.variants.length > 0) {
-      const uniqueSizes = Array.from(new Set(product.variants.map((v) => v.size).filter(Boolean)));
+      const uniqueSizes = Array.from(
+        new Set(product.variants.map((v) => v.size).filter(Boolean)),
+      );
       if (uniqueSizes.length > 0) return uniqueSizes;
     }
     if (product.department === 'shoes') {
@@ -161,17 +173,19 @@ export default function ProductDetailPage() {
 
   const isWish = isInWishlist(product.id);
   const title = getProductTitle(product, language);
-  const subCategory = getProductSubCategory(product, language) || product.category;
+  const subCategory =
+    getProductSubCategory(product, language) || product.category;
   const tag = getProductTag(product, language) || product.tag;
   const description = getProductDescription(product, language);
 
-  const materialsText = isTh && product.materialsCareTh
-    ? product.materialsCareTh
-    : product.materialsCare
-      ? product.materialsCare
-      : isTh
-        ? 'ผลิตจากเส้นใยธรรมชาติคุณภาพสูง ผ่านการคัดสรรอย่างประณีตตามมาตรฐานความยั่งยืน ซักเครื่องด้วยน้ำเย็นในโหมดถนอมผ้า ตากในที่ร่ม ห้ามใช้น้ำยาฟอกขาว'
-        : '100% Certified Organic Cotton & Fine European Wool. Machine wash cold with like colors, gentle cycle. Tumble dry low or lay flat to dry. Do not bleach.';
+  const materialsText =
+    isTh && product.materialsCareTh
+      ? product.materialsCareTh
+      : product.materialsCare
+        ? product.materialsCare
+        : isTh
+          ? 'ผลิตจากเส้นใยธรรมชาติคุณภาพสูง ผ่านการคัดสรรอย่างประณีตตามมาตรฐานความยั่งยืน ซักเครื่องด้วยน้ำเย็นในโหมดถนอมผ้า ตากในที่ร่ม ห้ามใช้น้ำยาฟอกขาว'
+          : '100% Certified Organic Cotton & Fine European Wool. Machine wash cold with like colors, gentle cycle. Tumble dry low or lay flat to dry. Do not bleach.';
 
   const handleAddToCart = () => {
     addToCart(product, selectedSize, selectedColor);
@@ -180,7 +194,12 @@ export default function ProductDetailPage() {
   };
 
   const relatedProducts = productsList
-    .filter((p) => p.id !== product.id && (p.department === product.department || p.category === product.category))
+    .filter(
+      (p) =>
+        p.id !== product.id &&
+        (p.department === product.department ||
+          p.category === product.category),
+    )
     .slice(0, 4);
 
   const activeDisplayImage = mainImage || product.image;
@@ -211,7 +230,9 @@ export default function ProductDetailPage() {
               key={idx}
               onClick={() => setMainImage(img)}
               className={`aspect-[3/4] bg-gray-100 overflow-hidden border-2 transition-all ${
-                activeDisplayImage === img ? 'border-[#2B1810] shadow-sm' : 'border-transparent hover:border-gray-300'
+                activeDisplayImage === img
+                  ? 'border-[#2B1810] shadow-sm'
+                  : 'border-transparent hover:border-gray-300'
               }`}
             >
               <img
@@ -240,7 +261,10 @@ export default function ProductDetailPage() {
             className="absolute top-4 right-4 p-2.5 bg-white/95 hover:bg-white text-[#2B1810] rounded-full shadow-md transition-colors hover:text-[#D97706]"
             aria-label={t('product.saveWishlist')}
           >
-            <Heart size={20} className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''} />
+            <Heart
+              size={20}
+              className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''}
+            />
           </button>
         </div>
 
@@ -259,30 +283,46 @@ export default function ProductDetailPage() {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#2B1810]">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#2B1810]">
+              {title}
+            </h1>
 
             {/* Rating Stars */}
             <div className="flex items-center space-x-2 mt-2">
               <div className="flex text-amber-500">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
+                  <Star
+                    key={i}
+                    size={14}
+                    className="fill-amber-400 text-amber-400"
+                  />
                 ))}
               </div>
               <span className="text-xs font-bold text-gray-600">
-                {product.rating || 4.9} ({product.reviewsCount || 128} {isTh ? 'รีวิว' : 'reviews'})
+                {product.rating || 4.9} ({product.reviewsCount || 128}{' '}
+                {isTh ? 'รีวิว' : 'reviews'})
               </span>
             </div>
           </div>
 
           {/* Pricing with Strikethrough */}
           <div className="flex items-baseline space-x-3 pb-4 border-b border-gray-200">
-            <span className="text-3xl font-black text-[#2B1810]">${product.price}</span>
+            <span className="text-3xl font-black text-[#2B1810]">
+              ${product.price}
+            </span>
             {product.originalPrice && product.originalPrice > product.price && (
               <>
-                <span className="text-base text-gray-400 line-through font-semibold">${product.originalPrice}</span>
+                <span className="text-base text-gray-400 line-through font-semibold">
+                  ${product.originalPrice}
+                </span>
                 <span className="bg-[#D97706] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-xs">
                   {isTh ? 'ประหยัด ' : 'SAVE '}
-                  {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                  {Math.round(
+                    ((product.originalPrice - product.price) /
+                      product.originalPrice) *
+                      100,
+                  )}
+                  %
                 </span>
               </>
             )}
@@ -293,18 +333,25 @@ export default function ProductDetailPage() {
             <div className="flex items-center space-x-2">
               <Sparkles size={16} className="text-[#D97706]" />
               <span className="text-[#2B1810] font-bold">
-                {isTh ? 'ลดเพิ่ม 20% ด้วยโค้ดส่วนลด: ' : 'Extra 20% off with promo code: '}
+                {isTh
+                  ? 'ลดเพิ่ม 20% ด้วยโค้ดส่วนลด: '
+                  : 'Extra 20% off with promo code: '}
                 <strong className="text-[#D97706]">NIDA20</strong>
               </span>
             </div>
-            <span className="text-gray-500 text-[11px] font-semibold">{isTh ? 'ในตะกร้า' : 'In cart'}</span>
+            <span className="text-gray-500 text-[11px] font-semibold">
+              {isTh ? 'ในตะกร้า' : 'In cart'}
+            </span>
           </div>
 
           {/* Color Selection */}
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
-                {t('product.selectColor')}: <span className="font-semibold text-gray-600">{selectedColor}</span>
+                {t('product.selectColor')}:{' '}
+                <span className="font-semibold text-gray-600">
+                  {selectedColor}
+                </span>
               </span>
             </div>
             <div className="flex items-center space-x-3">
@@ -326,7 +373,9 @@ export default function ProductDetailPage() {
                     <Check
                       size={14}
                       className={
-                        col.hex === '#FFFFFF' || col.hex === '#FAF7F2' || col.hex === '#F59E0B'
+                        col.hex === '#FFFFFF' ||
+                        col.hex === '#FAF7F2' ||
+                        col.hex === '#F59E0B'
                           ? 'text-black'
                           : 'text-white'
                       }
@@ -370,7 +419,9 @@ export default function ProductDetailPage() {
               onClick={handleAddToCart}
               disabled={isAdded}
               className={`w-full py-4 text-xs uppercase tracking-[0.2em] font-black transition-all flex justify-center items-center space-x-2 shadow-lg ${
-                isAdded ? 'bg-emerald-600 text-white' : 'bg-[#2B1810] hover:bg-[#D97706] text-white hover:shadow-xl'
+                isAdded
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-[#2B1810] hover:bg-[#D97706] text-white hover:shadow-xl'
               }`}
             >
               {isAdded ? (
@@ -388,7 +439,10 @@ export default function ProductDetailPage() {
               onClick={() => toggleWishlist(product.id)}
               className="w-full py-3 text-xs uppercase tracking-widest font-black border border-gray-300 text-[#2B1810] hover:bg-gray-50 flex items-center justify-center space-x-2 transition-colors"
             >
-              <Heart size={16} className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''} />
+              <Heart
+                size={16}
+                className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''}
+              />
               <span>
                 {isWish
                   ? isTh
@@ -406,7 +460,9 @@ export default function ProductDetailPage() {
             <div className="flex items-center space-x-3">
               <Truck size={18} className="text-[#D97706] flex-shrink-0" />
               <span>
-                <strong>{isTh ? 'จัดส่งมาตรฐานฟรี' : 'Free standard shipping'}</strong>{' '}
+                <strong>
+                  {isTh ? 'จัดส่งมาตรฐานฟรี' : 'Free standard shipping'}
+                </strong>{' '}
                 {isTh
                   ? 'เมื่อสั่งซื้อครบ $100 ขึ้นไป พัสดุถึงภายใน 2-4 วันทำการ'
                   : 'on orders over $100. Arrives in 2-4 business days.'}
@@ -416,16 +472,22 @@ export default function ProductDetailPage() {
               <RefreshCw size={18} className="text-[#D97706] flex-shrink-0" />
               <span>
                 <strong>
-                  {isTh ? 'เปลี่ยนและคืนสินค้าได้ใน 30 วัน' : 'Free 30-day returns & exchanges'}
+                  {isTh
+                    ? 'เปลี่ยนและคืนสินค้าได้ใน 30 วัน'
+                    : 'Free 30-day returns & exchanges'}
                 </strong>{' '}
-                {isTh ? 'สะดวกสบายทั้งหน้าร้านและทางพัสดุ' : 'in-store or by mail.'}
+                {isTh
+                  ? 'สะดวกสบายทั้งหน้าร้านและทางพัสดุ'
+                  : 'in-store or by mail.'}
               </span>
             </div>
             <div className="flex items-center space-x-3">
               <ShieldCheck size={18} className="text-[#D97706] flex-shrink-0" />
               <span>
                 <strong>
-                  {isTh ? 'การันตีคุณภาพของแท้ 100%' : '100% Guaranteed Authentic Nida Craft'}
+                  {isTh
+                    ? 'การันตีคุณภาพของแท้ 100%'
+                    : '100% Guaranteed Authentic Nida Craft'}
                 </strong>{' '}
                 {isTh
                   ? 'ตัดเย็บประณีตด้วยเส้นใยธรรมชาติอย่างยั่งยืน'
@@ -439,7 +501,11 @@ export default function ProductDetailPage() {
             {/* Accordion 1: Description */}
             <div className="border-b border-gray-200">
               <button
-                onClick={() => setOpenAccordion(openAccordion === 'details' ? null : 'details')}
+                onClick={() =>
+                  setOpenAccordion(
+                    openAccordion === 'details' ? null : 'details',
+                  )
+                }
                 className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-[#2B1810]"
               >
                 <span>{t('product.details')}</span>
@@ -480,7 +546,11 @@ export default function ProductDetailPage() {
             {/* Accordion 2: Materials */}
             <div className="border-b border-gray-200">
               <button
-                onClick={() => setOpenAccordion(openAccordion === 'materials' ? null : 'materials')}
+                onClick={() =>
+                  setOpenAccordion(
+                    openAccordion === 'materials' ? null : 'materials',
+                  )
+                }
                 className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-[#2B1810]"
               >
                 <span>{t('product.materials')}</span>
@@ -499,7 +569,11 @@ export default function ProductDetailPage() {
             {/* Accordion 3: Delivery */}
             <div className="border-b border-gray-200">
               <button
-                onClick={() => setOpenAccordion(openAccordion === 'delivery' ? null : 'delivery')}
+                onClick={() =>
+                  setOpenAccordion(
+                    openAccordion === 'delivery' ? null : 'delivery',
+                  )
+                }
                 className="w-full py-4 flex justify-between items-center text-xs font-black uppercase tracking-wider text-[#2B1810]"
               >
                 <span>{t('product.deliveryReturns')}</span>
@@ -552,7 +626,11 @@ export default function ProductDetailPage() {
             const pTag = getProductTag(p, language) || p.tag;
 
             return (
-              <Link href={`/product/${p.slug || p.id}`} key={p.id} className="group block bg-white">
+              <Link
+                href={`/product/${p.slug || p.id}`}
+                key={p.id}
+                className="group block bg-white"
+              >
                 <div className="aspect-[3/4] bg-[#FAF7F2] mb-3 overflow-hidden border border-gray-100 relative">
                   <img
                     src={p.image}

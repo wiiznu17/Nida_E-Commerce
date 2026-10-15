@@ -55,7 +55,10 @@ export function FormTaxonomySection({
           onChange={onCategoryChange}
           options={availableCategories.map((cat) => ({
             value: cat.id,
-            label: isTh && cat.labelTh ? `${cat.labelTh} (${cat.labelEn})` : cat.label,
+            label:
+              isTh && cat.labelTh
+                ? `${cat.labelTh} (${cat.labelEn})`
+                : cat.label,
           }))}
         />
       </div>
@@ -75,7 +78,10 @@ export function FormTaxonomySection({
           onChange={onSubCategoryChange}
           options={availableSubCategories.map((sub) => ({
             value: sub.id,
-            label: isTh && sub.labelTh ? `${sub.labelTh} (${sub.labelEn})` : sub.label,
+            label:
+              isTh && sub.labelTh
+                ? `${sub.labelTh} (${sub.labelEn})`
+                : sub.label,
           }))}
         />
 
@@ -84,14 +90,24 @@ export function FormTaxonomySection({
           <div className="bg-brand-cream border border-brand-border rounded-md p-2.5 space-y-2 mt-2">
             <div className="grid grid-cols-2 gap-2 text-[10px]">
               <div className="bg-white p-1.5 rounded-sm border border-gray-100">
-                <span className="text-gray-400 block font-medium">EN Label</span>
-                <span className="font-bold text-brand-brown truncate block" title={subCategory}>
+                <span className="text-gray-400 block font-medium">
+                  EN Label
+                </span>
+                <span
+                  className="font-bold text-brand-brown truncate block"
+                  title={subCategory}
+                >
                   {subCategory || '-'}
                 </span>
               </div>
               <div className="bg-white p-1.5 rounded-sm border border-gray-100">
-                <span className="text-gray-400 block font-medium">TH Label</span>
-                <span className="font-bold text-brand-brown truncate block" title={subCategoryTh}>
+                <span className="text-gray-400 block font-medium">
+                  TH Label
+                </span>
+                <span
+                  className="font-bold text-brand-brown truncate block"
+                  title={subCategoryTh}
+                >
                   {subCategoryTh || '-'}
                 </span>
               </div>

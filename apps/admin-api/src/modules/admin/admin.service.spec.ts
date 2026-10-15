@@ -60,7 +60,9 @@ describe('AdminService', () => {
         create: vi.fn(),
         findMany: vi.fn(),
       },
-      $transaction: vi.fn(async (cb: (tx: unknown) => unknown) => cb(prismaMock)),
+      $transaction: vi.fn(async (cb: (tx: unknown) => unknown) =>
+        cb(prismaMock),
+      ),
     };
 
     service = new AdminService(prismaMock as unknown as PrismaService);

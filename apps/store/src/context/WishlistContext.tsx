@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from 'react';
 
 type WishlistContextType = {
   wishlist: string[]; // product IDs
@@ -9,7 +15,9 @@ type WishlistContextType = {
   wishlistCount: number;
 };
 
-const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
+const WishlistContext = createContext<WishlistContextType | undefined>(
+  undefined,
+);
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [wishlist, setWishlist] = useState<string[]>(['w1', 'm1']);
@@ -27,7 +35,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleWishlist = (productId: string) => {
     setWishlist((prev) => {
-      const updated = prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId];
+      const updated = prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId];
       try {
         localStorage.setItem('nida_wishlist', JSON.stringify(updated));
       } catch (e) {
@@ -40,7 +50,14 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const isInWishlist = (productId: string) => wishlist.includes(productId);
 
   return (
-    <WishlistContext.Provider value={{ wishlist, toggleWishlist, isInWishlist, wishlistCount: wishlist.length }}>
+    <WishlistContext.Provider
+      value={{
+        wishlist,
+        toggleWishlist,
+        isInWishlist,
+        wishlistCount: wishlist.length,
+      }}
+    >
       {children}
     </WishlistContext.Provider>
   );

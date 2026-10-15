@@ -30,7 +30,9 @@ describe('CatalogService - createProduct', () => {
     };
 
     uploadServiceMock = {
-      commitTempImage: vi.fn(async (url: string) => url.replace('/temp/', '/products/')),
+      commitTempImage: vi.fn(async (url: string) =>
+        url.replace('/temp/', '/products/'),
+      ),
     };
 
     service = new CatalogService(prismaMock, uploadServiceMock);
@@ -157,20 +159,28 @@ describe('CatalogService - createProduct', () => {
       };
     });
 
-    vi.spyOn(service, 'getProductBySlug').mockImplementation(async (slugOrId) => {
-      return {
-        id: 'prod-2',
-        name: 'Silk Blouse',
-        slug: slugOrId,
-        basePrice: 150,
-        department: Department.WOMEN,
-        category: { id: 'cat-1', name: 'Apparel', slug: 'apparel', department: Department.WOMEN, displayOrder: 1 },
-        images: [],
-        variants: [],
-        isActive: true,
-        isPreorder: false,
-      };
-    });
+    vi.spyOn(service, 'getProductBySlug').mockImplementation(
+      async (slugOrId) => {
+        return {
+          id: 'prod-2',
+          name: 'Silk Blouse',
+          slug: slugOrId,
+          basePrice: 150,
+          department: Department.WOMEN,
+          category: {
+            id: 'cat-1',
+            name: 'Apparel',
+            slug: 'apparel',
+            department: Department.WOMEN,
+            displayOrder: 1,
+          },
+          images: [],
+          variants: [],
+          isActive: true,
+          isPreorder: false,
+        };
+      },
+    );
 
     const result = await service.createProduct({
       name: 'Silk Blouse',
@@ -190,7 +200,11 @@ describe('CatalogService - createProduct', () => {
       department: Department.WOMEN,
     });
 
-    prismaMock.product.create.mockResolvedValue({ id: 'prod-3', name: 'Leather Belt', slug: 'leather-belt' });
+    prismaMock.product.create.mockResolvedValue({
+      id: 'prod-3',
+      name: 'Leather Belt',
+      slug: 'leather-belt',
+    });
 
     vi.spyOn(service, 'getProductBySlug').mockResolvedValue({
       id: 'prod-3',
@@ -198,7 +212,13 @@ describe('CatalogService - createProduct', () => {
       slug: 'leather-belt',
       basePrice: 80,
       department: Department.WOMEN,
-      category: { id: 'cat-1', name: 'Accessories', slug: 'accessories', department: Department.WOMEN, displayOrder: 1 },
+      category: {
+        id: 'cat-1',
+        name: 'Accessories',
+        slug: 'accessories',
+        department: Department.WOMEN,
+        displayOrder: 1,
+      },
       images: [],
       variants: [],
       isActive: true,

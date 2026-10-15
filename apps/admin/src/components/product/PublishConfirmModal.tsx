@@ -1,4 +1,11 @@
-import { Globe, X, Check, AlertCircle, ShoppingBag, Layers } from 'lucide-react';
+import {
+  Globe,
+  X,
+  Check,
+  AlertCircle,
+  ShoppingBag,
+  Layers,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export interface PublishConfirmModalProps {
@@ -97,11 +104,20 @@ export function PublishConfirmModal({
                   <span>{t('publishModal.liveBadge')}</span>
                 </span>
               </div>
-              <h4 className="font-bold text-brand-brown text-sm truncate">{name}</h4>
-              {nameTh && <p className="text-gray-500 text-[11px] truncate mt-0.5">{nameTh}</p>}
+              <h4 className="font-bold text-brand-brown text-sm truncate">
+                {name}
+              </h4>
+              {nameTh && (
+                <p className="text-gray-500 text-[11px] truncate mt-0.5">
+                  {nameTh}
+                </p>
+              )}
               <div className="flex items-center space-x-3 mt-2 font-mono">
                 <span className="font-bold text-brand-brown text-xs">
-                  ${Number(price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  $
+                  {Number(price || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
                 <span className="text-gray-300">•</span>
                 <span className="text-gray-600 text-[11px] flex items-center space-x-1">

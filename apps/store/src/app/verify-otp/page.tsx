@@ -10,7 +10,8 @@ import { KeyRound, ArrowRight } from 'lucide-react';
 function VerifyOTPContent() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [resendTimer, setResendTimer] = useState(30);
-  const [sampleCodeNotification, setSampleCodeNotification] = useState('829410');
+  const [sampleCodeNotification, setSampleCodeNotification] =
+    useState('829410');
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
@@ -44,8 +45,15 @@ function VerifyOTPContent() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === 'Backspace' && !otp[index] && e.currentTarget.previousElementSibling) {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number,
+  ) => {
+    if (
+      e.key === 'Backspace' &&
+      !otp[index] &&
+      e.currentTarget.previousElementSibling
+    ) {
       (e.currentTarget.previousElementSibling as HTMLInputElement).focus();
     }
   };
@@ -98,7 +106,9 @@ function VerifyOTPContent() {
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 block">
-              {language === 'th' ? 'รหัส OTP จำลอง (Demo)' : 'Simulated Test Code'}
+              {language === 'th'
+                ? 'รหัส OTP จำลอง (Demo)'
+                : 'Simulated Test Code'}
             </span>
             <span className="text-lg font-mono font-black text-[#2B1810] tracking-widest">
               {sampleCodeNotification}
@@ -147,16 +157,24 @@ function VerifyOTPContent() {
           {language === 'th' ? 'ไม่ได้รับรหัส OTP? ' : "Didn't receive code? "}
           {resendTimer > 0 ? (
             <span className="text-gray-400 font-semibold">
-              {language === 'th' ? `ขอรหัสใหม่ได้ใน (${resendTimer}s)` : `Resend in (${resendTimer}s)`}
+              {language === 'th'
+                ? `ขอรหัสใหม่ได้ใน (${resendTimer}s)`
+                : `Resend in (${resendTimer}s)`}
             </span>
           ) : (
-            <button onClick={handleResend} className="font-bold text-[#D97706] hover:underline">
+            <button
+              onClick={handleResend}
+              className="font-bold text-[#D97706] hover:underline"
+            >
               {t('auth.resendCode')}
             </button>
           )}
         </p>
         <div>
-          <Link href="/login" className="text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-[#2B1810]">
+          <Link
+            href="/login"
+            className="text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-[#2B1810]"
+          >
             {language === 'th' ? '← ใช้อีเมลอื่น' : '← Change Email'}
           </Link>
         </div>
@@ -168,7 +186,13 @@ function VerifyOTPContent() {
 export default function VerifyOTPPage() {
   return (
     <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-[#FAF7F2] font-sans">
-      <Suspense fallback={<div className="text-xs uppercase font-bold text-gray-500">Loading verification...</div>}>
+      <Suspense
+        fallback={
+          <div className="text-xs uppercase font-bold text-gray-500">
+            Loading verification...
+          </div>
+        }
+      >
         <VerifyOTPContent />
       </Suspense>
     </div>

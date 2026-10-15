@@ -7,7 +7,9 @@ export const OrderBarcode: React.FC<OrderBarcodeProps> = ({
   showText = true,
 }) => {
   const bars = useMemo(() => {
-    const cleanStr = (value || '000000').toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    const cleanStr = (value || '000000')
+      .toUpperCase()
+      .replace(/[^A-Z0-9-]/g, '');
     const patternList: number[] = [];
 
     // Quiet zone start
@@ -16,12 +18,12 @@ export const OrderBarcode: React.FC<OrderBarcodeProps> = ({
     for (let i = 0; i < cleanStr.length; i++) {
       const charCode = cleanStr.charCodeAt(i);
       const seed = (charCode * (i + 1) * 7) % 16;
-      
-      const b1 = (seed & 1) ? 2 : 1;
-      const s1 = (seed & 2) ? 1 : 2;
-      const b2 = (seed & 4) ? 3 : 1;
-      const s2 = (seed & 8) ? 1 : 2;
-      const b3 = ((seed + i) % 2 === 0) ? 2 : 1;
+
+      const b1 = seed & 1 ? 2 : 1;
+      const s1 = seed & 2 ? 1 : 2;
+      const b2 = seed & 4 ? 3 : 1;
+      const s2 = seed & 8 ? 1 : 2;
+      const b3 = (seed + i) % 2 === 0 ? 2 : 1;
 
       patternList.push(b1, s1, b2, s2, b3, 1);
     }

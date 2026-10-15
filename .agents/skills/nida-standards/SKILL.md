@@ -14,6 +14,7 @@ This skill document defines the development standards, architectural patterns, a
 ## 1. Component Architecture & Directory Structure
 
 ### 1.1 Domain-Driven Organization
+
 Components must be grouped cleanly by domain or feature under `components/<domain>/`. Never dump unrelated components into a flat `components/` folder.
 
 ```text
@@ -53,11 +54,13 @@ apps/admin/src/components/
 ```
 
 ### 1.2 Sub-Component Rules (No "God Components")
+
 - **Single Responsibility Principle**: Any component file approaching 250+ lines must be evaluated for decomposition.
 - **Section Extraction**: Break complex forms and views into dedicated section components inside a sub-folder (e.g. `product/form/`).
 - **Separate Types & Constants**: Do not clutter component files with large arrays of enum options, presets, or long interfaces. Move them to `formConstants.ts` and `formTypes.ts`.
 
 ### 1.3 Barrel Exports (`index.ts`)
+
 - Every folder and sub-folder must contain an `index.ts` file that re-exports all public components, types, and constants.
 - The root `components/index.ts` must re-export all domain folders.
 - Imports across the app should use the clean barrel path:
@@ -72,11 +75,13 @@ apps/admin/src/components/
   ```
 
 ### 1.4 Immediate Cleanup (Zero Dead Code)
+
 - When refactoring, splitting, or relocating components, **immediately delete the old or duplicate files**.
 - Never leave obsolete `.tsx` or `.ts` files in the repository.
 - Ensure all imports across the codebase are updated to the new structure.
 
 ### 1.5 Separation of Concerns: No Utility/Mapper Functions in Main Page Files (ห้ามเขียนฟังก์ชันย่อย/Helper/Mapper ในไฟล์หน้า Page เด็ดขาด)
+
 - **Zero Helper Function Pollution in Pages**: Never write data transformation/mapper functions (e.g. `mapApiXToY`), formatters (date, currency, string), or calculation helpers directly inside page components (`apps/admin/src/pages/*.tsx`).
 - **Strictly No Cross-Page Imports**: Never export functions or constants from a page file for other pages or components to import (e.g. `import { mapApiOrderToAdminOrder } from './AdminOrders'`). Pages are top-level route targets, not reusable utility libraries. Cross-page imports cause tight coupling, circular dependencies, and bundle bloating.
 - **Dedicated Extraction Locations**:
@@ -89,6 +94,7 @@ apps/admin/src/components/
 ## 2. Internationalization (i18n) & Localization
 
 ### 2.1 100% JSON-Driven Translations
+
 - **Zero Hardcoded Strings**: All UI labels, placeholders, tooltips, validation messages, and modal texts must come from translation files.
 - Translations are stored in JSON files:
   - `apps/admin/src/locales/th.json` (Thai)
@@ -96,15 +102,18 @@ apps/admin/src/components/
 - Fetch translations using `useLanguage()` and `t()`:
   ```tsx
   const { t } = useLanguage();
-  <label>{t('product.nameEn')}</label>
+  <label>{t('product.nameEn')}</label>;
   ```
 
 ### 2.2 Strict Language Symmetry
+
 - When adding, updating, or deleting a key in `th.json`, **you must update `en.json` in the exact same structure simultaneously**.
 - Missing keys in either file are not acceptable.
 
 ### 2.3 Hierarchical Dot-Notation
+
 Group translation keys logically by category/feature:
+
 ```json
 {
   "common": { "save": "...", "cancel": "...", "delete": "..." },
@@ -120,6 +129,7 @@ Group translation keys logically by category/feature:
 ```
 
 ### 2.4 Clean LanguageContext
+
 - `LanguageContext.tsx` must remain lightweight and purely functional (~80-90 lines).
 - **Never embed hardcoded dictionary objects (`legacyTranslations`) in `LanguageContext.tsx`**.
 - The fallback chain inside `t(key, fallback)` must resolve:
@@ -132,6 +142,7 @@ Group translation keys logically by category/feature:
 ## 3. UI/UX Design & Form Conventions
 
 ### 3.1 Button & Action Deduplication
+
 - **Eliminate Duplicate Action Buttons**: Do not render the same action button (e.g. "Save", "Save Draft", "Publish") in multiple competing places on the same screen.
 - Maintain a single, prominent **Action Bar** (e.g. sticky top bar `FormTopBar.tsx`) that houses:
   - Navigation back button with unsaved change detection
@@ -140,6 +151,7 @@ Group translation keys logically by category/feature:
   - Primary action (e.g. Publish / Save Changes)
 
 ### 3.2 Confirmation & Safeguard Modals
+
 - **Destructive or High-Impact Actions**:
   - Always provide a confirmation modal before publishing live or deleting items (`PublishConfirmModal.tsx`).
   - Show a clear summary/checklist of changes or consequences in the modal.
@@ -147,6 +159,7 @@ Group translation keys logically by category/feature:
   - When a user attempts to leave a dirty form, prompt with an `UnsavedChangesModal` with options to "Discard & Leave" or "Keep Editing".
 
 ### 3.3 Decoupled Inventory Management
+
 - Product creation forms must focus on product specifications, taxonomy, media, and SKU definitions.
 - **Do not mix direct live stock adjustments into general product editing forms**.
 - Stock intake and inventory level adjustments must be handled through dedicated flows:
@@ -154,6 +167,7 @@ Group translation keys logically by category/feature:
   - Dedicated Back-Office Inventory Management screen
 
 ### 3.4 SKU & Variant Integrity (ห้ามลบ SKU และล็อคสี/ไซส์เดิมในโหมดแก้ไข)
+
 - **Zero Manual SKU Deletion**:
   - Do NOT provide row-level delete buttons in SKU tables.
   - SKU variants are strictly generated from the Color $\times$ Size matrix. Manual row deletion creates orphaned warehouse stock and breaks historical order lines.
@@ -164,6 +178,7 @@ Group translation keys logically by category/feature:
   - In product creation forms, display clear selected color pills (`Selected Colors / สีที่เลือกไว้`) with `×` remove buttons so admins have complete visibility and control over chosen colors.
 
 ### 3.4 Strictly Zero Emojis in UI
+
 - **Zero Emojis Policy**: Never use emojis (e.g. 🟢, 🟡, 🔴, 📦, ⚡, 🔒, 🚀, ✨, 💡, ✕, ⚠️) in UI components, button labels, badges, headers, alerts, or locale translation files (`th.json`, `en.json`).
 - **Icons & Visual Indicators**:
   - Use high-quality SVG icons from `lucide-react` (e.g., `<Zap size={14} />`, `<Lock size={12} />`, `<Check size={14} />`).
@@ -176,6 +191,7 @@ Group translation keys logically by category/feature:
     ```
 
 ### 3.5 Anti-"AI Slop" Design Guidelines & Editorial Luxury
+
 - **Eliminate AI Clichés ("AI Slop")**:
   - No gaudy rainbow/multitone gradients or unnecessary glowing drop shadows.
   - No cheesy sparkles, magic wands, or decorative filler that feels like generic AI demo templates.
@@ -184,7 +200,9 @@ Group translation keys logically by category/feature:
   - **Color Palette**: Sophisticated, grounded neutrals: crisp white, warm cream (`#FAF7F2`), subtle sand border (`#EAE3D9`), dark espresso (`#2B1810`), and slate/zinc accents.
   - **Typography**: Editorial hierarchy with tracked micro-labels (`tracking-wider text-[10px] font-black uppercase`), clean font weights, and high readability.
   - **Information Density**: Clean, purposeful card layouts, compact data rows, subtle borders, and delicate shadows (`shadow-xs` / `shadow-2xs`).
+
 ### 3.6 Horizontal Grid Balance & Void Elimination (Layout Symmetry)
+
 Form layouts, detail views, and dashboard panels must strive for **horizontal completeness with zero awkward dead space or voids**.
 
 **Golden Standard Reference**: `apps/admin/src/components/product/ProductForm.tsx` (`/admin/products/new`).
@@ -209,6 +227,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
     - Responsive Grid Chips: Color presets and size presets aligned in clean grids.
 
 ### 3.7 Central UI Components First (เน้นการสร้างและใช้ Component กลางเป็นหลัก)
+
 - **Central Primitives Mandate (`components/ui/`)**:
   - Whenever building interactive form controls, dropdowns, buttons, dialogs, or inputs, **ALWAYS** prioritize creating and reusing central UI components in `components/ui/` (e.g., `Button`, `DropdownSelect` / `Select`, `Input`, `Modal`).
   - **Zero Raw Native `<select>` Policy**: Never write raw HTML `<select>` tags with inline styles or custom ad-hoc arrow wrappers across views. Always use the central `<DropdownSelect>` or `<Select>` compound component from `@/components/ui`.
@@ -229,6 +248,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
     - `UnsavedChangesModal` (`components/common/UnsavedChangesModal.tsx`)
 
 ### 3.8 Badge Discipline & Elimination of Gratuitous UI Badges
+
 - **Zero Meta-Badges on Headers**:
   - Do NOT stick redundant badges on card or section headers (e.g. `Predefined Enums`, `Locked`, `System`). Inputs, labels, and helper descriptions already communicate this information cleanly.
 - **Zero Duplicate Status Badges**:
@@ -239,12 +259,14 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   - Indiscriminate use of badges causes visual fatigue and badge blindness, cheapening the luxury feel of the application.
 
 ### 3.9 No Developer Internal Enum Keys in UI
+
 - **Hide Internal Code Constants from End-Users & Admins**:
   - Never render raw TypeScript enum names, keys, or code symbols in the user interface (e.g. `MarketingTagKey.NEW_ARRIVAL`, `ProductSubCategory.SWEATERS_AND_KNITS`, `MarketingTagKey.NONE`, `OrderStatus.DELIVERED`).
   - The UI must exclusively display polished, localized, human-readable labels (e.g., "New Arrival" / "สินค้ามาใหม่", "Sweaters & Knits" / "สเวตเตอร์และเสื้อไหมพรม").
   - Internal keys exist solely for data consistency, database schemas, and API contracts—not for visual display.
 
 ### 3.10 Table Column Width Proportions & Content-Aware Sizing
+
 - **Match Column Widths to Expected Content Length**:
   - Never allow browsers to automatically distribute table widths without proportional constraints on short data.
   - Short data columns (e.g. `Size` chips like `S`/`M`/`L`, small quantities, status badges, action icon buttons) must be constrained with explicit widths and center alignment:
@@ -255,8 +277,9 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   - Long data columns (e.g. `SKU Code`, `Product Title`, `Description`, `Customer Name`) should receive dominant, flexible width (`min-w-[180px]` or unconstrained width) so user input is never clipped while eliminating cavernous empty space next to short chips.
 
 ### 3.11 Elimination of Unnecessary Sub-Descriptions & Filler Captions
+
 - **Do Not Add Redundant Captions**:
-  - Never add obvious, generic sub-descriptions under section/card headers (e.g. avoid *"Manage master cover photos and individual color-specific images"* under "Product Media & Color Swatches", or *"Define SKU codes, colors, sizes, and price adjustments"* under "Product Variants & SKUs").
+  - Never add obvious, generic sub-descriptions under section/card headers (e.g. avoid _"Manage master cover photos and individual color-specific images"_ under "Product Media & Color Swatches", or _"Define SKU codes, colors, sizes, and price adjustments"_ under "Product Variants & SKUs").
   - The section title, icons, and child form inputs already explain their own purpose. Extra explanatory text adds visual clutter and feels like boilerplate.
   - Reserve sub-descriptions and help text strictly for non-obvious business constraints, system safeguards (e.g. Decoupled Stock notice), or technical image requirements.
 
@@ -265,6 +288,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
 ## 4. Central Types & Shared Models (`@repo/types`)
 
 ### 4.1 Single Source of Truth
+
 - All shared entities, API request/response contracts, data transfer objects (DTOs), status enums, taxonomy enums, and domain models must reside in `packages/types/` (published internally as `@repo/types`).
 - **Never redefine duplicate interfaces** in individual applications (e.g. `apps/admin` or `apps/storefront`).
 - Examples of centralized entities:
@@ -275,6 +299,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   - API: `ApiResponse<T>`, `PaginatedResponse<T>`
 
 ### 4.2 Clean Monorepo Import Convention
+
 - Always import from `@repo/types`:
   ```tsx
   // ✅ GOOD
@@ -285,6 +310,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   ```
 
 ### 4.3 Separation Between Central Types and Local UI Types
+
 - **Central (`@repo/types`)**: Defines the data model contracts between frontend, backend API, and database.
 - **Local (`*Types.ts`)**: Defines component-specific states, form validation tracking, active tabs, and modal props.
 - Local types should compose or extend central types:
@@ -303,6 +329,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   ```
 
 ### 4.4 Barrel Export & Build Cycle
+
 - When adding or changing types in `packages/types/src/`:
   1. Export them in `packages/types/src/index.ts`.
   2. Compile the package to update the `./dist` artifacts:
@@ -315,6 +342,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
 ## 5. Code Quality & Verification Workflow
 
 ### 5.1 Zero `any` & Strict Typing (ห้ามใช้ `any` เด็ดขาด)
+
 - **Zero `any` Policy**: Never use `any` in application code, API requesters, contexts, components, or utilities.
 - **Why It's Banned**:
   - `any` disables TypeScript compiler guarantees, leaks untyped data, and introduces silent runtime crashes.
@@ -325,6 +353,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   - Clean up unused imports, dead variables, and console logs before completing work.
 
 ### 5.2 Ban Sloppy `||` Fallback Chaining (ห้ามเขียน Fallback แบบใช้ `||` ซ้อนกันมั่วซั่ว)
+
 - **Strictly No `||` Chaining**: Never write chained logical OR fallbacks like `a || b || c || d` when resolving values, URLs, API responses, or component props.
 - **Why It's Banned**:
   - `||` conflates falsy values (`0`, `""`, `false`) with missing data, causing subtle runtime bugs and edge-case corruption.
@@ -335,6 +364,7 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   3. **Explicit Ternaries / Conditions**: For structured data mappings, use explicit guards (`if/else` or typed resolvers) instead of lazy `||` chains.
 
 ### 5.3 Test Co-Evolution & Unit Testing Standard (เขียนหรือแก้โค้ดต้องแก้และรัน Test เสมอ)
+
 - **Mandatory Test Updates**: Whenever writing new features, modifying business logic, altering DTOs, schemas, or service methods, you **MUST** simultaneously write or update corresponding unit tests. Never leave existing tests failing or new logic untested.
 - **Dedicated Feature-Based Test Organization**: Group tests into dedicated domain folders (e.g. `apps/admin-api/test/product/`) and divide by feature per file (e.g. `create-product.spec.ts`, `get-products.spec.ts`, `get-by-slug.spec.ts`, `status-toggle.spec.ts`, `categories.spec.ts`, `validation.spec.ts`). Never dump unrelated test cases into a flat or monolithic test file.
 - **Run Unit Tests**: Always execute the test suite and ensure all tests pass:
@@ -343,7 +373,9 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   ```
 
 ### 5.4 Mandatory Verification Step
+
 Before completing any task or reporting back to the user:
+
 1. **Run Typecheck & Build**:
    ```bash
    npm --prefix packages/types run build
@@ -366,6 +398,7 @@ Before completing any task or reporting back to the user:
 ## 6. Development Checklist
 
 When implementing any feature or refactoring:
+
 - [ ] Are components placed in domain-specific folders?
 - [ ] Is complex logic split into sub-components under a dedicated sub-folder?
 - [ ] Are types and constants separated into `formTypes.ts` / `formConstants.ts`?
@@ -389,4 +422,3 @@ When implementing any feature or refactoring:
 - [ ] **Did you write or update unit tests in a dedicated feature folder (e.g. `test/<feature>/`) covering the new or changed logic?**
 - [ ] **Did you run `npm --prefix apps/admin-api run test` and pass 100% with 0 failures?**
 - [ ] Did you run `npm --prefix apps/admin run build` and `npm --prefix apps/admin-api run build` and pass with 0 errors?
-

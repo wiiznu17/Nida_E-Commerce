@@ -62,7 +62,9 @@ export class CustomerAuthService {
 
     await this.mailer.sendOtpEmail({ to: email, otpCode });
 
-    this.logger.log(`OTP generated and dispatched for customer email: ${email}`);
+    this.logger.log(
+      `OTP generated and dispatched for customer email: ${email}`,
+    );
 
     return {
       success: true,
@@ -149,7 +151,9 @@ export class CustomerAuthService {
       expiresIn: '7d',
     });
 
-    const nameParts = [user.firstName, user.lastName].filter((part): part is string => Boolean(part));
+    const nameParts = [user.firstName, user.lastName].filter(
+      (part): part is string => Boolean(part),
+    );
     const fullName = nameParts.length > 0 ? nameParts.join(' ') : user.email;
 
     const apiUser: ApiUser = {

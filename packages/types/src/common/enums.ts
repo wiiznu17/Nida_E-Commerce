@@ -56,7 +56,8 @@ export const ShipmentStatus = {
   DELIVERED: 'DELIVERED',
   FAILED: 'FAILED',
 } as const;
-export type ShipmentStatus = (typeof ShipmentStatus)[keyof typeof ShipmentStatus];
+export type ShipmentStatus =
+  (typeof ShipmentStatus)[keyof typeof ShipmentStatus];
 
 // --- Logistics & Carriers ---
 export const CarrierCode = {
@@ -84,7 +85,8 @@ export const StockChangeType = {
   DAMAGE: 'DAMAGE',
   RETURNED: 'RETURNED',
 } as const;
-export type StockChangeType = (typeof StockChangeType)[keyof typeof StockChangeType];
+export type StockChangeType =
+  (typeof StockChangeType)[keyof typeof StockChangeType];
 export type StockMovementType = StockChangeType;
 
 // --- Customer ---
@@ -94,7 +96,8 @@ export const MembershipTier = {
   VIP_GOLD: 'VIP_GOLD',
   PLATINUM: 'PLATINUM',
 } as const;
-export type MembershipTier = (typeof MembershipTier)[keyof typeof MembershipTier];
+export type MembershipTier =
+  (typeof MembershipTier)[keyof typeof MembershipTier];
 
 // --- Loyalty & Points ---
 export const PointChangeType = {
@@ -104,7 +107,8 @@ export const PointChangeType = {
   MANUAL_ADJUSTMENT: 'MANUAL_ADJUSTMENT',
   EXPIRED: 'EXPIRED',
 } as const;
-export type PointChangeType = (typeof PointChangeType)[keyof typeof PointChangeType];
+export type PointChangeType =
+  (typeof PointChangeType)[keyof typeof PointChangeType];
 
 // --- Return ---
 export const ReturnStatus = {
@@ -131,7 +135,8 @@ export const AuditActionType = {
   STATUS_CHANGE: 'STATUS_CHANGE',
   REFUND: 'REFUND',
 } as const;
-export type AuditActionType = (typeof AuditActionType)[keyof typeof AuditActionType];
+export type AuditActionType =
+  (typeof AuditActionType)[keyof typeof AuditActionType];
 
 // --- CMS & Marketing ---
 export const BannerPlacement = {
@@ -139,4 +144,5 @@ export const BannerPlacement = {
   COLLECTION_TOP: 'COLLECTION_TOP',
   PROMO_BAR: 'PROMO_BAR',
 } as const;
-export type BannerPlacement = (typeof BannerPlacement)[keyof typeof BannerPlacement];
+export type BannerPlacement =
+  (typeof BannerPlacement)[keyof typeof BannerPlacement];

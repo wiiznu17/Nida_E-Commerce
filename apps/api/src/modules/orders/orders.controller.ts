@@ -35,9 +35,15 @@ export class CustomerOrdersController {
 
   @Post()
   @UseGuards(OptionalCustomerJwtGuard)
-  @ApiOperation({ summary: 'Create a new storefront customer order with atomic stock deduction' })
+  @ApiOperation({
+    summary:
+      'Create a new storefront customer order with atomic stock deduction',
+  })
   @ApiResponse({ status: 201, description: 'Order successfully created' })
-  @ApiResponse({ status: 400, description: 'Insufficient stock or invalid coupon' })
+  @ApiResponse({
+    status: 400,
+    description: 'Insufficient stock or invalid coupon',
+  })
   async createOrder(
     @Body() dto: CreateCustomerOrderDto,
     @Request() req: AuthenticatedCustomerRequest,
@@ -60,7 +66,10 @@ export class CustomerOrdersController {
 
   @Get('track/:orderNumber')
   @ApiOperation({ summary: 'Track order shipment and delivery status' })
-  @ApiResponse({ status: 200, description: 'Tracking timeline and carrier status' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tracking timeline and carrier status',
+  })
   @ApiResponse({ status: 404, description: 'Order not found' })
   async trackOrder(
     @Param('orderNumber') orderNumber: string,

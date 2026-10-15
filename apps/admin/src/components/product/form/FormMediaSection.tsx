@@ -25,7 +25,10 @@ export function FormMediaSection({
   const { t } = useLanguage();
 
   const isColorLocked = (hex: string) =>
-    Boolean(isEdit && initialColors?.some((c) => c.toLowerCase() === hex.toLowerCase()));
+    Boolean(
+      isEdit &&
+      initialColors?.some((c) => c.toLowerCase() === hex.toLowerCase()),
+    );
 
   return (
     <div
@@ -146,7 +149,9 @@ export function FormMediaSection({
                     <span className="text-[8px] font-bold text-gray-700 truncate">
                       {col.name.split(' ')[0]}
                     </span>
-                    {locked && <Lock size={8} className="text-gray-400 shrink-0" />}
+                    {locked && (
+                      <Lock size={8} className="text-gray-400 shrink-0" />
+                    )}
                   </div>
                 </button>
               );
@@ -176,8 +181,12 @@ export function FormMediaSection({
                         className="w-3 h-3 rounded-full border border-gray-400 shrink-0"
                         style={{ backgroundColor: hex }}
                       />
-                      <span className="font-bold text-brand-brown">{colorName}</span>
-                      <span className="font-mono text-gray-400 text-[9px]">{hex}</span>
+                      <span className="font-bold text-brand-brown">
+                        {colorName}
+                      </span>
+                      <span className="font-mono text-gray-400 text-[9px]">
+                        {hex}
+                      </span>
                       {locked ? (
                         <span
                           title={t('product.originalLockedColor')}
@@ -231,8 +240,12 @@ export function FormMediaSection({
                           className="w-4 h-4 rounded-full border border-gray-400 shadow-2xs"
                           style={{ backgroundColor: hex }}
                         />
-                        <span className="text-xs font-bold text-brand-brown">{colorName}</span>
-                        <span className="text-[10px] font-mono text-gray-400">{hex}</span>
+                        <span className="text-xs font-bold text-brand-brown">
+                          {colorName}
+                        </span>
+                        <span className="text-[10px] font-mono text-gray-400">
+                          {hex}
+                        </span>
                       </div>
 
                       <div className="flex items-center space-x-1.5">

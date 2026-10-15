@@ -120,7 +120,9 @@ describe('CustomerOrdersService', () => {
         },
       };
 
-      (prismaMock as { $transaction: ReturnType<typeof vi.fn> }).$transaction.mockImplementation(
+      (
+        prismaMock as { $transaction: ReturnType<typeof vi.fn> }
+      ).$transaction.mockImplementation(
         async (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
       );
 
@@ -136,7 +138,9 @@ describe('CustomerOrdersService', () => {
 
   describe('trackOrder', () => {
     it('returns public tracking timeline and carrier details', async () => {
-      (prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }).order.findUnique.mockResolvedValueOnce({
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique.mockResolvedValueOnce({
         orderNumber: 'NIDA-20261014-ABCD',
         status: 'SHIPPED',
         placedAt: new Date('2026-10-14T10:00:00Z'),
@@ -153,7 +157,8 @@ describe('CustomerOrdersService', () => {
               {
                 id: 'log-1',
                 statusTitle: 'รับพัสดุเรียบร้อยแล้ว',
-                statusDescription: 'พนักงานเข้ารับพัสดุจาก Nida Fulfillment Hub',
+                statusDescription:
+                  'พนักงานเข้ารับพัสดุจาก Nida Fulfillment Hub',
                 location: 'กรุงเทพฯ',
                 logTimestamp: new Date('2026-10-14T12:30:00Z'),
               },
@@ -168,7 +173,9 @@ describe('CustomerOrdersService', () => {
       expect(tracking.shipment.trackingNumber).toBe('TH012345678');
       expect(tracking.shipment.status).toBe('IN_TRANSIT');
       expect(tracking.shipment.timeline).toHaveLength(1);
-      expect(tracking.shipment.timeline[0].statusTitle).toBe('รับพัสดุเรียบร้อยแล้ว');
+      expect(tracking.shipment.timeline[0].statusTitle).toBe(
+        'รับพัสดุเรียบร้อยแล้ว',
+      );
     });
   });
 });

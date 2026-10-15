@@ -43,7 +43,8 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       .getOrders()
       .then((orders) => {
         setPendingOrdersCount(
-          orders.filter((o) => o.status === 'PROCESSING' || o.status === 'PAID').length,
+          orders.filter((o) => o.status === 'PROCESSING' || o.status === 'PAID')
+            .length,
         );
       })
       .catch(() => {});
@@ -186,7 +187,11 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     <div className="flex flex-col h-full bg-brand-dark-brown text-white border-r border-brand-brown shadow-xl">
       {/* Sidebar Header / Brand */}
       <div className="p-4 border-b border-white/10 flex flex-col items-center justify-center relative">
-        <Link to="/admin" className="flex flex-col items-center" onClick={onClose}>
+        <Link
+          to="/admin"
+          className="flex flex-col items-center"
+          onClick={onClose}
+        >
           <NidaLogo size="sm" dark />
         </Link>
         <div className="mt-2 flex items-center space-x-1 bg-brand-yellow/15 border border-brand-yellow/30 px-2 py-0.5 rounded-full">
@@ -262,7 +267,9 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         >
           <div className="flex items-center space-x-2">
             <ExternalLink size={13} className="text-brand-yellow" />
-            <span className="font-bold text-[11px]">{t('common.viewStorefront')}</span>
+            <span className="font-bold text-[11px]">
+              {t('common.viewStorefront')}
+            </span>
           </div>
           <span className="text-[9px] text-white/40 font-mono">
             {(() => {
@@ -311,7 +318,9 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                 type="button"
                 onClick={() => setLanguage('th')}
                 className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors cursor-pointer ${
-                  language === 'th' ? 'bg-brand-yellow text-brand-dark-brown' : 'text-white/70 hover:text-white'
+                  language === 'th'
+                    ? 'bg-brand-yellow text-brand-dark-brown'
+                    : 'text-white/70 hover:text-white'
                 }`}
               >
                 TH
@@ -320,7 +329,9 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                 type="button"
                 onClick={() => setLanguage('en')}
                 className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors cursor-pointer ${
-                  language === 'en' ? 'bg-brand-yellow text-brand-dark-brown' : 'text-white/70 hover:text-white'
+                  language === 'en'
+                    ? 'bg-brand-yellow text-brand-dark-brown'
+                    : 'text-white/70 hover:text-white'
                 }`}
               >
                 EN

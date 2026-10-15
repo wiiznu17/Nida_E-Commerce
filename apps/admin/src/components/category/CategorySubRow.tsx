@@ -117,7 +117,10 @@ export function CategorySubRow({
               const productCount = subCat.productCount ?? 0;
               const isBlocked = productCount > 0;
               const deleteTooltip = isBlocked
-                ? t('category.tooltipHasProducts').replace('{count}', String(productCount))
+                ? t('category.tooltipHasProducts').replace(
+                    '{count}',
+                    String(productCount),
+                  )
                 : t('productList.delete');
 
               return (

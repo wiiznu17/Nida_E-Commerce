@@ -2,8 +2,10 @@ import * as React from 'react';
 import { Search, X } from 'lucide-react';
 import { cn } from 'cn';
 
-export interface SearchInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+export interface SearchInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'onChange'
+> {
   value: string;
   onChange: (value: string) => void;
   onClear?: () => void;

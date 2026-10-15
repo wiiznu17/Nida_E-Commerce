@@ -1,7 +1,14 @@
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
-import { ProtectedRoute, PublicOnlyRoute } from './components/common/ProtectedRoute';
+import {
+  ProtectedRoute,
+  PublicOnlyRoute,
+} from './components/common/ProtectedRoute';
 
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminSetupPassword } from './pages/AdminSetupPassword';
@@ -50,7 +57,9 @@ const router = createBrowserRouter([
 
       // Catalog Read
       {
-        element: <ProtectedRoute requiredPermissions={AdminPermission.CATALOG_READ} />,
+        element: (
+          <ProtectedRoute requiredPermissions={AdminPermission.CATALOG_READ} />
+        ),
         children: [
           { path: '/products', element: <AdminProducts /> },
           { path: '/admin/products', element: <AdminProducts /> },
@@ -61,7 +70,9 @@ const router = createBrowserRouter([
 
       // Catalog Write
       {
-        element: <ProtectedRoute requiredPermissions={AdminPermission.CATALOG_WRITE} />,
+        element: (
+          <ProtectedRoute requiredPermissions={AdminPermission.CATALOG_WRITE} />
+        ),
         children: [
           { path: '/products/new', element: <AdminProductCreate /> },
           { path: '/admin/products/new', element: <AdminProductCreate /> },
@@ -72,7 +83,9 @@ const router = createBrowserRouter([
 
       // Orders Read
       {
-        element: <ProtectedRoute requiredPermissions={AdminPermission.ORDERS_READ} />,
+        element: (
+          <ProtectedRoute requiredPermissions={AdminPermission.ORDERS_READ} />
+        ),
         children: [
           { path: '/orders', element: <AdminOrders /> },
           { path: '/admin/orders', element: <AdminOrders /> },
@@ -83,7 +96,11 @@ const router = createBrowserRouter([
 
       // Inventory Read
       {
-        element: <ProtectedRoute requiredPermissions={AdminPermission.INVENTORY_READ} />,
+        element: (
+          <ProtectedRoute
+            requiredPermissions={AdminPermission.INVENTORY_READ}
+          />
+        ),
         children: [
           { path: '/inventory', element: <AdminInventory /> },
           { path: '/admin/inventory', element: <AdminInventory /> },
@@ -94,7 +111,9 @@ const router = createBrowserRouter([
 
       // Promotions / Coupons Read
       {
-        element: <ProtectedRoute requiredPermissions={AdminPermission.COUPONS_READ} />,
+        element: (
+          <ProtectedRoute requiredPermissions={AdminPermission.COUPONS_READ} />
+        ),
         children: [
           { path: '/promotions', element: <AdminPromotions /> },
           { path: '/admin/promotions', element: <AdminPromotions /> },
@@ -103,7 +122,11 @@ const router = createBrowserRouter([
 
       // Staff Management
       {
-        element: <ProtectedRoute requiredPermissions={AdminPermission.ADMIN_USERS_MANAGE} />,
+        element: (
+          <ProtectedRoute
+            requiredPermissions={AdminPermission.ADMIN_USERS_MANAGE}
+          />
+        ),
         children: [
           { path: '/users', element: <AdminUsers /> },
           { path: '/admin/users', element: <AdminUsers /> },
@@ -112,7 +135,11 @@ const router = createBrowserRouter([
 
       // Audit Logs
       {
-        element: <ProtectedRoute requiredPermissions={AdminPermission.AUDIT_LOGS_READ} />,
+        element: (
+          <ProtectedRoute
+            requiredPermissions={AdminPermission.AUDIT_LOGS_READ}
+          />
+        ),
         children: [
           { path: '/audit-logs', element: <AdminAuditLogs /> },
           { path: '/admin/audit-logs', element: <AdminAuditLogs /> },

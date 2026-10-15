@@ -20,17 +20,26 @@ import {
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
-import { useLanguage, getProductTitle, getProductTag } from '../context/LanguageContext';
+import {
+  useLanguage,
+  getProductTitle,
+  getProductTag,
+} from '../context/LanguageContext';
 import { useCatalog } from '../context/CatalogContext';
 import type { ApiCategory } from '@repo/types';
 
 // Signature tri-color emblem: Brown, White, Yellow
 export function NidaLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const textSize = size === 'lg' ? 'text-3xl' : size === 'sm' ? 'text-xl' : 'text-2xl';
+  const textSize =
+    size === 'lg' ? 'text-3xl' : size === 'sm' ? 'text-xl' : 'text-2xl';
   return (
     <div className="flex flex-col items-center group cursor-pointer">
       <div className="flex items-center space-x-2">
-        <span className={`font-sans font-black tracking-[0.25em] text-[#2B1810] uppercase ${textSize}`}>NIDA</span>
+        <span
+          className={`font-sans font-black tracking-[0.25em] text-[#2B1810] uppercase ${textSize}`}
+        >
+          NIDA
+        </span>
       </div>
       {/* Signature Ribbon / Flag emblem in Brown, White, Yellow */}
       <div className="flex w-14 h-1.5 mt-0.5 rounded-xs overflow-hidden shadow-xs">
@@ -76,38 +85,94 @@ function getMegaMenuData(lang: 'th' | 'en'): MegaMenuData {
         {
           title: isTh ? 'เทรนด์และคอลเลกชันเด่น' : 'Featured & Trends',
           links: [
-            { label: isTh ? 'สินค้ามาใหม่' : 'New Arrivals', href: '/collections/women' },
-            { label: isTh ? 'สินค้าขายดี' : 'Best Sellers', href: '/collections/women' },
-            { label: isTh ? 'ซีรีส์สเวตเตอร์ไหมพรมถักเคเบิล' : 'The Cable-Knit Series', href: '/collections/women' },
-            { label: isTh ? 'ฤดูใบไม้ร่วง / หนาว 2026' : 'Autumn / Winter 2026', href: '/collections/women' },
-            { label: isTh ? 'เสื้อผ้าออร์แกนิกยั่งยืน' : 'Sustainable Essentials', href: '/collections/women' },
+            {
+              label: isTh ? 'สินค้ามาใหม่' : 'New Arrivals',
+              href: '/collections/women',
+            },
+            {
+              label: isTh ? 'สินค้าขายดี' : 'Best Sellers',
+              href: '/collections/women',
+            },
+            {
+              label: isTh
+                ? 'ซีรีส์สเวตเตอร์ไหมพรมถักเคเบิล'
+                : 'The Cable-Knit Series',
+              href: '/collections/women',
+            },
+            {
+              label: isTh ? 'ฤดูใบไม้ร่วง / หนาว 2026' : 'Autumn / Winter 2026',
+              href: '/collections/women',
+            },
+            {
+              label: isTh
+                ? 'เสื้อผ้าออร์แกนิกยั่งยืน'
+                : 'Sustainable Essentials',
+              href: '/collections/women',
+            },
           ],
         },
         {
           title: isTh ? 'เสื้อผ้า' : 'Clothing',
           links: [
-            { label: isTh ? 'เสื้อโค้ทและแจ็คเก็ต' : 'Coats & Jackets', href: '/collections/women' },
-            { label: isTh ? 'สเวตเตอร์และคาร์ดิแกน' : 'Sweaters & Cardigans', href: '/collections/women' },
-            { label: isTh ? 'เสื้อโปโลและเสื้อยืด' : 'Polos & T-Shirts', href: '/collections/women' },
-            { label: isTh ? 'เสื้อเชิ้ตและเบลาส์' : 'Shirts & Blouses', href: '/collections/women' },
-            { label: isTh ? 'กางเกงยีนส์และสแล็ค' : 'Denim & Trousers', href: '/collections/women' },
-            { label: isTh ? 'เดรสและกระโปรง' : 'Dresses & Skirts', href: '/collections/women' },
+            {
+              label: isTh ? 'เสื้อโค้ทและแจ็คเก็ต' : 'Coats & Jackets',
+              href: '/collections/women',
+            },
+            {
+              label: isTh ? 'สเวตเตอร์และคาร์ดิแกน' : 'Sweaters & Cardigans',
+              href: '/collections/women',
+            },
+            {
+              label: isTh ? 'เสื้อโปโลและเสื้อยืด' : 'Polos & T-Shirts',
+              href: '/collections/women',
+            },
+            {
+              label: isTh ? 'เสื้อเชิ้ตและเบลาส์' : 'Shirts & Blouses',
+              href: '/collections/women',
+            },
+            {
+              label: isTh ? 'กางเกงยีนส์และสแล็ค' : 'Denim & Trousers',
+              href: '/collections/women',
+            },
+            {
+              label: isTh ? 'เดรสและกระโปรง' : 'Dresses & Skirts',
+              href: '/collections/women',
+            },
           ],
         },
         {
           title: isTh ? 'รองเท้าและแอคเซสเซอรี่' : 'Shoes & Accessories',
           links: [
-            { label: isTh ? 'กระเป๋าสะพายข้างหนังแท้' : 'Leather Crossbody Bags', href: '/collections/bags' },
-            { label: isTh ? 'กระเป๋าโท้ทและสะพายไหล่' : 'Tote & Shoulder Bags', href: '/collections/bags' },
-            { label: isTh ? 'รองเท้าสนีกเกอร์คอร์ท' : 'Court Sneakers', href: '/collections/shoes' },
-            { label: isTh ? 'รองเท้าโลฟเฟอร์และแฟลต' : 'Loafers & Flats', href: '/collections/shoes' },
-            { label: isTh ? 'เข็มขัดและกระเป๋าสตางค์' : 'Belts & Wallets', href: '/collections/accessories' },
+            {
+              label: isTh
+                ? 'กระเป๋าสะพายข้างหนังแท้'
+                : 'Leather Crossbody Bags',
+              href: '/collections/bags',
+            },
+            {
+              label: isTh ? 'กระเป๋าโท้ทและสะพายไหล่' : 'Tote & Shoulder Bags',
+              href: '/collections/bags',
+            },
+            {
+              label: isTh ? 'รองเท้าสนีกเกอร์คอร์ท' : 'Court Sneakers',
+              href: '/collections/shoes',
+            },
+            {
+              label: isTh ? 'รองเท้าโลฟเฟอร์และแฟลต' : 'Loafers & Flats',
+              href: '/collections/shoes',
+            },
+            {
+              label: isTh ? 'เข็มขัดและกระเป๋าสตางค์' : 'Belts & Wallets',
+              href: '/collections/accessories',
+            },
           ],
         },
       ],
       promo: {
         tag: isTh ? 'คอลเลกชันใหม่' : 'NEW SEASON EDIT',
-        title: isTh ? 'คอลเลกชันฤดูใบไม้ร่วงสำหรับผู้หญิง' : "Women's Autumn Collection",
+        title: isTh
+          ? 'คอลเลกชันฤดูใบไม้ร่วงสำหรับผู้หญิง'
+          : "Women's Autumn Collection",
         subtitle: isTh
           ? 'สไตล์เพรปปี้ร่วมสมัย ทอด้วยผ้าวูลออร์แกนิกสัมผัสหรูหรา'
           : 'Modern preppy silhouettes reimagined with luxe sustainable wools.',
@@ -121,38 +186,94 @@ function getMegaMenuData(lang: 'th' | 'en'): MegaMenuData {
         {
           title: isTh ? 'เทรนด์และคอลเลกชันเด่น' : 'Featured & Trends',
           links: [
-            { label: isTh ? 'สินค้ามาใหม่' : 'New Arrivals', href: '/collections/men' },
-            { label: isTh ? 'เสื้อโปโลซิกเนเจอร์' : 'Signature Polos', href: '/collections/men' },
-            { label: isTh ? 'สไตล์นักศึกษาวาร์ซิตี้' : 'Collegiate Prep Edit', href: '/collections/men' },
-            { label: isTh ? 'เสื้อคลุมเฮอริเทจ' : 'Heritage Outerwear', href: '/collections/men' },
-            { label: isTh ? 'เฉพาะออนไลน์' : 'Online Exclusives', href: '/collections/men' },
+            {
+              label: isTh ? 'สินค้ามาใหม่' : 'New Arrivals',
+              href: '/collections/men',
+            },
+            {
+              label: isTh ? 'เสื้อโปโลซิกเนเจอร์' : 'Signature Polos',
+              href: '/collections/men',
+            },
+            {
+              label: isTh ? 'สไตล์นักศึกษาวาร์ซิตี้' : 'Collegiate Prep Edit',
+              href: '/collections/men',
+            },
+            {
+              label: isTh ? 'เสื้อคลุมเฮอริเทจ' : 'Heritage Outerwear',
+              href: '/collections/men',
+            },
+            {
+              label: isTh ? 'เฉพาะออนไลน์' : 'Online Exclusives',
+              href: '/collections/men',
+            },
           ],
         },
         {
           title: isTh ? 'เสื้อผ้า' : 'Clothing',
           links: [
-            { label: isTh ? 'เสื้อโปโลปิเก้และอ็อกซ์ฟอร์ด' : 'Pique & Oxford Polos', href: '/collections/men' },
-            { label: isTh ? 'เสื้อเชิ้ตกระดุมหน้า' : 'Button-Down Shirts', href: '/collections/men' },
-            { label: isTh ? 'แจ็คเก็ตและวินด์เบรกเกอร์' : 'Jackets & Windbreakers', href: '/collections/men' },
-            { label: isTh ? 'แจ็คเก็ตวาร์ซิตี้และบอมเบอร์' : 'Varsity & Bombers', href: '/collections/men' },
-            { label: isTh ? 'กางเกงชิโน่และขาสั้น' : 'Chinos & Shorts', href: '/collections/men' },
-            { label: isTh ? 'กางเกงยีนส์คลาสสิก' : 'Classic Denim', href: '/collections/men' },
+            {
+              label: isTh
+                ? 'เสื้อโปโลปิเก้และอ็อกซ์ฟอร์ด'
+                : 'Pique & Oxford Polos',
+              href: '/collections/men',
+            },
+            {
+              label: isTh ? 'เสื้อเชิ้ตกระดุมหน้า' : 'Button-Down Shirts',
+              href: '/collections/men',
+            },
+            {
+              label: isTh
+                ? 'แจ็คเก็ตและวินด์เบรกเกอร์'
+                : 'Jackets & Windbreakers',
+              href: '/collections/men',
+            },
+            {
+              label: isTh
+                ? 'แจ็คเก็ตวาร์ซิตี้และบอมเบอร์'
+                : 'Varsity & Bombers',
+              href: '/collections/men',
+            },
+            {
+              label: isTh ? 'กางเกงชิโน่และขาสั้น' : 'Chinos & Shorts',
+              href: '/collections/men',
+            },
+            {
+              label: isTh ? 'กางเกงยีนส์คลาสสิก' : 'Classic Denim',
+              href: '/collections/men',
+            },
           ],
         },
         {
           title: isTh ? 'รองเท้าและแอคเซสเซอรี่' : 'Shoes & Accessories',
           links: [
-            { label: isTh ? 'สนีกเกอร์หนังแท้' : 'Leather Court Sneakers', href: '/collections/shoes' },
-            { label: isTh ? 'รองเท้าเพนนีโลฟเฟอร์' : 'Penny Loafers', href: '/collections/shoes' },
-            { label: isTh ? 'กระเป๋าดัฟเฟิลเดินทาง' : 'Weekender Duffle Bags', href: '/collections/bags' },
-            { label: isTh ? 'หมวกแก๊ปผ้าทวิลปักโลโก้' : 'Logo Twill Caps', href: '/collections/accessories' },
-            { label: isTh ? 'เข็มขัดใส่ได้สองด้าน' : 'Reversible Belts', href: '/collections/accessories' },
+            {
+              label: isTh ? 'สนีกเกอร์หนังแท้' : 'Leather Court Sneakers',
+              href: '/collections/shoes',
+            },
+            {
+              label: isTh ? 'รองเท้าเพนนีโลฟเฟอร์' : 'Penny Loafers',
+              href: '/collections/shoes',
+            },
+            {
+              label: isTh ? 'กระเป๋าดัฟเฟิลเดินทาง' : 'Weekender Duffle Bags',
+              href: '/collections/bags',
+            },
+            {
+              label: isTh ? 'หมวกแก๊ปผ้าทวิลปักโลโก้' : 'Logo Twill Caps',
+              href: '/collections/accessories',
+            },
+            {
+              label: isTh ? 'เข็มขัดใส่ได้สองด้าน' : 'Reversible Belts',
+              href: '/collections/accessories',
+            },
           ],
         },
       ],
       promo: {
         tag: isTh ? 'เฮอริเทจคลาสสิก' : 'HERITAGE CLASSIC',
-        title: isTh ? 'เสื้อโปโลและสเวตเตอร์ไอคอนิก' : "Men's Iconic Polos & Knits",
+        title: isTh
+          ? 'เสื้อโปโลและสเวตเตอร์ไอคอนิก'
+          : "Men's Iconic Polos & Knits",
         subtitle: isTh
           ? 'ผ้าปิเก้พรีเมียมและการตัดเย็บสไตล์วาร์ซิตี้เพื่อความภูมิฐานในทุกวัน'
           : 'Premium pique and varsity tailoring built for everyday distinction.',
@@ -166,19 +287,45 @@ function getMegaMenuData(lang: 'th' | 'en'): MegaMenuData {
         {
           title: isTh ? 'เด็กชายและเด็กหญิง' : 'Boys & Girls',
           links: [
-            { label: isTh ? 'เสื้อผ้าเด็กทั้งหมด' : 'All Kids Clothing', href: '/collections/kids' },
-            { label: isTh ? 'เสื้อโปโลเด็กซิกเนเจอร์' : 'Boys Signature Polos', href: '/collections/kids' },
-            { label: isTh ? 'เดรสและกระโปรงสคอร์ตเด็กหญิง' : 'Girls Dresses & Skorts', href: '/collections/kids' },
-            { label: isTh ? 'แจ็คเก็ตกันลมเด็ก' : 'Kids Windbreakers', href: '/collections/kids' },
-            { label: isTh ? 'ฮู้ดดี้คัลเลอร์บล็อก' : 'Colorblock Hoodies', href: '/collections/kids' },
+            {
+              label: isTh ? 'เสื้อผ้าเด็กทั้งหมด' : 'All Kids Clothing',
+              href: '/collections/kids',
+            },
+            {
+              label: isTh ? 'เสื้อโปโลเด็กซิกเนเจอร์' : 'Boys Signature Polos',
+              href: '/collections/kids',
+            },
+            {
+              label: isTh
+                ? 'เดรสและกระโปรงสคอร์ตเด็กหญิง'
+                : 'Girls Dresses & Skorts',
+              href: '/collections/kids',
+            },
+            {
+              label: isTh ? 'แจ็คเก็ตกันลมเด็ก' : 'Kids Windbreakers',
+              href: '/collections/kids',
+            },
+            {
+              label: isTh ? 'ฮู้ดดี้คัลเลอร์บล็อก' : 'Colorblock Hoodies',
+              href: '/collections/kids',
+            },
           ],
         },
         {
           title: isTh ? 'แอคเซสเซอรี่และรองเท้า' : 'Accessories & Shoes',
           links: [
-            { label: isTh ? 'กระเป๋าเป้นักเรียน' : 'Kids School Backpacks', href: '/collections/kids' },
-            { label: isTh ? 'มินิสนีกเกอร์เรโทร' : 'Retro Mini Sneakers', href: '/collections/kids' },
-            { label: isTh ? 'หมวกแก๊ปเด็ก' : 'Kids Caps & Hats', href: '/collections/kids' },
+            {
+              label: isTh ? 'กระเป๋าเป้นักเรียน' : 'Kids School Backpacks',
+              href: '/collections/kids',
+            },
+            {
+              label: isTh ? 'มินิสนีกเกอร์เรโทร' : 'Retro Mini Sneakers',
+              href: '/collections/kids',
+            },
+            {
+              label: isTh ? 'หมวกแก๊ปเด็ก' : 'Kids Caps & Hats',
+              href: '/collections/kids',
+            },
           ],
         },
       ],
@@ -198,24 +345,51 @@ function getMegaMenuData(lang: 'th' | 'en'): MegaMenuData {
         {
           title: isTh ? 'กระเป๋าตามทรง' : 'Bags by Style',
           links: [
-            { label: isTh ? 'กระเป๋าทั้งหมด' : 'All Bags', href: '/collections/bags' },
-            { label: isTh ? 'กระเป๋าสะพายข้างซิกเนเจอร์' : 'Signature Crossbody', href: '/collections/bags' },
-            { label: isTh ? 'กระเป๋าดัฟเฟิลเดินทาง' : 'Weekender & Duffle Bags', href: '/collections/bags' },
-            { label: isTh ? 'กระเป๋าโท้ทใส่แล็ปท็อป' : 'Work & Laptop Totes', href: '/collections/bags' },
+            {
+              label: isTh ? 'กระเป๋าทั้งหมด' : 'All Bags',
+              href: '/collections/bags',
+            },
+            {
+              label: isTh
+                ? 'กระเป๋าสะพายข้างซิกเนเจอร์'
+                : 'Signature Crossbody',
+              href: '/collections/bags',
+            },
+            {
+              label: isTh ? 'กระเป๋าดัฟเฟิลเดินทาง' : 'Weekender & Duffle Bags',
+              href: '/collections/bags',
+            },
+            {
+              label: isTh ? 'กระเป๋าโท้ทใส่แล็ปท็อป' : 'Work & Laptop Totes',
+              href: '/collections/bags',
+            },
           ],
         },
         {
           title: isTh ? 'เครื่องหนังขนาดเล็ก' : 'Small Leather Goods',
           links: [
-            { label: isTh ? 'กระเป๋าสตางค์หนังเพบเบิล' : 'Pebble Leather Wallets', href: '/collections/bags' },
-            { label: isTh ? 'ที่ใส่บัตรแบบบาง' : 'Slim Cardholders', href: '/collections/bags' },
-            { label: isTh ? 'ป้ายห้อยกระเป๋าเดินทาง' : 'Luggage Tags & Pouches', href: '/collections/bags' },
+            {
+              label: isTh
+                ? 'กระเป๋าสตางค์หนังเพบเบิล'
+                : 'Pebble Leather Wallets',
+              href: '/collections/bags',
+            },
+            {
+              label: isTh ? 'ที่ใส่บัตรแบบบาง' : 'Slim Cardholders',
+              href: '/collections/bags',
+            },
+            {
+              label: isTh ? 'ป้ายห้อยกระเป๋าเดินทาง' : 'Luggage Tags & Pouches',
+              href: '/collections/bags',
+            },
           ],
         },
       ],
       promo: {
         tag: isTh ? 'งานฝีมือประณีต' : 'CRAFTSMANSHIP',
-        title: isTh ? 'คอลเลกชันเครื่องหนังเฮอริเทจ' : 'Heritage Leather Collection',
+        title: isTh
+          ? 'คอลเลกชันเครื่องหนังเฮอริเทจ'
+          : 'Heritage Leather Collection',
         subtitle: isTh
           ? 'หนังเกรนแท้สัมผัสนุ่มจับคู่กับอะไหล่สั่งทำพิเศษ'
           : 'Supple full-grain leather paired with custom palladium hardware.',
@@ -229,17 +403,41 @@ function getMegaMenuData(lang: 'th' | 'en'): MegaMenuData {
         {
           title: isTh ? 'ห้องนอนและห้องน้ำ' : 'Bed & Bath',
           links: [
-            { label: isTh ? 'ผ้าขนหนูออร์แกนิก ลายทาง' : 'Organic Striped Towels', href: '/collections/home' },
-            { label: isTh ? 'ผ้าห่มถักวาฟเฟิล' : 'Waffle Knit Throws', href: '/collections/home' },
-            { label: isTh ? 'ปลอกหมอนผ้าลินิน' : 'Linen Pillow Covers', href: '/collections/home' },
+            {
+              label: isTh
+                ? 'ผ้าขนหนูออร์แกนิก ลายทาง'
+                : 'Organic Striped Towels',
+              href: '/collections/home',
+            },
+            {
+              label: isTh ? 'ผ้าห่มถักวาฟเฟิล' : 'Waffle Knit Throws',
+              href: '/collections/home',
+            },
+            {
+              label: isTh ? 'ปลอกหมอนผ้าลินิน' : 'Linen Pillow Covers',
+              href: '/collections/home',
+            },
           ],
         },
         {
           title: isTh ? 'เครื่องหอมและของตกแต่งบ้าน' : 'Home Fragrance & Décor',
           links: [
-            { label: isTh ? 'เทียนหอมกระถางเซรามิก ฮิโนกิ' : 'Artisan Hinoki Candles', href: '/collections/home' },
-            { label: isTh ? 'จานชามเซรามิกและแจกัน' : 'Ceramic Tableware & Vases', href: '/collections/home' },
-            { label: isTh ? 'ของตกแต่งบ้านคราฟต์' : 'Home Living Objects', href: '/collections/home' },
+            {
+              label: isTh
+                ? 'เทียนหอมกระถางเซรามิก ฮิโนกิ'
+                : 'Artisan Hinoki Candles',
+              href: '/collections/home',
+            },
+            {
+              label: isTh
+                ? 'จานชามเซรามิกและแจกัน'
+                : 'Ceramic Tableware & Vases',
+              href: '/collections/home',
+            },
+            {
+              label: isTh ? 'ของตกแต่งบ้านคราฟต์' : 'Home Living Objects',
+              href: '/collections/home',
+            },
           ],
         },
       ],
@@ -260,23 +458,42 @@ function getMegaMenuData(lang: 'th' | 'en'): MegaMenuData {
           title: isTh ? 'ช้อปสินค้าลดราคาตามหมวด' : 'Shop Sale By Category',
           links: [
             {
-              label: isTh ? 'สินค้าลดราคาสำหรับผู้หญิง (สูงสุด 50%)' : "Women's Sale (Up to 50% Off)",
+              label: isTh
+                ? 'สินค้าลดราคาสำหรับผู้หญิง (สูงสุด 50%)'
+                : "Women's Sale (Up to 50% Off)",
               href: '/collections/sale',
             },
             {
-              label: isTh ? 'สินค้าลดราคาสำหรับผู้ชาย (สูงสุด 50%)' : "Men's Sale (Up to 50% Off)",
+              label: isTh
+                ? 'สินค้าลดราคาสำหรับผู้ชาย (สูงสุด 50%)'
+                : "Men's Sale (Up to 50% Off)",
               href: '/collections/sale',
             },
-            { label: isTh ? 'ลดราคากระเป๋าและรองเท้า' : 'Bags & Shoes Sale', href: '/collections/sale' },
-            { label: isTh ? 'สินค้าราคาพิเศษต่ำกว่า $100' : 'Under $100 Specials', href: '/collections/sale' },
+            {
+              label: isTh ? 'ลดราคากระเป๋าและรองเท้า' : 'Bags & Shoes Sale',
+              href: '/collections/sale',
+            },
+            {
+              label: isTh
+                ? 'สินค้าราคาพิเศษต่ำกว่า $100'
+                : 'Under $100 Specials',
+              href: '/collections/sale',
+            },
           ],
         },
         {
           title: isTh ? 'โปรโมชันพิเศษ' : 'Promotions',
           links: [
-            { label: isTh ? 'โค้ดลดเพิ่ม 20%: NIDA20' : 'Extra 20% Off Code: NIDA20', href: '/collections/sale' },
             {
-              label: isTh ? 'สินค้าเคลียร์สต็อกลดราคารอบสุดท้าย' : 'Clearance & Final Markdowns',
+              label: isTh
+                ? 'โค้ดลดเพิ่ม 20%: NIDA20'
+                : 'Extra 20% Off Code: NIDA20',
+              href: '/collections/sale',
+            },
+            {
+              label: isTh
+                ? 'สินค้าเคลียร์สต็อกลดราคารอบสุดท้าย'
+                : 'Clearance & Final Markdowns',
               href: '/collections/sale',
             },
           ],
@@ -304,7 +521,14 @@ function buildDynamicMegaMenu(
   const isTh = language === 'th';
   const result: MegaMenuData = { ...fallback };
 
-  const departments = ['women', 'men', 'kids', 'bags', 'shoes', 'home'] as const;
+  const departments = [
+    'women',
+    'men',
+    'kids',
+    'bags',
+    'shoes',
+    'home',
+  ] as const;
 
   for (const dept of departments) {
     const parentCats = categoriesByDept[dept] ?? [];
@@ -348,11 +572,14 @@ function buildDynamicMegaMenu(
     } else {
       const singleParent = parentCats[0];
       const children = singleParent.children ?? [];
-      const parentTitle = isTh && singleParent.nameTh ? singleParent.nameTh : singleParent.name;
+      const parentTitle =
+        isTh && singleParent.nameTh ? singleParent.nameTh : singleParent.name;
 
       const quickLinks: MegaMenuLink[] = [
         {
-          label: isTh ? `ดูสินค้าทั้งหมด (${parentTitle})` : `All ${parentTitle}`,
+          label: isTh
+            ? `ดูสินค้าทั้งหมด (${parentTitle})`
+            : `All ${parentTitle}`,
           href: `/collections/${singleParent.slug}`,
         },
         {
@@ -417,7 +644,9 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeMobileAccordion, setActiveMobileAccordion] = useState<string | null>(null);
+  const [activeMobileAccordion, setActiveMobileAccordion] = useState<
+    string | null
+  >(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const megaMenuData = useMemo(
@@ -468,13 +697,32 @@ export function Header() {
     { id: 'bags', label: t('nav.bags'), path: '/collections/bags' },
     { id: 'shoes', label: t('nav.shoes'), path: '/collections/shoes' },
     { id: 'home', label: t('nav.home'), path: '/collections/home' },
-    { id: 'sale', label: t('nav.sale'), path: '/collections/sale', isSale: true },
+    {
+      id: 'sale',
+      label: t('nav.sale'),
+      path: '/collections/sale',
+      isSale: true,
+    },
   ];
 
   const trendingQueries =
     language === 'th'
-      ? ['เสื้อโปโล', 'สเวตเตอร์ถักเคเบิล', 'เสื้อโค้ทเทรนช์', 'กระเป๋าหนังแท้', 'รองเท้าสนีกเกอร์', 'ผ้าขนหนู']
-      : ['Polo Shirts', 'Cable-Knit Sweaters', 'Trench Coats', 'Leather Bags', 'Court Sneakers', 'Bath Towels'];
+      ? [
+          'เสื้อโปโล',
+          'สเวตเตอร์ถักเคเบิล',
+          'เสื้อโค้ทเทรนช์',
+          'กระเป๋าหนังแท้',
+          'รองเท้าสนีกเกอร์',
+          'ผ้าขนหนู',
+        ]
+      : [
+          'Polo Shirts',
+          'Cable-Knit Sweaters',
+          'Trench Coats',
+          'Leather Bags',
+          'Court Sneakers',
+          'Bath Towels',
+        ];
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white shadow-xs font-sans">
@@ -483,7 +731,8 @@ export function Header() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="hidden lg:flex items-center space-x-6 text-white/80">
             <span className="flex items-center hover:text-white transition-colors cursor-pointer">
-              <MapPin size={12} className="mr-1.5 text-[#F59E0B]" /> {t('nav.storeLocator')}
+              <MapPin size={12} className="mr-1.5 text-[#F59E0B]" />{' '}
+              {t('nav.storeLocator')}
             </span>
             <Link href="/about" className="hover:text-white transition-colors">
               {t('nav.about')}
@@ -496,9 +745,13 @@ export function Header() {
             </span>
             <span className="truncate">
               {t('promo.saleTitle')}
-              <strong className="underline decoration-[#F59E0B] underline-offset-2">NIDA20</strong>
+              <strong className="underline decoration-[#F59E0B] underline-offset-2">
+                NIDA20
+              </strong>
             </span>
-            <span className="hidden sm:inline text-white/60">{t('promo.freeShipping')}</span>
+            <span className="hidden sm:inline text-white/60">
+              {t('promo.freeShipping')}
+            </span>
           </div>
 
           <div className="flex items-center space-x-4 text-white/80">
@@ -508,7 +761,9 @@ export function Header() {
                 type="button"
                 onClick={() => setLanguage('th')}
                 className={`px-1.5 py-0.5 text-[10px] font-black rounded-xs transition-colors ${
-                  language === 'th' ? 'bg-[#F59E0B] text-[#2B1810]' : 'text-white/80 hover:text-white'
+                  language === 'th'
+                    ? 'bg-[#F59E0B] text-[#2B1810]'
+                    : 'text-white/80 hover:text-white'
                 }`}
                 title="สลับเป็นภาษาไทย"
               >
@@ -518,7 +773,9 @@ export function Header() {
                 type="button"
                 onClick={() => setLanguage('en')}
                 className={`px-1.5 py-0.5 text-[10px] font-black rounded-xs transition-colors ${
-                  language === 'en' ? 'bg-[#F59E0B] text-[#2B1810]' : 'text-white/80 hover:text-white'
+                  language === 'en'
+                    ? 'bg-[#F59E0B] text-[#2B1810]'
+                    : 'text-white/80 hover:text-white'
                 }`}
                 title="Switch to English"
               >
@@ -533,7 +790,9 @@ export function Header() {
               className="hover:text-white transition-colors flex items-center text-xs"
             >
               <User size={12} className="mr-1" />
-              <span className="hidden lg:inline">{isAuthenticated ? t('nav.account') : t('nav.signIn')}</span>
+              <span className="hidden lg:inline">
+                {isAuthenticated ? t('nav.account') : t('nav.signIn')}
+              </span>
             </Link>
           </div>
         </div>
@@ -635,7 +894,9 @@ export function Header() {
               aria-label="View Shopping Bag"
             >
               <ShoppingBag size={18} strokeWidth={2} />
-              <span className="text-xs font-bold tracking-widest hidden sm:inline">{t('nav.bag')}</span>
+              <span className="text-xs font-bold tracking-widest hidden sm:inline">
+                {t('nav.bag')}
+              </span>
               <span className="bg-[#F59E0B] text-[#2B1810] font-black text-[11px] w-5 h-5 rounded-full flex items-center justify-center ml-1">
                 {items.length}
               </span>
@@ -699,7 +960,10 @@ export function Header() {
                       className="inline-flex items-center text-xs font-black tracking-widest uppercase text-[#2B1810] group-hover:text-[#D97706] transition-colors"
                     >
                       {t('mega.shopThisEdit')}{' '}
-                      <ArrowRight size={12} className="ml-1.5 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight
+                        size={12}
+                        className="ml-1.5 transition-transform group-hover:translate-x-1"
+                      />
                     </Link>
                   </div>
                 </div>
@@ -723,14 +987,19 @@ export function Header() {
                 autoFocus
                 className="w-full text-lg font-medium text-[#2B1810] placeholder-gray-400 outline-none"
               />
-              <button onClick={() => setIsSearchOpen(false)} className="text-gray-400 hover:text-[#2B1810] p-1 ml-2">
+              <button
+                onClick={() => setIsSearchOpen(false)}
+                className="text-gray-400 hover:text-[#2B1810] p-1 ml-2"
+              >
                 <X size={20} />
               </button>
             </div>
 
             {/* Quick Trending Searches */}
             <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-              <span className="font-black text-gray-400 uppercase tracking-widest mr-2">{t('search.trending')}</span>
+              <span className="font-black text-gray-400 uppercase tracking-widest mr-2">
+                {t('search.trending')}
+              </span>
               {trendingQueries.map((term) => (
                 <button
                   key={term}
@@ -780,7 +1049,9 @@ export function Header() {
                       <p className="text-xs font-bold text-[#2B1810] line-clamp-1 group-hover:text-[#D97706]">
                         {getProductTitle(item, language)}
                       </p>
-                      <p className="text-xs font-semibold text-gray-700 mt-0.5">${item.price}</p>
+                      <p className="text-xs font-semibold text-gray-700 mt-0.5">
+                        ${item.price}
+                      </p>
                     </Link>
                   ))}
                 </div>
@@ -796,7 +1067,10 @@ export function Header() {
           <div className="w-4/5 max-w-sm bg-white h-full overflow-y-auto flex flex-col p-6 animate-in slide-in-from-left duration-300">
             <div className="flex justify-between items-center pb-6 border-b border-gray-200">
               <NidaLogo size="sm" />
-              <button onClick={() => setIsMobileMenuOpen(false)} className="p-1 text-gray-600">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-1 text-gray-600"
+              >
                 <X size={24} />
               </button>
             </div>
@@ -808,7 +1082,9 @@ export function Header() {
                   type="button"
                   onClick={() => setLanguage('th')}
                   className={`px-3 py-1 text-xs font-black rounded-xs transition-colors ${
-                    language === 'th' ? 'bg-[#2B1810] text-white' : 'text-gray-600'
+                    language === 'th'
+                      ? 'bg-[#2B1810] text-white'
+                      : 'text-gray-600'
                   }`}
                 >
                   ภาษาไทย (TH)
@@ -817,7 +1093,9 @@ export function Header() {
                   type="button"
                   onClick={() => setLanguage('en')}
                   className={`px-3 py-1 text-xs font-black rounded-xs transition-colors ${
-                    language === 'en' ? 'bg-[#2B1810] text-white' : 'text-gray-600'
+                    language === 'en'
+                      ? 'bg-[#2B1810] text-white'
+                      : 'text-gray-600'
                   }`}
                 >
                   English (EN)
@@ -838,7 +1116,11 @@ export function Header() {
                     </Link>
                     {megaMenuData[item.id] && (
                       <button
-                        onClick={() => setActiveMobileAccordion(activeMobileAccordion === item.id ? null : item.id)}
+                        onClick={() =>
+                          setActiveMobileAccordion(
+                            activeMobileAccordion === item.id ? null : item.id,
+                          )
+                        }
                         className="p-1 text-gray-500"
                       >
                         <ChevronDown
@@ -848,28 +1130,33 @@ export function Header() {
                       </button>
                     )}
                   </div>
-                  {activeMobileAccordion === item.id && megaMenuData[item.id] && (
-                    <div className="mt-3 pl-3 space-y-2 border-l-2 border-[#2B1810]">
-                      {megaMenuData[item.id].categories
-                        .flatMap((c) => c.links)
-                        .map((link, idx) => (
-                          <Link
-                            key={idx}
-                            href={link.href}
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="block text-xs font-medium text-gray-600 hover:text-[#D97706] py-1"
-                          >
-                            {link.label}
-                          </Link>
-                        ))}
-                    </div>
-                  )}
+                  {activeMobileAccordion === item.id &&
+                    megaMenuData[item.id] && (
+                      <div className="mt-3 pl-3 space-y-2 border-l-2 border-[#2B1810]">
+                        {megaMenuData[item.id].categories
+                          .flatMap((c) => c.links)
+                          .map((link, idx) => (
+                            <Link
+                              key={idx}
+                              href={link.href}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="block text-xs font-medium text-gray-600 hover:text-[#D97706] py-1"
+                            >
+                              {link.label}
+                            </Link>
+                          ))}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
 
             <div className="pt-6 border-t border-gray-200 space-y-3 text-xs font-semibold text-[#2B1810]">
-              <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="block py-1">
+              <Link
+                href="/about"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block py-1"
+              >
                 {t('nav.about')}
               </Link>
               <Link
@@ -879,7 +1166,9 @@ export function Header() {
               >
                 {isAuthenticated ? t('nav.account') : t('nav.signIn')}
               </Link>
-              <div className="pt-2 text-[11px] text-gray-400">© 2026 NIDA. All Rights Reserved.</div>
+              <div className="pt-2 text-[11px] text-gray-400">
+                © 2026 NIDA. All Rights Reserved.
+              </div>
             </div>
           </div>
         </div>
@@ -924,7 +1213,10 @@ export function Footer() {
                 <span className="font-bold">{t('footer.welcomeClub')}</span>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2">
+              <form
+                onSubmit={handleSubscribe}
+                className="flex flex-col sm:flex-row gap-2"
+              >
                 <input
                   type="email"
                   placeholder={t('footer.emailPlaceholder')}
@@ -950,20 +1242,26 @@ export function Footer() {
         {/* Col 1: Brand & Heritage */}
         <div>
           <div className="mb-6">
-            <span className="font-black text-2xl tracking-[0.2em] text-white uppercase block">NIDA</span>
+            <span className="font-black text-2xl tracking-[0.2em] text-white uppercase block">
+              NIDA
+            </span>
             <div className="flex w-14 h-1.5 mt-1">
               <div className="w-1/3 bg-[#2B1810]"></div>
               <div className="w-1/3 bg-white"></div>
               <div className="w-1/3 bg-[#F59E0B]"></div>
             </div>
           </div>
-          <p className="text-xs text-gray-300 leading-relaxed mb-6 font-normal">{t('footer.brandStory')}</p>
+          <p className="text-xs text-gray-300 leading-relaxed mb-6 font-normal">
+            {t('footer.brandStory')}
+          </p>
           <div className="flex items-center space-x-4 text-xs text-gray-300">
             <span className="flex items-center">
-              <Truck size={14} className="mr-1 text-[#F59E0B]" /> {t('footer.fastDelivery')}
+              <Truck size={14} className="mr-1 text-[#F59E0B]" />{' '}
+              {t('footer.fastDelivery')}
             </span>
             <span className="flex items-center">
-              <ShieldCheck size={14} className="mr-1 text-[#F59E0B]" /> {t('footer.securePay')}
+              <ShieldCheck size={14} className="mr-1 text-[#F59E0B]" />{' '}
+              {t('footer.securePay')}
             </span>
           </div>
         </div>
@@ -975,27 +1273,42 @@ export function Footer() {
           </h4>
           <ul className="space-y-3 text-xs text-gray-300 font-medium">
             <li>
-              <Link href="/track-order" className="hover:text-white transition-colors">
+              <Link
+                href="/track-order"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.trackOrder')}
               </Link>
             </li>
             <li>
-              <Link href="/checkout" className="hover:text-white transition-colors">
+              <Link
+                href="/checkout"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.shippingPolicy')}
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-white transition-colors">
+              <Link
+                href="/about"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.returnsExchange')}
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-white transition-colors">
+              <Link
+                href="/about"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.sizeGuide')}
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-white transition-colors">
+              <Link
+                href="/about"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.contactSupport')}
               </Link>
             </li>
@@ -1009,32 +1322,50 @@ export function Footer() {
           </h4>
           <ul className="space-y-3 text-xs text-gray-300 font-medium">
             <li>
-              <Link href="/collections/women" className="hover:text-white transition-colors">
+              <Link
+                href="/collections/women"
+                className="hover:text-white transition-colors"
+              >
                 {t('nav.women')}
               </Link>
             </li>
             <li>
-              <Link href="/collections/men" className="hover:text-white transition-colors">
+              <Link
+                href="/collections/men"
+                className="hover:text-white transition-colors"
+              >
                 {t('nav.men')}
               </Link>
             </li>
             <li>
-              <Link href="/collections/kids" className="hover:text-white transition-colors">
+              <Link
+                href="/collections/kids"
+                className="hover:text-white transition-colors"
+              >
                 {t('nav.kids')}
               </Link>
             </li>
             <li>
-              <Link href="/collections/bags" className="hover:text-white transition-colors">
+              <Link
+                href="/collections/bags"
+                className="hover:text-white transition-colors"
+              >
                 {t('nav.bags')}
               </Link>
             </li>
             <li>
-              <Link href="/collections/shoes" className="hover:text-white transition-colors">
+              <Link
+                href="/collections/shoes"
+                className="hover:text-white transition-colors"
+              >
                 {t('nav.shoes')}
               </Link>
             </li>
             <li>
-              <Link href="/collections/sale" className="text-[#F59E0B] font-bold hover:underline">
+              <Link
+                href="/collections/sale"
+                className="text-[#F59E0B] font-bold hover:underline"
+              >
                 {t('nav.sale')} (50% OFF)
               </Link>
             </li>
@@ -1048,27 +1379,42 @@ export function Footer() {
           </h4>
           <ul className="space-y-3 text-xs text-gray-300 font-medium">
             <li>
-              <Link href="/about" className="hover:text-white transition-colors">
+              <Link
+                href="/about"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.brandPhilosophy')}
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-white transition-colors">
+              <Link
+                href="/about"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.sustainability')}
               </Link>
             </li>
             <li>
-              <Link href="/profile" className="hover:text-white transition-colors">
+              <Link
+                href="/profile"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.rewardsProgram')}
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-white transition-colors">
+              <Link
+                href="/about"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.storeLocations')}
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-white transition-colors">
+              <Link
+                href="/about"
+                className="hover:text-white transition-colors"
+              >
                 {t('footer.careers')}
               </Link>
             </li>
@@ -1080,11 +1426,17 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
         <p>{t('footer.copyright')}</p>
         <div className="flex items-center space-x-6 text-[11px]">
-          <span className="hover:text-white cursor-pointer">{t('footer.privacy')}</span>
+          <span className="hover:text-white cursor-pointer">
+            {t('footer.privacy')}
+          </span>
           <span>•</span>
-          <span className="hover:text-white cursor-pointer">{t('footer.terms')}</span>
+          <span className="hover:text-white cursor-pointer">
+            {t('footer.terms')}
+          </span>
           <span>•</span>
-          <span className="hover:text-white cursor-pointer">{t('footer.accessibility')}</span>
+          <span className="hover:text-white cursor-pointer">
+            {t('footer.accessibility')}
+          </span>
         </div>
       </div>
     </footer>
@@ -1093,7 +1445,8 @@ export function Footer() {
 
 // Sliding Cart Drawer
 export function CartDrawer() {
-  const { isCartOpen, setIsCartOpen, items, cartTotal, removeFromCart } = useCart();
+  const { isCartOpen, setIsCartOpen, items, cartTotal, removeFromCart } =
+    useCart();
   const { language, t } = useLanguage();
   const router = useRouter();
 
@@ -1117,7 +1470,10 @@ export function CartDrawer() {
               {t('cart.title')} ({items.length})
             </h2>
           </div>
-          <button onClick={() => setIsCartOpen(false)} className="hover:text-[#F59E0B] p-1 transition-colors">
+          <button
+            onClick={() => setIsCartOpen(false)}
+            className="hover:text-[#F59E0B] p-1 transition-colors"
+          >
             <X size={22} />
           </button>
         </div>
@@ -1126,7 +1482,8 @@ export function CartDrawer() {
         <div className="bg-[#FAF7F2] p-4 border-b border-[#EAE3D9] text-xs">
           {cartTotal >= 100 ? (
             <div className="text-emerald-700 font-bold flex items-center">
-              <Check size={16} className="mr-1.5" /> {t('cart.freeShippingQualified')}
+              <Check size={16} className="mr-1.5" />{' '}
+              {t('cart.freeShippingQualified')}
             </div>
           ) : (
             <div>
@@ -1136,12 +1493,16 @@ export function CartDrawer() {
                   {(100 - cartTotal).toFixed(2)}
                   {t('cart.forFreeShipping')}
                 </span>
-                <span>{Math.min(100, Math.round((cartTotal / 100) * 100))}%</span>
+                <span>
+                  {Math.min(100, Math.round((cartTotal / 100) * 100))}%
+                </span>
               </div>
               <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
                 <div
                   className="bg-[#F59E0B] h-full transition-all duration-500"
-                  style={{ width: `${Math.min(100, (cartTotal / 100) * 100)}%` }}
+                  style={{
+                    width: `${Math.min(100, (cartTotal / 100) * 100)}%`,
+                  }}
                 />
               </div>
             </div>
@@ -1152,9 +1513,17 @@ export function CartDrawer() {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {items.length === 0 ? (
             <div className="text-center py-16 space-y-4">
-              <ShoppingBag size={48} strokeWidth={1} className="mx-auto text-gray-300" />
-              <p className="text-base font-bold text-[#2B1810]">{t('cart.emptyTitle')}</p>
-              <p className="text-xs text-gray-500 max-w-xs mx-auto">{t('cart.emptyDesc')}</p>
+              <ShoppingBag
+                size={48}
+                strokeWidth={1}
+                className="mx-auto text-gray-300"
+              />
+              <p className="text-base font-bold text-[#2B1810]">
+                {t('cart.emptyTitle')}
+              </p>
+              <p className="text-xs text-gray-500 max-w-xs mx-auto">
+                {t('cart.emptyDesc')}
+              </p>
               <button
                 onClick={() => {
                   setIsCartOpen(false);
@@ -1167,22 +1536,34 @@ export function CartDrawer() {
             </div>
           ) : (
             items.map((item, index) => (
-              <div key={`${item.id}-${index}`} className="flex gap-4 pb-6 border-b border-gray-100">
+              <div
+                key={`${item.id}-${index}`}
+                className="flex gap-4 pb-6 border-b border-gray-100"
+              >
                 <div className="w-20 h-26 bg-gray-100 flex-shrink-0 relative">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-bold text-sm text-[#2B1810]">{getProductTitle(item, language)}</h3>
+                    <h3 className="font-bold text-sm text-[#2B1810]">
+                      {getProductTitle(item, language)}
+                    </h3>
                     <p className="text-xs text-gray-500 mt-1 uppercase font-semibold">
-                      {item.selectedColor} • {t('cart.size')}: {item.selectedSize}
+                      {item.selectedColor} • {t('cart.size')}:{' '}
+                      {item.selectedSize}
                     </p>
                     <p className="text-xs text-gray-600 mt-1">
                       {t('cart.qty')}: {item.quantity}
                     </p>
                   </div>
                   <div className="flex justify-between items-center mt-3">
-                    <span className="font-black text-sm text-[#2B1810]">${item.price * item.quantity}</span>
+                    <span className="font-black text-sm text-[#2B1810]">
+                      ${item.price * item.quantity}
+                    </span>
                     <button
                       onClick={() => removeFromCart(item.id)}
                       className="text-xs uppercase font-bold text-gray-400 hover:text-[#D97706] transition-colors underline"
@@ -1201,9 +1582,13 @@ export function CartDrawer() {
           <div className="p-6 border-t border-gray-200 bg-[#FAF7F2]">
             <div className="flex justify-between items-center mb-2 text-xs font-semibold text-gray-600 uppercase">
               <span>{t('cart.subtotal')}</span>
-              <span className="text-base font-black text-[#2B1810]">${cartTotal.toFixed(2)}</span>
+              <span className="text-base font-black text-[#2B1810]">
+                ${cartTotal.toFixed(2)}
+              </span>
             </div>
-            <p className="text-[11px] text-gray-500 mb-4">{t('cart.disclaimer')}</p>
+            <p className="text-[11px] text-gray-500 mb-4">
+              {t('cart.disclaimer')}
+            </p>
             <div className="space-y-2">
               <Link
                 href="/checkout"

@@ -213,7 +213,8 @@ export async function seedOrders() {
               ? ShipmentStatus.DELIVERED
               : ShipmentStatus.LABEL_CREATED,
           shippedAt: item.placedAt,
-          deliveredAt: item.status === OrderStatus.DELIVERED ? item.placedAt : null,
+          deliveredAt:
+            item.status === OrderStatus.DELIVERED ? item.placedAt : null,
         },
       });
 

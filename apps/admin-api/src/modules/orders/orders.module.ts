@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { CouponsModule } from '../coupons/coupons.module.js';
 import { OrdersController } from './orders.controller.js';
@@ -12,4 +11,3 @@ import { CarrierMockService } from './carrier/index.js';
   exports: [OrdersService, CarrierMockService],
 })
 export class OrdersModule {}
-

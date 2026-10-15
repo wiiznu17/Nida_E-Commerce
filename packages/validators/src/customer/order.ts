@@ -7,7 +7,9 @@ export const orderItemSchema = z.object({
 
 export const shippingAddressSchema = z.object({
   recipientName: z.string().min(1, { message: 'Recipient name is required' }),
-  phone: z.string().min(9, { message: 'Phone number must be at least 9 digits' }),
+  phone: z
+    .string()
+    .min(9, { message: 'Phone number must be at least 9 digits' }),
   addressLine1: z.string().min(1, { message: 'Address line 1 is required' }),
   addressLine2: z.string().optional(),
   subdistrict: z.string().min(1, { message: 'Subdistrict is required' }),
@@ -17,7 +19,9 @@ export const shippingAddressSchema = z.object({
 });
 
 export const createOrderSchema = z.object({
-  items: z.array(orderItemSchema).min(1, { message: 'Order must contain at least 1 item' }),
+  items: z
+    .array(orderItemSchema)
+    .min(1, { message: 'Order must contain at least 1 item' }),
   shippingAddress: shippingAddressSchema,
   paymentMethod: z.enum(['PROMPTPAY', 'CREDIT_CARD', 'BANK_TRANSFER', 'COD']),
   couponCode: z.string().optional(),

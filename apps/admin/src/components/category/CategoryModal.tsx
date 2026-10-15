@@ -51,7 +51,9 @@ export function CategoryModal({
       setBannerTag(initialData.bannerTag || '');
       setBannerTagTh(initialData.bannerTagTh || '');
       setDisplayOrder(initialData.displayOrder ?? 0);
-      setIsActive(initialData.isActive !== undefined ? initialData.isActive : true);
+      setIsActive(
+        initialData.isActive !== undefined ? initialData.isActive : true,
+      );
     } else {
       setName('');
       setNameTh('');
@@ -78,7 +80,11 @@ export function CategoryModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError(isTh ? 'กรุณากรอกชื่อหมวดหมู่ภาษาอังกฤษ' : 'Category name (English) is required');
+      setError(
+        isTh
+          ? 'กรุณากรอกชื่อหมวดหมู่ภาษาอังกฤษ'
+          : 'Category name (English) is required',
+      );
       return;
     }
 
@@ -121,7 +127,8 @@ export function CategoryModal({
 
   // Candidates for parent category: top-level categories in the same department (excluding itself)
   const eligibleParents = parentCategories.filter(
-    (c) => c.id !== initialData?.id && !c.parentId && c.department === department,
+    (c) =>
+      c.id !== initialData?.id && !c.parentId && c.department === department,
   );
 
   const parentOptions = [
@@ -143,7 +150,9 @@ export function CategoryModal({
             </div>
             <div>
               <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
-                {isEdit ? t('category.modal.editTitle') : t('category.modal.createTitle')}
+                {isEdit
+                  ? t('category.modal.editTitle')
+                  : t('category.modal.createTitle')}
               </h3>
               <p className="text-[11px] text-gray-500 font-medium">
                 {isEdit ? initialData?.name : t('category.subtitle')}
@@ -315,7 +324,9 @@ export function CategoryModal({
                 {t('category.modal.isActive')}
               </span>
               <span className="text-[10px] text-gray-500">
-                {isActive ? t('category.statusActive') : t('category.statusInactive')}
+                {isActive
+                  ? t('category.statusActive')
+                  : t('category.statusInactive')}
               </span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">

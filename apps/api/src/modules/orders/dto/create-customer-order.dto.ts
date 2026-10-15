@@ -34,7 +34,10 @@ export class CustomerOrderItemDto {
 }
 
 export class CustomerShippingAddressDto {
-  @ApiProperty({ description: 'ชื่อ-นามสกุล ผู้รับ', example: 'พิมพิศา วงศ์สวรรค์' })
+  @ApiProperty({
+    description: 'ชื่อ-นามสกุล ผู้รับ',
+    example: 'พิมพิศา วงศ์สวรรค์',
+  })
   @IsString()
   @IsNotEmpty()
   recipientName!: string;

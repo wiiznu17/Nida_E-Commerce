@@ -1,7 +1,14 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { QueryProductsDto, SortByOption } from './dto/query-products.dto.js';
-import { CreateProductDto, CreateSkuVariantDto } from './dto/create-product.dto.js';
+import {
+  CreateProductDto,
+  CreateSkuVariantDto,
+} from './dto/create-product.dto.js';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto.js';
 import type {
   CategoryWithRelations,
@@ -26,9 +33,17 @@ export class CatalogService {
     private readonly uploadService: UploadService,
   ) {}
 
-  async getCategories(department?: string, includeInactive = false): Promise<ApiCategory[]> {
-    const where: Prisma.CategoryWhereInput = includeInactive ? {} : { isActive: true };
-    if (department && Object.values(Department).includes(department as Department)) {
+  async getCategories(
+    department?: string,
+    includeInactive = false,
+  ): Promise<ApiCategory[]> {
+    const where: Prisma.CategoryWhereInput = includeInactive
+      ? {}
+      : { isActive: true };
+    if (
+      department &&
+      Object.values(Department).includes(department as Department)
+    ) {
       where.department = department as Department;
     }
 
@@ -61,9 +76,13 @@ export class CatalogService {
     }
 
     if (dto.parentId) {
-      const parent = await this.prisma.category.findUnique({ where: { id: dto.parentId } });
+      const parent = await this.prisma.category.findUnique({
+        where: { id: dto.parentId },
+      });
       if (!parent) {
-        throw new NotFoundException(`Parent category "${dto.parentId}" not found`);
+        throw new NotFoundException(
+          `Parent category "${dto.parentId}" not found`,
+        );
       }
     }
 
@@ -91,7 +110,10 @@ export class CatalogService {
     return this.mapCategory(created);
   }
 
-  async updateCategory(id: string, dto: UpdateCategoryDto): Promise<ApiCategory> {
+  async updateCategory(
+    id: string,
+    dto: UpdateCategoryDto,
+  ): Promise<ApiCategory> {
     const existing = await this.prisma.category.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`Category "${id}" not found`);
@@ -101,18 +123,29 @@ export class CatalogService {
       if (dto.parentId === id) {
         throw new BadRequestException('A category cannot be its own parent');
       }
-      const parent = await this.prisma.category.findUnique({ where: { id: dto.parentId } });
+      const parent = await this.prisma.category.findUnique({
+        where: { id: dto.parentId },
+      });
       if (!parent) {
-        throw new NotFoundException(`Parent category "${dto.parentId}" not found`);
+        throw new NotFoundException(
+          `Parent category "${dto.parentId}" not found`,
+        );
       }
     }
 
     let slug = existing.slug;
     if (dto.slug && dto.slug.trim() !== existing.slug) {
-      const formattedSlug = dto.slug.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-      const conflict = await this.prisma.category.findUnique({ where: { slug: formattedSlug } });
+      const formattedSlug = dto.slug
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-');
+      const conflict = await this.prisma.category.findUnique({
+        where: { slug: formattedSlug },
+      });
       if (conflict && conflict.id !== id) {
-        throw new BadRequestException(`Category slug "${formattedSlug}" is already taken`);
+        throw new BadRequestException(
+          `Category slug "${formattedSlug}" is already taken`,
+        );
       }
       slug = formattedSlug;
     }
@@ -121,16 +154,39 @@ export class CatalogService {
       where: { id },
       data: {
         name: dto.name !== undefined ? dto.name.trim() : existing.name,
-        nameTh: dto.nameTh !== undefined ? (dto.nameTh?.trim() || null) : existing.nameTh,
+        nameTh:
+          dto.nameTh !== undefined
+            ? dto.nameTh?.trim() || null
+            : existing.nameTh,
         slug,
-        department: dto.department !== undefined ? dto.department : existing.department,
-        parentId: dto.parentId !== undefined ? (dto.parentId || null) : existing.parentId,
-        description: dto.description !== undefined ? (dto.description?.trim() || null) : existing.description,
-        descriptionTh: dto.descriptionTh !== undefined ? (dto.descriptionTh?.trim() || null) : existing.descriptionTh,
-        bannerTag: dto.bannerTag !== undefined ? (dto.bannerTag?.trim() || null) : existing.bannerTag,
-        bannerTagTh: dto.bannerTagTh !== undefined ? (dto.bannerTagTh?.trim() || null) : existing.bannerTagTh,
-        bannerImage: dto.bannerImage !== undefined ? (dto.bannerImage?.trim() || null) : existing.bannerImage,
-        displayOrder: dto.displayOrder !== undefined ? dto.displayOrder : existing.displayOrder,
+        department:
+          dto.department !== undefined ? dto.department : existing.department,
+        parentId:
+          dto.parentId !== undefined ? dto.parentId || null : existing.parentId,
+        description:
+          dto.description !== undefined
+            ? dto.description?.trim() || null
+            : existing.description,
+        descriptionTh:
+          dto.descriptionTh !== undefined
+            ? dto.descriptionTh?.trim() || null
+            : existing.descriptionTh,
+        bannerTag:
+          dto.bannerTag !== undefined
+            ? dto.bannerTag?.trim() || null
+            : existing.bannerTag,
+        bannerTagTh:
+          dto.bannerTagTh !== undefined
+            ? dto.bannerTagTh?.trim() || null
+            : existing.bannerTagTh,
+        bannerImage:
+          dto.bannerImage !== undefined
+            ? dto.bannerImage?.trim() || null
+            : existing.bannerImage,
+        displayOrder:
+          dto.displayOrder !== undefined
+            ? dto.displayOrder
+            : existing.displayOrder,
         isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
       },
       include: {
@@ -142,7 +198,9 @@ export class CatalogService {
     return this.mapCategory(updated);
   }
 
-  async deleteCategory(id: string): Promise<{ success: boolean; message: string }> {
+  async deleteCategory(
+    id: string,
+  ): Promise<{ success: boolean; message: string }> {
     const existing = await this.prisma.category.findUnique({
       where: { id },
       include: {
@@ -208,7 +266,10 @@ export class CatalogService {
 
     if (department || category) {
       where.category = {};
-      if (department && Object.values(Department).includes(department as Department)) {
+      if (
+        department &&
+        Object.values(Department).includes(department as Department)
+      ) {
         where.category.department = department as Department;
       }
       if (category) {
@@ -256,7 +317,11 @@ export class CatalogService {
     };
   }
 
-  async getProductCounts(): Promise<{ total: number; published: number; draft: number }> {
+  async getProductCounts(): Promise<{
+    total: number;
+    published: number;
+    draft: number;
+  }> {
     const [total, published, draft] = await Promise.all([
       this.prisma.product.count(),
       this.prisma.product.count({ where: { isActive: true } }),
@@ -266,7 +331,10 @@ export class CatalogService {
   }
 
   async getProductBySlug(slugOrId: string): Promise<ApiProductDetail> {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        slugOrId,
+      );
     const product = await this.prisma.product.findFirst({
       where: isUuid
         ? { OR: [{ id: slugOrId }, { slug: slugOrId }] }
@@ -292,7 +360,9 @@ export class CatalogService {
     });
 
     if (!product) {
-      throw new NotFoundException(`Product with identifier "${slugOrId}" not found`);
+      throw new NotFoundException(
+        `Product with identifier "${slugOrId}" not found`,
+      );
     }
 
     const avgRating =
@@ -364,7 +434,11 @@ export class CatalogService {
     const slug = await this.generateUniqueSlug(dto.name);
     const category = await this.resolveCategory(dto.category, dto.department);
     const imageList = await this.commitAndPrepareImages(dto);
-    const skusToCreate = this.prepareSkusToCreate(dto.skus, slug, dto.colors?.[0]);
+    const skusToCreate = this.prepareSkusToCreate(
+      dto.skus,
+      slug,
+      dto.colors?.[0],
+    );
 
     const newProduct = await this.prisma.$transaction(async (tx) => {
       const created = await tx.product.create({
@@ -382,7 +456,9 @@ export class CatalogService {
           tagTh: dto.tagTh ?? null,
           categoryId: category.id,
           isPreorder: dto.isPreorder ?? false,
-          preorderReleaseDate: dto.preorderReleaseDate ? new Date(dto.preorderReleaseDate) : null,
+          preorderReleaseDate: dto.preorderReleaseDate
+            ? new Date(dto.preorderReleaseDate)
+            : null,
           preorderLimit: dto.preorderLimit ?? null,
           preorderDepositAmount: dto.preorderDepositAmount ?? null,
           isActive: dto.isActive !== undefined ? dto.isActive : true,
@@ -457,7 +533,10 @@ export class CatalogService {
     categoryInput: string,
     departmentInput?: string,
   ): Promise<{ id: string }> {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryInput);
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        categoryInput,
+      );
     const categoryOrConditions: Prisma.CategoryWhereInput[] = [
       { slug: categoryInput.toLowerCase() },
       { name: { contains: categoryInput, mode: 'insensitive' } },
@@ -484,13 +563,18 @@ export class CatalogService {
     }
 
     if (!category) {
-      const parsedDept = departmentInput?.toUpperCase() as Department | undefined;
-      const validDept = parsedDept && Object.values(Department).includes(parsedDept)
-        ? parsedDept
-        : Department.WOMEN;
+      const parsedDept = departmentInput?.toUpperCase() as
+        Department | undefined;
+      const validDept =
+        parsedDept && Object.values(Department).includes(parsedDept)
+          ? parsedDept
+          : Department.WOMEN;
 
-      const categoryName = categoryInput.trim().length > 0 ? categoryInput : 'General Apparel';
-      const categorySlug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const categoryName =
+        categoryInput.trim().length > 0 ? categoryInput : 'General Apparel';
+      const categorySlug = categoryName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-');
 
       category = await this.prisma.category.create({
         data: {
@@ -504,30 +588,49 @@ export class CatalogService {
     return category;
   }
 
-  private async commitAndPrepareImages(
-    dto: CreateProductDto,
-  ): Promise<Array<{ imageUrl: string; isPrimary: boolean; displayOrder: number; altText?: string }>> {
+  private async commitAndPrepareImages(dto: CreateProductDto): Promise<
+    Array<{
+      imageUrl: string;
+      isPrimary: boolean;
+      displayOrder: number;
+      altText?: string;
+    }>
+  > {
     let mainImageUrl = dto.image;
     if (mainImageUrl) {
-      mainImageUrl = await this.uploadService.commitTempImage(mainImageUrl, 'products');
+      mainImageUrl = await this.uploadService.commitTempImage(
+        mainImageUrl,
+        'products',
+      );
       dto.image = mainImageUrl;
     }
 
     let secondaryImageUrl = dto.secondaryImage;
     if (secondaryImageUrl) {
-      secondaryImageUrl = await this.uploadService.commitTempImage(secondaryImageUrl, 'products');
+      secondaryImageUrl = await this.uploadService.commitTempImage(
+        secondaryImageUrl,
+        'products',
+      );
       dto.secondaryImage = secondaryImageUrl;
     }
 
     if (dto.colorImages) {
       for (const [colorName, imgUrl] of Object.entries(dto.colorImages)) {
         if (imgUrl) {
-          dto.colorImages[colorName] = await this.uploadService.commitTempImage(imgUrl, 'products');
+          dto.colorImages[colorName] = await this.uploadService.commitTempImage(
+            imgUrl,
+            'products',
+          );
         }
       }
     }
 
-    const imageList: Array<{ imageUrl: string; isPrimary: boolean; displayOrder: number; altText?: string }> = [];
+    const imageList: Array<{
+      imageUrl: string;
+      isPrimary: boolean;
+      displayOrder: number;
+      altText?: string;
+    }> = [];
 
     if (mainImageUrl) {
       imageList.push({
@@ -618,7 +721,9 @@ export class CatalogService {
       }
     }
 
-    const inStock = p.variants.some((v) => (v.inventoryItem?.quantityAvailable ?? 0) > 0);
+    const inStock = p.variants.some(
+      (v) => (v.inventoryItem?.quantityAvailable ?? 0) > 0,
+    );
 
     return {
       id: p.id,
@@ -643,7 +748,10 @@ export class CatalogService {
     };
   }
 
-  async toggleProductStatus(id: string, isActive: boolean): Promise<{ success: boolean; id: string; isActive: boolean }> {
+  async toggleProductStatus(
+    id: string,
+    isActive: boolean,
+  ): Promise<{ success: boolean; id: string; isActive: boolean }> {
     const updated = await this.prisma.product.update({
       where: { id },
       data: { isActive },
@@ -683,8 +791,14 @@ export class CatalogService {
     return { success: true, id };
   }
 
-  async updateProduct(id: string, dto: Partial<CreateProductDto>): Promise<ApiProductDetail> {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  async updateProduct(
+    id: string,
+    dto: Partial<CreateProductDto>,
+  ): Promise<ApiProductDetail> {
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        id,
+      );
     const existing = await this.prisma.product.findFirst({
       where: isUuid ? { OR: [{ id }, { slug: id }] } : { slug: id },
     });
@@ -693,25 +807,50 @@ export class CatalogService {
       throw new NotFoundException(`Product with ID "${id}" not found`);
     }
 
-    const basePrice = dto.basePrice ?? dto.price ?? (Number(existing.basePrice) || 0);
+    const basePrice =
+      dto.basePrice ?? dto.price ?? (Number(existing.basePrice) || 0);
 
     await this.prisma.product.update({
       where: { id: existing.id },
       data: {
         name: dto.name ?? existing.name,
         nameTh: dto.nameTh !== undefined ? dto.nameTh : existing.nameTh,
-        description: dto.description !== undefined ? dto.description : existing.description,
-        descriptionTh: dto.descriptionTh !== undefined ? dto.descriptionTh : existing.descriptionTh,
-        materialsCare: dto.materialsCare !== undefined ? dto.materialsCare : existing.materialsCare,
-        materialsCareTh: dto.materialsCareTh !== undefined ? dto.materialsCareTh : existing.materialsCareTh,
+        description:
+          dto.description !== undefined
+            ? dto.description
+            : existing.description,
+        descriptionTh:
+          dto.descriptionTh !== undefined
+            ? dto.descriptionTh
+            : existing.descriptionTh,
+        materialsCare:
+          dto.materialsCare !== undefined
+            ? dto.materialsCare
+            : existing.materialsCare,
+        materialsCareTh:
+          dto.materialsCareTh !== undefined
+            ? dto.materialsCareTh
+            : existing.materialsCareTh,
         basePrice,
-        originalPrice: dto.originalPrice !== undefined ? dto.originalPrice : existing.originalPrice,
+        originalPrice:
+          dto.originalPrice !== undefined
+            ? dto.originalPrice
+            : existing.originalPrice,
         tag: dto.tag !== undefined ? dto.tag : existing.tag,
         tagTh: dto.tagTh !== undefined ? dto.tagTh : existing.tagTh,
-        isPreorder: dto.isPreorder !== undefined ? dto.isPreorder : existing.isPreorder,
-        preorderReleaseDate: dto.preorderReleaseDate ? new Date(dto.preorderReleaseDate) : existing.preorderReleaseDate,
-        preorderLimit: dto.preorderLimit !== undefined ? dto.preorderLimit : existing.preorderLimit,
-        preorderDepositAmount: dto.preorderDepositAmount !== undefined ? dto.preorderDepositAmount : existing.preorderDepositAmount,
+        isPreorder:
+          dto.isPreorder !== undefined ? dto.isPreorder : existing.isPreorder,
+        preorderReleaseDate: dto.preorderReleaseDate
+          ? new Date(dto.preorderReleaseDate)
+          : existing.preorderReleaseDate,
+        preorderLimit:
+          dto.preorderLimit !== undefined
+            ? dto.preorderLimit
+            : existing.preorderLimit,
+        preorderDepositAmount:
+          dto.preorderDepositAmount !== undefined
+            ? dto.preorderDepositAmount
+            : existing.preorderDepositAmount,
         isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
       },
     });
@@ -719,7 +858,9 @@ export class CatalogService {
     return this.getProductBySlug(existing.slug);
   }
 
-  private buildOrderBy(sortBy?: SortByOption): Prisma.ProductOrderByWithRelationInput[] {
+  private buildOrderBy(
+    sortBy?: SortByOption,
+  ): Prisma.ProductOrderByWithRelationInput[] {
     switch (sortBy) {
       case SortByOption.PRICE_ASC:
         return [{ basePrice: 'asc' }];

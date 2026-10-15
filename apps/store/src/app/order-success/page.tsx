@@ -41,7 +41,9 @@ export default function OrderSuccessPage() {
           <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mb-1">
             {t('orderSuccess.orderNumberLabel')}
           </p>
-          <p className="text-2xl font-black font-mono text-[#2B1810] tracking-wider">#{orderNumber}</p>
+          <p className="text-2xl font-black font-mono text-[#2B1810] tracking-wider">
+            #{orderNumber}
+          </p>
           <p className="text-[11px] text-emerald-700 font-bold mt-1">
             {t('orderSuccess.status')}
           </p>

@@ -50,7 +50,9 @@ export function ProductForm({
   const [originalPrice, setOriginalPrice] = useState<number | string>(
     initialData?.originalPrice ?? '',
   );
-  const [department, setDepartment] = useState(initialData?.department || 'women');
+  const [department, setDepartment] = useState(
+    initialData?.department || 'women',
+  );
   const [category, setCategory] = useState(initialData?.category || 'apparel');
 
   const [subCategoryKey, setSubCategoryKey] = useState<string>(
@@ -70,22 +72,38 @@ export function ProductForm({
       ? findMarketingTagByLabel(initialData.tagTh)
       : undefined;
 
-  const [tag, setTag] = useState(initialTagMatch?.labelEn || initialData?.tag || '');
-  const [tagTh, setTagTh] = useState(initialTagMatch?.labelTh || initialData?.tagTh || '');
+  const [tag, setTag] = useState(
+    initialTagMatch?.labelEn || initialData?.tag || '',
+  );
+  const [tagTh, setTagTh] = useState(
+    initialTagMatch?.labelTh || initialData?.tagTh || '',
+  );
 
-  const [description, setDescription] = useState(initialData?.description || '');
-  const [descriptionTh, setDescriptionTh] = useState(initialData?.descriptionTh || '');
+  const [description, setDescription] = useState(
+    initialData?.description || '',
+  );
+  const [descriptionTh, setDescriptionTh] = useState(
+    initialData?.descriptionTh || '',
+  );
 
-  const [materialsCare, setMaterialsCare] = useState(initialData?.materialsCare || '');
-  const [materialsCareTh, setMaterialsCareTh] = useState(initialData?.materialsCareTh || '');
+  const [materialsCare, setMaterialsCare] = useState(
+    initialData?.materialsCare || '',
+  );
+  const [materialsCareTh, setMaterialsCareTh] = useState(
+    initialData?.materialsCareTh || '',
+  );
 
   // Master Images
   const [image, setImage] = useState(initialData?.image || '');
-  const [secondaryImage, setSecondaryImage] = useState(initialData?.secondaryImage || '');
+  const [secondaryImage, setSecondaryImage] = useState(
+    initialData?.secondaryImage || '',
+  );
 
   // Color Swatches & Color-Specific Images
   const [selectedColors, setSelectedColors] = useState<string[]>(
-    initialData?.colors && initialData.colors.length > 0 ? initialData.colors : [],
+    initialData?.colors && initialData.colors.length > 0
+      ? initialData.colors
+      : [],
   );
   const [customColor, setCustomColor] = useState('#D4C3B3');
   const [colorImages, setColorImages] = useState<Record<string, string>>(
@@ -103,10 +121,12 @@ export function ProductForm({
     hasMultipleInitialSkus ? 'matrix' : isInitialSingle ? 'single' : 'matrix',
   );
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [publishStatus, setPublishStatus] = useState<'published' | 'draft'>(() => {
-    if (initialData?.isActive === false) return 'draft';
-    return 'published';
-  });
+  const [publishStatus, setPublishStatus] = useState<'published' | 'draft'>(
+    () => {
+      if (initialData?.isActive === false) return 'draft';
+      return 'published';
+    },
+  );
   const [showPublishModal, setShowPublishModal] = useState(false);
 
   const initialSizes =
@@ -116,7 +136,9 @@ export function ProductForm({
 
   // Keep immutable references to original colors and sizes for edit mode protection
   const initialColorsRef = useRef<string[]>(
-    initialData?.colors && initialData.colors.length > 0 ? [...initialData.colors] : [],
+    initialData?.colors && initialData.colors.length > 0
+      ? [...initialData.colors]
+      : [],
   );
   const initialSizesRef = useRef<string[]>(
     initialSkus && initialSkus.length > 0
@@ -131,7 +153,11 @@ export function ProductForm({
     if (initialSkus && initialSkus.length > 0) {
       return initialSkus;
     }
-    if (initialData?.colors && initialData.colors.length > 0 && initialSizes.length > 0) {
+    if (
+      initialData?.colors &&
+      initialData.colors.length > 0 &&
+      initialSizes.length > 0
+    ) {
       return buildSkuMatrix(
         initialData.colors,
         initialSizes,
@@ -201,7 +227,8 @@ export function ProductForm({
 
   const isFormDirty =
     isManuallyDirty ||
-    (Boolean(initialSnapshotRef.current) && currentSnapshot !== initialSnapshotRef.current);
+    (Boolean(initialSnapshotRef.current) &&
+      currentSnapshot !== initialSnapshotRef.current);
 
   const { isBlocked, proceed, reset } = useUnsavedChanges({
     isDirty: isFormDirty,
@@ -220,7 +247,12 @@ export function ProductForm({
   const handleColorsUpdated = (newColors: string[]) => {
     setSelectedColors(newColors);
     if (variantMode === 'matrix') {
-      const updatedMatrix = buildSkuMatrix(newColors, activeSizes, skuList, department);
+      const updatedMatrix = buildSkuMatrix(
+        newColors,
+        activeSizes,
+        skuList,
+        department,
+      );
       setSkuList(updatedMatrix);
     }
   };
@@ -229,10 +261,17 @@ export function ProductForm({
     let next: string[];
     if (selectedColors.includes(hex)) {
       // Cannot unselect original color in edit mode
-      if (isEdit && initialColorsRef.current.some((c) => c.toLowerCase() === hex.toLowerCase())) {
+      if (
+        isEdit &&
+        initialColorsRef.current.some(
+          (c) => c.toLowerCase() === hex.toLowerCase(),
+        )
+      ) {
         return;
       }
-      next = selectedColors.filter((c) => c.toLowerCase() !== hex.toLowerCase());
+      next = selectedColors.filter(
+        (c) => c.toLowerCase() !== hex.toLowerCase(),
+      );
     } else {
       next = [...selectedColors, hex];
     }
@@ -240,7 +279,10 @@ export function ProductForm({
   };
 
   const addCustomColor = () => {
-    if (customColor && !selectedColors.some((c) => c.toLowerCase() === customColor.toLowerCase())) {
+    if (
+      customColor &&
+      !selectedColors.some((c) => c.toLowerCase() === customColor.toLowerCase())
+    ) {
       const next = [...selectedColors, customColor];
       handleColorsUpdated(next);
     }
@@ -248,10 +290,17 @@ export function ProductForm({
 
   const removeColor = (hexToRemove: string) => {
     // Cannot delete original color in edit mode
-    if (isEdit && initialColorsRef.current.some((c) => c.toLowerCase() === hexToRemove.toLowerCase())) {
+    if (
+      isEdit &&
+      initialColorsRef.current.some(
+        (c) => c.toLowerCase() === hexToRemove.toLowerCase(),
+      )
+    ) {
       return;
     }
-    const next = selectedColors.filter((c) => c.toLowerCase() !== hexToRemove.toLowerCase());
+    const next = selectedColors.filter(
+      (c) => c.toLowerCase() !== hexToRemove.toLowerCase(),
+    );
     const updatedImages = { ...colorImages };
     delete updatedImages[hexToRemove];
     setColorImages(updatedImages);
@@ -289,7 +338,12 @@ export function ProductForm({
       ? Array.from(new Set([...initialSizesRef.current, ...preset.sizes]))
       : preset.sizes;
     setActiveSizes(nextSizes);
-    const updated = buildSkuMatrix(selectedColors, nextSizes, skuList, department);
+    const updated = buildSkuMatrix(
+      selectedColors,
+      nextSizes,
+      skuList,
+      department,
+    );
     setSkuList(updated);
   };
 
@@ -327,12 +381,18 @@ export function ProductForm({
   }, [dbCategories, category]);
 
   const availableSubCategories = useMemo(() => {
-    if (!selectedParentCat?.children || selectedParentCat.children.length === 0) {
+    if (
+      !selectedParentCat?.children ||
+      selectedParentCat.children.length === 0
+    ) {
       if (selectedParentCat) {
         return [
           {
             id: selectedParentCat.slug,
-            label: isTh && selectedParentCat.nameTh ? selectedParentCat.nameTh : selectedParentCat.name,
+            label:
+              isTh && selectedParentCat.nameTh
+                ? selectedParentCat.nameTh
+                : selectedParentCat.name,
             labelEn: selectedParentCat.name,
             labelTh: selectedParentCat.nameTh ?? undefined,
           },
@@ -354,7 +414,9 @@ export function ProductForm({
       setSkuList(buildSkuMatrix(selectedColors, activeSizes, skuList, newDept));
     }
     const deptUpper = newDept.toUpperCase();
-    const validCats = dbCategories.filter((c) => !c.parentId && c.department.toUpperCase() === deptUpper);
+    const validCats = dbCategories.filter(
+      (c) => !c.parentId && c.department.toUpperCase() === deptUpper,
+    );
     if (validCats.length > 0) {
       const nextCat = validCats[0];
       setCategory(nextCat.slug);
@@ -376,7 +438,9 @@ export function ProductForm({
     if (newCat.includes('shoes') && activeSizes.includes('S')) {
       applySizePreset('shoes');
     } else if (
-      (newCat.includes('bags') || newCat.includes('home') || newCat.includes('accessories')) &&
+      (newCat.includes('bags') ||
+        newCat.includes('home') ||
+        newCat.includes('accessories')) &&
       (activeSizes.includes('S') || activeSizes.includes('US 8'))
     ) {
       applySizePreset('onesize');
@@ -420,7 +484,12 @@ export function ProductForm({
     const nextSizes = [...activeSizes, trimmed];
     setActiveSizes(nextSizes);
     setCustomSizeInput('');
-    const updated = buildSkuMatrix(selectedColors, nextSizes, skuList, department);
+    const updated = buildSkuMatrix(
+      selectedColors,
+      nextSizes,
+      skuList,
+      department,
+    );
     setSkuList(updated);
   };
 
@@ -436,7 +505,12 @@ export function ProductForm({
   };
 
   const regenerateMatrix = () => {
-    const updated = buildSkuMatrix(selectedColors, activeSizes, skuList, department);
+    const updated = buildSkuMatrix(
+      selectedColors,
+      activeSizes,
+      skuList,
+      department,
+    );
     setSkuList(updated);
   };
 
@@ -460,7 +534,8 @@ export function ProductForm({
       ? skuList.reduce(
           (sum, s) =>
             sum +
-            (Number(s.stock) || 0) * (numericPrice + (Number(s.priceAdjustment) || 0)),
+            (Number(s.stock) || 0) *
+              (numericPrice + (Number(s.priceAdjustment) || 0)),
           0,
         )
       : (Number(initialSkus?.[0]?.stock) || 0) * numericPrice;
@@ -521,7 +596,9 @@ export function ProductForm({
         {
           sku: code,
           size: 'ONE SIZE',
-          colorName: selectedColors[0] ? getColorName(selectedColors[0]) : 'Standard',
+          colorName: selectedColors[0]
+            ? getColorName(selectedColors[0])
+            : 'Standard',
           colorHex: selectedColors[0] || '#2B1810',
           stock: Math.max(0, Number(initialSkus?.[0]?.stock) || 0),
           lowStockThreshold: Math.max(1, Number(singleLowStock) || 5),
@@ -553,7 +630,8 @@ export function ProductForm({
         materialsCare: materialsCare.trim() || undefined,
         materialsCareTh: materialsCareTh.trim() || undefined,
         colors: selectedColors,
-        colorImages: Object.keys(colorImages).length > 0 ? colorImages : undefined,
+        colorImages:
+          Object.keys(colorImages).length > 0 ? colorImages : undefined,
         rating: initialData?.rating ?? 5.0,
         reviewsCount: initialData?.reviewsCount ?? 0,
         isPreorder: tag === 'PRE-ORDER' || Boolean(initialData?.isPreorder),

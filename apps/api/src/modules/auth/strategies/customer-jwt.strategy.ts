@@ -5,7 +5,10 @@ import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import type { CustomerJwtPayload, ApiUser } from '@repo/types';
 
 @Injectable()
-export class CustomerJwtStrategy extends PassportStrategy(Strategy, 'customer-jwt') {
+export class CustomerJwtStrategy extends PassportStrategy(
+  Strategy,
+  'customer-jwt',
+) {
   constructor(private readonly prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -29,7 +32,8 @@ export class CustomerJwtStrategy extends PassportStrategy(Strategy, 'customer-jw
       throw new UnauthorizedException('Customer account not found');
     }
 
-    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+    const fullName =
+      [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
 
     return {
       id: user.id,

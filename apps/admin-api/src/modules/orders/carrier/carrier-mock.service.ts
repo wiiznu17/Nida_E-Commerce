@@ -64,7 +64,9 @@ export class CarrierMockService {
   getCourierName(carrierCode: CarrierCode): string {
     const config = this.CARRIER_CONFIG[carrierCode];
     if (!config) {
-      throw new BadRequestException(`Unsupported carrier code "${carrierCode}"`);
+      throw new BadRequestException(
+        `Unsupported carrier code "${carrierCode}"`,
+      );
     }
     return config.name;
   }
@@ -75,7 +77,9 @@ export class CarrierMockService {
   ): Promise<CarrierBookingOutput> {
     const config = this.CARRIER_CONFIG[carrierCode];
     if (!config) {
-      throw new BadRequestException(`Unsupported carrier code "${carrierCode}"`);
+      throw new BadRequestException(
+        `Unsupported carrier code "${carrierCode}"`,
+      );
     }
 
     const trackingNumber = config.generateTracking();

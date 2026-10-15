@@ -112,7 +112,9 @@ export default function AboutPage() {
               <div className="w-1/3 bg-[#F59E0B]"></div>
             </div>
             <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#2B1810]">
-              {language === 'th' ? 'รังสรรค์เพื่อทุกช่วงเวลาของชีวิต' : 'CRAFTED FOR EVERY MOMENT'}
+              {language === 'th'
+                ? 'รังสรรค์เพื่อทุกช่วงเวลาของชีวิต'
+                : 'CRAFTED FOR EVERY MOMENT'}
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
               {language === 'th'
@@ -124,7 +126,9 @@ export default function AboutPage() {
                 href="/collections/all"
                 className="bg-[#2B1810] hover:bg-[#D97706] text-white px-8 py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors inline-block shadow-md"
               >
-                {language === 'th' ? 'สำรวจคอลเลกชันทั้งหมด' : 'EXPLORE ALL COLLECTIONS'}
+                {language === 'th'
+                  ? 'สำรวจคอลเลกชันทั้งหมด'
+                  : 'EXPLORE ALL COLLECTIONS'}
               </Link>
             </div>
           </div>

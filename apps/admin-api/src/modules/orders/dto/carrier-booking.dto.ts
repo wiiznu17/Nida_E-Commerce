@@ -12,7 +12,12 @@ export const SUPPORTED_CARRIER_CODES: CarrierCode[] = [
 export class CarrierBookingDto {
   @ApiProperty({
     description: 'รหัสผู้ให้บริการขนส่งที่ต้องการจองเลขพัสดุ',
-    enum: ['KERRY_EXPRESS', 'FLASH_EXPRESS', 'THAILAND_POST_EMS', 'DHL_EXPRESS'],
+    enum: [
+      'KERRY_EXPRESS',
+      'FLASH_EXPRESS',
+      'THAILAND_POST_EMS',
+      'DHL_EXPRESS',
+    ],
     example: 'FLASH_EXPRESS',
   })
   @IsIn(SUPPORTED_CARRIER_CODES, {

@@ -70,12 +70,18 @@ export class OrdersController {
   @RequirePermissions(AdminPermission.ORDERS_FULFILL)
   @ApiOperation({
     summary: 'อัปเดตสถานะคำสั่งซื้อ (Update Order Status)',
-    description: 'เปลี่ยนสถานะของคำสั่งซื้อ เช่น PAID, SHIPPED, DELIVERED หรือ CANCELLED',
+    description:
+      'เปลี่ยนสถานะของคำสั่งซื้อ เช่น PAID, SHIPPED, DELIVERED หรือ CANCELLED',
   })
   @ApiParam({ name: 'id', description: 'Order ID หรือ Order Number' })
   async updateOrderStatus(
     @Param('id') id: string,
-    @Body() body: { status: OrderStatus; courierName?: string; trackingNumber?: string },
+    @Body()
+    body: {
+      status: OrderStatus;
+      courierName?: string;
+      trackingNumber?: string;
+    },
   ) {
     return this.ordersService.updateOrderStatus(
       id,

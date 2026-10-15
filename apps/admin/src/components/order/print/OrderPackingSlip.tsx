@@ -3,7 +3,9 @@ import type { OrderPackingSlipProps } from './printTypes';
 import { NIDA_SENDER_INFO, PACKING_POLICY_NOTES } from './printConstants';
 import { OrderBarcode } from './OrderBarcode';
 
-export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => {
+export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({
+  order,
+}) => {
   const courier = order.shipments?.[0]?.courierName || 'Kerry Express';
 
   const subtotal = (order.items ?? []).reduce(
@@ -23,8 +25,11 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
             Haute Couture & Modern Apparel
           </p>
           <div className="text-[10px] text-black/70 mt-2 leading-relaxed">
-            {NIDA_SENDER_INFO.companyName}<br />
-            {NIDA_SENDER_INFO.addressLine1}, {NIDA_SENDER_INFO.province} {NIDA_SENDER_INFO.postalCode}<br />
+            {NIDA_SENDER_INFO.companyName}
+            <br />
+            {NIDA_SENDER_INFO.addressLine1}, {NIDA_SENDER_INFO.province}{' '}
+            {NIDA_SENDER_INFO.postalCode}
+            <br />
             Tel: {NIDA_SENDER_INFO.phone} | Email: {NIDA_SENDER_INFO.email}
           </div>
         </div>
@@ -40,7 +45,11 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
             Date: {new Date(order.placedAt).toLocaleDateString('th-TH')}
           </div>
           <div className="mt-2">
-            <OrderBarcode value={order.orderNumber} height={36} showText={false} />
+            <OrderBarcode
+              value={order.orderNumber}
+              height={36}
+              showText={false}
+            />
           </div>
         </div>
       </div>
@@ -51,10 +60,14 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
           <h3 className="font-black text-[10px] uppercase tracking-wider text-black/60 mb-1.5">
             DELIVER TO / ข้อมูลผู้รับพัสดุ
           </h3>
-          <p className="font-bold text-sm text-black">{order.shippingAddress?.recipientName || 'Valued Customer'}</p>
+          <p className="font-bold text-sm text-black">
+            {order.shippingAddress?.recipientName || 'Valued Customer'}
+          </p>
           <p className="text-black/80 mt-1 leading-relaxed">
-            {order.shippingAddress?.addressLine1 || '-'}<br />
-            {order.shippingAddress?.province || '-'} {order.shippingAddress?.postalCode || '-'}
+            {order.shippingAddress?.addressLine1 || '-'}
+            <br />
+            {order.shippingAddress?.province || '-'}{' '}
+            {order.shippingAddress?.postalCode || '-'}
           </p>
           <p className="font-mono text-xs text-black/80 mt-1.5">
             Phone: {order.shippingAddress?.phone || '-'}
@@ -73,16 +86,22 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
               </div>
               <div className="flex justify-between">
                 <span className="text-black/60">Tracking No. / เลขพัสดุ:</span>
-                <span className="font-mono font-bold">{order.shipments?.[0]?.trackingNumber || 'Pending Dispatch'}</span>
+                <span className="font-mono font-bold">
+                  {order.shipments?.[0]?.trackingNumber || 'Pending Dispatch'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black/60">Payment Method / การชำระ:</span>
-                <span className="font-semibold uppercase">{order.payment?.paymentMethod || 'CREDIT_CARD'}</span>
+                <span className="font-semibold uppercase">
+                  {order.payment?.paymentMethod || 'CREDIT_CARD'}
+                </span>
               </div>
             </div>
           </div>
           <div className="pt-2 border-t border-[#EAE3D9] flex justify-between items-center text-[11px]">
-            <span className="font-black uppercase tracking-wider text-black/60">Status:</span>
+            <span className="font-black uppercase tracking-wider text-black/60">
+              Status:
+            </span>
             <span className="font-black text-black bg-white px-2 py-0.5 border border-black/20">
               {order.status}
             </span>
@@ -115,7 +134,9 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
                     {index + 1}
                   </td>
                   <td className="py-3 pr-2">
-                    <div className="font-bold text-black">{item.productName}</div>
+                    <div className="font-bold text-black">
+                      {item.productName}
+                    </div>
                     <div className="text-[10px] font-mono text-black/50">
                       SKU: {item.id.slice(0, 8).toUpperCase()}
                     </div>
@@ -144,17 +165,23 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({ order }) => 
         <div className="w-64 space-y-2 text-xs">
           <div className="flex justify-between">
             <span className="text-black/60">Subtotal / ยอดรวมสินค้า:</span>
-            <span className="font-mono font-semibold">฿{subtotal.toLocaleString()}</span>
+            <span className="font-mono font-semibold">
+              ฿{subtotal.toLocaleString()}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-black/60">Shipping / ค่าจัดส่ง:</span>
             <span className="font-mono text-emerald-700 font-semibold">
-              {order.totalAmount > subtotal ? `฿${(order.totalAmount - subtotal).toLocaleString()}` : 'FREE'}
+              {order.totalAmount > subtotal
+                ? `฿${(order.totalAmount - subtotal).toLocaleString()}`
+                : 'FREE'}
             </span>
           </div>
           <div className="flex justify-between pt-2 border-t border-black/20 text-sm font-black">
             <span>Total Paid / ยอดชำระสุทธิ:</span>
-            <span className="font-mono">฿{(order.totalAmount ?? subtotal).toLocaleString()}</span>
+            <span className="font-mono">
+              ฿{(order.totalAmount ?? subtotal).toLocaleString()}
+            </span>
           </div>
         </div>
       </div>

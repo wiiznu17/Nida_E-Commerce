@@ -72,7 +72,9 @@ export class AuthController {
     @Query('type') type: 'invite' | 'reset',
   ): Promise<ApiResponse<VerifyTokenResponse>> {
     if (!token || !type || !['invite', 'reset'].includes(type)) {
-      throw new BadRequestException('Token and type (invite/reset) are required');
+      throw new BadRequestException(
+        'Token and type (invite/reset) are required',
+      );
     }
 
     const data = await this.authService.verifyToken(token, type);

@@ -81,7 +81,9 @@ describe('AuditLogService', () => {
     });
 
     it('gracefully handles database errors without throwing', async () => {
-      mockPrisma.adminAuditLog.create.mockRejectedValue(new Error('DB failure'));
+      mockPrisma.adminAuditLog.create.mockRejectedValue(
+        new Error('DB failure'),
+      );
 
       const result = await service.recordLog({
         actionType: AuditActionType.CREATE,
@@ -161,8 +163,12 @@ describe('AuditLogService', () => {
         .mockResolvedValueOnce(12);
 
       mockPrisma.adminAuditLog.groupBy
-        .mockResolvedValueOnce([{ actionType: 'UPDATE', _count: { actionType: 30 } }])
-        .mockResolvedValueOnce([{ targetTable: 'products', _count: { targetTable: 25 } }]);
+        .mockResolvedValueOnce([
+          { actionType: 'UPDATE', _count: { actionType: 30 } },
+        ])
+        .mockResolvedValueOnce([
+          { targetTable: 'products', _count: { targetTable: 25 } },
+        ]);
 
       const stats = await service.getAuditLogStats();
 

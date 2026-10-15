@@ -11,7 +11,11 @@ import {
 } from '@nestjs/common';
 import { AdminUsersService } from './admin-users.service.js';
 import { InviteAdminUserDto } from './dto/admin-user.dto.js';
-import { Roles, RequirePermissions, CurrentAdmin } from '../auth/decorators/index.js';
+import {
+  Roles,
+  RequirePermissions,
+  CurrentAdmin,
+} from '../auth/decorators/index.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import {
   AdminPermission,

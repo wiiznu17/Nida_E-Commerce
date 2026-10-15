@@ -110,7 +110,12 @@ describe('CatalogService - getProductBySlug', () => {
       originalPrice: null,
       isActive: true,
       isPreorder: false,
-      category: { id: 'c-1', name: 'Apparel', department: Department.WOMEN, displayOrder: 1 },
+      category: {
+        id: 'c-1',
+        name: 'Apparel',
+        department: Department.WOMEN,
+        displayOrder: 1,
+      },
       images: [],
       variants: [],
       reviews: [],
@@ -129,8 +134,8 @@ describe('CatalogService - getProductBySlug', () => {
   it('throws NotFoundException when product slug does not exist', async () => {
     prismaMock.product.findFirst.mockResolvedValue(null);
 
-    await expect(service.getProductBySlug('non-existent-product')).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      service.getProductBySlug('non-existent-product'),
+    ).rejects.toThrow(NotFoundException);
   });
 });

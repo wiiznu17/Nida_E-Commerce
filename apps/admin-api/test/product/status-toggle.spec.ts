@@ -61,10 +61,12 @@ describe('CatalogService - toggleProductStatus', () => {
   });
 
   it('propagates error when product id is invalid or not found', async () => {
-    prismaMock.product.update.mockRejectedValue(new Error('Record to update not found'));
-
-    await expect(service.toggleProductStatus('non-existent-id', true)).rejects.toThrow(
-      'Record to update not found',
+    prismaMock.product.update.mockRejectedValue(
+      new Error('Record to update not found'),
     );
+
+    await expect(
+      service.toggleProductStatus('non-existent-id', true),
+    ).rejects.toThrow('Record to update not found');
   });
 });

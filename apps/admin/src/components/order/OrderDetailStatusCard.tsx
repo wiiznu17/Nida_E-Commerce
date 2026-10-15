@@ -36,12 +36,21 @@ export function OrderDetailStatusCard({
 }: OrderDetailStatusCardProps) {
   const { t } = useLanguage();
 
-  const milestones: { key: OrderStatus; label: string; icon: typeof Check }[] = [
-    { key: 'PAID', label: t('orders.detail.stepPaid'), icon: Check },
-    { key: 'PROCESSING', label: t('orders.detail.stepProcessing'), icon: Clock },
-    { key: 'SHIPPED', label: t('orders.detail.stepShipped'), icon: Truck },
-    { key: 'DELIVERED', label: t('orders.detail.stepDelivered'), icon: CheckCircle2 },
-  ];
+  const milestones: { key: OrderStatus; label: string; icon: typeof Check }[] =
+    [
+      { key: 'PAID', label: t('orders.detail.stepPaid'), icon: Check },
+      {
+        key: 'PROCESSING',
+        label: t('orders.detail.stepProcessing'),
+        icon: Clock,
+      },
+      { key: 'SHIPPED', label: t('orders.detail.stepShipped'), icon: Truck },
+      {
+        key: 'DELIVERED',
+        label: t('orders.detail.stepDelivered'),
+        icon: CheckCircle2,
+      },
+    ];
 
   const getStepState = (stepKey: OrderStatus) => {
     if (selectedStatus === 'CANCELLED') return 'cancelled';
@@ -79,7 +88,12 @@ export function OrderDetailStatusCard({
       hasTracking,
     );
 
-    if (!validation.isValid && val === 'SHIPPED' && !hasTracking && onOpenFulfill) {
+    if (
+      !validation.isValid &&
+      val === 'SHIPPED' &&
+      !hasTracking &&
+      onOpenFulfill
+    ) {
       onOpenFulfill();
       return;
     }
@@ -88,7 +102,10 @@ export function OrderDetailStatusCard({
   };
 
   const statusOptions = [
-    { value: currentStatus, label: `${currentStatus} (${t('orders.status.current') || 'Current'})` },
+    {
+      value: currentStatus,
+      label: `${currentStatus} (${t('orders.status.current') || 'Current'})`,
+    },
     ...allowedNext.map((s) => ({
       value: s,
       label: s === 'SHIPPED' && !hasTracking ? `${s} (+Tracking)` : s,
@@ -156,7 +173,10 @@ export function OrderDetailStatusCard({
                   const state = getStepState(m.key);
                   const Icon = m.icon;
                   return (
-                    <div key={idx} className="flex items-center space-x-3 text-xs">
+                    <div
+                      key={idx}
+                      className="flex items-center space-x-3 text-xs"
+                    >
                       <div
                         className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold ${
                           state === 'completed'
@@ -190,11 +210,15 @@ export function OrderDetailStatusCard({
           <div className="bg-brand-cream border border-brand-border p-3.5 rounded-xs space-y-2 text-xs">
             <div className="flex justify-between items-center text-gray-600">
               <span>{t('orders.detail.totalItems')}</span>
-              <strong className="text-brand-brown font-mono">{totalItems} {t('orders.detail.pieces')}</strong>
+              <strong className="text-brand-brown font-mono">
+                {totalItems} {t('orders.detail.pieces')}
+              </strong>
             </div>
             <div className="flex justify-between items-center text-gray-600">
               <span>{t('orders.detail.paymentMethod')}</span>
-              <strong className="text-brand-brown truncate max-w-[150px]">{paymentMethod}</strong>
+              <strong className="text-brand-brown truncate max-w-[150px]">
+                {paymentMethod}
+              </strong>
             </div>
             <div className="pt-2 border-t border-brand-border flex justify-between items-baseline">
               <span className="font-black uppercase tracking-wider text-brand-brown">
@@ -222,7 +246,9 @@ export function OrderDetailStatusCard({
         >
           <Check size={14} />
           <span>
-            {isUpdating ? t('orders.detail.updatingStatus') : t('orders.detail.updateStatusBtn')}
+            {isUpdating
+              ? t('orders.detail.updatingStatus')
+              : t('orders.detail.updateStatusBtn')}
           </span>
         </button>
       </div>

@@ -55,7 +55,9 @@ export default function AdminProductEdit() {
           descriptionTh: detail.descriptionTh,
           materialsCare: detail.materialsCare,
           materialsCareTh: detail.materialsCareTh,
-          colors: Array.from(new Set(detail.variants?.map((v) => v.colorHex) ?? [])),
+          colors: Array.from(
+            new Set(detail.variants?.map((v) => v.colorHex) ?? []),
+          ),
           rating: detail.rating,
           reviewsCount: detail.reviewsCount,
           isPreorder: detail.isPreorder,
@@ -76,7 +78,10 @@ export default function AdminProductEdit() {
       });
   }, [id]);
 
-  const handleUpdate = async (data: CreateProductInput, skus?: ProductSkuVariant[]) => {
+  const handleUpdate = async (
+    data: CreateProductInput,
+    skus?: ProductSkuVariant[],
+  ) => {
     if (!id) return;
     setIsSubmitting(true);
     try {
@@ -98,7 +103,11 @@ export default function AdminProductEdit() {
     return (
       <AdminLayout
         title={t('product.editTitle')}
-        subtitle={isTh ? 'กำลังโหลดข้อมูลสินค้า...' : 'Loading product specifications...'}
+        subtitle={
+          isTh
+            ? 'กำลังโหลดข้อมูลสินค้า...'
+            : 'Loading product specifications...'
+        }
       >
         <div className="bg-white border border-brand-border p-16 text-center rounded-xs flex flex-col items-center justify-center space-y-3">
           <Loader2 size={24} className="animate-spin text-brand-brown" />
@@ -123,7 +132,11 @@ export default function AdminProductEdit() {
         <div className="bg-white border border-brand-border p-8 rounded-xs">
           <EmptyState
             icon={AlertCircle}
-            title={isTh ? `ไม่พบสินค้า ID: "${id}"` : `Product ID: "${id}" does not exist`}
+            title={
+              isTh
+                ? `ไม่พบสินค้า ID: "${id}"`
+                : `Product ID: "${id}" does not exist`
+            }
             subtitle={
               isTh
                 ? 'สินค้าอาจถูกลบออกไปแล้ว หรือลิงก์ไม่ถูกต้อง'

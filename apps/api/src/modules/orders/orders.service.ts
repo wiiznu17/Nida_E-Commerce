@@ -40,7 +40,8 @@ export class CustomerOrdersService {
     dto: CreateCustomerOrderDto,
     authenticatedUserId?: string,
   ): Promise<ApiOrder> {
-    const { items, shippingAddress, paymentMethod, couponCode, customerEmail } = dto;
+    const { items, shippingAddress, paymentMethod, couponCode, customerEmail } =
+      dto;
     const effectiveUserId = authenticatedUserId ?? null;
 
     if (!items || items.length === 0) {
@@ -68,7 +69,9 @@ export class CustomerOrdersService {
     for (const item of items) {
       const v = variantMap.get(item.variantId);
       if (!v) {
-        throw new NotFoundException(`Product variant "${item.variantId}" not found`);
+        throw new NotFoundException(
+          `Product variant "${item.variantId}" not found`,
+        );
       }
 
       if (!v.product.isPreorder) {
@@ -124,13 +127,17 @@ export class CustomerOrdersService {
           where: { couponId: coupon.id, userId: effectiveUserId },
         });
         if (userRedemptions >= coupon.userUsageLimit) {
-          throw new BadRequestException('You have reached the redemption limit for this coupon');
+          throw new BadRequestException(
+            'You have reached the redemption limit for this coupon',
+          );
         }
       }
 
       const minOrder = Number(coupon.minOrderAmount);
       if (subtotal < minOrder) {
-        throw new BadRequestException(`Minimum order amount of ฿${minOrder.toLocaleString()} required for this coupon`);
+        throw new BadRequestException(
+          `Minimum order amount of ฿${minOrder.toLocaleString()} required for this coupon`,
+        );
       }
 
       couponId = coupon.id;
@@ -138,7 +145,10 @@ export class CustomerOrdersService {
       if (coupon.discountType === DiscountType.PERCENTAGE) {
         discountTotal = (subtotal * discountVal) / 100;
         if (coupon.maxDiscountAmount) {
-          discountTotal = Math.min(discountTotal, Number(coupon.maxDiscountAmount));
+          discountTotal = Math.min(
+            discountTotal,
+            Number(coupon.maxDiscountAmount),
+          );
         }
       } else if (coupon.discountType === DiscountType.FIXED_AMOUNT) {
         discountTotal = Math.min(subtotal, discountVal);
@@ -149,8 +159,12 @@ export class CustomerOrdersService {
       discountTotal = Math.round(discountTotal * 100) / 100;
     }
 
-    const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
-    const totalAmount = Math.max(0, Math.round((subtotal - discountTotal + shippingFee) * 100) / 100);
+    const shippingFee =
+      subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
+    const totalAmount = Math.max(
+      0,
+      Math.round((subtotal - discountTotal + shippingFee) * 100) / 100,
+    );
 
     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -177,9 +191,10 @@ export class CustomerOrdersService {
       });
 
       for (const ci of computedItems) {
-        const itemDiscountShare = subtotal > 0
-          ? Math.round((ci.subtotal / subtotal) * discountTotal * 100) / 100
-          : 0;
+        const itemDiscountShare =
+          subtotal > 0
+            ? Math.round((ci.subtotal / subtotal) * discountTotal * 100) / 100
+            : 0;
         const itemNetPrice = Math.max(0, ci.subtotal - itemDiscountShare);
 
         await tx.orderItem.create({
@@ -277,7 +292,10 @@ export class CustomerOrdersService {
           totalAmount: Number(createdOrder.totalAmount),
         })
         .catch((err: unknown) => {
-          this.logger.error(`Failed to send order confirmation email for ${createdOrder.orderNumber}:`, err);
+          this.logger.error(
+            `Failed to send order confirmation email for ${createdOrder.orderNumber}:`,
+            err,
+          );
         });
     }
 
@@ -314,7 +332,10 @@ export class CustomerOrdersService {
     return orders.map((order) => this.mapOrder(order));
   }
 
-  async getOrderByNumber(orderNumber: string, userId?: string): Promise<ApiOrder> {
+  async getOrderByNumber(
+    orderNumber: string,
+    userId?: string,
+  ): Promise<ApiOrder> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: {
@@ -374,11 +395,15 @@ export class CustomerOrdersService {
           courierName: latestShipment.courierName,
           trackingNumber: latestShipment.trackingNumber,
           status: latestShipment.status,
-          shippedAt: latestShipment.shippedAt ? latestShipment.shippedAt.toISOString() : undefined,
+          shippedAt: latestShipment.shippedAt
+            ? latestShipment.shippedAt.toISOString()
+            : undefined,
           estimatedDelivery: latestShipment.estimatedDelivery
             ? latestShipment.estimatedDelivery.toISOString()
             : undefined,
-          deliveredAt: latestShipment.deliveredAt ? latestShipment.deliveredAt.toISOString() : undefined,
+          deliveredAt: latestShipment.deliveredAt
+            ? latestShipment.deliveredAt.toISOString()
+            : undefined,
           timeline: latestShipment.logs.map((log) => ({
             id: log.id,
             statusTitle: log.statusTitle,
@@ -471,7 +496,8 @@ export class CustomerOrdersService {
       }>;
     }>;
   }): ApiOrder {
-    const rawAddr = (order.shippingAddressSnapshot as Record<string, string>) ?? {};
+    const rawAddr =
+      (order.shippingAddressSnapshot as Record<string, string>) ?? {};
     const shippingAddress: ApiOrderAddress = {
       recipientName: rawAddr.recipientName ?? '',
       phone: rawAddr.phone ?? '',
@@ -496,7 +522,9 @@ export class CustomerOrdersService {
         discountShare: Number(i.discountShare),
         netPrice: Number(i.netPrice),
         isPreorder: i.isPreorder,
-        expectedShipDate: i.expectedShipDate ? i.expectedShipDate.toISOString() : undefined,
+        expectedShipDate: i.expectedShipDate
+          ? i.expectedShipDate.toISOString()
+          : undefined,
       };
     });
 
@@ -507,7 +535,9 @@ export class CustomerOrdersService {
       trackingNumber: s.trackingNumber,
       status: s.status,
       shippedAt: s.shippedAt ? s.shippedAt.toISOString() : undefined,
-      estimatedDelivery: s.estimatedDelivery ? s.estimatedDelivery.toISOString() : undefined,
+      estimatedDelivery: s.estimatedDelivery
+        ? s.estimatedDelivery.toISOString()
+        : undefined,
       deliveredAt: s.deliveredAt ? s.deliveredAt.toISOString() : undefined,
       timeline: s.logs.map((l) => ({
         id: l.id,
@@ -538,7 +568,9 @@ export class CustomerOrdersService {
             status: order.payment.status,
             cardLast4: order.payment.cardLast4 ?? undefined,
             cardBrand: order.payment.cardBrand ?? undefined,
-            paidAt: order.payment.paidAt ? order.payment.paidAt.toISOString() : undefined,
+            paidAt: order.payment.paidAt
+              ? order.payment.paidAt.toISOString()
+              : undefined,
           }
         : undefined,
       shipments,

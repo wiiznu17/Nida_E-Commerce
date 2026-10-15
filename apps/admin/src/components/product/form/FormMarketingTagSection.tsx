@@ -65,7 +65,9 @@ export function FormMarketingTagSection({
                   title={isTh ? preset.descriptionTh : preset.descriptionEn}
                 >
                   {isActive && <Check size={11} />}
-                  <span className="truncate">{isTh ? preset.labelTh : preset.labelEn}</span>
+                  <span className="truncate">
+                    {isTh ? preset.labelTh : preset.labelEn}
+                  </span>
                 </button>
               );
             })}
@@ -90,7 +92,9 @@ export function FormMarketingTagSection({
                   }}
                   className="px-2 py-0.5 rounded-xs text-[9px] font-black uppercase tracking-wider border shadow-2xs"
                 >
-                  {isTh ? activeMarketingTag.labelTh : activeMarketingTag.labelEn}
+                  {isTh
+                    ? activeMarketingTag.labelTh
+                    : activeMarketingTag.labelEn}
                 </span>
               </div>
 
@@ -106,9 +110,7 @@ export function FormMarketingTagSection({
             {activeMarketingTag.key === 'PRE_ORDER' && (
               <div className="p-1.5 bg-blue-50/80 border border-blue-200/60 rounded-xs text-[10px] text-blue-800 flex items-start space-x-1.5">
                 <Zap size={12} className="text-blue-600 mt-0.5 shrink-0" />
-                <span>
-                  {t('product.preOrderNotice')}
-                </span>
+                <span>{t('product.preOrderNotice')}</span>
               </div>
             )}
           </>
@@ -116,9 +118,7 @@ export function FormMarketingTagSection({
           <div className="flex items-center justify-between text-[10px] text-gray-500">
             <span className="flex items-center space-x-1">
               <Check size={12} className="text-gray-400" />
-              <span>
-                {t('product.standardProductStatus')}
-              </span>
+              <span>{t('product.standardProductStatus')}</span>
             </span>
           </div>
         )}

@@ -2,40 +2,79 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Department } from '@repo/database';
 
 export class CreateCategoryDto {
-  @ApiProperty({ description: 'Category name (EN)', example: 'Dresses & Jumpsuits' })
+  @ApiProperty({
+    description: 'Category name (EN)',
+    example: 'Dresses & Jumpsuits',
+  })
   name!: string;
 
-  @ApiPropertyOptional({ description: 'Category name (TH)', example: 'ชุดเดรสและจั๊มสูท' })
+  @ApiPropertyOptional({
+    description: 'Category name (TH)',
+    example: 'ชุดเดรสและจั๊มสูท',
+  })
   nameTh?: string;
 
-  @ApiPropertyOptional({ description: 'URL-friendly slug (auto-generated if omitted)', example: 'dresses-jumpsuits' })
+  @ApiPropertyOptional({
+    description: 'URL-friendly slug (auto-generated if omitted)',
+    example: 'dresses-jumpsuits',
+  })
   slug?: string;
 
-  @ApiProperty({ description: 'Department code', enum: Department, example: Department.WOMEN })
+  @ApiProperty({
+    description: 'Department code',
+    enum: Department,
+    example: Department.WOMEN,
+  })
   department!: Department;
 
-  @ApiPropertyOptional({ description: 'Parent category UUID (if this is a subcategory)', example: null })
+  @ApiPropertyOptional({
+    description: 'Parent category UUID (if this is a subcategory)',
+    example: null,
+  })
   parentId?: string;
 
-  @ApiPropertyOptional({ description: 'Description (EN)', example: 'Elegant daytime and evening dresses' })
+  @ApiPropertyOptional({
+    description: 'Description (EN)',
+    example: 'Elegant daytime and evening dresses',
+  })
   description?: string;
 
-  @ApiPropertyOptional({ description: 'Description (TH)', example: 'ชุดเดรสสำหรับกลางวันและงานกลางคืน' })
+  @ApiPropertyOptional({
+    description: 'Description (TH)',
+    example: 'ชุดเดรสสำหรับกลางวันและงานกลางคืน',
+  })
   descriptionTh?: string;
 
-  @ApiPropertyOptional({ description: 'Promotional banner tag (EN)', example: 'NEW ARRIVAL' })
+  @ApiPropertyOptional({
+    description: 'Promotional banner tag (EN)',
+    example: 'NEW ARRIVAL',
+  })
   bannerTag?: string;
 
-  @ApiPropertyOptional({ description: 'Promotional banner tag (TH)', example: 'สินค้ามาใหม่' })
+  @ApiPropertyOptional({
+    description: 'Promotional banner tag (TH)',
+    example: 'สินค้ามาใหม่',
+  })
   bannerTagTh?: string;
 
-  @ApiPropertyOptional({ description: 'Banner image URL', example: 'https://images.unsplash.com/...' })
+  @ApiPropertyOptional({
+    description: 'Banner image URL',
+    example: 'https://images.unsplash.com/...',
+  })
   bannerImage?: string;
 
-  @ApiPropertyOptional({ description: 'Display sort order', example: 1, default: 0 })
+  @ApiPropertyOptional({
+    description: 'Display sort order',
+    example: 1,
+    default: 0,
+  })
   displayOrder?: number;
 
-  @ApiPropertyOptional({ description: 'Is active and visible in storefront', example: true, default: true })
+  @ApiPropertyOptional({
+    description: 'Is active and visible in storefront',
+    example: true,
+    default: true,
+  })
   isActive?: boolean;
 }
 

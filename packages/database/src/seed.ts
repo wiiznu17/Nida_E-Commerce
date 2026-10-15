@@ -1,5 +1,10 @@
 import 'dotenv/config';
-import { PrismaClient, Department, DiscountType, StockChangeType } from './generated/prisma/index.js';
+import {
+  PrismaClient,
+  Department,
+  DiscountType,
+  StockChangeType,
+} from './generated/prisma/index.js';
 
 import {
   CATEGORIES_SEED_DATA,
@@ -59,7 +64,8 @@ async function main() {
     create: {
       username: 'superadmin',
       email: 'admin@nida-apparel.com',
-      passwordHash: '$2b$10$/45cqjrkP0Gy4P0tjZeBJe5XyQ0u1vpEhkTI1A14DnM2Y9Kxa6dL.', // bcrypt hash for "admin123"
+      passwordHash:
+        '$2b$10$/45cqjrkP0Gy4P0tjZeBJe5XyQ0u1vpEhkTI1A14DnM2Y9Kxa6dL.', // bcrypt hash for "admin123"
       fullName: 'Nida Super Admin',
       department: 'Headquarters',
       roleId: superAdminRole.id,
@@ -67,7 +73,9 @@ async function main() {
   });
 
   // 3. Create Categories (Parent Categories first, then Subcategories)
-  console.log(`📂 Creating Product Categories (${CATEGORIES_SEED_DATA.length} categories)...`);
+  console.log(
+    `📂 Creating Product Categories (${CATEGORIES_SEED_DATA.length} categories)...`,
+  );
   const categoriesMap: Record<string, string> = {};
 
   // First pass: parent categories
@@ -103,7 +111,9 @@ async function main() {
   }
 
   // 4. Create Products, Variants, Images & Inventory
-  console.log(`👗 Creating Products (${PRODUCTS_SEED_DATA.length} products with complete SKU matrix)...`);
+  console.log(
+    `👗 Creating Products (${PRODUCTS_SEED_DATA.length} products with complete SKU matrix)...`,
+  );
 
   for (const item of PRODUCTS_SEED_DATA) {
     const categoryId =
@@ -126,7 +136,9 @@ async function main() {
         tagTh: item.tagTh,
         categoryId,
         isPreorder: item.isPreorder ?? false,
-        preorderReleaseDate: item.preorderReleaseDate ? new Date(item.preorderReleaseDate) : null,
+        preorderReleaseDate: item.preorderReleaseDate
+          ? new Date(item.preorderReleaseDate)
+          : null,
         preorderLimit: item.preorderLimit ?? null,
         preorderDepositAmount: item.preorderDepositAmount ?? null,
         createdByAdminId: admin.id,

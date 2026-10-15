@@ -22,7 +22,12 @@ export interface ImageUploaderProps {
   folder?: UploadFolder;
 }
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+];
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export function ImageUploader({
@@ -132,8 +137,13 @@ export function ImageUploader({
       onChange(url);
     } catch (err: unknown) {
       console.error('Upload Error:', err);
-      const fallbackMsg = isTh ? 'เกิดข้อผิดพลาดในการอัปโหลดรูป' : 'Failed to upload image';
-      const msg = err instanceof Error && err.message.length > 0 ? err.message : fallbackMsg;
+      const fallbackMsg = isTh
+        ? 'เกิดข้อผิดพลาดในการอัปโหลดรูป'
+        : 'Failed to upload image';
+      const msg =
+        err instanceof Error && err.message.length > 0
+          ? err.message
+          : fallbackMsg;
       setErrorMessage(msg);
     } finally {
       setIsUploading(false);
@@ -175,7 +185,9 @@ export function ImageUploader({
       {/* Label */}
       {label && (
         <div className="flex items-center justify-between">
-          <label className="text-[11px] font-bold text-gray-700 block">{label}</label>
+          <label className="text-[11px] font-bold text-gray-700 block">
+            {label}
+          </label>
           {value && (
             <span className="inline-flex items-center text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-xs border border-emerald-200">
               <CheckCircle2 size={10} className="mr-0.5 text-emerald-600" />
@@ -185,7 +197,9 @@ export function ImageUploader({
         </div>
       )}
 
-      {description && <p className="text-[10px] text-gray-500">{description}</p>}
+      {description && (
+        <p className="text-[10px] text-gray-500">{description}</p>
+      )}
 
       {/* Main Upload Box */}
       <div
@@ -233,7 +247,9 @@ export function ImageUploader({
                 onClick={handleOpenCropForCurrent}
                 disabled={isUploading}
                 className="px-2 py-1 text-[10px] font-bold bg-brand-brown text-brand-yellow rounded-xs hover:bg-brand-dark-brown transition-colors shadow-xs flex items-center space-x-1 cursor-pointer"
-                title={isTh ? 'ครอบตัดหรือปรับสัดส่วน 3:4' : 'Crop / Reposition 3:4'}
+                title={
+                  isTh ? 'ครอบตัดหรือปรับสัดส่วน 3:4' : 'Crop / Reposition 3:4'
+                }
               >
                 <Crop size={11} />
                 <span>{isTh ? 'ครอบ 3:4' : 'Crop'}</span>
@@ -270,7 +286,9 @@ export function ImageUploader({
             </div>
 
             <p className="text-xs font-bold text-gray-800">
-              {isTh ? 'ลากรูปภาพมาวางที่นี่ หรือคลิกเพื่อเลือก' : 'Drag & drop image or browse'}
+              {isTh
+                ? 'ลากรูปภาพมาวางที่นี่ หรือคลิกเพื่อเลือก'
+                : 'Drag & drop image or browse'}
             </p>
             <p className="text-[10px] text-gray-500 mt-0.5">
               {isTh
@@ -295,7 +313,9 @@ export function ImageUploader({
                 />
               </div>
             )}
-            <span className="text-[10px] font-mono text-gray-500">{uploadProgress}%</span>
+            <span className="text-[10px] font-mono text-gray-500">
+              {uploadProgress}%
+            </span>
           </div>
         )}
       </div>

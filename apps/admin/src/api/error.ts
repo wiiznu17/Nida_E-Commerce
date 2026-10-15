@@ -13,8 +13,12 @@ export interface ExtractedApiError {
  *
  * Adheres strictly to Zero `any` and eliminates sloppy fallback chaining.
  */
-export function extractApiError(err: unknown, fallbackMessage?: string): ExtractedApiError {
-  const defaultFallback = fallbackMessage ?? 'An unexpected error occurred. Please try again.';
+export function extractApiError(
+  err: unknown,
+  fallbackMessage?: string,
+): ExtractedApiError {
+  const defaultFallback =
+    fallbackMessage ?? 'An unexpected error occurred. Please try again.';
   let message = defaultFallback;
   let issues: string[] = [];
   let status: number | undefined;
@@ -34,7 +38,10 @@ export function extractApiError(err: unknown, fallbackMessage?: string): Extract
         issues = payload.issues;
       }
 
-      if (typeof payload.message === 'string' && payload.message.trim().length > 0) {
+      if (
+        typeof payload.message === 'string' &&
+        payload.message.trim().length > 0
+      ) {
         message = payload.message;
       }
     }

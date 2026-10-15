@@ -1,4 +1,11 @@
-import { CheckCircle2, List, Plus, ExternalLink, X, Package } from 'lucide-react';
+import {
+  CheckCircle2,
+  List,
+  Plus,
+  ExternalLink,
+  X,
+  Package,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import type { ApiProductDetail, ProductSkuVariant } from '@repo/types';
 
@@ -90,7 +97,11 @@ export function ProductCreateSuccessModal({
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${isPublished ? 'bg-emerald-500' : 'bg-amber-500'}`}
                     />
-                    <span>{isPublished ? t('productList.published') : t('productList.draft')}</span>
+                    <span>
+                      {isPublished
+                        ? t('productList.published')
+                        : t('productList.draft')}
+                    </span>
                   </span>
                 </div>
 
@@ -107,11 +118,12 @@ export function ProductCreateSuccessModal({
                   <span className="text-sm font-black text-brand-brown">
                     ${Number(product.basePrice).toLocaleString()}
                   </span>
-                  {product.originalPrice && product.originalPrice > product.basePrice && (
-                    <span className="text-xs text-stone-400 line-through">
-                      ${Number(product.originalPrice).toLocaleString()}
-                    </span>
-                  )}
+                  {product.originalPrice &&
+                    product.originalPrice > product.basePrice && (
+                      <span className="text-xs text-stone-400 line-through">
+                        ${Number(product.originalPrice).toLocaleString()}
+                      </span>
+                    )}
                   <span className="text-[11px] text-stone-500 font-medium ml-auto">
                     {skuCount} {skuCount === 1 ? 'SKU' : 'SKUs'}
                   </span>
@@ -148,7 +160,9 @@ export function ProductCreateSuccessModal({
                 title={t('product.viewStorefront')}
               >
                 <ExternalLink size={14} />
-                <span className="hidden sm:inline">{t('product.viewStorefront')}</span>
+                <span className="hidden sm:inline">
+                  {t('product.viewStorefront')}
+                </span>
               </button>
             )}
           </div>

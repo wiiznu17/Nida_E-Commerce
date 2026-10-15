@@ -4,7 +4,13 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
-import { CreditCard, ShieldCheck, Check, QrCode, Building2 } from 'lucide-react';
+import {
+  CreditCard,
+  ShieldCheck,
+  Check,
+  QrCode,
+  Building2,
+} from 'lucide-react';
 
 export default function CheckoutPage() {
   const { items, cartTotal, setIsCartOpen } = useCart();
@@ -13,7 +19,9 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<'shipping' | 'payment'>('shipping');
   const [promoCode, setPromoCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'promptpay' | 'bank'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<
+    'card' | 'promptpay' | 'bank'
+  >('card');
 
   // Close cart drawer when entering checkout
   React.useEffect(() => {
@@ -22,7 +30,10 @@ export default function CheckoutPage() {
 
   const discountAmount = discountApplied ? cartTotal * 0.2 : 0;
   const shippingCost = cartTotal >= 100 ? 0 : 9.99;
-  const finalTotal = Math.max(0, cartTotal - discountAmount + (items.length > 0 ? shippingCost : 0));
+  const finalTotal = Math.max(
+    0,
+    cartTotal - discountAmount + (items.length > 0 ? shippingCost : 0),
+  );
 
   if (items.length === 0) {
     return (
@@ -65,11 +76,19 @@ export default function CheckoutPage() {
         <div className="flex-1 lg:max-w-2xl">
           {/* Breadcrumbs */}
           <div className="flex items-center space-x-3 text-xs font-black uppercase tracking-[0.2em] mb-8 pb-4 border-b border-gray-200">
-            <span className={step === 'shipping' ? 'text-[#2B1810]' : 'text-gray-400'}>
+            <span
+              className={
+                step === 'shipping' ? 'text-[#2B1810]' : 'text-gray-400'
+              }
+            >
               {t('checkout.step1')}
             </span>
             <span className="text-gray-300">/</span>
-            <span className={step === 'payment' ? 'text-[#2B1810]' : 'text-gray-400'}>
+            <span
+              className={
+                step === 'payment' ? 'text-[#2B1810]' : 'text-gray-400'
+              }
+            >
               {t('checkout.step2')}
             </span>
           </div>
@@ -150,7 +169,9 @@ export default function CheckoutPage() {
                     <input
                       type="text"
                       required
-                      defaultValue={language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'}
+                      defaultValue={
+                        language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'
+                      }
                       className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-[#2B1810]"
                     />
                   </div>
@@ -189,10 +210,14 @@ export default function CheckoutPage() {
                     {language === 'th' ? 'จัดส่งไปยัง:' : 'Ship To:'}
                   </span>
                   <span className="font-semibold text-gray-800">
-                    108 Sukhumvit Soi 24, {language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'} 10110
+                    108 Sukhumvit Soi 24,{' '}
+                    {language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'} 10110
                   </span>
                 </div>
-                <button onClick={() => setStep('shipping')} className="font-black text-[#D97706] underline uppercase">
+                <button
+                  onClick={() => setStep('shipping')}
+                  className="font-black text-[#D97706] underline uppercase"
+                >
                   {language === 'th' ? 'แก้ไขที่อยู่' : 'Edit'}
                 </button>
               </div>
@@ -250,7 +275,9 @@ export default function CheckoutPage() {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                          {language === 'th' ? 'หมายเลขบัตร *' : 'Card Number *'}
+                          {language === 'th'
+                            ? 'หมายเลขบัตร *'
+                            : 'Card Number *'}
                         </label>
                         <input
                           type="text"
@@ -263,7 +290,9 @@ export default function CheckoutPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                            {language === 'th' ? 'วันหมดอายุ (MM/YY) *' : 'Exp Date (MM/YY) *'}
+                            {language === 'th'
+                              ? 'วันหมดอายุ (MM/YY) *'
+                              : 'Exp Date (MM/YY) *'}
                           </label>
                           <input
                             type="text"
@@ -287,7 +316,9 @@ export default function CheckoutPage() {
 
                       <div>
                         <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                          {language === 'th' ? 'ชื่อบนบัตร *' : 'Name On Card *'}
+                          {language === 'th'
+                            ? 'ชื่อบนบัตร *'
+                            : 'Name On Card *'}
                         </label>
                         <input
                           type="text"
@@ -319,18 +350,30 @@ export default function CheckoutPage() {
                 {paymentMethod === 'bank' && (
                   <div className="border-2 border-[#2B1810] p-6 bg-white shadow-xs space-y-3 text-xs">
                     <h4 className="font-bold text-[#2B1810]">
-                      {language === 'th' ? 'รายละเอียดบัญชีธนาคารสำหรับโอนเงิน:' : 'Bank Account Information:'}
+                      {language === 'th'
+                        ? 'รายละเอียดบัญชีธนาคารสำหรับโอนเงิน:'
+                        : 'Bank Account Information:'}
                     </h4>
                     <div className="bg-[#FAF7F2] p-3 border border-gray-200 space-y-1">
                       <p>
-                        <strong>{language === 'th' ? 'ธนาคาร:' : 'Bank:'}</strong> กสิกรไทย (Kasikornbank - KBANK)
+                        <strong>
+                          {language === 'th' ? 'ธนาคาร:' : 'Bank:'}
+                        </strong>{' '}
+                        กสิกรไทย (Kasikornbank - KBANK)
                       </p>
                       <p>
-                        <strong>{language === 'th' ? 'ชื่อบัญชี:' : 'Account Name:'}</strong> บริษัท นิดา แบรนด์ส จำกัด (Nida Brands Co., Ltd.)
+                        <strong>
+                          {language === 'th' ? 'ชื่อบัญชี:' : 'Account Name:'}
+                        </strong>{' '}
+                        บริษัท นิดา แบรนด์ส จำกัด (Nida Brands Co., Ltd.)
                       </p>
                       <p>
-                        <strong>{language === 'th' ? 'เลขที่บัญชี:' : 'Account No:'}</strong>{' '}
-                        <span className="font-mono font-bold text-[#D97706]">098-1-23456-7</span>
+                        <strong>
+                          {language === 'th' ? 'เลขที่บัญชี:' : 'Account No:'}
+                        </strong>{' '}
+                        <span className="font-mono font-bold text-[#D97706]">
+                          098-1-23456-7
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -372,15 +415,24 @@ export default function CheckoutPage() {
             {items.map((item, index) => {
               const itemTitle = getProductTitle(item, language);
               return (
-                <div key={`${item.id}-${index}`} className="flex gap-3 pb-3 border-b border-gray-200">
+                <div
+                  key={`${item.id}-${index}`}
+                  className="flex gap-3 pb-3 border-b border-gray-200"
+                >
                   <div className="w-16 h-20 bg-gray-100 relative flex-shrink-0">
-                    <img src={item.image} alt={itemTitle} className="w-full h-full object-cover" />
+                    <img
+                      src={item.image}
+                      alt={itemTitle}
+                      className="w-full h-full object-cover"
+                    />
                     <span className="absolute -top-1.5 -right-1.5 bg-[#2B1810] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
                       {item.quantity}
                     </span>
                   </div>
                   <div className="flex-1 flex flex-col justify-center text-xs">
-                    <h4 className="font-bold text-[#2B1810] line-clamp-1">{itemTitle}</h4>
+                    <h4 className="font-bold text-[#2B1810] line-clamp-1">
+                      {itemTitle}
+                    </h4>
                     <p className="text-gray-500 uppercase font-semibold mt-0.5">
                       {item.selectedColor} • {item.selectedSize}
                     </p>
@@ -398,7 +450,10 @@ export default function CheckoutPage() {
             {discountApplied ? (
               <div className="bg-emerald-50 border border-emerald-300 p-3 rounded-xs text-xs flex items-center justify-between text-emerald-800 font-bold">
                 <span className="flex items-center">
-                  <Check size={14} className="mr-1" /> {language === 'th' ? 'ใช้งานโค้ด NIDA20 (-20%)' : 'NIDA20 Applied (-20%)'}
+                  <Check size={14} className="mr-1" />{' '}
+                  {language === 'th'
+                    ? 'ใช้งานโค้ด NIDA20 (-20%)'
+                    : 'NIDA20 Applied (-20%)'}
                 </span>
                 <span>-${discountAmount.toFixed(2)}</span>
               </div>
@@ -425,7 +480,9 @@ export default function CheckoutPage() {
           <div className="border-t border-gray-300 py-3 space-y-2 text-xs font-semibold text-gray-700">
             <div className="flex justify-between">
               <span>{t('cart.subtotal')}</span>
-              <span className="font-bold text-[#2B1810]">${cartTotal.toFixed(2)}</span>
+              <span className="font-bold text-[#2B1810]">
+                ${cartTotal.toFixed(2)}
+              </span>
             </div>
             {discountApplied && (
               <div className="flex justify-between text-emerald-700">
@@ -437,7 +494,9 @@ export default function CheckoutPage() {
               <span>{t('checkout.shipping')}</span>
               <span>
                 {shippingCost === 0 ? (
-                  <strong className="text-emerald-700">{t('checkout.free')}</strong>
+                  <strong className="text-emerald-700">
+                    {t('checkout.free')}
+                  </strong>
                 ) : (
                   `$${shippingCost.toFixed(2)}`
                 )}
@@ -450,7 +509,9 @@ export default function CheckoutPage() {
             <span className="text-xs font-black uppercase tracking-widest text-[#2B1810]">
               {t('checkout.total')} (USD)
             </span>
-            <span className="text-2xl font-black text-[#2B1810]">${finalTotal.toFixed(2)}</span>
+            <span className="text-2xl font-black text-[#2B1810]">
+              ${finalTotal.toFixed(2)}
+            </span>
           </div>
         </div>
       </div>

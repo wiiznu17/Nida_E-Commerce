@@ -44,7 +44,9 @@ describe('PermissionsGuard', () => {
   });
 
   it('denies access when user is not authenticated', () => {
-    vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue([AdminPermission.CATALOG_READ]);
+    vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue([
+      AdminPermission.CATALOG_READ,
+    ]);
     const context = createMockContext(undefined);
 
     const canActivate = guard.canActivate(context);

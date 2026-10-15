@@ -36,7 +36,9 @@ export function FormPricingSection({
             {t('product.regularPrice')}
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">$</span>
+            <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">
+              $
+            </span>
             <input
               type="number"
               min="1"
@@ -55,7 +57,9 @@ export function FormPricingSection({
             {t('product.compareAtPrice')}
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">$</span>
+            <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">
+              $
+            </span>
             <input
               type="number"
               min="0"

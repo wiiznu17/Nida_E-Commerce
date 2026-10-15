@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { AuditLogService } from './audit-log.service.js';
 import { AuditLogQueryDto } from './dto/audit-log-query.dto.js';
 import { Roles, RequirePermissions } from '../auth/decorators/index.js';

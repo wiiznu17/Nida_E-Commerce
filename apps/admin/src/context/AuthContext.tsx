@@ -23,7 +23,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [admin, setAdmin] = useState<ApiAdminUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -73,7 +75,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(async () => {
     try {
-      const refreshToken = localStorage.getItem('nida_refresh_token') ?? undefined;
+      const refreshToken =
+        localStorage.getItem('nida_refresh_token') ?? undefined;
       await authRequester.logout(refreshToken);
     } catch {
       // Continue cleanup on client
@@ -126,7 +129,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       hasRole,
       hasPermission,
     }),
-    [admin, isLoading, login, logout, logoutAll, fetchProfile, hasRole, hasPermission],
+    [
+      admin,
+      isLoading,
+      login,
+      logout,
+      logoutAll,
+      fetchProfile,
+      hasRole,
+      hasPermission,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

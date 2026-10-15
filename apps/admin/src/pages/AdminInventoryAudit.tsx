@@ -24,10 +24,18 @@ export default function AdminInventoryAudit() {
   const [searchParams] = useSearchParams();
 
   const [movementsList, setMovementsList] = useState<ApiStockMovement[]>([]);
-  const [typeFilter, setTypeFilter] = useState<'all' | StockMovementType>('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'qty_desc' | 'qty_asc'>('newest');
-  const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
-  const [appliedSearch, setAppliedSearch] = useState(searchParams.get('search') || '');
+  const [typeFilter, setTypeFilter] = useState<'all' | StockMovementType>(
+    'all',
+  );
+  const [sortBy, setSortBy] = useState<
+    'newest' | 'oldest' | 'qty_desc' | 'qty_asc'
+  >('newest');
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get('search') || '',
+  );
+  const [appliedSearch, setAppliedSearch] = useState(
+    searchParams.get('search') || '',
+  );
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,10 +79,18 @@ export default function AdminInventoryAudit() {
   };
 
   // Counts for tabs
-  const restockCount = movementsList.filter((m) => m.changeType === 'RESTOCK').length;
-  const orderDeductCount = movementsList.filter((m) => m.changeType === 'ORDER_DEDUCT').length;
-  const damageCount = movementsList.filter((m) => m.changeType === 'DAMAGE').length;
-  const adjustmentCount = movementsList.filter((m) => m.changeType === 'MANUAL_ADJUSTMENT').length;
+  const restockCount = movementsList.filter(
+    (m) => m.changeType === 'RESTOCK',
+  ).length;
+  const orderDeductCount = movementsList.filter(
+    (m) => m.changeType === 'ORDER_DEDUCT',
+  ).length;
+  const damageCount = movementsList.filter(
+    (m) => m.changeType === 'DAMAGE',
+  ).length;
+  const adjustmentCount = movementsList.filter(
+    (m) => m.changeType === 'MANUAL_ADJUSTMENT',
+  ).length;
 
   // Filtered and Sorted Movements
   const filteredMovements = movementsList
@@ -103,7 +119,10 @@ export default function AdminInventoryAudit() {
       return 0;
     });
 
-  const totalPages = Math.max(1, Math.ceil(filteredMovements.length / pageSize));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredMovements.length / pageSize),
+  );
   const paginatedMovements = filteredMovements.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
@@ -146,7 +165,10 @@ export default function AdminInventoryAudit() {
 
   return (
     <AdminLayout
-      title={t('inventoryAudit.title') || 'ประวัติการเคลื่อนไหวสต็อก (Stock Movement Audit Ledger)'}
+      title={
+        t('inventoryAudit.title') ||
+        'ประวัติการเคลื่อนไหวสต็อก (Stock Movement Audit Ledger)'
+      }
       subtitle={`${
         t('inventoryAudit.subtitle') ||
         'ตรวจสอบบันทึกประวัติการนำเข้า ตัดจำหน่าย และการปรับปรุงสต็อกสินค้าคงคลัง'
@@ -168,7 +190,10 @@ export default function AdminInventoryAudit() {
           </Link>
           <div className="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 bg-brand-brown text-white shadow-xs cursor-default">
             <History size={14} />
-            <span>{t('inventory.historyTab') || 'ประวัติการเคลื่อนไหวสต็อก (Audit Log)'}</span>
+            <span>
+              {t('inventory.historyTab') ||
+                'ประวัติการเคลื่อนไหวสต็อก (Audit Log)'}
+            </span>
           </div>
         </div>
 
@@ -186,7 +211,8 @@ export default function AdminInventoryAudit() {
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {t('inventoryAudit.filterAll') || 'ทั้งหมด'} ({movementsList.length})
+                {t('inventoryAudit.filterAll') || 'ทั้งหมด'} (
+                {movementsList.length})
               </button>
 
               <button
@@ -202,7 +228,8 @@ export default function AdminInventoryAudit() {
                   className={`w-1.5 h-1.5 rounded-full ${typeFilter === 'RESTOCK' ? 'bg-white' : 'bg-emerald-500'}`}
                 />
                 <span>
-                  {t('inventoryAudit.filterRestock') || 'นำเข้าสต็อก'} ({restockCount})
+                  {t('inventoryAudit.filterRestock') || 'นำเข้าสต็อก'} (
+                  {restockCount})
                 </span>
               </button>
 
@@ -219,7 +246,8 @@ export default function AdminInventoryAudit() {
                   className={`w-1.5 h-1.5 rounded-full ${typeFilter === 'ORDER_DEDUCT' ? 'bg-white' : 'bg-blue-500'}`}
                 />
                 <span>
-                  {t('inventoryAudit.filterOrderDeduct') || 'ตัดสต็อกออเดอร์'} ({orderDeductCount})
+                  {t('inventoryAudit.filterOrderDeduct') || 'ตัดสต็อกออเดอร์'} (
+                  {orderDeductCount})
                 </span>
               </button>
 
@@ -236,7 +264,8 @@ export default function AdminInventoryAudit() {
                   className={`w-1.5 h-1.5 rounded-full ${typeFilter === 'DAMAGE' ? 'bg-white' : 'bg-red-500'}`}
                 />
                 <span>
-                  {t('inventoryAudit.filterDamage') || 'ชำรุด / QC'} ({damageCount})
+                  {t('inventoryAudit.filterDamage') || 'ชำรุด / QC'} (
+                  {damageCount})
                 </span>
               </button>
 
@@ -253,7 +282,8 @@ export default function AdminInventoryAudit() {
                   className={`w-1.5 h-1.5 rounded-full ${typeFilter === 'MANUAL_ADJUSTMENT' ? 'bg-white' : 'bg-amber-500'}`}
                 />
                 <span>
-                  {t('inventoryAudit.filterAdjustment') || 'ปรับยอดตรวจนับ'} ({adjustmentCount})
+                  {t('inventoryAudit.filterAdjustment') || 'ปรับยอดตรวจนับ'} (
+                  {adjustmentCount})
                 </span>
               </button>
             </div>
@@ -291,14 +321,21 @@ export default function AdminInventoryAudit() {
                   value={typeFilter}
                   onChange={(val) => {
                     setTypeFilter(
-                      val as 'all' | 'RESTOCK' | 'ORDER_DEDUCT' | 'DAMAGE' | 'MANUAL_ADJUSTMENT',
+                      val as
+                        | 'all'
+                        | 'RESTOCK'
+                        | 'ORDER_DEDUCT'
+                        | 'DAMAGE'
+                        | 'MANUAL_ADJUSTMENT',
                     );
                     setCurrentPage(1);
                   }}
                   options={[
                     {
                       value: 'all',
-                      label: t('inventoryAudit.allTypes') || 'ทุกประเภทการเปลี่ยนแปลง',
+                      label:
+                        t('inventoryAudit.allTypes') ||
+                        'ทุกประเภทการเปลี่ยนแปลง',
                     },
                     {
                       value: 'RESTOCK',
@@ -306,15 +343,18 @@ export default function AdminInventoryAudit() {
                     },
                     {
                       value: 'ORDER_DEDUCT',
-                      label: language === 'th' ? 'ตัดสต็อก (ORDER)' : 'Order Deduct',
+                      label:
+                        language === 'th' ? 'ตัดสต็อก (ORDER)' : 'Order Deduct',
                     },
                     {
                       value: 'DAMAGE',
-                      label: language === 'th' ? 'ชำรุด (DAMAGE)' : 'Damage / QC',
+                      label:
+                        language === 'th' ? 'ชำรุด (DAMAGE)' : 'Damage / QC',
                     },
                     {
                       value: 'MANUAL_ADJUSTMENT',
-                      label: language === 'th' ? 'ปรับยอด (ADJUST)' : 'Adjustment',
+                      label:
+                        language === 'th' ? 'ปรับยอด (ADJUST)' : 'Adjustment',
                     },
                   ]}
                 />
@@ -325,7 +365,9 @@ export default function AdminInventoryAudit() {
                 <DropdownSelect
                   value={sortBy}
                   onChange={(val) => {
-                    setSortBy(val as 'newest' | 'oldest' | 'qty_desc' | 'qty_asc');
+                    setSortBy(
+                      val as 'newest' | 'oldest' | 'qty_desc' | 'qty_asc',
+                    );
                     setCurrentPage(1);
                   }}
                   options={[
@@ -335,15 +377,18 @@ export default function AdminInventoryAudit() {
                     },
                     {
                       value: 'oldest',
-                      label: t('inventoryAudit.sortOldest') || 'เวลาเก่าสุดก่อน',
+                      label:
+                        t('inventoryAudit.sortOldest') || 'เวลาเก่าสุดก่อน',
                     },
                     {
                       value: 'qty_desc',
-                      label: t('inventoryAudit.sortQtyDesc') || 'จำนวนบวกมากสุด (+)',
+                      label:
+                        t('inventoryAudit.sortQtyDesc') || 'จำนวนบวกมากสุด (+)',
                     },
                     {
                       value: 'qty_asc',
-                      label: t('inventoryAudit.sortQtyAsc') || 'จำนวนลดลงมากสุด (-)',
+                      label:
+                        t('inventoryAudit.sortQtyAsc') || 'จำนวนลดลงมากสุด (-)',
                     },
                   ]}
                 />
@@ -377,14 +422,30 @@ export default function AdminInventoryAudit() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-36 font-mono text-xs">{t('inventory.table.timestamp') || 'วันเวลา'}</TableHead>
-                  <TableHead className="w-48">{t('inventory.table.sku') || 'รหัส SKU'}</TableHead>
-                  <TableHead className="min-w-[180px]">{t('inventory.table.product') || 'ชื่อสินค้า'}</TableHead>
-                  <TableHead className="w-36 text-center">{t('inventory.table.changeType') || 'ประเภท'}</TableHead>
-                  <TableHead className="w-28 text-center">{t('inventory.table.changeQty') || 'จำนวนที่เปลี่ยน'}</TableHead>
-                  <TableHead className="w-32 text-center">{t('inventory.table.balanceAfter') || 'คงเหลือหลังปรับ'}</TableHead>
-                  <TableHead className="min-w-[200px]">{t('inventory.table.reason') || 'เหตุผล / หมายเหตุ'}</TableHead>
-                  <TableHead className="w-36 text-right">{t('inventory.table.operator') || 'ผู้ดำเนินการ'}</TableHead>
+                  <TableHead className="w-36 font-mono text-xs">
+                    {t('inventory.table.timestamp') || 'วันเวลา'}
+                  </TableHead>
+                  <TableHead className="w-48">
+                    {t('inventory.table.sku') || 'รหัส SKU'}
+                  </TableHead>
+                  <TableHead className="min-w-[180px]">
+                    {t('inventory.table.product') || 'ชื่อสินค้า'}
+                  </TableHead>
+                  <TableHead className="w-36 text-center">
+                    {t('inventory.table.changeType') || 'ประเภท'}
+                  </TableHead>
+                  <TableHead className="w-28 text-center">
+                    {t('inventory.table.changeQty') || 'จำนวนที่เปลี่ยน'}
+                  </TableHead>
+                  <TableHead className="w-32 text-center">
+                    {t('inventory.table.balanceAfter') || 'คงเหลือหลังปรับ'}
+                  </TableHead>
+                  <TableHead className="min-w-[200px]">
+                    {t('inventory.table.reason') || 'เหตุผล / หมายเหตุ'}
+                  </TableHead>
+                  <TableHead className="w-36 text-right">
+                    {t('inventory.table.operator') || 'ผู้ดำเนินการ'}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -393,7 +454,10 @@ export default function AdminInventoryAudit() {
                     <TableCell colSpan={8} className="p-8">
                       <EmptyState
                         icon={History}
-                        title={t('inventoryAudit.emptyTitle') || 'ไม่พบประวัติความเคลื่อนไหวสต็อก'}
+                        title={
+                          t('inventoryAudit.emptyTitle') ||
+                          'ไม่พบประวัติความเคลื่อนไหวสต็อก'
+                        }
                         subtitle={
                           t('inventoryAudit.emptySubtitle') ||
                           'ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองประเภทการเปลี่ยนแปลง'
@@ -406,7 +470,9 @@ export default function AdminInventoryAudit() {
                     <TableRow key={m.id} className="group">
                       {/* Timestamp */}
                       <TableCell className="font-mono text-gray-500 text-xs whitespace-nowrap">
-                        {m.createdAt ? m.createdAt.replace('T', ' ').slice(0, 16) : '-'}
+                        {m.createdAt
+                          ? m.createdAt.replace('T', ' ').slice(0, 16)
+                          : '-'}
                       </TableCell>
 
                       {/* SKU */}
@@ -426,14 +492,25 @@ export default function AdminInventoryAudit() {
 
                       {/* Quantity Change */}
                       <TableCell className="font-mono font-bold text-sm text-center whitespace-nowrap">
-                        <span className={m.quantityChange >= 0 ? 'text-emerald-700' : 'text-red-600'}>
-                          {m.quantityChange >= 0 ? `+${m.quantityChange}` : m.quantityChange}
+                        <span
+                          className={
+                            m.quantityChange >= 0
+                              ? 'text-emerald-700'
+                              : 'text-red-600'
+                          }
+                        >
+                          {m.quantityChange >= 0
+                            ? `+${m.quantityChange}`
+                            : m.quantityChange}
                         </span>
                       </TableCell>
 
                       {/* Balance After */}
                       <TableCell className="font-mono font-bold text-brand-brown text-center whitespace-nowrap">
-                        {m.balanceAfter} <span className="text-[11px] font-normal text-gray-500">{language === 'th' ? 'ชิ้น' : 'pcs'}</span>
+                        {m.balanceAfter}{' '}
+                        <span className="text-[11px] font-normal text-gray-500">
+                          {language === 'th' ? 'ชิ้น' : 'pcs'}
+                        </span>
                       </TableCell>
 
                       {/* Reason */}

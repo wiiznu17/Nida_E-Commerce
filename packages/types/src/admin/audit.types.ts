@@ -29,7 +29,6 @@ export interface ApiAuditLog {
   createdAt: string;
 }
 
-
 export interface AuditLogStats {
   totalLogs: number;
   todayLogs: number;

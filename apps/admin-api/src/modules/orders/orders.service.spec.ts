@@ -79,7 +79,18 @@ describe('OrdersService', () => {
 
     it('throws BadRequestException if stock is insufficient before checkout', async () => {
       couponsServiceMock.calculateCheckout.mockResolvedValue({
-        items: [{ variantId: 'variant-1', quantity: 5, unitPrice: 1000, subtotal: 5000, discountShare: 0, netPrice: 5000, productName: 'Shirt', variantInfo: 'White / M' }],
+        items: [
+          {
+            variantId: 'variant-1',
+            quantity: 5,
+            unitPrice: 1000,
+            subtotal: 5000,
+            discountShare: 0,
+            netPrice: 5000,
+            productName: 'Shirt',
+            variantInfo: 'White / M',
+          },
+        ],
         subtotal: 5000,
         discountTotal: 0,
         shippingFee: 0,
@@ -107,7 +118,18 @@ describe('OrdersService', () => {
 
     it('throws BadRequestException if atomic stock update fails during concurrent checkout', async () => {
       couponsServiceMock.calculateCheckout.mockResolvedValue({
-        items: [{ variantId: 'variant-1', quantity: 2, unitPrice: 1000, subtotal: 2000, discountShare: 0, netPrice: 2000, productName: 'Shirt', variantInfo: 'White / M' }],
+        items: [
+          {
+            variantId: 'variant-1',
+            quantity: 2,
+            unitPrice: 1000,
+            subtotal: 2000,
+            discountShare: 0,
+            netPrice: 2000,
+            productName: 'Shirt',
+            variantInfo: 'White / M',
+          },
+        ],
         subtotal: 2000,
         discountTotal: 0,
         shippingFee: 0,
@@ -125,16 +147,32 @@ describe('OrdersService', () => {
         },
       ]);
 
-      prismaMock.order.create.mockResolvedValue({ id: 'order-1', orderNumber: 'NIDA-TEST' });
+      prismaMock.order.create.mockResolvedValue({
+        id: 'order-1',
+        orderNumber: 'NIDA-TEST',
+      });
       // Simulate race condition: updateMany returns count 0 (another user grabbed the last stock)
       prismaMock.inventoryItem.updateMany.mockResolvedValue({ count: 0 });
 
-      await expect(service.createOrder(baseDto)).rejects.toThrow(BadRequestException);
+      await expect(service.createOrder(baseDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('successfully processes pre-order items without decrementing available stock', async () => {
       couponsServiceMock.calculateCheckout.mockResolvedValue({
-        items: [{ variantId: 'variant-preorder', quantity: 1, unitPrice: 3500, subtotal: 3500, discountShare: 0, netPrice: 3500, productName: 'Cashmere Knit', variantInfo: 'Camel / S' }],
+        items: [
+          {
+            variantId: 'variant-preorder',
+            quantity: 1,
+            unitPrice: 3500,
+            subtotal: 3500,
+            discountShare: 0,
+            netPrice: 3500,
+            productName: 'Cashmere Knit',
+            variantInfo: 'Camel / S',
+          },
+        ],
         subtotal: 3500,
         discountTotal: 0,
         shippingFee: 0,
@@ -145,14 +183,26 @@ describe('OrdersService', () => {
       prismaMock.productVariant.findMany.mockResolvedValue([
         {
           id: 'variant-preorder',
-          product: { name: 'Cashmere Knit', isPreorder: true, preorderReleaseDate: new Date('2026-11-01'), images: [] },
+          product: {
+            name: 'Cashmere Knit',
+            isPreorder: true,
+            preorderReleaseDate: new Date('2026-11-01'),
+            images: [],
+          },
           colorName: 'Camel',
           size: 'S',
-          inventoryItem: { id: 'inv-preorder', quantityAvailable: 0, preorderBooked: 0 },
+          inventoryItem: {
+            id: 'inv-preorder',
+            quantityAvailable: 0,
+            preorderBooked: 0,
+          },
         },
       ]);
 
-      prismaMock.order.create.mockResolvedValue({ id: 'order-pre', orderNumber: 'NIDA-PRE-01' });
+      prismaMock.order.create.mockResolvedValue({
+        id: 'order-pre',
+        orderNumber: 'NIDA-PRE-01',
+      });
 
       // Mock getOrderByNumber response
       vi.spyOn(service, 'getOrderByNumber').mockResolvedValue({
@@ -187,7 +237,18 @@ describe('OrdersService', () => {
 
     it('applies coupon, records redemption, and decrements stock atomically for normal items', async () => {
       couponsServiceMock.calculateCheckout.mockResolvedValue({
-        items: [{ variantId: 'variant-1', quantity: 2, unitPrice: 1000, subtotal: 2000, discountShare: 200, netPrice: 1800, productName: 'Shirt', variantInfo: 'White / M' }],
+        items: [
+          {
+            variantId: 'variant-1',
+            quantity: 2,
+            unitPrice: 1000,
+            subtotal: 2000,
+            discountShare: 200,
+            netPrice: 1800,
+            productName: 'Shirt',
+            variantInfo: 'White / M',
+          },
+        ],
         subtotal: 2000,
         discountTotal: 200,
         shippingFee: 0,
@@ -218,9 +279,14 @@ describe('OrdersService', () => {
         totalUsageLimit: 100,
       });
 
-      prismaMock.order.create.mockResolvedValue({ id: 'order-1', orderNumber: 'NIDA-ORD-01' });
+      prismaMock.order.create.mockResolvedValue({
+        id: 'order-1',
+        orderNumber: 'NIDA-ORD-01',
+      });
       prismaMock.inventoryItem.updateMany.mockResolvedValue({ count: 1 });
-      prismaMock.inventoryItem.findUnique.mockResolvedValue({ quantityAvailable: 8 });
+      prismaMock.inventoryItem.findUnique.mockResolvedValue({
+        quantityAvailable: 8,
+      });
 
       vi.spyOn(service, 'getOrderByNumber').mockResolvedValue({
         id: 'order-1',
@@ -490,4 +556,3 @@ describe('OrdersService', () => {
     });
   });
 });
-

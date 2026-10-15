@@ -32,12 +32,12 @@ import { orderRequester } from '../api/requester/orderRequester';
 import { formatOrderDateTime } from '../utils';
 import { STOREFRONT_URL } from '../config';
 import { PermissionGate } from '../components/common';
-import { OrderPrintModal, OrderFulfillModal, type PrintDocumentType } from '../components/order';
 import {
-  AdminPermission,
-  type ApiOrder,
-  type OrderStatus,
-} from '@repo/types';
+  OrderPrintModal,
+  OrderFulfillModal,
+  type PrintDocumentType,
+} from '../components/order';
+import { AdminPermission, type ApiOrder, type OrderStatus } from '@repo/types';
 import {
   ALLOWED_STATUS_TRANSITIONS,
   validateOrderStatusTransition,
@@ -50,7 +50,9 @@ export default function AdminOrders() {
   // Filter & Search states
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [paymentFilter, setPaymentFilter] = useState<string>('ALL');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'amount_desc' | 'amount_asc'>('newest');
+  const [sortBy, setSortBy] = useState<
+    'newest' | 'oldest' | 'amount_desc' | 'amount_asc'
+  >('newest');
   const [searchInput, setSearchInput] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
 
@@ -113,8 +115,13 @@ export default function AdminOrders() {
     setIsFulfillModalOpen(true);
   };
 
-  const handleQuickStatusChange = async (orderId: string, newStatus: OrderStatus) => {
-    const targetOrder = ordersList.find((o) => o.id === orderId || o.orderNumber === orderId);
+  const handleQuickStatusChange = async (
+    orderId: string,
+    newStatus: OrderStatus,
+  ) => {
+    const targetOrder = ordersList.find(
+      (o) => o.id === orderId || o.orderNumber === orderId,
+    );
     if (!targetOrder || newStatus === targetOrder.status) return;
 
     const primaryShipment = targetOrder.shipments?.[0];
@@ -126,7 +133,11 @@ export default function AdminOrders() {
     );
 
     if (!validation.isValid) {
-      if (newStatus === 'SHIPPED' && targetOrder.status === 'PROCESSING' && !hasTracking) {
+      if (
+        newStatus === 'SHIPPED' &&
+        targetOrder.status === 'PROCESSING' &&
+        !hasTracking
+      ) {
         showToast(
           language === 'th'
             ? 'กรุณาระบุเลขพัสดุ (Tracking Number) เพื่อจัดส่งสินค้า'
@@ -138,7 +149,9 @@ export default function AdminOrders() {
 
       showToast(
         language === 'th'
-          ? (validation.errorTh ?? validation.error ?? 'ไม่สามารถเปลี่ยนสถานะได้')
+          ? (validation.errorTh ??
+              validation.error ??
+              'ไม่สามารถเปลี่ยนสถานะได้')
           : (validation.error ?? 'Invalid status transition'),
       );
       return;
@@ -162,15 +175,22 @@ export default function AdminOrders() {
   // Status counts for top tabs
   const allCount = ordersList.length;
   const paidCount = ordersList.filter((o) => o.status === 'PAID').length;
-  const processingCount = ordersList.filter((o) => o.status === 'PROCESSING').length;
+  const processingCount = ordersList.filter(
+    (o) => o.status === 'PROCESSING',
+  ).length;
   const shippedCount = ordersList.filter((o) => o.status === 'SHIPPED').length;
-  const deliveredCount = ordersList.filter((o) => o.status === 'DELIVERED').length;
-  const cancelledCount = ordersList.filter((o) => o.status === 'CANCELLED').length;
+  const deliveredCount = ordersList.filter(
+    (o) => o.status === 'DELIVERED',
+  ).length;
+  const cancelledCount = ordersList.filter(
+    (o) => o.status === 'CANCELLED',
+  ).length;
 
   // Filtered & Sorted Orders
   const filteredOrders = ordersList
     .filter((order) => {
-      const matchesStatus = statusFilter === 'ALL' || order.status === statusFilter;
+      const matchesStatus =
+        statusFilter === 'ALL' || order.status === statusFilter;
 
       const query = appliedSearch.toLowerCase();
       const primaryShipment = order.shipments?.[0];
@@ -189,9 +209,12 @@ export default function AdminOrders() {
       const matchesPayment =
         paymentFilter === 'ALL' ||
         paymentMethod === paymentFilter ||
-        (paymentFilter === 'CREDIT_CARD' && paymentMethod.toLowerCase().includes('credit')) ||
-        (paymentFilter === 'PROMPTPAY' && paymentMethod.toLowerCase().includes('promptpay')) ||
-        (paymentFilter === 'BANK_TRANSFER' && paymentMethod.toLowerCase().includes('bank'));
+        (paymentFilter === 'CREDIT_CARD' &&
+          paymentMethod.toLowerCase().includes('credit')) ||
+        (paymentFilter === 'PROMPTPAY' &&
+          paymentMethod.toLowerCase().includes('promptpay')) ||
+        (paymentFilter === 'BANK_TRANSFER' &&
+          paymentMethod.toLowerCase().includes('bank'));
 
       return matchesStatus && matchesSearch && matchesPayment;
     })
@@ -204,7 +227,10 @@ export default function AdminOrders() {
     });
 
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
-  const paginatedOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   const handleOpenPrintSingle = (order: ApiOrder) => {
     setOrdersToPrint([order]);
@@ -392,7 +418,9 @@ export default function AdminOrders() {
                 <DropdownSelect
                   value={sortBy}
                   onChange={(val) => {
-                    setSortBy(val as 'newest' | 'oldest' | 'amount_desc' | 'amount_asc');
+                    setSortBy(
+                      val as 'newest' | 'oldest' | 'amount_desc' | 'amount_asc',
+                    );
                     setCurrentPage(1);
                   }}
                   options={[
@@ -432,13 +460,27 @@ export default function AdminOrders() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[15%] min-w-[125px]">{t('orders.table.orderNumber')}</TableHead>
-                  <TableHead className="w-[12%] min-w-[100px]">{t('orders.table.customer')}</TableHead>
-                  <TableHead className="w-[31%] min-w-[200px]">{t('orders.table.items')}</TableHead>
-                  <TableHead className="w-[10%] min-w-[80px] text-right">{t('orders.table.total')}</TableHead>
-                  <TableHead className="w-[13%] min-w-[110px] text-center">{t('orders.table.status')}</TableHead>
-                  <TableHead className="w-[13%] min-w-[120px]">{t('orders.table.courier')}</TableHead>
-                  <TableHead className="w-[6%] min-w-[65px] text-right">{t('orders.table.actions')}</TableHead>
+                  <TableHead className="w-[15%] min-w-[125px]">
+                    {t('orders.table.orderNumber')}
+                  </TableHead>
+                  <TableHead className="w-[12%] min-w-[100px]">
+                    {t('orders.table.customer')}
+                  </TableHead>
+                  <TableHead className="w-[31%] min-w-[200px]">
+                    {t('orders.table.items')}
+                  </TableHead>
+                  <TableHead className="w-[10%] min-w-[80px] text-right">
+                    {t('orders.table.total')}
+                  </TableHead>
+                  <TableHead className="w-[13%] min-w-[110px] text-center">
+                    {t('orders.table.status')}
+                  </TableHead>
+                  <TableHead className="w-[13%] min-w-[120px]">
+                    {t('orders.table.courier')}
+                  </TableHead>
+                  <TableHead className="w-[6%] min-w-[65px] text-right">
+                    {t('orders.table.actions')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -455,7 +497,6 @@ export default function AdminOrders() {
                 ) : (
                   paginatedOrders.map((order) => (
                     <TableRow key={order.id}>
-
                       {/* Order # & Date */}
                       <TableCell className="whitespace-nowrap">
                         <Link
@@ -472,7 +513,8 @@ export default function AdminOrders() {
                       {/* Customer */}
                       <TableCell>
                         <div className="font-bold text-brand-brown text-xs">
-                          {order.shippingAddress?.recipientName ?? 'Valued Customer'}
+                          {order.shippingAddress?.recipientName ??
+                            'Valued Customer'}
                         </div>
                       </TableCell>
 
@@ -485,7 +527,8 @@ export default function AdminOrders() {
                               alt=""
                               className="w-9 h-11 object-cover rounded-xs border border-gray-200 flex-shrink-0"
                               onError={(e) => {
-                                (e.currentTarget as HTMLElement).style.display = 'none';
+                                (e.currentTarget as HTMLElement).style.display =
+                                  'none';
                               }}
                             />
                           ) : null}
@@ -494,7 +537,8 @@ export default function AdminOrders() {
                               {order.items[0]?.productName}
                             </div>
                             <div className="text-[10px] text-gray-500 mt-0.5">
-                              {order.items[0]?.variantInfo} • {order.items[0]?.quantity}{' '}
+                              {order.items[0]?.variantInfo} •{' '}
+                              {order.items[0]?.quantity}{' '}
                               {t('orders.detail.pieces')}
                               {order.items.length > 1 &&
                                 ` ${t('orders.detail.plusMore').replace('{count}', String(order.items.length - 1))}`}
@@ -517,19 +561,29 @@ export default function AdminOrders() {
                       <TableCell className="text-center">
                         {(() => {
                           const primaryShipment = order.shipments?.[0];
-                          const trackingNumber = primaryShipment?.trackingNumber;
-                          const allowedNext = ALLOWED_STATUS_TRANSITIONS[order.status] ?? [];
+                          const trackingNumber =
+                            primaryShipment?.trackingNumber;
+                          const allowedNext =
+                            ALLOWED_STATUS_TRANSITIONS[order.status] ?? [];
                           const rowStatusOptions = [
                             { value: order.status, label: order.status },
                             ...allowedNext.map((s) => ({
                               value: s,
-                              label: s === 'SHIPPED' && !trackingNumber ? `${s} (+Tracking)` : s,
+                              label:
+                                s === 'SHIPPED' && !trackingNumber
+                                  ? `${s} (+Tracking)`
+                                  : s,
                             })),
                           ];
                           return (
                             <DropdownSelect
                               value={order.status}
-                              onChange={(val) => handleQuickStatusChange(order.id, val as OrderStatus)}
+                              onChange={(val) =>
+                                handleQuickStatusChange(
+                                  order.id,
+                                  val as OrderStatus,
+                                )
+                              }
                               options={rowStatusOptions}
                               className={`text-[10px] font-black uppercase h-7 px-2 py-0.5 w-full justify-between ${getStatusBadgeStyle(
                                 order.status,
@@ -544,11 +598,17 @@ export default function AdminOrders() {
                         {order.shipments?.[0]?.trackingNumber ? (
                           <div className="min-w-0">
                             <div className="font-mono font-bold text-brand-brown text-[11px] flex items-center">
-                              <Truck size={12} className="mr-1 text-brand-amber flex-shrink-0" />
-                              <span className="truncate">{order.shipments[0].trackingNumber}</span>
+                              <Truck
+                                size={12}
+                                className="mr-1 text-brand-amber flex-shrink-0"
+                              />
+                              <span className="truncate">
+                                {order.shipments[0].trackingNumber}
+                              </span>
                             </div>
                             <div className="text-[10px] text-gray-500 mt-0.5 truncate">
-                              {order.shipments[0].courierName || 'Kerry Express'}
+                              {order.shipments[0].courierName ||
+                                'Kerry Express'}
                             </div>
                           </div>
                         ) : order.status === 'PROCESSING' ? (
@@ -571,7 +631,9 @@ export default function AdminOrders() {
                         ) : (
                           <span className="text-[10px] text-gray-400 font-mono italic">
                             {order.status === 'PAID'
-                              ? language === 'th' ? 'รอเตรียมสินค้า' : 'Awaiting Prep'
+                              ? language === 'th'
+                                ? 'รอเตรียมสินค้า'
+                                : 'Awaiting Prep'
                               : t('orders.status.unfulfilled') || 'Pending'}
                           </span>
                         )}
@@ -671,7 +733,8 @@ export default function AdminOrders() {
                   {selectedOrder.orderNumber}
                 </h3>
                 <p className="text-xs text-gray-400">
-                  {t('orders.detail.orderedAt')} {formatOrderDateTime(selectedOrder.placedAt, language)}
+                  {t('orders.detail.orderedAt')}{' '}
+                  {formatOrderDateTime(selectedOrder.placedAt, language)}
                 </p>
               </div>
               <button
@@ -691,16 +754,19 @@ export default function AdminOrders() {
                   {t('orders.detail.shippingAddress')}
                 </div>
                 <p className="font-bold text-brand-brown text-sm">
-                  {selectedOrder.shippingAddress?.recipientName ?? 'Valued Customer'}
+                  {selectedOrder.shippingAddress?.recipientName ??
+                    'Valued Customer'}
                 </p>
                 <p className="text-gray-600 mt-0.5">
                   {selectedOrder.shippingAddress?.addressLine1 ?? '-'}
                 </p>
                 <p className="text-gray-600">
-                  {selectedOrder.shippingAddress?.province ?? ''} {selectedOrder.shippingAddress?.postalCode ?? ''}
+                  {selectedOrder.shippingAddress?.province ?? ''}{' '}
+                  {selectedOrder.shippingAddress?.postalCode ?? ''}
                 </p>
                 <p className="text-gray-500 mt-1">
-                  {t('orders.detail.phone')} {selectedOrder.shippingAddress?.phone ?? '-'}
+                  {t('orders.detail.phone')}{' '}
+                  {selectedOrder.shippingAddress?.phone ?? '-'}
                 </p>
               </div>
               <div>
@@ -716,7 +782,9 @@ export default function AdminOrders() {
                 </p>
                 <p className="text-gray-700 mt-1">
                   {t('orders.detail.status')}{' '}
-                  <strong className="text-brand-amber">{selectedOrder.status}</strong>
+                  <strong className="text-brand-amber">
+                    {selectedOrder.status}
+                  </strong>
                 </p>
                 {selectedOrder.shipments?.[0]?.trackingNumber && (
                   <p className="text-gray-700 mt-1">
@@ -733,11 +801,15 @@ export default function AdminOrders() {
             {/* Purchased Items List */}
             <div className="space-y-3 mb-6">
               <h4 className="text-xs font-black uppercase tracking-wider text-gray-700 pb-2 border-b border-gray-200">
-                {t('orders.detail.itemsPurchased')} ({selectedOrder.items.length}{' '}
+                {t('orders.detail.itemsPurchased')} (
+                {selectedOrder.items.length}{' '}
                 {language === 'th' ? 'รายการ' : 'items'})
               </h4>
               {selectedOrder.items.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100 text-xs">
+                <div
+                  key={idx}
+                  className="flex items-center justify-between py-2 border-b border-gray-100 text-xs"
+                >
                   <div className="flex items-center space-x-3">
                     {item.imageUrl ? (
                       <img
@@ -745,15 +817,18 @@ export default function AdminOrders() {
                         alt={item.productName}
                         className="w-12 h-14 object-cover border border-gray-200"
                         onError={(e) => {
-                          (e.currentTarget as HTMLElement).style.display = 'none';
+                          (e.currentTarget as HTMLElement).style.display =
+                            'none';
                         }}
                       />
                     ) : null}
                     <div>
-                      <div className="font-bold text-brand-brown text-sm">{item.productName}</div>
+                      <div className="font-bold text-brand-brown text-sm">
+                        {item.productName}
+                      </div>
                       <div className="text-gray-500">
-                        {item.variantInfo} •{' '}
-                        {t('orders.detail.quantity')} {item.quantity} {t('orders.detail.pieces')}
+                        {item.variantInfo} • {t('orders.detail.quantity')}{' '}
+                        {item.quantity} {t('orders.detail.pieces')}
                       </div>
                     </div>
                   </div>

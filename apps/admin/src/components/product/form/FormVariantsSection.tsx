@@ -157,7 +157,9 @@ export function FormVariantsSection({
                 </span>
               ) : (
                 activeSizes.map((size) => {
-                  const isLocked = Boolean(isEdit && initialSizes?.includes(size));
+                  const isLocked = Boolean(
+                    isEdit && initialSizes?.includes(size),
+                  );
                   return (
                     <span
                       key={size}
@@ -252,7 +254,11 @@ export function FormVariantsSection({
                 type="button"
                 onClick={onRegenerateMatrix}
                 className="inline-flex items-center space-x-1 text-[11px] font-bold px-2.5 py-1 bg-white border border-gray-300 hover:border-gray-400 text-gray-700 rounded-xs transition-colors shadow-2xs cursor-pointer"
-                title={isTh ? 'สร้างรหัส SKU ใหม่ตามสีและไซส์ปัจจุบัน' : 'Regenerate SKU Matrix'}
+                title={
+                  isTh
+                    ? 'สร้างรหัส SKU ใหม่ตามสีและไซส์ปัจจุบัน'
+                    : 'Regenerate SKU Matrix'
+                }
               >
                 <RefreshCw size={12} />
                 <span>{t('product.regenerateSkus')}</span>
@@ -288,12 +294,15 @@ export function FormVariantsSection({
               <TableBody className="divide-y divide-gray-100">
                 {skuList.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="py-8 text-center text-gray-400 text-xs">
+                    <TableCell
+                      colSpan={6}
+                      className="py-8 text-center text-gray-400 text-xs"
+                    >
                       {t('product.noVariantsDefined')}
                     </TableCell>
                   </TableRow>
                 ) : (
-                    skuList.map((sku, index) => {
+                  skuList.map((sku, index) => {
                     const stockNum = Number(sku.stock) || 0;
                     const thresholdNum = Number(sku.lowStockThreshold) || 5;
                     const isLowStock = stockNum <= thresholdNum && stockNum > 0;
@@ -310,7 +319,11 @@ export function FormVariantsSection({
                             required
                             value={sku.sku}
                             onChange={(e) =>
-                              onUpdateSkuRow(index, 'sku', e.target.value.toUpperCase())
+                              onUpdateSkuRow(
+                                index,
+                                'sku',
+                                e.target.value.toUpperCase(),
+                              )
                             }
                             className="w-full text-[11px] p-1 font-mono uppercase border border-gray-300 rounded-xs bg-white focus:border-brand-brown outline-hidden"
                           />
@@ -394,13 +407,15 @@ export function FormVariantsSection({
                         </TableCell>
                       </TableRow>
                     );
-                  }))}
+                  })
+                )}
               </TableBody>
             </Table>
 
             <div className="p-2.5 border-t border-gray-100 bg-brand-cream flex items-center justify-between">
               <span className="text-[10px] text-gray-600 font-bold">
-                {skuList.length} {t('common.variants')} ({activeSizes.length} {t('product.size')})
+                {skuList.length} {t('common.variants')} ({activeSizes.length}{' '}
+                {t('product.size')})
               </span>
               <span className="text-[10px] text-gray-500 font-mono">
                 {t('product.stockManagedInInventory')}
@@ -427,7 +442,9 @@ export function FormVariantsSection({
                 type="text"
                 required
                 value={singleSkuCode}
-                onChange={(e) => onSingleSkuCodeChange(e.target.value.toUpperCase())}
+                onChange={(e) =>
+                  onSingleSkuCodeChange(e.target.value.toUpperCase())
+                }
                 placeholder="NIDA-GEN-STD-001"
                 className="w-full text-xs p-2 border border-gray-300 rounded-md bg-white font-mono uppercase outline-hidden"
               />

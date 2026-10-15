@@ -5,7 +5,9 @@ export interface AuthSplitLayoutProps {
   children: React.ReactNode;
 }
 
-export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children }) => {
+export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({
+  children,
+}) => {
   return (
     <div className="min-h-screen w-full bg-white flex selection:bg-[#EE593B] selection:text-white">
       {/* ==================================================== */}
@@ -34,7 +36,12 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children }) =>
             className="w-full h-auto"
           >
             {/* Subtle Minimalist Horizontal Brick Texture Lines */}
-            <g stroke="#ECC7B2" strokeWidth="1" strokeLinecap="round" opacity="0.6">
+            <g
+              stroke="#ECC7B2"
+              strokeWidth="1"
+              strokeLinecap="round"
+              opacity="0.6"
+            >
               <path d="M120 180H190M210 180H310M330 180H420" />
               <path d="M160 215H260M280 215H370M390 215H470" />
               <path d="M100 250H180M200 250H320M340 250H430" />
@@ -42,7 +49,12 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children }) =>
             </g>
 
             {/* Subtle Ground Baseline */}
-            <path d="M80 395H560" stroke="#ECC7B2" strokeWidth="1" opacity="0.7" />
+            <path
+              d="M80 395H560"
+              stroke="#ECC7B2"
+              strokeWidth="1"
+              opacity="0.7"
+            />
 
             {/* ---------------------------------------------------- */}
             {/* MINIMALIST SHOPPING CART                             */}
@@ -58,15 +70,50 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children }) =>
               />
 
               {/* Inner Wireframe Grid */}
-              <path d="M157 308H338" stroke="#1E2235" strokeWidth="1.5" opacity="0.4" />
-              <path d="M192 272L204 343" stroke="#1E2235" strokeWidth="1.5" opacity="0.4" />
-              <path d="M235 272L240 343" stroke="#1E2235" strokeWidth="1.5" opacity="0.4" />
-              <path d="M278 272L276 343" stroke="#1E2235" strokeWidth="1.5" opacity="0.4" />
-              <path d="M318 272L312 343" stroke="#1E2235" strokeWidth="1.5" opacity="0.4" />
+              <path
+                d="M157 308H338"
+                stroke="#1E2235"
+                strokeWidth="1.5"
+                opacity="0.4"
+              />
+              <path
+                d="M192 272L204 343"
+                stroke="#1E2235"
+                strokeWidth="1.5"
+                opacity="0.4"
+              />
+              <path
+                d="M235 272L240 343"
+                stroke="#1E2235"
+                strokeWidth="1.5"
+                opacity="0.4"
+              />
+              <path
+                d="M278 272L276 343"
+                stroke="#1E2235"
+                strokeWidth="1.5"
+                opacity="0.4"
+              />
+              <path
+                d="M318 272L312 343"
+                stroke="#1E2235"
+                strokeWidth="1.5"
+                opacity="0.4"
+              />
 
               {/* Chassis / Frame to Wheels */}
-              <path d="M185 345L172 388M295 345L310 388" stroke="#1E2235" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M176 368H304" stroke="#1E2235" strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M185 345L172 388M295 345L310 388"
+                stroke="#1E2235"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M176 368H304"
+                stroke="#1E2235"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
 
               {/* Wheels */}
               <circle cx="170" cy="388" r="10" fill="#1E2235" />
@@ -75,15 +122,41 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children }) =>
               <circle cx="312" cy="388" r="3.5" fill="#FFF2EB" />
 
               {/* Handle Bar */}
-              <path d="M355 270L375 276V298" stroke="#1E2235" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M355 270L375 276V298"
+                stroke="#1E2235"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
 
               {/* Items in Cart */}
               {/* 1. Bright Cyan/Emerald Box with cross lines */}
-              <rect x="175" y="295" width="62" height="38" rx="2" fill="#00C9A7" />
-              <path d="M206 295V333M175 314H237" stroke="white" strokeWidth="1.5" opacity="0.8" />
+              <rect
+                x="175"
+                y="295"
+                width="62"
+                height="38"
+                rx="2"
+                fill="#00C9A7"
+              />
+              <path
+                d="M206 295V333M175 314H237"
+                stroke="white"
+                strokeWidth="1.5"
+                opacity="0.8"
+              />
 
               {/* 2. Royal Blue Box tilted */}
-              <rect x="230" y="298" width="56" height="32" rx="2" fill="#1D71F2" transform="rotate(-8 230 298)" />
+              <rect
+                x="230"
+                y="298"
+                width="56"
+                height="32"
+                rx="2"
+                fill="#1D71F2"
+                transform="rotate(-8 230 298)"
+              />
 
               {/* 3. Orange Hatbox Circle */}
               <circle cx="288" cy="282" r="30" fill="#EE6748" />
@@ -114,14 +187,59 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children }) =>
               <path d="M381 205L388 232L395 205H381Z" fill="white" />
 
               {/* Clipboard in Hands */}
-              <rect x="375" y="238" width="34" height="46" rx="3" fill="#F4E6D7" stroke="#1E2235" strokeWidth="1.5" />
-              <rect x="382" y="246" width="20" height="2" rx="1" fill="#1E2235" opacity="0.4" />
-              <rect x="382" y="252" width="16" height="2" rx="1" fill="#1E2235" opacity="0.3" />
-              <rect x="382" y="258" width="12" height="2" rx="1" fill="#1E2235" opacity="0.3" />
+              <rect
+                x="375"
+                y="238"
+                width="34"
+                height="46"
+                rx="3"
+                fill="#F4E6D7"
+                stroke="#1E2235"
+                strokeWidth="1.5"
+              />
+              <rect
+                x="382"
+                y="246"
+                width="20"
+                height="2"
+                rx="1"
+                fill="#1E2235"
+                opacity="0.4"
+              />
+              <rect
+                x="382"
+                y="252"
+                width="16"
+                height="2"
+                rx="1"
+                fill="#1E2235"
+                opacity="0.3"
+              />
+              <rect
+                x="382"
+                y="258"
+                width="12"
+                height="2"
+                rx="1"
+                fill="#1E2235"
+                opacity="0.3"
+              />
 
               {/* Arms */}
-              <path d="M362 208L354 250L374 258" stroke="#EE593B" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M414 208L422 254L408 260" stroke="#EE593B" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M362 208L354 250L374 258"
+                stroke="#EE593B"
+                strokeWidth="13"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M414 208L422 254L408 260"
+                stroke="#EE593B"
+                strokeWidth="13"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
 
               {/* Hands */}
               <circle cx="374" cy="260" r="5" fill="#F7D0BA" />
@@ -134,13 +252,25 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children }) =>
               />
 
               {/* Shoes */}
-              <path d="M363 395H380C382 399 382 405 375 405H358C358 400 360 395 363 395Z" fill="#111422" />
-              <path d="M402 395H418C421 395 423 400 423 405H406C399 405 400 400 402 395Z" fill="#111422" />
+              <path
+                d="M363 395H380C382 399 382 405 375 405H358C358 400 360 395 363 395Z"
+                fill="#111422"
+              />
+              <path
+                d="M402 395H418C421 395 423 400 423 405H406C399 405 400 400 402 395Z"
+                fill="#111422"
+              />
             </g>
 
             {/* Fallen Leaf / Petal Accent on ground */}
-            <path d="M108 408C112 396 122 390 122 401C122 412 112 417 108 408Z" fill="#EE593B" />
-            <path d="M116 412C118 402 126 397 126 406C126 415 118 419 116 412Z" fill="#1E2235" />
+            <path
+              d="M108 408C112 396 122 390 122 401C122 412 112 417 108 408Z"
+              fill="#EE593B"
+            />
+            <path
+              d="M116 412C118 402 126 397 126 406C126 415 118 419 116 412Z"
+              fill="#1E2235"
+            />
           </svg>
         </div>
       </div>

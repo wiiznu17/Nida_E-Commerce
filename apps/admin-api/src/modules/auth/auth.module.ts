@@ -26,11 +26,6 @@ import { PermissionsGuard } from './guards/permissions.guard.js';
     RolesGuard,
     PermissionsGuard,
   ],
-  exports: [
-    AuthService,
-    JwtAuthGuard,
-    RolesGuard,
-    PermissionsGuard,
-  ],
+  exports: [AuthService, JwtAuthGuard, RolesGuard, PermissionsGuard],
 })
 export class AuthModule {}

@@ -39,11 +39,13 @@ export async function syncRbac(prisma: PrismaClient) {
     },
     [AdminRoleCode.INVENTORY_MANAGER]: {
       name: 'Inventory & Warehouse Manager',
-      description: 'Manages stock balance, inventory movements, and warehouse restock',
+      description:
+        'Manages stock balance, inventory movements, and warehouse restock',
     },
     [AdminRoleCode.ORDER_MANAGER]: {
       name: 'Order & Fulfillment Officer',
-      description: 'Manages customer orders, shipments, tracking, and fulfillment',
+      description:
+        'Manages customer orders, shipments, tracking, and fulfillment',
     },
     [AdminRoleCode.MARKETING_ADMIN]: {
       name: 'Marketing & Promotions Admin',

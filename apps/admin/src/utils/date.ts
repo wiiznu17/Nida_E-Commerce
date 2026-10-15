@@ -15,16 +15,22 @@ export function formatOrderDateTime(dateStr: string, language: string): string {
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
-    const dateFormatted = d.toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-    const timeFormatted = d.toLocaleTimeString(language === 'th' ? 'th-TH' : 'en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
+    const dateFormatted = d.toLocaleDateString(
+      language === 'th' ? 'th-TH' : 'en-US',
+      {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      },
+    );
+    const timeFormatted = d.toLocaleTimeString(
+      language === 'th' ? 'th-TH' : 'en-US',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      },
+    );
     return `${dateFormatted}, ${timeFormatted}`;
   } catch {
     return dateStr;

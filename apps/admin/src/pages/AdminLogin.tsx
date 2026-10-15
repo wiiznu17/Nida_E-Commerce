@@ -63,7 +63,9 @@ export const AdminLogin: React.FC = () => {
       {errorMessage && (
         <div className="mb-6 p-3.5 bg-red-50/80 border border-red-200/80 rounded-xl flex items-start space-x-3 text-red-900 text-xs">
           <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
-          <div className="flex-1 font-medium leading-relaxed">{errorMessage}</div>
+          <div className="flex-1 font-medium leading-relaxed">
+            {errorMessage}
+          </div>
         </div>
       )}
 
@@ -114,7 +116,11 @@ export const AdminLogin: React.FC = () => {
               className="absolute right-3 top-3.5 text-stone-400 hover:text-stone-600 focus:outline-none cursor-pointer"
               tabIndex={-1}
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>

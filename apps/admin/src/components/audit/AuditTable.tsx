@@ -68,15 +68,12 @@ export const AuditTable: React.FC<AuditTableProps> = ({
               log.admin?.fullName ?? log.admin?.username ?? t('common.system');
             const adminInitial = adminName.charAt(0).toUpperCase();
 
-            const dateStr = new Date(log.createdAt).toLocaleString(
-              undefined,
-              {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              },
-            );
+            const dateStr = new Date(log.createdAt).toLocaleString(undefined, {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            });
 
             return (
               <TableRow

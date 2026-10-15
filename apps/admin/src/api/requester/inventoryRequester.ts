@@ -35,7 +35,9 @@ export const inventoryRequester = {
     return data;
   },
 
-  async adjustStock(payload: RestockInventoryPayload): Promise<ApiInventoryItem> {
+  async adjustStock(
+    payload: RestockInventoryPayload,
+  ): Promise<ApiInventoryItem> {
     return this.restock(payload);
   },
 

@@ -21,7 +21,7 @@ export const uploadRequester = {
     const options: UploadOptions =
       typeof optionsOrProgress === 'function'
         ? { onProgress: optionsOrProgress }
-        : optionsOrProgress ?? {};
+        : (optionsOrProgress ?? {});
 
     const { folder = UploadFolder.PRODUCTS, onProgress } = options;
 

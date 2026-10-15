@@ -34,7 +34,9 @@ function Select({
 
 const SelectTrigger = React.forwardRef<
   HTMLButtonElement,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & { className?: string }
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
+    className?: string;
+  }
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
@@ -67,7 +69,10 @@ function SelectContent({
 }) {
   return (
     <SelectPrimitive.Portal>
-      <SelectPrimitive.Positioner sideOffset={sideOffset} className="z-50 min-w-[var(--anchor-width)]">
+      <SelectPrimitive.Positioner
+        sideOffset={sideOffset}
+        className="z-50 min-w-[var(--anchor-width)]"
+      >
         <SelectPrimitive.Popup
           className={cn(
             'max-h-64 overflow-y-auto rounded-xs border border-brand-border bg-white p-1 text-xs text-brand-brown shadow-lg outline-none',
@@ -84,7 +89,9 @@ function SelectContent({
 
 const SelectItem = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & { className?: string }
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
+    className?: string;
+  }
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
@@ -97,7 +104,9 @@ const SelectItem = React.forwardRef<
     )}
     {...props}
   >
-    <SelectPrimitive.ItemText className="truncate">{children}</SelectPrimitive.ItemText>
+    <SelectPrimitive.ItemText className="truncate">
+      {children}
+    </SelectPrimitive.ItemText>
     <SelectPrimitive.ItemIndicator className="shrink-0 pl-2 text-brand-brown">
       <Check size={13} />
     </SelectPrimitive.ItemIndicator>
@@ -132,7 +141,9 @@ export function DropdownSelect({
   return (
     <Select value={value} onValueChange={onChange} disabled={disabled}>
       <SelectTrigger className={className}>
-        <span className="truncate">{selectedOption?.label ?? placeholder ?? value}</span>
+        <span className="truncate">
+          {selectedOption?.label ?? placeholder ?? value}
+        </span>
       </SelectTrigger>
       <SelectContent>
         {options.map((opt) => (
@@ -145,10 +156,4 @@ export function DropdownSelect({
   );
 }
 
-export {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-};
+export { Select, SelectTrigger, SelectValue, SelectContent, SelectItem };

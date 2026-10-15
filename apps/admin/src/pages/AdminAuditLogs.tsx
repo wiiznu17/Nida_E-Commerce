@@ -70,9 +70,7 @@ export default function AdminAuditLogs() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await apiClient.get<AuditLogStats>(
-        '/admin/audit-logs/stats',
-      );
+      const res = await apiClient.get<AuditLogStats>('/admin/audit-logs/stats');
       if (res) {
         setStats(res);
       }
@@ -103,7 +101,7 @@ export default function AdminAuditLogs() {
   };
 
   const topTableKey = stats?.topTargetTable
-    ? TARGET_TABLE_KEYS[stats.topTargetTable] ?? stats.topTargetTable
+    ? (TARGET_TABLE_KEYS[stats.topTargetTable] ?? stats.topTargetTable)
     : '-';
 
   return (

@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuthService } from './auth.service.js';
-import { UnauthorizedException, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  HttpException,
+  HttpStatus,
+  BadRequestException,
+} from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import type { PrismaService } from '../../core/prisma/prisma.service.js';
 import type { RedisService } from '../../core/redis/redis.service.js';
@@ -54,7 +59,9 @@ describe('AuthService', () => {
     };
 
     redisMock = {
-      checkRateLimit: vi.fn().mockResolvedValue({ allowed: true, remaining: 4, retryAfter: 60 }),
+      checkRateLimit: vi
+        .fn()
+        .mockResolvedValue({ allowed: true, remaining: 4, retryAfter: 60 }),
       clearRateLimit: vi.fn().mockResolvedValue(undefined),
       setSession: vi.fn().mockResolvedValue(undefined),
       getSession: vi.fn().mockResolvedValue(null),
@@ -126,7 +133,10 @@ describe('AuthService', () => {
 
       expect(redisMock.clearRateLimit).toHaveBeenCalled();
       expect(redisMock.setSession).toHaveBeenCalled();
-      expect(redisMock.addSessionToUser).toHaveBeenCalledWith('admin-uuid-1', expect.any(String));
+      expect(redisMock.addSessionToUser).toHaveBeenCalledWith(
+        'admin-uuid-1',
+        expect.any(String),
+      );
       expect(prismaMock.adminUser.update).toHaveBeenCalledWith({
         where: { id: 'admin-uuid-1' },
         data: { lastLoginAt: expect.any(Date) },
@@ -203,13 +213,19 @@ describe('AuthService', () => {
       expect(result.refreshToken).not.toBe(oldToken);
 
       expect(redisMock.deleteSession).toHaveBeenCalledWith(oldToken);
-      expect(redisMock.removeSessionFromUser).toHaveBeenCalledWith('admin-uuid-1', oldToken);
+      expect(redisMock.removeSessionFromUser).toHaveBeenCalledWith(
+        'admin-uuid-1',
+        oldToken,
+      );
       expect(redisMock.setSession).toHaveBeenCalledWith(
         result.refreshToken,
         expect.any(Object),
         expect.any(Number),
       );
-      expect(redisMock.addSessionToUser).toHaveBeenCalledWith('admin-uuid-1', result.refreshToken);
+      expect(redisMock.addSessionToUser).toHaveBeenCalledWith(
+        'admin-uuid-1',
+        result.refreshToken,
+      );
     });
 
     it('should throw UnauthorizedException if refresh token is not found in Redis', async () => {
@@ -226,13 +242,18 @@ describe('AuthService', () => {
       await service.logout('test-token', 'admin-uuid-1');
 
       expect(redisMock.deleteSession).toHaveBeenCalledWith('test-token');
-      expect(redisMock.removeSessionFromUser).toHaveBeenCalledWith('admin-uuid-1', 'test-token');
+      expect(redisMock.removeSessionFromUser).toHaveBeenCalledWith(
+        'admin-uuid-1',
+        'test-token',
+      );
     });
 
     it('should revoke all user sessions on logoutAll', async () => {
       await service.logoutAll('admin-uuid-1');
 
-      expect(redisMock.revokeAllUserSessions).toHaveBeenCalledWith('admin-uuid-1');
+      expect(redisMock.revokeAllUserSessions).toHaveBeenCalledWith(
+        'admin-uuid-1',
+      );
     });
   });
 
@@ -260,7 +281,9 @@ describe('AuthService', () => {
           isActive: true,
         },
       });
-      expect(redisMock.deleteInviteToken).toHaveBeenCalledWith('valid-invite-token');
+      expect(redisMock.deleteInviteToken).toHaveBeenCalledWith(
+        'valid-invite-token',
+      );
     });
 
     it('should throw BadRequestException if invite token is invalid', async () => {
@@ -292,8 +315,12 @@ describe('AuthService', () => {
         where: { id: 'admin-uuid-1' },
         data: { passwordHash: expect.any(String) },
       });
-      expect(redisMock.revokeAllUserSessions).toHaveBeenCalledWith('admin-uuid-1');
-      expect(redisMock.deleteResetToken).toHaveBeenCalledWith('valid-reset-token');
+      expect(redisMock.revokeAllUserSessions).toHaveBeenCalledWith(
+        'admin-uuid-1',
+      );
+      expect(redisMock.deleteResetToken).toHaveBeenCalledWith(
+        'valid-reset-token',
+      );
     });
   });
 });

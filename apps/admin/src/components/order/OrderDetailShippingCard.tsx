@@ -64,7 +64,9 @@ export function OrderDetailShippingCard({
                     {copied ? (
                       <>
                         <Check size={12} className="text-emerald-600" />
-                        <span className="text-emerald-700">{t('orders.detail.copied')}</span>
+                        <span className="text-emerald-700">
+                          {t('orders.detail.copied')}
+                        </span>
                       </>
                     ) : (
                       <>

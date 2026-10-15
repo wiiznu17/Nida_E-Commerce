@@ -4,9 +4,12 @@ import { NIDA_SENDER_INFO } from './printConstants';
 import { OrderBarcode } from './OrderBarcode';
 import { useLanguage } from '../../../context/LanguageContext';
 
-export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order }) => {
+export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({
+  order,
+}) => {
   const { t } = useLanguage();
-  const trackingCode = order.shipments?.[0]?.trackingNumber || `NIDA-${order.orderNumber}`;
+  const trackingCode =
+    order.shipments?.[0]?.trackingNumber || `NIDA-${order.orderNumber}`;
   const courier = order.shipments?.[0]?.courierName || 'Kerry Express';
 
   const totalQuantity = (order.items ?? []).reduce(
@@ -47,7 +50,9 @@ export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order })
           <span className="text-[10px] font-black uppercase tracking-wider bg-black text-white px-1.5 py-0.5">
             TO / ผู้รับ
           </span>
-          <span className="text-xs font-mono font-black">{order.shippingAddress?.phone || '-'}</span>
+          <span className="text-xs font-mono font-black">
+            {order.shippingAddress?.phone || '-'}
+          </span>
         </div>
         <div className="text-sm font-bold text-black mb-1">
           {order.shippingAddress?.recipientName || 'Valued Customer'}
@@ -71,7 +76,9 @@ export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order })
           FROM / ผู้ส่ง: {NIDA_SENDER_INFO.companyName}
         </div>
         <div className="text-black/80">
-          {NIDA_SENDER_INFO.warehouseName}, {NIDA_SENDER_INFO.addressLine1}, {NIDA_SENDER_INFO.district}, {NIDA_SENDER_INFO.province} {NIDA_SENDER_INFO.postalCode} | โทร. {NIDA_SENDER_INFO.phone}
+          {NIDA_SENDER_INFO.warehouseName}, {NIDA_SENDER_INFO.addressLine1},{' '}
+          {NIDA_SENDER_INFO.district}, {NIDA_SENDER_INFO.province}{' '}
+          {NIDA_SENDER_INFO.postalCode} | โทร. {NIDA_SENDER_INFO.phone}
         </div>
       </div>
 
@@ -85,7 +92,10 @@ export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order })
         {/* Itemized Mini Manifest */}
         <div className="mt-1.5 space-y-1">
           {(order.items ?? []).slice(0, 4).map((item, index) => (
-            <div key={index} className="flex justify-between text-[10px] font-mono">
+            <div
+              key={index}
+              className="flex justify-between text-[10px] font-mono"
+            >
               <span className="truncate max-w-[200px]">
                 • {item.productName} ({item.variantInfo || 'Standard'})
               </span>
@@ -105,7 +115,9 @@ export const OrderShippingLabel: React.FC<OrderShippingLabelProps> = ({ order })
 
       {/* Signature & Date Footer */}
       <div className="mt-3 pt-2 border-t border-black flex justify-between text-[9px] text-black/80 font-mono">
-        <span>DATE: {new Date(order.placedAt).toLocaleDateString('th-TH')}</span>
+        <span>
+          DATE: {new Date(order.placedAt).toLocaleDateString('th-TH')}
+        </span>
         <span>SIGNATURE: ____________________</span>
       </div>
     </div>

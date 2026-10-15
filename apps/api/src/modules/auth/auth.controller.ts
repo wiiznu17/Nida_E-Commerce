@@ -8,12 +8,21 @@ import {
   HttpStatus,
   Req,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CustomerAuthService } from './auth.service.js';
 import { RequestOtpDto } from './dto/request-otp.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
 import { CustomerJwtGuard } from './guards/customer-jwt.guard.js';
-import type { RequestOtpResponse, VerifyOtpResponse, ApiUser } from '@repo/types';
+import type {
+  RequestOtpResponse,
+  VerifyOtpResponse,
+  ApiUser,
+} from '@repo/types';
 
 interface AuthenticatedRequest {
   user: ApiUser;
@@ -28,7 +37,8 @@ export class CustomerAuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Request OTP for customer login/registration',
-    description: 'Generates and sends a 6-digit OTP code to the provided email address (valid for 5 minutes).',
+    description:
+      'Generates and sends a 6-digit OTP code to the provided email address (valid for 5 minutes).',
   })
   @ApiResponse({ status: 200, description: 'OTP sent successfully' })
   @ApiResponse({ status: 429, description: 'Too many requests' })
@@ -40,7 +50,8 @@ export class CustomerAuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Verify OTP code and authenticate',
-    description: 'Validates 6-digit OTP, auto-creates customer account if new, and returns JWT access token.',
+    description:
+      'Validates 6-digit OTP, auto-creates customer account if new, and returns JWT access token.',
   })
   @ApiResponse({ status: 200, description: 'Verified and logged in' })
   @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })

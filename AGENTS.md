@@ -5,6 +5,7 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 ---
 
 ## 1. Component Architecture & Organization
+
 - **Domain-Based Folders**: Place components in domain folders (e.g. `apps/admin/src/components/product/`, `layout/`, `media/`, `common/`, `ui/`).
 - **Sub-Component Hierarchy**: Complex components (forms, dashboards) must have sub-components separated into sub-folders (e.g. `components/product/form/`).
 - **File Size & Decomposition**: Keep component files focused and concise (< 250 lines). Extract large sections into distinct files.
@@ -19,6 +20,7 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 ---
 
 ## 2. Internationalization (i18n) & Localization
+
 - **100% JSON-Driven**: All user-facing text must be stored in locale JSON files:
   - `apps/admin/src/locales/th.json`
   - `apps/admin/src/locales/en.json`
@@ -30,6 +32,7 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 ---
 
 ## 3. UI/UX Standards & Anti-"AI Slop" Guidelines
+
 - **Zero Emojis in UI**: Never use emojis (🟢, 🟡, 📦, ⚡, 🔒, 🚀, ✨, etc.) in UI labels, badges, buttons, headers, or locale translation strings (`th.json`, `en.json`).
   - Use professional Lucide SVG icons (`lucide-react`) or subtle CSS dot indicators (e.g. `w-1.5 h-1.5 rounded-full bg-emerald-500`) instead.
 - **Strictly No "AI Slop" Decorations**:
@@ -74,6 +77,7 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 ---
 
 ## 4. Central Types & Shared Models (`@repo/types`)
+
 - **Single Source of Truth**: All shared domain entities, API contracts, DTOs, status enums, and taxonomy definitions must live in `packages/types/` (package `@repo/types`).
 - **Zero Duplicate Interfaces**: Never declare duplicate types or interfaces for entities (e.g. `Product`, `Sku`, `OrderStatus`, `Department`) inside `apps/admin`, `apps/store`, or backend APIs.
 - **Package-Level Imports**: Always import via package specifier:
@@ -92,6 +96,7 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 ---
 
 ## 5. Testing & Verification
+
 - **Test Co-Evolution (เขียนหรือแก้โค้ดต้องแก้และรัน Test เสมอ)**:
   - Whenever writing new features, modifying business logic, altering DTOs, schemas, or service methods, you **MUST** simultaneously create or update unit tests.
   - Keep test files organized in dedicated domain folders (e.g., `apps/admin-api/test/product/`) divided by feature per file (e.g. `create-product.spec.ts`, `get-products.spec.ts`).
@@ -112,6 +117,7 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 ---
 
 ## 6. Code Quality & Clean Code Standards
+
 - **Zero `any` Policy (ห้ามใช้ `any` เด็ดขาด)**:
   - Do NOT write `any` anywhere in application code, API requesters, contexts, components, or service logic.
   - Use `unknown` with explicit type narrowing (e.g. `catch (err: unknown)`, `if (err instanceof ApiError)`), generics (`ApiError<T = unknown>`), or `Record<string, unknown>` instead.
@@ -121,5 +127,4 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
   - For multi-step hierarchical extraction (e.g. primary image -> first image -> fallback), write dedicated, strongly-typed helper functions with early returns or explicit array logic.
 - **Ban Numbered Step Comments (ห้ามเขียน comment แบบนับเลข 1, 2, 3, 4 เด็ดขาด)**:
   - Do NOT write robotic numbered comments (e.g. `// 1. Call API`, `// 2. Sync state`, `// 3. Open modal`, `// 1. Slug generation`). It clutters the codebase and looks like amateur AI-generated slop.
-  - Write clean, self-documenting code with expressive variable and function names. If explanatory context is genuinely required, explain *why* or non-obvious business logic without sequential numbers.
-
+  - Write clean, self-documenting code with expressive variable and function names. If explanatory context is genuinely required, explain _why_ or non-obvious business logic without sequential numbers.

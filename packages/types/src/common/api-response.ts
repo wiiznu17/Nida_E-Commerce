@@ -35,4 +35,3 @@ export interface ApiError {
   issues?: string[];
   details?: Record<string, unknown>;
 }
-

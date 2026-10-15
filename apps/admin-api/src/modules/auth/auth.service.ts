@@ -93,7 +93,10 @@ export class AuthService {
       throw new UnauthorizedException('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, admin.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      admin.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
     }
@@ -177,7 +180,9 @@ export class AuthService {
     const session = await this.redis.getSession(dto.refreshToken);
 
     if (!session) {
-      throw new UnauthorizedException('Session has expired or token is invalid');
+      throw new UnauthorizedException(
+        'Session has expired or token is invalid',
+      );
     }
 
     await this.redis.deleteSession(dto.refreshToken);
@@ -343,7 +348,9 @@ export class AuthService {
   ): Promise<{ success: boolean; message: string }> {
     const reset = await this.redis.getResetToken(dto.token);
     if (!reset) {
-      throw new BadRequestException('ลิงก์รีเซ็ตรหัสผ่านนี้ไม่ถูกต้องหรือหมดอายุแล้ว');
+      throw new BadRequestException(
+        'ลิงก์รีเซ็ตรหัสผ่านนี้ไม่ถูกต้องหรือหมดอายุแล้ว',
+      );
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);

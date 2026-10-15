@@ -14,7 +14,11 @@ import { useLanguage } from '../context/LanguageContext';
 import { productRequester } from '../api/requester/productRequester';
 import { useProducts } from '../hooks/useProducts';
 import { PermissionGate } from '../components/common';
-import { AdminPermission, type ApiProduct, type ApiInventoryItem } from '@repo/types';
+import {
+  AdminPermission,
+  type ApiProduct,
+  type ApiInventoryItem,
+} from '@repo/types';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
 import type { QueryProductsInput } from '@repo/validators';
 
@@ -22,14 +26,21 @@ export default function AdminProducts() {
   const { t, language, isTh } = useLanguage();
   const location = useLocation();
 
-  const [activeFilters, setActiveFilters] = useState<ProductFilterState>(DEFAULT_FILTERS);
+  const [activeFilters, setActiveFilters] =
+    useState<ProductFilterState>(DEFAULT_FILTERS);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
-  const [availableCategories, setAvailableCategories] = useState<Array<{ id: string; label: string }>>([]);
+  const [availableCategories, setAvailableCategories] = useState<
+    Array<{ id: string; label: string }>
+  >([]);
   const [inventoryList, setInventoryList] = useState<ApiInventoryItem[]>([]);
-  const [statusCounts, setStatusCounts] = useState<{ total: number; published: number; draft: number }>({
+  const [statusCounts, setStatusCounts] = useState<{
+    total: number;
+    published: number;
+    draft: number;
+  }>({
     total: 0,
     published: 0,
     draft: 0,
@@ -54,9 +65,16 @@ export default function AdminProducts() {
     return {
       page: currentPage,
       limit: pageSize,
-      search: activeFilters.search.trim().length > 0 ? activeFilters.search.trim() : undefined,
-      category: activeFilters.category !== 'all' ? activeFilters.category : undefined,
-      department: activeFilters.department !== 'all' ? activeFilters.department.toUpperCase() : undefined,
+      search:
+        activeFilters.search.trim().length > 0
+          ? activeFilters.search.trim()
+          : undefined,
+      category:
+        activeFilters.category !== 'all' ? activeFilters.category : undefined,
+      department:
+        activeFilters.department !== 'all'
+          ? activeFilters.department.toUpperCase()
+          : undefined,
       status: activeFilters.status,
       sortBy:
         activeFilters.sortBy === 'price_asc'
@@ -67,7 +85,8 @@ export default function AdminProducts() {
     };
   }, [currentPage, pageSize, activeFilters]);
 
-  const { products, total, totalPages, isLoading, refetch } = useProducts(queryParams);
+  const { products, total, totalPages, isLoading, refetch } =
+    useProducts(queryParams);
 
   useEffect(() => {
     productRequester

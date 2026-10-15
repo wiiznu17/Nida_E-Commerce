@@ -29,7 +29,8 @@ export const MarketingTagKey = {
   LIMITED_EDITION: 'LIMITED_EDITION',
   PRE_ORDER: 'PRE_ORDER',
 } as const;
-export type MarketingTagKey = (typeof MarketingTagKey)[keyof typeof MarketingTagKey];
+export type MarketingTagKey =
+  (typeof MarketingTagKey)[keyof typeof MarketingTagKey];
 
 export interface MarketingTagOption {
   key: MarketingTagKey;
@@ -105,8 +106,9 @@ export const MARKETING_TAGS: MarketingTagOption[] = [
   },
 ];
 
-
-export function findMarketingTagByLabel(labelEnOrTh: string): MarketingTagOption | undefined {
+export function findMarketingTagByLabel(
+  labelEnOrTh: string,
+): MarketingTagOption | undefined {
   const normalized = labelEnOrTh.trim().toUpperCase();
   return MARKETING_TAGS.find(
     (t) =>

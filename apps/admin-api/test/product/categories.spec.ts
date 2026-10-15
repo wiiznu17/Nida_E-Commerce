@@ -151,7 +151,9 @@ describe('CatalogService - getCategories', () => {
 
       const result = await service.deleteCategory('cat-del-1');
 
-      expect(prismaMock.category.delete).toHaveBeenCalledWith({ where: { id: 'cat-del-1' } });
+      expect(prismaMock.category.delete).toHaveBeenCalledWith({
+        where: { id: 'cat-del-1' },
+      });
       expect(result.success).toBe(true);
     });
 

@@ -36,7 +36,9 @@ export function AdminHeader({ title, onOpenMobile }: AdminHeaderProps) {
           <div className="flex items-center space-x-2 text-xs">
             <span className="font-bold text-gray-500">Admin</span>
             <ChevronRight size={14} className="text-gray-400" />
-            <span className="font-bold text-brand-brown">{title ?? 'Dashboard'}</span>
+            <span className="font-bold text-brand-brown">
+              {title ?? 'Dashboard'}
+            </span>
           </div>
         </div>
 

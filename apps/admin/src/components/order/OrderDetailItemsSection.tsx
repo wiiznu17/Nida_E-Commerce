@@ -13,7 +13,10 @@ export function OrderDetailItemsSection({
 }: OrderDetailItemsSectionProps) {
   const { t } = useLanguage();
 
-  const subtotal = items.reduce((sum, item) => sum + (item.unitPrice ?? 0) * (item.quantity ?? 1), 0);
+  const subtotal = items.reduce(
+    (sum, item) => sum + (item.unitPrice ?? 0) * (item.quantity ?? 1),
+    0,
+  );
 
   return (
     <div
@@ -28,11 +31,15 @@ export function OrderDetailItemsSection({
               {t('orders.detail.itemsTitle')}
             </h3>
             <p className="text-[11px] text-gray-500 mt-0.5">
-              {t('orders.detail.itemsSubtitle').replace('{count}', String(items.length))}
+              {t('orders.detail.itemsSubtitle').replace(
+                '{count}',
+                String(items.length),
+              )}
             </p>
           </div>
           <span className="font-mono text-xs font-bold text-gray-500">
-            {items.reduce((acc, i) => acc + (i.quantity ?? 1), 0)} {t('orders.detail.pieces')}
+            {items.reduce((acc, i) => acc + (i.quantity ?? 1), 0)}{' '}
+            {t('orders.detail.pieces')}
           </span>
         </div>
 
@@ -41,16 +48,29 @@ export function OrderDetailItemsSection({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50/50 text-[10px] font-black uppercase tracking-wider text-gray-500">
-                <th className="py-2.5 px-4 w-16 text-center">{t('orders.detail.tableImage')}</th>
-                <th className="py-2.5 px-4 min-w-[180px]">{t('orders.detail.tableProductVariant')}</th>
-                <th className="py-2.5 px-4 w-28 text-right">{t('orders.detail.tableUnitPrice')}</th>
-                <th className="py-2.5 px-4 w-20 text-center">{t('orders.detail.tableQuantity')}</th>
-                <th className="py-2.5 px-4 w-28 text-right">{t('orders.detail.tableLineTotal')}</th>
+                <th className="py-2.5 px-4 w-16 text-center">
+                  {t('orders.detail.tableImage')}
+                </th>
+                <th className="py-2.5 px-4 min-w-[180px]">
+                  {t('orders.detail.tableProductVariant')}
+                </th>
+                <th className="py-2.5 px-4 w-28 text-right">
+                  {t('orders.detail.tableUnitPrice')}
+                </th>
+                <th className="py-2.5 px-4 w-20 text-center">
+                  {t('orders.detail.tableQuantity')}
+                </th>
+                <th className="py-2.5 px-4 w-28 text-right">
+                  {t('orders.detail.tableLineTotal')}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {items.map((item, index) => (
-                <tr key={item.id || index} className="hover:bg-brand-cream/30 transition-colors">
+                <tr
+                  key={item.id || index}
+                  className="hover:bg-brand-cream/30 transition-colors"
+                >
                   {/* Image */}
                   <td className="py-3 px-4 text-center">
                     {item.imageUrl ? (
@@ -104,12 +124,16 @@ export function OrderDetailItemsSection({
         <div className="max-w-xs ml-auto space-y-1.5 text-xs">
           <div className="flex justify-between items-center text-gray-600">
             <span>{t('orders.detail.subtotal')}</span>
-            <span className="font-mono font-bold text-gray-800">${subtotal.toFixed(2)}</span>
+            <span className="font-mono font-bold text-gray-800">
+              ${subtotal.toFixed(2)}
+            </span>
           </div>
 
           <div className="flex justify-between items-center text-gray-600">
             <span>{t('orders.detail.shippingFee')}</span>
-            <span className="text-emerald-700 font-bold">{t('orders.detail.freeShipping')}</span>
+            <span className="text-emerald-700 font-bold">
+              {t('orders.detail.freeShipping')}
+            </span>
           </div>
 
           <div className="pt-2 border-t border-brand-border flex justify-between items-baseline">

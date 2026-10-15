@@ -3,7 +3,14 @@
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Package, Truck, MapPin, CheckCircle2, Phone, ArrowLeft } from 'lucide-react';
+import {
+  Package,
+  Truck,
+  MapPin,
+  CheckCircle2,
+  Phone,
+  ArrowLeft,
+} from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function OrderTrackingPage() {
@@ -45,7 +52,8 @@ export default function OrderTrackingPage() {
           href="/profile"
           className="inline-flex items-center text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#2B1810]"
         >
-          <ArrowLeft size={14} className="mr-1.5" /> {t('trackOrder.backToProfile')}
+          <ArrowLeft size={14} className="mr-1.5" />{' '}
+          {t('trackOrder.backToProfile')}
         </Link>
       </div>
 
@@ -61,8 +69,13 @@ export default function OrderTrackingPage() {
             </h1>
             <p className="text-xs text-gray-600 mt-1">
               {t('trackOrder.courier')}{' '}
-              <strong>{language === 'th' ? 'เคอรี่ เอ็กซ์เพรส' : 'Kerry Express Standard'}</strong> •{' '}
-              {t('trackOrder.trackingNumber')} <strong>KER-982147392TH</strong>
+              <strong>
+                {language === 'th'
+                  ? 'เคอรี่ เอ็กซ์เพรส'
+                  : 'Kerry Express Standard'}
+              </strong>{' '}
+              • {t('trackOrder.trackingNumber')}{' '}
+              <strong>KER-982147392TH</strong>
             </p>
           </div>
           <div className="text-left sm:text-right">
@@ -70,7 +83,8 @@ export default function OrderTrackingPage() {
               {t('trackOrder.inTransit')}
             </span>
             <p className="text-xs text-gray-500 mt-1">
-              {t('trackOrder.estimatedArrival')} {language === 'th' ? '28 ต.ค. 2026' : 'Oct 28, 2026'}
+              {t('trackOrder.estimatedArrival')}{' '}
+              {language === 'th' ? '28 ต.ค. 2026' : 'Oct 28, 2026'}
             </p>
           </div>
         </div>
@@ -98,7 +112,10 @@ export default function OrderTrackingPage() {
               const isCurrent = index === currentStep;
 
               return (
-                <div key={index} className="flex sm:flex-col items-center sm:text-center group">
+                <div
+                  key={index}
+                  className="flex sm:flex-col items-center sm:text-center group"
+                >
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-colors mr-4 sm:mr-0 sm:mb-3 shadow-xs
                     ${isCompleted ? 'bg-[#2B1810] text-[#F59E0B] border-2 border-[#2B1810]' : 'bg-gray-100 text-gray-400 border border-gray-300'}
@@ -114,7 +131,9 @@ export default function OrderTrackingPage() {
                     >
                       {step.title}
                     </p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">{step.date}</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">
+                      {step.date}
+                    </p>
                   </div>
                 </div>
               );
@@ -130,7 +149,9 @@ export default function OrderTrackingPage() {
           <div className="text-xs space-y-2 text-gray-600">
             <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
               <span className="font-semibold text-[#2B1810]">
-                {language === 'th' ? 'ศูนย์กระจายสินค้าวังน้อย' : 'Wang Noi Distribution Hub'}
+                {language === 'th'
+                  ? 'ศูนย์กระจายสินค้าวังน้อย'
+                  : 'Wang Noi Distribution Hub'}
               </span>
               <span className="text-gray-400">
                 {language === 'th'
@@ -140,7 +161,9 @@ export default function OrderTrackingPage() {
             </div>
             <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
               <span className="font-semibold text-[#2B1810]">
-                {language === 'th' ? 'คลังสินค้า Nida (กรุงเทพฯ)' : 'Nida Fulfillment Center (Bangkok)'}
+                {language === 'th'
+                  ? 'คลังสินค้า Nida (กรุงเทพฯ)'
+                  : 'Nida Fulfillment Center (Bangkok)'}
               </span>
               <span className="text-gray-400">
                 {language === 'th'
@@ -150,10 +173,14 @@ export default function OrderTrackingPage() {
             </div>
             <div className="flex justify-between items-center py-1.5">
               <span className="font-semibold text-[#2B1810]">
-                {language === 'th' ? 'ระบบรับคำสั่งซื้อ' : 'Order Placed & Confirmed'}
+                {language === 'th'
+                  ? 'ระบบรับคำสั่งซื้อ'
+                  : 'Order Placed & Confirmed'}
               </span>
               <span className="text-gray-400">
-                {language === 'th' ? '24 ต.ค. 09:30 น. - ชำระเงินสำเร็จ' : 'Oct 24, 09:30 AM - Payment verified'}
+                {language === 'th'
+                  ? '24 ต.ค. 09:30 น. - ชำระเงินสำเร็จ'
+                  : 'Oct 24, 09:30 AM - Payment verified'}
               </span>
             </div>
           </div>
@@ -171,15 +198,25 @@ export default function OrderTrackingPage() {
               {language === 'th' ? 'คุณพรรณนิดา วิศณุ' : 'Phannida Wissanu'}
             </p>
             <p>108 Sukhumvit Soi 24, Klongtoey</p>
-            <p>{language === 'th' ? 'กรุงเทพมหานคร 10110' : 'Bangkok 10110, Thailand'}</p>
-            <p>{language === 'th' ? 'โทรศัพท์: 081-892-3456' : 'Tel: +66 81-892-3456'}</p>
+            <p>
+              {language === 'th'
+                ? 'กรุงเทพมหานคร 10110'
+                : 'Bangkok 10110, Thailand'}
+            </p>
+            <p>
+              {language === 'th'
+                ? 'โทรศัพท์: 081-892-3456'
+                : 'Tel: +66 81-892-3456'}
+            </p>
           </div>
         </div>
 
         <div className="border border-gray-200 bg-white p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810] mb-4 pb-2 border-b border-gray-200">
-              {language === 'th' ? 'ฝ่ายบริการช่วยเหลือลูกค้า' : 'Nida Support Desk'}
+              {language === 'th'
+                ? 'ฝ่ายบริการช่วยเหลือลูกค้า'
+                : 'Nida Support Desk'}
             </h3>
             <p className="text-xs text-gray-600 mb-3">
               {language === 'th'
@@ -193,7 +230,11 @@ export default function OrderTrackingPage() {
               className="flex-1 bg-[#2B1810] hover:bg-[#D97706] text-white py-2.5 text-center text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1"
             >
               <Phone size={14} />
-              <span>{language === 'th' ? 'ติดต่อฝ่ายบริการลูกค้า' : 'Contact Support'}</span>
+              <span>
+                {language === 'th'
+                  ? 'ติดต่อฝ่ายบริการลูกค้า'
+                  : 'Contact Support'}
+              </span>
             </a>
           </div>
         </div>

@@ -1,6 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+} from 'react';
 
 export type User = {
   id: string;
@@ -43,8 +48,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser({
       id: `user_${Date.now()}`,
       email,
-      firstName: initialData?.firstName || (email.includes('phannida') ? 'พรรณนิดา' : 'Nida'),
-      lastName: initialData?.lastName || (email.includes('phannida') ? 'วิศณุ' : 'Customer'),
+      firstName:
+        initialData?.firstName ||
+        (email.includes('phannida') ? 'พรรณนิดา' : 'Nida'),
+      lastName:
+        initialData?.lastName ||
+        (email.includes('phannida') ? 'วิศณุ' : 'Customer'),
       phone: initialData?.phone || '081-234-5678',
       address: initialData?.address || '108 สุขุมวิท ซอย 24',
       city: initialData?.city || 'กรุงเทพมหานคร',
@@ -66,7 +75,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, updateProfile }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated: !!user, login, logout, updateProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );

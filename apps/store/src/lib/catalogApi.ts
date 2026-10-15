@@ -27,9 +27,9 @@ export function mapApiProductToStorefront(
   const primaryImg =
     typeof p.primaryImage === 'string'
       ? p.primaryImage
-      : rawImages.find((img) => img.isPrimary)?.imageUrl
-        ?? rawImages[0]?.imageUrl
-        ?? '';
+      : (rawImages.find((img) => img.isPrimary)?.imageUrl ??
+        rawImages[0]?.imageUrl ??
+        '');
 
   const secondaryImg =
     typeof p.secondaryImage === 'string'
@@ -39,25 +39,29 @@ export function mapApiProductToStorefront(
         : undefined;
 
   const rawColors = Array.isArray(p.colors) ? p.colors : [];
-  const colorSwatches: ApiColorSwatch[] = rawColors
-    .filter((c): c is ApiColorSwatch => typeof c === 'object' && c !== null && 'hex' in c);
+  const colorSwatches: ApiColorSwatch[] = rawColors.filter(
+    (c): c is ApiColorSwatch =>
+      typeof c === 'object' && c !== null && 'hex' in c,
+  );
   const colorHexes: string[] = rawColors.map((c) =>
-    typeof c === 'string' ? c : (c as ApiColorSwatch)?.hex ?? '',
+    typeof c === 'string' ? c : ((c as ApiColorSwatch)?.hex ?? ''),
   );
 
   const rawVariants = Array.isArray(p.variants)
     ? (p.variants as ApiProductVariant[])
     : undefined;
 
-  const categoryObj = typeof p.category === 'object' && p.category !== null
-    ? (p.category as Record<string, unknown>)
-    : undefined;
+  const categoryObj =
+    typeof p.category === 'object' && p.category !== null
+      ? (p.category as Record<string, unknown>)
+      : undefined;
 
-  const inStock = typeof p.inStock === 'boolean'
-    ? p.inStock
-    : rawVariants
-      ? rawVariants.some((v) => v.quantityAvailable > 0)
-      : true;
+  const inStock =
+    typeof p.inStock === 'boolean'
+      ? p.inStock
+      : rawVariants
+        ? rawVariants.some((v) => v.quantityAvailable > 0)
+        : true;
 
   return {
     id: String(p.slug ?? p.id ?? ''),
@@ -71,27 +75,28 @@ export function mapApiProductToStorefront(
     department: String(
       p.department ?? categoryObj?.department ?? '',
     ).toLowerCase(),
-    category: String(
-      p.categorySlug ?? categoryObj?.slug ?? 'apparel',
-    ),
+    category: String(p.categorySlug ?? categoryObj?.slug ?? 'apparel'),
     subCategory:
       typeof p.categoryName === 'string'
         ? p.categoryName
         : typeof categoryObj?.name === 'string'
-          ? categoryObj.name as string
+          ? (categoryObj.name as string)
           : undefined,
     subCategoryTh:
       typeof p.categoryNameTh === 'string'
         ? p.categoryNameTh
         : typeof categoryObj?.nameTh === 'string'
-          ? categoryObj.nameTh as string
+          ? (categoryObj.nameTh as string)
           : undefined,
     tag: typeof p.tag === 'string' ? p.tag : undefined,
     tagTh: typeof p.tagTh === 'string' ? p.tagTh : undefined,
     description: typeof p.description === 'string' ? p.description : undefined,
-    descriptionTh: typeof p.descriptionTh === 'string' ? p.descriptionTh : undefined,
-    materialsCare: typeof p.materialsCare === 'string' ? p.materialsCare : undefined,
-    materialsCareTh: typeof p.materialsCareTh === 'string' ? p.materialsCareTh : undefined,
+    descriptionTh:
+      typeof p.descriptionTh === 'string' ? p.descriptionTh : undefined,
+    materialsCare:
+      typeof p.materialsCare === 'string' ? p.materialsCare : undefined,
+    materialsCareTh:
+      typeof p.materialsCareTh === 'string' ? p.materialsCareTh : undefined,
     colors: colorHexes,
     colorSwatches: colorSwatches.length > 0 ? colorSwatches : undefined,
     images: rawImages.length > 0 ? rawImages : undefined,
@@ -101,8 +106,11 @@ export function mapApiProductToStorefront(
     inStock,
     isPreorder: Boolean(p.isPreorder),
     preorderReleaseDate:
-      typeof p.preorderReleaseDate === 'string' ? p.preorderReleaseDate : undefined,
-    preorderLimit: typeof p.preorderLimit === 'number' ? p.preorderLimit : undefined,
+      typeof p.preorderReleaseDate === 'string'
+        ? p.preorderReleaseDate
+        : undefined,
+    preorderLimit:
+      typeof p.preorderLimit === 'number' ? p.preorderLimit : undefined,
     preorderDepositAmount: p.preorderDepositAmount
       ? Number(p.preorderDepositAmount)
       : undefined,
@@ -137,9 +145,12 @@ export async function fetchCatalogProducts(
     }
     searchParams.set('limit', String(params?.limit ?? 50));
 
-    const res = await fetch(`${API_BASE_URL}/catalog/products?${searchParams.toString()}`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const res = await fetch(
+      `${API_BASE_URL}/catalog/products?${searchParams.toString()}`,
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
 
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const json: unknown = await res.json();
@@ -148,7 +159,7 @@ export async function fetchCatalogProducts(
     const itemsList = Array.isArray(rawData)
       ? rawData
       : Array.isArray((rawData as Record<string, unknown>)?.items)
-        ? (rawData as Record<string, unknown>).items as unknown[]
+        ? ((rawData as Record<string, unknown>).items as unknown[])
         : null;
 
     if (!itemsList) throw new Error('Invalid response structure');
@@ -166,9 +177,12 @@ export async function fetchProductByIdOrSlug(
   idOrSlug: string,
 ): Promise<StorefrontProduct | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/catalog/products/${encodeURIComponent(idOrSlug)}`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const res = await fetch(
+      `${API_BASE_URL}/catalog/products/${encodeURIComponent(idOrSlug)}`,
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const json: unknown = await res.json();
     const body = json as Record<string, unknown>;
@@ -180,11 +194,14 @@ export async function fetchProductByIdOrSlug(
   }
 }
 
-export async function fetchCatalogCategories(department?: string): Promise<ApiCategory[]> {
+export async function fetchCatalogCategories(
+  department?: string,
+): Promise<ApiCategory[]> {
   try {
-    const url = department && department !== 'all'
-      ? `${API_BASE_URL}/catalog/categories?department=${encodeURIComponent(department.toUpperCase())}`
-      : `${API_BASE_URL}/catalog/categories`;
+    const url =
+      department && department !== 'all'
+        ? `${API_BASE_URL}/catalog/categories?department=${encodeURIComponent(department.toUpperCase())}`
+        : `${API_BASE_URL}/catalog/categories`;
 
     const res = await fetch(url, {
       headers: { 'Content-Type': 'application/json' },

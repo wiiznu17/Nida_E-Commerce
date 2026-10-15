@@ -11,7 +11,10 @@ interface ProcessWithLoadEnv {
   loadEnvFile?: (path: string) => void;
 }
 
-if ('loadEnvFile' in process && typeof (process as ProcessWithLoadEnv).loadEnvFile === 'function') {
+if (
+  'loadEnvFile' in process &&
+  typeof (process as ProcessWithLoadEnv).loadEnvFile === 'function'
+) {
   const envCandidates = [
     path.resolve(process.cwd(), '.env'),
     path.resolve(process.cwd(), 'apps/api/.env'),
@@ -54,11 +57,19 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Nida Storefront Customer API')
-    .setDescription('Customer API for Nida E-Commerce Storefront (Catalog, Customer OTP Auth, Orders & Checkout, Tracking)')
+    .setDescription(
+      'Customer API for Nida E-Commerce Storefront (Catalog, Customer OTP Auth, Orders & Checkout, Tracking)',
+    )
     .setVersion('1.0')
     .addTag('Storefront Auth', 'Customer OTP login, verification and profile')
-    .addTag('Storefront Catalog', 'Public product catalog and live inventory availability')
-    .addTag('Storefront Orders', 'Order placement with atomic stock deduction and tracking')
+    .addTag(
+      'Storefront Catalog',
+      'Public product catalog and live inventory availability',
+    )
+    .addTag(
+      'Storefront Orders',
+      'Order placement with atomic stock deduction and tracking',
+    )
     .addTag('Health', 'Liveness and readiness probes')
     .addBearerAuth()
     .build();

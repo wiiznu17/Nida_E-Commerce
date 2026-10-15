@@ -30,7 +30,9 @@ export default function AdminDashboard() {
   const { language } = useLanguage();
   const [ordersList, setOrdersList] = useState<ApiOrder[]>([]);
   const [inventoryList, setInventoryList] = useState<ApiInventoryItem[]>([]);
-  const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('today');
+  const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>(
+    'today',
+  );
 
   const loadData = async () => {
     try {
@@ -56,7 +58,12 @@ export default function AdminDashboard() {
     trackingNumber?: string,
   ) => {
     try {
-      await orderRequester.updateStatus(orderId, newStatus, courierName, trackingNumber);
+      await orderRequester.updateStatus(
+        orderId,
+        newStatus,
+        courierName,
+        trackingNumber,
+      );
       await loadData();
     } catch {
       setOrdersList((prev) =>
@@ -66,9 +73,16 @@ export default function AdminDashboard() {
   };
 
   // Metrics calculations
-  const totalRevenue = ordersList.reduce((sum, ord) => sum + ord.totalAmount, 0);
-  const pendingOrders = ordersList.filter((o) => o.status === 'PROCESSING' || o.status === 'PAID');
-  const lowStockItems = inventoryList.filter((i) => i.quantityAvailable <= i.lowStockThreshold);
+  const totalRevenue = ordersList.reduce(
+    (sum, ord) => sum + ord.totalAmount,
+    0,
+  );
+  const pendingOrders = ordersList.filter(
+    (o) => o.status === 'PROCESSING' || o.status === 'PAID',
+  );
+  const lowStockItems = inventoryList.filter(
+    (i) => i.quantityAvailable <= i.lowStockThreshold,
+  );
 
   // Status Badge Helper
   const renderStatusBadge = (status: string) => {
@@ -108,7 +122,9 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout
-      title={language === 'th' ? 'แดชบอร์ดภาพรวมร้านค้า' : 'Store Overview Dashboard'}
+      title={
+        language === 'th' ? 'แดชบอร์ดภาพรวมร้านค้า' : 'Store Overview Dashboard'
+      }
       subtitle={
         language === 'th'
           ? 'สรุปภาพรวมรายได้ คำสั่งซื้อ และสถานะสต็อกสินค้าแบบเรียลไทม์'
@@ -136,7 +152,9 @@ export default function AdminDashboard() {
             <button
               onClick={() => setTimeframe('today')}
               className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
-                timeframe === 'today' ? 'bg-brand-brown text-white' : 'text-gray-600 hover:text-brand-brown'
+                timeframe === 'today'
+                  ? 'bg-brand-brown text-white'
+                  : 'text-gray-600 hover:text-brand-brown'
               }`}
             >
               {language === 'th' ? 'วันนี้ (Today)' : 'Today'}
@@ -144,7 +162,9 @@ export default function AdminDashboard() {
             <button
               onClick={() => setTimeframe('week')}
               className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
-                timeframe === 'week' ? 'bg-brand-brown text-white' : 'text-gray-600 hover:text-brand-brown'
+                timeframe === 'week'
+                  ? 'bg-brand-brown text-white'
+                  : 'text-gray-600 hover:text-brand-brown'
               }`}
             >
               {language === 'th' ? '7 วันล่าสุด' : 'Past 7 Days'}
@@ -152,7 +172,9 @@ export default function AdminDashboard() {
             <button
               onClick={() => setTimeframe('month')}
               className={`px-2.5 py-0.5 text-xs font-bold rounded-xs transition-colors ${
-                timeframe === 'month' ? 'bg-brand-brown text-white' : 'text-gray-600 hover:text-brand-brown'
+                timeframe === 'month'
+                  ? 'bg-brand-brown text-white'
+                  : 'text-gray-600 hover:text-brand-brown'
               }`}
             >
               {language === 'th' ? 'เดือนนี้ (Month)' : 'This Month'}
@@ -181,7 +203,9 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center text-xs font-bold text-emerald-600 mt-1.5">
               <TrendingUp size={13} className="mr-1" />
-              <span>+18.4% {language === 'th' ? 'จากเดือนก่อน' : 'vs last month'}</span>
+              <span>
+                +18.4% {language === 'th' ? 'จากเดือนก่อน' : 'vs last month'}
+              </span>
             </div>
           </div>
 
@@ -196,11 +220,15 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="text-xl sm:text-2xl font-black text-brand-brown tracking-tight">
-              {ordersList.length + 124} {language === 'th' ? 'ออเดอร์' : 'orders'}
+              {ordersList.length + 124}{' '}
+              {language === 'th' ? 'ออเดอร์' : 'orders'}
             </div>
             <div className="flex items-center text-xs font-bold text-emerald-600 mt-1.5">
               <ArrowUpRight size={13} className="mr-1" />
-              <span>+12 {language === 'th' ? 'ออเดอร์ใหม่สัปดาห์นี้' : 'new this week'}</span>
+              <span>
+                +12{' '}
+                {language === 'th' ? 'ออเดอร์ใหม่สัปดาห์นี้' : 'new this week'}
+              </span>
             </div>
           </div>
 
@@ -221,7 +249,11 @@ export default function AdminDashboard() {
               to="/admin/orders"
               className="inline-flex items-center text-xs font-bold text-gray-500 hover:text-brand-brown mt-1.5 underline"
             >
-              <span>{language === 'th' ? 'คลิกเพื่อจัดการพัสดุ' : 'Fulfill orders now'}</span>
+              <span>
+                {language === 'th'
+                  ? 'คลิกเพื่อจัดการพัสดุ'
+                  : 'Fulfill orders now'}
+              </span>
               <ArrowUpRight size={12} className="ml-0.5" />
             </Link>
           </div>
@@ -243,7 +275,9 @@ export default function AdminDashboard() {
               to="/admin/inventory"
               className="inline-flex items-center text-xs font-bold text-red-600 hover:underline mt-1.5"
             >
-              <span>{language === 'th' ? 'ดูและเติมสต็อก' : 'Review & Restock'}</span>
+              <span>
+                {language === 'th' ? 'ดูและเติมสต็อก' : 'Review & Restock'}
+              </span>
               <ArrowUpRight size={12} className="ml-0.5" />
             </Link>
           </div>
@@ -253,10 +287,15 @@ export default function AdminDashboard() {
         {lowStockItems.length > 0 && (
           <div className="bg-amber-50 border border-amber-300 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center space-x-3">
-              <AlertTriangle size={20} className="text-amber-600 flex-shrink-0" />
+              <AlertTriangle
+                size={20}
+                className="text-amber-600 flex-shrink-0"
+              />
               <div>
                 <h4 className="text-xs font-black uppercase tracking-wider text-amber-900">
-                  {language === 'th' ? 'แจ้งเตือนสินค้าใกล้หมด (Low Stock Alert)' : 'Inventory Threshold Warning'}
+                  {language === 'th'
+                    ? 'แจ้งเตือนสินค้าใกล้หมด (Low Stock Alert)'
+                    : 'Inventory Threshold Warning'}
                 </h4>
                 <p className="text-xs text-amber-800">
                   {language === 'th'
@@ -281,7 +320,9 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-center mb-6 pb-3 border-b border-gray-100">
               <div>
                 <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
-                  {language === 'th' ? 'สัดส่วนยอดขายตามหมวดหมู่' : 'Sales by Department'}
+                  {language === 'th'
+                    ? 'สัดส่วนยอดขายตามหมวดหมู่'
+                    : 'Sales by Department'}
                 </h3>
                 <p className="text-xs text-gray-500">
                   {language === 'th'
@@ -289,25 +330,36 @@ export default function AdminDashboard() {
                     : 'Department distribution and product revenue'}
                 </p>
               </div>
-              <span className="text-xs font-bold text-brand-amber">2026 Season</span>
+              <span className="text-xs font-bold text-brand-amber">
+                2026 Season
+              </span>
             </div>
 
             <div className="space-y-4">
               {[
                 {
-                  dept: language === 'th' ? 'เสื้อผ้าสตรี (Women)' : 'Women Collection',
+                  dept:
+                    language === 'th'
+                      ? 'เสื้อผ้าสตรี (Women)'
+                      : 'Women Collection',
                   pct: 44,
                   color: 'bg-brand-brown',
                   amount: '$62,854',
                 },
                 {
-                  dept: language === 'th' ? 'เสื้อผ้าบุรุษ (Men)' : 'Men Collection',
+                  dept:
+                    language === 'th'
+                      ? 'เสื้อผ้าบุรุษ (Men)'
+                      : 'Men Collection',
                   pct: 28,
                   color: 'bg-brand-amber',
                   amount: '$39,998',
                 },
                 {
-                  dept: language === 'th' ? 'กระเป๋าและเครื่องหนัง (Bags)' : 'Bags & Leather',
+                  dept:
+                    language === 'th'
+                      ? 'กระเป๋าและเครื่องหนัง (Bags)'
+                      : 'Bags & Leather',
                   pct: 16,
                   color: 'bg-amber-700',
                   amount: '$22,856',
@@ -319,7 +371,10 @@ export default function AdminDashboard() {
                   amount: '$11,428',
                 },
                 {
-                  dept: language === 'th' ? 'ของแต่งบ้าน (Home & Living)' : 'Home & Living',
+                  dept:
+                    language === 'th'
+                      ? 'ของแต่งบ้าน (Home & Living)'
+                      : 'Home & Living',
                   pct: 4,
                   color: 'bg-gray-400',
                   amount: '$5,714',
@@ -356,9 +411,16 @@ export default function AdminDashboard() {
                 >
                   <div className="flex items-center space-x-2.5">
                     <ShoppingBag size={16} className="text-brand-amber" />
-                    <span>{language === 'th' ? 'เพิ่ม / แก้ไขสินค้า' : 'Manage Products'}</span>
+                    <span>
+                      {language === 'th'
+                        ? 'เพิ่ม / แก้ไขสินค้า'
+                        : 'Manage Products'}
+                    </span>
                   </div>
-                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-brand-brown" />
+                  <ArrowUpRight
+                    size={14}
+                    className="text-gray-400 group-hover:text-brand-brown"
+                  />
                 </Link>
 
                 <Link
@@ -367,9 +429,16 @@ export default function AdminDashboard() {
                 >
                   <div className="flex items-center space-x-2.5">
                     <Package size={16} className="text-brand-amber" />
-                    <span>{language === 'th' ? 'อัปเดตสถานะจัดส่ง' : 'Fulfill & Ship Orders'}</span>
+                    <span>
+                      {language === 'th'
+                        ? 'อัปเดตสถานะจัดส่ง'
+                        : 'Fulfill & Ship Orders'}
+                    </span>
                   </div>
-                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-brand-brown" />
+                  <ArrowUpRight
+                    size={14}
+                    className="text-gray-400 group-hover:text-brand-brown"
+                  />
                 </Link>
 
                 <Link
@@ -378,9 +447,16 @@ export default function AdminDashboard() {
                 >
                   <div className="flex items-center space-x-2.5">
                     <Boxes size={16} className="text-brand-amber" />
-                    <span>{language === 'th' ? 'ตรวจนับ & ปรับสต็อก' : 'Adjust Inventory Stock'}</span>
+                    <span>
+                      {language === 'th'
+                        ? 'ตรวจนับ & ปรับสต็อก'
+                        : 'Adjust Inventory Stock'}
+                    </span>
                   </div>
-                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-brand-brown" />
+                  <ArrowUpRight
+                    size={14}
+                    className="text-gray-400 group-hover:text-brand-brown"
+                  />
                 </Link>
 
                 <Link
@@ -389,9 +465,16 @@ export default function AdminDashboard() {
                 >
                   <div className="flex items-center space-x-2.5">
                     <Tag size={16} className="text-brand-amber" />
-                    <span>{language === 'th' ? 'สร้างโค้ดส่วนลดใหม่' : 'Create Promo Code'}</span>
+                    <span>
+                      {language === 'th'
+                        ? 'สร้างโค้ดส่วนลดใหม่'
+                        : 'Create Promo Code'}
+                    </span>
                   </div>
-                  <ArrowUpRight size={14} className="text-gray-400 group-hover:text-brand-brown" />
+                  <ArrowUpRight
+                    size={14}
+                    className="text-gray-400 group-hover:text-brand-brown"
+                  />
                 </Link>
               </div>
             </div>
@@ -412,7 +495,9 @@ export default function AdminDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
             <div>
               <h3 className="text-base font-black uppercase tracking-wider text-brand-brown">
-                {language === 'th' ? 'คำสั่งซื้อล่าสุด (Recent Orders)' : 'Recent Customer Orders'}
+                {language === 'th'
+                  ? 'คำสั่งซื้อล่าสุด (Recent Orders)'
+                  : 'Recent Customer Orders'}
               </h3>
               <p className="text-xs text-gray-500">
                 {language === 'th'
@@ -424,7 +509,9 @@ export default function AdminDashboard() {
               to="/admin/orders"
               className="text-xs font-bold uppercase tracking-wider text-brand-amber hover:underline flex items-center"
             >
-              <span>{language === 'th' ? 'ดูคำสั่งซื้อทั้งหมด' : 'View All Orders'}</span>
+              <span>
+                {language === 'th' ? 'ดูคำสั่งซื้อทั้งหมด' : 'View All Orders'}
+              </span>
               <ArrowUpRight size={14} className="ml-1" />
             </Link>
           </div>
@@ -432,12 +519,18 @@ export default function AdminDashboard() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{language === 'th' ? 'เลขออเดอร์' : 'Order #'}</TableHead>
-                <TableHead>{language === 'th' ? 'ลูกค้า' : 'Customer'}</TableHead>
+                <TableHead>
+                  {language === 'th' ? 'เลขออเดอร์' : 'Order #'}
+                </TableHead>
+                <TableHead>
+                  {language === 'th' ? 'ลูกค้า' : 'Customer'}
+                </TableHead>
                 <TableHead>{language === 'th' ? 'สินค้า' : 'Items'}</TableHead>
                 <TableHead>{language === 'th' ? 'ยอดรวม' : 'Total'}</TableHead>
                 <TableHead>{language === 'th' ? 'สถานะ' : 'Status'}</TableHead>
-                <TableHead className="text-right">{language === 'th' ? 'การจัดการ' : 'Action'}</TableHead>
+                <TableHead className="text-right">
+                  {language === 'th' ? 'การจัดการ' : 'Action'}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -451,7 +544,8 @@ export default function AdminDashboard() {
                   </TableCell>
                   <TableCell>
                     <div className="font-bold text-brand-brown">
-                      {order.shippingAddress?.recipientName ?? 'Valued Customer'}
+                      {order.shippingAddress?.recipientName ??
+                        'Valued Customer'}
                     </div>
                     <div className="text-[11px] text-gray-500">
                       {order.shippingAddress?.phone ?? '-'}
@@ -460,13 +554,17 @@ export default function AdminDashboard() {
                   <TableCell>
                     <span className="text-gray-800">
                       {order.items[0]?.productName}
-                      {order.items.length > 1 && ` (+อีก ${order.items.length - 1} รายการ)`}
+                      {order.items.length > 1 &&
+                        ` (+อีก ${order.items.length - 1} รายการ)`}
                     </span>
                   </TableCell>
-                  <TableCell className="font-mono font-bold text-brand-brown">${order.totalAmount.toFixed(2)}</TableCell>
+                  <TableCell className="font-mono font-bold text-brand-brown">
+                    ${order.totalAmount.toFixed(2)}
+                  </TableCell>
                   <TableCell>{renderStatusBadge(order.status)}</TableCell>
                   <TableCell className="text-right">
-                    {order.status === 'PROCESSING' || order.status === 'PAID' ? (
+                    {order.status === 'PROCESSING' ||
+                    order.status === 'PAID' ? (
                       <button
                         onClick={() =>
                           updateOrderStatus(
@@ -481,7 +579,10 @@ export default function AdminDashboard() {
                         {language === 'th' ? 'กดจัดส่งทันที' : 'Ship Now'}
                       </button>
                     ) : (
-                      <Link to="/admin/orders" className="text-brand-amber hover:underline text-xs font-bold">
+                      <Link
+                        to="/admin/orders"
+                        className="text-brand-amber hover:underline text-xs font-bold"
+                      >
                         {language === 'th' ? 'ดูรายละเอียด' : 'View Details'}
                       </Link>
                     )}

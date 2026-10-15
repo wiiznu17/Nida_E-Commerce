@@ -30,7 +30,9 @@ export default function HomePage() {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { productsList } = useCatalog();
   const { language, t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'all' | 'women' | 'men' | 'bags'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'women' | 'men' | 'bags'>(
+    'all',
+  );
   const [copiedCode, setCopiedCode] = useState(false);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
@@ -40,7 +42,8 @@ export default function HomePage() {
       if (activeTab === 'all') return true;
       if (activeTab === 'women') return p.department === 'women';
       if (activeTab === 'men') return p.department === 'men';
-      if (activeTab === 'bags') return p.department === 'bags' || p.department === 'shoes';
+      if (activeTab === 'bags')
+        return p.department === 'bags' || p.department === 'shoes';
       return true;
     })
     .slice(0, 8);
@@ -54,7 +57,10 @@ export default function HomePage() {
         : product.category === 'bags' || product.category === 'home'
           ? 'One Size'
           : 'M';
-    const defaultColor = product.colors && product.colors.length > 0 ? 'Navy / Classic' : 'Standard';
+    const defaultColor =
+      product.colors && product.colors.length > 0
+        ? 'Navy / Classic'
+        : 'Standard';
     addToCart(product, defaultSize, defaultColor);
     setAddedProductId(product.id);
     setTimeout(() => setAddedProductId(null), 2000);
@@ -137,7 +143,9 @@ export default function HomePage() {
               <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
                 {t('home.freeShippingTitle')}
               </h4>
-              <p className="text-[11px] text-gray-500">{t('home.freeShippingSub')}</p>
+              <p className="text-[11px] text-gray-500">
+                {t('home.freeShippingSub')}
+              </p>
             </div>
           </div>
 
@@ -149,7 +157,9 @@ export default function HomePage() {
               <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
                 {t('home.returnsTitle')}
               </h4>
-              <p className="text-[11px] text-gray-500">{t('home.returnsSub')}</p>
+              <p className="text-[11px] text-gray-500">
+                {t('home.returnsSub')}
+              </p>
             </div>
           </div>
 
@@ -161,7 +171,9 @@ export default function HomePage() {
               <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
                 {t('home.guaranteeTitle')}
               </h4>
-              <p className="text-[11px] text-gray-500">{t('home.guaranteeSub')}</p>
+              <p className="text-[11px] text-gray-500">
+                {t('home.guaranteeSub')}
+              </p>
             </div>
           </div>
 
@@ -213,7 +225,8 @@ export default function HomePage() {
                   href="/collections/women"
                   className="inline-flex items-center bg-white text-[#2B1810] hover:bg-[#F59E0B] hover:text-[#2B1810] px-6 py-3 font-black text-xs tracking-widest uppercase transition-all shadow-md"
                 >
-                  {t('home.discoverWomen')} <ArrowRight size={14} className="ml-2" />
+                  {t('home.discoverWomen')}{' '}
+                  <ArrowRight size={14} className="ml-2" />
                 </Link>
               </div>
             </div>
@@ -241,7 +254,8 @@ export default function HomePage() {
                   href="/collections/men"
                   className="inline-flex items-center bg-white text-[#2B1810] hover:bg-[#F59E0B] hover:text-[#2B1810] px-6 py-3 font-black text-xs tracking-widest uppercase transition-all shadow-md"
                 >
-                  {t('home.discoverMen')} <ArrowRight size={14} className="ml-2" />
+                  {t('home.discoverMen')}{' '}
+                  <ArrowRight size={14} className="ml-2" />
                 </Link>
               </div>
             </div>
@@ -263,14 +277,17 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center space-x-3 bg-white/10 p-2 rounded-xs border border-white/20">
-            <span className="font-mono text-lg font-black tracking-widest px-3 text-white">NIDA20</span>
+            <span className="font-mono text-lg font-black tracking-widest px-3 text-white">
+              NIDA20
+            </span>
             <button
               onClick={handleCopyCode}
               className="bg-white text-[#2B1810] hover:bg-[#F59E0B] hover:text-[#2B1810] font-black text-xs uppercase tracking-wider px-4 py-2 transition-colors flex items-center"
             >
               {copiedCode ? (
                 <>
-                  <Check size={14} className="mr-1 text-emerald-600" /> {t('home.copied')}
+                  <Check size={14} className="mr-1 text-emerald-600" />{' '}
+                  {t('home.copied')}
                 </>
               ) : (
                 t('home.copyCode')
@@ -326,10 +343,16 @@ export default function HomePage() {
             const tag = getProductTag(product, language) || product.tag;
 
             return (
-              <div key={product.id} className="group flex flex-col bg-white relative">
+              <div
+                key={product.id}
+                className="group flex flex-col bg-white relative"
+              >
                 {/* Product Image Container */}
                 <div className="relative aspect-[3/4] bg-[#FAF7F2] overflow-hidden mb-4 border border-gray-100">
-                  <Link href={`/product/${product.id}`} className="block w-full h-full">
+                  <Link
+                    href={`/product/${product.id}`}
+                    className="block w-full h-full"
+                  >
                     <img
                       src={product.image}
                       alt={title}
@@ -350,7 +373,10 @@ export default function HomePage() {
                     className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white text-[#2B1810] rounded-full shadow-xs transition-colors hover:text-[#D97706]"
                     aria-label="Save to wishlist"
                   >
-                    <Heart size={16} className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''} />
+                    <Heart
+                      size={16}
+                      className={isWish ? 'fill-[#D97706] text-[#D97706]' : ''}
+                    />
                   </button>
 
                   {/* Quick Add Button on Hover */}
@@ -359,16 +385,20 @@ export default function HomePage() {
                       onClick={(e) => handleQuickAdd(e, product)}
                       disabled={isJustAdded}
                       className={`w-full py-3 font-black text-xs uppercase tracking-widest transition-colors shadow-md flex items-center justify-center space-x-2 ${
-                        isJustAdded ? 'bg-emerald-600 text-white' : 'bg-[#2B1810] hover:bg-[#D97706] text-white'
+                        isJustAdded
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-[#2B1810] hover:bg-[#D97706] text-white'
                       }`}
                     >
                       {isJustAdded ? (
                         <>
-                          <Check size={14} /> <span>{t('home.addedToBag')}</span>
+                          <Check size={14} />{' '}
+                          <span>{t('home.addedToBag')}</span>
                         </>
                       ) : (
                         <>
-                          <ShoppingBag size={14} /> <span>{t('home.quickAdd')}</span>
+                          <ShoppingBag size={14} />{' '}
+                          <span>{t('home.quickAdd')}</span>
                         </>
                       )}
                     </button>
@@ -387,7 +417,8 @@ export default function HomePage() {
                       />
                     ))}
                     <span className="text-[10px] text-gray-400 font-medium ml-1">
-                      {product.colors.length} {language === 'th' ? 'สี' : 'colors'}
+                      {product.colors.length}{' '}
+                      {language === 'th' ? 'สี' : 'colors'}
                     </span>
                   </div>
                 )}
@@ -406,13 +437,23 @@ export default function HomePage() {
 
                 {/* Price Display with Strikethrough for Sales */}
                 <div className="mt-auto flex items-center space-x-2">
-                  <span className="font-black text-base text-[#2B1810]">${product.price}</span>
-                  {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="text-xs text-gray-400 line-through font-semibold">${product.originalPrice}</span>
-                  )}
+                  <span className="font-black text-base text-[#2B1810]">
+                    ${product.price}
+                  </span>
+                  {product.originalPrice &&
+                    product.originalPrice > product.price && (
+                      <span className="text-xs text-gray-400 line-through font-semibold">
+                        ${product.originalPrice}
+                      </span>
+                    )}
                   {product.originalPrice && (
                     <span className="text-[10px] font-black text-[#D97706] uppercase">
-                      {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                      {Math.round(
+                        ((product.originalPrice - product.price) /
+                          product.originalPrice) *
+                          100,
+                      )}
+                      % OFF
                     </span>
                   )}
                 </div>
@@ -426,7 +467,8 @@ export default function HomePage() {
             href="/collections/all"
             className="inline-flex items-center border-2 border-[#2B1810] text-[#2B1810] hover:bg-[#2B1810] hover:text-white px-8 py-3.5 font-black text-xs uppercase tracking-[0.2em] transition-all"
           >
-            {t('home.viewAllProducts')} ({productsList.length}) <ChevronRight size={16} className="ml-1" />
+            {t('home.viewAllProducts')} ({productsList.length}){' '}
+            <ChevronRight size={16} className="ml-1" />
           </Link>
         </div>
       </div>
@@ -456,11 +498,16 @@ export default function HomePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/80 via-transparent to-transparent flex flex-col justify-end p-5">
                   <span className="text-white font-black text-sm uppercase tracking-wider">
-                    {language === 'th' ? 'สเวตเตอร์และเสื้อไหมพรม' : 'SWEATERS & KNITS'}
+                    {language === 'th'
+                      ? 'สเวตเตอร์และเสื้อไหมพรม'
+                      : 'SWEATERS & KNITS'}
                   </span>
                   <span className="text-white/80 text-xs flex items-center mt-1 font-semibold group-hover:text-white">
                     {language === 'th' ? 'เลือกชม' : 'Shop Now'}{' '}
-                    <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    <ChevronRight
+                      size={14}
+                      className="ml-1 transition-transform group-hover:translate-x-1"
+                    />
                   </span>
                 </div>
               </div>
@@ -482,7 +529,10 @@ export default function HomePage() {
                   </span>
                   <span className="text-white/80 text-xs flex items-center mt-1 font-semibold group-hover:text-white">
                     {language === 'th' ? 'เลือกชม' : 'Shop Now'}{' '}
-                    <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    <ChevronRight
+                      size={14}
+                      className="ml-1 transition-transform group-hover:translate-x-1"
+                    />
                   </span>
                 </div>
               </div>
@@ -500,11 +550,16 @@ export default function HomePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/80 via-transparent to-transparent flex flex-col justify-end p-5">
                   <span className="text-white font-black text-sm uppercase tracking-wider">
-                    {language === 'th' ? 'กระเป๋าหนังและเข็มขัด' : 'LEATHER BAGS & BELTS'}
+                    {language === 'th'
+                      ? 'กระเป๋าหนังและเข็มขัด'
+                      : 'LEATHER BAGS & BELTS'}
                   </span>
                   <span className="text-white/80 text-xs flex items-center mt-1 font-semibold group-hover:text-white">
                     {language === 'th' ? 'เลือกชม' : 'Shop Now'}{' '}
-                    <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    <ChevronRight
+                      size={14}
+                      className="ml-1 transition-transform group-hover:translate-x-1"
+                    />
                   </span>
                 </div>
               </div>
@@ -522,11 +577,16 @@ export default function HomePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2B1810]/80 via-transparent to-transparent flex flex-col justify-end p-5">
                   <span className="text-white font-black text-sm uppercase tracking-wider">
-                    {language === 'th' ? 'รองเท้าและสนีกเกอร์' : 'FOOTWEAR & SNEAKERS'}
+                    {language === 'th'
+                      ? 'รองเท้าและสนีกเกอร์'
+                      : 'FOOTWEAR & SNEAKERS'}
                   </span>
                   <span className="text-white/80 text-xs flex items-center mt-1 font-semibold group-hover:text-white">
                     {language === 'th' ? 'เลือกชม' : 'Shop Now'}{' '}
-                    <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                    <ChevronRight
+                      size={14}
+                      className="ml-1 transition-transform group-hover:translate-x-1"
+                    />
                   </span>
                 </div>
               </div>

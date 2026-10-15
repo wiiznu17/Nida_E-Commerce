@@ -56,7 +56,9 @@ export class AdminUsersService {
         roleCode: u.role.roleCode,
         roleName: u.role.roleName,
         description: u.role.description,
-        permissions: u.role.rolePermissions.map((rp) => rp.permission.permissionCode),
+        permissions: u.role.rolePermissions.map(
+          (rp) => rp.permission.permissionCode,
+        ),
       },
       isActive: u.isActive,
       lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
@@ -152,7 +154,9 @@ export class AdminUsersService {
       setupUrl,
     });
 
-    const permissions = role.rolePermissions.map((rp) => rp.permission.permissionCode);
+    const permissions = role.rolePermissions.map(
+      (rp) => rp.permission.permissionCode,
+    );
     const apiAdmin: ApiAdminUser = {
       id: newAdmin.id,
       username: newAdmin.username,
@@ -192,7 +196,10 @@ export class AdminUsersService {
     };
   }
 
-  async toggleActiveStatus(targetId: string, currentAdminId: string): Promise<ApiAdminUser> {
+  async toggleActiveStatus(
+    targetId: string,
+    currentAdminId: string,
+  ): Promise<ApiAdminUser> {
     if (targetId === currentAdminId) {
       throw new BadRequestException('ไม่สามารถปิดการใช้งานบัญชีของตนเองได้');
     }
@@ -264,7 +271,9 @@ export class AdminUsersService {
         roleCode: updated.role.roleCode,
         roleName: updated.role.roleName,
         description: updated.role.description,
-        permissions: updated.role.rolePermissions.map((rp) => rp.permission.permissionCode),
+        permissions: updated.role.rolePermissions.map(
+          (rp) => rp.permission.permissionCode,
+        ),
       },
       isActive: updated.isActive,
       lastLoginAt: updated.lastLoginAt?.toISOString() ?? null,

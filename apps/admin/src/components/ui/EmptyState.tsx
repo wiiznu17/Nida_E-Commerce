@@ -34,12 +34,16 @@ export function EmptyState({
         <Icon size={24} className="stroke-[1.5]" />
       </div>
       <p className="text-sm font-bold text-brand-brown">{title}</p>
-      {subtitle && <p className="text-xs text-gray-400 mt-1 max-w-sm">{subtitle}</p>}
+      {subtitle && (
+        <p className="text-xs text-gray-400 mt-1 max-w-sm">{subtitle}</p>
+      )}
       {action && (
         <div className="mt-4">
           {React.isValidElement(action) ? (
             action
-          ) : typeof action === 'object' && action !== null && 'label' in action ? (
+          ) : typeof action === 'object' &&
+            action !== null &&
+            'label' in action ? (
             <button
               type="button"
               onClick={(action as EmptyStateActionConfig).onClick}

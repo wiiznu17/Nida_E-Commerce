@@ -10,7 +10,9 @@ const DialogClose = DialogPrimitive.Close;
 
 const DialogBackdrop = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Backdrop> & { className?: string }
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Backdrop> & {
+    className?: string;
+  }
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Backdrop
     ref={ref}
@@ -87,7 +89,9 @@ DialogFooter.displayName = 'DialogFooter';
 
 const DialogTitle = React.forwardRef<
   HTMLHeadingElement,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> & { className?: string }
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> & {
+    className?: string;
+  }
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
@@ -102,7 +106,9 @@ DialogTitle.displayName = 'DialogTitle';
 
 const DialogDescription = React.forwardRef<
   HTMLParagraphElement,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description> & { className?: string }
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description> & {
+    className?: string;
+  }
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}

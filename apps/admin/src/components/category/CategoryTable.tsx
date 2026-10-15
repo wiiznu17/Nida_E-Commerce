@@ -44,13 +44,25 @@ export function CategoryTable({
           <thead>
             <tr className="border-b border-brand-border bg-stone-50/75 text-[10px] font-black uppercase tracking-wider text-stone-500">
               <th className="py-3 px-4">{t('category.table.name')}</th>
-              <th className="py-3 px-4 w-28 text-center">{t('category.table.department')}</th>
+              <th className="py-3 px-4 w-28 text-center">
+                {t('category.table.department')}
+              </th>
               <th className="py-3 px-4 w-40">{t('category.table.type')}</th>
-              <th className="py-3 px-4 w-36 font-mono">{t('category.table.slug')}</th>
-              <th className="py-3 px-4 w-24 text-center">{t('category.table.products')}</th>
-              <th className="py-3 px-4 w-20 text-center">{t('category.table.order')}</th>
-              <th className="py-3 px-4 w-28 text-center">{t('category.table.status')}</th>
-              <th className="py-3 px-4 w-28 text-center">{t('category.table.actions')}</th>
+              <th className="py-3 px-4 w-36 font-mono">
+                {t('category.table.slug')}
+              </th>
+              <th className="py-3 px-4 w-24 text-center">
+                {t('category.table.products')}
+              </th>
+              <th className="py-3 px-4 w-20 text-center">
+                {t('category.table.order')}
+              </th>
+              <th className="py-3 px-4 w-28 text-center">
+                {t('category.table.status')}
+              </th>
+              <th className="py-3 px-4 w-28 text-center">
+                {t('category.table.actions')}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-border text-xs">
@@ -59,14 +71,19 @@ export function CategoryTable({
                 <td colSpan={8} className="py-12 text-center text-stone-400">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-4 h-4 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
-                    <span className="font-medium tracking-wide">Loading categories...</span>
+                    <span className="font-medium tracking-wide">
+                      Loading categories...
+                    </span>
                   </div>
                 </td>
               </tr>
             ) : mainCategories.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-12 text-center">
-                  <EmptyState icon={FolderTree} title={t('category.emptyState')} />
+                  <EmptyState
+                    icon={FolderTree}
+                    title={t('category.emptyState')}
+                  />
                 </td>
               </tr>
             ) : (
@@ -105,10 +122,17 @@ export function CategoryTable({
                       <>
                         {visibleSubs.length === 0 ? (
                           <tr className="bg-stone-50/50">
-                            <td colSpan={8} className="py-2.5 pl-14 pr-4 text-stone-400">
+                            <td
+                              colSpan={8}
+                              className="py-2.5 pl-14 pr-4 text-stone-400"
+                            >
                               <div className="flex items-center space-x-2 text-xs">
-                                <span className="italic">{t('category.noSubcategories')}</span>
-                                <PermissionGate permission={AdminPermission.CATALOG_WRITE}>
+                                <span className="italic">
+                                  {t('category.noSubcategories')}
+                                </span>
+                                <PermissionGate
+                                  permission={AdminPermission.CATALOG_WRITE}
+                                >
                                   <button
                                     onClick={() => onAddSub(mainCat)}
                                     className="text-brand-brown font-bold hover:underline cursor-pointer ml-1 inline-flex items-center space-x-1"

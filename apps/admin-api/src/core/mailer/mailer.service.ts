@@ -19,7 +19,8 @@ export class MailerService {
     const isDev = process.env.NODE_ENV !== 'production';
 
     if (isDev) {
-      this.logger.log(`\n======================================================================
+      this.logger
+        .log(`\n======================================================================
 [MAILER-DEV] INVITATION EMAIL DISPATCHED
 To: ${options.to} (${options.fullName})
 Subject: Welcome to Nida Admin Portal — Setup Your Password
@@ -32,11 +33,14 @@ Setup URL: ${options.setupUrl}
     }
   }
 
-  async sendPasswordReset(options: SendResetPasswordEmailOptions): Promise<void> {
+  async sendPasswordReset(
+    options: SendResetPasswordEmailOptions,
+  ): Promise<void> {
     const isDev = process.env.NODE_ENV !== 'production';
 
     if (isDev) {
-      this.logger.log(`\n======================================================================
+      this.logger
+        .log(`\n======================================================================
 [MAILER-DEV] PASSWORD RESET EMAIL DISPATCHED
 To: ${options.to}
 Subject: Reset Your Password — Nida Back-Office

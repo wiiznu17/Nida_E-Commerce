@@ -135,7 +135,9 @@ export default function AdminPromotions() {
   const handleToggle = async (coupon: ApiCoupon) => {
     const updatedState = !coupon.isActive;
     setCouponsList((prev) =>
-      prev.map((c) => (c.id === coupon.id ? { ...c, isActive: updatedState } : c)),
+      prev.map((c) =>
+        c.id === coupon.id ? { ...c, isActive: updatedState } : c,
+      ),
     );
 
     try {
@@ -145,10 +147,14 @@ export default function AdminPromotions() {
       );
     } catch {
       setCouponsList((prev) =>
-        prev.map((c) => (c.id === coupon.id ? { ...c, isActive: coupon.isActive } : c)),
+        prev.map((c) =>
+          c.id === coupon.id ? { ...c, isActive: coupon.isActive } : c,
+        ),
       );
       showToast(
-        language === 'th' ? 'เกิดข้อผิดพลาดในการเปลี่ยนสถานะ' : 'Failed to update coupon status',
+        language === 'th'
+          ? 'เกิดข้อผิดพลาดในการเปลี่ยนสถานะ'
+          : 'Failed to update coupon status',
       );
     }
   };
@@ -161,13 +167,19 @@ export default function AdminPromotions() {
       await promotionsApi.delete(couponToDelete.id);
       setCouponsList((prev) => prev.filter((c) => c.id !== couponToDelete.id));
       showToast(
-        t('promotions.messages.deleteSuccess').replace('{code}', couponToDelete.code),
+        t('promotions.messages.deleteSuccess').replace(
+          '{code}',
+          couponToDelete.code,
+        ),
       );
       setCouponToDelete(null);
     } catch {
       setCouponsList((prev) => prev.filter((c) => c.id !== couponToDelete.id));
       showToast(
-        t('promotions.messages.deleteSuccess').replace('{code}', couponToDelete.code),
+        t('promotions.messages.deleteSuccess').replace(
+          '{code}',
+          couponToDelete.code,
+        ),
       );
       setCouponToDelete(null);
     } finally {
@@ -181,7 +193,9 @@ export default function AdminPromotions() {
 
     const cleanCode = formData.code.toUpperCase().trim();
     if (!cleanCode) {
-      setFormError(language === 'th' ? 'กรุณาระบุรหัสคูปอง' : 'Coupon code is required');
+      setFormError(
+        language === 'th' ? 'กรุณาระบุรหัสคูปอง' : 'Coupon code is required',
+      );
       return;
     }
 
@@ -206,12 +220,15 @@ export default function AdminPromotions() {
           : Number(formData.discountValue),
       minOrderAmount: Number(formData.minOrderAmount) || 0,
       maxDiscountAmount:
-        formData.discountType === DiscountType.PERCENTAGE && formData.maxDiscountAmount
+        formData.discountType === DiscountType.PERCENTAGE &&
+        formData.maxDiscountAmount
           ? Number(formData.maxDiscountAmount)
           : undefined,
       totalUsageLimit: Number(formData.totalUsageLimit) || 100,
       userUsageLimit: Number(formData.userUsageLimit) || 1,
-      startsAt: formData.startsAt ? `${formData.startsAt}T00:00:00.000Z` : undefined,
+      startsAt: formData.startsAt
+        ? `${formData.startsAt}T00:00:00.000Z`
+        : undefined,
       expiresAt: `${formData.expiresAt}T23:59:59.000Z`,
       isActive: formData.isActive,
     };
@@ -221,7 +238,9 @@ export default function AdminPromotions() {
       const created = await promotionsApi.create(payload);
       setCouponsList((prev) => [created, ...prev]);
       setIsAddModalOpen(false);
-      showToast(t('promotions.messages.createSuccess').replace('{code}', created.code));
+      showToast(
+        t('promotions.messages.createSuccess').replace('{code}', created.code),
+      );
       setFormData({
         code: '',
         discountType: DiscountType.PERCENTAGE,
@@ -235,7 +254,8 @@ export default function AdminPromotions() {
         isActive: true,
       });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to create promo code';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to create promo code';
       setFormError(msg);
     } finally {
       setIsSubmitting(false);
@@ -271,7 +291,8 @@ export default function AdminPromotions() {
         const isExp = new Date(coupon.expiresAt) < now;
         if (statusTab === 'ACTIVE' && (!coupon.isActive || isExp)) return false;
         if (statusTab === 'EXPIRED' && !isExp) return false;
-        if (statusTab === 'INACTIVE' && (coupon.isActive || isExp)) return false;
+        if (statusTab === 'INACTIVE' && (coupon.isActive || isExp))
+          return false;
 
         if (typeFilter !== 'ALL' && coupon.discountType !== typeFilter) {
           return false;
@@ -285,10 +306,14 @@ export default function AdminPromotions() {
       })
       .sort((a, b) => {
         if (sortBy === 'newest') {
-          return new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime();
+          return (
+            new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime()
+          );
         }
         if (sortBy === 'oldest') {
-          return new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime();
+          return (
+            new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+          );
         }
         if (sortBy === 'codeAsc') {
           return a.code.localeCompare(b.code);
@@ -297,7 +322,9 @@ export default function AdminPromotions() {
           return b.code.localeCompare(a.code);
         }
         if (sortBy === 'expiringSoon') {
-          return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime();
+          return (
+            new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime()
+          );
         }
         return 0;
       });
@@ -559,7 +586,10 @@ export default function AdminPromotions() {
                 options={[
                   { value: 'newest', label: t('promotions.sort.newest') },
                   { value: 'oldest', label: t('promotions.sort.oldest') },
-                  { value: 'expiringSoon', label: t('promotions.sort.expiringSoon') },
+                  {
+                    value: 'expiringSoon',
+                    label: t('promotions.sort.expiringSoon'),
+                  },
                   { value: 'codeAsc', label: t('promotions.sort.codeAsc') },
                   { value: 'codeDesc', label: t('promotions.sort.codeDesc') },
                 ]}
@@ -593,10 +623,18 @@ export default function AdminPromotions() {
             <thead>
               <tr className="bg-brand-cream border-b border-brand-border text-[10px] font-black uppercase tracking-wider text-gray-500">
                 <th className="py-3 px-4 w-48">{t('promotions.table.code')}</th>
-                <th className="py-3 px-4 w-44">{t('promotions.table.discount')}</th>
-                <th className="py-3 px-4 w-48">{t('promotions.table.conditions')}</th>
-                <th className="py-3 px-4 w-52">{t('promotions.table.quota')}</th>
-                <th className="py-3 px-4 w-48">{t('promotions.table.validity')}</th>
+                <th className="py-3 px-4 w-44">
+                  {t('promotions.table.discount')}
+                </th>
+                <th className="py-3 px-4 w-48">
+                  {t('promotions.table.conditions')}
+                </th>
+                <th className="py-3 px-4 w-52">
+                  {t('promotions.table.quota')}
+                </th>
+                <th className="py-3 px-4 w-48">
+                  {t('promotions.table.validity')}
+                </th>
                 <th className="py-3 px-4 w-36 text-center">
                   {t('promotions.table.status')}
                 </th>
@@ -612,7 +650,9 @@ export default function AdminPromotions() {
                     <div className="inline-flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
                       <span className="font-medium text-xs">
-                        {language === 'th' ? 'กำลังโหลดข้อมูลคูปอง...' : 'Loading promotions...'}
+                        {language === 'th'
+                          ? 'กำลังโหลดข้อมูลคูปอง...'
+                          : 'Loading promotions...'}
                       </span>
                     </div>
                   </td>
@@ -634,20 +674,28 @@ export default function AdminPromotions() {
                       ? Math.min(
                           100,
                           Math.round(
-                            (coupon.currentUsageCount / coupon.totalUsageLimit) * 100,
+                            (coupon.currentUsageCount /
+                              coupon.totalUsageLimit) *
+                              100,
                           ),
                         )
                       : 0;
 
                   const statusInfo = getCouponRuntimeStatus(coupon);
-                  const expiryFormatted = new Date(coupon.expiresAt).toLocaleDateString(
-                    language === 'th' ? 'th-TH' : 'en-US',
-                    { year: 'numeric', month: 'short', day: 'numeric' },
-                  );
-                  const startFormatted = new Date(coupon.startsAt).toLocaleDateString(
-                    language === 'th' ? 'th-TH' : 'en-US',
-                    { year: 'numeric', month: 'short', day: 'numeric' },
-                  );
+                  const expiryFormatted = new Date(
+                    coupon.expiresAt,
+                  ).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  });
+                  const startFormatted = new Date(
+                    coupon.startsAt,
+                  ).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  });
 
                   return (
                     <tr
@@ -685,7 +733,9 @@ export default function AdminPromotions() {
                         <div className="space-y-0.5">
                           <div className="font-medium text-xs">
                             {coupon.minOrderAmount > 0
-                              ? t('promotions.discountDisplay.minOrder').replace(
+                              ? t(
+                                  'promotions.discountDisplay.minOrder',
+                                ).replace(
                                   '{min}',
                                   coupon.minOrderAmount.toLocaleString(),
                                 )
@@ -694,7 +744,9 @@ export default function AdminPromotions() {
                           {coupon.discountType === DiscountType.PERCENTAGE && (
                             <div className="text-[11px] text-gray-400">
                               {coupon.maxDiscountAmount
-                                ? t('promotions.discountDisplay.maxDiscount').replace(
+                                ? t(
+                                    'promotions.discountDisplay.maxDiscount',
+                                  ).replace(
                                     '{max}',
                                     coupon.maxDiscountAmount.toLocaleString(),
                                   )
@@ -709,7 +761,8 @@ export default function AdminPromotions() {
                         <div className="space-y-1">
                           <div className="flex justify-between text-[11px] font-mono text-gray-500">
                             <span>
-                              {coupon.currentUsageCount} / {coupon.totalUsageLimit}
+                              {coupon.currentUsageCount} /{' '}
+                              {coupon.totalUsageLimit}
                             </span>
                             <span className="font-bold text-brand-brown">
                               {usagePercent}%
@@ -736,7 +789,9 @@ export default function AdminPromotions() {
                           <span>{expiryFormatted}</span>
                         </div>
                         <div className="text-[10px] text-gray-400 mt-0.5">
-                          {language === 'th' ? `เริ่ม: ${startFormatted}` : `From: ${startFormatted}`}
+                          {language === 'th'
+                            ? `เริ่ม: ${startFormatted}`
+                            : `From: ${startFormatted}`}
                         </div>
                       </td>
 
@@ -758,11 +813,17 @@ export default function AdminPromotions() {
                             className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors cursor-pointer ${
                               coupon.isActive ? 'bg-emerald-600' : 'bg-gray-300'
                             }`}
-                            title={coupon.isActive ? 'Click to deactivate' : 'Click to activate'}
+                            title={
+                              coupon.isActive
+                                ? 'Click to deactivate'
+                                : 'Click to activate'
+                            }
                           >
                             <span
                               className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                                coupon.isActive ? 'translate-x-4' : 'translate-x-0.5'
+                                coupon.isActive
+                                  ? 'translate-x-4'
+                                  : 'translate-x-0.5'
                               }`}
                             />
                           </button>
@@ -837,7 +898,10 @@ export default function AdminPromotions() {
                   required
                   value={formData.code}
                   onChange={(e) =>
-                    setFormData({ ...formData, code: e.target.value.toUpperCase() })
+                    setFormData({
+                      ...formData,
+                      code: e.target.value.toUpperCase(),
+                    })
                   }
                   placeholder={t('promotions.modal.codePlaceholder')}
                   className="w-full border border-gray-300 px-3 py-2 font-mono font-bold uppercase focus:outline-none focus:border-brand-brown rounded-xs"
@@ -882,9 +946,19 @@ export default function AdminPromotions() {
                   <input
                     type="number"
                     required
-                    min={formData.discountType === DiscountType.FREE_SHIPPING ? 0 : 1}
-                    max={formData.discountType === DiscountType.PERCENTAGE ? 100 : undefined}
-                    disabled={formData.discountType === DiscountType.FREE_SHIPPING}
+                    min={
+                      formData.discountType === DiscountType.FREE_SHIPPING
+                        ? 0
+                        : 1
+                    }
+                    max={
+                      formData.discountType === DiscountType.PERCENTAGE
+                        ? 100
+                        : undefined
+                    }
+                    disabled={
+                      formData.discountType === DiscountType.FREE_SHIPPING
+                    }
                     value={formData.discountValue}
                     onChange={(e) =>
                       setFormData({

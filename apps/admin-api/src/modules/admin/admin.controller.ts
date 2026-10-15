@@ -31,7 +31,8 @@ export class AdminController {
   @RequirePermissions(AdminPermission.ORDERS_READ)
   @ApiOperation({
     summary: 'ดูรายการคำสั่งซื้อของแอดมินทั้งหมด (Admin Orders)',
-    description: 'ดึงรายการคำสั่งซื้อทั้งหมดพร้อมรายการสินค้าและข้อมูลการจัดส่ง',
+    description:
+      'ดึงรายการคำสั่งซื้อทั้งหมดพร้อมรายการสินค้าและข้อมูลการจัดส่ง',
   })
   @ApiResponse({ status: 200, description: 'รายการคำสั่งซื้อทั้งหมด' })
   async getOrders() {
@@ -62,9 +63,13 @@ export class AdminController {
   @RequirePermissions(AdminPermission.INVENTORY_READ)
   @ApiOperation({
     summary: 'ดูประวัติการเคลื่อนไหวของสต็อก (Stock Movement History)',
-    description: 'ดึงรายการ Audit Log การเติมสต็อก ปรับยอดสต็อก และตัดสต็อกสินค้า',
+    description:
+      'ดึงรายการ Audit Log การเติมสต็อก ปรับยอดสต็อก และตัดสต็อกสินค้า',
   })
-  @ApiResponse({ status: 200, description: 'รายการประวัติการเคลื่อนไหวของสต็อก' })
+  @ApiResponse({
+    status: 200,
+    description: 'รายการประวัติการเคลื่อนไหวของสต็อก',
+  })
   async getStockMovements() {
     return this.adminService.getStockMovements();
   }

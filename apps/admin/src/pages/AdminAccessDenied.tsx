@@ -1,6 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldAlert, ArrowLeft, LayoutDashboard, UserCheck } from 'lucide-react';
+import {
+  ShieldAlert,
+  ArrowLeft,
+  LayoutDashboard,
+  UserCheck,
+} from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,7 +15,9 @@ export interface AdminAccessDeniedProps {
   requiredPermission?: string;
 }
 
-export const AdminAccessDenied: React.FC<AdminAccessDeniedProps> = ({ requiredPermission }) => {
+export const AdminAccessDenied: React.FC<AdminAccessDeniedProps> = ({
+  requiredPermission,
+}) => {
   const navigate = useNavigate();
   const { admin } = useAuth();
   const { t } = useLanguage();
@@ -40,7 +47,9 @@ export const AdminAccessDenied: React.FC<AdminAccessDeniedProps> = ({ requiredPe
               <span className="text-[10px] font-black uppercase tracking-wider text-[#2B1810]/50">
                 {t('accessDenied.currentAccount')}
               </span>
-              <span className="font-semibold text-[#2B1810]">{admin?.email ?? '-'}</span>
+              <span className="font-semibold text-[#2B1810]">
+                {admin?.email ?? '-'}
+              </span>
             </div>
 
             <div className="flex items-center justify-between text-xs">

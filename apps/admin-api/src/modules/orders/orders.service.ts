@@ -264,9 +264,14 @@ export class OrdersService {
     courierName?: string,
     trackingNumber?: string,
   ): Promise<ApiOrder> {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        id,
+      );
     const existing = await this.prisma.order.findFirst({
-      where: isUuid ? { OR: [{ id }, { orderNumber: id }] } : { orderNumber: id },
+      where: isUuid
+        ? { OR: [{ id }, { orderNumber: id }] }
+        : { orderNumber: id },
       include: {
         shipments: {
           orderBy: { createdAt: 'desc' },
@@ -280,7 +285,7 @@ export class OrdersService {
 
     const hasTracking = Boolean(
       trackingNumber?.trim() ||
-        existing.shipments?.some((s) => Boolean(s.trackingNumber?.trim())),
+      existing.shipments?.some((s) => Boolean(s.trackingNumber?.trim())),
     );
 
     const validation = validateOrderStatusTransition(
@@ -348,9 +353,14 @@ export class OrdersService {
     id: string,
     carrierCode: CarrierCode,
   ): Promise<ApiOrder> {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        id,
+      );
     const existing = await this.prisma.order.findFirst({
-      where: isUuid ? { OR: [{ id }, { orderNumber: id }] } : { orderNumber: id },
+      where: isUuid
+        ? { OR: [{ id }, { orderNumber: id }] }
+        : { orderNumber: id },
       include: {
         shipments: {
           orderBy: { createdAt: 'desc' },

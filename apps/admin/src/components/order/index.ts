@@ -5,4 +5,3 @@ export * from './OrderDetailShippingCard';
 export * from './OrderDetailCustomerCard';
 export * from './OrderFulfillModal';
 export * from './print';
-

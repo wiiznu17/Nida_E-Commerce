@@ -22,7 +22,9 @@ export default function ProfilePage() {
   const { language, t } = useLanguage();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'addresses'>('profile');
+  const [activeTab, setActiveTab] = useState<
+    'profile' | 'orders' | 'addresses'
+  >('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -89,7 +91,8 @@ export default function ProfilePage() {
               </span>
             </div>
             <p className="text-xs text-gray-500 font-semibold mt-1">
-              {user.email} • {language === 'th' ? 'สมาชิก Nida Club' : 'Nida Club Member'}
+              {user.email} •{' '}
+              {language === 'th' ? 'สมาชิก Nida Club' : 'Nida Club Member'}
             </p>
           </div>
         </div>
@@ -99,7 +102,9 @@ export default function ProfilePage() {
             <span className="text-[10px] font-bold uppercase text-gray-500 tracking-wider block">
               {language === 'th' ? 'คะแนนสะสม' : 'Rewards Points'}
             </span>
-            <span className="text-lg font-black text-[#2B1810]">{user.points || 1250} PTS</span>
+            <span className="text-lg font-black text-[#2B1810]">
+              {user.points || 1250} PTS
+            </span>
           </div>
           <button
             onClick={handleLogout}
@@ -164,9 +169,21 @@ export default function ProfilePage() {
               </span>
             </div>
             <ul className="text-[11px] text-gray-600 space-y-1.5 font-medium">
-              <li>{language === 'th' ? '✓ จัดส่งฟรีทุกออเดอร์ทั่วไทย' : '✓ Free shipping on all orders'}</li>
-              <li>{language === 'th' ? '✓ ส่วนลด 20% โค้ด NIDA20' : '✓ Extra 20% off code NIDA20'}</li>
-              <li>{language === 'th' ? '✓ สิทธิ์จองคอลเลกชันใหม่ก่อนใคร' : '✓ Early private drop access'}</li>
+              <li>
+                {language === 'th'
+                  ? '✓ จัดส่งฟรีทุกออเดอร์ทั่วไทย'
+                  : '✓ Free shipping on all orders'}
+              </li>
+              <li>
+                {language === 'th'
+                  ? '✓ ส่วนลด 20% โค้ด NIDA20'
+                  : '✓ Extra 20% off code NIDA20'}
+              </li>
+              <li>
+                {language === 'th'
+                  ? '✓ สิทธิ์จองคอลเลกชันใหม่ก่อนใคร'
+                  : '✓ Early private drop access'}
+              </li>
             </ul>
           </div>
         </div>
@@ -231,7 +248,8 @@ export default function ProfilePage() {
 
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('auth.emailLabel')} - {language === 'th' ? 'ปลอดภัยด้วย OTP' : 'OTP Protected'}
+                      {t('auth.emailLabel')} -{' '}
+                      {language === 'th' ? 'ปลอดภัยด้วย OTP' : 'OTP Protected'}
                     </label>
                     <input
                       type="email"
@@ -283,28 +301,38 @@ export default function ProfilePage() {
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
                         {t('auth.firstName')}
                       </p>
-                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">{user.firstName || 'Phannida'}</p>
+                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">
+                        {user.firstName || 'Phannida'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
                         {t('auth.lastName')}
                       </p>
-                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">{user.lastName || 'Wissanu'}</p>
+                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">
+                        {user.lastName || 'Wissanu'}
+                      </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-6 bg-[#FAF7F2] p-4 border border-[#EAE3D9]">
                     <div>
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
-                        {language === 'th' ? 'อีเมลยืนยันแล้ว' : 'Verified Email'}
+                        {language === 'th'
+                          ? 'อีเมลยืนยันแล้ว'
+                          : 'Verified Email'}
                       </p>
-                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">{user.email}</p>
+                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">
+                        {user.email}
+                      </p>
                     </div>
                     <div>
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
                         {t('auth.phone')}
                       </p>
-                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">{user.phone || '081-892-3456'}</p>
+                      <p className="text-sm font-bold text-[#2B1810] mt-0.5">
+                        {user.phone || '081-892-3456'}
+                      </p>
                     </div>
                   </div>
 
@@ -349,7 +377,9 @@ export default function ProfilePage() {
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {language === 'th' ? 'สั่งซื้อเมื่อ 24 ตุลาคม 2026 • ขนส่ง Kerry' : 'Ordered Oct 24, 2026 • Kerry Express TH'}
+                        {language === 'th'
+                          ? 'สั่งซื้อเมื่อ 24 ตุลาคม 2026 • ขนส่ง Kerry'
+                          : 'Ordered Oct 24, 2026 • Kerry Express TH'}
                       </p>
                     </div>
 
@@ -358,7 +388,9 @@ export default function ProfilePage() {
                         <span className="text-[10px] uppercase font-bold text-gray-400 block">
                           {t('checkout.total')}
                         </span>
-                        <span className="text-base font-black text-[#2B1810]">$340.00</span>
+                        <span className="text-base font-black text-[#2B1810]">
+                          $340.00
+                        </span>
                       </div>
                       <Link
                         href="/track-order/918274"
@@ -380,9 +412,13 @@ export default function ProfilePage() {
                     </div>
                     <div className="text-xs">
                       <h4 className="font-bold text-[#2B1810] text-sm">
-                        {language === 'th' ? 'เสื้อโค้ทเทรนช์ ดับเบิลเบรสต์ เฮอริเทจ' : 'Heritage Double-Breasted Trench Coat'}
+                        {language === 'th'
+                          ? 'เสื้อโค้ทเทรนช์ ดับเบิลเบรสต์ เฮอริเทจ'
+                          : 'Heritage Double-Breasted Trench Coat'}
                       </h4>
-                      <p className="text-gray-500 font-semibold mt-0.5">Classic Khaki • Size M</p>
+                      <p className="text-gray-500 font-semibold mt-0.5">
+                        Classic Khaki • Size M
+                      </p>
                       <p className="text-gray-500 mt-0.5">
                         {t('cart.qty')}: 1 • $289.00
                       </p>
@@ -403,14 +439,18 @@ export default function ProfilePage() {
                         </span>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {language === 'th' ? 'สั่งซื้อเมื่อ 15 ตุลาคม 2026' : 'Ordered Oct 15, 2026'}
+                        {language === 'th'
+                          ? 'สั่งซื้อเมื่อ 15 ตุลาคม 2026'
+                          : 'Ordered Oct 15, 2026'}
                       </p>
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] uppercase font-bold text-gray-400 block">
                         {t('checkout.total')}
                       </span>
-                      <span className="text-base font-black text-[#2B1810]">$129.00</span>
+                      <span className="text-base font-black text-[#2B1810]">
+                        $129.00
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -423,9 +463,13 @@ export default function ProfilePage() {
                     </div>
                     <div className="text-xs">
                       <h4 className="font-bold text-[#2B1810] text-sm">
-                        {language === 'th' ? 'สเวตเตอร์ไหมพรมถักลายเคเบิล ซิกเนเจอร์' : 'Iconic Cable-Knit Crewneck Sweater'}
+                        {language === 'th'
+                          ? 'สเวตเตอร์ไหมพรมถักลายเคเบิล ซิกเนเจอร์'
+                          : 'Iconic Cable-Knit Crewneck Sweater'}
                       </h4>
-                      <p className="text-gray-500 font-semibold mt-0.5">Ivory White • Size S</p>
+                      <p className="text-gray-500 font-semibold mt-0.5">
+                        Ivory White • Size S
+                      </p>
                       <p className="text-gray-500 mt-0.5">{t('cart.qty')}: 1</p>
                     </div>
                   </div>
@@ -455,7 +499,9 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-black uppercase tracking-wider text-[#2B1810] flex items-center">
                       <MapPin size={14} className="mr-1 text-[#D97706]" />{' '}
-                      {language === 'th' ? 'ที่อยู่หลัก (DEFAULT)' : 'PRIMARY ADDRESS'}
+                      {language === 'th'
+                        ? 'ที่อยู่หลัก (DEFAULT)'
+                        : 'PRIMARY ADDRESS'}
                     </span>
                     <span className="text-[10px] bg-[#2B1810] text-white px-2 py-0.5 font-bold uppercase">
                       {language === 'th' ? 'บ้าน' : 'HOME'}
@@ -482,13 +528,17 @@ export default function ProfilePage() {
                     {language === 'th' ? 'เพิ่มที่อยู่ใหม่' : 'Add New Address'}
                   </p>
                   <p className="text-[11px] text-gray-400 mb-3">
-                    {language === 'th' ? 'เพิ่มที่อยู่ที่ทำงาน หรือที่อยู่สำรอง' : 'Add office or alternate delivery address'}
+                    {language === 'th'
+                      ? 'เพิ่มที่อยู่ที่ทำงาน หรือที่อยู่สำรอง'
+                      : 'Add office or alternate delivery address'}
                   </p>
                   <button
                     onClick={() => setActiveTab('profile')}
                     className="text-xs font-black uppercase text-[#2B1810] hover:text-[#D97706] underline"
                   >
-                    {language === 'th' ? 'แก้ไขที่อยู่หลัก' : 'Edit Default Address'}
+                    {language === 'th'
+                      ? 'แก้ไขที่อยู่หลัก'
+                      : 'Edit Default Address'}
                   </button>
                 </div>
               </div>

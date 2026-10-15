@@ -33,7 +33,12 @@ describe('CatalogService - getProducts', () => {
         tagTh: null,
         isPreorder: false,
         isActive: true,
-        category: { id: 'c-1', name: 'Apparel', slug: 'apparel', department: Department.WOMEN },
+        category: {
+          id: 'c-1',
+          name: 'Apparel',
+          slug: 'apparel',
+          department: Department.WOMEN,
+        },
         images: [],
         variants: [],
         _count: { reviews: 0 },
@@ -158,7 +163,11 @@ describe('CatalogService - getProducts', () => {
       draft: 3,
     });
     expect(prismaMock.product.count).toHaveBeenCalledTimes(3);
-    expect(prismaMock.product.count).toHaveBeenNthCalledWith(2, { where: { isActive: true } });
-    expect(prismaMock.product.count).toHaveBeenNthCalledWith(3, { where: { isActive: false } });
+    expect(prismaMock.product.count).toHaveBeenNthCalledWith(2, {
+      where: { isActive: true },
+    });
+    expect(prismaMock.product.count).toHaveBeenNthCalledWith(3, {
+      where: { isActive: false },
+    });
   });
 });
