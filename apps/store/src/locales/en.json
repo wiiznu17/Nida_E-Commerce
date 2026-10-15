@@ -194,7 +194,13 @@
     "heritageTitle1": "INTENTIONAL DESIGN.",
     "heritageTitle2": "UNCOMPROMISED SPIRIT.",
     "heritageDesc": "Founded by Phannida, Nida celebrates the spirit of modern classic dressing — bridging collegiate optimism with mindful, enduring craftsmanship that transcends fast seasons.",
-    "readOurStory": "READ OUR STORY"
+    "readOurStory": "READ OUR STORY",
+    "shopNow": "SHOP NOW",
+    "catSweaters": "SWEATERS & KNITS",
+    "catPolos": "HERITAGE POLOS",
+    "catBags": "LEATHER BAGS & BELTS",
+    "catFootwear": "FOOTWEAR & SNEAKERS",
+    "colorsCount": "colors"
   },
   "catalog": {
     "filterBy": "FILTER BY",
