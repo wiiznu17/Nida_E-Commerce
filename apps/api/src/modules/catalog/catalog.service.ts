@@ -11,8 +11,6 @@ import {
   type StoreQueryProductsParams,
 } from '@repo/types';
 
-export type { StoreQueryProductsParams };
-
 type CategoryWithRelations = Prisma.CategoryGetPayload<Record<string, never>> & {
   children?: CategoryWithRelations[];
   _count?: { products: number };
