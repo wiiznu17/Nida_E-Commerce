@@ -97,12 +97,16 @@ describe('CustomerCatalogService', () => {
                 colorHex: { in: ['#2B1810'], mode: 'insensitive' },
               },
             },
-            category: expect.objectContaining({
-              department: Department.MEN,
-              OR: expect.arrayContaining([
-                { name: { contains: 'Polos & T-Shirts', mode: 'insensitive' } },
+            category: {
+              AND: expect.arrayContaining([
+                { department: Department.MEN },
+                expect.objectContaining({
+                  OR: expect.arrayContaining([
+                    { name: { contains: 'Polos & T-Shirts', mode: 'insensitive' } },
+                  ]),
+                }),
               ]),
-            }),
+            },
           }),
           orderBy: { basePrice: 'asc' },
           skip: 0,

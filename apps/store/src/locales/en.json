@@ -202,6 +202,12 @@
     "catFootwear": "FOOTWEAR & SNEAKERS",
     "colorsCount": "colors"
   },
+  "collection": {
+    "categoryLabel": "CATEGORY",
+    "subCategoryLabel": "SUB CATEGORY",
+    "allCategories": "ALL CATEGORIES",
+    "allSubCategories": "ALL IN THIS CATEGORY"
+  },
   "catalog": {
     "filterBy": "FILTER BY",
     "allCategories": "All Sub-Categories",

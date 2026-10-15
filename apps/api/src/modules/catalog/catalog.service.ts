@@ -59,26 +59,39 @@ export class CustomerCatalogService {
     }
 
     if (department || category || subCategory) {
-      const categoryFilter: Prisma.CategoryWhereInput = {};
+      const conditions: Prisma.CategoryWhereInput[] = [];
+
       if (
         department &&
         Object.values(Department).includes(
           department.toUpperCase() as Department,
         )
       ) {
-        categoryFilter.department = department.toUpperCase() as Department;
+        conditions.push({ department: department.toUpperCase() as Department });
       }
+
       if (category && category !== 'all') {
-        categoryFilter.slug = category;
+        conditions.push({
+          OR: [
+            { slug: category },
+            { parent: { slug: category } },
+          ],
+        });
       }
+
       if (subCategory) {
-        categoryFilter.OR = [
-          { name: { contains: subCategory, mode: 'insensitive' } },
-          { nameTh: { contains: subCategory, mode: 'insensitive' } },
-          { slug: subCategory },
-        ];
+        conditions.push({
+          OR: [
+            { name: { contains: subCategory, mode: 'insensitive' } },
+            { nameTh: { contains: subCategory, mode: 'insensitive' } },
+            { slug: subCategory },
+          ],
+        });
       }
-      where.category = categoryFilter;
+
+      if (conditions.length > 0) {
+        where.category = { AND: conditions };
+      }
     }
 
     if (tag) {

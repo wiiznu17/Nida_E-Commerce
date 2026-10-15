@@ -80,7 +80,7 @@ export function buildDynamicMegaMenu(
         const links: MegaMenuLink[] = [
           {
             label: isTh ? 'ดูสินค้าทั้งหมดในหมวดนี้' : `All ${title}`,
-            href: `/collections/${parent.slug}`,
+            href: `/collections/${dept}?category=${parent.slug}`,
           },
         ];
 
@@ -88,7 +88,7 @@ export function buildDynamicMegaMenu(
           for (const sub of parent.children.slice(0, 6)) {
             links.push({
               label: isTh && sub.nameTh ? sub.nameTh : sub.name,
-              href: `/collections/${sub.slug}`,
+              href: `/collections/${dept}?category=${parent.slug}&subCategory=${sub.slug}`,
             });
           }
         }
@@ -104,7 +104,7 @@ export function buildDynamicMegaMenu(
         title: t('mega.featuredTrends', 'Featured & Trends'),
         links: [
           { label: t('nav.allProducts', 'All Products'), href: `/collections/${dept}` },
-          { label: parentTitle, href: `/collections/${parent.slug}` },
+          { label: parentTitle, href: `/collections/${dept}?category=${parent.slug}` },
         ],
       });
 
@@ -117,7 +117,7 @@ export function buildDynamicMegaMenu(
           title: parentTitle,
           links: col1.map((c) => ({
             label: isTh && c.nameTh ? c.nameTh : c.name,
-            href: `/collections/${c.slug}`,
+            href: `/collections/${dept}?category=${parent.slug}&subCategory=${c.slug}`,
           })),
         });
 
@@ -126,7 +126,7 @@ export function buildDynamicMegaMenu(
             title: t('mega.moreCategories', 'More Categories'),
             links: col2.map((c) => ({
               label: isTh && c.nameTh ? c.nameTh : c.name,
-              href: `/collections/${c.slug}`,
+              href: `/collections/${dept}?category=${parent.slug}&subCategory=${c.slug}`,
             })),
           });
         }

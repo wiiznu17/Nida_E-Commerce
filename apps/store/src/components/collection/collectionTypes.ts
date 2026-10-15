@@ -17,16 +17,24 @@ export interface CollectionBannerProps {
   bgImage?: string;
 }
 
-export interface SubCategoryItem {
-  key: string;
+export interface CategoryPillItem {
+  slug: string;
   label: string;
+  count?: number;
 }
 
-export interface CollectionSubCategoryPillsProps {
-  subCategories: SubCategoryItem[];
+export interface CollectionCategoryNavProps {
+  // Level 1: Category
+  categories: CategoryPillItem[];
+  selectedCategory: string | null;
+  onSelectCategory: (categorySlug: string | null) => void;
+
+  // Level 2: Sub Category
+  subCategories: CategoryPillItem[];
   selectedSubCategory: string | null;
+  onSelectSubCategory: (subCategorySlug: string | null) => void;
+
   totalCount: number;
-  onSelectSubCategory: (subCategory: string | null) => void;
 }
 
 export interface CollectionControlBarProps {
