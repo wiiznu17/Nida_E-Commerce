@@ -66,7 +66,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = process.env.STORE_API_PORT ? Number(process.env.STORE_API_PORT) : 4001;
+  const port = Number(process.env.STORE_API_PORT ?? process.env.PORT ?? 4001);
   await app.listen(port);
 
   const url = await app.getUrl();

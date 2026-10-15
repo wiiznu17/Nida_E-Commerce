@@ -22,7 +22,7 @@ export default function CollectionPage() {
 
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const { productsList } = useCatalog();
+  const { productsList, getCategoryBySlug } = useCatalog();
   const { language, t } = useLanguage();
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -31,6 +31,11 @@ export default function CollectionPage() {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [gridCols, setGridCols] = useState<4 | 3>(4);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
+
+  // Dynamic database category match
+  const matchedCategory = useMemo(() => {
+    return getCategoryBySlug(category);
+  }, [category, getCategoryBySlug]);
 
   // Department / Category Metadata
   const departmentInfo: Record<
@@ -119,22 +124,92 @@ export default function CollectionPage() {
     },
   };
 
-  const currentInfo = departmentInfo[category] || departmentInfo.all;
-  const currentTitle = language === 'th' ? currentInfo.titleTh : currentInfo.title;
-  const currentSubtitle = language === 'th' ? currentInfo.subtitleTh : currentInfo.subtitle;
-  const currentTag = language === 'th' ? currentInfo.bannerTagTh : currentInfo.bannerTag;
+  const currentInfo =
+    (matchedCategory
+      ? departmentInfo[matchedCategory.department.toLowerCase()]
+      : departmentInfo[category]) || departmentInfo.all;
+
+  const currentTitle = matchedCategory
+    ? language === 'th' && matchedCategory.nameTh
+      ? matchedCategory.nameTh
+      : matchedCategory.name
+    : language === 'th'
+      ? currentInfo.titleTh
+      : currentInfo.title;
+
+  const currentSubtitle = matchedCategory
+    ? (language === 'th' && matchedCategory.descriptionTh
+        ? matchedCategory.descriptionTh
+        : matchedCategory.description) ||
+      (language === 'th' ? currentInfo.subtitleTh : currentInfo.subtitle)
+    : language === 'th'
+      ? currentInfo.subtitleTh
+      : currentInfo.subtitle;
+
+  const currentTag = matchedCategory
+    ? matchedCategory.bannerTag ||
+      (language === 'th' ? currentInfo.bannerTagTh : currentInfo.bannerTag)
+    : language === 'th'
+      ? currentInfo.bannerTagTh
+      : currentInfo.bannerTag;
+
+  const currentBgImage = matchedCategory?.bannerImage || currentInfo.bgImage;
 
   // Filter products
   const filteredProducts = useMemo(() => {
     let list = productsList.filter((p) => {
       if (category === 'all') return true;
       if (category === 'sale') return Boolean(p.originalPrice && p.originalPrice > p.price);
-      if (category === 'apparel') return p.category === 'apparel' || p.department === 'women' || p.department === 'men';
-      return p.department === category || p.category === category;
+      if (category === 'apparel') {
+        return p.category === 'apparel' || p.department === 'women' || p.department === 'men';
+      }
+
+      if (matchedCategory) {
+        // If matched category is a parent with children
+        if (!matchedCategory.parentId && matchedCategory.children && matchedCategory.children.length > 0) {
+          const childSlugs = new Set(matchedCategory.children.map((c) => c.slug.toLowerCase()));
+          const childNames = new Set(matchedCategory.children.map((c) => c.name.toLowerCase()));
+          const childNamesTh = new Set(
+            matchedCategory.children.map((c) => c.nameTh?.toLowerCase()).filter(Boolean),
+          );
+
+          const matchesChild =
+            childSlugs.has(p.category.toLowerCase()) ||
+            (p.subCategory && childNames.has(p.subCategory.toLowerCase())) ||
+            (p.subCategoryTh && childNamesTh.has(p.subCategoryTh.toLowerCase()));
+
+          return (
+            (p.department || '').toLowerCase() === matchedCategory.department.toLowerCase() ||
+            p.category.toLowerCase() === matchedCategory.slug.toLowerCase() ||
+            matchesChild
+          );
+        }
+
+        // Single child subcategory or leaf category
+        const catSlug = matchedCategory.slug.toLowerCase();
+        const catName = matchedCategory.name.toLowerCase();
+        const catNameTh = matchedCategory.nameTh?.toLowerCase();
+
+        return (
+          p.category.toLowerCase() === catSlug ||
+          p.subCategory?.toLowerCase() === catName ||
+          (catNameTh && p.subCategoryTh?.toLowerCase() === catNameTh)
+        );
+      }
+
+      return (
+        (p.department || '').toLowerCase() === category.toLowerCase() ||
+        p.category.toLowerCase() === category.toLowerCase()
+      );
     });
 
     if (selectedSubCategory) {
-      list = list.filter((p) => p.subCategory === selectedSubCategory);
+      list = list.filter(
+        (p) =>
+          p.subCategory === selectedSubCategory ||
+          p.subCategoryTh === selectedSubCategory ||
+          p.category === selectedSubCategory,
+      );
     }
 
     if (selectedColor) {
@@ -150,23 +225,36 @@ export default function CollectionPage() {
     }
 
     return list;
-  }, [category, selectedSubCategory, selectedColor, sortBy, productsList]);
+  }, [category, matchedCategory, selectedSubCategory, selectedColor, sortBy, productsList]);
 
-  // Extract unique subcategories
+  // Extract available subcategories
   const availableSubCategories = useMemo(() => {
+    if (matchedCategory?.children && matchedCategory.children.length > 0) {
+      return matchedCategory.children.map((child) => ({
+        key: child.name,
+        label: language === 'th' && child.nameTh ? child.nameTh : child.name,
+      }));
+    }
+
     const subs = new Map<string, string>();
     productsList.forEach((p) => {
-      if (category === 'all' || p.department === category || p.category === category) {
-        if (p.subCategory) {
-          subs.set(p.subCategory, p.subCategoryTh || p.subCategory);
-        }
+      const isMatch =
+        category === 'all' ||
+        (p.department || '').toLowerCase() === category.toLowerCase() ||
+        p.category.toLowerCase() === category.toLowerCase() ||
+        (matchedCategory &&
+          (p.department || '').toLowerCase() === matchedCategory.department.toLowerCase());
+
+      if (isMatch && p.subCategory) {
+        subs.set(p.subCategory, p.subCategoryTh || p.subCategory);
       }
     });
+
     return Array.from(subs.entries()).map(([key, labelTh]) => ({
       key,
       label: language === 'th' ? labelTh : key,
     }));
-  }, [category, language, productsList]);
+  }, [category, matchedCategory, language, productsList]);
 
   const handleQuickAdd = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
@@ -177,13 +265,17 @@ export default function CollectionPage() {
         : product.category === 'bags' || product.category === 'home'
           ? 'One Size'
           : 'M';
-    const defaultColor = product.colors && product.colors.length > 0 ? 'Navy / Classic' : 'Standard';
+    const defaultColor =
+      product.colors && product.colors.length > 0 ? 'Navy / Classic' : 'Standard';
     addToCart(product, defaultSize, defaultColor);
     setAddedProductId(product.id);
     setTimeout(() => setAddedProductId(null), 2000);
   };
 
-  const sortOptions = [
+  const sortOptions: {
+    id: 'featured' | 'price-asc' | 'price-desc' | 'rating';
+    label: string;
+  }[] = [
     { id: 'featured', label: t('catalog.sortFeatured') },
     { id: 'price-asc', label: t('catalog.sortPriceAsc') },
     { id: 'price-desc', label: t('catalog.sortPriceDesc') },
@@ -196,9 +288,9 @@ export default function CollectionPage() {
     <div className="w-full bg-white font-sans min-h-screen">
       {/* 1. EDITORIAL DEPARTMENT BANNER */}
       <div className="bg-[#2B1810] text-white py-12 sm:py-16 px-4 relative overflow-hidden">
-        {currentInfo.bgImage && (
+        {currentBgImage && (
           <div className="absolute inset-0 opacity-20">
-            <img src={currentInfo.bgImage} alt={currentTitle} className="w-full h-full object-cover" />
+            <img src={currentBgImage} alt={currentTitle} className="w-full h-full object-cover" />
           </div>
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -352,7 +444,7 @@ export default function CollectionPage() {
                     <button
                       key={option.id}
                       onClick={() => {
-                        setSortBy(option.id as any);
+                        setSortBy(option.id);
                         setActiveDropdown(null);
                       }}
                       className="w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-gray-50 text-[#2B1810] flex items-center justify-between"

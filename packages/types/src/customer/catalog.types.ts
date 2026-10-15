@@ -104,3 +104,14 @@ export interface ApiProductVariant {
   widthCm?: number;
   heightCm?: number;
 }
+
+export interface StoreQueryProductsParams {
+  department?: string;
+  category?: string;
+  search?: string;
+  tag?: string;
+  isPreorder?: boolean;
+  sortBy?: 'newest' | 'price_asc' | 'price_desc';
+  page?: number;
+  limit?: number;
+}

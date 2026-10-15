@@ -21,6 +21,8 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useLanguage, getProductTitle, getProductTag } from '../context/LanguageContext';
+import { useCatalog } from '../context/CatalogContext';
+import type { ApiCategory } from '@repo/types';
 import { products } from '../data/products';
 
 // Signature tri-color emblem: Brown, White, Yellow
@@ -41,8 +43,33 @@ export function NidaLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   );
 }
 
+export interface MegaMenuLink {
+  label: string;
+  href: string;
+}
+
+export interface MegaMenuCategoryGroup {
+  title: string;
+  links: MegaMenuLink[];
+}
+
+export interface MegaMenuPromo {
+  tag: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  link: string;
+}
+
+export interface MegaMenuDepartment {
+  categories: MegaMenuCategoryGroup[];
+  promo: MegaMenuPromo;
+}
+
+export type MegaMenuData = Record<string, MegaMenuDepartment>;
+
 // Mega Menu Helper with Bilingual Support
-function getMegaMenuData(lang: 'th' | 'en') {
+function getMegaMenuData(lang: 'th' | 'en'): MegaMenuData {
   const isTh = lang === 'th';
   return {
     women: {
@@ -270,11 +297,121 @@ function getMegaMenuData(lang: 'th' | 'en') {
   };
 }
 
+function buildDynamicMegaMenu(
+  language: 'th' | 'en',
+  categoriesByDept: Record<string, ApiCategory[]>,
+): MegaMenuData {
+  const fallback = getMegaMenuData(language);
+  const isTh = language === 'th';
+  const result: MegaMenuData = { ...fallback };
+
+  const departments = ['women', 'men', 'kids', 'bags', 'shoes', 'home'] as const;
+
+  for (const dept of departments) {
+    const parentCats = categoriesByDept[dept] ?? [];
+    if (parentCats.length === 0) {
+      continue;
+    }
+
+    const fallbackDept = fallback[dept];
+    const promo: MegaMenuPromo = fallbackDept?.promo ?? {
+      tag: isTh ? 'คอลเลกชันใหม่' : 'NEW COLLECTION',
+      title: isTh ? `คอลเลกชัน ${dept}` : `${dept.toUpperCase()} Collection`,
+      subtitle: isTh
+        ? 'ดีไซน์ประณีตและการตัดเย็บสไตล์ร่วมสมัย'
+        : 'Timeless modern tailoring and essentials.',
+      image:
+        'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+      link: `/collections/${dept}`,
+    };
+
+    const categoryGroups: MegaMenuCategoryGroup[] = [];
+
+    if (parentCats.length >= 2) {
+      for (const parent of parentCats.slice(0, 3)) {
+        const title = isTh && parent.nameTh ? parent.nameTh : parent.name;
+        const links: MegaMenuLink[] = [
+          {
+            label: isTh ? `ดูทั้งหมด (${title})` : `All ${title}`,
+            href: `/collections/${parent.slug}`,
+          },
+        ];
+        if (parent.children && parent.children.length > 0) {
+          for (const child of parent.children) {
+            links.push({
+              label: isTh && child.nameTh ? child.nameTh : child.name,
+              href: `/collections/${child.slug}`,
+            });
+          }
+        }
+        categoryGroups.push({ title, links });
+      }
+    } else {
+      const singleParent = parentCats[0];
+      const children = singleParent.children ?? [];
+      const parentTitle = isTh && singleParent.nameTh ? singleParent.nameTh : singleParent.name;
+
+      const quickLinks: MegaMenuLink[] = [
+        {
+          label: isTh ? `ดูสินค้าทั้งหมด (${parentTitle})` : `All ${parentTitle}`,
+          href: `/collections/${singleParent.slug}`,
+        },
+        {
+          label: isTh ? 'สินค้ามาใหม่' : 'New Arrivals',
+          href: `/collections/${dept}`,
+        },
+        {
+          label: isTh ? 'สินค้าขายดี' : 'Best Sellers',
+          href: `/collections/${dept}`,
+        },
+      ];
+      categoryGroups.push({
+        title: isTh ? 'เทรนด์และไฮไลท์' : 'Featured & Highlights',
+        links: quickLinks,
+      });
+
+      if (children.length > 0) {
+        const mid = Math.ceil(children.length / 2);
+        const col1 = children.slice(0, mid);
+        const col2 = children.slice(mid);
+
+        categoryGroups.push({
+          title: parentTitle,
+          links: col1.map((c) => ({
+            label: isTh && c.nameTh ? c.nameTh : c.name,
+            href: `/collections/${c.slug}`,
+          })),
+        });
+
+        if (col2.length > 0) {
+          categoryGroups.push({
+            title: isTh ? 'หมวดหมู่เพิ่มเติม' : 'More Categories',
+            links: col2.map((c) => ({
+              label: isTh && c.nameTh ? c.nameTh : c.name,
+              href: `/collections/${c.slug}`,
+            })),
+          });
+        }
+      }
+    }
+
+    if (categoryGroups.length > 0) {
+      result[dept] = {
+        categories: categoryGroups,
+        promo,
+      };
+    }
+  }
+
+  return result;
+}
+
 export function Header() {
   const { setIsCartOpen, items } = useCart();
   const { wishlistCount } = useWishlist();
   const { isAuthenticated } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { categoriesByDept } = useCatalog();
   const pathname = usePathname();
 
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
@@ -284,7 +421,10 @@ export function Header() {
   const [activeMobileAccordion, setActiveMobileAccordion] = useState<string | null>(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const megaMenuData = useMemo(() => getMegaMenuData(language), [language]);
+  const megaMenuData = useMemo(
+    () => buildDynamicMegaMenu(language, categoriesByDept),
+    [language, categoriesByDept],
+  );
 
   // Filter products for live search (supports both English and Thai search queries)
   const searchResults =
@@ -505,7 +645,7 @@ export function Header() {
         </div>
 
         {/* 3. DESKTOP MEGA MENU FLYOUT */}
-        {activeMegaMenu && (megaMenuData as any)[activeMegaMenu] && (
+        {activeMegaMenu && megaMenuData[activeMegaMenu] && (
           <div
             className="absolute top-full left-0 w-full bg-white border-b-2 border-[#2B1810] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200"
             onMouseEnter={() => handleMouseEnter(activeMegaMenu)}
@@ -515,13 +655,13 @@ export function Header() {
               <div className="grid grid-cols-12 gap-8">
                 {/* Category Links Columns */}
                 <div className="col-span-8 grid grid-cols-3 gap-8">
-                  {(megaMenuData as any)[activeMegaMenu].categories.map((group: any, idx: number) => (
+                  {megaMenuData[activeMegaMenu].categories.map((group, idx) => (
                     <div key={idx} className="space-y-4">
                       <h4 className="text-xs font-black tracking-[0.2em] text-[#2B1810] uppercase pb-2 border-b border-[#EAE3D9]">
                         {group.title}
                       </h4>
                       <ul className="space-y-2.5">
-                        {group.links.map((link: any, lIdx: number) => (
+                        {group.links.map((link, lIdx) => (
                           <li key={lIdx}>
                             <Link
                               href={link.href}
@@ -541,22 +681,22 @@ export function Header() {
                   <div className="bg-[#FAF7F2] border border-[#EAE3D9] p-4 group cursor-pointer hover:border-[#2B1810] transition-all">
                     <div className="relative aspect-[16/10] overflow-hidden mb-4 bg-gray-200">
                       <img
-                        src={(megaMenuData as any)[activeMegaMenu].promo.image}
-                        alt={(megaMenuData as any)[activeMegaMenu].promo.title}
+                        src={megaMenuData[activeMegaMenu].promo.image}
+                        alt={megaMenuData[activeMegaMenu].promo.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                       <span className="absolute top-3 left-3 bg-[#2B1810] text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5">
-                        {(megaMenuData as any)[activeMegaMenu].promo.tag}
+                        {megaMenuData[activeMegaMenu].promo.tag}
                       </span>
                     </div>
                     <h5 className="font-bold text-sm text-[#2B1810] mb-1">
-                      {(megaMenuData as any)[activeMegaMenu].promo.title}
+                      {megaMenuData[activeMegaMenu].promo.title}
                     </h5>
                     <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-                      {(megaMenuData as any)[activeMegaMenu].promo.subtitle}
+                      {megaMenuData[activeMegaMenu].promo.subtitle}
                     </p>
                     <Link
-                      href={(megaMenuData as any)[activeMegaMenu].promo.link}
+                      href={megaMenuData[activeMegaMenu].promo.link}
                       className="inline-flex items-center text-xs font-black tracking-widest uppercase text-[#2B1810] group-hover:text-[#D97706] transition-colors"
                     >
                       {t('mega.shopThisEdit')}{' '}
@@ -697,7 +837,7 @@ export function Header() {
                     >
                       {item.label}
                     </Link>
-                    {(megaMenuData as any)[item.id] && (
+                    {megaMenuData[item.id] && (
                       <button
                         onClick={() => setActiveMobileAccordion(activeMobileAccordion === item.id ? null : item.id)}
                         className="p-1 text-gray-500"
@@ -709,11 +849,11 @@ export function Header() {
                       </button>
                     )}
                   </div>
-                  {activeMobileAccordion === item.id && (megaMenuData as any)[item.id] && (
+                  {activeMobileAccordion === item.id && megaMenuData[item.id] && (
                     <div className="mt-3 pl-3 space-y-2 border-l-2 border-[#2B1810]">
-                      {(megaMenuData as any)[item.id].categories
-                        .flatMap((c: any) => c.links)
-                        .map((link: any, idx: number) => (
+                      {megaMenuData[item.id].categories
+                        .flatMap((c) => c.links)
+                        .map((link, idx) => (
                           <Link
                             key={idx}
                             href={link.href}

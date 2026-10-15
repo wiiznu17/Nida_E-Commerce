@@ -27,6 +27,7 @@ import { CustomerJwtGuard, OptionalCustomerJwtGuard } from './guards/customer-jw
     CustomerAuthService,
     CustomerJwtGuard,
     OptionalCustomerJwtGuard,
+    PassportModule,
     JwtModule,
   ],
 })

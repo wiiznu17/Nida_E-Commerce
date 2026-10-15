@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@repo/database';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import {
   Department,
@@ -7,18 +8,15 @@ import {
   type ApiCategory,
   type ApiColorSwatch,
   type PaginatedResponse,
+  type StoreQueryProductsParams,
 } from '@repo/types';
 
-export interface StoreQueryProductsParams {
-  department?: string;
-  category?: string;
-  search?: string;
-  tag?: string;
-  isPreorder?: boolean;
-  sortBy?: 'newest' | 'price_asc' | 'price_desc';
-  page?: number;
-  limit?: number;
-}
+export type { StoreQueryProductsParams };
+
+type CategoryWithRelations = Prisma.CategoryGetPayload<Record<string, never>> & {
+  children?: CategoryWithRelations[];
+  _count?: { products: number };
+};
 
 @Injectable()
 export class CustomerCatalogService {
@@ -224,29 +222,43 @@ export class CustomerCatalogService {
   }
 
   async getCategories(department?: string): Promise<ApiCategory[]> {
-    const where: Record<string, unknown> = {};
+    const where: Prisma.CategoryWhereInput = { isActive: true };
     if (department && Object.values(Department).includes(department.toUpperCase() as Department)) {
-      where['department'] = department.toUpperCase() as Department;
+      where.department = department.toUpperCase() as Department;
     }
 
     const categories = await this.prisma.category.findMany({
-      where: where as any,
+      where,
+      include: {
+        children: {
+          where: { isActive: true },
+          orderBy: { displayOrder: 'asc' },
+        },
+        _count: { select: { products: { where: { isActive: true } } } },
+      },
       orderBy: { displayOrder: 'asc' },
     });
 
-    return categories.map((c) => ({
-      id: c.id,
-      name: c.name,
-      nameTh: c.nameTh ?? undefined,
-      slug: c.slug,
-      department: c.department,
-      description: c.description ?? undefined,
-      descriptionTh: c.descriptionTh ?? undefined,
-      bannerTag: c.bannerTag ?? undefined,
-      bannerTagTh: c.bannerTagTh ?? undefined,
-      bannerImage: c.bannerImage ?? undefined,
-      displayOrder: c.displayOrder,
-      parentId: c.parentId ?? undefined,
-    }));
+    return categories.map((c) => this.mapCategory(c));
+  }
+
+  private mapCategory(cat: CategoryWithRelations): ApiCategory {
+    return {
+      id: cat.id,
+      name: cat.name,
+      nameTh: cat.nameTh ?? undefined,
+      slug: cat.slug,
+      department: cat.department,
+      description: cat.description ?? undefined,
+      descriptionTh: cat.descriptionTh ?? undefined,
+      bannerTag: cat.bannerTag ?? undefined,
+      bannerTagTh: cat.bannerTagTh ?? undefined,
+      bannerImage: cat.bannerImage ?? undefined,
+      displayOrder: cat.displayOrder,
+      parentId: cat.parentId ?? undefined,
+      children: cat.children?.map((c) => this.mapCategory(c)),
+      productCount: cat._count?.products,
+      isActive: cat.isActive,
+    };
   }
 }
