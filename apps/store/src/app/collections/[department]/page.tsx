@@ -35,7 +35,6 @@ function CollectionDepartmentContent() {
   // 2. Direct Category and SubCategory from URL Search Parameters
   const selectedCategory = searchParams.get('category')?.trim() ?? null;
   const selectedSubCategory = searchParams.get('subCategory')?.trim() ?? null;
-  const selectedColor = searchParams.get('color')?.trim() ?? null;
   const sortBy =
     (searchParams.get('sort')?.trim() as
       | 'featured'
@@ -104,7 +103,6 @@ function CollectionDepartmentContent() {
   const updateUrlFilters = (updates: {
     category?: string | null;
     subCategory?: string | null;
-    color?: string | null;
     sort?: string | null;
   }) => {
     const nextCat =
@@ -113,14 +111,11 @@ function CollectionDepartmentContent() {
       updates.subCategory !== undefined
         ? updates.subCategory
         : selectedSubCategory;
-    const nextCol =
-      updates.color !== undefined ? updates.color : selectedColor;
     const nextSort = updates.sort !== undefined ? updates.sort : sortBy;
 
     const sp = new URLSearchParams();
     if (nextCat) sp.set('category', nextCat);
     if (nextSub) sp.set('subCategory', nextSub);
-    if (nextCol) sp.set('color', nextCol);
     if (nextSort && nextSort !== 'featured') sp.set('sort', nextSort);
 
     const queryString = sp.toString();
@@ -150,7 +145,6 @@ function CollectionDepartmentContent() {
         department !== 'all' && department !== 'sale' ? department : undefined,
       category: selectedCategory ?? undefined,
       subCategory: selectedSubCategory ?? undefined,
-      colors: selectedColor ? [selectedColor] : undefined,
       tag: department === 'sale' ? 'SALE' : undefined,
       sortBy: sortMap[sortBy] ?? 'featured',
       limit: 48,
@@ -172,7 +166,7 @@ function CollectionDepartmentContent() {
     return () => {
       isCancelled = true;
     };
-  }, [department, selectedCategory, selectedSubCategory, selectedColor, sortBy]);
+  }, [department, selectedCategory, selectedSubCategory, sortBy]);
 
   // Department and Category Banner Meta
   const deptData = DEPARTMENT_INFO[department];
@@ -244,10 +238,9 @@ function CollectionDepartmentContent() {
 
       {/* 3. FILTER & SORT CONTROL BAR */}
       <CollectionControlBar
-        selectedColor={selectedColor}
         sortBy={sortBy}
         gridCols={gridCols}
-        onSelectColor={(color) => updateUrlFilters({ color })}
+        totalCount={totalCount}
         onSortChange={(sort) => updateUrlFilters({ sort })}
         onToggleGridCols={(cols) => setGridCols(cols)}
       />
@@ -266,7 +259,6 @@ function CollectionDepartmentContent() {
               updateUrlFilters({
                 category: null,
                 subCategory: null,
-                color: null,
               })
             }
           />

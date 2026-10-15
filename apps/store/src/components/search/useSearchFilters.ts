@@ -25,16 +25,29 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     const deptParam = searchParams.get('department')?.trim() ?? '';
     const subCatParam = searchParams.get('subCategory')?.trim() ?? '';
     const priceParam = (searchParams.get('priceRange')?.trim() as FilterState['priceRange']) ?? null;
+    const tagParam = searchParams.get('tag')?.trim() || searchParams.get('tags')?.trim() || '';
     const onSaleParam = searchParams.get('onSale') === 'true';
     const newArrivalsParam = searchParams.get('newArrivals') === 'true';
     const sortParam = (searchParams.get('sort')?.trim() as FilterState['sortBy']) ?? 'featured';
+
+    const tagsList: string[] = tagParam ? tagParam.split(',').filter(Boolean) : [];
+    if (onSaleParam && !tagsList.some((t) => t.toUpperCase() === 'SALE')) {
+      tagsList.push('SALE');
+    }
+    if (
+      newArrivalsParam &&
+      !tagsList.some(
+        (t) => t.toUpperCase() === 'NEW ARRIVAL' || t.toUpperCase() === 'NEW',
+      )
+    ) {
+      tagsList.push('NEW ARRIVAL');
+    }
 
     return {
       departments: deptParam ? deptParam.split(',').filter(Boolean) : [],
       subCategories: subCatParam ? subCatParam.split(',').filter(Boolean) : [],
       priceRange: priceParam,
-      onSale: onSaleParam,
-      newArrivals: newArrivalsParam,
+      tags: tagsList,
       sortBy: sortParam,
     };
   }, [searchParams]);
@@ -48,8 +61,7 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     if (next.departments.length > 0) sp.set('department', next.departments.join(','));
     if (next.subCategories.length > 0) sp.set('subCategory', next.subCategories.join(','));
     if (next.priceRange) sp.set('priceRange', next.priceRange);
-    if (next.onSale) sp.set('onSale', 'true');
-    if (next.newArrivals) sp.set('newArrivals', 'true');
+    if (next.tags.length > 0) sp.set('tag', next.tags.join(','));
     if (next.sortBy && next.sortBy !== 'featured') sp.set('sort', next.sortBy);
 
     router.push(`/search?${sp.toString()}`, { scroll: false });
@@ -106,12 +118,14 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     updateUrlFilters({ priceRange });
   };
 
-  const handleToggleOnSale = (onSale: boolean) => {
-    updateUrlFilters({ onSale });
-  };
-
-  const handleToggleNewArrivals = (newArrivals: boolean) => {
-    updateUrlFilters({ newArrivals });
+  const handleToggleTag = (tag: string) => {
+    const isSelected = filters.tags.some(
+      (t) => t.toUpperCase() === tag.toUpperCase(),
+    );
+    const tags = isSelected
+      ? filters.tags.filter((t) => t.toUpperCase() !== tag.toUpperCase())
+      : [...filters.tags, tag];
+    updateUrlFilters({ tags });
   };
 
   const handleSortChange = (sortBy: FilterState['sortBy']) => {
@@ -127,8 +141,7 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     count += filters.departments.length;
     count += filters.subCategories.length;
     if (filters.priceRange !== null) count += 1;
-    if (filters.onSale) count += 1;
-    if (filters.newArrivals) count += 1;
+    count += filters.tags.length;
     return count;
   }, [filters]);
 
@@ -140,8 +153,7 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     toggleDepartment,
     toggleSubCategory,
     handlePriceRangeChange,
-    handleToggleOnSale,
-    handleToggleNewArrivals,
+    handleToggleTag,
     handleSortChange,
     clearAllFilters,
   };

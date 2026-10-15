@@ -8,8 +8,8 @@ import {
   useLanguage,
   getProductTitle,
   getProductSubCategory,
-  getProductTag,
 } from '@/context/LanguageContext';
+import { ProductBadge } from '@/components/ui';
 
 export interface HomeProductCardProps {
   product: StorefrontProduct;
@@ -29,7 +29,6 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
   const { language, t } = useLanguage();
   const title = getProductTitle(product, language);
   const subCategory = getProductSubCategory(product, language);
-  const tag = getProductTag(product, language) || product.tag;
 
   const discountPercent =
     product.originalPrice && product.originalPrice > product.price
@@ -52,9 +51,13 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
         </Link>
 
         {/* Marketing Badge */}
-        {tag && (
-          <div className="absolute top-3 left-3 bg-[#2B1810] text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 shadow-xs">
-            {tag}
+        {(product.tag || product.tagTh) && (
+          <div className="absolute top-3 left-3 z-10">
+            <ProductBadge
+              tag={product.tag}
+              tagTh={product.tagTh}
+              language={language}
+            />
           </div>
         )}
 

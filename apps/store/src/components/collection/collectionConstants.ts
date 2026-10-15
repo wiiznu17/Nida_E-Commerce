@@ -98,13 +98,3 @@ export const DEPARTMENT_INFO: Record<string, DepartmentMeta> = {
       'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
   },
 };
-
-export const COLOR_PRESETS = [
-  '#2B1810',
-  '#FFFFFF',
-  '#F59E0B',
-  '#D4B996',
-  '#111827',
-  '#4B5563',
-  '#78350F',
-];

@@ -110,10 +110,13 @@ export function findMarketingTagByLabel(
   labelEnOrTh: string,
 ): MarketingTagOption | undefined {
   const normalized = labelEnOrTh.trim().toUpperCase();
+  const normalizedSpaces = normalized.replace(/_/g, ' ');
   return MARKETING_TAGS.find(
     (t) =>
       t.labelEn.toUpperCase() === normalized ||
+      t.labelEn.toUpperCase() === normalizedSpaces ||
       t.labelTh.toUpperCase() === normalized ||
-      t.key.toUpperCase() === normalized,
+      t.key.toUpperCase() === normalized ||
+      (normalized === 'NEW' && t.key === MarketingTagKey.NEW_ARRIVAL),
   );
 }

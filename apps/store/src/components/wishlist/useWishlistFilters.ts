@@ -73,15 +73,18 @@ export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
       }
     }
 
-    // 4. Special Offers
-    if (filters.onSale) {
-      list = list.filter(
-        (p) =>
-          p.tag === 'SALE' || (p.originalPrice && p.originalPrice > p.price)
-      );
-    }
-    if (filters.newArrivals) {
-      list = list.filter((p) => p.tag === 'NEW');
+    // 4. Marketing Badges / Tags
+    if (filters.tags && filters.tags.length > 0) {
+      list = list.filter((p) => {
+        const pTag = (p.tag || '').toUpperCase();
+        return filters.tags.some((t) => {
+          const upper = t.toUpperCase();
+          if (upper === 'NEW ARRIVAL' || upper === 'NEW') {
+            return pTag === 'NEW ARRIVAL' || pTag === 'NEW';
+          }
+          return pTag === upper;
+        });
+      });
     }
 
     // 5. Sorting
@@ -124,12 +127,14 @@ export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
     setFilters((prev) => ({ ...prev, priceRange }));
   };
 
-  const handleToggleOnSale = (onSale: boolean) => {
-    setFilters((prev) => ({ ...prev, onSale }));
-  };
-
-  const handleToggleNewArrivals = (newArrivals: boolean) => {
-    setFilters((prev) => ({ ...prev, newArrivals }));
+  const handleToggleTag = (tag: string) => {
+    const upper = tag.toUpperCase();
+    setFilters((prev) => ({
+      ...prev,
+      tags: prev.tags.some((t) => t.toUpperCase() === upper)
+        ? prev.tags.filter((t) => t.toUpperCase() !== upper)
+        : [...prev.tags, tag],
+    }));
   };
 
   const handleSortChange = (sortBy: FilterState['sortBy']) => {
@@ -145,8 +150,7 @@ export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
     count += filters.departments.length;
     count += filters.subCategories.length;
     if (filters.priceRange !== null) count += 1;
-    if (filters.onSale) count += 1;
-    if (filters.newArrivals) count += 1;
+    count += filters.tags.length;
     return count;
   }, [filters]);
 
@@ -158,8 +162,7 @@ export function useWishlistFilters(rawWishlistProducts: StorefrontProduct[]) {
     toggleDepartment,
     toggleSubCategory,
     handlePriceRangeChange,
-    handleToggleOnSale,
-    handleToggleNewArrivals,
+    handleToggleTag,
     handleSortChange,
     clearAllFilters,
   };

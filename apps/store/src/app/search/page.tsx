@@ -35,8 +35,7 @@ function SearchPageContent() {
     toggleDepartment,
     toggleSubCategory,
     handlePriceRangeChange,
-    handleToggleOnSale,
-    handleToggleNewArrivals,
+    handleToggleTag,
     handleSortChange,
     clearAllFilters,
   } = useSearchFilters({ productsList, categories });
@@ -71,7 +70,7 @@ function SearchPageContent() {
       subCategory: filters.subCategories.length === 1 ? filters.subCategories[0] : undefined,
       minPrice,
       maxPrice,
-      tag: filters.onSale ? 'SALE' : filters.newArrivals ? 'NEW' : undefined,
+      tag: filters.tags.length > 0 ? filters.tags.join(',') : undefined,
       sortBy: sortMap[filters.sortBy] ?? 'featured',
       limit: 48,
     })
@@ -138,8 +137,7 @@ function SearchPageContent() {
                   onToggleDepartment={toggleDepartment}
                   onToggleSubCategory={toggleSubCategory}
                   onPriceRangeChange={handlePriceRangeChange}
-                  onToggleOnSale={handleToggleOnSale}
-                  onToggleNewArrivals={handleToggleNewArrivals}
+                  onToggleTag={handleToggleTag}
                   onClearAll={clearAllFilters}
                 />
               </div>
@@ -178,8 +176,7 @@ function SearchPageContent() {
           onToggleDepartment={toggleDepartment}
           onToggleSubCategory={toggleSubCategory}
           onPriceRangeChange={handlePriceRangeChange}
-          onToggleOnSale={handleToggleOnSale}
-          onToggleNewArrivals={handleToggleNewArrivals}
+          onToggleTag={handleToggleTag}
           onClearAll={clearAllFilters}
         />
       </CatalogMobileDrawer>

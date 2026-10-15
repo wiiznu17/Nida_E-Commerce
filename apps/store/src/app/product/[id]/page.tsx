@@ -8,11 +8,11 @@ import { useWishlist } from '@/context/WishlistContext';
 import { useCatalog } from '@/context/CatalogContext';
 import { fetchProductByIdOrSlug } from '@/lib/catalogApi';
 import type { StorefrontProduct } from '@repo/types';
+import { ProductBadge } from '@/components/ui';
 import {
   useLanguage,
   getProductTitle,
   getProductSubCategory,
-  getProductTag,
   getProductDescription,
 } from '@/context/LanguageContext';
 import {
@@ -175,7 +175,6 @@ export default function ProductDetailPage() {
   const title = getProductTitle(product, language);
   const subCategory =
     getProductSubCategory(product, language) || product.category;
-  const tag = getProductTag(product, language) || product.tag;
   const description = getProductDescription(product, language);
 
   const materialsText =
@@ -251,9 +250,14 @@ export default function ProductDetailPage() {
             alt={title}
             className="w-full h-full object-cover object-center transition-transform duration-500"
           />
-          {tag && (
-            <div className="absolute top-4 left-4 bg-[#2B1810] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 shadow-xs">
-              {tag}
+          {(product.tag || product.tagTh) && (
+            <div className="absolute top-4 left-4 z-10">
+              <ProductBadge
+                tag={product.tag}
+                tagTh={product.tagTh}
+                language={language}
+                className="text-[10px] px-3 py-1"
+              />
             </div>
           )}
           <button
@@ -272,15 +276,24 @@ export default function ProductDetailPage() {
         <div className="col-span-1 lg:col-span-5 flex flex-col justify-start space-y-6">
           {/* Brand Flag & Category */}
           <div>
-            <div className="flex items-center space-x-2 mb-2">
-              <div className="flex w-10 h-1.5">
-                <div className="w-1/3 bg-[#2B1810]"></div>
-                <div className="w-1/3 bg-white border-y border-gray-200"></div>
-                <div className="w-1/3 bg-[#F59E0B]"></div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <div className="flex w-10 h-1.5">
+                  <div className="w-1/3 bg-[#2B1810]"></div>
+                  <div className="w-1/3 bg-white border-y border-gray-200"></div>
+                  <div className="w-1/3 bg-[#F59E0B]"></div>
+                </div>
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">
+                  NIDA • {subCategory}
+                </span>
               </div>
-              <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">
-                NIDA • {subCategory}
-              </span>
+              {(product.tag || product.tagTh) && (
+                <ProductBadge
+                  tag={product.tag}
+                  tagTh={product.tagTh}
+                  language={language}
+                />
+              )}
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#2B1810]">
@@ -623,7 +636,6 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {relatedProducts.map((p) => {
             const pTitle = getProductTitle(p, language);
-            const pTag = getProductTag(p, language) || p.tag;
 
             return (
               <Link
@@ -637,10 +649,15 @@ export default function ProductDetailPage() {
                     alt={pTitle}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  {pTag && (
-                    <span className="absolute top-2 left-2 bg-[#2B1810] text-white text-[8px] font-black uppercase px-2 py-0.5">
-                      {pTag}
-                    </span>
+                  {(p.tag || p.tagTh) && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <ProductBadge
+                        tag={p.tag}
+                        tagTh={p.tagTh}
+                        language={language}
+                        className="text-[8px] px-1.5 py-0.5"
+                      />
+                    </div>
                   )}
                 </div>
                 <h3 className="text-xs font-bold text-[#2B1810] group-hover:text-[#D97706] line-clamp-1 mb-1">

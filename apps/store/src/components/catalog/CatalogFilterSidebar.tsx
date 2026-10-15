@@ -1,7 +1,6 @@
-'use client';
-
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
+import { MARKETING_TAGS } from '@repo/types';
 import { useLanguage } from '@/context/LanguageContext';
 import type { CatalogFilterSidebarProps } from './catalogTypes';
 import { STANDARD_DEPARTMENTS, DEPARTMENT_LABELS, PRICE_OPTIONS } from './catalogConstants';
@@ -13,8 +12,7 @@ export function CatalogFilterSidebar({
   onToggleDepartment,
   onToggleSubCategory,
   onPriceRangeChange,
-  onToggleOnSale,
-  onToggleNewArrivals,
+  onToggleTag,
   onClearAll,
 }: CatalogFilterSidebarProps) {
   const { language, t } = useLanguage();
@@ -23,7 +21,7 @@ export function CatalogFilterSidebar({
     gender: true,
     category: true,
     price: true,
-    offers: true,
+    badges: true,
   });
 
   const toggleSection = (section: string) => {
@@ -174,36 +172,57 @@ export function CatalogFilterSidebar({
         )}
       </div>
 
-      {/* 4. Special Offers */}
+      {/* 4. Marketing Badges / Tags */}
       <div className="pb-2">
         <button
           type="button"
-          onClick={() => toggleSection('offers')}
+          onClick={() => toggleSection('badges')}
           className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-[#2B1810] py-1 text-left cursor-pointer"
         >
-          <span>{t('search.specialOffers')}</span>
-          {openSections.offers ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          <span>
+            {t('search.productBadges') ??
+              (language === 'th' ? 'ป้ายสินค้า' : 'Product Badges')}
+          </span>
+          {openSections.badges ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
-        {openSections.offers && (
+        {openSections.badges && (
           <div className="mt-3 space-y-2">
-            <label className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]">
-              <input
-                type="checkbox"
-                checked={filters.onSale}
-                onChange={(e) => onToggleOnSale(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
-              />
-              <span>{t('search.onSale')}</span>
-            </label>
-            <label className="flex items-center space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]">
-              <input
-                type="checkbox"
-                checked={filters.newArrivals}
-                onChange={(e) => onToggleNewArrivals(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
-              />
-              <span>{t('search.newArrivals')}</span>
-            </label>
+            {MARKETING_TAGS.map((tagPreset) => {
+              const isChecked = filters.tags.some(
+                (t) =>
+                  t.toUpperCase() === tagPreset.labelEn.toUpperCase() ||
+                  t.toUpperCase() === tagPreset.key.toUpperCase(),
+              );
+              const label =
+                language === 'th' ? tagPreset.labelTh : tagPreset.labelEn;
+
+              return (
+                <label
+                  key={tagPreset.key}
+                  className="flex items-center justify-between space-x-2.5 cursor-pointer text-xs font-medium text-gray-700 hover:text-[#2B1810]"
+                >
+                  <div className="flex items-center space-x-2.5">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => onToggleTag(tagPreset.labelEn)}
+                      className="w-4 h-4 rounded border-gray-300 text-[#2B1810] focus:ring-[#2B1810] accent-[#2B1810]"
+                    />
+                    <span>{label}</span>
+                  </div>
+                  <span
+                    style={{
+                      backgroundColor: tagPreset.badgeBg,
+                      color: tagPreset.badgeText,
+                      borderColor: tagPreset.badgeBorder,
+                    }}
+                    className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 border rounded-xs select-none"
+                  >
+                    {tagPreset.labelEn}
+                  </span>
+                </label>
+              );
+            })}
           </div>
         )}
       </div>

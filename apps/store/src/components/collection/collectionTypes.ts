@@ -38,10 +38,9 @@ export interface CollectionCategoryNavProps {
 }
 
 export interface CollectionControlBarProps {
-  selectedColor: string | null;
   sortBy: 'featured' | 'newest' | 'price-asc' | 'price-desc';
   gridCols: 3 | 4;
-  onSelectColor: (color: string | null) => void;
+  totalCount?: number;
   onSortChange: (sort: 'featured' | 'newest' | 'price-asc' | 'price-desc') => void;
   onToggleGridCols: (cols: 3 | 4) => void;
 }

@@ -41,8 +41,7 @@ export default function WishlistPage() {
     toggleDepartment,
     toggleSubCategory,
     handlePriceRangeChange,
-    handleToggleOnSale,
-    handleToggleNewArrivals,
+    handleToggleTag,
     handleSortChange,
     clearAllFilters,
   } = useWishlistFilters(rawWishlistProducts);
@@ -88,8 +87,7 @@ export default function WishlistPage() {
                   onToggleDepartment={toggleDepartment}
                   onToggleSubCategory={toggleSubCategory}
                   onPriceRangeChange={handlePriceRangeChange}
-                  onToggleOnSale={handleToggleOnSale}
-                  onToggleNewArrivals={handleToggleNewArrivals}
+                  onToggleTag={handleToggleTag}
                   onClearAll={clearAllFilters}
                 />
               </div>
@@ -131,8 +129,7 @@ export default function WishlistPage() {
           onToggleDepartment={toggleDepartment}
           onToggleSubCategory={toggleSubCategory}
           onPriceRangeChange={handlePriceRangeChange}
-          onToggleOnSale={handleToggleOnSale}
-          onToggleNewArrivals={handleToggleNewArrivals}
+          onToggleTag={handleToggleTag}
           onClearAll={clearAllFilters}
         />
       </CatalogMobileDrawer>

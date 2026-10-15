@@ -8,8 +8,8 @@ import {
   useLanguage,
   getProductTitle,
   getProductSubCategory,
-  getProductTag,
 } from '@/context/LanguageContext';
+import { ProductBadge } from '@/components/ui';
 import type { StorefrontProduct } from '@repo/types';
 import type { CollectionProductGridProps } from './collectionTypes';
 
@@ -43,7 +43,6 @@ export function CollectionProductGrid({
         const isJustAdded = addedProductId === product.id;
         const title = getProductTitle(product, language);
         const subCategory = getProductSubCategory(product, language);
-        const tag = getProductTag(product, language) || product.tag;
 
         return (
           <div
@@ -62,9 +61,13 @@ export function CollectionProductGrid({
               </Link>
 
               {/* Tag badge */}
-              {tag && (
-                <div className="absolute top-3 left-3 bg-[#2B1810] text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 shadow-xs">
-                  {tag}
+              {(product.tag || product.tagTh) && (
+                <div className="absolute top-3 left-3 z-10">
+                  <ProductBadge
+                    tag={product.tag}
+                    tagTh={product.tagTh}
+                    language={language}
+                  />
                 </div>
               )}
 

@@ -95,7 +95,38 @@ export class CustomerCatalogService {
     }
 
     if (tag) {
-      where.tag = tag;
+      const tagList = tag
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      const tagConditions: Prisma.ProductWhereInput[] = [];
+      for (const t of tagList) {
+        const upper = t.toUpperCase().replace(/_/g, ' ');
+        if (upper === 'NEW ARRIVAL' || upper === 'NEW') {
+          tagConditions.push(
+            { tag: { equals: 'NEW ARRIVAL', mode: 'insensitive' } },
+            { tag: { equals: 'NEW', mode: 'insensitive' } },
+          );
+        } else {
+          tagConditions.push({ tag: { equals: upper, mode: 'insensitive' } });
+        }
+      }
+
+      if (tagConditions.length === 1) {
+        where.tag = tagConditions[0]?.tag;
+      } else if (tagConditions.length > 1) {
+        if (!where.AND) {
+          where.AND = [{ OR: tagConditions }];
+        } else if (Array.isArray(where.AND)) {
+          (where.AND as Prisma.ProductWhereInput[]).push({ OR: tagConditions });
+        } else {
+          where.AND = [
+            where.AND as Prisma.ProductWhereInput,
+            { OR: tagConditions },
+          ];
+        }
+      }
     }
 
     if (minPrice !== undefined || maxPrice !== undefined) {

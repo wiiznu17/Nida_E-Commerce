@@ -4,8 +4,7 @@ export const INITIAL_FILTER_STATE: FilterState = {
   departments: [],
   subCategories: [],
   priceRange: null,
-  onSale: false,
-  newArrivals: false,
+  tags: [],
   sortBy: 'featured',
 };
 

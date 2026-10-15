@@ -7,8 +7,7 @@ export interface FilterState {
   departments: string[];
   subCategories: string[];
   priceRange: PriceRangeKey;
-  onSale: boolean;
-  newArrivals: boolean;
+  tags: string[];
   sortBy: SortOptionKey;
 }
 
@@ -30,8 +29,7 @@ export interface CatalogFilterSidebarProps {
   onToggleDepartment: (dept: string) => void;
   onToggleSubCategory: (subCat: string) => void;
   onPriceRangeChange: (priceRange: PriceRangeKey) => void;
-  onToggleOnSale: (onSale: boolean) => void;
-  onToggleNewArrivals: (newArrivals: boolean) => void;
+  onToggleTag: (tag: string) => void;
   onClearAll: () => void;
 }
 
