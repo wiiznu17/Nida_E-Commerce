@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Montserrat, Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
-import { Layout } from '@/components/Layout';
+import { Layout } from '@/components/layout';
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',

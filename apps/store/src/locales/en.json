@@ -12,7 +12,10 @@
     "all": "All",
     "confirm": "Confirm",
     "success": "Success",
-    "error": "An error occurred"
+    "error": "An error occurred",
+    "switchLangTh": "Switch to Thai",
+    "switchLangEn": "Switch to English",
+    "allRightsReserved": "All Rights Reserved."
   },
   "nav": {
     "storeLocator": "Store Locator",
@@ -30,7 +33,8 @@
     "signOut": "Sign Out",
     "bag": "BAG",
     "wishlist": "Wishlist",
-    "allProducts": "All Products"
+    "allProducts": "All Products",
+    "toggleMenu": "Toggle navigation menu"
   },
   "promo": {
     "limited": "LIMITED TIME",
@@ -42,6 +46,7 @@
     "featuredTrends": "Featured & Trends",
     "clothing": "Clothing",
     "shoesAccessories": "Shoes & Accessories",
+    "moreCategories": "More Categories",
     "shopThisEdit": "SHOP THIS EDIT",
     "womenTag": "NEW SEASON EDIT",
     "womenTitle": "Women's Autumn Collection",
@@ -66,6 +71,12 @@
     "placeholder": "What are you looking for? (e.g., Cable-Knit, Polo, Trench Coat, Leather Bag)...",
     "placeholderShort": "Search...",
     "trending": "Trending:",
+    "trendingItem1": "Polo Shirts",
+    "trendingItem2": "Cable-Knit Sweaters",
+    "trendingItem3": "Trench Coats",
+    "trendingItem4": "Leather Bags",
+    "trendingItem5": "Court Sneakers",
+    "trendingItem6": "Bath Towels",
     "matchingProducts": "Matching Products",
     "viewAll": "View All Results",
     "noResults": "No matching products found",
@@ -105,7 +116,9 @@
     "continueShopping": "CONTINUE SHOPPING",
     "remove": "REMOVE",
     "size": "SIZE",
-    "qty": "QTY"
+    "qty": "QTY",
+    "increaseQty": "Increase quantity",
+    "decreaseQty": "Decrease quantity"
   },
   "footer": {
     "joinClub": "JOIN THE NIDA REWARDS CLUB",
