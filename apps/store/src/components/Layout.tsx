@@ -27,6 +27,7 @@ import {
 } from '../context/LanguageContext';
 import { useCatalog } from '../context/CatalogContext';
 import type { ApiCategory } from '@repo/types';
+import { HeaderSearchBar } from './header/HeaderSearchBar';
 
 // Signature tri-color emblem: Brown, White, Yellow
 export function NidaLogo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
@@ -639,15 +640,18 @@ export function Header() {
   const { language, setLanguage, t } = useLanguage();
   const { categoriesByDept, productsList } = useCatalog();
   const pathname = usePathname();
+  const router = useRouter();
 
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMobileAccordion, setActiveMobileAccordion] = useState<
     string | null
   >(null);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement | null>(null);
 
   const megaMenuData = useMemo(
     () => buildDynamicMegaMenu(language, categoriesByDept),
@@ -683,11 +687,44 @@ export function Header() {
     }, 150);
   };
 
+  // Close search flyout on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchFocused(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (searchQuery.trim()) {
+      setIsSearchFocused(false);
+      setIsSearchOpen(false);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleQuickKeyword = (term: string) => {
+    setSearchQuery(term);
+    setIsSearchFocused(false);
+    setIsSearchOpen(false);
+    router.push(`/search?q=${encodeURIComponent(term)}`);
+  };
+
   // Close menus on route change
   useEffect(() => {
     setActiveMegaMenu(null);
     setIsMobileMenuOpen(false);
     setIsSearchOpen(false);
+    setIsSearchFocused(false);
   }, [pathname]);
 
   const navDepartments = [
@@ -851,16 +888,26 @@ export function Header() {
 
           {/* Right Action Icons (Search, Wishlist, Profile, Bag) */}
           <div className="flex items-center space-x-3 sm:space-x-5 flex-shrink-0">
-            {/* Search Button / Bar trigger */}
+            {/* Desktop Nike-Style Search Pill & Dropdown */}
+            <HeaderSearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              isSearchFocused={isSearchFocused}
+              setIsSearchFocused={setIsSearchFocused}
+              searchContainerRef={searchContainerRef}
+              searchResults={searchResults}
+              trendingQueries={trendingQueries}
+              handleSearchSubmit={handleSearchSubmit}
+              handleQuickKeyword={handleQuickKeyword}
+            />
+
+            {/* Mobile Search Button / Drawer trigger */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="text-[#2B1810] hover:text-[#D97706] p-1.5 transition-colors relative flex items-center"
+              className="text-[#2B1810] hover:text-[#D97706] p-1.5 transition-colors relative flex md:hidden items-center"
               aria-label="Search"
             >
               <Search size={20} strokeWidth={2} />
-              <span className="hidden xl:inline text-xs font-medium ml-2 text-gray-500 tracking-wider">
-                {t('nav.search')}
-              </span>
             </button>
 
             {/* Wishlist Link */}
@@ -977,23 +1024,26 @@ export function Header() {
       {isSearchOpen && (
         <div className="absolute top-full left-0 w-full bg-white border-b-2 border-[#2B1810] shadow-2xl z-40 py-8 px-4 animate-in fade-in slide-in-from-top-4 duration-200">
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-center border-b-2 border-[#2B1810] pb-3">
-              <Search size={24} className="text-[#2B1810] mr-3" />
-              <input
-                type="text"
-                placeholder={t('search.placeholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-                className="w-full text-lg font-medium text-[#2B1810] placeholder-gray-400 outline-none"
-              />
-              <button
-                onClick={() => setIsSearchOpen(false)}
-                className="text-gray-400 hover:text-[#2B1810] p-1 ml-2"
-              >
-                <X size={20} />
-              </button>
-            </div>
+            <form onSubmit={handleSearchSubmit}>
+              <div className="flex items-center border-b-2 border-[#2B1810] pb-3">
+                <Search size={24} className="text-[#2B1810] mr-3" />
+                <input
+                  type="text"
+                  placeholder={t('search.placeholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                  className="w-full text-lg font-medium text-[#2B1810] placeholder-gray-400 outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="text-gray-400 hover:text-[#2B1810] p-1 ml-2"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </form>
 
             {/* Quick Trending Searches */}
             <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
@@ -1003,7 +1053,8 @@ export function Header() {
               {trendingQueries.map((term) => (
                 <button
                   key={term}
-                  onClick={() => setSearchQuery(term)}
+                  type="button"
+                  onClick={() => handleQuickKeyword(term)}
                   className="bg-gray-100 hover:bg-[#2B1810] hover:text-white px-3 py-1 rounded-full text-gray-700 transition-colors font-medium"
                 >
                   {term}
@@ -1018,13 +1069,13 @@ export function Header() {
                   <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
                     {t('search.matchingProducts')} ({searchResults.length})
                   </h4>
-                  <Link
-                    href="/collections/all"
-                    onClick={() => setIsSearchOpen(false)}
+                  <button
+                    type="button"
+                    onClick={() => handleSearchSubmit()}
                     className="text-xs font-bold text-[#D97706] hover:underline"
                   >
                     {t('search.viewAll')}
-                  </Link>
+                  </button>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
                   {searchResults.map((item) => (

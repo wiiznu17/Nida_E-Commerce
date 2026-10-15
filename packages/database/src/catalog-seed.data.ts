@@ -775,7 +775,7 @@ export const PRODUCTS_SEED_DATA = [
     categorySlug: 'men-polos-tshirts',
     isPreorder: false,
     images: [
-      'https://images.unsplash.com/photo-1625910513413-568b209a3c03?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       {
