@@ -40,7 +40,7 @@
     "limited": "LIMITED TIME",
     "saleTitle": "FALL SALE: UP TO 50% OFF + EXTRA 20% WITH CODE: ",
     "code": "NIDA20",
-    "freeShipping": "| FREE SHIPPING OVER $100"
+    "freeShipping": "| FREE SHIPPING OVER ฿1,000"
   },
   "mega": {
     "featuredTrends": "Featured & Trends",
@@ -65,7 +65,7 @@
     "homeSubtitle": "Calm, architectural elegance for your personal sanctuary.",
     "saleTag": "LIMITED TIME ONLY",
     "saleTitle": "Mid-Season Spectacular",
-    "saleSubtitle": "Save up to 50% off timeless styles. Free shipping over $100."
+    "saleSubtitle": "Save up to 50% off timeless styles. Free shipping over ฿1,000."
   },
   "search": {
     "placeholder": "What are you looking for? (e.g., Cable-Knit, Polo, Trench Coat, Leather Bag)...",
@@ -91,9 +91,12 @@
     "color": "Color",
     "specialOffers": "Special Offers",
     "productBadges": "Product Badges",
-    "under100": "Under $100",
-    "between100And200": "$100 - $200",
-    "over200": "Over $200",
+    "under100": "Under ฿1,000",
+    "between100And200": "฿1,000 - ฿2,500",
+    "over200": "Over ฿2,500",
+    "under1000": "Under ฿1,000",
+    "between1000And2500": "฿1,000 - ฿2,500",
+    "over2500": "Over ฿2,500",
     "onSale": "On Sale",
     "newArrivals": "New Arrivals",
     "clearAll": "Clear All Filters",
@@ -106,7 +109,7 @@
   "cart": {
     "title": "YOUR SHOPPING BAG",
     "freeShippingQualified": "Congratulations! You qualify for FREE Standard Delivery.",
-    "freeShippingAddMore": "Add $",
+    "freeShippingAddMore": "Add",
     "forFreeShipping": " more for FREE SHIPPING",
     "emptyTitle": "YOUR BAG IS CURRENTLY EMPTY",
     "emptyDesc": "Explore our new arrivals and iconic preppy essentials to fill your bag.",
@@ -167,7 +170,7 @@
     "shopMen": "SHOP MEN",
     "shopSale": "SHOP SALE (UP TO 50%)",
     "freeShippingTitle": "FREE SHIPPING",
-    "freeShippingSub": "On all orders over $100",
+    "freeShippingSub": "On all orders over ฿1,000",
     "returnsTitle": "30-DAY RETURNS",
     "returnsSub": "Hassle-free mail or in-store",
     "guaranteeTitle": "NIDA GUARANTEE",
@@ -185,7 +188,7 @@
     "storyMenDesc": "Heritage pique polos, colorblock sailing jackets, and tailored chinos with American cool swagger.",
     "discoverMen": "DISCOVER MEN",
     "promoRibbonTag": "LIMITED TIME PROMOTION",
-    "promoRibbonTitle": "EXTRA 20% OFF ON ORDERS OVER $120",
+    "promoRibbonTitle": "EXTRA 20% OFF ON ORDERS OVER ฿1,500",
     "promoRibbonDesc": "Apply code at checkout. Includes sale items and new season arrivals.",
     "copyCode": "COPY CODE",
     "copied": "COPIED!",

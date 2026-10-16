@@ -1,6 +1,6 @@
 import type { ApiProduct } from '@repo/types';
 
-export type PriceRangeKey = 'under100' | '100-200' | 'over200' | null;
+export type PriceRangeKey = 'under1000' | '1000-2500' | 'over2500' | null;
 export type SortOptionKey = 'featured' | 'newest' | 'price-asc' | 'price-desc';
 
 export interface FilterState {

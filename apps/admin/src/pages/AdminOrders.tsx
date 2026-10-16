@@ -29,7 +29,7 @@ import {
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
-import { formatOrderDateTime } from '../utils';
+import { formatOrderDateTime, formatPrice } from '../utils';
 import { STOREFRONT_URL } from '../config';
 import { PermissionGate } from '../components/common';
 import {
@@ -550,7 +550,7 @@ export default function AdminOrders() {
                       {/* Amount & Payment Method */}
                       <TableCell className="text-right whitespace-nowrap">
                         <div className="font-mono font-bold text-brand-brown text-xs">
-                          ${order.totalAmount.toFixed(2)}
+                          {formatPrice(order.totalAmount)}
                         </div>
                         <div className="text-[10px] text-gray-500 mt-0.5">
                           {order.payment?.paymentMethod ?? 'CREDIT_CARD'}
@@ -834,10 +834,10 @@ export default function AdminOrders() {
                   </div>
                   <div className="text-right">
                     <div className="font-bold font-mono text-brand-brown text-sm">
-                      ${(item.unitPrice * item.quantity).toFixed(2)}
+                      {formatPrice(item.unitPrice * item.quantity)}
                     </div>
                     <div className="text-gray-400 text-[11px]">
-                      ${item.unitPrice.toFixed(2)} {t('orders.detail.perUnit')}
+                      {formatPrice(item.unitPrice)} {t('orders.detail.perUnit')}
                     </div>
                   </div>
                 </div>
@@ -850,7 +850,7 @@ export default function AdminOrders() {
                 {t('orders.detail.grandTotal')}
               </span>
               <span className="font-black font-mono text-xl text-brand-brown">
-                ${selectedOrder.totalAmount.toFixed(2)}
+                {formatPrice(selectedOrder.totalAmount)}
               </span>
             </div>
 

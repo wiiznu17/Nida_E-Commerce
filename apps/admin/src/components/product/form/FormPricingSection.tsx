@@ -1,5 +1,6 @@
-import { DollarSign } from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { formatPrice } from '../../../utils';
 import type { FormPricingSectionProps } from './formTypes';
 
 export function FormPricingSection({
@@ -18,7 +19,7 @@ export function FormPricingSection({
     >
       <div className="flex items-center justify-between border-b border-gray-100 pb-2">
         <div className="flex items-center space-x-2">
-          <DollarSign size={16} className="text-brand-amber" />
+          <Coins size={16} className="text-brand-amber" />
           <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
             {t('product.pricingDiscounts')}
           </h3>
@@ -37,16 +38,16 @@ export function FormPricingSection({
           </label>
           <div className="relative">
             <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">
-              $
+              ฿
             </span>
             <input
               type="number"
               min="1"
-              step="0.01"
+              step="1"
               required
               value={price}
               onChange={(e) => onPriceChange(e.target.value)}
-              placeholder="129.00"
+              placeholder="1290"
               className="w-full text-xs p-2.5 pl-7 border border-gray-300 rounded-md focus:border-brand-brown outline-hidden font-mono text-base font-bold text-brand-brown"
             />
           </div>
@@ -58,15 +59,15 @@ export function FormPricingSection({
           </label>
           <div className="relative">
             <span className="absolute left-3 top-2.5 text-xs text-gray-500 font-bold">
-              $
+              ฿
             </span>
             <input
               type="number"
               min="0"
-              step="0.01"
+              step="1"
               value={originalPrice}
               onChange={(e) => onOriginalPriceChange(e.target.value)}
-              placeholder="179.00"
+              placeholder="1790"
               className="w-full text-xs p-2.5 pl-7 border border-gray-300 rounded-md focus:border-brand-brown outline-hidden font-mono"
             />
           </div>
@@ -87,7 +88,7 @@ export function FormPricingSection({
                     {t('product.fullPrice')}
                   </span>
                   <span className="text-gray-400 line-through font-mono font-bold">
-                    ${numOriginal.toFixed(2)}
+                    {formatPrice(numOriginal)}
                   </span>
                 </div>
                 <div className="text-gray-300">→</div>
@@ -96,7 +97,7 @@ export function FormPricingSection({
                     {t('product.discountPrice')}
                   </span>
                   <span className="text-emerald-700 font-mono font-black text-sm">
-                    ${numPrice.toFixed(2)}
+                    {formatPrice(numPrice)}
                   </span>
                 </div>
               </div>
@@ -105,7 +106,7 @@ export function FormPricingSection({
                   {t('product.youSave')}
                 </span>
                 <span className="font-mono font-black text-emerald-700">
-                  ${savings.toFixed(2)} ({discountPercent}%)
+                  {formatPrice(savings)} ({discountPercent}%)
                 </span>
               </div>
             </div>

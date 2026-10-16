@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { X, ImageIcon } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatPrice } from '../../utils';
 
 export interface ProductPreviewData {
   name: string;
@@ -170,10 +171,10 @@ export function ProductPreviewModal({
                   <div className="mt-1.5 space-y-1">
                     <div className="flex items-baseline space-x-2">
                       <span className="text-sm font-black text-emerald-700 font-mono">
-                        ${numericPrice.toFixed(2)}
+                        {formatPrice(numericPrice)}
                       </span>
                       <span className="text-xs text-gray-400 line-through font-mono">
-                        ${numericOriginal.toFixed(2)}
+                        {formatPrice(numericOriginal)}
                       </span>
                       {discountPercent !== null && (
                         <span className="text-[9px] font-black px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded-xs">
@@ -189,7 +190,7 @@ export function ProductPreviewModal({
                       <span>
                         {t('product.fullPrice')}:{' '}
                         <span className="line-through">
-                          ${numericOriginal.toFixed(2)}
+                          {formatPrice(numericOriginal)}
                         </span>
                       </span>
                     </div>
@@ -197,7 +198,7 @@ export function ProductPreviewModal({
                 ) : (
                   <div className="flex items-baseline space-x-2 mt-1.5">
                     <span className="text-sm font-black text-brand-brown font-mono">
-                      ${numericPrice.toFixed(2)}
+                      {formatPrice(numericPrice)}
                     </span>
                   </div>
                 )}
@@ -244,7 +245,7 @@ export function ProductPreviewModal({
                         {t('product.discountPrice')}
                       </span>
                       <span className="text-xl font-black text-emerald-700 font-mono">
-                        ${numericPrice.toFixed(2)}
+                        {formatPrice(numericPrice)}
                       </span>
                     </div>
                     <div className="text-right">
@@ -252,7 +253,7 @@ export function ProductPreviewModal({
                         {t('product.fullPrice')}
                       </span>
                       <span className="text-sm text-gray-400 line-through font-mono font-bold">
-                        ${numericOriginal.toFixed(2)}
+                        {formatPrice(numericOriginal)}
                       </span>
                     </div>
                   </div>
@@ -262,8 +263,7 @@ export function ProductPreviewModal({
                         {t('product.saveDiscount')} {discountPercent}%
                       </span>
                       <span className="text-emerald-700 font-bold">
-                        {t('product.youSave')} $
-                        {(numericOriginal - numericPrice).toFixed(2)}
+                        {t('product.youSave')} {formatPrice(numericOriginal - numericPrice)}
                       </span>
                     </div>
                   )}
@@ -274,7 +274,7 @@ export function ProductPreviewModal({
                     {t('product.price')}
                   </span>
                   <span className="text-lg font-black text-brand-brown font-mono">
-                    ${numericPrice.toFixed(2)}
+                    {formatPrice(numericPrice)}
                   </span>
                 </div>
               )}

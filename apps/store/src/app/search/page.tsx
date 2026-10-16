@@ -47,14 +47,14 @@ function SearchPageContent() {
 
     let minPrice: number | undefined;
     let maxPrice: number | undefined;
-    if (filters.priceRange === 'under100') {
+    if (filters.priceRange === 'under1000') {
       minPrice = 0;
-      maxPrice = 100;
-    } else if (filters.priceRange === '100-200') {
-      minPrice = 100;
-      maxPrice = 200;
-    } else if (filters.priceRange === 'over200') {
-      minPrice = 200;
+      maxPrice = 1000;
+    } else if (filters.priceRange === '1000-2500') {
+      minPrice = 1000;
+      maxPrice = 2500;
+    } else if (filters.priceRange === 'over2500') {
+      minPrice = 2500;
     }
 
     const sortMap: Record<string, 'featured' | 'newest' | 'price_asc' | 'price_desc'> = {

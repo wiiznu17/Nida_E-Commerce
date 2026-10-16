@@ -8,6 +8,7 @@ import {
   Barcode,
 } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { formatPrice } from '../../../utils';
 import {
   TableContainer,
   Table,
@@ -239,11 +240,7 @@ export function FormVariantsSection({
                   {t('product.stockValue')}
                 </span>
                 <span className="font-black text-emerald-700 text-sm">
-                  $
-                  {totalStockValue.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatPrice(totalStockValue)}
                 </span>
               </div>
             </div>

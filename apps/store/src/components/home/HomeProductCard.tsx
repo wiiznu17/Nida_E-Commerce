@@ -10,6 +10,7 @@ import {
   getProductSubCategory,
 } from '@/context/LanguageContext';
 import { ProductBadge } from '@/components/ui';
+import { formatPrice } from '@/utils';
 
 export interface HomeProductCardProps {
   product: ApiProduct;
@@ -134,11 +135,11 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
       {/* Price Display */}
       <div className="mt-auto flex items-center space-x-2">
         <span className="font-black text-base text-brand-brown">
-          ${product.basePrice}
+          {formatPrice(product.basePrice)}
         </span>
         {product.originalPrice && product.originalPrice > product.basePrice && (
           <span className="text-xs text-gray-400 line-through font-semibold">
-            ${product.originalPrice}
+            {formatPrice(product.originalPrice)}
           </span>
         )}
         {discountPercent > 0 && (

@@ -64,12 +64,12 @@ export function useWishlistFilters(rawWishlistProducts: ApiProduct[]) {
 
     // 3. Price range filter
     if (filters.priceRange) {
-      if (filters.priceRange === 'under100') {
-        list = list.filter((p) => p.basePrice < 100);
-      } else if (filters.priceRange === '100-200') {
-        list = list.filter((p) => p.basePrice >= 100 && p.basePrice <= 200);
-      } else if (filters.priceRange === 'over200') {
-        list = list.filter((p) => p.basePrice > 200);
+      if (filters.priceRange === 'under1000') {
+        list = list.filter((p) => p.basePrice < 1000);
+      } else if (filters.priceRange === '1000-2500') {
+        list = list.filter((p) => p.basePrice >= 1000 && p.basePrice <= 2500);
+      } else if (filters.priceRange === 'over2500') {
+        list = list.filter((p) => p.basePrice > 2500);
       }
     }
 

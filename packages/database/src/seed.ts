@@ -202,8 +202,8 @@ async function main() {
         code: 'NIDA20',
         discountType: DiscountType.PERCENTAGE,
         discountValue: 20,
-        minOrderAmount: 100,
-        maxDiscountAmount: 50,
+        minOrderAmount: 1000,
+        maxDiscountAmount: 500,
         totalUsageLimit: 500,
         userUsageLimit: 1,
         startsAt: new Date(),
@@ -214,7 +214,7 @@ async function main() {
         code: 'FREESHIP',
         discountType: DiscountType.FREE_SHIPPING,
         discountValue: 0,
-        minOrderAmount: 50,
+        minOrderAmount: 1000,
         totalUsageLimit: 1000,
         userUsageLimit: 2,
         startsAt: new Date(),
@@ -222,10 +222,10 @@ async function main() {
         isActive: true,
       },
       {
-        code: 'WELCOME50',
+        code: 'WELCOME200',
         discountType: DiscountType.FIXED_AMOUNT,
-        discountValue: 50,
-        minOrderAmount: 200,
+        discountValue: 200,
+        minOrderAmount: 1500,
         totalUsageLimit: 200,
         userUsageLimit: 1,
         startsAt: new Date(),
@@ -243,7 +243,7 @@ async function main() {
   console.log('   Username: superadmin');
   console.log('   Email:    admin@nida-apparel.com');
   console.log('   Password: admin123');
-  console.log('🎟️ Sample Coupons: NIDA20, FREESHIP, WELCOME50');
+  console.log('🎟️ Sample Coupons: NIDA20, FREESHIP, WELCOME200');
   console.log('--------------------------------------------------');
 }
 

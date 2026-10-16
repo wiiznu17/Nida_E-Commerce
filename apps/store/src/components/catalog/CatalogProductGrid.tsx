@@ -10,6 +10,7 @@ import {
   getProductSubCategory,
 } from '@/context/LanguageContext';
 import { ProductBadge } from '@/components/ui';
+import { formatPrice } from '@/utils';
 import type { ApiProduct } from '@repo/types';
 import type { CatalogProductGridProps } from './catalogTypes';
 
@@ -146,11 +147,11 @@ export function CatalogProductGrid({
             {/* Price */}
             <div className="mt-1 flex items-center space-x-2">
               <span className="text-xs font-bold text-brand-brown">
-                ${product.basePrice}
+                {formatPrice(product.basePrice)}
               </span>
               {product.originalPrice && product.originalPrice > product.basePrice && (
                 <span className="text-[11px] text-gray-400 line-through">
-                  ${product.originalPrice}
+                  {formatPrice(product.originalPrice)}
                 </span>
               )}
             </div>

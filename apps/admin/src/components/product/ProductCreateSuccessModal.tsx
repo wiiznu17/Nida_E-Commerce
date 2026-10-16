@@ -7,6 +7,7 @@ import {
   Package,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatPrice } from '../../utils';
 import type { ApiProductDetail, ProductSkuVariant } from '@repo/types';
 
 export interface ProductCreateSuccessModalProps {
@@ -116,12 +117,12 @@ export function ProductCreateSuccessModal({
 
                 <div className="mt-2 flex items-baseline space-x-2">
                   <span className="text-sm font-black text-brand-brown">
-                    ${Number(product.basePrice).toLocaleString()}
+                    {formatPrice(product.basePrice)}
                   </span>
                   {product.originalPrice &&
                     product.originalPrice > product.basePrice && (
                       <span className="text-xs text-stone-400 line-through">
-                        ${Number(product.originalPrice).toLocaleString()}
+                        {formatPrice(product.originalPrice)}
                       </span>
                     )}
                   <span className="text-[11px] text-stone-500 font-medium ml-auto">

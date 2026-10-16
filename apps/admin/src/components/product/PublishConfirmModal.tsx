@@ -7,6 +7,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatPrice } from '../../utils';
 
 export interface PublishConfirmModalProps {
   isOpen: boolean;
@@ -114,10 +115,7 @@ export function PublishConfirmModal({
               )}
               <div className="flex items-center space-x-3 mt-2 font-mono">
                 <span className="font-bold text-brand-brown text-xs">
-                  $
-                  {Number(price || 0).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatPrice(price || 0)}
                 </span>
                 <span className="text-gray-300">•</span>
                 <span className="text-gray-600 text-[11px] flex items-center space-x-1">

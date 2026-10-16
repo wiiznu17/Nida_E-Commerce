@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Search, X } from 'lucide-react';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
+import { formatPrice } from '@/utils';
 import type { ApiProduct } from '@repo/types';
 
 export interface HeaderSearchBarProps {
@@ -128,7 +129,7 @@ export function HeaderSearchBar({
                           {getProductTitle(product, language)}
                         </p>
                         <p className="text-[11px] text-gray-500">
-                          ${product.basePrice}
+                          {formatPrice(product.basePrice)}
                         </p>
                       </div>
                     </Link>

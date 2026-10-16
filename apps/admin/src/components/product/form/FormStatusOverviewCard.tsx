@@ -1,5 +1,6 @@
 import { Globe, FileText, Eye } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { formatPrice } from '../../../utils';
 import type { FormStatusOverviewCardProps } from './formTypes';
 
 export function FormStatusOverviewCard({
@@ -78,10 +79,10 @@ export function FormStatusOverviewCard({
               </span>
               <div className="flex items-baseline justify-center space-x-1.5">
                 <span className="font-black text-emerald-700 text-sm font-mono">
-                  ${numericPrice.toFixed(2)}
+                  {formatPrice(numericPrice)}
                 </span>
                 <span className="text-[10px] text-gray-400 line-through font-mono">
-                  ${(numericOriginal ?? 0).toFixed(2)}
+                  {formatPrice(numericOriginal ?? 0)}
                 </span>
               </div>
               {discountPercent !== null && (
@@ -96,7 +97,7 @@ export function FormStatusOverviewCard({
                 {t('product.price')}
               </span>
               <span className="font-black text-brand-brown text-sm font-mono">
-                ${numericPrice.toFixed(2)}
+                {formatPrice(numericPrice)}
               </span>
             </div>
           )}

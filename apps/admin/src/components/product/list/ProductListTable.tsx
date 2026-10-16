@@ -3,6 +3,7 @@ import { Boxes, Edit, Eye, Trash2, ShoppingBag, Loader2, ImageIcon } from 'lucid
 
 
 import { useLanguage } from '../../../context/LanguageContext';
+import { formatPrice } from '../../../utils';
 import { STOREFRONT_URL } from '../../../config';
 import {
   EmptyState,
@@ -154,12 +155,12 @@ export function ProductListTable({
                 {/* Price */}
                 <TableCell className="text-right">
                   <div className="font-mono font-bold text-gray-900">
-                    ฿{product.basePrice.toLocaleString()}
+                    {formatPrice(product.basePrice)}
                   </div>
                   {product.originalPrice &&
                     product.originalPrice > product.basePrice && (
                       <div className="text-[10px] font-mono text-gray-400 line-through">
-                        ฿{product.originalPrice.toLocaleString()}
+                        {formatPrice(product.originalPrice)}
                       </div>
                     )}
                 </TableCell>

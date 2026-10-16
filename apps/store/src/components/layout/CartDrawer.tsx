@@ -7,6 +7,7 @@ import { ShoppingBag, X, Check, Minus, Plus, Tag, Loader2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
+import { formatPrice } from '@/utils';
 
 export function CartDrawer() {
   const {
@@ -82,8 +83,8 @@ export function CartDrawer() {
             <div>
               <div className="flex justify-between font-semibold mb-1 text-gray-700">
                 <span>
-                  {t('cart.freeShippingAddMore')}
-                  {freeShippingRemaining.toFixed(2)}
+                  {t('cart.freeShippingAddMore')}{' '}
+                  {formatPrice(freeShippingRemaining)}{' '}
                   {t('cart.forFreeShipping')}
                 </span>
                 <span className="font-mono">{freeShippingProgress}%</span>
@@ -183,7 +184,7 @@ export function CartDrawer() {
 
                     <div className="flex items-center space-x-3">
                       <span className="font-black text-sm text-brand-brown">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.price * item.quantity)}
                       </span>
                       <button
                         onClick={() =>
@@ -269,14 +270,14 @@ export function CartDrawer() {
               <div className="flex justify-between items-center text-gray-600">
                 <span>{t('cart.subtotal')}</span>
                 <span className="font-bold text-brand-brown">
-                  ${cartTotal.toFixed(2)}
+                  {formatPrice(cartTotal)}
                 </span>
               </div>
 
               {discountAmount > 0 && (
                 <div className="flex justify-between items-center text-emerald-700 font-medium">
                   <span>{t('cart.discountLabel')}</span>
-                  <span className="font-bold">-${discountAmount.toFixed(2)}</span>
+                  <span className="font-bold">-{formatPrice(discountAmount)}</span>
                 </div>
               )}
 
@@ -288,14 +289,14 @@ export function CartDrawer() {
                       {t('cart.freeShipping')}
                     </span>
                   ) : (
-                    `$${shippingFee.toFixed(2)}`
+                    formatPrice(shippingFee)
                   )}
                 </span>
               </div>
 
               <div className="flex justify-between items-center pt-2 border-t border-brand-border/60 text-sm font-black text-brand-brown">
                 <span className="uppercase tracking-wider">{t('cart.total')}</span>
-                <span className="text-base">${finalTotal.toFixed(2)}</span>
+                <span className="text-base">{formatPrice(finalTotal)}</span>
               </div>
             </div>
 

@@ -24,7 +24,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
 import type { ApiOrder, OrderStatus, ApiInventoryItem } from '@repo/types';
-import { formatOrderDateTime } from '../utils';
+import { formatOrderDateTime, formatPrice } from '../utils';
 
 export default function AdminDashboard() {
   const { language } = useLanguage();
@@ -195,11 +195,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="text-xl sm:text-2xl font-black text-brand-brown tracking-tight">
-              $
-              {(totalRevenue + 12840).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {formatPrice(totalRevenue)}
             </div>
             <div className="flex items-center text-xs font-bold text-emerald-600 mt-1.5">
               <TrendingUp size={13} className="mr-1" />
@@ -344,7 +340,7 @@ export default function AdminDashboard() {
                       : 'Women Collection',
                   pct: 44,
                   color: 'bg-brand-brown',
-                  amount: '$62,854',
+                  amount: '฿628,540',
                 },
                 {
                   dept:
@@ -353,7 +349,7 @@ export default function AdminDashboard() {
                       : 'Men Collection',
                   pct: 28,
                   color: 'bg-brand-amber',
-                  amount: '$39,998',
+                  amount: '฿399,980',
                 },
                 {
                   dept:
@@ -362,13 +358,13 @@ export default function AdminDashboard() {
                       : 'Bags & Leather',
                   pct: 16,
                   color: 'bg-amber-700',
-                  amount: '$22,856',
+                  amount: '฿228,560',
                 },
                 {
                   dept: language === 'th' ? 'รองเท้า (Shoes)' : 'Footwear',
                   pct: 8,
                   color: 'bg-amber-400',
-                  amount: '$11,428',
+                  amount: '฿114,280',
                 },
                 {
                   dept:
@@ -377,7 +373,7 @@ export default function AdminDashboard() {
                       : 'Home & Living',
                   pct: 4,
                   color: 'bg-gray-400',
-                  amount: '$5,714',
+                  amount: '฿57,140',
                 },
               ].map((item, idx) => (
                 <div key={idx} className="space-y-1.5">
@@ -559,7 +555,7 @@ export default function AdminDashboard() {
                     </span>
                   </TableCell>
                   <TableCell className="font-mono font-bold text-brand-brown">
-                    ${order.totalAmount.toFixed(2)}
+                    {formatPrice(order.totalAmount)}
                   </TableCell>
                   <TableCell>{renderStatusBadge(order.status)}</TableCell>
                   <TableCell className="text-right">
