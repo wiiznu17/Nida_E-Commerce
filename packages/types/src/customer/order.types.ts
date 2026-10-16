@@ -90,3 +90,8 @@ export interface TrackingResult {
   orderStatus: OrderStatus;
   shipment: ApiShipment;
 }
+
+export interface TrackOrderRequest {
+  orderNumber: string;
+  phone: string;
+}

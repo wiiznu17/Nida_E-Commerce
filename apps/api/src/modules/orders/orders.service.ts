@@ -399,7 +399,10 @@ export class CustomerOrdersService {
     return this.mapOrder(order);
   }
 
-  async trackOrder(orderNumber: string): Promise<TrackingResult> {
+  async trackOrder(
+    orderNumber: string,
+    phone?: string,
+  ): Promise<TrackingResult> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: {
@@ -413,6 +416,22 @@ export class CustomerOrdersService {
 
     if (!order) {
       throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (phone && phone.trim()) {
+      const snap = (order.shippingAddressSnapshot as Record<string, unknown>) ?? {};
+      const snapPhone = String(snap.phone ?? '').replace(/\D/g, '');
+      const queryPhone = phone.trim().replace(/\D/g, '');
+      if (
+        snapPhone &&
+        queryPhone &&
+        !snapPhone.endsWith(queryPhone) &&
+        !queryPhone.endsWith(snapPhone)
+      ) {
+        throw new NotFoundException(
+          'ไม่พบข้อมูลคำสั่งซื้อ หรือเบอร์โทรศัพท์ไม่ตรงกับข้อมูลจัดส่ง',
+        );
+      }
     }
 
     const latestShipment = order.shipments[0];

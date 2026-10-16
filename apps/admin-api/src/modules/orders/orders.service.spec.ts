@@ -3,6 +3,11 @@ import { OrdersService } from './orders.service.js';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PaymentMethod, OrderStatus, ShipmentStatus } from '@repo/types';
 import { CarrierMockService } from './carrier/index.js';
+import {
+  LogisticsService,
+  InternalLogisticsProvider,
+  ShippopLogisticsProvider,
+} from './logistics/index.js';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -54,11 +59,19 @@ describe('OrdersService', () => {
     };
 
     carrierMockService = new CarrierMockService();
+    const internalProvider = new InternalLogisticsProvider(carrierMockService);
+    const shippopProvider = new ShippopLogisticsProvider();
+    const logisticsService = new LogisticsService(
+      internalProvider,
+      shippopProvider,
+      prismaMock,
+    );
 
     service = new OrdersService(
       prismaMock,
       couponsServiceMock,
       carrierMockService,
+      logisticsService,
     );
   });
 

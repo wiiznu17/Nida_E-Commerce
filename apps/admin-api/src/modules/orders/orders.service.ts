@@ -27,6 +27,7 @@ import {
 } from '@repo/database';
 import { validateOrderStatusTransition } from '@repo/validators';
 import { CarrierMockService } from './carrier/index.js';
+import { LogisticsService } from './logistics/index.js';
 
 @Injectable()
 export class OrdersService {
@@ -34,6 +35,7 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService,
     private readonly carrierMockService: CarrierMockService,
+    private readonly logisticsService: LogisticsService,
   ) {}
 
   async createOrder(dto: CreateOrderDto): Promise<ApiOrder> {
@@ -382,10 +384,25 @@ export class OrdersService {
       throw new BadRequestException(validation.error);
     }
 
-    const booking = await this.carrierMockService.bookConsignment(
-      existing.orderNumber,
+    const address =
+      (existing.shippingAddressSnapshot as Record<string, unknown>) ?? {};
+    const booking = await this.logisticsService.createShipment({
+      orderId: existing.id,
+      orderNumber: existing.orderNumber,
+      recipientName: String(address.recipientName ?? 'Customer'),
+      recipientPhone: String(address.phone ?? ''),
+      shippingAddress: {
+        addressLine1: String(address.addressLine1 ?? ''),
+        addressLine2: address.addressLine2
+          ? String(address.addressLine2)
+          : undefined,
+        subdistrict: String(address.subdistrict ?? ''),
+        district: String(address.district ?? ''),
+        province: String(address.province ?? ''),
+        postalCode: String(address.postalCode ?? ''),
+      },
       carrierCode,
-    );
+    });
 
     await this.prisma.shipment.create({
       data: {
@@ -397,9 +414,10 @@ export class OrdersService {
         estimatedDelivery: booking.estimatedDelivery,
         logs: {
           create: {
-            statusTitle: booking.initialLogTitle,
-            statusDescription: booking.initialLogDescription,
-            location: booking.initialLocation,
+            statusTitle: booking.initialLog.statusTitle,
+            statusDescription: booking.initialLog.statusDescription,
+            location: booking.initialLog.location,
+            logTimestamp: booking.initialLog.logTimestamp,
           },
         },
       },

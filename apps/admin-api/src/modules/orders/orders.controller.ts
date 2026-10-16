@@ -5,6 +5,7 @@ import {
   Patch,
   Body,
   Param,
+  Headers,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -14,12 +15,18 @@ import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto.js'
 import { CarrierBookingDto } from './dto/carrier-booking.dto.js';
 import { OrderStatus } from '@repo/database';
 import { AdminPermission } from '@repo/types';
-import { RequirePermissions } from '../auth/decorators/index.js';
+import { RequirePermissions, Public } from '../auth/decorators/index.js';
+import { LogisticsService } from './logistics/index.js';
+import { PaymentGatewayService } from './payment-gateway/index.js';
 
 @ApiTags('Orders & Shipments')
 @Controller()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly logisticsService: LogisticsService,
+    private readonly paymentGatewayService: PaymentGatewayService,
+  ) {}
 
   @Post('orders')
   @HttpCode(HttpStatus.CREATED)
@@ -122,4 +129,35 @@ export class OrdersController {
   async trackShipment(@Param('trackingNumber') trackingNumber: string) {
     return this.ordersService.trackShipment(trackingNumber);
   }
+
+  @Public()
+  @Post('webhooks/shippop')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'รับสถานะ Real-time จากขนส่งผ่าน SHIPPOP Webhook',
+    description:
+      'รับสถานะพัสดุจาก SHIPPOP พร้อมตรวจสอบ Deduplication Key และบันทึกลง shipment_logs',
+  })
+  async handleShippopWebhook(
+    @Body() payload: unknown,
+    @Headers() headers: Record<string, string | string[] | undefined>,
+  ) {
+    return this.logisticsService.handleWebhook(payload, headers);
+  }
+
+  @Public()
+  @Post('webhooks/omise')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'รับผลการชำระเงินจาก Omise Webhook',
+    description:
+      'รับเหตุการณ์ charge.complete จาก Omise พร้อมตรวจสอบ Event Deduplication และอัปเดตสถานะออเดอร์',
+  })
+  async handleOmiseWebhook(
+    @Body() payload: unknown,
+    @Headers() headers: Record<string, string | string[] | undefined>,
+  ) {
+    return this.paymentGatewayService.handleWebhook(payload, headers);
+  }
 }
+

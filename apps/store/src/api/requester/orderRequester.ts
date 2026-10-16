@@ -46,6 +46,26 @@ export const orderRequester = {
   },
 
   /**
+   * Track order using order number and phone (for guest customers).
+   */
+  trackOrderByQuery: async (
+    orderNumber: string,
+    phone?: string,
+  ): Promise<TrackingResult> => {
+    return apiClient.post<TrackingResult>('/orders/track', {
+      orderNumber,
+      phone,
+    });
+  },
+
+  /**
+   * Get full order history for authenticated customer.
+   */
+  getMyOrders: async (token?: string | null): Promise<ApiOrder[]> => {
+    return apiClient.get<ApiOrder[]>('/orders/my-orders', undefined, token);
+  },
+
+  /**
    * Get full order details by order number.
    */
   getOrderDetail: async (
@@ -59,3 +79,4 @@ export const orderRequester = {
     );
   },
 };
+

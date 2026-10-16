@@ -77,6 +77,19 @@ export class CustomerOrdersController {
     return this.ordersService.trackOrder(orderNumber);
   }
 
+  @Post('track')
+  @ApiOperation({ summary: 'Track order with order number and phone' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tracking timeline and carrier status',
+  })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  async trackOrderByQuery(
+    @Body() body: { orderNumber: string; phone?: string },
+  ): Promise<TrackingResult> {
+    return this.ordersService.trackOrder(body.orderNumber, body.phone);
+  }
+
   @Get(':orderNumber')
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Get order detail by order number' })
