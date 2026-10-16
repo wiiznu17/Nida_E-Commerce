@@ -10,5 +10,7 @@ export * from './address';
 export * from './checkout';
 export * from './profile';
 export * from './product';
+export * from './order';
+export * from './auth';
 export * from './Providers';
 
