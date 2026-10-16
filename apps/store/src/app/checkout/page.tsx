@@ -1,40 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
-import { useLanguage, getProductTitle } from '@/context/LanguageContext';
+import React from 'react';
+import { AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { AddressModal } from '@/components/address';
 import {
-  CreditCard,
-  ShieldCheck,
-  Check,
-  QrCode,
-  AlertCircle,
-  Loader2,
-  Lock,
-  Tag,
-  X,
-  Plus,
-  MapPin,
-} from 'lucide-react';
-import {
-  orderRequester,
-  addressRequester,
-  extractApiError,
-  type CreateCustomerOrderPayload,
-} from '@/api';
-import { AddressCard, AddressModal } from '@/components/address';
-import { PaymentMethod, type ApiAddress, type CreateAddressDto } from '@repo/types';
-
+  CheckoutMemberBanner,
+  CheckoutSteps,
+  CheckoutShippingForm,
+  CheckoutPaymentForm,
+  CheckoutOrderSummary,
+  useCheckoutForm,
+} from '@/components/checkout';
 
 export default function CheckoutPage() {
+  const { language, t } = useLanguage();
   const {
     items,
     cartTotal,
-    setIsCartOpen,
-    clearCart,
     appliedCoupon,
     discountAmount,
     shippingFee,
@@ -42,119 +25,35 @@ export default function CheckoutPage() {
     finalTotal,
     couponError,
     isApplyingCoupon,
-    applyCoupon,
     removeCoupon,
-  } = useCart();
-  const { user, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const { language, t } = useLanguage();
-  const router = useRouter();
-
-  const [step, setStep] = useState<'shipping' | 'payment'>('shipping');
-  const [promoCode, setPromoCode] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'promptpay'>('card');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderError, setOrderError] = useState('');
-
-  // Shipping Form State (Autofilled from saved address or user profile)
-  const [shippingData, setShippingData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    addressLine2: '',
-    subdistrict: '',
-    district: '',
-    province: '',
-    city: '',
-    postalCode: '',
-  });
-
-  const [savedAddresses, setSavedAddresses] = useState<ApiAddress[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [addressMode, setAddressMode] = useState<'saved' | 'new'>('saved');
-  const [saveToAddressBook, setSaveToAddressBook] = useState(true);
-  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
-
-  const populateShippingFromAddress = React.useCallback(
-    (addr: ApiAddress) => {
-      const nameParts = addr.recipientName.trim().split(' ');
-      const firstName = nameParts[0] ?? '';
-      const lastName = nameParts.slice(1).join(' ') || (user?.lastName ?? '');
-      setShippingData((prev) => ({
-        ...prev,
-        firstName,
-        lastName,
-        email: prev.email || user?.email || '',
-        phone: addr.phone,
-        address: addr.addressLine1,
-        addressLine2: addr.addressLine2 ?? '',
-        subdistrict: addr.subdistrict,
-        district: addr.district,
-        province: addr.province,
-        city: addr.district || addr.province,
-        postalCode: addr.postalCode,
-      }));
-    },
-    [user],
-  );
-
-  // Close cart drawer when entering checkout
-  useEffect(() => {
-    setIsCartOpen(false);
-  }, [setIsCartOpen]);
-
-  // Fetch saved addresses if customer is authenticated
-  useEffect(() => {
-    if (!token) return;
-    let isMounted = true;
-    setIsLoadingAddresses(true);
-
-    addressRequester
-      .getAddresses(token)
-      .then((addrs) => {
-        if (!isMounted) return;
-        setSavedAddresses(addrs);
-        if (addrs.length > 0) {
-          const defaultAddr = addrs.find((a) => a.isDefault) ?? addrs[0];
-          if (defaultAddr) {
-            setSelectedAddressId(defaultAddr.id);
-            setAddressMode('saved');
-            populateShippingFromAddress(defaultAddr);
-          }
-        } else {
-          setAddressMode('new');
-        }
-      })
-      .catch(() => {
-        if (isMounted) setAddressMode('new');
-      })
-      .finally(() => {
-        if (isMounted) setIsLoadingAddresses(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [token, populateShippingFromAddress]);
-
-  // Fallback autofill basic info if no saved address or guest
-  useEffect(() => {
-    if (user && savedAddresses.length === 0) {
-      setShippingData((prev) => ({
-        ...prev,
-        firstName: prev.firstName || user.firstName || '',
-        lastName: prev.lastName || user.lastName || '',
-        email: prev.email || user.email || '',
-        phone: prev.phone || user.phone || '',
-        address: prev.address || user.address || '',
-        city: prev.city || user.city || (language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'),
-        postalCode: prev.postalCode || user.postalCode || '10110',
-      }));
-    }
-  }, [user, language, savedAddresses.length]);
-
+    isAuthenticated,
+    isAuthLoading,
+    step,
+    setStep,
+    promoCode,
+    setPromoCode,
+    paymentMethod,
+    setPaymentMethod,
+    isSubmitting,
+    orderError,
+    shippingData,
+    setShippingData,
+    savedAddresses,
+    selectedAddressId,
+    addressMode,
+    setAddressMode,
+    saveToAddressBook,
+    setSaveToAddressBook,
+    isAddressModalOpen,
+    setIsAddressModalOpen,
+    isLoadingAddresses,
+    handleApplyPromo,
+    handleSelectAddress,
+    handleSaveModalAddress,
+    handleShippingSubmit,
+    handlePaymentSubmit,
+    router,
+  } = useCheckoutForm();
 
   if (items.length === 0) {
     return (
@@ -172,756 +71,72 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleApplyPromo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!promoCode.trim()) return;
-    const res = await applyCoupon(promoCode);
-    if (res.success) {
-      setPromoCode('');
-    }
-  };
-
-  const handleSelectAddress = (addr: ApiAddress) => {
-    setSelectedAddressId(addr.id);
-    populateShippingFromAddress(addr);
-  };
-
-  const handleSaveModalAddress = async (data: CreateAddressDto) => {
-    if (!token) return;
-    const created = await addressRequester.createAddress(data, token);
-    setSavedAddresses((prev) => [created, ...prev]);
-    setSelectedAddressId(created.id);
-    setAddressMode('saved');
-    populateShippingFromAddress(created);
-  };
-
-  const handleShippingSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (addressMode === 'new' && saveToAddressBook && token) {
-      try {
-        const recipientName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
-        const created = await addressRequester.createAddress(
-          {
-            recipientName: recipientName || user?.fullName || 'Customer',
-            phone: shippingData.phone,
-            addressLine1: shippingData.address,
-            addressLine2: shippingData.addressLine2 || undefined,
-            subdistrict: shippingData.subdistrict || 'Khlong Toei',
-            district: shippingData.district || shippingData.city || 'Khlong Toei',
-            province: shippingData.province || 'Bangkok',
-            postalCode: shippingData.postalCode,
-            isDefault: savedAddresses.length === 0,
-          },
-          token,
-        );
-        setSavedAddresses((prev) => [created, ...prev]);
-        setSelectedAddressId(created.id);
-      } catch {
-        // Continue checkout even if address save fails
-      }
-    }
-
-    setStep('payment');
-    window.scrollTo(0, 0);
-  };
-
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setOrderError('');
-
-    try {
-      const mappedMethod: PaymentMethod =
-        paymentMethod === 'promptpay'
-          ? PaymentMethod.PROMPTPAY
-          : PaymentMethod.CREDIT_CARD;
-
-      const recipientName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
-
-      const payload: CreateCustomerOrderPayload = {
-        items: items.map((item) => ({
-          variantId: item.variantId || item.id,
-          quantity: item.quantity,
-        })),
-        shippingAddress: {
-          recipientName: recipientName || user?.fullName || 'Customer',
-          phone: shippingData.phone || '0812345678',
-          addressLine1: shippingData.address || 'Sukhumvit 24',
-          subdistrict: shippingData.subdistrict || 'Khlong Toei',
-          district: shippingData.district || shippingData.city || 'Khlong Toei',
-          province: shippingData.province || 'Bangkok',
-          postalCode: shippingData.postalCode || '10110',
-        },
-        paymentMethod: mappedMethod,
-        customerEmail: shippingData.email || user?.email,
-        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
-      };
-
-      const createdOrder = await orderRequester.createOrder(payload, token);
-      clearCart();
-
-      // If card was selected, execute payment charge immediately so customer lands on complete receipt
-      if (mappedMethod === PaymentMethod.CREDIT_CARD) {
-        await orderRequester.payOrder(createdOrder.orderNumber, token);
-      }
-
-      router.push(`/order-success?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}`);
-    } catch (err: unknown) {
-      const extracted = extractApiError(
-        err,
-        language === 'th'
-          ? 'เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ กรุณาลองใหม่อีกครั้ง'
-          : 'Failed to create order. Please try again.',
-      );
-      setOrderError(extracted.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans">
-      {/* Checkout Member Login Banner */}
-      {!isAuthenticated && !isAuthLoading && (
-        <div className="mb-8 p-4 bg-brand-warm-cream border border-brand-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
-            <Lock size={18} className="text-brand-amber shrink-0" />
-            <div>
-              <p className="text-xs font-bold text-brand-brown">
-                {language === 'th'
-                  ? 'เข้าสู่ระบบด้วย OTP เพื่อผูกประวัติคำสั่งซื้อและสะสมแต้มสมาชิก'
-                  : 'Sign in with OTP to link this order to your account and earn rewards'}
-              </p>
-              <p className="text-[11px] text-gray-500">
-                {language === 'th'
-                  ? 'หากเป็นลูกค้าใหม่ ระบบจะสร้างบัญชีให้คุณโดยอัตโนมัติ'
-                  : 'New customer? We will create your account automatically'}
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/login?redirect=/checkout"
-            className="px-4 py-2 bg-brand-brown hover:bg-brand-amber text-white text-xs font-black uppercase tracking-wider transition-colors shrink-0"
-          >
-            {t('auth.signInBtn')}
-          </Link>
-        </div>
-      )}
+      <CheckoutMemberBanner
+        isAuthenticated={isAuthenticated}
+        isLoading={isAuthLoading}
+      />
 
       {orderError && (
         <div className="mb-8 p-4 bg-red-50 border border-red-200 text-red-700 text-xs flex items-start space-x-3">
           <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-600" />
           <div>
-            <p className="font-bold">เกิดข้อผิดพลาดในการสั่งซื้อ</p>
+            <p className="font-bold">
+              {language === 'th' ? 'เกิดข้อผิดพลาดในการสั่งซื้อ' : 'Order Error'}
+            </p>
             <p className="mt-0.5">{orderError}</p>
           </div>
         </div>
       )}
 
       <div className="flex flex-col lg:flex-row gap-12">
-        {/* Left Column - Forms */}
         <div className="flex-1 lg:max-w-2xl">
-          {/* Breadcrumbs */}
-          <div className="flex items-center space-x-3 text-xs font-black uppercase tracking-[0.2em] mb-8 pb-4 border-b border-gray-200">
-            <span
-              className={
-                step === 'shipping' ? 'text-brand-brown' : 'text-gray-400'
-              }
-            >
-              {t('checkout.step1')}
-            </span>
-            <span className="text-gray-300">/</span>
-            <span
-              className={
-                step === 'payment' ? 'text-brand-brown' : 'text-gray-400'
-              }
-            >
-              {t('checkout.step2')}
-            </span>
-          </div>
+          <CheckoutSteps currentStep={step} />
 
           {step === 'shipping' ? (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-200 gap-3">
-                <h2 className="text-2xl font-black text-brand-brown uppercase tracking-tight">
-                  {t('checkout.shippingAddress')}
-                </h2>
-
-                {savedAddresses.length > 0 && (
-                  <div className="inline-flex border border-gray-300 p-0.5 bg-gray-100 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setAddressMode('saved')}
-                      className={`px-3 py-1 font-bold uppercase tracking-wider text-[11px] transition-colors cursor-pointer ${
-                        addressMode === 'saved'
-                          ? 'bg-brand-brown text-white shadow-2xs'
-                          : 'text-gray-600 hover:text-brand-brown'
-                      }`}
-                    >
-                      {t('checkout.useSavedAddress')} ({savedAddresses.length})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAddressMode('new');
-                        setShippingData((prev) => ({
-                          ...prev,
-                          address: '',
-                          addressLine2: '',
-                          subdistrict: '',
-                          district: '',
-                          province: '',
-                          city: '',
-                          postalCode: '',
-                        }));
-                      }}
-                      className={`px-3 py-1 font-bold uppercase tracking-wider text-[11px] transition-colors cursor-pointer ${
-                        addressMode === 'new'
-                          ? 'bg-brand-brown text-white shadow-2xs'
-                          : 'text-gray-600 hover:text-brand-brown'
-                      }`}
-                    >
-                      {t('checkout.orEnterNewAddress')}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {isLoadingAddresses ? (
-                <div className="py-12 flex justify-center items-center text-stone-400 text-xs">
-                  <div className="w-5 h-5 border-2 border-brand-brown/20 border-t-brand-brown rounded-full animate-spin mr-2" />
-                  <span>{t('addressBook.saving')}</span>
-                </div>
-              ) : addressMode === 'saved' && savedAddresses.length > 0 ? (
-                <form onSubmit={handleShippingSubmit} className="space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {savedAddresses.map((addr) => (
-                      <AddressCard
-                        key={addr.id}
-                        address={addr}
-                        mode="select"
-                        isSelected={selectedAddressId === addr.id}
-                        onSelect={handleSelectAddress}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsAddressModalOpen(true)}
-                      className="text-xs font-black uppercase text-brand-brown hover:text-brand-amber inline-flex items-center cursor-pointer transition-colors"
-                    >
-                      <Plus size={14} className="mr-1" />
-                      <span>{t('addressBook.addNew')}</span>
-                    </button>
-
-                    <Link
-                      href="/profile"
-                      className="text-xs font-bold text-gray-500 hover:text-brand-brown underline uppercase tracking-wider transition-colors"
-                    >
-                      {t('checkout.manageAddresses')}
-                    </Link>
-                  </div>
-
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      disabled={!selectedAddressId}
-                      className="w-full bg-brand-brown hover:bg-brand-amber disabled:opacity-50 text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg cursor-pointer"
-                    >
-                      {t('checkout.continueToPayment')}
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <form onSubmit={handleShippingSubmit} className="space-y-5">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                        {t('checkout.firstName')} *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={shippingData.firstName}
-                        onChange={(e) =>
-                          setShippingData({ ...shippingData, firstName: e.target.value })
-                        }
-                        placeholder="Phannida"
-                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                        {t('checkout.lastName')} *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={shippingData.lastName}
-                        onChange={(e) =>
-                          setShippingData({ ...shippingData, lastName: e.target.value })
-                        }
-                        placeholder="Wissanu"
-                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                        {t('checkout.email')} *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={shippingData.email}
-                        onChange={(e) =>
-                          setShippingData({ ...shippingData, email: e.target.value })
-                        }
-                        placeholder="customer@nida.com"
-                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                        {t('checkout.phone')} *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        value={shippingData.phone}
-                        onChange={(e) =>
-                          setShippingData({ ...shippingData, phone: e.target.value })
-                        }
-                        placeholder="081-234-5678"
-                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.address')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={shippingData.address}
-                      onChange={(e) =>
-                        setShippingData({ ...shippingData, address: e.target.value })
-                      }
-                      placeholder="108 Sukhumvit Soi 24"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                        {t('addressBook.subdistrict')}
-                      </label>
-                      <input
-                        type="text"
-                        value={shippingData.subdistrict}
-                        onChange={(e) =>
-                          setShippingData({ ...shippingData, subdistrict: e.target.value })
-                        }
-                        placeholder={t('addressBook.subdistrictPlaceholder')}
-                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                        {t('checkout.city')} *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={shippingData.city}
-                        onChange={(e) =>
-                          setShippingData({ ...shippingData, city: e.target.value, district: e.target.value })
-                        }
-                        placeholder="Bangkok"
-                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                        {t('addressBook.province')}
-                      </label>
-                      <input
-                        type="text"
-                        value={shippingData.province}
-                        onChange={(e) =>
-                          setShippingData({ ...shippingData, province: e.target.value })
-                        }
-                        placeholder={t('addressBook.provincePlaceholder')}
-                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                        {t('checkout.postalCode')} *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={shippingData.postalCode}
-                        onChange={(e) =>
-                          setShippingData({ ...shippingData, postalCode: e.target.value })
-                        }
-                        placeholder="10110"
-                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                      />
-                    </div>
-                  </div>
-
-                  {isAuthenticated && (
-                    <div className="pt-2">
-                      <label className="flex items-center space-x-2.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={saveToAddressBook}
-                          onChange={(e) => setSaveToAddressBook(e.target.checked)}
-                          className="w-4 h-4 text-brand-brown accent-brand-brown border-gray-300 rounded-none focus:ring-0"
-                        />
-                        <span className="text-xs font-medium text-gray-700">
-                          {t('checkout.saveToAddressBook')}
-                        </span>
-                      </label>
-                    </div>
-                  )}
-
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      className="w-full bg-brand-brown hover:bg-brand-amber text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg cursor-pointer"
-                    >
-                      {t('checkout.continueToPayment')}
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
+            <CheckoutShippingForm
+              savedAddresses={savedAddresses}
+              selectedAddressId={selectedAddressId}
+              addressMode={addressMode}
+              isLoadingAddresses={isLoadingAddresses}
+              shippingData={shippingData}
+              isAuthenticated={isAuthenticated}
+              saveToAddressBook={saveToAddressBook}
+              onSelectAddress={handleSelectAddress}
+              onSetAddressMode={setAddressMode}
+              onSetShippingData={setShippingData}
+              onSetSaveToAddressBook={setSaveToAddressBook}
+              onOpenNewAddressModal={() => setIsAddressModalOpen(true)}
+              onSubmit={handleShippingSubmit}
+            />
           ) : (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                <h2 className="text-2xl font-black text-brand-brown uppercase tracking-tight">
-                  {t('checkout.paymentMethod')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setStep('shipping')}
-                  className="text-xs font-bold text-brand-brown hover:text-brand-amber underline uppercase tracking-wider"
-                >
-                  {language === 'th' ? 'แก้ไขที่อยู่' : 'Edit'}
-                </button>
-              </div>
-
-              {/* Payment Method Selector Tabs */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`p-4 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
-                    paymentMethod === 'card'
-                      ? 'border-brand-brown bg-brand-brown text-white shadow-sm'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
-                  }`}
-                >
-                  <CreditCard size={20} />
-                  <span>{language === 'th' ? 'บัตรเครดิต / เดบิต' : 'Credit / Debit Card'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('promptpay')}
-                  className={`p-4 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
-                    paymentMethod === 'promptpay'
-                      ? 'border-brand-brown bg-brand-brown text-white shadow-sm'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
-                  }`}
-                >
-                  <QrCode size={20} />
-                  <span>PromptPay QR</span>
-                </button>
-              </div>
-
-              <form onSubmit={handlePaymentSubmit} className="space-y-5">
-                {paymentMethod === 'card' && (
-                  <div className="border border-brand-border p-6 bg-white shadow-xs">
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                      <div>
-                        <span className="text-xs font-black uppercase tracking-wider text-brand-brown block">
-                          {t('checkout.creditCard')}
-                        </span>
-                        <span className="text-[10px] text-gray-500 font-medium">
-                          {language === 'th'
-                            ? 'รองรับ Visa, Mastercard, JCB (ระบบ Omise Secure Payment Gateway)'
-                            : 'Supports Visa, Mastercard, JCB (Omise Secure Payment Gateway)'}
-                        </span>
-                      </div>
-                      <CreditCard size={22} className="text-brand-brown shrink-0" />
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                          {language === 'th' ? 'หมายเลขบัตร *' : 'Card Number *'}
-                        </label>
-                        <input
-                          type="text"
-                          defaultValue="4242 •••• •••• 4242"
-                          required
-                          className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                            {language === 'th' ? 'วันหมดอายุ (MM/YY) *' : 'Exp Date (MM/YY) *'}
-                          </label>
-                          <input
-                            type="text"
-                            defaultValue="12/28"
-                            required
-                            className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                            CVV / CVC *
-                          </label>
-                          <input
-                            type="text"
-                            defaultValue="789"
-                            required
-                            className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                          {language === 'th' ? 'ชื่อบนบัตร *' : 'Name On Card *'}
-                        </label>
-                        <input
-                          type="text"
-                          defaultValue="PHANNIDA W."
-                          required
-                          className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {paymentMethod === 'promptpay' && (
-                  <div className="border border-brand-border p-6 bg-brand-warm-cream/50 shadow-xs space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-brand-brown text-white flex items-center justify-center shrink-0">
-                        <QrCode size={20} />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black uppercase tracking-wider text-brand-brown">
-                          {language === 'th' ? 'ชำระเงินด้วย พร้อมเพย์ (PromptPay QR)' : 'PromptPay QR Payment'}
-                        </h4>
-                        <p className="text-[11px] text-gray-600">
-                          {language === 'th'
-                            ? 'เมื่อกดสั่งซื้อ ระบบจะสร้างคำสั่งซื้อและนำท่านเข้าสู่หน้าสแกน QR Code พร้อมเพย์'
-                            : 'Order will be created and you will be redirected to the PromptPay QR scan page'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-white border border-brand-border text-xs text-gray-600 space-y-1.5">
-                      <div className="flex items-center space-x-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-brown shrink-0"></span>
-                        <span>{language === 'th' ? 'รองรับ Mobile Banking ทุกธนาคารในประเทศไทย' : 'Supports all Thai Mobile Banking apps'}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-brown shrink-0"></span>
-                        <span>{language === 'th' ? 'ระบบตรวจรับยอดเงินอัตโนมัติผ่าน Omise Webhook ทันที' : 'Automatic instant verification via Omise Webhook'}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center space-x-2 text-gray-500 text-xs">
-                  <ShieldCheck size={16} className="text-emerald-600" />
-                  <span>{t('checkout.secureNotice')}</span>
-                </div>
-
-                <div className="pt-4 space-y-3">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg flex items-center justify-center space-x-2 cursor-pointer"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 size={16} className="animate-spin" />
-                        <span>กำลังประมวลผลคำสั่งซื้อ...</span>
-                      </>
-                    ) : (
-                      <span>{t('checkout.placeOrder')} (${finalTotal.toFixed(2)})</span>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={() => setStep('shipping')}
-                    className="w-full py-2.5 text-center text-xs font-bold text-gray-600 hover:text-brand-brown uppercase tracking-wider cursor-pointer"
-                  >
-                    {t('checkout.backToShipping')}
-                  </button>
-                </div>
-              </form>
-            </div>
+            <CheckoutPaymentForm
+              paymentMethod={paymentMethod}
+              isSubmitting={isSubmitting}
+              finalTotal={finalTotal}
+              onSelectPaymentMethod={setPaymentMethod}
+              onBackToShipping={() => setStep('shipping')}
+              onSubmit={handlePaymentSubmit}
+            />
           )}
         </div>
 
-        {/* Right Column - Order Summary & Promo Code */}
-        <div className="lg:w-96 bg-brand-warm-cream p-6 h-fit border border-brand-border shadow-xs">
-          <h3 className="font-black text-sm uppercase tracking-wider text-brand-brown pb-3 border-b border-gray-300 mb-4">
-            {t('checkout.orderSummary')} ({items.length} {t('catalog.items')})
-          </h3>
-
-          {/* Item Thumbnails */}
-          <div className="space-y-4 mb-6 max-h-72 overflow-y-auto pr-1">
-            {items.map((item, index) => {
-              const itemTitle = getProductTitle(item, language);
-              return (
-                <div key={`${item.variantId || item.id}-${index}`} className="flex gap-4 items-center">
-                  <div className="w-16 h-20 bg-gray-100 flex-shrink-0 relative border border-gray-200">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <span className="absolute -top-1.5 -right-1.5 bg-brand-brown text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                      {item.quantity}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-xs text-brand-brown truncate">
-                      {itemTitle}
-                    </h4>
-                    <p className="text-[10px] text-gray-500 uppercase font-semibold">
-                      {item.selectedColor} • {item.selectedSize}
-                    </p>
-                    <p className="text-xs font-black text-brand-brown mt-1">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Promo Code Input or Applied Banner */}
-          {appliedCoupon ? (
-            <div className="flex items-center justify-between text-xs text-emerald-800 font-bold mb-6 bg-emerald-50 p-3 border border-emerald-300 rounded-xs">
-              <div className="flex items-center space-x-2">
-                <Tag size={16} className="text-emerald-700 shrink-0" />
-                <div>
-                  <span className="font-mono uppercase tracking-wider">{appliedCoupon.code}</span>
-                  <span className="text-[11px] text-emerald-600 block font-normal">
-                    {appliedCoupon.discountType === 'PERCENTAGE'
-                      ? `${appliedCoupon.discountValue}% OFF${appliedCoupon.maxDiscountAmount ? ` (Max $${appliedCoupon.maxDiscountAmount})` : ''}`
-                      : appliedCoupon.discountType === 'FREE_SHIPPING'
-                        ? t('checkout.freeShippingQualified')
-                        : `$${appliedCoupon.discountValue} OFF`}
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={removeCoupon}
-                className="text-gray-400 hover:text-rose-600 transition-colors p-1 cursor-pointer"
-                title={t('checkout.removeCoupon')}
-                aria-label={t('checkout.removeCoupon')}
-              >
-                <X size={16} />
-              </button>
-            </div>
-          ) : (
-            <div className="mb-6 pb-6 border-b border-gray-300">
-              <form onSubmit={handleApplyPromo} className="flex gap-2">
-                <input
-                  type="text"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                  placeholder={t('checkout.promoCode')}
-                  className="flex-1 border border-gray-300 px-3 py-2 text-xs uppercase focus:outline-hidden focus:border-brand-brown bg-white font-mono placeholder:normal-case placeholder:text-gray-400"
-                />
-                <button
-                  type="submit"
-                  disabled={isApplyingCoupon || !promoCode.trim()}
-                  className="bg-brand-brown hover:bg-brand-amber disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center shrink-0"
-                >
-                  {isApplyingCoupon ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    t('checkout.apply')
-                  )}
-                </button>
-              </form>
-              {couponError && (
-                <p className="text-[11px] text-rose-600 mt-2 font-medium">
-                  {couponError}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Cost Breakdown */}
-          <div className="space-y-2.5 text-xs font-semibold text-gray-600 pb-4 border-b border-gray-300">
-            <div className="flex justify-between">
-              <span>{t('checkout.orderSummary')}</span>
-              <span className="text-brand-brown font-bold">${cartTotal.toFixed(2)}</span>
-            </div>
-            {discountAmount > 0 && (
-              <div className="flex justify-between text-emerald-700 font-bold">
-                <span>{t('checkout.discount')}</span>
-                <span>-${discountAmount.toFixed(2)}</span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span>{t('checkout.shipping')}</span>
-              <span>
-                {isFreeShipping ? (
-                  <span className="text-emerald-700 font-bold uppercase">
-                    {t('checkout.free')}
-                  </span>
-                ) : (
-                  `$${shippingFee.toFixed(2)}`
-                )}
-              </span>
-            </div>
-            <div className="text-[10px] text-gray-400 pt-1">
-              {t('checkout.taxIncluded')}
-            </div>
-          </div>
-
-          {/* Total Amount */}
-          <div className="flex justify-between items-center pt-4">
-            <span className="font-black text-sm uppercase text-brand-brown">
-              {t('checkout.total')}
-            </span>
-            <span className="font-black text-xl text-brand-brown">
-              ${finalTotal.toFixed(2)}
-            </span>
-          </div>
-        </div>
+        <CheckoutOrderSummary
+          items={items}
+          cartTotal={cartTotal}
+          discountAmount={discountAmount}
+          shippingFee={shippingFee}
+          isFreeShipping={isFreeShipping}
+          finalTotal={finalTotal}
+          appliedCoupon={appliedCoupon}
+          couponError={couponError}
+          isApplyingCoupon={isApplyingCoupon}
+          promoCode={promoCode}
+          onSetPromoCode={setPromoCode}
+          onApplyPromo={handleApplyPromo}
+          onRemoveCoupon={removeCoupon}
+        />
       </div>
 
       <AddressModal
@@ -932,4 +147,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-
