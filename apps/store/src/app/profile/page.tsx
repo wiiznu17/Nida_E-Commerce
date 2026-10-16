@@ -46,7 +46,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-10 font-sans">
       <ProfileHeader user={user} onLogout={handleLogout} />
 
       {saveSuccess && (
