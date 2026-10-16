@@ -404,6 +404,28 @@
       "cancel": "Cancel",
       "confirm": "Confirm Dispatch"
     },
+    "shipmentWebhook": {
+      "button": "Simulate Carrier Webhook",
+      "tooltip": "Simulate carrier webhook tracking update",
+      "modalTitle": "Carrier Webhook Simulator",
+      "modalSubtitle": "Simulate carrier webhook events to log shipment milestones and update status",
+      "orderPrefix": "Order #",
+      "trackingPrefix": "Tracking: ",
+      "currentStatus": "Current Status:",
+      "presetLabel": "Quick Preset Events",
+      "selectStatus": "Shipment Status *",
+      "statusTitle": "Status Title *",
+      "statusTitlePlaceholder": "e.g. Package arrived at primary sorting hub",
+      "statusDesc": "Status Description",
+      "statusDescPlaceholder": "e.g. Package sorted and prepared for regional transfer",
+      "location": "Location",
+      "locationPlaceholder": "e.g. Bangna Sorting Hub, Bangkok",
+      "deliveredNotice": "Selecting 'DELIVERED' will automatically transition the order status to DELIVERED.",
+      "cancel": "Cancel",
+      "submit": "Trigger Webhook Event",
+      "submitting": "Simulating Webhook...",
+      "successToast": "Shipment {tracking} status updated via simulated webhook"
+    },
     "detail": {
       "viewDetails": "Details",
       "viewInvoice": "View full order invoice",

@@ -1,23 +1,29 @@
 import { useState } from 'react';
-import { Truck, Copy, Check, Send } from 'lucide-react';
+import { Truck, Copy, Check, Send, Activity, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { STOREFRONT_URL } from '../../config';
 import type { OrderStatus } from '@repo/types';
 
 export interface OrderDetailShippingCardProps {
+  orderNumber?: string;
   courierName?: string;
   trackingNumber?: string;
   status: OrderStatus;
   placedAt: string;
   onOpenFulfill: () => void;
+  onOpenWebhookModal?: () => void;
 }
 
 export function OrderDetailShippingCard({
+  orderNumber,
   courierName,
   trackingNumber,
   status,
   placedAt,
   onOpenFulfill,
+  onOpenWebhookModal,
 }: OrderDetailShippingCardProps) {
+
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
@@ -137,7 +143,34 @@ export function OrderDetailShippingCard({
             </button>
           )}
         </div>
-      ) : null}
+      ) : (
+        <div className="p-4 border-t border-brand-cream bg-gray-50/50 flex flex-wrap items-center justify-between gap-3">
+          {orderNumber ? (
+            <a
+              href={`${STOREFRONT_URL}/track-order/${orderNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-1.5 text-xs font-bold text-gray-600 hover:text-brand-brown transition-colors"
+            >
+              <ExternalLink size={13} />
+              <span>{t('orders.detail.liveTracking')}</span>
+            </a>
+          ) : (
+            <div />
+          )}
+
+          {onOpenWebhookModal && (
+            <button
+              type="button"
+              onClick={onOpenWebhookModal}
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer"
+            >
+              <Activity size={13} />
+              <span>{t('orders.shipmentWebhook.button')}</span>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

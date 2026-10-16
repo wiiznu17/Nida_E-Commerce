@@ -13,9 +13,11 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { OrdersService } from './orders.service.js';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto.js';
 import { CarrierBookingDto } from './dto/carrier-booking.dto.js';
+import { TrackOrderQueryDto } from './dto/track-order.dto.js';
 import { OrderStatus } from '@repo/database';
 import { AdminPermission } from '@repo/types';
 import { RequirePermissions, Public } from '../auth/decorators/index.js';
+
 import { LogisticsService } from './logistics/index.js';
 import { PaymentGatewayService } from './payment-gateway/index.js';
 
@@ -114,6 +116,7 @@ export class OrdersController {
     return this.ordersService.fulfillWithCarrier(id, dto.carrierCode);
   }
 
+  @Public()
   @Get('shipments/track/:trackingNumber')
   @ApiOperation({
     summary: 'ติดตามสถานะพัสดุ (Customer Shipment Tracking)',
@@ -129,6 +132,30 @@ export class OrdersController {
   async trackShipment(@Param('trackingNumber') trackingNumber: string) {
     return this.ordersService.trackShipment(trackingNumber);
   }
+
+  @Public()
+  @Get('orders/track/:orderNumber')
+  @ApiOperation({
+    summary: 'ติดตามสถานะคำสั่งซื้อและพัสดุตามเลขที่ออเดอร์',
+  })
+  @ApiParam({
+    name: 'orderNumber',
+    description: 'หมายเลขคำสั่งซื้อ (เช่น NIDA-20261016-KZNO)',
+  })
+  async trackOrderByNumber(@Param('orderNumber') orderNumber: string) {
+    return this.ordersService.trackShipment(orderNumber);
+  }
+
+  @Public()
+  @Post('orders/track')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'ติดตามสถานะคำสั่งซื้อแบบ Query (Guest Order Tracking)',
+  })
+  async trackOrderByPost(@Body() dto: TrackOrderQueryDto) {
+    return this.ordersService.trackShipment(dto.orderNumber);
+  }
+
 
   @Public()
   @Post('webhooks/shippop')

@@ -1,11 +1,24 @@
 import { apiClient } from '../client';
-import type { ApiOrder, OrderStatus, CarrierCode } from '@repo/types';
+import type {
+  ApiOrder,
+  OrderStatus,
+  CarrierCode,
+  ApiShipment,
+  ShipmentStatus,
+} from '@repo/types';
 
 export interface FulfillOrderPayload {
   courierName: string;
   trackingNumber: string;
   initialStatusTitle?: string;
   estimatedDelivery?: string;
+}
+
+export interface UpdateShipmentStatusPayload {
+  status: ShipmentStatus;
+  statusTitle: string;
+  statusDescription?: string;
+  location?: string;
 }
 
 export const orderRequester = {
@@ -56,6 +69,18 @@ export const orderRequester = {
     );
     return data;
   },
+
+  async updateShipmentStatus(
+    shipmentId: string,
+    payload: UpdateShipmentStatusPayload,
+  ): Promise<ApiShipment> {
+    const data = await apiClient.post<ApiShipment>(
+      `/admin/shipments/${shipmentId}/update-status`,
+      payload,
+    );
+    return data;
+  },
 };
 
 export const ordersApi = orderRequester;
+

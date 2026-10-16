@@ -11,6 +11,7 @@ import {
   OrderDetailCustomerCard,
   OrderPrintModal,
   OrderFulfillModal,
+  OrderShipmentStatusModal,
 } from '../components/order';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
@@ -34,6 +35,10 @@ export default function AdminOrderDetail() {
 
   // Fulfill modal state
   const [isFulfillModalOpen, setIsFulfillModalOpen] = useState(false);
+
+  // Shipment Webhook Simulation modal state
+  const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
+
 
   const loadOrder = async () => {
     if (!id) return;
@@ -209,11 +214,13 @@ export default function AdminOrderDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           <div className="lg:col-span-7 flex flex-col">
             <OrderDetailShippingCard
+              orderNumber={order.orderNumber}
               courierName={courierName}
               trackingNumber={trackingNumber}
               status={order.status}
               placedAt={formatOrderDateTime(order.placedAt, language)}
               onOpenFulfill={handleOpenFulfillModal}
+              onOpenWebhookModal={() => setIsWebhookModalOpen(true)}
             />
           </div>
 
@@ -265,6 +272,28 @@ export default function AdminOrderDetail() {
         />
       )}
 
+      {/* Shipment Status / Carrier Webhook Simulator Modal */}
+      {order && order.shipments?.[0] && (
+        <OrderShipmentStatusModal
+          isOpen={isWebhookModalOpen}
+          onClose={() => setIsWebhookModalOpen(false)}
+          orderNumber={order.orderNumber}
+          shipmentId={order.shipments[0].id}
+          trackingNumber={order.shipments[0].trackingNumber}
+          courierName={order.shipments[0].courierName}
+          currentShipmentStatus={order.shipments[0].status}
+          onSuccess={(updatedShipment) => {
+            showToast(
+              t('orders.shipmentWebhook.successToast').replace(
+                '{tracking}',
+                updatedShipment.trackingNumber,
+              ),
+            );
+            loadOrder();
+          }}
+        />
+      )}
+
       <OrderPrintModal
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
@@ -273,3 +302,4 @@ export default function AdminOrderDetail() {
     </AdminLayout>
   );
 }
+

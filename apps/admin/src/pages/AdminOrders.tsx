@@ -11,6 +11,7 @@ import {
   Search,
   RotateCcw,
   Printer,
+  Activity,
 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
@@ -35,9 +36,11 @@ import { PermissionGate } from '../components/common';
 import {
   OrderPrintModal,
   OrderFulfillModal,
+  OrderShipmentStatusModal,
   type PrintDocumentType,
 } from '../components/order';
 import { AdminPermission, type ApiOrder, type OrderStatus } from '@repo/types';
+
 import {
   ALLOWED_STATUS_TRANSITIONS,
   validateOrderStatusTransition,
@@ -64,6 +67,8 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<ApiOrder | null>(null);
   const [isFulfillModalOpen, setIsFulfillModalOpen] = useState(false);
   const [orderToFulfill, setOrderToFulfill] = useState<ApiOrder | null>(null);
+  const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
+  const [orderToSimulate, setOrderToSimulate] = useState<ApiOrder | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Print states
@@ -114,6 +119,12 @@ export default function AdminOrders() {
     setOrderToFulfill(order);
     setIsFulfillModalOpen(true);
   };
+
+  const handleOpenShipmentWebhook = (order: ApiOrder) => {
+    setOrderToSimulate(order);
+    setIsWebhookModalOpen(true);
+  };
+
 
   const handleQuickStatusChange = async (
     orderId: string,
@@ -610,6 +621,17 @@ export default function AdminOrders() {
                               {order.shipments[0].courierName ||
                                 'Kerry Express'}
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenShipmentWebhook(order)}
+                              className="inline-flex items-center space-x-1 text-[10px] font-bold text-brand-amber hover:text-amber-800 hover:underline cursor-pointer mt-0.5"
+                              title={t('orders.shipmentWebhook.tooltip')}
+                            >
+                              <Activity size={10} />
+                              <span>
+                                {order.shipments[0].status ?? 'IN_TRANSIT'}
+                              </span>
+                            </button>
                           </div>
                         ) : order.status === 'PROCESSING' ? (
                           <PermissionGate
@@ -642,6 +664,16 @@ export default function AdminOrders() {
                       {/* Actions */}
                       <TableCell className="text-right whitespace-nowrap">
                         <div className="inline-flex items-center justify-end space-x-1">
+                          {order.shipments?.[0]?.trackingNumber && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenShipmentWebhook(order)}
+                              className="p-1.5 text-brand-brown hover:text-brand-amber hover:bg-gray-100 rounded-xs cursor-pointer transition-colors"
+                              title={t('orders.shipmentWebhook.tooltip')}
+                            >
+                              <Activity size={15} />
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => handleOpenPrintSingle(order)}
@@ -659,6 +691,7 @@ export default function AdminOrders() {
                           </Link>
                         </div>
                       </TableCell>
+
                     </TableRow>
                   ))
                 )}
@@ -713,6 +746,31 @@ export default function AdminOrders() {
               language === 'th'
                 ? `อัปเดตคำสั่งซื้อ #${orderToFulfill.orderNumber} เป็น 'จัดส่งแล้ว' พร้อมเลขพัสดุ ${trackingNum}`
                 : `Order #${orderToFulfill.orderNumber} fulfilled with tracking ${trackingNum}`,
+            );
+            loadOrders();
+          }}
+        />
+      )}
+
+      {/* Shipment Status / Carrier Webhook Simulator Modal */}
+      {orderToSimulate && orderToSimulate.shipments?.[0] && (
+        <OrderShipmentStatusModal
+          isOpen={isWebhookModalOpen}
+          onClose={() => {
+            setIsWebhookModalOpen(false);
+            setOrderToSimulate(null);
+          }}
+          orderNumber={orderToSimulate.orderNumber}
+          shipmentId={orderToSimulate.shipments[0].id}
+          trackingNumber={orderToSimulate.shipments[0].trackingNumber}
+          courierName={orderToSimulate.shipments[0].courierName}
+          currentShipmentStatus={orderToSimulate.shipments[0].status}
+          onSuccess={(updatedShipment) => {
+            showToast(
+              t('orders.shipmentWebhook.successToast').replace(
+                '{tracking}',
+                updatedShipment.trackingNumber,
+              ),
             );
             loadOrders();
           }}

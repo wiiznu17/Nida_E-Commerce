@@ -404,6 +404,28 @@
       "cancel": "ยกเลิก",
       "confirm": "ยืนยันการจัดส่ง"
     },
+    "shipmentWebhook": {
+      "button": "จำลอง Webhook ขนส่ง",
+      "tooltip": "จำลอง Webhook อัปเดตสถานะพัสดุ",
+      "modalTitle": "จำลองสถานะพัสดุจากขนส่ง (Carrier Webhook Simulator)",
+      "modalSubtitle": "จำลองการส่งข้อมูล Event จากระบบขนส่งเพื่อบันทึก Timeline และอัปเดตสถานะคำสั่งซื้อ",
+      "orderPrefix": "คำสั่งซื้อ #",
+      "trackingPrefix": "เลขพัสดุ: ",
+      "currentStatus": "สถานะปัจจุบัน:",
+      "presetLabel": "เลือกเหตุการณ์จำลอง (Preset Events)",
+      "selectStatus": "สถานะการจัดส่ง (Shipment Status) *",
+      "statusTitle": "หัวข้อสถานะ (Status Title) *",
+      "statusTitlePlaceholder": "เช่น พัสดุถึงศูนย์คัดแยกสินค้าหลัก",
+      "statusDesc": "รายละเอียดเพิ่มเติม (Status Description)",
+      "statusDescPlaceholder": "เช่น พัสดุผ่านการตรวจนับและคัดแยกเรียบร้อย",
+      "location": "พิกัด / สถานที่ (Location)",
+      "locationPlaceholder": "เช่น HUB บางนา, กรุงเทพมหานคร",
+      "deliveredNotice": "หากเลือกสถานะ 'จัดส่งสำเร็จ (DELIVERED)' ระบบจะอัปเดตสถานะของออเดอร์เป็น DELIVERED ให้อัตโนมัติ",
+      "cancel": "ยกเลิก",
+      "submit": "ส่งข้อมูลจำลอง (Trigger Webhook)",
+      "submitting": "กำลังส่งข้อมูล...",
+      "successToast": "จำลองอัปเดตสถานะพัสดุ {tracking} สำเร็จ"
+    },
     "detail": {
       "viewDetails": "รายละเอียด",
       "viewInvoice": "ดูใบสั่งซื้อฉบับเต็ม",
