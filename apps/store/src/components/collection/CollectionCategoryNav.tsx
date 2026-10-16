@@ -22,7 +22,7 @@ export function CollectionCategoryNav({
       {/* 1. PRIMARY CATEGORY TIER */}
       {categories.length > 0 && (
         <div className="bg-brand-warm-cream border-b border-brand-border py-3.5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-3 overflow-x-auto">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center space-x-3 overflow-x-auto">
             {/* Category Micro-Label */}
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-amber shrink-0 pr-1 select-none">
               {t('collection.categoryLabel')}:
@@ -66,7 +66,7 @@ export function CollectionCategoryNav({
       {/* 2. SECONDARY SUB CATEGORY TIER */}
       {showSubCategories && (
         <div className="bg-white border-b border-brand-border py-2.5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-2.5 overflow-x-auto">
+          <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center space-x-2.5 overflow-x-auto">
             {/* Sub Category Micro-Label */}
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 shrink-0 pr-1 select-none">
               {t('collection.subCategoryLabel')}:

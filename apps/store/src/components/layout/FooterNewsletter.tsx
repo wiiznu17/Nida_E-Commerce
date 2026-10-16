@@ -20,7 +20,7 @@ export function FooterNewsletter({ t }: FooterNewsletterProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 border-b border-white/10">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-14 border-b border-white/10">
       <div className="bg-brand-dark-brown border border-white/10 p-8 md:p-12 rounded-xs flex flex-col lg:flex-row items-center justify-between gap-8">
         <div className="max-w-xl text-center lg:text-left">
           <span className="bg-brand-yellow text-brand-brown text-[10px] font-black uppercase tracking-widest px-2.5 py-1 inline-block mb-3">

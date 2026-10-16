@@ -36,7 +36,7 @@ export function CollectionControlBar({
 
   return (
     <div className="border-b border-gray-200 bg-white sticky top-20 z-30 shadow-2xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 h-14 flex items-center justify-between">
         {/* Left: Product Count Indicator */}
         <div className="flex items-center text-xs font-bold text-gray-500 uppercase tracking-wider">
           {totalCount !== undefined && (

@@ -39,7 +39,7 @@ export function CatalogTopBar({
 
   return (
     <div className="sticky top-16 md:top-20 z-20 bg-white/95 backdrop-blur-md border-b border-brand-border transition-all duration-200">
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 h-14 sm:h-16 flex items-center justify-between">
         {/* Left: Title or Search Query and Count */}
         <div className="flex items-baseline space-x-2.5 min-w-0">
           <h1 className="text-base sm:text-lg font-black tracking-tight text-brand-brown uppercase truncate">

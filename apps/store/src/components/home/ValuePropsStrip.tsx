@@ -32,7 +32,7 @@ export const ValuePropsStrip: React.FC = () => {
 
   return (
     <section className="bg-brand-warm-cream border-y border-brand-border py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:text-left">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:text-left">
         {valueProps.map((item, index) => {
           const Icon = item.icon;
           return (

@@ -15,7 +15,7 @@ export function Footer() {
       <FooterNewsletter t={t} />
 
       {/* Main 4-Column Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Col 1: Brand & Heritage */}
         <div>
           <div className="mb-6">
@@ -200,7 +200,7 @@ export function Footer() {
       </div>
 
       {/* Bottom Bar: Copyright & Legal */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
         <p>{t('footer.copyright')}</p>
         <div className="flex items-center space-x-6 text-[11px]">
           <span className="hover:text-white cursor-pointer">

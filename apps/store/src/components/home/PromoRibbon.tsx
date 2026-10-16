@@ -16,7 +16,7 @@ export const PromoRibbon: React.FC = () => {
 
   return (
     <section className="bg-brand-brown text-white py-8 border-y-4 border-brand-yellow">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
         <div>
           <div className="inline-block bg-brand-yellow text-brand-brown text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 mb-2">
             {t('home.promoRibbonTag')}

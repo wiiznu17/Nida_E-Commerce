@@ -45,7 +45,7 @@ export default function ProductDetailPage() {
   if (!product) {
     if (isLoading) {
       return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center font-sans">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24 text-center font-sans">
           <div className="w-10 h-10 border-2 border-brand-brown border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-xs uppercase tracking-widest text-stone-500 font-bold">
             {t('common.loading') ?? 'Loading product...'}
@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
     }
 
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center font-sans">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24 text-center font-sans">
         <h2 className="text-2xl font-black uppercase text-brand-brown mb-3">
           {t('catalog.noProducts') ?? 'Product Not Found'}
         </h2>
@@ -75,7 +75,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8 font-sans">
       {/* Breadcrumbs */}
       <div className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-8">
         <Link href="/" className="hover:text-brand-brown">

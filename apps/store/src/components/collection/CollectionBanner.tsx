@@ -24,7 +24,7 @@ export function CollectionBanner({
           />
         </div>
       )}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10 text-center">
         {/* Breadcrumb Navigation */}
         <div className="flex justify-center items-center space-x-2 text-[11px] font-black uppercase tracking-[0.25em] text-gray-300 mb-3">
           <Link href="/" className="hover:text-white transition-colors">

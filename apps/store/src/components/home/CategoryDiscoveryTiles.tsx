@@ -37,7 +37,7 @@ export const CategoryDiscoveryTiles: React.FC = () => {
 
   return (
     <section className="bg-brand-warm-cream py-20 border-t border-brand-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="text-center mb-12">
           <span className="text-xs font-black tracking-[0.25em] text-brand-amber uppercase block mb-2">
             {t('home.discoverDept')}

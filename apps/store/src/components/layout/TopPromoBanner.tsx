@@ -17,10 +17,10 @@ export function TopPromoBanner({
   t,
 }: TopPromoBannerProps) {
   return (
-    <div className="bg-brand-brown text-white text-[11px] font-semibold tracking-wider uppercase py-2 border-b border-brand-dark-brown">
-      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex justify-between items-center">
+    <div className="bg-brand-brown text-white text-[11px] font-semibold tracking-wider uppercase py-2 border-b border-brand-dark-brown overflow-hidden">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex justify-between items-center gap-3">
         {/* Left Links */}
-        <div className="hidden lg:flex items-center space-x-6 text-white/80">
+        <div className="hidden lg:flex items-center space-x-6 text-white/80 shrink-0">
           <span className="flex items-center hover:text-white transition-colors cursor-pointer">
             <MapPin size={12} className="mr-1.5 text-brand-yellow" />{' '}
             {t('nav.storeLocator')}
@@ -31,8 +31,8 @@ export function TopPromoBanner({
         </div>
 
         {/* Center Banner */}
-        <div className="flex-1 text-center font-bold tracking-widest text-xs flex items-center justify-center space-x-2 px-2">
-          <span className="bg-brand-yellow text-brand-brown text-[10px] px-2 py-0.5 font-black uppercase rounded-xs">
+        <div className="min-w-0 flex-1 text-center font-bold tracking-widest text-xs flex items-center justify-center space-x-2 px-2">
+          <span className="shrink-0 bg-brand-yellow text-brand-brown text-[10px] px-2 py-0.5 font-black uppercase rounded-xs">
             {t('promo.limited')}
           </span>
           <span className="truncate">
@@ -41,13 +41,13 @@ export function TopPromoBanner({
               NIDA20
             </strong>
           </span>
-          <span className="hidden sm:inline text-white/60">
+          <span className="hidden xl:inline text-white/60 shrink-0">
             {t('promo.freeShipping')}
           </span>
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center space-x-4 text-white/80">
+        <div className="flex items-center space-x-4 text-white/80 shrink-0">
           {/* Language Switcher */}
           <div className="flex items-center space-x-0.5 bg-white/10 p-0.5 rounded-xs border border-white/20">
             <button

@@ -53,14 +53,15 @@ function CollectionDepartmentContent() {
         totalCount={totalCount}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <CollectionControlBar
-          totalCount={totalCount}
-          sortBy={sortBy}
-          gridCols={gridCols}
-          onSortChange={(sort) => updateUrlFilters({ sort })}
-          onToggleGridCols={setGridCols}
-        />
+      <CollectionControlBar
+        totalCount={totalCount}
+        sortBy={sortBy}
+        gridCols={gridCols}
+        onSortChange={(sort) => updateUrlFilters({ sort })}
+        onToggleGridCols={setGridCols}
+      />
+
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
 
         {isLoading ? (
           <div className="py-24 flex justify-center items-center">

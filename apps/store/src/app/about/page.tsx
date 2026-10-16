@@ -54,7 +54,7 @@ export default function AboutPage() {
 
       {/* 3 Core Values */}
       <div className="bg-brand-warm-cream border-y border-brand-border py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 border border-gray-200 text-center shadow-xs">
               <div className="w-12 h-12 bg-brand-brown text-brand-yellow rounded-full flex items-center justify-center mx-auto mb-4">
@@ -96,7 +96,7 @@ export default function AboutPage() {
       </div>
 
       {/* Visual Feature Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden shadow-md">
             <img

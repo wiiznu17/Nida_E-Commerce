@@ -21,7 +21,7 @@ export const HeroBillboard: React.FC = () => {
       </div>
 
       {/* Content Box */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-20 w-full">
+      <div className="relative z-10 max-w-8xl mx-auto px-6 sm:px-8 lg:px-12 py-20 w-full">
         <div className="max-w-2xl text-white">
           {/* Campaign Tag */}
           <div className="inline-flex items-center space-x-2 bg-brand-yellow text-brand-brown px-3 py-1 text-xs font-black uppercase tracking-[0.2em] mb-6">
