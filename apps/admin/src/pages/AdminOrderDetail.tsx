@@ -12,6 +12,7 @@ import {
   OrderPrintModal,
   OrderFulfillModal,
   OrderShipmentStatusModal,
+  OrderPaymentOverrideModal,
 } from '../components/order';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
@@ -38,6 +39,9 @@ export default function AdminOrderDetail() {
 
   // Shipment Webhook Simulation modal state
   const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
+
+  // Emergency Payment Override modal state
+  const [isPaymentOverrideModalOpen, setIsPaymentOverrideModalOpen] = useState(false);
 
 
   const loadOrder = async () => {
@@ -80,6 +84,11 @@ export default function AdminOrderDetail() {
 
   const handleSaveStatus = async () => {
     if (!order || !hasUnsavedStatus) return;
+
+    if (order.status === 'PENDING' && selectedStatus === 'PAID') {
+      setIsPaymentOverrideModalOpen(true);
+      return;
+    }
 
     const validation = validateOrderStatusTransition(
       order.status,
@@ -206,6 +215,7 @@ export default function AdminOrderDetail() {
               isUpdating={isUpdating}
               onSaveStatus={handleSaveStatus}
               onOpenFulfill={handleOpenFulfillModal}
+              onOpenPaymentOverride={() => setIsPaymentOverrideModalOpen(true)}
             />
           </div>
         </div>
@@ -287,6 +297,32 @@ export default function AdminOrderDetail() {
               t('orders.shipmentWebhook.successToast').replace(
                 '{tracking}',
                 updatedShipment.trackingNumber,
+              ),
+            );
+            loadOrder();
+          }}
+        />
+      )}
+
+      {/* Emergency Payment Override Modal */}
+      {order && (
+        <OrderPaymentOverrideModal
+          isOpen={isPaymentOverrideModalOpen}
+          onClose={() => {
+            setIsPaymentOverrideModalOpen(false);
+            if (order.status === 'PENDING') {
+              setSelectedStatus(order.status);
+            }
+          }}
+          orderId={order.id}
+          orderNumber={order.orderNumber}
+          totalAmount={order.totalAmount}
+          paymentMethod={order.payment?.paymentMethod}
+          onSuccess={() => {
+            showToast(
+              t('orders.paymentOverride.successToast').replace(
+                '{orderNumber}',
+                order.orderNumber,
               ),
             );
             loadOrder();

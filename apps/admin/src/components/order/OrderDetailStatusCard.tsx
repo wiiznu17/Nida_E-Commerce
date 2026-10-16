@@ -1,4 +1,4 @@
-import { Check, Clock, Truck, CheckCircle2, XCircle } from 'lucide-react';
+import { Check, Clock, Truck, CheckCircle2, XCircle, ShieldAlert } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect } from '../ui';
 import {
@@ -6,6 +6,17 @@ import {
   validateOrderStatusTransition,
 } from '@repo/validators';
 import type { OrderStatus } from '@repo/types';
+
+const ORDER_HIERARCHY: Record<OrderStatus, number> = {
+  PENDING: 0,
+  PAID: 1,
+  PREORDER_AWAITING_STOCK: 2,
+  PROCESSING: 2,
+  SHIPPED: 3,
+  DELIVERED: 4,
+  CANCELLED: 0,
+  REFUNDED: 0,
+};
 
 export interface OrderDetailStatusCardProps {
   currentStatus: OrderStatus;
@@ -19,6 +30,7 @@ export interface OrderDetailStatusCardProps {
   isUpdating: boolean;
   onSaveStatus: () => void;
   onOpenFulfill?: () => void;
+  onOpenPaymentOverride?: () => void;
 }
 
 export function OrderDetailStatusCard({
@@ -33,6 +45,7 @@ export function OrderDetailStatusCard({
   isUpdating,
   onSaveStatus,
   onOpenFulfill,
+  onOpenPaymentOverride,
 }: OrderDetailStatusCardProps) {
   const { t } = useLanguage();
 
@@ -55,19 +68,8 @@ export function OrderDetailStatusCard({
   const getStepState = (stepKey: OrderStatus) => {
     if (selectedStatus === 'CANCELLED') return 'cancelled';
 
-    const orderHierarchy: Record<OrderStatus, number> = {
-      PENDING: 0,
-      PAID: 1,
-      PREORDER_AWAITING_STOCK: 2,
-      PROCESSING: 2,
-      SHIPPED: 3,
-      DELIVERED: 4,
-      CANCELLED: 0,
-      REFUNDED: 0,
-    };
-
-    const currentLevel = orderHierarchy[selectedStatus] ?? 0;
-    const stepLevel = orderHierarchy[stepKey] ?? 0;
+    const currentLevel = ORDER_HIERARCHY[selectedStatus] ?? 0;
+    const stepLevel = ORDER_HIERARCHY[stepKey] ?? 0;
 
     if (currentLevel > stepLevel) return 'completed';
     if (currentLevel === stepLevel) return 'active';
@@ -79,6 +81,11 @@ export function OrderDetailStatusCard({
   const handleStatusSelect = (val: OrderStatus) => {
     if (val === currentStatus) {
       onStatusChange(val);
+      return;
+    }
+
+    if (currentStatus === 'PENDING' && val === 'PAID' && onOpenPaymentOverride) {
+      onOpenPaymentOverride();
       return;
     }
 
@@ -125,25 +132,29 @@ export function OrderDetailStatusCard({
               {t('orders.subtitle')}
             </p>
           </div>
-          <span
-            className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-xs border ${
-              selectedStatus === 'DELIVERED'
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                : selectedStatus === 'SHIPPED'
-                  ? 'bg-blue-50 text-blue-800 border-blue-300'
-                  : selectedStatus === 'PROCESSING'
-                    ? 'bg-amber-50 text-amber-800 border-amber-300'
-                    : selectedStatus === 'PAID'
-                      ? 'bg-purple-50 text-purple-800 border-purple-300'
-                      : 'bg-gray-100 text-gray-700 border-gray-300'
-            }`}
-          >
-            {selectedStatus}
-          </span>
         </div>
 
         {/* Content */}
         <div className="p-4 space-y-4">
+          {/* Emergency Payment Override Notice for PENDING Orders */}
+          {currentStatus === 'PENDING' && (
+            <div className="p-3 bg-amber-50/90 border border-amber-200/90 rounded-xs flex items-center justify-between gap-2">
+              <div className="flex items-center space-x-2 text-amber-900 text-xs min-w-0">
+                <ShieldAlert size={15} className="text-amber-700 flex-shrink-0" />
+                <span className="font-bold truncate">
+                  {t('orders.paymentOverride.button')}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={onOpenPaymentOverride}
+                className="px-2.5 py-1 text-[11px] font-bold uppercase rounded-xs bg-stone-900 text-white hover:bg-stone-800 transition-colors cursor-pointer shrink-0"
+              >
+                {t('orders.paymentOverride.confirm')}
+              </button>
+            </div>
+          )}
+
           {/* Status Selector */}
           <div>
             <label className="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1.5">

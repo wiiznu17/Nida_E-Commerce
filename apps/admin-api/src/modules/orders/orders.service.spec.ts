@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OrdersService } from './orders.service.js';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { PaymentMethod, OrderStatus, ShipmentStatus } from '@repo/types';
+import { PaymentMethod, OrderStatus, ShipmentStatus, PaymentStatus } from '@repo/types';
+
 import { CarrierMockService } from './carrier/index.js';
 import {
   LogisticsService,
@@ -46,7 +47,9 @@ describe('OrdersService', () => {
       },
       payment: {
         create: vi.fn(),
+        update: vi.fn(),
       },
+
       shipment: {
         findFirst: vi.fn(),
         create: vi.fn(),
@@ -567,5 +570,67 @@ describe('OrdersService', () => {
       expect(result.status).toBe(OrderStatus.SHIPPED);
       expect(result.shipments[0]?.trackingNumber).toBe('KER-123456TH');
     });
+
+    it('should synchronize payment status to PAID with transaction reference on emergency override', async () => {
+      const pendingOrder = {
+        id: 'ord-pending-1',
+        orderNumber: 'NIDA-PENDING-01',
+        status: OrderStatus.PENDING,
+        currency: 'THB',
+        placedAt: new Date(),
+        items: [],
+        shippingAddressSnapshot: {
+          recipientName: 'Recipient Pending',
+          phone: '0891111111',
+        },
+        payment: {
+          id: 'pay-1',
+          orderId: 'ord-pending-1',
+          status: 'PENDING',
+          amount: 1590,
+          currency: 'THB',
+        },
+        shipments: [],
+      };
+
+
+      prismaMock.order.findFirst.mockResolvedValue(pendingOrder);
+      prismaMock.payment.update.mockResolvedValue({
+        ...pendingOrder.payment,
+        status: 'PAID',
+        paidAt: new Date(),
+        transactionReference: 'chrg_test_manual_123',
+      });
+      prismaMock.order.update.mockResolvedValue({
+        ...pendingOrder,
+        status: OrderStatus.PAID,
+        payment: {
+          ...pendingOrder.payment,
+          status: 'PAID',
+          transactionReference: 'chrg_test_manual_123',
+        },
+      });
+
+      const result = await service.updateOrderStatus(
+        pendingOrder.id,
+        OrderStatus.PAID,
+        undefined,
+        undefined,
+        'chrg_test_manual_123',
+        'Omise Webhook timeout',
+      );
+
+      expect(prismaMock.payment.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'pay-1' },
+          data: expect.objectContaining({
+            status: PaymentStatus.CAPTURED,
+            transactionReference: 'chrg_test_manual_123',
+          }),
+        }),
+      );
+      expect(result.status).toBe(OrderStatus.PAID);
+    });
   });
 });
+

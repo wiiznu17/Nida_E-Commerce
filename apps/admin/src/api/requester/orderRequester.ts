@@ -37,11 +37,15 @@ export const orderRequester = {
     status: OrderStatus,
     courierName?: string,
     trackingNumber?: string,
+    transactionReference?: string,
+    overrideReason?: string,
   ): Promise<ApiOrder> {
     const data = await apiClient.patch<ApiOrder>(`/orders/${id}/status`, {
       status,
       courierName,
       trackingNumber,
+      transactionReference,
+      overrideReason,
     });
     return data;
   },

@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Printer,
   Activity,
+  ShieldAlert,
 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
@@ -37,6 +38,7 @@ import {
   OrderPrintModal,
   OrderFulfillModal,
   OrderShipmentStatusModal,
+  OrderPaymentOverrideModal,
   type PrintDocumentType,
 } from '../components/order';
 import { AdminPermission, type ApiOrder, type OrderStatus } from '@repo/types';
@@ -69,6 +71,8 @@ export default function AdminOrders() {
   const [orderToFulfill, setOrderToFulfill] = useState<ApiOrder | null>(null);
   const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
   const [orderToSimulate, setOrderToSimulate] = useState<ApiOrder | null>(null);
+  const [isPaymentOverrideModalOpen, setIsPaymentOverrideModalOpen] = useState(false);
+  const [orderToOverridePayment, setOrderToOverridePayment] = useState<ApiOrder | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Print states
@@ -125,7 +129,6 @@ export default function AdminOrders() {
     setIsWebhookModalOpen(true);
   };
 
-
   const handleQuickStatusChange = async (
     orderId: string,
     newStatus: OrderStatus,
@@ -134,6 +137,12 @@ export default function AdminOrders() {
       (o) => o.id === orderId || o.orderNumber === orderId,
     );
     if (!targetOrder || newStatus === targetOrder.status) return;
+
+    if (targetOrder.status === 'PENDING' && newStatus === 'PAID') {
+      setOrderToOverridePayment(targetOrder);
+      setIsPaymentOverrideModalOpen(true);
+      return;
+    }
 
     const primaryShipment = targetOrder.shipments?.[0];
     const hasTracking = Boolean(primaryShipment?.trackingNumber?.trim());
@@ -664,6 +673,19 @@ export default function AdminOrders() {
                       {/* Actions */}
                       <TableCell className="text-right whitespace-nowrap">
                         <div className="inline-flex items-center justify-end space-x-1">
+                          {order.status === 'PENDING' && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOrderToOverridePayment(order);
+                                setIsPaymentOverrideModalOpen(true);
+                              }}
+                              className="p-1.5 text-amber-700 hover:text-amber-800 hover:bg-amber-50 rounded-xs cursor-pointer transition-colors"
+                              title={t('orders.paymentOverride.button')}
+                            >
+                              <ShieldAlert size={15} />
+                            </button>
+                          )}
                           {order.shipments?.[0]?.trackingNumber && (
                             <button
                               type="button"
@@ -770,6 +792,30 @@ export default function AdminOrders() {
               t('orders.shipmentWebhook.successToast').replace(
                 '{tracking}',
                 updatedShipment.trackingNumber,
+              ),
+            );
+            loadOrders();
+          }}
+        />
+      )}
+
+      {/* Emergency Payment Override Modal */}
+      {orderToOverridePayment && (
+        <OrderPaymentOverrideModal
+          isOpen={isPaymentOverrideModalOpen}
+          onClose={() => {
+            setIsPaymentOverrideModalOpen(false);
+            setOrderToOverridePayment(null);
+          }}
+          orderId={orderToOverridePayment.id}
+          orderNumber={orderToOverridePayment.orderNumber}
+          totalAmount={orderToOverridePayment.totalAmount}
+          paymentMethod={orderToOverridePayment.payment?.paymentMethod}
+          onSuccess={() => {
+            showToast(
+              t('orders.paymentOverride.successToast').replace(
+                '{orderNumber}',
+                orderToOverridePayment.orderNumber,
               ),
             );
             loadOrders();

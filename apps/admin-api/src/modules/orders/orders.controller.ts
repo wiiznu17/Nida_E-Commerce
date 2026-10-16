@@ -94,8 +94,11 @@ export class OrdersController {
       body.status,
       body.courierName,
       body.trackingNumber,
+      body.transactionReference,
+      body.overrideReason,
     );
   }
+
 
   @Post('orders/:id/carrier-booking')
   @RequirePermissions(AdminPermission.ORDERS_FULFILL)

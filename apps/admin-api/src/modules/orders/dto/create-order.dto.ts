@@ -153,4 +153,21 @@ export class UpdateOrderStatusDto {
   @IsOptional()
   @IsString()
   trackingNumber?: string;
+
+  @ApiPropertyOptional({
+    description: 'รหัสอ้างอิงธุรกรรม / Omise Charge ID (กรณี Emergency Payment Override)',
+    example: 'chrg_test_5w8j12345678',
+  })
+  @IsOptional()
+  @IsString()
+  transactionReference?: string;
+
+  @ApiPropertyOptional({
+    description: 'เหตุผลการอนุมัติการชำระเงินฉุกเฉิน (กรณี Manual Payment Override)',
+    example: 'Omise Webhook timeout / ยืนยันยอดเงินผ่าน Omise Dashboard แล้ว',
+  })
+  @IsOptional()
+  @IsString()
+  overrideReason?: string;
 }
+

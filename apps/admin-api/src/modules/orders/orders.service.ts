@@ -24,7 +24,9 @@ import {
   StockChangeType,
   PaymentStatus,
   ShipmentStatus,
+  PaymentMethod,
 } from '@repo/database';
+
 import { validateOrderStatusTransition } from '@repo/validators';
 import { CarrierMockService } from './carrier/index.js';
 import { LogisticsService } from './logistics/index.js';
@@ -265,6 +267,8 @@ export class OrdersService {
     status: OrderStatus,
     courierName?: string,
     trackingNumber?: string,
+    transactionReference?: string,
+    overrideReason?: string,
   ): Promise<ApiOrder> {
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -278,6 +282,7 @@ export class OrdersService {
         shipments: {
           orderBy: { createdAt: 'desc' },
         },
+        payment: true,
       },
     });
 
@@ -323,29 +328,61 @@ export class OrdersService {
       }
     }
 
-    const updated = await this.prisma.order.update({
-      where: { id: existing.id },
-      data: { status },
-      include: {
-        items: {
-          include: {
-            variant: {
-              include: {
-                product: {
-                  include: {
-                    images: { where: { isPrimary: true }, take: 1 },
+    const updated = await this.prisma.$transaction(async (tx) => {
+      if (status === OrderStatus.PAID) {
+        const effectiveRef =
+          transactionReference?.trim() ||
+          existing.payment?.transactionReference ||
+          undefined;
+
+        if (existing.payment) {
+          await tx.payment.update({
+            where: { id: existing.payment.id },
+            data: {
+              status: PaymentStatus.CAPTURED,
+              paidAt: new Date(),
+              transactionReference: effectiveRef,
+            },
+          });
+        } else {
+          await tx.payment.create({
+            data: {
+              orderId: existing.id,
+              paymentMethod: PaymentMethod.CREDIT_CARD,
+              amount: existing.totalAmount,
+              currency: existing.currency,
+              status: PaymentStatus.CAPTURED,
+              paidAt: new Date(),
+              transactionReference: effectiveRef,
+            },
+          });
+        }
+      }
+
+      return tx.order.update({
+        where: { id: existing.id },
+        data: { status },
+        include: {
+          items: {
+            include: {
+              variant: {
+                include: {
+                  product: {
+                    include: {
+                      images: { where: { isPrimary: true }, take: 1 },
+                    },
                   },
                 },
               },
             },
           },
+          shipments: {
+            include: { logs: { orderBy: { logTimestamp: 'desc' } } },
+            orderBy: { createdAt: 'desc' },
+          },
+          payment: true,
         },
-        shipments: {
-          include: { logs: { orderBy: { logTimestamp: 'desc' } } },
-          orderBy: { createdAt: 'desc' },
-        },
-        payment: true,
-      },
+      });
     });
 
     return this.mapOrder(updated);

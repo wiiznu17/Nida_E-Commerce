@@ -5,4 +5,5 @@ export * from './OrderDetailShippingCard';
 export * from './OrderDetailCustomerCard';
 export * from './OrderFulfillModal';
 export * from './OrderShipmentStatusModal';
+export * from './OrderPaymentOverrideModal';
 export * from './print';

@@ -24,3 +24,5 @@ export function formatPrice(
 
   return `฿${numeric.toLocaleString('en-US')}`;
 }
+
+export const formatCurrency = formatPrice;

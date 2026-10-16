@@ -516,6 +516,29 @@
       "labelHint": "Standard 100x150 mm (A6) format optimized for thermal label printers.",
       "slipHint": "Standard A4/A5 document for parcel inclusion and dispatch inspection.",
       "close": "Close"
+    },
+    "paymentOverride": {
+      "button": "Emergency Payment Override",
+      "modalTitle": "Confirm Emergency Payment Override",
+      "modalSubtitle": "Emergency Payment Override for failed or delayed Payment Gateway webhooks",
+      "warningTitle": "Important Security Warning",
+      "warningNotice": "This order uses an automated Payment Gateway (Omise). Normal operations wait for automated webhooks. Use manual override only for emergencies (e.g. failed webhook) after staff have verified the transaction in Omise Dashboard.",
+      "orderPrefix": "Order #",
+      "amount": "Total Amount:",
+      "paymentMethod": "Payment Method:",
+      "currentStatus": "Current Status:",
+      "chargeIdLabel": "Omise Charge ID / Transaction Reference",
+      "chargeIdPlaceholder": "e.g. chrg_test_61v9...",
+      "reasonLabel": "Emergency Override Reason *",
+      "reasonPlaceholder": "Specify reason e.g. Payment verified in Omise Dashboard",
+      "presetLabel": "Common Presets",
+      "presetWebhookTimeout": "Omise Webhook timeout / event not received",
+      "presetVerifiedDashboard": "Payment verified in Omise Dashboard",
+      "presetCustomerConfirmed": "Customer charged successfully / gateway callback error",
+      "cancel": "Cancel",
+      "confirm": "Confirm Override",
+      "submitting": "Processing...",
+      "successToast": "Payment override confirmed for order #{orderNumber}"
     }
   },
   "promotions": {

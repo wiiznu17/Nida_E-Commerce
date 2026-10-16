@@ -516,6 +516,29 @@
       "labelHint": "ขนาดมาตรฐาน 100x150 มม. (A6) สำหรับเครื่องพิมพ์ความร้อน (Thermal Label Printer)",
       "slipHint": "ขนาดมาตรฐาน A4/A5 สำหรับแนบในกล่องพัสดุและตรวจสอบรายการสินค้า",
       "close": "ปิด"
+    },
+    "paymentOverride": {
+      "button": "อนุมัติยอดเงินฉุกเฉิน",
+      "modalTitle": "ยืนยันการอนุมัติการชำระเงินฉุกเฉิน",
+      "modalSubtitle": "Emergency Payment Override สำหรับกรณี Webhook จาก Payment Gateway ขัดข้อง",
+      "warningTitle": "คำเตือนสำคัญด้านความปลอดภัย",
+      "warningNotice": "คำสั่งซื้อนี้เป็นการชำระเงินผ่าน Payment Gateway (Omise) ปกติระบบจะรอรับ Webhook อัตโนมัติ ให้ใช้ฟังก์ชันนี้เฉพาะกรณีฉุกเฉิน (เช่น Webhook ขัดข้อง) และเจ้าหน้าที่ได้ตรวจสอบยอดเงินใน Omise Dashboard เรียบร้อยแล้วเท่านั้น",
+      "orderPrefix": "คำสั่งซื้อ #",
+      "amount": "ยอดชำระ:",
+      "paymentMethod": "ช่องทางชำระเงิน:",
+      "currentStatus": "สถานะปัจจุบัน:",
+      "chargeIdLabel": "Omise Charge ID / เลขอ้างอิงธุรกรรม",
+      "chargeIdPlaceholder": "เช่น chrg_test_61v9...",
+      "reasonLabel": "เหตุผลการอนุมัติฉุกเฉิน *",
+      "reasonPlaceholder": "ระบุเหตุผล เช่น ตรวจสอบยอดผ่าน Omise Dashboard เรียบร้อยแล้ว",
+      "presetLabel": "เลือกเหตุผลทั่วไป",
+      "presetWebhookTimeout": "Omise Webhook ขัดข้อง / ไม่ได้รับ Webhook",
+      "presetVerifiedDashboard": "ตรวจสอบยอดเงินผ่าน Omise Dashboard แล้ว",
+      "presetCustomerConfirmed": "ลูกค้าแจ้งสลิปตัดบัตรสำเร็จ / ระบบขัดข้อง",
+      "cancel": "ยกเลิก",
+      "confirm": "ยืนยันอนุมัติยอดเงิน",
+      "submitting": "กำลังบันทึก...",
+      "successToast": "อนุมัติการชำระเงินสำหรับคำสั่งซื้อ #{orderNumber} สำเร็จ"
     }
   },
   "promotions": {
