@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, ArrowRight } from 'lucide-react';
+import { Package, ArrowRight, QrCode } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import type { ApiOrder } from '@repo/types';
+import { OrderStatus, PaymentMethod, type ApiOrder } from '@repo/types';
 
 interface ProfileOrdersTabProps {
   orders: ApiOrder[];
@@ -12,18 +12,38 @@ interface ProfileOrdersTabProps {
 
 export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
   const { language, t } = useLanguage();
+  const recentOrders = orders.slice(0, 3);
 
   return (
     <div>
-      <div className="mb-6 pb-4 border-b border-gray-200">
-        <h2 className="text-xl font-black text-brand-brown uppercase tracking-tight">
-          {t('auth.tabOrders')}
-        </h2>
-        <p className="text-xs text-gray-500">
-          {language === 'th'
-            ? 'ตรวจสอบสถานะและติดตามพัสดุแบบเรียลไทม์'
-            : 'Check order status and track shipments in real time'}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-200">
+        <div>
+          <div className="flex items-center space-x-2">
+            <h2 className="text-xl font-black text-brand-brown uppercase tracking-tight">
+              {t('auth.tabOrders')}
+            </h2>
+            {orders.length > 0 && (
+              <span className="text-[10px] font-bold px-2 py-0.5 bg-brand-warm-cream border border-brand-border text-brand-brown rounded-xs">
+                {t('orderHistory.recentOrdersCount')}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {language === 'th'
+              ? 'ตรวจสอบสถานะและติดตามพัสดุแบบเรียลไทม์'
+              : 'Check order status and track shipments in real time'}
+          </p>
+        </div>
+
+        {orders.length > 0 && (
+          <Link
+            href="/profile/orders"
+            className="inline-flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-brand-amber hover:text-brand-brown transition-colors self-start sm:self-auto cursor-pointer"
+          >
+            <span>{t('orderHistory.viewAllOrders')} ({orders.length})</span>
+            <ArrowRight size={14} />
+          </Link>
+        )}
       </div>
 
       {isLoading ? (
@@ -67,8 +87,12 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
           </Link>
         </div>
       ) : (
-        <div className="space-y-6">
-          {orders.map((order) => {
+        <div className="space-y-5">
+          {recentOrders.map((order) => {
+            const isPendingPromptPay =
+              order.status === OrderStatus.PENDING &&
+              (order.payment?.paymentMethod === PaymentMethod.PROMPTPAY || !order.payment);
+
             const statusBadgeClass =
               order.status === 'DELIVERED'
                 ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -98,9 +122,9 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
             return (
               <div
                 key={order.id}
-                className="border border-gray-200 p-6 bg-white hover:border-brand-brown transition-colors shadow-xs"
+                className="border border-gray-200 p-5 sm:p-6 bg-white hover:border-brand-brown transition-colors shadow-2xs"
               >
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-4 mb-4 border-b border-gray-200">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 pb-4 mb-4 border-b border-gray-200">
                   <div>
                     <div className="flex items-center space-x-2">
                       <span className="font-black text-sm text-brand-brown font-mono">
@@ -128,8 +152,8 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                     </p>
                   </div>
 
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right">
+                  <div className="flex items-center justify-between sm:justify-end space-x-4">
+                    <div className="text-left sm:text-right">
                       <span className="text-[10px] uppercase font-bold text-gray-400 block">
                         {t('checkout.total')}
                       </span>
@@ -139,7 +163,7 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                     </div>
                     <Link
                       href={`/track-order/${order.orderNumber}`}
-                      className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center"
+                      className="bg-brand-brown hover:bg-brand-amber text-white px-3.5 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center"
                     >
                       <span>{t('orderSuccess.trackOrder')}</span>
                       <ArrowRight size={14} className="ml-1" />
@@ -154,7 +178,7 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                       key={item.id}
                       className="flex items-center justify-between text-xs py-1"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0 pr-2">
                         {item.imageUrl ? (
                           <div className="w-12 h-14 bg-gray-100 shrink-0 border border-gray-200 overflow-hidden relative">
                             <Image
@@ -170,16 +194,16 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                             <Package size={16} />
                           </div>
                         )}
-                        <div>
-                          <h4 className="font-bold text-brand-brown">
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-brand-brown truncate">
                             {item.productName}
                           </h4>
-                          <p className="text-gray-500 font-medium text-[11px]">
+                          <p className="text-gray-500 font-medium text-[11px] truncate">
                             {item.variantInfo}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right font-mono text-gray-700">
+                      <div className="text-right font-mono text-gray-700 shrink-0">
                         <span>
                           {item.quantity} x ฿{Number(item.unitPrice).toLocaleString()}
                         </span>
@@ -189,7 +213,16 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                 </div>
 
                 {/* Action buttons footer */}
-                <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end gap-2">
+                <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap justify-end gap-2">
+                  {isPendingPromptPay && (
+                    <Link
+                      href={`/order-success?orderNumber=${encodeURIComponent(order.orderNumber)}`}
+                      className="bg-brand-amber hover:bg-brand-brown text-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors inline-flex items-center space-x-1 shadow-2xs"
+                    >
+                      <QrCode size={13} />
+                      <span>{t('orderHistory.payNow')}</span>
+                    </Link>
+                  )}
                   <Link
                     href="/collections"
                     className="border border-gray-300 hover:border-brand-brown text-gray-700 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors"
@@ -206,6 +239,19 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
               </div>
             );
           })}
+
+          {/* View All Orders Button at bottom of list */}
+          {orders.length > 3 && (
+            <div className="pt-2">
+              <Link
+                href="/profile/orders"
+                className="w-full py-3 border-2 border-brand-brown text-brand-brown hover:bg-brand-brown hover:text-white transition-colors text-xs font-black uppercase tracking-wider flex items-center justify-center space-x-2 shadow-2xs"
+              >
+                <span>{t('orderHistory.viewAllOrders')} ({orders.length} {t('orderHistory.ordersUnit')})</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
