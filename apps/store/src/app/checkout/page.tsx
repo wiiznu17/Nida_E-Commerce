@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Check,
   QrCode,
-  Building2,
   AlertCircle,
   Loader2,
   Lock,
@@ -52,7 +51,7 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState<'shipping' | 'payment'>('shipping');
   const [promoCode, setPromoCode] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'promptpay' | 'bank'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'promptpay'>('card');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderError, setOrderError] = useState('');
 
@@ -233,12 +232,10 @@ export default function CheckoutPage() {
     setOrderError('');
 
     try {
-      let mappedMethod: PaymentMethod = PaymentMethod.CREDIT_CARD;
-      if (paymentMethod === 'promptpay') {
-        mappedMethod = PaymentMethod.PROMPTPAY;
-      } else if (paymentMethod === 'bank') {
-        mappedMethod = PaymentMethod.BANK_TRANSFER;
-      }
+      const mappedMethod: PaymentMethod =
+        paymentMethod === 'promptpay'
+          ? PaymentMethod.PROMPTPAY
+          : PaymentMethod.CREDIT_CARD;
 
       const recipientName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
 
@@ -263,6 +260,12 @@ export default function CheckoutPage() {
 
       const createdOrder = await orderRequester.createOrder(payload, token);
       clearCart();
+
+      // If card was selected, execute payment charge immediately so customer lands on complete receipt
+      if (mappedMethod === PaymentMethod.CREDIT_CARD) {
+        await orderRequester.payOrder(createdOrder.orderNumber, token);
+      }
+
       router.push(`/order-success?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}`);
     } catch (err: unknown) {
       const extracted = extractApiError(
@@ -624,53 +627,48 @@ export default function CheckoutPage() {
               </div>
 
               {/* Payment Method Selector Tabs */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('card')}
-                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                  className={`p-4 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                     paymentMethod === 'card'
-                      ? 'border-brand-brown bg-brand-brown text-white'
+                      ? 'border-brand-brown bg-brand-brown text-white shadow-sm'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
                   }`}
                 >
-                  <CreditCard size={18} />
-                  <span>{language === 'th' ? 'บัตรเครดิต' : 'Card'}</span>
+                  <CreditCard size={20} />
+                  <span>{language === 'th' ? 'บัตรเครดิต / เดบิต' : 'Credit / Debit Card'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('promptpay')}
-                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                  className={`p-4 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                     paymentMethod === 'promptpay'
-                      ? 'border-brand-brown bg-brand-brown text-white'
+                      ? 'border-brand-brown bg-brand-brown text-white shadow-sm'
                       : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
                   }`}
                 >
-                  <QrCode size={18} />
+                  <QrCode size={20} />
                   <span>PromptPay QR</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('bank')}
-                  className={`p-3 border text-xs font-bold flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
-                    paymentMethod === 'bank'
-                      ? 'border-brand-brown bg-brand-brown text-white'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
-                  }`}
-                >
-                  <Building2 size={18} />
-                  <span>{language === 'th' ? 'โอนเงิน' : 'Transfer'}</span>
                 </button>
               </div>
 
               <form onSubmit={handlePaymentSubmit} className="space-y-5">
                 {paymentMethod === 'card' && (
-                  <div className="border-2 border-brand-brown p-6 bg-white shadow-xs">
+                  <div className="border border-brand-border p-6 bg-white shadow-xs">
                     <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                      <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
-                        {t('checkout.creditCard')} (Sandbox Test Mode)
-                      </span>
-                      <CreditCard size={20} className="text-brand-brown" />
+                      <div>
+                        <span className="text-xs font-black uppercase tracking-wider text-brand-brown block">
+                          {t('checkout.creditCard')}
+                        </span>
+                        <span className="text-[10px] text-gray-500 font-medium">
+                          {language === 'th'
+                            ? 'รองรับ Visa, Mastercard, JCB (ระบบ Omise Secure Payment Gateway)'
+                            : 'Supports Visa, Mastercard, JCB (Omise Secure Payment Gateway)'}
+                        </span>
+                      </div>
+                      <CreditCard size={22} className="text-brand-brown shrink-0" />
                     </div>
 
                     <div className="space-y-4">
@@ -727,37 +725,32 @@ export default function CheckoutPage() {
                 )}
 
                 {paymentMethod === 'promptpay' && (
-                  <div className="border-2 border-brand-brown p-6 bg-white shadow-xs text-center space-y-4">
-                    <div className="inline-block bg-brand-warm-cream p-4 border border-gray-200">
-                      <QrCode size={120} className="mx-auto text-brand-brown" />
+                  <div className="border border-brand-border p-6 bg-brand-warm-cream/50 shadow-xs space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-brand-brown text-white flex items-center justify-center shrink-0">
+                        <QrCode size={20} />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-brand-brown">
+                          {language === 'th' ? 'ชำระเงินด้วย พร้อมเพย์ (PromptPay QR)' : 'PromptPay QR Payment'}
+                        </h4>
+                        <p className="text-[11px] text-gray-600">
+                          {language === 'th'
+                            ? 'เมื่อกดสั่งซื้อ ระบบจะสร้างคำสั่งซื้อและนำท่านเข้าสู่หน้าสแกน QR Code พร้อมเพย์'
+                            : 'Order will be created and you will be redirected to the PromptPay QR scan page'}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xs font-bold text-brand-brown">
-                      {language === 'th'
-                        ? 'สแกน QR Code เพื่อชำระเงินจำลอง (ระบบจะตัดสต็อกทันทีเมื่อกดสั่งซื้อ)'
-                        : 'Scan QR Code for PromptPay payment (Stock will deduct upon order)'}
-                    </p>
-                    <p className="text-[11px] text-gray-500">
-                      NIDA OFFICIAL STORE • PROMPTPAY ID: 0105567891234
-                    </p>
-                  </div>
-                )}
 
-                {paymentMethod === 'bank' && (
-                  <div className="border-2 border-brand-brown p-6 bg-white shadow-xs space-y-3 text-xs">
-                    <h4 className="font-bold text-brand-brown">
-                      {language === 'th' ? 'รายละเอียดบัญชีธนาคารสำหรับโอนเงิน:' : 'Bank Account Information:'}
-                    </h4>
-                    <div className="bg-brand-warm-cream p-3 border border-gray-200 space-y-1">
-                      <p>
-                        <strong>{language === 'th' ? 'ธนาคาร:' : 'Bank:'}</strong> กสิกรไทย (Kasikornbank - KBANK)
-                      </p>
-                      <p>
-                        <strong>{language === 'th' ? 'ชื่อบัญชี:' : 'Account Name:'}</strong> บริษัท นิดา แบรนด์ส จำกัด (Nida Brands Co., Ltd.)
-                      </p>
-                      <p>
-                        <strong>{language === 'th' ? 'เลขที่บัญชี:' : 'Account No:'}</strong>{' '}
-                        <span className="font-mono font-bold text-brand-amber">098-1-23456-7</span>
-                      </p>
+                    <div className="p-3 bg-white border border-brand-border text-xs text-gray-600 space-y-1.5">
+                      <div className="flex items-center space-x-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-brown shrink-0"></span>
+                        <span>{language === 'th' ? 'รองรับ Mobile Banking ทุกธนาคารในประเทศไทย' : 'Supports all Thai Mobile Banking apps'}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-brown shrink-0"></span>
+                        <span>{language === 'th' ? 'ระบบตรวจรับยอดเงินอัตโนมัติผ่าน Omise Webhook ทันที' : 'Automatic instant verification via Omise Webhook'}</span>
+                      </div>
                     </div>
                   </div>
                 )}

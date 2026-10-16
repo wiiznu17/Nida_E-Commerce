@@ -102,4 +102,17 @@ export class CustomerOrdersController {
     const userId = req.user?.id;
     return this.ordersService.getOrderByNumber(orderNumber, userId);
   }
+
+  @Post(':orderNumber/pay')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({ summary: 'Complete or simulate payment for an order' })
+  @ApiResponse({ status: 200, description: 'Payment successful' })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  async payOrder(
+    @Param('orderNumber') orderNumber: string,
+    @Request() req: AuthenticatedCustomerRequest,
+  ): Promise<ApiOrder> {
+    const userId = req.user?.id;
+    return this.ordersService.payOrder(orderNumber, userId);
+  }
 }

@@ -399,6 +399,44 @@ export class CustomerOrdersService {
     return this.mapOrder(order);
   }
 
+  async payOrder(orderNumber: string, userId?: string): Promise<ApiOrder> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: { payment: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      return this.getOrderByNumber(orderNumber, userId);
+    }
+
+    const nextStatus = order.hasPreorderItems
+      ? OrderStatus.PREORDER_AWAITING_STOCK
+      : OrderStatus.PAID;
+
+    await this.prisma.$transaction(async (tx) => {
+      if (order.payment) {
+        await tx.payment.update({
+          where: { id: order.payment.id },
+          data: {
+            status: PaymentStatus.CAPTURED,
+            paidAt: new Date(),
+          },
+        });
+      }
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: { status: nextStatus },
+      });
+    });
+
+    return this.getOrderByNumber(orderNumber, userId);
+  }
+
   async trackOrder(
     orderNumber: string,
     phone?: string,

@@ -78,5 +78,19 @@ export const orderRequester = {
       token,
     );
   },
+
+  /**
+   * Complete or simulate payment for an order.
+   */
+  payOrder: async (
+    orderNumber: string,
+    token?: string | null,
+  ): Promise<ApiOrder> => {
+    return apiClient.post<ApiOrder>(
+      `/orders/${encodeURIComponent(orderNumber)}/pay`,
+      {},
+      token,
+    );
+  },
 };
 
