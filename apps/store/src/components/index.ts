@@ -6,4 +6,6 @@ export * from './wishlist';
 export * from './layout';
 export * from './home';
 export * from './ui';
+export * from './address';
 export * from './Providers';
+

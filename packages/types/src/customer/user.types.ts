@@ -28,4 +28,31 @@ export interface ApiAddress {
   province: string;
   postalCode: string;
   isDefault: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+export interface CreateAddressDto {
+  recipientName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  subdistrict: string;
+  district: string;
+  province: string;
+  postalCode: string;
+  isDefault?: boolean;
+}
+
+export interface UpdateAddressDto {
+  recipientName?: string;
+  phone?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  subdistrict?: string;
+  district?: string;
+  province?: string;
+  postalCode?: string;
+  isDefault?: boolean;
+}
+

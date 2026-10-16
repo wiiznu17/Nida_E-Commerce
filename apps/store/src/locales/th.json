@@ -290,7 +290,11 @@
     "couponReasonUnknown": "ไม่สามารถใช้งานโค้ดส่วนลดนี้ได้",
     "freeShippingQualified": "ได้รับสิทธิ์จัดส่งฟรีมาตรฐาน",
     "standardShipping": "ค่าจัดส่งมาตรฐาน",
-    "taxIncluded": "รวมภาษีมูลค่าเพิ่ม 7% แล้ว"
+    "taxIncluded": "รวมภาษีมูลค่าเพิ่ม 7% แล้ว",
+    "useSavedAddress": "เลือกจากสมุดที่อยู่",
+    "orEnterNewAddress": "หรือกรอกที่อยู่ใหม่",
+    "saveToAddressBook": "บันทึกที่อยู่นี้ลงในสมุดที่อยู่ของฉัน",
+    "manageAddresses": "จัดการสมุดที่อยู่"
   },
   "orderSuccess": {
     "title": "ยืนยันคำสั่งซื้อสำเร็จ!",
@@ -375,5 +379,39 @@
     "remove": "ลบออก",
     "clearAll": "ล้างรายการทั้งหมด",
     "itemRemoved": "ลบออกจากรายการที่ถูกใจแล้ว"
+  },
+  "addressBook": {
+    "title": "สมุดที่อยู่จัดส่ง",
+    "subtitle": "จัดการที่อยู่สำหรับจัดส่งสินค้าของคุณสำหรับการสั่งซื้อที่สะดวกรวดเร็วยิ่งขึ้น",
+    "addNew": "เพิ่มที่อยู่ใหม่",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "setDefault": "ตั้งเป็นที่อยู่หลัก",
+    "defaultBadge": "ที่อยู่หลัก",
+    "emptyTitle": "ยังไม่มีที่อยู่ที่บันทึกไว้",
+    "emptyDesc": "บันทึกที่อยู่จัดส่งของคุณเพื่อให้การสั่งซื้อครั้งต่อไปสะดวกและรวดเร็ว",
+    "modalAddTitle": "เพิ่มที่อยู่จัดส่งใหม่",
+    "modalEditTitle": "แก้ไขที่อยู่จัดส่ง",
+    "recipientName": "ชื่อ-นามสกุล ผู้รับ *",
+    "recipientNamePlaceholder": "เช่น พิมพิศา วงศ์สวรรค์",
+    "phone": "เบอร์โทรศัพท์ติดต่อ *",
+    "phonePlaceholder": "เช่น 081-234-5678",
+    "addressLine1": "ที่อยู่ (บ้านเลขที่, ซอย, ถนน) *",
+    "addressLine1Placeholder": "เช่น 123/45 ซอยสุขุมวิท 55",
+    "addressLine2": "ข้อมูลเพิ่มเติม (อาคาร, ชั้น, ห้อง)",
+    "addressLine2Placeholder": "เช่น อาคาร A ชั้น 12 ห้อง 1204",
+    "subdistrict": "แขวง / ตำบล *",
+    "subdistrictPlaceholder": "เช่น คลองตันเหนือ",
+    "district": "เขต / อำเภอ *",
+    "districtPlaceholder": "เช่น วัฒนา",
+    "province": "จังหวัด *",
+    "provincePlaceholder": "เช่น กรุงเทพมหานคร",
+    "postalCode": "รหัสไปรษณีย์ *",
+    "postalCodePlaceholder": "เช่น 10110",
+    "isDefaultLabel": "ตั้งเป็นที่อยู่จัดส่งเริ่มต้น",
+    "saveAddress": "บันทึกที่อยู่",
+    "saving": "กำลังบันทึก...",
+    "deleteConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบที่อยู่นี้?",
+    "tel": "โทร"
   }
 }

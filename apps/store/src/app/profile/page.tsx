@@ -15,10 +15,15 @@ import {
   ArrowRight,
   ShieldCheck,
   Edit3,
+  Plus,
 } from 'lucide-react';
+import { addressRequester } from '@/api';
+import { AddressCard, AddressModal } from '@/components/address';
+import type { ApiAddress, CreateAddressDto } from '@repo/types';
 
 export default function ProfilePage() {
-  const { user, logout, updateProfile } = useAuth();
+  const { user, token, logout, updateProfile } = useAuth();
+
   const { language, t } = useLanguage();
   const router = useRouter();
 
@@ -37,6 +42,74 @@ export default function ProfilePage() {
     postalCode: user?.postalCode || '10110',
   });
 
+  const [addresses, setAddresses] = useState<ApiAddress[]>([]);
+  const [isAddressesLoading, setIsAddressesLoading] = useState(false);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<ApiAddress | null>(null);
+  const [addressActionLoading, setAddressActionLoading] = useState(false);
+
+  const fetchAddresses = React.useCallback(async () => {
+    if (!token) return;
+    setIsAddressesLoading(true);
+    try {
+      const data = await addressRequester.getAddresses(token);
+      setAddresses(data);
+    } catch {
+      // Graceful fallback
+    } finally {
+      setIsAddressesLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (activeTab === 'addresses' && token) {
+      void fetchAddresses();
+    }
+  }, [activeTab, token, fetchAddresses]);
+
+  const handleOpenAddAddress = () => {
+    setEditingAddress(null);
+    setAddressModalOpen(true);
+  };
+
+  const handleOpenEditAddress = (addr: ApiAddress) => {
+    setEditingAddress(addr);
+    setAddressModalOpen(true);
+  };
+
+  const handleSaveAddress = async (data: CreateAddressDto) => {
+    if (!token) return;
+    if (editingAddress) {
+      await addressRequester.updateAddress(editingAddress.id, data, token);
+    } else {
+      await addressRequester.createAddress(data, token);
+    }
+    await fetchAddresses();
+  };
+
+  const handleDeleteAddress = async (addr: ApiAddress) => {
+    if (!token) return;
+    if (!window.confirm(t('addressBook.deleteConfirm'))) return;
+    setAddressActionLoading(true);
+    try {
+      await addressRequester.deleteAddress(addr.id, token);
+      await fetchAddresses();
+    } finally {
+      setAddressActionLoading(false);
+    }
+  };
+
+  const handleSetDefaultAddress = async (addr: ApiAddress) => {
+    if (!token) return;
+    setAddressActionLoading(true);
+    try {
+      await addressRequester.setDefaultAddress(addr.id, token);
+      await fetchAddresses();
+    } finally {
+      setAddressActionLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!user) {
       router.push('/login');
@@ -51,6 +124,7 @@ export default function ProfilePage() {
       });
     }
   }, [user, router, language]);
+
 
   if (!user) {
     return null;
@@ -481,71 +555,90 @@ export default function ProfilePage() {
           {/* ADDRESSES TAB */}
           {activeTab === 'addresses' && (
             <div>
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-gray-200 gap-4">
                 <div>
                   <h2 className="text-xl font-black text-brand-brown uppercase tracking-tight">
-                    {t('auth.tabAddresses')}
+                    {t('addressBook.title')}
                   </h2>
-                  <p className="text-xs text-gray-500">
-                    {language === 'th'
-                      ? 'ที่อยู่เริ่มต้นสำหรับการสั่งซื้อสินค้าแบรนด์ Nida'
-                      : 'Default shipping addresses for Nida orders'}
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {t('addressBook.subtitle')}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleOpenAddAddress}
+                  className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center self-start sm:self-auto cursor-pointer"
+                >
+                  <Plus size={14} className="mr-1.5" />
+                  <span>{t('addressBook.addNew')}</span>
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border-2 border-brand-brown p-5 bg-brand-warm-cream relative">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-black uppercase tracking-wider text-brand-brown flex items-center">
-                      <MapPin size={14} className="mr-1 text-brand-amber" />{' '}
-                      {language === 'th'
-                        ? 'ที่อยู่หลัก (DEFAULT)'
-                        : 'PRIMARY ADDRESS'}
-                    </span>
-                    <span className="text-[10px] bg-brand-brown text-white px-2 py-0.5 font-bold uppercase">
-                      {language === 'th' ? 'บ้าน' : 'HOME'}
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-700 leading-relaxed font-medium space-y-1">
-                    <p className="font-bold text-brand-brown text-sm">
-                      {user.firstName} {user.lastName}
-                    </p>
-                    <p>{formData.address}</p>
-                    <p>
-                      {formData.city} {formData.postalCode}
-                    </p>
-                    <p>
-                      {language === 'th' ? 'โทร: ' : 'Tel: '}
-                      {user.phone || '081-892-3456'}
-                    </p>
-                  </div>
+              {isAddressesLoading ? (
+                <div className="py-12 flex justify-center items-center text-stone-400 text-xs">
+                  <div className="w-5 h-5 border-2 border-brand-brown/20 border-t-brand-brown rounded-full animate-spin mr-2" />
+                  <span>{t('addressBook.saving')}</span>
                 </div>
-
-                <div className="border border-dashed border-gray-300 p-5 flex flex-col items-center justify-center text-center bg-gray-50">
-                  <MapPin size={24} className="text-gray-400 mb-2" />
-                  <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
-                    {language === 'th' ? 'เพิ่มที่อยู่ใหม่' : 'Add New Address'}
-                  </p>
-                  <p className="text-[11px] text-gray-400 mb-3">
-                    {language === 'th'
-                      ? 'เพิ่มที่อยู่ที่ทำงาน หรือที่อยู่สำรอง'
-                      : 'Add office or alternate delivery address'}
+              ) : addresses.length === 0 ? (
+                <div className="border border-dashed border-gray-300 p-10 flex flex-col items-center justify-center text-center bg-gray-50/50">
+                  <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-3">
+                    <MapPin size={22} />
+                  </div>
+                  <h3 className="text-sm font-black uppercase tracking-tight text-brand-brown mb-1">
+                    {t('addressBook.emptyTitle')}
+                  </h3>
+                  <p className="text-xs text-gray-500 max-w-sm mb-5">
+                    {t('addressBook.emptyDesc')}
                   </p>
                   <button
-                    onClick={() => setActiveTab('profile')}
-                    className="text-xs font-black uppercase text-brand-brown hover:text-brand-amber underline"
+                    type="button"
+                    onClick={handleOpenAddAddress}
+                    className="bg-brand-brown hover:bg-brand-amber text-white px-5 py-2.5 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer inline-flex items-center"
                   >
-                    {language === 'th'
-                      ? 'แก้ไขที่อยู่หลัก'
-                      : 'Edit Default Address'}
+                    <Plus size={14} className="mr-1.5" />
+                    <span>{t('addressBook.addNew')}</span>
                   </button>
                 </div>
-              </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {addresses.map((addr) => (
+                    <AddressCard
+                      key={addr.id}
+                      address={addr}
+                      mode="manage"
+                      onEdit={handleOpenEditAddress}
+                      onDelete={handleDeleteAddress}
+                      onSetDefault={handleSetDefaultAddress}
+                      isActionLoading={addressActionLoading}
+                    />
+                  ))}
+
+                  {/* Add New Address Card in Grid */}
+                  <div
+                    onClick={handleOpenAddAddress}
+                    className="border border-dashed border-gray-300 p-6 flex flex-col items-center justify-center text-center bg-stone-50/40 hover:bg-stone-50 hover:border-brand-brown transition-colors cursor-pointer min-h-[160px]"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-brand-brown mb-2 shadow-2xs">
+                      <Plus size={18} />
+                    </div>
+                    <p className="text-xs font-black uppercase tracking-wider text-brand-brown">
+                      {t('addressBook.addNew')}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      <AddressModal
+        isOpen={addressModalOpen}
+        onClose={() => setAddressModalOpen(false)}
+        address={editingAddress}
+        onSave={handleSaveAddress}
+      />
     </div>
   );
 }
+

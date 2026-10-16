@@ -17,13 +17,18 @@ import {
   Lock,
   Tag,
   X,
+  Plus,
+  MapPin,
 } from 'lucide-react';
 import {
   orderRequester,
+  addressRequester,
   extractApiError,
   type CreateCustomerOrderPayload,
 } from '@/api';
-import { PaymentMethod } from '@repo/types';
+import { AddressCard, AddressModal } from '@/components/address';
+import { PaymentMethod, type ApiAddress, type CreateAddressDto } from '@repo/types';
+
 
 export default function CheckoutPage() {
   const {
@@ -51,26 +56,95 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderError, setOrderError] = useState('');
 
-  // Shipping Form State (Autofilled from authenticated User profile)
+  // Shipping Form State (Autofilled from saved address or user profile)
   const [shippingData, setShippingData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
     address: '',
+    addressLine2: '',
+    subdistrict: '',
+    district: '',
+    province: '',
     city: '',
     postalCode: '',
   });
+
+  const [savedAddresses, setSavedAddresses] = useState<ApiAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [addressMode, setAddressMode] = useState<'saved' | 'new'>('saved');
+  const [saveToAddressBook, setSaveToAddressBook] = useState(true);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+
+  const populateShippingFromAddress = React.useCallback(
+    (addr: ApiAddress) => {
+      const nameParts = addr.recipientName.trim().split(' ');
+      const firstName = nameParts[0] ?? '';
+      const lastName = nameParts.slice(1).join(' ') || (user?.lastName ?? '');
+      setShippingData((prev) => ({
+        ...prev,
+        firstName,
+        lastName,
+        email: prev.email || user?.email || '',
+        phone: addr.phone,
+        address: addr.addressLine1,
+        addressLine2: addr.addressLine2 ?? '',
+        subdistrict: addr.subdistrict,
+        district: addr.district,
+        province: addr.province,
+        city: addr.district || addr.province,
+        postalCode: addr.postalCode,
+      }));
+    },
+    [user],
+  );
 
   // Close cart drawer when entering checkout
   useEffect(() => {
     setIsCartOpen(false);
   }, [setIsCartOpen]);
 
-  // Autofill shipping info whenever user logs in or profile loads
+  // Fetch saved addresses if customer is authenticated
   useEffect(() => {
-    if (user) {
+    if (!token) return;
+    let isMounted = true;
+    setIsLoadingAddresses(true);
+
+    addressRequester
+      .getAddresses(token)
+      .then((addrs) => {
+        if (!isMounted) return;
+        setSavedAddresses(addrs);
+        if (addrs.length > 0) {
+          const defaultAddr = addrs.find((a) => a.isDefault) ?? addrs[0];
+          if (defaultAddr) {
+            setSelectedAddressId(defaultAddr.id);
+            setAddressMode('saved');
+            populateShippingFromAddress(defaultAddr);
+          }
+        } else {
+          setAddressMode('new');
+        }
+      })
+      .catch(() => {
+        if (isMounted) setAddressMode('new');
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingAddresses(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token, populateShippingFromAddress]);
+
+  // Fallback autofill basic info if no saved address or guest
+  useEffect(() => {
+    if (user && savedAddresses.length === 0) {
       setShippingData((prev) => ({
+        ...prev,
         firstName: prev.firstName || user.firstName || '',
         lastName: prev.lastName || user.lastName || '',
         email: prev.email || user.email || '',
@@ -80,7 +154,8 @@ export default function CheckoutPage() {
         postalCode: prev.postalCode || user.postalCode || '10110',
       }));
     }
-  }, [user, language]);
+  }, [user, language, savedAddresses.length]);
+
 
   if (items.length === 0) {
     return (
@@ -107,8 +182,47 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleShippingSubmit = (e: React.FormEvent) => {
+  const handleSelectAddress = (addr: ApiAddress) => {
+    setSelectedAddressId(addr.id);
+    populateShippingFromAddress(addr);
+  };
+
+  const handleSaveModalAddress = async (data: CreateAddressDto) => {
+    if (!token) return;
+    const created = await addressRequester.createAddress(data, token);
+    setSavedAddresses((prev) => [created, ...prev]);
+    setSelectedAddressId(created.id);
+    setAddressMode('saved');
+    populateShippingFromAddress(created);
+  };
+
+  const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (addressMode === 'new' && saveToAddressBook && token) {
+      try {
+        const recipientName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
+        const created = await addressRequester.createAddress(
+          {
+            recipientName: recipientName || user?.fullName || 'Customer',
+            phone: shippingData.phone,
+            addressLine1: shippingData.address,
+            addressLine2: shippingData.addressLine2 || undefined,
+            subdistrict: shippingData.subdistrict || 'Khlong Toei',
+            district: shippingData.district || shippingData.city || 'Khlong Toei',
+            province: shippingData.province || 'Bangkok',
+            postalCode: shippingData.postalCode,
+            isDefault: savedAddresses.length === 0,
+          },
+          token,
+        );
+        setSavedAddresses((prev) => [created, ...prev]);
+        setSelectedAddressId(created.id);
+      } catch {
+        // Continue checkout even if address save fails
+      }
+    }
+
     setStep('payment');
     window.scrollTo(0, 0);
   };
@@ -137,9 +251,9 @@ export default function CheckoutPage() {
           recipientName: recipientName || user?.fullName || 'Customer',
           phone: shippingData.phone || '0812345678',
           addressLine1: shippingData.address || 'Sukhumvit 24',
-          subdistrict: 'Klongtoey',
-          district: shippingData.city || 'Klongtoey',
-          province: 'Bangkok',
+          subdistrict: shippingData.subdistrict || 'Khlong Toei',
+          district: shippingData.district || shippingData.city || 'Khlong Toei',
+          province: shippingData.province || 'Bangkok',
           postalCode: shippingData.postalCode || '10110',
         },
         paymentMethod: mappedMethod,
@@ -162,6 +276,7 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans">
@@ -226,134 +341,272 @@ export default function CheckoutPage() {
 
           {step === 'shipping' ? (
             <div className="space-y-6">
-              <h2 className="text-2xl font-black text-brand-brown uppercase tracking-tight">
-                {t('checkout.shippingAddress')}
-              </h2>
-              <form onSubmit={handleShippingSubmit} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-200 gap-3">
+                <h2 className="text-2xl font-black text-brand-brown uppercase tracking-tight">
+                  {t('checkout.shippingAddress')}
+                </h2>
+
+                {savedAddresses.length > 0 && (
+                  <div className="inline-flex border border-gray-300 p-0.5 bg-gray-100 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setAddressMode('saved')}
+                      className={`px-3 py-1 font-bold uppercase tracking-wider text-[11px] transition-colors cursor-pointer ${
+                        addressMode === 'saved'
+                          ? 'bg-brand-brown text-white shadow-2xs'
+                          : 'text-gray-600 hover:text-brand-brown'
+                      }`}
+                    >
+                      {t('checkout.useSavedAddress')} ({savedAddresses.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddressMode('new');
+                        setShippingData((prev) => ({
+                          ...prev,
+                          address: '',
+                          addressLine2: '',
+                          subdistrict: '',
+                          district: '',
+                          province: '',
+                          city: '',
+                          postalCode: '',
+                        }));
+                      }}
+                      className={`px-3 py-1 font-bold uppercase tracking-wider text-[11px] transition-colors cursor-pointer ${
+                        addressMode === 'new'
+                          ? 'bg-brand-brown text-white shadow-2xs'
+                          : 'text-gray-600 hover:text-brand-brown'
+                      }`}
+                    >
+                      {t('checkout.orEnterNewAddress')}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {isLoadingAddresses ? (
+                <div className="py-12 flex justify-center items-center text-stone-400 text-xs">
+                  <div className="w-5 h-5 border-2 border-brand-brown/20 border-t-brand-brown rounded-full animate-spin mr-2" />
+                  <span>{t('addressBook.saving')}</span>
+                </div>
+              ) : addressMode === 'saved' && savedAddresses.length > 0 ? (
+                <form onSubmit={handleShippingSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {savedAddresses.map((addr) => (
+                      <AddressCard
+                        key={addr.id}
+                        address={addr}
+                        mode="select"
+                        isSelected={selectedAddressId === addr.id}
+                        onSelect={handleSelectAddress}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddressModalOpen(true)}
+                      className="text-xs font-black uppercase text-brand-brown hover:text-brand-amber inline-flex items-center cursor-pointer transition-colors"
+                    >
+                      <Plus size={14} className="mr-1" />
+                      <span>{t('addressBook.addNew')}</span>
+                    </button>
+
+                    <Link
+                      href="/profile"
+                      className="text-xs font-bold text-gray-500 hover:text-brand-brown underline uppercase tracking-wider transition-colors"
+                    >
+                      {t('checkout.manageAddresses')}
+                    </Link>
+                  </div>
+
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      disabled={!selectedAddressId}
+                      className="w-full bg-brand-brown hover:bg-brand-amber disabled:opacity-50 text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg cursor-pointer"
+                    >
+                      {t('checkout.continueToPayment')}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleShippingSubmit} className="space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                        {t('checkout.firstName')} *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={shippingData.firstName}
+                        onChange={(e) =>
+                          setShippingData({ ...shippingData, firstName: e.target.value })
+                        }
+                        placeholder="Phannida"
+                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                        {t('checkout.lastName')} *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={shippingData.lastName}
+                        onChange={(e) =>
+                          setShippingData({ ...shippingData, lastName: e.target.value })
+                        }
+                        placeholder="Wissanu"
+                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                        {t('checkout.email')} *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={shippingData.email}
+                        onChange={(e) =>
+                          setShippingData({ ...shippingData, email: e.target.value })
+                        }
+                        placeholder="customer@nida.com"
+                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                        {t('checkout.phone')} *
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={shippingData.phone}
+                        onChange={(e) =>
+                          setShippingData({ ...shippingData, phone: e.target.value })
+                        }
+                        placeholder="081-234-5678"
+                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
+                      />
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.firstName')} *
+                      {t('checkout.address')} *
                     </label>
                     <input
                       type="text"
                       required
-                      value={shippingData.firstName}
+                      value={shippingData.address}
                       onChange={(e) =>
-                        setShippingData({ ...shippingData, firstName: e.target.value })
+                        setShippingData({ ...shippingData, address: e.target.value })
                       }
-                      placeholder="Phannida"
+                      placeholder="108 Sukhumvit Soi 24"
                       className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.lastName')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={shippingData.lastName}
-                      onChange={(e) =>
-                        setShippingData({ ...shippingData, lastName: e.target.value })
-                      }
-                      placeholder="Wissanu"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.email')} *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={shippingData.email}
-                      onChange={(e) =>
-                        setShippingData({ ...shippingData, email: e.target.value })
-                      }
-                      placeholder="customer@nida.com"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                        {t('addressBook.subdistrict')}
+                      </label>
+                      <input
+                        type="text"
+                        value={shippingData.subdistrict}
+                        onChange={(e) =>
+                          setShippingData({ ...shippingData, subdistrict: e.target.value })
+                        }
+                        placeholder={t('addressBook.subdistrictPlaceholder')}
+                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                        {t('checkout.city')} *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={shippingData.city}
+                        onChange={(e) =>
+                          setShippingData({ ...shippingData, city: e.target.value, district: e.target.value })
+                        }
+                        placeholder="Bangkok"
+                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.phone')} *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={shippingData.phone}
-                      onChange={(e) =>
-                        setShippingData({ ...shippingData, phone: e.target.value })
-                      }
-                      placeholder="081-234-5678"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                    />
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    {t('checkout.address')} *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={shippingData.address}
-                    onChange={(e) =>
-                      setShippingData({ ...shippingData, address: e.target.value })
-                    }
-                    placeholder="108 Sukhumvit Soi 24"
-                    className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.city')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={shippingData.city}
-                      onChange={(e) =>
-                        setShippingData({ ...shippingData, city: e.target.value })
-                      }
-                      placeholder="Bangkok"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                        {t('addressBook.province')}
+                      </label>
+                      <input
+                        type="text"
+                        value={shippingData.province}
+                        onChange={(e) =>
+                          setShippingData({ ...shippingData, province: e.target.value })
+                        }
+                        placeholder={t('addressBook.provincePlaceholder')}
+                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                        {t('checkout.postalCode')} *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={shippingData.postalCode}
+                        onChange={(e) =>
+                          setShippingData({ ...shippingData, postalCode: e.target.value })
+                        }
+                        placeholder="10110"
+                        className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      {t('checkout.postalCode')} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={shippingData.postalCode}
-                      onChange={(e) =>
-                        setShippingData({ ...shippingData, postalCode: e.target.value })
-                      }
-                      placeholder="10110"
-                      className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
-                    />
-                  </div>
-                </div>
 
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    className="w-full bg-brand-brown hover:bg-brand-amber text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg cursor-pointer"
-                  >
-                    {t('checkout.continueToPayment')}
-                  </button>
-                </div>
-              </form>
+                  {isAuthenticated && (
+                    <div className="pt-2">
+                      <label className="flex items-center space-x-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={saveToAddressBook}
+                          onChange={(e) => setSaveToAddressBook(e.target.checked)}
+                          className="w-4 h-4 text-brand-brown accent-brand-brown border-gray-300 rounded-none focus:ring-0"
+                        />
+                        <span className="text-xs font-medium text-gray-700">
+                          {t('checkout.saveToAddressBook')}
+                        </span>
+                      </label>
+                    </div>
+                  )}
+
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      className="w-full bg-brand-brown hover:bg-brand-amber text-white py-4 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-lg cursor-pointer"
+                    >
+                      {t('checkout.continueToPayment')}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           ) : (
             <div className="space-y-6">
@@ -677,6 +930,13 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      <AddressModal
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        onSave={handleSaveModalAddress}
+      />
     </div>
   );
 }
+

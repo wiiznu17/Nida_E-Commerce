@@ -290,7 +290,11 @@
     "couponReasonUnknown": "Unable to apply this coupon",
     "freeShippingQualified": "Qualified for Free Standard Delivery",
     "standardShipping": "Standard Delivery",
-    "taxIncluded": "Includes 7% VAT"
+    "taxIncluded": "Includes 7% VAT",
+    "useSavedAddress": "Use Saved Address",
+    "orEnterNewAddress": "Or Enter New Address",
+    "saveToAddressBook": "Save this address to my address book",
+    "manageAddresses": "Manage Address Book"
   },
   "orderSuccess": {
     "title": "ORDER CONFIRMED!",
@@ -375,5 +379,39 @@
     "remove": "Remove",
     "clearAll": "Clear Wishlist",
     "itemRemoved": "Removed from wishlist"
+  },
+  "addressBook": {
+    "title": "Saved Addresses",
+    "subtitle": "Manage your shipping addresses for seamless and rapid checkout",
+    "addNew": "Add New Address",
+    "edit": "Edit",
+    "delete": "Delete",
+    "setDefault": "Set as Default",
+    "defaultBadge": "Default Address",
+    "emptyTitle": "No Saved Addresses Yet",
+    "emptyDesc": "Save your delivery addresses for effortless ordering on future purchases",
+    "modalAddTitle": "Add New Shipping Address",
+    "modalEditTitle": "Edit Shipping Address",
+    "recipientName": "Recipient Name *",
+    "recipientNamePlaceholder": "e.g. Jane Doe",
+    "phone": "Phone Number *",
+    "phonePlaceholder": "e.g. 081-234-5678",
+    "addressLine1": "Address (Street address, Building) *",
+    "addressLine1Placeholder": "e.g. 123 Sukhumvit Soi 55",
+    "addressLine2": "Apartment, suite, unit, etc. (optional)",
+    "addressLine2Placeholder": "e.g. Unit 1204, 12th Floor",
+    "subdistrict": "Subdistrict / Tambon *",
+    "subdistrictPlaceholder": "e.g. Khlong Tan Nuea",
+    "district": "District / Amphoe *",
+    "districtPlaceholder": "e.g. Watthana",
+    "province": "Province *",
+    "provincePlaceholder": "e.g. Bangkok",
+    "postalCode": "Postal Code *",
+    "postalCodePlaceholder": "e.g. 10110",
+    "isDefaultLabel": "Set as default shipping address",
+    "saveAddress": "Save Address",
+    "saving": "Saving...",
+    "deleteConfirm": "Are you sure you want to delete this address?",
+    "tel": "Tel"
   }
 }

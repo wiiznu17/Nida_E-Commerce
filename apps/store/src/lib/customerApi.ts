@@ -9,12 +9,16 @@ import {
   authRequester,
   orderRequester,
   couponRequester,
+  addressRequester,
   type CreateCustomerOrderPayload,
   type CalculateCheckoutPayload,
 } from '@/api';
 import type {
   ApiUser,
   ApiOrder,
+  ApiAddress,
+  CreateAddressDto,
+  UpdateAddressDto,
   TrackingResult,
   RequestOtpResponse,
   VerifyOtpResponse,
@@ -23,6 +27,8 @@ import type {
 } from '@repo/types';
 
 export type { CreateCustomerOrderPayload, CalculateCheckoutPayload };
+export { addressRequester };
+
 
 export async function requestOtp(email: string): Promise<RequestOtpResponse> {
   return authRequester.requestOtp(email);
@@ -72,3 +78,39 @@ export async function calculateCheckout(
 ): Promise<CheckoutCalculation> {
   return couponRequester.calculateCheckout(payload);
 }
+
+export async function getCustomerAddresses(
+  token?: string | null,
+): Promise<ApiAddress[]> {
+  return addressRequester.getAddresses(token);
+}
+
+export async function createCustomerAddress(
+  data: CreateAddressDto,
+  token?: string | null,
+): Promise<ApiAddress> {
+  return addressRequester.createAddress(data, token);
+}
+
+export async function updateCustomerAddress(
+  id: string,
+  data: UpdateAddressDto,
+  token?: string | null,
+): Promise<ApiAddress> {
+  return addressRequester.updateAddress(id, data, token);
+}
+
+export async function deleteCustomerAddress(
+  id: string,
+  token?: string | null,
+): Promise<{ success: boolean }> {
+  return addressRequester.deleteAddress(id, token);
+}
+
+export async function setDefaultCustomerAddress(
+  id: string,
+  token?: string | null,
+): Promise<ApiAddress> {
+  return addressRequester.setDefaultAddress(id, token);
+}
+

@@ -5,6 +5,7 @@ import { MailerModule } from './core/mailer/mailer.module.js';
 import { CustomerAuthModule } from './modules/auth/auth.module.js';
 import { CatalogModule } from './modules/catalog/catalog.module.js';
 import { OrdersModule } from './modules/orders/orders.module.js';
+import { AddressesModule } from './modules/addresses/addresses.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -17,6 +18,7 @@ import { AppService } from './app.service.js';
     CustomerAuthModule,
     CatalogModule,
     OrdersModule,
+    AddressesModule,
     HealthModule,
   ],
   controllers: [AppController],
