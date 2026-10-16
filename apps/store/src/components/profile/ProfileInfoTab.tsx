@@ -1,6 +1,7 @@
 import React from 'react';
-import { Edit3, ShieldCheck } from 'lucide-react';
+import { Edit3 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { Alert } from '@/components/ui';
 import type { User } from '@/context/AuthContext';
 import type { ProfileFormData } from './profileTypes';
 
@@ -176,14 +177,11 @@ export function ProfileInfoTab({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 p-3 rounded-xs font-semibold">
-            <ShieldCheck size={18} />
-            <span>
-              {language === 'th'
-                ? 'บัญชีผ่านการตรวจสอบตัวตนด้วย OTP 2 ชั้น พร้อมใช้งานสมบูรณ์'
-                : 'Account authenticated via 2-factor OTP verification.'}
-            </span>
-          </div>
+          <Alert variant="success">
+            {language === 'th'
+              ? 'บัญชีผ่านการตรวจสอบตัวตนด้วย OTP 2 ชั้น พร้อมใช้งานสมบูรณ์'
+              : 'Account authenticated via 2-factor OTP verification.'}
+          </Alert>
         </div>
       )}
     </div>

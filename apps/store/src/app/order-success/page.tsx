@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { orderRequester } from '@/api';
 import { PromptPayAwaitingPayment, PaymentSuccessReceipt } from '@/components/order';
 import { OrderStatus, PaymentMethod, type ApiOrder } from '@repo/types';
+import { LoadingSpinner } from '@/components/ui';
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
@@ -84,10 +84,9 @@ function OrderSuccessContent() {
   if (isLoading) {
     return (
       <div className="max-w-xl w-full bg-white border border-brand-border p-12 text-center shadow-xs">
-        <Loader2 size={24} className="animate-spin mx-auto text-brand-brown mb-3" />
-        <p className="text-xs uppercase font-bold tracking-widest text-gray-500">
-          {language === 'th' ? 'กำลังโหลดข้อมูลคำสั่งซื้อ...' : 'Loading order details...'}
-        </p>
+        <LoadingSpinner
+          text={language === 'th' ? 'กำลังโหลดข้อมูลคำสั่งซื้อ...' : 'Loading order details...'}
+        />
       </div>
     );
   }
@@ -123,11 +122,7 @@ export default function OrderSuccessPage() {
   return (
     <div className="min-h-[75vh] flex flex-col items-center justify-center px-4 py-16 bg-brand-warm-cream font-sans">
       <Suspense
-        fallback={
-          <div className="p-12 text-center">
-            <Loader2 size={24} className="animate-spin mx-auto text-brand-brown" />
-          </div>
-        }
+        fallback={<LoadingSpinner className="p-12" />}
       >
         <OrderSuccessContent />
       </Suspense>

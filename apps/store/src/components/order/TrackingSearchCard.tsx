@@ -1,6 +1,7 @@
 import React from 'react';
-import { Search, Loader2, AlertCircle } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { Alert } from '@/components/ui';
 
 interface TrackingSearchCardProps {
   orderNumberInput: string;
@@ -97,10 +98,9 @@ export function TrackingSearchCard({
       </form>
 
       {errorMessage && (
-        <div className="mt-4 p-4 border border-rose-200 bg-rose-50 flex items-start space-x-3 text-xs text-rose-800">
-          <AlertCircle size={16} className="text-rose-600 shrink-0 mt-0.5" />
-          <span>{errorMessage}</span>
-        </div>
+        <Alert variant="error" className="mt-4">
+          {errorMessage}
+        </Alert>
       )}
     </div>
   );

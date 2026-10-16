@@ -1,6 +1,6 @@
 import React from 'react';
-import { Search, X, ArrowUpDown } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { DropdownSelect, SearchInput } from '@/components/ui';
 import type {
   OrderHistoryStatusFilter,
   OrderHistorySortOption,
@@ -41,64 +41,49 @@ export function OrdersFilterToolbar({
     { key: 'CANCELLED', label: t('orderHistory.filterCancelled') },
   ];
 
+  const sortOptions = [
+    { id: 'newest' as const, label: t('orderHistory.sortNewest') },
+    { id: 'oldest' as const, label: t('orderHistory.sortOldest') },
+    { id: 'amount_desc' as const, label: t('orderHistory.sortAmountHigh') },
+    { id: 'amount_asc' as const, label: t('orderHistory.sortAmountLow') },
+  ];
+
+  const pageSizeOptions = [
+    { id: '5', label: `5 ${t('orderHistory.itemsPerPage')}` },
+    { id: '10', label: `10 ${t('orderHistory.itemsPerPage')}` },
+    { id: '20', label: `20 ${t('orderHistory.itemsPerPage')}` },
+  ];
+
   return (
     <div className="bg-white border border-gray-200 p-4 sm:p-5 mb-6 shadow-2xs space-y-4">
       {/* Top Row: Search Input + Sort & Page Size */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        {/* Search Bar */}
-        <div className="relative flex-1 max-w-lg">
-          <Search
-            size={16}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={t('orderHistory.searchPlaceholder')}
-            className="w-full pl-10 pr-9 py-2.5 bg-gray-50/70 border border-gray-300 text-xs text-brand-brown placeholder-gray-400 focus:bg-white focus:border-brand-brown focus:ring-1 focus:ring-brand-brown outline-none transition-all"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => onSearchChange('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-            >
-              <X size={14} />
-            </button>
-          )}
-        </div>
+        {/* Search Bar using central SearchInput */}
+        <SearchInput
+          value={searchQuery}
+          onChange={onSearchChange}
+          onClear={() => onSearchChange('')}
+          placeholder={t('orderHistory.searchPlaceholder')}
+          className="flex-1 max-w-lg"
+        />
 
-        {/* Sort & Page Size Controls */}
+        {/* Sort & Page Size Controls using central DropdownSelect */}
         <div className="flex items-center gap-2.5">
-          <div className="relative flex-1 sm:flex-initial">
-            <select
-              value={sortBy}
-              onChange={(e) =>
-                onSortChange(e.target.value as OrderHistorySortOption)
-              }
-              className="w-full sm:w-auto appearance-none bg-white border border-gray-300 pl-3 pr-8 py-2.5 text-xs font-bold text-brand-brown focus:border-brand-brown focus:outline-none cursor-pointer"
-            >
-              <option value="newest">{t('orderHistory.sortNewest')}</option>
-              <option value="oldest">{t('orderHistory.sortOldest')}</option>
-              <option value="amount_desc">{t('orderHistory.sortAmountHigh')}</option>
-              <option value="amount_asc">{t('orderHistory.sortAmountLow')}</option>
-            </select>
-            <ArrowUpDown
-              size={12}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            />
-          </div>
+          <DropdownSelect<OrderHistorySortOption>
+            value={sortBy}
+            onChange={onSortChange}
+            options={sortOptions}
+            size="sm"
+            menuClassName="w-44"
+          />
 
-          <select
-            value={pageSize}
-            onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="bg-white border border-gray-300 px-3 py-2.5 text-xs font-bold text-brand-brown focus:border-brand-brown focus:outline-none cursor-pointer"
-          >
-            <option value={5}>5 {t('orderHistory.itemsPerPage')}</option>
-            <option value={10}>10 {t('orderHistory.itemsPerPage')}</option>
-            <option value={20}>20 {t('orderHistory.itemsPerPage')}</option>
-          </select>
+          <DropdownSelect<string>
+            value={String(pageSize)}
+            onChange={(val) => onPageSizeChange(Number(val))}
+            options={pageSizeOptions}
+            size="sm"
+            menuClassName="w-36"
+          />
         </div>
       </div>
 

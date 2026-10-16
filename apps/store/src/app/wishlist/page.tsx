@@ -16,6 +16,7 @@ import {
   WishlistEmptyState,
   useWishlistFilters,
 } from '@/components/wishlist';
+import { LoadingSpinner } from '@/components/ui';
 
 export default function WishlistPage() {
   const { wishlist } = useWishlist();
@@ -100,9 +101,7 @@ export default function WishlistPage() {
           {/* Product Grid Area */}
           <main className="flex-1 min-w-0">
             {isLoading ? (
-              <div className="py-24 text-center">
-                <div className="inline-block w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
-              </div>
+              <LoadingSpinner className="py-24" />
             ) : filteredProducts.length === 0 ? (
               <WishlistEmptyState
                 isFiltered={activeFilterCount > 0}

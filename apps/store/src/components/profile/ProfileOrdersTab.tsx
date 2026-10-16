@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Package, ArrowRight, QrCode } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { OrderStatus, PaymentMethod, type ApiOrder } from '@repo/types';
+import { EmptyState, StatusBadge } from '@/components/ui';
 
 interface ProfileOrdersTabProps {
   orders: ApiOrder[];
@@ -68,56 +69,23 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
           ))}
         </div>
       ) : orders.length === 0 ? (
-        <div className="border border-dashed border-gray-300 p-12 flex flex-col items-center justify-center text-center bg-gray-50/50">
-          <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-3">
-            <Package size={22} />
-          </div>
-          <h3 className="text-sm font-bold text-brand-brown uppercase tracking-wide mb-1">
-            {t('trackOrder.emptyOrders')}
-          </h3>
-          <p className="text-xs text-gray-500 max-w-sm mb-6">
-            {t('trackOrder.emptyOrdersDesc')}
-          </p>
-          <Link
-            href="/collections"
-            className="bg-brand-brown hover:bg-brand-amber text-white px-6 py-2.5 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center"
-          >
-            <span>{t('trackOrder.browseCatalog')}</span>
-            <ArrowRight size={14} className="ml-1.5" />
-          </Link>
-        </div>
+        <EmptyState
+          variant="dashed"
+          icon={Package}
+          title={t('trackOrder.emptyOrders')}
+          description={t('trackOrder.emptyOrdersDesc')}
+          action={{
+            label: t('trackOrder.browseCatalog'),
+            href: '/collections',
+          }}
+          className="p-12"
+        />
       ) : (
         <div className="space-y-5">
           {recentOrders.map((order) => {
             const isPendingPromptPay =
               order.status === OrderStatus.PENDING &&
               (order.payment?.paymentMethod === PaymentMethod.PROMPTPAY || !order.payment);
-
-            const statusBadgeClass =
-              order.status === 'DELIVERED'
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                : order.status === 'SHIPPED'
-                  ? 'bg-indigo-50 text-indigo-800 border-indigo-200'
-                  : order.status === 'PROCESSING'
-                    ? 'bg-amber-50 text-amber-800 border-amber-200'
-                    : order.status === 'PAID'
-                      ? 'bg-sky-50 text-sky-800 border-sky-200'
-                      : order.status === 'CANCELLED' || order.status === 'REFUNDED'
-                        ? 'bg-rose-50 text-rose-800 border-rose-200'
-                        : 'bg-stone-50 text-stone-700 border-stone-200';
-
-            const dotClass =
-              order.status === 'DELIVERED'
-                ? 'bg-emerald-500'
-                : order.status === 'SHIPPED'
-                  ? 'bg-indigo-500'
-                  : order.status === 'PROCESSING'
-                    ? 'bg-amber-500'
-                    : order.status === 'PAID'
-                      ? 'bg-sky-500'
-                      : order.status === 'CANCELLED' || order.status === 'REFUNDED'
-                        ? 'bg-rose-500'
-                        : 'bg-stone-400';
 
             return (
               <div
@@ -130,12 +98,7 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                       <span className="font-black text-sm text-brand-brown font-mono">
                         {t('trackOrder.order')} #{order.orderNumber}
                       </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 border rounded-xs inline-flex items-center space-x-1.5 ${statusBadgeClass}`}
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
-                        <span>{order.status}</span>
-                      </span>
+                      <StatusBadge status={order.status} />
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {new Date(order.placedAt).toLocaleDateString(

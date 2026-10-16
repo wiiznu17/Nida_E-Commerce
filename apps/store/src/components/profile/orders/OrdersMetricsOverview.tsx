@@ -1,6 +1,7 @@
 import React from 'react';
 import { Package, Clock, Truck, CheckCircle2, CreditCard } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { MetricCard } from '@/components/ui';
 import type { OrderHistoryMetrics } from './orderHistoryTypes';
 
 interface OrdersMetricsOverviewProps {
@@ -45,35 +46,22 @@ export function OrdersMetricsOverview({ metrics }: OrdersMetricsOverviewProps) {
       icon: CreditCard,
       iconColor: 'text-brand-amber',
       bgColor: 'bg-stone-50',
-      isCurrency: true,
     },
   ];
 
   return (
     <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-none sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-3.5 mb-8">
-      {cards.map((card, idx) => {
-        const Icon = card.icon;
-        return (
-          <div
-            key={idx}
-            className={`min-w-[150px] sm:min-w-0 flex-1 p-4 border border-brand-border/80 ${card.bgColor} shadow-2xs flex flex-col justify-between`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 truncate mr-2">
-                {card.label}
-              </span>
-              <Icon size={15} className={`${card.iconColor} shrink-0`} />
-            </div>
-            <div
-              className={`font-black text-brand-brown tracking-tight font-mono ${
-                card.isCurrency ? 'text-lg sm:text-xl' : 'text-2xl'
-              }`}
-            >
-              {card.value}
-            </div>
-          </div>
-        );
-      })}
+      {cards.map((card, idx) => (
+        <MetricCard
+          key={idx}
+          label={card.label}
+          value={card.value}
+          icon={card.icon}
+          iconColor={card.iconColor}
+          bgColor={card.bgColor}
+          className="min-w-[150px] sm:min-w-0 flex-1"
+        />
+      ))}
     </div>
   );
 }

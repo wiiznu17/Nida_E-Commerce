@@ -2,8 +2,9 @@
 
 import React, { Suspense } from 'react';
 import Link from 'next/link';
-import { KeyRound, ArrowRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { KeyRound, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import { OtpInputGrid, DevOtpHintBanner, useVerifyOtp } from '@/components/auth';
+import { Alert, LoadingSpinner } from '@/components/ui';
 
 function VerifyOTPContent() {
   const {
@@ -46,16 +47,15 @@ function VerifyOTPContent() {
       />
 
       {errorMessage && (
-        <div className="mb-6 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs flex items-start space-x-2.5">
-          <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600" />
-          <span className="leading-relaxed">{errorMessage}</span>
-        </div>
+        <Alert variant="error" className="mb-6">
+          {errorMessage}
+        </Alert>
       )}
 
       {infoMessage && (
-        <div className="mb-6 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
+        <Alert variant="success" className="mb-6">
           {infoMessage}
-        </div>
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -133,11 +133,7 @@ export default function VerifyOTPPage() {
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 bg-brand-warm-cream">
       <Suspense
-        fallback={
-          <div className="p-12 text-center">
-            <Loader2 size={24} className="animate-spin mx-auto text-brand-brown" />
-          </div>
-        }
+        fallback={<LoadingSpinner className="p-12" />}
       >
         <VerifyOTPContent />
       </Suspense>

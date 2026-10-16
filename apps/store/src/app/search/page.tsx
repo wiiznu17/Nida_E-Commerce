@@ -15,6 +15,7 @@ import {
   SearchEmptyState,
   useSearchFilters,
 } from '@/components/search';
+import { LoadingSpinner } from '@/components/ui';
 
 
 function SearchPageContent() {
@@ -151,9 +152,7 @@ function SearchPageContent() {
           {/* Product Grid Area */}
           <main className="flex-1 min-w-0">
             {isLoading ? (
-              <div className="py-24 text-center">
-                <div className="inline-block w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
-              </div>
+              <LoadingSpinner className="py-24" />
             ) : serverProducts.length === 0 ? (
               <SearchEmptyState onClearAll={clearAllFilters} />
             ) : (
@@ -191,11 +190,7 @@ function SearchPageContent() {
 export default function SearchPage() {
   return (
     <Suspense
-      fallback={
-        <div className="min-h-screen bg-white flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
+      fallback={<LoadingSpinner fullScreen />}
     >
       <SearchPageContent />
     </Suspense>

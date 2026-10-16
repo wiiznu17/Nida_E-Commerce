@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { AddressModal } from '@/components/address';
+import { Alert, EmptyState } from '@/components/ui';
 import {
   CheckoutMemberBanner,
   CheckoutSteps,
@@ -58,36 +58,32 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 font-sans">
-        <h1 className="text-2xl font-black text-brand-brown uppercase tracking-wider mb-4">
-          {t('checkout.emptyBag')}
-        </h1>
-        <button
-          onClick={() => router.push('/')}
-          className="bg-brand-brown text-white px-6 py-3 font-black text-xs uppercase tracking-widest hover:bg-brand-amber transition-colors cursor-pointer"
-        >
-          {t('checkout.returnToShop')}
-        </button>
+        <EmptyState
+          title={t('checkout.emptyBag')}
+          action={{
+            label: t('checkout.returnToShop'),
+            onClick: () => router.push('/'),
+          }}
+        />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans">
+    <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-12 font-sans">
       <CheckoutMemberBanner
         isAuthenticated={isAuthenticated}
         isLoading={isAuthLoading}
       />
 
       {orderError && (
-        <div className="mb-8 p-4 bg-red-50 border border-red-200 text-red-700 text-xs flex items-start space-x-3">
-          <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-600" />
-          <div>
-            <p className="font-bold">
-              {language === 'th' ? 'เกิดข้อผิดพลาดในการสั่งซื้อ' : 'Order Error'}
-            </p>
-            <p className="mt-0.5">{orderError}</p>
-          </div>
-        </div>
+        <Alert
+          variant="error"
+          title={language === 'th' ? 'เกิดข้อผิดพลาดในการสั่งซื้อ' : 'Order Error'}
+          className="mb-8"
+        >
+          {orderError}
+        </Alert>
       )}
 
       <div className="flex flex-col lg:flex-row gap-12">

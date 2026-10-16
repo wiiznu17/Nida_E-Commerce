@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import {
   ProductGallery,
   ProductInfo,
@@ -11,6 +10,7 @@ import {
   ProductRecommendations,
   useProductDetail,
 } from '@/components/product';
+import { Breadcrumb, EmptyState, LoadingSpinner } from '@/components/ui';
 
 export default function ProductDetailPage() {
   const {
@@ -45,52 +45,43 @@ export default function ProductDetailPage() {
   if (!product) {
     if (isLoading) {
       return (
-        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24 text-center font-sans">
-          <div className="w-10 h-10 border-2 border-brand-brown border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-xs uppercase tracking-widest text-stone-500 font-bold">
-            {t('common.loading') ?? 'Loading product...'}
-          </p>
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24 font-sans">
+          <LoadingSpinner size="lg" text={t('common.loading') ?? 'Loading product...'} />
         </div>
       );
     }
 
     return (
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24 text-center font-sans">
-        <h2 className="text-2xl font-black uppercase text-brand-brown mb-3">
-          {t('catalog.noProducts') ?? 'Product Not Found'}
-        </h2>
-        <p className="text-xs text-stone-500 mb-6">
-          {isTh
-            ? 'ไม่พบสินค้าที่คุณค้นหา หรือสินค้าอาจถูกย้ายไปแล้ว'
-            : 'The product you are looking for does not exist or has been moved.'}
-        </p>
-        <Link
-          href="/collections/all"
-          className="inline-flex items-center px-6 py-3 bg-brand-brown text-white text-xs font-black uppercase tracking-widest hover:bg-brand-amber transition-colors"
-        >
-          {isTh ? 'กลับไปหน้าคอลเลกชัน' : 'BACK TO COLLECTIONS'}
-        </Link>
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-24 font-sans">
+        <EmptyState
+          title={t('catalog.noProducts') ?? 'Product Not Found'}
+          description={
+            isTh
+              ? 'ไม่พบสินค้าที่คุณค้นหา หรือสินค้าอาจถูกย้ายไปแล้ว'
+              : 'The product you are looking for does not exist or has been moved.'
+          }
+          action={{
+            label: isTh ? 'กลับไปหน้าคอลเลกชัน' : 'BACK TO COLLECTIONS',
+            href: '/collections/all',
+          }}
+        />
       </div>
     );
   }
 
+  const breadcrumbItems = [
+    { label: t('product.home'), href: '/' },
+    {
+      label: subCategory.toUpperCase(),
+      href: `/collections/${product.department?.toLowerCase() || 'all'}`,
+    },
+    { label: title },
+  ];
+
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8 font-sans">
       {/* Breadcrumbs */}
-      <div className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-8">
-        <Link href="/" className="hover:text-brand-brown">
-          {t('product.home')}
-        </Link>
-        <span>/</span>
-        <Link
-          href={`/collections/${product.department?.toLowerCase() || 'all'}`}
-          className="hover:text-brand-brown"
-        >
-          {subCategory.toUpperCase()}
-        </Link>
-        <span>/</span>
-        <span className="text-brand-brown truncate max-w-xs">{title}</span>
-      </div>
+      <Breadcrumb items={breadcrumbItems} className="mb-8" />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10">
         <ProductGallery

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { AddressCard } from '@/components/address';
+import { LoadingSpinner } from '@/components/ui';
 import type { ApiAddress } from '@repo/types';
 import type { ShippingFormData } from './checkoutTypes';
 
@@ -87,10 +88,11 @@ export function CheckoutShippingForm({
       </div>
 
       {isLoadingAddresses ? (
-        <div className="py-12 flex justify-center items-center text-stone-400 text-xs">
-          <div className="w-5 h-5 border-2 border-brand-brown/20 border-t-brand-brown rounded-full animate-spin mr-2" />
-          <span>{t('addressBook.saving')}</span>
-        </div>
+        <LoadingSpinner
+          size="sm"
+          text={t('addressBook.saving')}
+          className="py-12"
+        />
       ) : addressMode === 'saved' && savedAddresses.length > 0 ? (
         <form onSubmit={onSubmit} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { Search as SearchIcon } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { EmptyState } from '@/components/ui';
 
 interface SearchEmptyStateProps {
   onClearAll: () => void;
@@ -13,31 +13,24 @@ export function SearchEmptyState({ onClearAll }: SearchEmptyStateProps) {
   const { language, t } = useLanguage();
 
   return (
-    <div className="text-center py-20 bg-brand-warm-cream/60 border border-brand-border rounded-2xl p-8 max-w-xl mx-auto">
-      <SearchIcon size={44} strokeWidth={1.5} className="mx-auto text-gray-400 mb-3" />
-      <h3 className="text-lg font-black uppercase text-brand-brown tracking-tight">
-        {t('search.noResults')}
-      </h3>
-      <p className="text-xs text-gray-500 mt-2 max-w-md mx-auto leading-relaxed">
-        {language === 'th'
+    <EmptyState
+      variant="card"
+      icon={SearchIcon}
+      title={t('search.noResults')}
+      description={
+        language === 'th'
           ? 'เราไม่พบสินค้าที่ตรงกับการค้นหาของคุณ ลองตรวจสอบคำสะกด หรือล้างตัวกรองเพื่อค้นหาอีกครั้ง'
-          : 'We could not find anything matching your search term. Try checking your spelling or clearing active filters.'}
-      </p>
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
-        <button
-          type="button"
-          onClick={onClearAll}
-          className="px-5 py-2.5 bg-brand-brown hover:bg-brand-amber text-white text-xs font-black uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
-        >
-          {t('search.clearAll')}
-        </button>
-        <Link
-          href="/collections/all"
-          className="px-5 py-2.5 bg-white border border-brand-brown text-brand-brown hover:bg-brand-warm-cream text-xs font-black uppercase tracking-wider rounded-xs transition-colors"
-        >
-          {t('search.allProducts')}
-        </Link>
-      </div>
-    </div>
+          : 'We could not find anything matching your search term. Try checking your spelling or clearing active filters.'
+      }
+      action={{
+        label: t('search.clearAll'),
+        onClick: onClearAll,
+      }}
+      secondaryAction={{
+        label: t('search.allProducts'),
+        href: '/collections/all',
+      }}
+      className="max-w-xl mx-auto py-16"
+    />
   );
 }

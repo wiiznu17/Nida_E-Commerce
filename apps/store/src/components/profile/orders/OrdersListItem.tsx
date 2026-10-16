@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Package, ArrowRight, QrCode, Copy, Check, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { OrderStatus, PaymentMethod, type ApiOrder } from '@repo/types';
+import { StatusBadge } from '@/components/ui';
 
 interface OrdersListItemProps {
   order: ApiOrder;
@@ -16,32 +17,6 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
   const isPendingPromptPay =
     order.status === OrderStatus.PENDING &&
     (order.payment?.paymentMethod === PaymentMethod.PROMPTPAY || !order.payment);
-
-  const statusBadgeClass =
-    order.status === 'DELIVERED'
-      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-      : order.status === 'SHIPPED'
-        ? 'bg-indigo-50 text-indigo-800 border-indigo-200'
-        : order.status === 'PROCESSING'
-          ? 'bg-amber-50 text-amber-800 border-amber-200'
-          : order.status === 'PAID'
-            ? 'bg-sky-50 text-sky-800 border-sky-200'
-            : order.status === 'CANCELLED' || order.status === 'REFUNDED'
-              ? 'bg-rose-50 text-rose-800 border-rose-200'
-              : 'bg-stone-50 text-stone-700 border-stone-200';
-
-  const dotClass =
-    order.status === 'DELIVERED'
-      ? 'bg-emerald-500'
-      : order.status === 'SHIPPED'
-        ? 'bg-indigo-500'
-        : order.status === 'PROCESSING'
-          ? 'bg-amber-500'
-          : order.status === 'PAID'
-            ? 'bg-sky-500'
-            : order.status === 'CANCELLED' || order.status === 'REFUNDED'
-              ? 'bg-rose-500'
-              : 'bg-stone-400';
 
   const trackingNumber = order.shipments?.[0]?.trackingNumber;
   const courierName = order.shipments?.[0]?.courierName;
@@ -61,12 +36,7 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
             <span className="font-black text-sm text-brand-brown font-mono tracking-tight">
               #{order.orderNumber}
             </span>
-            <span
-              className={`text-[10px] font-bold px-2 py-0.5 border rounded-xs inline-flex items-center space-x-1.5 ${statusBadgeClass}`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`} />
-              <span>{order.status}</span>
-            </span>
+            <StatusBadge status={order.status} />
           </div>
 
           <div className="flex flex-wrap items-center gap-x-2 text-[11px] text-gray-500 mt-1">

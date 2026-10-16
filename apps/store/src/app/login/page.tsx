@@ -3,9 +3,10 @@
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { LogIn, ShieldCheck, Mail, Loader2, AlertCircle } from 'lucide-react';
+import { LogIn, ShieldCheck, Mail, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { authRequester, extractApiError } from '@/api';
+import { Alert, LoadingSpinner } from '@/components/ui';
 
 function LoginFormContent() {
   const [email, setEmail] = useState('');
@@ -69,10 +70,9 @@ function LoginFormContent() {
       </p>
 
       {errorMessage && (
-        <div className="mb-6 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs flex items-start space-x-2.5">
-          <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600" />
-          <span className="leading-relaxed">{errorMessage}</span>
-        </div>
+        <Alert variant="error" className="mb-6">
+          {errorMessage}
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -167,11 +167,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-brand-warm-cream font-sans">
       <Suspense
-        fallback={
-          <div className="p-12 text-center">
-            <Loader2 size={24} className="animate-spin mx-auto text-brand-brown" />
-          </div>
-        }
+        fallback={<LoadingSpinner className="p-12" />}
       >
         <LoginFormContent />
       </Suspense>

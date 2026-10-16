@@ -1,8 +1,7 @@
-'use client';
-
-import React, { useState } from 'react';
-import { ChevronDown, Check, Grid3X3, LayoutGrid } from 'lucide-react';
+import React from 'react';
+import { Grid3X3, LayoutGrid } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { DropdownSelect } from '@/components/ui';
 import type { CollectionControlBarProps } from './collectionTypes';
 
 export function CollectionControlBar({
@@ -13,7 +12,6 @@ export function CollectionControlBar({
   onToggleGridCols,
 }: CollectionControlBarProps) {
   const { language, t } = useLanguage();
-  const [isSortOpen, setIsSortOpen] = useState(false);
 
   const sortOptions: {
     id: 'featured' | 'price-asc' | 'price-desc' | 'newest';
@@ -30,12 +28,8 @@ export function CollectionControlBar({
     { id: 'price-desc', label: t('catalog.sortPriceDesc') },
   ];
 
-  const currentSortLabel =
-    sortOptions.find((o) => o.id === sortBy)?.label ||
-    t('catalog.sortFeatured');
-
   return (
-    <div className="border-b border-gray-200 bg-white sticky top-20 z-30 shadow-2xs">
+    <div className="border-b border-gray-200 bg-white sticky top-20 z-30 shadow-2xs font-sans">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 h-14 flex items-center justify-between">
         {/* Left: Product Count Indicator */}
         <div className="flex items-center text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -77,42 +71,16 @@ export function CollectionControlBar({
           </div>
 
           {/* Sort By Dropdown */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsSortOpen(!isSortOpen)}
-              className="flex items-center text-xs font-bold text-brand-brown hover:text-brand-amber uppercase tracking-wider py-2 cursor-pointer"
-            >
-              <span className="text-gray-400 mr-1.5">
-                {t('catalog.sortBy')}:
-              </span>
-              <span>{currentSortLabel}</span>
-              <ChevronDown size={14} className="ml-1" />
-            </button>
-
-            {isSortOpen && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 shadow-xl py-1 z-40">
-                {sortOptions.map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => {
-                      onSortChange(opt.id);
-                      setIsSortOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-50 flex items-center justify-between cursor-pointer ${
-                      sortBy === opt.id
-                        ? 'text-brand-amber font-bold bg-brand-warm-cream'
-                        : 'text-gray-700'
-                    }`}
-                  >
-                    <span>{opt.label}</span>
-                    {sortBy === opt.id && <Check size={14} />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <DropdownSelect
+            value={sortBy}
+            onChange={(val) =>
+              onSortChange(val as 'featured' | 'price-asc' | 'price-desc' | 'newest')
+            }
+            options={sortOptions}
+            prefixLabel={t('catalog.sortBy')}
+            variant="ghost"
+            size="md"
+          />
         </div>
       </div>
     </div>

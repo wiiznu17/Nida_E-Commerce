@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { Breadcrumb } from '@/components/ui';
 import type { CollectionBannerProps } from './collectionTypes';
 
 export function CollectionBanner({
@@ -12,6 +12,12 @@ export function CollectionBanner({
   bgImage,
 }: CollectionBannerProps) {
   const { language } = useLanguage();
+
+  const breadcrumbItems = [
+    { label: language === 'th' ? 'หน้าแรก' : 'HOME', href: '/' },
+    { label: language === 'th' ? 'คอลเลกชัน' : 'COLLECTIONS' },
+    { label: title },
+  ];
 
   return (
     <div className="bg-brand-brown text-white py-12 sm:py-16 px-4 relative overflow-hidden">
@@ -26,15 +32,11 @@ export function CollectionBanner({
       )}
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10 text-center">
         {/* Breadcrumb Navigation */}
-        <div className="flex justify-center items-center space-x-2 text-[11px] font-black uppercase tracking-[0.25em] text-gray-300 mb-3">
-          <Link href="/" className="hover:text-white transition-colors">
-            {language === 'th' ? 'หน้าแรก' : 'HOME'}
-          </Link>
-          <span>/</span>
-          <span>{language === 'th' ? 'คอลเลกชัน' : 'COLLECTIONS'}</span>
-          <span>/</span>
-          <span className="text-brand-yellow">{title}</span>
-        </div>
+        <Breadcrumb
+          items={breadcrumbItems}
+          variant="dark"
+          className="justify-center mb-3"
+        />
 
         {bannerTag && (
           <span className="inline-block bg-brand-yellow text-brand-brown text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 mb-3">

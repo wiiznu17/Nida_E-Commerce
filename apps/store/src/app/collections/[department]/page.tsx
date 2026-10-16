@@ -9,6 +9,7 @@ import {
   CollectionEmptyState,
   useCollectionDepartment,
 } from '@/components/collection';
+import { LoadingSpinner } from '@/components/ui';
 
 function CollectionDepartmentContent() {
   const {
@@ -64,9 +65,7 @@ function CollectionDepartmentContent() {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
 
         {isLoading ? (
-          <div className="py-24 flex justify-center items-center">
-            <div className="w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
-          </div>
+          <LoadingSpinner className="py-24" />
         ) : serverProducts.length > 0 ? (
           <CollectionProductGrid
             products={serverProducts}
@@ -88,11 +87,7 @@ function CollectionDepartmentContent() {
 export default function CollectionDepartmentPage() {
   return (
     <Suspense
-      fallback={
-        <div className="min-h-screen bg-brand-cream flex justify-center items-center">
-          <div className="w-8 h-8 border-2 border-brand-brown border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
+      fallback={<LoadingSpinner fullScreen />}
     >
       <CollectionDepartmentContent />
     </Suspense>

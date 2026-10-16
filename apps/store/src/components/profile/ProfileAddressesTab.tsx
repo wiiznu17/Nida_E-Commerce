@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, MapPin } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { AddressCard } from '@/components/address';
+import { EmptyState, LoadingSpinner } from '@/components/ui';
 import type { ApiAddress } from '@repo/types';
 
 interface ProfileAddressesTabProps {
@@ -47,30 +48,23 @@ export function ProfileAddressesTab({
       </div>
 
       {isLoading ? (
-        <div className="py-12 flex justify-center items-center text-stone-400 text-xs">
-          <div className="w-5 h-5 border-2 border-brand-brown/20 border-t-brand-brown rounded-full animate-spin mr-2" />
-          <span>{t('addressBook.saving')}</span>
-        </div>
+        <LoadingSpinner
+          size="sm"
+          text={t('addressBook.saving')}
+          className="py-12"
+        />
       ) : addresses.length === 0 ? (
-        <div className="border border-dashed border-gray-300 p-10 flex flex-col items-center justify-center text-center bg-gray-50/50">
-          <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-3">
-            <MapPin size={22} />
-          </div>
-          <h3 className="text-sm font-black uppercase tracking-tight text-brand-brown mb-1">
-            {t('addressBook.emptyTitle')}
-          </h3>
-          <p className="text-xs text-gray-500 max-w-sm mb-5">
-            {t('addressBook.emptyDesc')}
-          </p>
-          <button
-            type="button"
-            onClick={onOpenAddAddress}
-            className="bg-brand-brown hover:bg-brand-amber text-white px-5 py-2.5 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer inline-flex items-center"
-          >
-            <Plus size={14} className="mr-1.5" />
-            <span>{t('addressBook.addNew')}</span>
-          </button>
-        </div>
+        <EmptyState
+          variant="dashed"
+          icon={MapPin}
+          title={t('addressBook.emptyTitle')}
+          description={t('addressBook.emptyDesc')}
+          action={{
+            label: t('addressBook.addNew'),
+            onClick: onOpenAddAddress,
+          }}
+          className="p-10"
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {addresses.map((addr) => (

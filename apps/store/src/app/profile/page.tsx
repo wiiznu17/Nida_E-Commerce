@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { AddressModal } from '@/components/address';
+import { Alert } from '@/components/ui';
 import {
   ProfileHeader,
   ProfileNavigation,
@@ -50,9 +50,9 @@ export default function ProfilePage() {
       <ProfileHeader user={user} onLogout={handleLogout} />
 
       {saveSuccess && (
-        <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 text-xs font-bold flex items-center mb-6 rounded-xs animate-in fade-in">
-          <Check size={16} className="mr-2" /> {t('auth.profileUpdated')}
-        </div>
+        <Alert variant="success" className="mb-6">
+          {t('auth.profileUpdated')}
+        </Alert>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">

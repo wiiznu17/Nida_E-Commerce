@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, MapPin } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { Alert } from '@/components/ui';
 import type { ApiAddress, CreateAddressDto } from '@repo/types';
 
 export interface AddressModalProps {
@@ -112,9 +113,9 @@ export const AddressModal: React.FC<AddressModalProps> = ({
         {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs">
+            <Alert variant="error">
               {error}
-            </div>
+            </Alert>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
