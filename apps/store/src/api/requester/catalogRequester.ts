@@ -3,6 +3,8 @@ import type {
   ApiCategory,
   ApiProduct,
   ApiProductDetail,
+  PaginatedResponse,
+  PaginationMeta,
   StoreQueryProductsParams,
 } from '@repo/types';
 
@@ -60,7 +62,9 @@ export const catalogRequester = {
       }
 
       const body = await apiClient.get<
-        | { items: ApiProduct[]; total: number; page: number; totalPages: number }
+        | PaginatedResponse<ApiProduct>
+        | { data: ApiProduct[]; pagination?: PaginationMeta }
+        | { items: ApiProduct[]; total?: number; page?: number; totalPages?: number }
         | ApiProduct[]
       >('/catalog/products', queryParams);
 
@@ -68,14 +72,45 @@ export const catalogRequester = {
         return { products: body, total: body.length, page: 1, totalPages: 1 };
       }
 
-      const products = Array.isArray(body?.items) ? body.items : [];
-      const total =
-        typeof body?.total === 'number' ? body.total : products.length;
-      const page = typeof body?.page === 'number' ? body.page : 1;
-      const totalPages =
-        typeof body?.totalPages === 'number' ? body.totalPages : 1;
+      if (body && typeof body === 'object') {
+        const rawObj = body as Record<string, unknown>;
+        let products: ApiProduct[] = [];
+        if (Array.isArray(rawObj.data)) {
+          products = rawObj.data as ApiProduct[];
+        } else if (Array.isArray(rawObj.items)) {
+          products = rawObj.items as ApiProduct[];
+        }
 
-      return { products, total, page, totalPages };
+        const pagination =
+          rawObj.pagination && typeof rawObj.pagination === 'object'
+            ? (rawObj.pagination as Record<string, unknown>)
+            : null;
+
+        const total =
+          typeof pagination?.total === 'number'
+            ? pagination.total
+            : typeof rawObj.total === 'number'
+              ? rawObj.total
+              : products.length;
+
+        const page =
+          typeof pagination?.page === 'number'
+            ? pagination.page
+            : typeof rawObj.page === 'number'
+              ? rawObj.page
+              : 1;
+
+        const totalPages =
+          typeof pagination?.totalPages === 'number'
+            ? pagination.totalPages
+            : typeof rawObj.totalPages === 'number'
+              ? rawObj.totalPages
+              : 1;
+
+        return { products, total, page, totalPages };
+      }
+
+      return { products: [], total: 0, page: 1, totalPages: 1 };
     } catch (err) {
       console.warn('[catalogRequester] getProductsWithMeta error:', err);
       return { products: [], total: 0, page: 1, totalPages: 1 };
