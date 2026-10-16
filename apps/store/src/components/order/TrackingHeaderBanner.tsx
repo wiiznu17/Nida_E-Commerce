@@ -18,13 +18,20 @@ export function TrackingHeaderBanner({ trackingData }: TrackingHeaderBannerProps
   };
 
   return (
-    <div className="bg-brand-warm-cream border border-brand-border p-6 sm:p-8 mb-8">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+    <div className="w-full bg-brand-warm-cream border border-brand-border p-6 sm:p-8 lg:p-10 shadow-xs">
+      {/* Signature NIDA Tri-color Flag Ribbon */}
+      <div className="flex w-16 h-1 mb-5">
+        <div className="w-1/3 bg-brand-brown" />
+        <div className="w-1/3 bg-white border-y border-gray-200" />
+        <div className="w-1/3 bg-brand-amber" />
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-6">
         <div>
           <span className="text-[10px] uppercase font-black tracking-widest text-brand-amber block mb-1">
             {t('trackOrder.liveStatus')}
           </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-brand-brown uppercase tracking-tight font-mono">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-brand-brown uppercase tracking-tight font-mono">
             {t('trackOrder.order')} #{trackingData.orderNumber}
           </h2>
           <div className="flex flex-wrap items-center gap-x-3 text-xs text-gray-600 mt-2">
