@@ -8,5 +8,7 @@ export * from './home';
 export * from './ui';
 export * from './address';
 export * from './checkout';
+export * from './profile';
+export * from './product';
 export * from './Providers';
 
