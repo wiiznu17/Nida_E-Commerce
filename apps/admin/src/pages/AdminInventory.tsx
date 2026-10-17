@@ -44,10 +44,10 @@ export default function AdminInventory() {
     'sku_asc',
   );
   const [searchInput, setSearchInput] = useState(
-    searchParams.get('search') || '',
+    searchParams.get('search') ?? '',
   );
   const [appliedSearch, setAppliedSearch] = useState(
-    searchParams.get('search') || '',
+    searchParams.get('search') ?? '',
   );
 
   // Pagination states

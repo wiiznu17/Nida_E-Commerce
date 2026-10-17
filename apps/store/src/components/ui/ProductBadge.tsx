@@ -16,7 +16,7 @@ export function ProductBadge({
 }: ProductBadgeProps) {
   if (!tag && !tagTh) return null;
 
-  const rawTag = tag || tagTh || '';
+  const rawTag = tag ?? tagTh ?? '';
   const preset = findMarketingTagByLabel(rawTag);
 
   if (preset) {
@@ -36,7 +36,7 @@ export function ProductBadge({
   }
 
   // Graceful luxury fallback for custom tags
-  const customLabel = language === 'th' && tagTh ? tagTh : rawTag;
+  const customLabel = language === 'th' ? (tagTh ?? rawTag) : (tag ?? rawTag);
   return (
     <span
       className={`inline-flex items-center bg-brand-brown text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 shadow-2xs rounded-xs select-none ${className}`}

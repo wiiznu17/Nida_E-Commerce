@@ -31,10 +31,10 @@ export default function AdminInventoryAudit() {
     'newest' | 'oldest' | 'qty_desc' | 'qty_asc'
   >('newest');
   const [searchInput, setSearchInput] = useState(
-    searchParams.get('search') || '',
+    searchParams.get('search') ?? '',
   );
   const [appliedSearch, setAppliedSearch] = useState(
-    searchParams.get('search') || '',
+    searchParams.get('search') ?? '',
   );
 
   // Pagination states

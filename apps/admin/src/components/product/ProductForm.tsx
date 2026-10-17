@@ -44,25 +44,25 @@ export function ProductForm({
   const [descLangTab, setDescLangTab] = useState<'en' | 'th'>('en');
 
   // Basic Information
-  const [name, setName] = useState(initialData?.name || '');
-  const [nameTh, setNameTh] = useState(initialData?.nameTh || '');
+  const [name, setName] = useState(initialData?.name ?? '');
+  const [nameTh, setNameTh] = useState(initialData?.nameTh ?? '');
   const [price, setPrice] = useState<number | string>(initialData?.price ?? '');
   const [originalPrice, setOriginalPrice] = useState<number | string>(
     initialData?.originalPrice ?? '',
   );
   const [department, setDepartment] = useState(
-    initialData?.department || 'women',
+    initialData?.department ?? 'women',
   );
-  const [category, setCategory] = useState(initialData?.category || 'apparel');
+  const [category, setCategory] = useState(initialData?.category ?? 'apparel');
 
   const [subCategoryKey, setSubCategoryKey] = useState<string>(
-    initialData?.subCategory || 'sweaters-knits',
+    initialData?.subCategory ?? 'sweaters-knits',
   );
   const [subCategory, setSubCategory] = useState<string>(
-    initialData?.subCategory || 'Sweaters & Knits',
+    initialData?.subCategory ?? 'Sweaters & Knits',
   );
   const [subCategoryTh, setSubCategoryTh] = useState<string>(
-    initialData?.subCategoryTh || 'สเวตเตอร์และเสื้อไหมพรม',
+    initialData?.subCategoryTh ?? 'สเวตเตอร์และเสื้อไหมพรม',
   );
 
   // Marketing Tag Enum Matching
@@ -73,30 +73,30 @@ export function ProductForm({
       : undefined;
 
   const [tag, setTag] = useState(
-    initialTagMatch?.labelEn || initialData?.tag || '',
+    initialTagMatch?.labelEn ?? initialData?.tag ?? '',
   );
   const [tagTh, setTagTh] = useState(
-    initialTagMatch?.labelTh || initialData?.tagTh || '',
+    initialTagMatch?.labelTh ?? initialData?.tagTh ?? '',
   );
 
   const [description, setDescription] = useState(
-    initialData?.description || '',
+    initialData?.description ?? '',
   );
   const [descriptionTh, setDescriptionTh] = useState(
-    initialData?.descriptionTh || '',
+    initialData?.descriptionTh ?? '',
   );
 
   const [materialsCare, setMaterialsCare] = useState(
-    initialData?.materialsCare || '',
+    initialData?.materialsCare ?? '',
   );
   const [materialsCareTh, setMaterialsCareTh] = useState(
-    initialData?.materialsCareTh || '',
+    initialData?.materialsCareTh ?? '',
   );
 
   // Master Images
-  const [image, setImage] = useState(initialData?.image || '');
+  const [image, setImage] = useState(initialData?.image ?? '');
   const [secondaryImage, setSecondaryImage] = useState(
-    initialData?.secondaryImage || '',
+    initialData?.secondaryImage ?? '',
   );
 
   // Color Swatches & Color-Specific Images
@@ -183,23 +183,23 @@ export function ProductForm({
 
   useEffect(() => {
     initialSnapshotRef.current = JSON.stringify({
-      name: initialData?.name || '',
-      nameTh: initialData?.nameTh || '',
-      price: initialData?.price || '',
-      originalPrice: initialData?.originalPrice || '',
-      department: initialData?.department || 'women',
-      category: initialData?.category || 'apparel',
-      subCategory: initialData?.subCategory || '',
-      tag: initialData?.tag || '',
-      description: initialData?.description || '',
-      descriptionTh: initialData?.descriptionTh || '',
-      materialsCare: initialData?.materialsCare || '',
-      materialsCareTh: initialData?.materialsCareTh || '',
-      image: initialData?.image || '',
-      secondaryImage: initialData?.secondaryImage || '',
-      colors: initialData?.colors || [],
-      colorImages: initialData?.colorImages || {},
-      skus: initialSkus || [],
+      name: initialData?.name ?? '',
+      nameTh: initialData?.nameTh ?? '',
+      price: initialData?.price ?? '',
+      originalPrice: initialData?.originalPrice ?? '',
+      department: initialData?.department ?? 'women',
+      category: initialData?.category ?? 'apparel',
+      subCategory: initialData?.subCategory ?? '',
+      tag: initialData?.tag ?? '',
+      description: initialData?.description ?? '',
+      descriptionTh: initialData?.descriptionTh ?? '',
+      materialsCare: initialData?.materialsCare ?? '',
+      materialsCareTh: initialData?.materialsCareTh ?? '',
+      image: initialData?.image ?? '',
+      secondaryImage: initialData?.secondaryImage ?? '',
+      colors: initialData?.colors ?? [],
+      colorImages: initialData?.colorImages ?? {},
+      skus: initialSkus ?? [],
       publishStatus: initialData?.isActive === false ? 'draft' : 'published',
     });
   }, [initialData, initialSkus]);
@@ -784,7 +784,7 @@ export function ProductForm({
         isTh={isTh}
         isEdit={isEdit}
         initialSizes={initialSizesRef.current}
-        productName={name || initialData?.name || ''}
+        productName={name.trim() !== '' ? name : (initialData?.name ?? '')}
         variantMode={variantMode}
         activeSizes={activeSizes}
         customSizeInput={customSizeInput}

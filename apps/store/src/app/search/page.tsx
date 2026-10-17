@@ -80,7 +80,7 @@ function SearchPageContent() {
           let products = res.products;
           if (filters.departments.length > 1) {
             products = products.filter((p) =>
-              filters.departments.some((d) => (p.department || '').toLowerCase().includes(d))
+              filters.departments.some((d) => p.department.toLowerCase().includes(d))
             );
           }
           if (filters.subCategories.length > 1) {

@@ -19,12 +19,12 @@ export function useProfilePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [formData, setFormData] = useState<ProfileFormData>({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    phone: user?.phone || '',
-    address: user?.address || '108 Sukhumvit Soi 24',
-    city: user?.city || (language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'),
-    postalCode: user?.postalCode || '10110',
+    firstName: user?.firstName ?? '',
+    lastName: user?.lastName ?? '',
+    phone: user?.phone ?? '',
+    address: user?.address ?? '',
+    city: user?.city ?? '',
+    postalCode: user?.postalCode ?? '',
   });
 
   const [addresses, setAddresses] = useState<ApiAddress[]>([]);
@@ -79,12 +79,12 @@ export function useProfilePage() {
       router.push('/login');
     } else {
       setFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        phone: user.phone || '',
-        address: user.address || '108 Sukhumvit Soi 24',
-        city: user.city || (language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'),
-        postalCode: user.postalCode || '10110',
+        firstName: user.firstName ?? '',
+        lastName: user.lastName ?? '',
+        phone: user.phone ?? '',
+        address: user.address ?? '',
+        city: user.city ?? '',
+        postalCode: user.postalCode ?? '',
       });
     }
   }, [user, router, language]);

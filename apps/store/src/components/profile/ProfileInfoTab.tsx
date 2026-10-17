@@ -145,7 +145,7 @@ export function ProfileInfoTab({
                 {t('auth.firstName')}
               </p>
               <p className="text-sm font-bold text-brand-brown mt-0.5">
-                {user.firstName || '-'}
+                {user.firstName ?? '-'}
               </p>
             </div>
             <div>
@@ -153,7 +153,7 @@ export function ProfileInfoTab({
                 {t('auth.lastName')}
               </p>
               <p className="text-sm font-bold text-brand-brown mt-0.5">
-                {user.lastName || '-'}
+                {user.lastName ?? '-'}
               </p>
             </div>
           </div>
@@ -172,7 +172,7 @@ export function ProfileInfoTab({
                 {t('auth.phone')}
               </p>
               <p className="text-sm font-bold text-brand-brown mt-0.5">
-                {user.phone || '-'}
+                {user.phone ?? '-'}
               </p>
             </div>
           </div>

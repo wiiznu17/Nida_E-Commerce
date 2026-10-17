@@ -18,16 +18,14 @@ export function useWishlistFilters(rawWishlistProducts: ApiProduct[]) {
     const subCatMap = new Map<string, FilterCategoryOption>();
 
     rawWishlistProducts.forEach((p) => {
-      if (p.department) deptSet.add(p.department.toLowerCase());
+      deptSet.add(p.department.toLowerCase());
 
-      const subKey = p.categoryName || p.categorySlug;
-      if (subKey) {
-        subCatMap.set(subKey, {
-          key: subKey,
-          labelEn: p.categoryName || p.categorySlug,
-          labelTh: p.categoryNameTh || p.categoryName || p.categorySlug,
-        });
-      }
+      const subKey = p.categorySlug;
+      subCatMap.set(subKey, {
+        key: subKey,
+        labelEn: p.categoryName,
+        labelTh: p.categoryNameTh ?? p.categoryName,
+      });
     });
 
     return {
@@ -76,7 +74,7 @@ export function useWishlistFilters(rawWishlistProducts: ApiProduct[]) {
     // 4. Marketing Badges / Tags
     if (filters.tags && filters.tags.length > 0) {
       list = list.filter((p) => {
-        const pTag = (p.tag || '').toUpperCase();
+        const pTag = p.tag?.toUpperCase() ?? '';
         return filters.tags.some((t) => {
           const upper = t.toUpperCase();
           if (upper === 'NEW ARRIVAL' || upper === 'NEW') {

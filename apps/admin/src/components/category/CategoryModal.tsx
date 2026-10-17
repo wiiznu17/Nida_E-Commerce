@@ -41,15 +41,15 @@ export function CategoryModal({
 
   useEffect(() => {
     if (initialData) {
-      setName(initialData.name || '');
-      setNameTh(initialData.nameTh || '');
-      setSlug(initialData.slug || '');
-      setDepartment(initialData.department || Department.WOMEN);
-      setParentId(initialData.parentId || '');
-      setDescription(initialData.description || '');
-      setDescriptionTh(initialData.descriptionTh || '');
-      setBannerTag(initialData.bannerTag || '');
-      setBannerTagTh(initialData.bannerTagTh || '');
+      setName(initialData.name ?? '');
+      setNameTh(initialData.nameTh ?? '');
+      setSlug(initialData.slug ?? '');
+      setDepartment(initialData.department ?? Department.WOMEN);
+      setParentId(initialData.parentId ?? '');
+      setDescription(initialData.description ?? '');
+      setDescriptionTh(initialData.descriptionTh ?? '');
+      setBannerTag(initialData.bannerTag ?? '');
+      setBannerTagTh(initialData.bannerTagTh ?? '');
       setDisplayOrder(initialData.displayOrder ?? 0);
       setIsActive(
         initialData.isActive !== undefined ? initialData.isActive : true,
@@ -61,8 +61,8 @@ export function CategoryModal({
       const matchedParent = defaultParentId
         ? parentCategories.find((p) => p.id === defaultParentId)
         : null;
-      setDepartment(matchedParent?.department || Department.WOMEN);
-      setParentId(defaultParentId || '');
+      setDepartment(matchedParent?.department ?? Department.WOMEN);
+      setParentId(defaultParentId ?? '');
       setDescription('');
       setDescriptionTh('');
       setBannerTag('');

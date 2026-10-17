@@ -70,14 +70,14 @@ export function useCheckoutForm() {
         ...prev,
         firstName,
         lastName,
-        email: prev.email || user?.email || '',
+        email: user?.email ?? prev.email,
         phone: addr.phone,
         address: addr.addressLine1,
         addressLine2: addr.addressLine2 ?? '',
         subdistrict: addr.subdistrict,
         district: addr.district,
         province: addr.province,
-        city: addr.district || addr.province,
+        city: addr.district !== '' ? addr.district : addr.province,
         postalCode: addr.postalCode,
       }));
     },
@@ -125,13 +125,10 @@ export function useCheckoutForm() {
     if (user && savedAddresses.length === 0) {
       setShippingData((prev) => ({
         ...prev,
-        firstName: prev.firstName || user.firstName || '',
-        lastName: prev.lastName || user.lastName || '',
-        email: prev.email || user.email || '',
-        phone: prev.phone || user.phone || '',
-        address: prev.address || user.address || '',
-        city: prev.city || user.city || (language === 'th' ? 'กรุงเทพมหานคร' : 'Bangkok'),
-        postalCode: prev.postalCode || user.postalCode || '10110',
+        firstName: prev.firstName.trim() !== '' ? prev.firstName : (user.firstName ?? ''),
+        lastName: prev.lastName.trim() !== '' ? prev.lastName : (user.lastName ?? ''),
+        email: prev.email.trim() !== '' ? prev.email : user.email,
+        phone: prev.phone.trim() !== '' ? prev.phone : (user.phone ?? ''),
       }));
     }
   }, [user, language, savedAddresses.length]);

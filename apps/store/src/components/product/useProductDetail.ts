@@ -123,7 +123,7 @@ export function useProductDetail() {
       );
       if (uniqueSizes.length > 0) return uniqueSizes;
     }
-    const dept = (product.department || '').toLowerCase();
+    const dept = product.department.toLowerCase();
     if (dept === 'shoes') {
       return ['US 8', 'US 8.5', 'US 9', 'US 9.5', 'US 10', 'US 11'];
     }

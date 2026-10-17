@@ -25,7 +25,7 @@ export function ProfileHeader({ user, onLogout }: ProfileHeaderProps) {
               {user.firstName} {user.lastName}
             </h1>
             <span className="bg-brand-brown text-brand-yellow text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">
-              {user.tier || 'VIP GOLD'}
+              {user.tier}
             </span>
           </div>
           <p className="text-xs text-gray-500 font-semibold mt-1">
@@ -41,7 +41,7 @@ export function ProfileHeader({ user, onLogout }: ProfileHeaderProps) {
             {language === 'th' ? 'คะแนนสะสม' : 'Rewards Points'}
           </span>
           <span className="text-lg font-black text-brand-brown font-mono">
-            {user.points || 1250} PTS
+            {user.points} PTS
           </span>
         </div>
         <button

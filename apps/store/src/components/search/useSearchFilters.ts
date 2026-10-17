@@ -25,7 +25,7 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     const deptParam = searchParams.get('department')?.trim() ?? '';
     const subCatParam = searchParams.get('subCategory')?.trim() ?? '';
     const priceParam = (searchParams.get('priceRange')?.trim() as FilterState['priceRange']) ?? null;
-    const tagParam = searchParams.get('tag')?.trim() || searchParams.get('tags')?.trim() || '';
+    const tagParam = searchParams.get('tag')?.trim() ?? searchParams.get('tags')?.trim() ?? '';
     const onSaleParam = searchParams.get('onSale') === 'true';
     const newArrivalsParam = searchParams.get('newArrivals') === 'true';
     const sortParam = (searchParams.get('sort')?.trim() as FilterState['sortBy']) ?? 'featured';

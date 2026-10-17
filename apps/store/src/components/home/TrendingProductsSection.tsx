@@ -24,7 +24,7 @@ export const TrendingProductsSection: React.FC = () => {
   // Filter products for trending section from live catalog
   const trendingProducts = productsList
     .filter((p) => {
-      const dept = (p.department || '').toLowerCase();
+      const dept = p.department.toLowerCase();
       if (activeTab === 'all') return true;
       if (activeTab === 'women') return dept === 'women';
       if (activeTab === 'men') return dept === 'men';
@@ -38,7 +38,7 @@ export const TrendingProductsSection: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    const dept = (product.department || '').toLowerCase();
+    const dept = product.department.toLowerCase();
     const defaultSize =
       dept === 'shoes'
         ? 'US 9'

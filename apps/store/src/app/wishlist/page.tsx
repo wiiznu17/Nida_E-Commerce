@@ -46,7 +46,7 @@ export default function WishlistPage() {
   } = useWishlistFilters(rawWishlistProducts);
 
   const handleAddToCart = (product: ApiProduct) => {
-    const dept = (product.department ?? '').toLowerCase();
+    const dept = product.department.toLowerCase();
     const defaultSize =
       dept === 'shoes'
         ? 'US 9'
