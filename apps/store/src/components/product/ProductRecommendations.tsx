@@ -27,10 +27,11 @@ export function ProductRecommendations({ products }: ProductRecommendationsProps
           </h2>
         </div>
         <Link
-          href="/collections/all"
-          className="text-xs font-bold uppercase tracking-wider text-brand-brown hover:text-brand-amber"
+          href="/search"
+          className="text-xs font-bold uppercase tracking-wider text-brand-brown hover:text-brand-amber inline-flex items-center space-x-1"
         >
-          {isTh ? 'ดูทั้งหมด →' : 'VIEW ALL →'}
+          <span>{t('bento.viewAll')}</span>
+          <span aria-hidden="true">&rarr;</span>
         </Link>
       </div>
 

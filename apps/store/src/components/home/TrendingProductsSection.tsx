@@ -153,7 +153,7 @@ export const TrendingProductsSection: React.FC = () => {
       {/* View All CTA */}
       <div className="text-center mt-12">
         <Link
-          href="/collections/all"
+          href="/search"
           className="inline-flex items-center border-2 border-brand-brown text-brand-brown hover:bg-brand-brown hover:text-white px-8 py-3.5 font-black text-xs uppercase tracking-[0.2em] transition-all cursor-pointer"
         >
           {t('home.viewAllProducts')} ({productsList.length}){' '}

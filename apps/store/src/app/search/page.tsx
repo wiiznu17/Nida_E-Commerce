@@ -15,7 +15,7 @@ import {
   SearchEmptyState,
   useSearchFilters,
 } from '@/components/search';
-import { LoadingSpinner } from '@/components/ui';
+import { LoadingSpinner, Pagination } from '@/components/ui';
 
 
 function SearchPageContent() {
@@ -26,11 +26,15 @@ function SearchPageContent() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [serverProducts, setServerProducts] = useState<ApiProduct[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const pageSize = 24;
 
   const {
     query,
     filters,
+    currentPage,
+    handlePageChange,
     filterOptions,
     activeFilterCount,
     toggleDepartment,
@@ -73,7 +77,8 @@ function SearchPageContent() {
       maxPrice,
       tag: filters.tags.length > 0 ? filters.tags.join(',') : undefined,
       sortBy: sortMap[filters.sortBy] ?? 'featured',
-      limit: 48,
+      page: currentPage,
+      limit: pageSize,
     })
       .then((res) => {
         if (!isCancelled) {
@@ -91,6 +96,7 @@ function SearchPageContent() {
 
           setServerProducts(products);
           setTotalCount(res.total);
+          setTotalPages(res.totalPages);
           setIsLoading(false);
         }
       })
@@ -104,7 +110,7 @@ function SearchPageContent() {
     return () => {
       isCancelled = true;
     };
-  }, [query, filters]);
+  }, [query, filters, currentPage, pageSize]);
 
   const handleAddToCart = (product: ApiProduct) => {
     const defaultColor =
@@ -156,11 +162,21 @@ function SearchPageContent() {
             ) : serverProducts.length === 0 ? (
               <SearchEmptyState onClearAll={clearAllFilters} />
             ) : (
-              <CatalogProductGrid
-                products={serverProducts}
-                isFilterVisible={isFilterVisible}
-                onAddToCart={handleAddToCart}
-              />
+              <div className="space-y-8">
+                <CatalogProductGrid
+                  products={serverProducts}
+                  isFilterVisible={isFilterVisible}
+                  onAddToCart={handleAddToCart}
+                />
+
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalCount}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             )}
           </main>
         </div>

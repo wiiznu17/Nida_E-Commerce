@@ -76,7 +76,7 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
           description={t('trackOrder.emptyOrdersDesc')}
           action={{
             label: t('trackOrder.browseCatalog'),
-            href: '/collections',
+            href: '/search',
           }}
           className="p-12"
         />
@@ -190,7 +190,7 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                     </Link>
                   )}
                   <Link
-                    href="/collections"
+                    href="/search"
                     className="border border-gray-300 hover:border-brand-brown text-gray-700 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors"
                   >
                     {t('trackOrder.reorder')}

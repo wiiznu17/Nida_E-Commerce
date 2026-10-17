@@ -44,7 +44,7 @@ export function WishlistEmptyState({
       description={t('wishlistPage.emptyDesc')}
       action={{
         label: t('wishlistPage.exploreCatalog'),
-        href: '/collections/all',
+        href: '/search',
       }}
       className="max-w-xl mx-auto py-16"
     />

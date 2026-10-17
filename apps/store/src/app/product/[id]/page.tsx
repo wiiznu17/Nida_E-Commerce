@@ -61,19 +61,20 @@ export default function ProductDetailPage() {
               : 'The product you are looking for does not exist or has been moved.'
           }
           action={{
-            label: isTh ? 'กลับไปหน้าคอลเลกชัน' : 'BACK TO COLLECTIONS',
-            href: '/collections/all',
+            label: isTh ? 'ดูสินค้าทั้งหมด' : 'BACK TO ALL PRODUCTS',
+            href: '/search',
           }}
         />
       </div>
     );
   }
 
+  const deptSlug = product.department?.toLowerCase();
   const breadcrumbItems = [
     { label: t('product.home'), href: '/' },
     {
       label: subCategory.toUpperCase(),
-      href: `/collections/${product.department?.toLowerCase() || 'all'}`,
+      href: deptSlug ? `/collections/${deptSlug}` : '/search',
     },
     { label: title },
   ];

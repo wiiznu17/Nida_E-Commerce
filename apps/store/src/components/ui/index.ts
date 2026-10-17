@@ -8,3 +8,4 @@ export * from './SearchInput';
 export * from './Alert';
 export * from './MetricCard';
 export * from './Breadcrumb';
+export * from './Pagination';

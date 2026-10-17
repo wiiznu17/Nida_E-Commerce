@@ -9,13 +9,17 @@ import {
   CollectionEmptyState,
   useCollectionDepartment,
 } from '@/components/collection';
-import { LoadingSpinner } from '@/components/ui';
+import { LoadingSpinner, Pagination } from '@/components/ui';
 
 function CollectionDepartmentContent() {
   const {
     selectedCategory,
     selectedSubCategory,
     sortBy,
+    currentPage,
+    totalPages,
+    pageSize,
+    handlePageChange,
     gridCols,
     setGridCols,
     primaryCategories,
@@ -44,12 +48,12 @@ function CollectionDepartmentContent() {
         categories={primaryCategories}
         selectedCategory={selectedCategory}
         onSelectCategory={(slug) =>
-          updateUrlFilters({ category: slug, subCategory: null })
+          updateUrlFilters({ category: slug, subCategory: null, page: 1 })
         }
         subCategories={availableSubCategories}
         selectedSubCategory={selectedSubCategory}
         onSelectSubCategory={(slug) =>
-          updateUrlFilters({ subCategory: slug })
+          updateUrlFilters({ subCategory: slug, page: 1 })
         }
         totalCount={totalCount}
       />
@@ -58,24 +62,33 @@ function CollectionDepartmentContent() {
         totalCount={totalCount}
         sortBy={sortBy}
         gridCols={gridCols}
-        onSortChange={(sort) => updateUrlFilters({ sort })}
+        onSortChange={(sort) => updateUrlFilters({ sort, page: 1 })}
         onToggleGridCols={setGridCols}
       />
 
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
-
         {isLoading ? (
           <LoadingSpinner className="py-24" />
         ) : serverProducts.length > 0 ? (
-          <CollectionProductGrid
-            products={serverProducts}
-            gridCols={gridCols}
-            onAddToCart={addToCart}
-          />
+          <div className="space-y-8">
+            <CollectionProductGrid
+              products={serverProducts}
+              gridCols={gridCols}
+              onAddToCart={addToCart}
+            />
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalCount}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+            />
+          </div>
         ) : (
           <CollectionEmptyState
             onResetFilters={() =>
-              updateUrlFilters({ category: null, subCategory: null })
+              updateUrlFilters({ category: null, subCategory: null, page: 1 })
             }
           />
         )}

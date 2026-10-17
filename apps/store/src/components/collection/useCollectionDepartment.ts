@@ -21,8 +21,15 @@ export function useCollectionDepartment() {
       ? rawDept
       : Array.isArray(rawDept)
         ? rawDept[0]
-        : 'all'
+        : 'women'
   ).toLowerCase();
+
+  // Redirect legacy /collections/all or invalid 'all' to /search
+  useEffect(() => {
+    if (department === 'all') {
+      router.replace('/search');
+    }
+  }, [department, router]);
 
   const selectedCategory = searchParams.get('category')?.trim() ?? null;
   const selectedSubCategory = searchParams.get('subCategory')?.trim() ?? null;
@@ -33,6 +40,10 @@ export function useCollectionDepartment() {
       | 'price-asc'
       | 'price-desc') ?? 'featured';
 
+  const pageParam = parseInt(searchParams.get('page') ?? '1', 10);
+  const currentPage = Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
+  const pageSize = 24;
+
   const { addToCart } = useCart();
   const { categories, categoriesByDept } = useCatalog();
   const { language } = useLanguage();
@@ -40,10 +51,11 @@ export function useCollectionDepartment() {
   const [gridCols, setGridCols] = useState<3 | 4>(4);
   const [serverProducts, setServerProducts] = useState<ApiProduct[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   const primaryCategories = useMemo<CategoryPillItem[]>(() => {
-    if (department === 'all' || department === 'sale') return [];
+    if (department === 'sale') return [];
     const deptCats = categoriesByDept[department] ?? [];
     return deptCats.map((cat) => ({
       slug: cat.slug,
@@ -52,7 +64,7 @@ export function useCollectionDepartment() {
   }, [department, categoriesByDept, language]);
 
   const availableSubCategories = useMemo<CategoryPillItem[]>(() => {
-    if (department === 'all' || department === 'sale') return [];
+    if (department === 'sale') return [];
 
     if (selectedCategory) {
       const parent = categories.find((c) => c.slug === selectedCategory);
@@ -89,6 +101,7 @@ export function useCollectionDepartment() {
     category?: string | null;
     subCategory?: string | null;
     sort?: string | null;
+    page?: number | null;
   }) => {
     const nextCat =
       updates.category !== undefined ? updates.category : selectedCategory;
@@ -97,11 +110,13 @@ export function useCollectionDepartment() {
         ? updates.subCategory
         : selectedSubCategory;
     const nextSort = updates.sort !== undefined ? updates.sort : sortBy;
+    const nextPage = updates.page !== undefined ? updates.page : 1;
 
     const sp = new URLSearchParams();
     if (nextCat) sp.set('category', nextCat);
     if (nextSub) sp.set('subCategory', nextSub);
     if (nextSort && nextSort !== 'featured') sp.set('sort', nextSort);
+    if (nextPage && nextPage > 1) sp.set('page', nextPage.toString());
 
     const queryString = sp.toString();
     router.push(
@@ -110,7 +125,16 @@ export function useCollectionDepartment() {
     );
   };
 
+  const handlePageChange = (newPage: number) => {
+    updateUrlFilters({ page: newPage });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 380, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
+    if (department === 'all') return;
+
     let isCancelled = false;
     setIsLoading(true);
 
@@ -125,18 +149,19 @@ export function useCollectionDepartment() {
     };
 
     catalogRequester.getProductsWithMeta({
-      department:
-        department !== 'all' && department !== 'sale' ? department : undefined,
+      department: department !== 'sale' ? department : undefined,
       category: selectedCategory ?? undefined,
       subCategory: selectedSubCategory ?? undefined,
       tag: department === 'sale' ? 'SALE' : undefined,
       sortBy: sortMap[sortBy] ?? 'featured',
-      limit: 48,
+      page: currentPage,
+      limit: pageSize,
     })
       .then((res) => {
         if (!isCancelled) {
           setServerProducts(res.products);
           setTotalCount(res.total);
+          setTotalPages(res.totalPages);
           setIsLoading(false);
         }
       })
@@ -150,7 +175,7 @@ export function useCollectionDepartment() {
     return () => {
       isCancelled = true;
     };
-  }, [department, selectedCategory, selectedSubCategory, sortBy]);
+  }, [department, selectedCategory, selectedSubCategory, sortBy, currentPage, pageSize]);
 
   const deptData = DEPARTMENT_INFO[department];
   const matchedCategory = categories.find((c) => c.slug === selectedCategory);
@@ -164,8 +189,8 @@ export function useCollectionDepartment() {
         ? deptData.titleTh
         : deptData.title
       : language === 'th'
-        ? 'คอลเลกชันทั้งหมด'
-        : 'ALL COLLECTIONS';
+        ? 'คอลเลกชัน'
+        : 'COLLECTION';
 
   const currentSubtitle = matchedCategory?.description
     ? language === 'th' && matchedCategory.descriptionTh
@@ -187,6 +212,10 @@ export function useCollectionDepartment() {
     selectedCategory,
     selectedSubCategory,
     sortBy,
+    currentPage,
+    totalPages,
+    pageSize,
+    handlePageChange,
     gridCols,
     setGridCols,
     primaryCategories,

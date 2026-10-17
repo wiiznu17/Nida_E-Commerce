@@ -119,7 +119,7 @@ export function CartDrawer() {
               <button
                 onClick={() => {
                   setIsCartOpen(false);
-                  router.push('/collections/all');
+                  router.push('/search');
                 }}
                 className="inline-block bg-brand-brown hover:bg-brand-amber text-white px-6 py-3 font-black text-xs uppercase tracking-widest transition-colors cursor-pointer"
               >
@@ -316,7 +316,7 @@ export function CartDrawer() {
                 type="button"
                 onClick={() => {
                   setIsCartOpen(false);
-                  router.push('/collections/all');
+                  router.push('/search');
                 }}
                 className="w-full py-2 text-center text-xs font-bold text-gray-500 hover:text-brand-brown transition-colors uppercase tracking-wider cursor-pointer"
               >

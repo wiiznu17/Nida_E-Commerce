@@ -123,12 +123,12 @@ export default function AboutPage() {
             </p>
             <div className="pt-3">
               <Link
-                href="/collections/all"
+                href="/search"
                 className="bg-brand-brown hover:bg-brand-amber text-white px-8 py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors inline-block shadow-md"
               >
                 {language === 'th'
-                  ? 'สำรวจคอลเลกชันทั้งหมด'
-                  : 'EXPLORE ALL COLLECTIONS'}
+                  ? 'สำรวจสินค้าทั้งหมด'
+                  : 'EXPLORE ALL PRODUCTS'}
               </Link>
             </div>
           </div>

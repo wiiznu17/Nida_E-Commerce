@@ -20,6 +20,9 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
   const searchParams = useSearchParams();
   const query = searchParams.get('q')?.trim() ?? '';
 
+  const pageParam = parseInt(searchParams.get('page') ?? '1', 10);
+  const currentPage = Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
+
   // Derive filter state from URL search params
   const filters = useMemo<FilterState>(() => {
     const deptParam = searchParams.get('department')?.trim() ?? '';
@@ -53,7 +56,7 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
   }, [searchParams]);
 
   // URL sync handler
-  const updateUrlFilters = (updated: Partial<FilterState>) => {
+  const updateUrlFilters = (updated: Partial<FilterState>, newPage: number = 1) => {
     const next = { ...filters, ...updated };
     const sp = new URLSearchParams();
 
@@ -63,8 +66,16 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
     if (next.priceRange) sp.set('priceRange', next.priceRange);
     if (next.tags.length > 0) sp.set('tag', next.tags.join(','));
     if (next.sortBy && next.sortBy !== 'featured') sp.set('sort', next.sortBy);
+    if (newPage > 1) sp.set('page', newPage.toString());
 
     router.push(`/search?${sp.toString()}`, { scroll: false });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    updateUrlFilters({}, newPage);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   // Distinct filter options extracted from catalog & categories tree
@@ -98,18 +109,19 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
       departments: Array.from(deptSet),
       subCategories: Array.from(subCatMap.values()),
     };
-  }, [productsList, categories]);
+  }, [categories, productsList]);
 
   const toggleDepartment = (dept: string) => {
-    const departments = filters.departments.includes(dept)
-      ? filters.departments.filter((d) => d !== dept)
-      : [...filters.departments, dept];
+    const lower = dept.toLowerCase();
+    const departments = filters.departments.includes(lower)
+      ? filters.departments.filter((d) => d !== lower)
+      : [...filters.departments, lower];
     updateUrlFilters({ departments });
   };
 
   const toggleSubCategory = (subCat: string) => {
     const subCategories = filters.subCategories.includes(subCat)
-      ? filters.subCategories.filter((s) => s !== subCat)
+      ? filters.subCategories.filter((c) => c !== subCat)
       : [...filters.subCategories, subCat];
     updateUrlFilters({ subCategories });
   };
@@ -148,6 +160,8 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
   return {
     query,
     filters,
+    currentPage,
+    handlePageChange,
     filterOptions,
     activeFilterCount,
     toggleDepartment,

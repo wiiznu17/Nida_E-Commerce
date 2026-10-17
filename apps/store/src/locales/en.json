@@ -17,6 +17,15 @@
     "switchLangEn": "Switch to English",
     "allRightsReserved": "All Rights Reserved."
   },
+  "pagination": {
+    "showingRange": "Showing",
+    "to": "-",
+    "ofTotal": "of",
+    "items": "items",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "page": "Page"
+  },
   "nav": {
     "storeLocator": "Store Locator",
     "about": "About Nida",

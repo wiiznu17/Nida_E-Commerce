@@ -17,6 +17,15 @@
     "switchLangEn": "เปลี่ยนเป็นภาษาอังกฤษ",
     "allRightsReserved": "สงวนลิขสิทธิ์"
   },
+  "pagination": {
+    "showingRange": "แสดง",
+    "to": "-",
+    "ofTotal": "จากทั้งหมด",
+    "items": "รายการ",
+    "prevPage": "ก่อนหน้า",
+    "nextPage": "ถัดไป",
+    "page": "หน้า"
+  },
   "nav": {
     "storeLocator": "ค้นหาสาขา",
     "about": "เกี่ยวกับแบรนด์ Nida",

@@ -102,7 +102,7 @@ export default function ProfileOrdersPage() {
           description={t('trackOrder.emptyOrdersDesc')}
           action={{
             label: t('trackOrder.browseCatalog'),
-            href: '/collections',
+            href: '/search',
           }}
           className="p-12 sm:p-16"
         />

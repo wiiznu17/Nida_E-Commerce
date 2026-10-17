@@ -28,7 +28,7 @@ export function SearchEmptyState({ onClearAll }: SearchEmptyStateProps) {
       }}
       secondaryAction={{
         label: t('search.allProducts'),
-        href: '/collections/all',
+        href: '/search',
       }}
       className="max-w-xl mx-auto py-16"
     />
