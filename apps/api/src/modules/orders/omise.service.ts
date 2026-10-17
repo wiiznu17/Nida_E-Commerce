@@ -110,6 +110,7 @@ export class OmiseService {
         currency: 'thb',
         source: sourceData.id,
         'metadata[orderNumber]': orderNumber,
+        expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
       }).toString(),
     });
 

@@ -21,9 +21,13 @@ export function PromptPayAwaitingPayment({
 }: PromptPayAwaitingPaymentProps) {
   const { language, t } = useLanguage();
 
-  const minutes = Math.floor(countdown / 60);
+  const hours = Math.floor(countdown / 3600);
+  const minutes = Math.floor((countdown % 3600) / 60);
   const seconds = countdown % 60;
-  const formattedCountdown = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  const formattedCountdown =
+    hours > 0
+      ? `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+      : `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
   return (
     <div>
@@ -78,32 +82,35 @@ export function PromptPayAwaitingPayment({
         <div className="mt-4 pt-3 border-t border-brand-border/60 flex items-center justify-center space-x-2 text-xs text-amber-900 font-bold">
           <Clock size={14} className="text-amber-700" />
           <span>
-            {language === 'th'
-              ? `กรุณาชำระเงินภายใน ${formattedCountdown} นาที`
-              : `Please pay within ${formattedCountdown} mins`}
+            {countdown > 0
+              ? language === 'th'
+                ? `กรุณาชำระเงินภายใน ${formattedCountdown}`
+                : `Please pay within ${formattedCountdown}`
+              : language === 'th'
+                ? 'QR Code หมดอายุแล้ว กรุณากดเปลี่ยนช่องทางหรือรีเฟรช'
+                : 'QR Code expired. Please refresh or change payment method.'}
           </span>
         </div>
       </div>
 
-      {/* Test Sandbox Simulate Payment Button */}
-      <div>
+      {/* Discrete Dev / Sandbox Badge Tool */}
+      <div className="flex justify-center pt-1">
         <button
           type="button"
           onClick={onSimulatePayment}
           disabled={isSimulating}
-          className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-400 text-white py-3 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-2xs flex items-center justify-center space-x-2 cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-mono tracking-wider text-gray-500 hover:text-brand-brown hover:border-brand-brown/40 border border-dashed border-gray-300 rounded-xs bg-brand-warm-cream/30 hover:bg-white transition-colors cursor-pointer disabled:opacity-50"
+          title="Developer Test Sandbox"
         >
           {isSimulating ? (
-            <>
-              <Loader2 size={14} className="animate-spin" />
-              <span>{t('orderSuccess.simulating')}</span>
-            </>
+            <Loader2 size={11} className="animate-spin text-brand-brown" />
           ) : (
-            <>
-              <Sparkles size={14} />
-              <span>{t('orderSuccess.simulatePayment')}</span>
-            </>
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
           )}
+          <span className="font-bold text-gray-600 uppercase">DEV:</span>
+          <span>
+            {isSimulating ? t('orderSuccess.simulating') : t('orderSuccess.simulatePayment')}
+          </span>
         </button>
       </div>
     </div>

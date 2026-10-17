@@ -70,14 +70,37 @@ function PaymentPageContent() {
     fetchOrder();
   }, [isAuthLoading, fetchOrder]);
 
-  // 15-minute countdown for PromptPay QR
+  // Synchronized countdown for PromptPay QR (synced with qrExpiresAt from backend)
   useEffect(() => {
     if (order?.status !== OrderStatus.PENDING) return;
+
+    const calculateRemaining = () => {
+      const qrExpiresAt = order.payment?.qrExpiresAt;
+      if (qrExpiresAt) {
+        const expiryTime = new Date(qrExpiresAt).getTime();
+        if (!isNaN(expiryTime)) {
+          return Math.max(0, Math.floor((expiryTime - Date.now()) / 1000));
+        }
+      }
+      return null;
+    };
+
+    const initial = calculateRemaining();
+    if (initial !== null) {
+      setCountdown(initial);
+    }
+
     const timer = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+      const remaining = calculateRemaining();
+      if (remaining !== null) {
+        setCountdown(remaining);
+      } else {
+        setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+      }
     }, 1000);
+
     return () => clearInterval(timer);
-  }, [order?.status]);
+  }, [order?.status, order?.payment?.qrExpiresAt]);
 
   // Real-time Webhook Polling: poll every 3 seconds while order is PENDING
   useEffect(() => {
