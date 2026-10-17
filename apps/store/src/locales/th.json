@@ -492,6 +492,50 @@
     "ordersUnit": "รายการ",
     "prevPage": "ก่อนหน้า",
     "nextPage": "ถัดไป",
-    "backToProfile": "กลับไปหน้าโปรไฟล์"
+    "backToProfile": "กลับไปหน้าโปรไฟล์",
+    "viewDetails": "ดูรายละเอียด"
+  },
+  "orderDetail": {
+    "notFoundTitle": "ไม่พบข้อมูลคำสั่งซื้อ",
+    "notFoundDesc": "ไม่พบคำสั่งซื้อที่ต้องการ หรือท่านอาจไม่มีสิทธิ์เข้าถึง",
+    "backToOrders": "กลับไปรายการคำสั่งซื้อ",
+    "liveTrackingLink": "เปิดดูหน้าติดตามพัสดุสด",
+    "placedAt": "วันที่สั่งซื้อ",
+    "payPromptPayBtn": "ชำระเงินทันที (PromptPay QR)",
+    "requestCancelBtn": "ขอยกเลิกคำสั่งซื้อ",
+    "requestReturnBtn": "ขอคืนสินค้า",
+    "cancellationPendingNotice": "คำขอยกเลิกคำสั่งซื้อของคุณกำลังรอเจ้าหน้าที่ตรวจสอบ",
+    "returnActiveNotice": "คำขอคืนสินค้าของคุณอยู่ระหว่างดำเนินการ",
+    "itemsPurchased": "รายการสินค้าที่สั่งซื้อ",
+    "refundHistoryTitle": "ประวัติการคืนเงิน (Refund History)",
+    "reasonPrefix": "เหตุผล",
+    "summaryTitle": "สรุปยอดการชำระเงิน",
+    "subtotal": "ยอดรวมสินค้า",
+    "discountTotal": "ส่วนลดทั้งหมด",
+    "shippingFee": "ค่าจัดส่ง",
+    "freeShipping": "ฟรี (Free)",
+    "grandTotal": "ยอดรวมทั้งสิ้น",
+    "shippingAddressTitle": "ที่อยู่จัดส่งและผู้รับสินค้า",
+    "cancelSuccessToast": "ส่งคำขอยกเลิกคำสั่งซื้อเรียบร้อยแล้ว",
+    "returnSuccessToast": "ส่งคำขอคืนสินค้าเรียบร้อยแล้ว",
+    "cancelModal": {
+      "title": "ขอยกเลิกคำสั่งซื้อ",
+      "reviewNoticeTitle": "เงื่อนไขการขอยกเลิกคำสั่งซื้อ",
+      "reviewNoticeDesc": "คำขอยกเลิกจะได้รับการพิจารณาโดยเจ้าหน้าที่ หากสินค้ายังไม่ได้ถูกบรรจุหรือจัดส่ง ระบบจะดำเนินการคืนเงินเต็มจำนวนเข้าสู่ช่องทางเดิมของท่าน",
+      "selectReasonLabel": "เลือกเหตุผล",
+      "reasonPlaceholder": "ระบุเหตุผลในการขอยกเลิก...",
+      "noteLabel": "รายละเอียดเพิ่มเติม (ถ้ามี)",
+      "notePlaceholder": "เช่น ต้องการเปลี่ยนที่อยู่ หรือเปลี่ยนไซส์...",
+      "submitButton": "ยืนยันส่งคำขอยกเลิก"
+    },
+    "returnModal": {
+      "title": "ยื่นเรื่องขอคืนสินค้า",
+      "selectItemsLabel": "เลือกสินค้าและจำนวนที่ต้องการส่งคืน",
+      "qtyLabel": "จำนวน",
+      "reasonLabel": "เลือกเหตุผลในการคืน",
+      "reasonPlaceholder": "ระบุเหตุผลในการคืนสินค้า...",
+      "notePlaceholder": "ระบุรายละเอียดเพิ่มเติม หรือตำหนิของสินค้า...",
+      "submitButton": "ยืนยันส่งคำขอคืนสินค้า"
+    }
   }
 }

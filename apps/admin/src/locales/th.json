@@ -401,6 +401,7 @@
       "bookingInProgress": "กำลังขอเลขพัสดุ...",
       "autoBookSuccess": "ออกเลขพัสดุ {tracking} จากระบบขนส่งสำเร็จ",
       "dispatchNote": "เมื่อกดยืนยัน ระบบจะปรับสถานะออเดอร์เป็น SHIPPED และลูกค้าสามารถติดตามสถานะสดได้ทันที",
+      "cancellationPendingBlock": "ไม่สามารถจัดส่งได้เนื่องจากมีคำขอยกเลิกคำสั่งซื้อรอการตรวจสอบอยู่",
       "cancel": "ยกเลิก",
       "confirm": "ยืนยันการจัดส่ง"
     },
@@ -539,6 +540,57 @@
       "confirm": "ยืนยันอนุมัติยอดเงิน",
       "submitting": "กำลังบันทึก...",
       "successToast": "อนุมัติการชำระเงินสำหรับคำสั่งซื้อ #{orderNumber} สำเร็จ"
+    },
+    "refund": {
+      "modalTitle": "ดำเนินการคืนเงินคำสั่งซื้อ",
+      "buttonLabel": "คืนเงิน",
+      "buttonTitle": "ดำเนินการคืนเงินผ่าน Omise / บันทึกประวัติคืนเงิน",
+      "totalPaid": "ยอดที่ชำระทั้งหมด",
+      "alreadyRefunded": "ยอดที่เคยคืนไปแล้ว",
+      "maxRefundable": "ยอดที่สามารถคืนได้สูงสุด",
+      "amountLabel": "จำนวนเงินที่ต้องการคืน (บาท) *",
+      "reasonLabel": "เหตุผลในการคืนเงิน *",
+      "reasonPlaceholder": "เช่น ลูกค้ายกเลิกสินค้า, สินค้าหมด, ชำรุดระหว่างขนส่ง",
+      "restockCheckbox": "คืนสต็อกสินค้ากลับเข้าคลังอัตโนมัติ (Restock)",
+      "restockHint": "ระบบจะเพิ่มจำนวนสินค้าคงเหลือและบันทึก StockMovement ให้ทันที",
+      "processing": "กำลังดำเนินการ...",
+      "confirmButton": "ยืนยันการคืนเงิน",
+      "successToast": "ดำเนินการคืนเงินสำเร็จ"
+    },
+    "cancellation": {
+      "sectionTitle": "คำขอยกเลิกคำสั่งซื้อจากลูกค้า (Cancellation Requests)",
+      "status": {
+        "PENDING": "รอการตรวจสอบ",
+        "APPROVED": "อนุมัติยกเลิกแล้ว",
+        "REJECTED": "ปฏิเสธคำขอ"
+      },
+      "reason": "เหตุผล",
+      "customerNote": "หมายเหตุจากลูกค้า",
+      "adminNote": "หมายเหตุจากแอดมิน",
+      "approveNoteLabel": "หมายเหตุการอนุมัติ (ถ้ามี)",
+      "rejectNoteLabel": "เหตุผลในการปฏิเสธคำขอยกเลิก *",
+      "notePlaceholder": "ระบุหมายเหตุ...",
+      "confirmAction": "ยืนยันการดำเนินการ",
+      "rejectButton": "ปฏิเสธคำขอ",
+      "approveButton": "อนุมัติ & คืนเงิน"
+    },
+    "return": {
+      "sectionTitle": "คำขอคืนสินค้าจากลูกค้า (Return Requests)",
+      "status": {
+        "REQUESTED": "ยื่นเรื่องขอคืนสินค้า",
+        "APPROVED": "อนุมัติให้ส่งคืนได้",
+        "REJECTED": "ปฏิเสธคำขอคืน",
+        "COMPLETED": "ตรวจรับและคืนเงินแล้ว"
+      },
+      "reason": "เหตุผลการขอคืน",
+      "customerNote": "หมายเหตุจากลูกค้า",
+      "itemsLabel": "รายการสินค้าที่ส่งคืน",
+      "rejectButton": "ปฏิเสธคำขอคืน",
+      "approveShipButton": "อนุมัติให้ส่งของคืน",
+      "inspectAndRefundButton": "ตรวจรับสินค้า & คืนเงิน",
+      "inspectModalTitle": "ตรวจรับสินค้าคืนและดำเนินการคืนเงิน",
+      "inspectNotePlaceholder": "เช่น สินค้าสภาพสมบูรณ์ พร้อมป้ายราคา",
+      "confirmRefundButton": "ยืนยันตรวจรับและคืนเงิน"
     }
   },
   "promotions": {

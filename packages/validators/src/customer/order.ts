@@ -31,3 +31,35 @@ export const createOrderSchema = z.object({
 export type OrderItemInput = z.infer<typeof orderItemSchema>;
 export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+
+/**
+ * Customer Cancellation Request Schema
+ */
+export const createCancellationRequestSchema = z.object({
+  reason: z.string().trim().min(3, { message: 'Cancellation reason is required' }),
+  customerNote: z.string().trim().optional(),
+});
+
+export type CreateCancellationRequestInput = z.infer<
+  typeof createCancellationRequestSchema
+>;
+
+/**
+ * Customer Return Request Schema
+ */
+export const returnItemSchema = z.object({
+  orderItemId: z.string().uuid({ message: 'Invalid order item ID' }),
+  quantity: z.number().int().min(1, { message: 'Quantity must be at least 1' }),
+});
+
+export const createReturnRequestSchema = z.object({
+  reason: z.string().trim().min(3, { message: 'Return reason is required' }),
+  customerNote: z.string().trim().optional(),
+  items: z
+    .array(returnItemSchema)
+    .min(1, { message: 'Please select at least one item to return' }),
+});
+
+export type CreateReturnRequestInput = z.infer<
+  typeof createReturnRequestSchema
+>;

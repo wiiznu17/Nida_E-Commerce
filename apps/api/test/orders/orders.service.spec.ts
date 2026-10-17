@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CustomerOrdersService } from '../../src/modules/orders/orders.service.js';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { OrderStatus, ReturnStatus } from '@repo/database';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
 
@@ -23,6 +24,12 @@ describe('CustomerOrdersService', () => {
       order: {
         findUnique: vi.fn(),
         findMany: vi.fn(),
+      },
+      orderCancellationRequest: {
+        create: vi.fn(),
+      },
+      returnRequest: {
+        create: vi.fn(),
       },
       $transaction: vi.fn(),
     };
@@ -178,4 +185,298 @@ describe('CustomerOrdersService', () => {
       );
     });
   });
+
+  describe('requestCancellation', () => {
+    const baseOrder = {
+      id: 'ord-100',
+      orderNumber: 'NIDA-20261014-CANCEL',
+      userId: 'user-123',
+      status: OrderStatus.PAID,
+      hasPreorderItems: false,
+      subtotal: 3500,
+      discountTotal: 0,
+      shippingFee: 0,
+      taxAmount: 0,
+      totalAmount: 3500,
+      currency: 'THB',
+      shippingAddressSnapshot: { recipientName: 'Kallaya W.', phone: '0812345678' },
+      promoCodeUsed: null,
+      placedAt: new Date('2026-10-14T10:00:00Z'),
+      items: [],
+      payment: null,
+      shipments: [],
+      cancellationRequests: [],
+      returnRequests: [],
+      refunds: [],
+    };
+
+    it('successfully submits a cancellation request for a paid order', async () => {
+      const orderFindUnique = (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique;
+
+      // 1st call for eligibility check
+      orderFindUnique.mockResolvedValueOnce({
+        ...baseOrder,
+        cancellationRequests: [],
+      });
+
+      (
+        prismaMock as {
+          orderCancellationRequest: { create: ReturnType<typeof vi.fn> };
+        }
+      ).orderCancellationRequest.create.mockResolvedValueOnce({
+        id: 'can-1',
+        requestNumber: 'CAN-NIDA-20261014-CANCEL-1',
+      });
+
+      // 2nd call from getOrderByNumber
+      orderFindUnique.mockResolvedValueOnce({
+        ...baseOrder,
+        cancellationRequests: [
+          {
+            id: 'can-1',
+            requestNumber: 'CAN-NIDA-20261014-CANCEL-1',
+            orderId: 'ord-100',
+            userId: 'user-123',
+            reason: 'Ordered by mistake',
+            customerNote: 'Please cancel immediately',
+            adminNote: null,
+            status: 'PENDING',
+            reviewedAt: null,
+            reviewedBy: null,
+            createdAt: new Date(),
+          },
+        ],
+      });
+
+      const result = await service.requestCancellation(
+        'NIDA-20261014-CANCEL',
+        { reason: 'Ordered by mistake', customerNote: 'Please cancel immediately' },
+        'user-123',
+      );
+
+      expect(result.orderNumber).toBe('NIDA-20261014-CANCEL');
+      expect(result.cancellationRequests).toHaveLength(1);
+      expect(result.cancellationRequests?.[0].requestNumber).toBe(
+        'CAN-NIDA-20261014-CANCEL-1',
+      );
+    });
+
+    it('rejects cancellation if order status is already SHIPPED or DELIVERED', async () => {
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique.mockResolvedValueOnce({
+        ...baseOrder,
+        status: OrderStatus.SHIPPED,
+        cancellationRequests: [],
+      });
+
+      await expect(
+        service.requestCancellation(
+          'NIDA-20261014-CANCEL',
+          { reason: 'Too late' },
+          'user-123',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects cancellation if a pending cancellation request already exists', async () => {
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique.mockResolvedValueOnce({
+        ...baseOrder,
+        cancellationRequests: [
+          {
+            id: 'can-old',
+            status: 'PENDING',
+          },
+        ],
+      });
+
+      await expect(
+        service.requestCancellation(
+          'NIDA-20261014-CANCEL',
+          { reason: 'Duplicate attempt' },
+          'user-123',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws NotFoundException if order does not belong to user', async () => {
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique.mockResolvedValueOnce({
+        ...baseOrder,
+        userId: 'other-user',
+      });
+
+      await expect(
+        service.requestCancellation(
+          'NIDA-20261014-CANCEL',
+          { reason: 'Not mine' },
+          'user-123',
+        ),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('requestReturn', () => {
+    const baseDeliveredOrder = {
+      id: 'ord-200',
+      orderNumber: 'NIDA-20261014-RETURN',
+      userId: 'user-123',
+      status: OrderStatus.DELIVERED,
+      hasPreorderItems: false,
+      subtotal: 6000,
+      discountTotal: 0,
+      shippingFee: 0,
+      taxAmount: 0,
+      totalAmount: 6000,
+      currency: 'THB',
+      shippingAddressSnapshot: { recipientName: 'Kallaya W.', phone: '0812345678' },
+      promoCodeUsed: null,
+      placedAt: new Date('2026-10-14T10:00:00Z'),
+      items: [
+        {
+          id: 'item-1',
+          variantId: 'var-1',
+          productNameSnapshot: 'Silk Dress',
+          variantInfoSnapshot: 'Black / S',
+          unitPrice: 6000,
+          quantity: 2,
+          subtotal: 6000,
+          discountShare: 0,
+          netPrice: 6000,
+          isPreorder: false,
+          expectedShipDate: null,
+        },
+      ],
+      payment: null,
+      shipments: [],
+      cancellationRequests: [],
+      returnRequests: [],
+      refunds: [],
+    };
+
+    it('successfully submits a return request for a delivered order', async () => {
+      const orderFindUnique = (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique;
+
+      orderFindUnique.mockResolvedValueOnce({
+        ...baseDeliveredOrder,
+        returnRequests: [],
+      });
+
+      (
+        prismaMock as { returnRequest: { create: ReturnType<typeof vi.fn> } }
+      ).returnRequest.create.mockResolvedValueOnce({
+        id: 'ret-1',
+        requestNumber: 'RET-NIDA-20261014-RETURN-1',
+      });
+
+      orderFindUnique.mockResolvedValueOnce({
+        ...baseDeliveredOrder,
+        returnRequests: [
+          {
+            id: 'ret-1',
+            requestNumber: 'RET-NIDA-20261014-RETURN-1',
+            orderId: 'ord-200',
+            userId: 'user-123',
+            reason: 'Wrong size',
+            customerNote: 'Exchange for M',
+            adminNote: null,
+            status: ReturnStatus.REQUESTED,
+            items: [{ id: 'ri-1', orderItemId: 'item-1', quantity: 1 }],
+            reviewedAt: null,
+            reviewedBy: null,
+            createdAt: new Date(),
+          },
+        ],
+      });
+
+      const result = await service.requestReturn(
+        'NIDA-20261014-RETURN',
+        {
+          reason: 'Wrong size',
+          customerNote: 'Exchange for M',
+          items: [{ orderItemId: 'item-1', quantity: 1 }],
+        },
+        'user-123',
+      );
+
+      expect(result.orderNumber).toBe('NIDA-20261014-RETURN');
+      expect(result.returnRequests).toHaveLength(1);
+      expect(result.returnRequests?.[0].requestNumber).toBe(
+        'RET-NIDA-20261014-RETURN-1',
+      );
+    });
+
+    it('rejects return if order status is not DELIVERED', async () => {
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique.mockResolvedValueOnce({
+        ...baseDeliveredOrder,
+        status: OrderStatus.SHIPPED,
+      });
+
+      await expect(
+        service.requestReturn(
+          'NIDA-20261014-RETURN',
+          {
+            reason: 'Wrong size',
+            items: [{ orderItemId: 'item-1', quantity: 1 }],
+          },
+          'user-123',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects return if requested item quantity exceeds purchased quantity', async () => {
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique.mockResolvedValueOnce({
+        ...baseDeliveredOrder,
+        returnRequests: [],
+      });
+
+      await expect(
+        service.requestReturn(
+          'NIDA-20261014-RETURN',
+          {
+            reason: 'Wrong size',
+            items: [{ orderItemId: 'item-1', quantity: 5 }], // purchased only 2
+          },
+          'user-123',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects return if an active return request already exists', async () => {
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique.mockResolvedValueOnce({
+        ...baseDeliveredOrder,
+        returnRequests: [
+          {
+            id: 'ret-active',
+            status: ReturnStatus.REQUESTED,
+          },
+        ],
+      });
+
+      await expect(
+        service.requestReturn(
+          'NIDA-20261014-RETURN',
+          {
+            reason: 'Another attempt',
+            items: [{ orderItemId: 'item-1', quantity: 1 }],
+          },
+          'user-123',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
 });
+

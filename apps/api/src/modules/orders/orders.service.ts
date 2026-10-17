@@ -16,16 +16,58 @@ import type {
   PaymentMethod,
   ShipmentStatus,
   CarrierCode,
+  CancellationRequestStatus,
+  RefundStatus,
+  ApiOrderCancellationRequest,
+  ApiReturnRequest,
+  ApiRefundSummary,
+  CreateCancellationRequestDto,
+  CreateReturnRequestDto,
 } from '@repo/types';
 import {
   OrderStatus,
   StockChangeType,
   PaymentStatus,
   DiscountType,
+  ReturnStatus,
 } from '@repo/database';
 
 const FREE_SHIPPING_THRESHOLD = 1000;
 const STANDARD_SHIPPING_FEE = 50;
+
+const CUSTOMER_ORDER_INCLUDE = {
+  items: {
+    include: {
+      variant: {
+        include: {
+          product: {
+            include: {
+              images: { where: { isPrimary: true }, take: 1 },
+            },
+          },
+        },
+      },
+    },
+  },
+  payment: true,
+  shipments: {
+    include: {
+      logs: { orderBy: { logTimestamp: 'desc' as const } },
+    },
+  },
+  cancellationRequests: {
+    orderBy: { createdAt: 'desc' as const },
+  },
+  returnRequests: {
+    include: {
+      items: true,
+    },
+    orderBy: { createdAt: 'desc' as const },
+  },
+  refunds: {
+    orderBy: { createdAt: 'desc' as const },
+  },
+};
 
 @Injectable()
 export class CustomerOrdersService {
@@ -333,27 +375,7 @@ export class CustomerOrdersService {
     const orders = await this.prisma.order.findMany({
       where: { userId },
       orderBy: { placedAt: 'desc' },
-      include: {
-        items: {
-          include: {
-            variant: {
-              include: {
-                product: {
-                  include: {
-                    images: { where: { isPrimary: true }, take: 1 },
-                  },
-                },
-              },
-            },
-          },
-        },
-        payment: true,
-        shipments: {
-          include: {
-            logs: { orderBy: { logTimestamp: 'desc' } },
-          },
-        },
-      },
+      include: CUSTOMER_ORDER_INCLUDE,
     });
 
     return orders.map((order) => this.mapOrder(order));
@@ -365,27 +387,7 @@ export class CustomerOrdersService {
   ): Promise<ApiOrder> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
-      include: {
-        items: {
-          include: {
-            variant: {
-              include: {
-                product: {
-                  include: {
-                    images: { where: { isPrimary: true }, take: 1 },
-                  },
-                },
-              },
-            },
-          },
-        },
-        payment: true,
-        shipments: {
-          include: {
-            logs: { orderBy: { logTimestamp: 'desc' } },
-          },
-        },
-      },
+      include: CUSTOMER_ORDER_INCLUDE,
     });
 
     if (!order) {
@@ -397,6 +399,167 @@ export class CustomerOrdersService {
     }
 
     return this.mapOrder(order);
+  }
+
+  async requestCancellation(
+    orderNumber: string,
+    dto: CreateCancellationRequestDto,
+    userId?: string,
+  ): Promise<ApiOrder> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        cancellationRequests: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (userId && order.userId && order.userId !== userId) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    const eligibleStatuses: OrderStatus[] = [
+      OrderStatus.PAID,
+      OrderStatus.PREORDER_AWAITING_STOCK,
+      OrderStatus.PROCESSING,
+    ];
+
+    if (!eligibleStatuses.includes(order.status)) {
+      if (order.status === OrderStatus.PENDING) {
+        throw new BadRequestException(
+          'คำสั่งซื้อนี้ยังไม่ได้ชำระเงิน หากไม่ต้องการสินค้าสามารถปล่อยให้หมดเวลาชำระเงินได้',
+        );
+      }
+      if (
+        order.status === OrderStatus.SHIPPED ||
+        order.status === OrderStatus.DELIVERED
+      ) {
+        throw new BadRequestException(
+          'คำสั่งซื้ออยู่ในขั้นตอนจัดส่งหรือสำเร็จแล้ว ไม่สามารถขอยกเลิกได้ หากต้องการคืนสินค้ากรุณาใช้เมนูขอคืนสินค้า',
+        );
+      }
+      throw new BadRequestException(
+        'คำสั่งซื้อนี้ไม่สามารถขอยกเลิกได้ในสถานะปัจจุบัน',
+      );
+    }
+
+    const hasPending = order.cancellationRequests.some(
+      (req) => req.status === 'PENDING',
+    );
+    if (hasPending) {
+      throw new BadRequestException(
+        'มีคำขอยกเลิกสำหรับคำสั่งซื้อนี้ที่กำลังรอเจ้าหน้าที่ตรวจสอบอยู่แล้ว',
+      );
+    }
+
+    const effectiveUserId = userId ?? order.userId;
+    if (!effectiveUserId) {
+      throw new BadRequestException(
+        'กรุณาเข้าสู่ระบบเพื่อดำเนินการขอยกเลิกคำสั่งซื้อ',
+      );
+    }
+
+    const count = order.cancellationRequests.length;
+    const requestNumber = `CAN-${order.orderNumber}-${count + 1}`;
+
+    await this.prisma.orderCancellationRequest.create({
+      data: {
+        requestNumber,
+        orderId: order.id,
+        userId: effectiveUserId,
+        reason: dto.reason,
+        customerNote: dto.customerNote ?? null,
+        status: 'PENDING',
+      },
+    });
+
+    return this.getOrderByNumber(orderNumber, userId);
+  }
+
+  async requestReturn(
+    orderNumber: string,
+    dto: CreateReturnRequestDto,
+    userId?: string,
+  ): Promise<ApiOrder> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        items: true,
+        returnRequests: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (userId && order.userId && order.userId !== userId) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (order.status !== OrderStatus.DELIVERED) {
+      throw new BadRequestException(
+        'สามารถขอคืนสินค้าได้เฉพาะคำสั่งซื้อที่จัดส่งสำเร็จแล้วเท่านั้น',
+      );
+    }
+
+    const hasActiveReturn = order.returnRequests.some(
+      (req) =>
+        req.status === ReturnStatus.REQUESTED ||
+        req.status === ReturnStatus.APPROVED,
+    );
+    if (hasActiveReturn) {
+      throw new BadRequestException(
+        'มีคำขอคืนสินค้าสำหรับคำสั่งซื้อนี้ที่อยู่ระหว่างดำเนินการแล้ว',
+      );
+    }
+
+    const effectiveUserId = userId ?? order.userId;
+    if (!effectiveUserId) {
+      throw new BadRequestException(
+        'กรุณาเข้าสู่ระบบเพื่อดำเนินการขอคืนสินค้า',
+      );
+    }
+
+    const orderItemIds = new Set(order.items.map((i) => i.id));
+    for (const item of dto.items) {
+      if (!orderItemIds.has(item.orderItemId)) {
+        throw new BadRequestException(
+          `ไม่พบรายการสินค้า ${item.orderItemId} ในคำสั่งซื้อนี้`,
+        );
+      }
+      const existingItem = order.items.find((i) => i.id === item.orderItemId);
+      if (existingItem && item.quantity > existingItem.quantity) {
+        throw new BadRequestException(
+          `จำนวนชิ้นที่ขอคืน (${item.quantity}) เกินจำนวนที่สั่งซื้อ (${existingItem.quantity})`,
+        );
+      }
+    }
+
+    const count = order.returnRequests.length;
+    const requestNumber = `RET-${order.orderNumber}-${count + 1}`;
+
+    await this.prisma.returnRequest.create({
+      data: {
+        requestNumber,
+        orderId: order.id,
+        userId: effectiveUserId,
+        reason: dto.reason,
+        customerNote: dto.customerNote ?? null,
+        status: ReturnStatus.REQUESTED,
+        items: {
+          create: dto.items.map((i) => ({
+            orderItemId: i.orderItemId,
+            quantity: i.quantity,
+          })),
+        },
+      },
+    });
+
+    return this.getOrderByNumber(orderNumber, userId);
   }
 
   async payOrder(orderNumber: string, userId?: string): Promise<ApiOrder> {
@@ -579,6 +742,49 @@ export class CustomerOrdersService {
         logTimestamp: Date;
       }>;
     }>;
+    cancellationRequests?: Array<{
+      id: string;
+      requestNumber: string;
+      orderId: string;
+      userId: string;
+      reason: string;
+      customerNote: string | null;
+      adminNote: string | null;
+      status: string;
+      reviewedAt: Date | null;
+      reviewedBy: string | null;
+      createdAt: Date;
+    }>;
+    returnRequests?: Array<{
+      id: string;
+      requestNumber: string;
+      orderId: string;
+      userId: string;
+      reason: string;
+      customerNote: string | null;
+      adminNote: string | null;
+      status: string;
+      items?: Array<{
+        id: string;
+        orderItemId: string;
+        quantity: number;
+      }>;
+      reviewedAt: Date | null;
+      reviewedBy: string | null;
+      createdAt: Date;
+    }>;
+    refunds?: Array<{
+      id: string;
+      refundNumber: string;
+      orderId: string;
+      paymentId: string;
+      amount: { toNumber(): number } | number;
+      reason: string | null;
+      gatewayRefundId: string | null;
+      status: string;
+      createdAdminId: string | null;
+      createdAt: Date;
+    }>;
   }): ApiOrder {
     const rawAddr =
       (order.shippingAddressSnapshot as Record<string, string>) ?? {};
@@ -632,6 +838,56 @@ export class CustomerOrdersService {
       })),
     }));
 
+    const cancellationRequests: ApiOrderCancellationRequest[] = (
+      order.cancellationRequests ?? []
+    ).map((c) => ({
+      id: c.id,
+      requestNumber: c.requestNumber,
+      orderId: c.orderId,
+      userId: c.userId,
+      reason: c.reason,
+      customerNote: c.customerNote ?? undefined,
+      adminNote: c.adminNote ?? undefined,
+      status: c.status as CancellationRequestStatus,
+      reviewedAt: c.reviewedAt?.toISOString() ?? undefined,
+      reviewedBy: c.reviewedBy ?? undefined,
+      createdAt: c.createdAt.toISOString(),
+    }));
+
+    const returnRequests: ApiReturnRequest[] = (
+      order.returnRequests ?? []
+    ).map((r) => ({
+      id: r.id,
+      requestNumber: r.requestNumber,
+      orderId: r.orderId,
+      userId: r.userId,
+      reason: r.reason,
+      customerNote: r.customerNote ?? undefined,
+      adminNote: r.adminNote ?? undefined,
+      status: r.status as ReturnStatus,
+      items: (r.items ?? []).map((i) => ({
+        id: i.id,
+        orderItemId: i.orderItemId,
+        quantity: i.quantity,
+      })),
+      reviewedAt: r.reviewedAt?.toISOString() ?? undefined,
+      reviewedBy: r.reviewedBy ?? undefined,
+      createdAt: r.createdAt.toISOString(),
+    }));
+
+    const refunds: ApiRefundSummary[] = (order.refunds ?? []).map((rf) => ({
+      id: rf.id,
+      refundNumber: rf.refundNumber,
+      orderId: rf.orderId,
+      paymentId: rf.paymentId,
+      amount: Number(rf.amount),
+      reason: rf.reason ?? undefined,
+      gatewayRefundId: rf.gatewayRefundId ?? undefined,
+      status: rf.status as RefundStatus,
+      createdAdminId: rf.createdAdminId ?? undefined,
+      createdAt: rf.createdAt.toISOString(),
+    }));
+
     return {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -659,6 +915,9 @@ export class CustomerOrdersService {
           }
         : undefined,
       shipments,
+      cancellationRequests,
+      returnRequests,
+      refunds,
       placedAt: order.placedAt.toISOString(),
     };
   }

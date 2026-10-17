@@ -7,9 +7,9 @@ import type { OrderStatus } from '@repo/types';
  */
 export const ALLOWED_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   PENDING: ['PAID', 'CANCELLED'],
-  PAID: ['PROCESSING', 'CANCELLED'],
-  PREORDER_AWAITING_STOCK: ['PROCESSING', 'CANCELLED'],
-  PROCESSING: ['SHIPPED', 'CANCELLED'],
+  PAID: ['PROCESSING', 'CANCELLED', 'REFUNDED'],
+  PREORDER_AWAITING_STOCK: ['PROCESSING', 'CANCELLED', 'REFUNDED'],
+  PROCESSING: ['SHIPPED', 'CANCELLED', 'REFUNDED'],
   SHIPPED: ['DELIVERED'],
   DELIVERED: ['REFUNDED'],
   CANCELLED: [],
@@ -95,4 +95,42 @@ export const updateShipmentStatusSchema = z.object({
 
 export type UpdateShipmentStatusInput = z.infer<
   typeof updateShipmentStatusSchema
+>;
+
+/**
+ * Admin Process Refund Schema
+ */
+export const processRefundSchema = z.object({
+  amount: z.number().positive('Refund amount must be positive').optional(),
+  reason: z.string().trim().min(3, 'Refund reason must be at least 3 characters'),
+  restockInventory: z.boolean().default(true),
+});
+
+export type ProcessRefundInput = z.infer<typeof processRefundSchema>;
+
+/**
+ * Admin Review Cancellation Request Schema
+ */
+export const reviewCancellationRequestSchema = z.object({
+  action: z.enum(['APPROVE', 'REJECT']),
+  adminNote: z.string().trim().optional(),
+  restockInventory: z.boolean().default(true),
+});
+
+export type ReviewCancellationRequestInput = z.infer<
+  typeof reviewCancellationRequestSchema
+>;
+
+/**
+ * Admin Review Return Request Schema
+ */
+export const reviewReturnRequestSchema = z.object({
+  action: z.enum(['APPROVE', 'REJECT', 'COMPLETE']),
+  adminNote: z.string().trim().optional(),
+  restockInventory: z.boolean().default(true),
+  refundAmount: z.number().positive().optional(),
+});
+
+export type ReviewReturnRequestInput = z.infer<
+  typeof reviewReturnRequestSchema
 >;

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Send, Check, Printer } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Send, Check, Printer, RotateCcw } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import type { OrderStatus } from '@repo/types';
 
@@ -13,6 +13,10 @@ export interface OrderDetailTopBarProps {
   liveTrackingUrl: string;
   onOpenFulfill: () => void;
   onOpenPrint: () => void;
+  onOpenRefund?: () => void;
+  canRefund?: boolean;
+  isFulfillDisabled?: boolean;
+  fulfillDisabledReason?: string;
   trackingNumber?: string;
   onScrollTo: (elementId: string) => void;
 }
@@ -27,6 +31,10 @@ export function OrderDetailTopBar({
   liveTrackingUrl,
   onOpenFulfill,
   onOpenPrint,
+  onOpenRefund,
+  canRefund = false,
+  isFulfillDisabled = false,
+  fulfillDisabledReason,
   trackingNumber,
   onScrollTo,
 }: OrderDetailTopBarProps) {
@@ -126,13 +134,31 @@ export function OrderDetailTopBar({
           <span>{t('orders.print.printButton')}</span>
         </button>
 
+        {canRefund && onOpenRefund && (
+          <button
+            type="button"
+            onClick={onOpenRefund}
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-300 rounded-xs transition-colors cursor-pointer shadow-2xs"
+            title={t('orders.refund.buttonTitle')}
+          >
+            <RotateCcw size={13} />
+            <span>{t('orders.refund.buttonLabel')}</span>
+          </button>
+        )}
+
         {!trackingNumber ? (
           <button
             type="button"
             onClick={onOpenFulfill}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-brand-brown hover:text-brand-dark-brown bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-xs transition-colors cursor-pointer"
+            disabled={isFulfillDisabled}
+            title={isFulfillDisabled ? fulfillDisabledReason : undefined}
+            className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xs transition-colors shadow-2xs ${
+              isFulfillDisabled
+                ? 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'
+                : 'text-brand-brown hover:text-brand-dark-brown bg-amber-50 hover:bg-amber-100 border border-amber-300 cursor-pointer'
+            }`}
           >
-            <Send size={13} className="text-brand-amber" />
+            <Send size={13} className={isFulfillDisabled ? 'text-stone-400' : 'text-brand-amber'} />
             <span>{t('orders.fulfill.addTracking')}</span>
           </button>
         ) : null}

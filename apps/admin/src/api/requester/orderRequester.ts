@@ -5,6 +5,11 @@ import type {
   CarrierCode,
   ApiShipment,
   ShipmentStatus,
+  ProcessRefundDto,
+  ReviewCancellationRequestDto,
+  ReviewReturnRequestDto,
+  CancellationRequestStatus,
+  ReturnStatus,
 } from '@repo/types';
 
 export interface FulfillOrderPayload {
@@ -84,7 +89,50 @@ export const orderRequester = {
     );
     return data;
   },
+
+  async refundOrder(id: string, payload: ProcessRefundDto): Promise<ApiOrder> {
+    const data = await apiClient.post<ApiOrder>(
+      `/orders/${id}/refund`,
+      payload,
+    );
+    return data;
+  },
+
+  async getCancellationRequests(status?: CancellationRequestStatus) {
+    const query = status ? `?status=${status}` : '';
+    const data = await apiClient.get(`/cancellation-requests${query}`);
+    return data;
+  },
+
+  async reviewCancellationRequest(
+    id: string,
+    payload: ReviewCancellationRequestDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const data = await apiClient.post<{ success: boolean; message: string }>(
+      `/cancellation-requests/${id}/review`,
+      payload,
+    );
+    return data;
+  },
+
+  async getReturnRequests(status?: ReturnStatus) {
+    const query = status ? `?status=${status}` : '';
+    const data = await apiClient.get(`/return-requests${query}`);
+    return data;
+  },
+
+  async reviewReturnRequest(
+    id: string,
+    payload: ReviewReturnRequestDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const data = await apiClient.post<{ success: boolean; message: string }>(
+      `/return-requests/${id}/review`,
+      payload,
+    );
+    return data;
+  },
 };
 
 export const ordersApi = orderRequester;
+
 

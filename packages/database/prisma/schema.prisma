@@ -70,6 +70,12 @@ enum ReturnStatus {
   COMPLETED          // จัดการเสร็จสิ้น (คืนเงิน/ปิดเคส)
 }
 
+enum CancellationRequestStatus {
+  PENDING            // ลูกค้ายื่นคำขอยกเลิก รอแอดมินพิจารณา
+  APPROVED           // แอดมินอนุมัติคำขอยกเลิกและคืนเงิน
+  REJECTED           // แอดมินปฏิเสธคำขอยกเลิก
+}
+
 enum ShipmentStatus {
   LABEL_CREATED
   PICKED_UP
@@ -147,6 +153,7 @@ model User {
   cart              Cart?
   pointTransactions PointTransaction[]
   returnRequests    ReturnRequest[]
+  cancellationRequests OrderCancellationRequest[]
 
   @@map("users")
 }
@@ -394,6 +401,7 @@ model Order {
   redemptions             CouponRedemption[]
   pointTransactions       PointTransaction[]
   returnRequests          ReturnRequest[]
+  cancellationRequests    OrderCancellationRequest[]
 
   @@index([userId, status])
   @@index([hasPreorderItems, status])
@@ -522,9 +530,12 @@ model ReturnRequest {
   customerNote  String?      @map("customer_note") @db.Text
   adminNote     String?      @map("admin_note") @db.Text
   status        ReturnStatus @default(REQUESTED)  // REQUESTED, APPROVED, REJECTED, COMPLETED
+  reviewedAt    DateTime?    @map("reviewed_at")
+  reviewedBy    String?      @map("reviewed_by") @db.Uuid
 
   order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewer      AdminUser?   @relation(fields: [reviewedBy], references: [id], onDelete: SetNull)
   items         ReturnItem[]
 
   createdAt     DateTime     @default(now()) @map("created_at")
@@ -533,6 +544,34 @@ model ReturnRequest {
   @@index([userId, status])
   @@index([orderId])
   @@map("return_requests")
+}
+
+// ====================================================
+// 5.1 ORDER CANCELLATION REQUEST (คำขอยกเลิกคำสั่งซื้อ)
+// ====================================================
+
+model OrderCancellationRequest {
+  id            String                    @id @default(uuid()) @db.Uuid
+  requestNumber String                    @unique @map("request_number") @db.VarChar(50)
+  orderId       String                    @map("order_id") @db.Uuid
+  userId        String                    @map("user_id") @db.Uuid
+  reason        String                    @db.VarChar(255)     // เหตุผลที่ขอยกเลิก
+  customerNote  String?                   @map("customer_note") @db.Text
+  adminNote     String?                   @map("admin_note") @db.Text
+  status        CancellationRequestStatus @default(PENDING)
+  reviewedAt    DateTime?                 @map("reviewed_at")
+  reviewedBy    String?                   @map("reviewed_by") @db.Uuid
+
+  order         Order                     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user          User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewer      AdminUser?                @relation(fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime                  @default(now()) @map("created_at")
+  updatedAt     DateTime                  @updatedAt @map("updated_at")
+
+  @@index([userId, status])
+  @@index([orderId])
+  @@map("order_cancellation_requests")
 }
 
 model ReturnItem {
@@ -646,6 +685,8 @@ model AdminUser {
   createdProducts   Product[]
   cmsBanners       CmsBanner[]
   processedRefunds Refund[]
+  reviewedReturns  ReturnRequest[]
+  reviewedCancellations OrderCancellationRequest[]
 
   @@map("admin_users")
 }

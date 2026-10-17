@@ -3,6 +3,8 @@ import type {
   ApiOrder,
   TrackingResult,
   PaymentMethod,
+  CreateCancellationRequestDto,
+  CreateReturnRequestDto,
 } from '@repo/types';
 
 export interface CreateCustomerOrderPayload {
@@ -89,6 +91,36 @@ export const orderRequester = {
     return apiClient.post<ApiOrder>(
       `/orders/${encodeURIComponent(orderNumber)}/pay`,
       {},
+      token,
+    );
+  },
+
+  /**
+   * Submit pre-fulfillment cancellation request.
+   */
+  requestCancellation: async (
+    orderNumber: string,
+    payload: CreateCancellationRequestDto,
+    token?: string | null,
+  ): Promise<ApiOrder> => {
+    return apiClient.post<ApiOrder>(
+      `/orders/${encodeURIComponent(orderNumber)}/cancellation-request`,
+      payload,
+      token,
+    );
+  },
+
+  /**
+   * Submit post-delivery return request.
+   */
+  requestReturn: async (
+    orderNumber: string,
+    payload: CreateReturnRequestDto,
+    token?: string | null,
+  ): Promise<ApiOrder> => {
+    return apiClient.post<ApiOrder>(
+      `/orders/${encodeURIComponent(orderNumber)}/return-request`,
+      payload,
       token,
     );
   },

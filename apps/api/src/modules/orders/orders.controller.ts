@@ -16,6 +16,10 @@ import {
 import { CustomerOrdersService } from './orders.service.js';
 import { CreateCustomerOrderDto } from './dto/create-customer-order.dto.js';
 import {
+  CustomerCreateCancellationDto,
+  CustomerCreateReturnDto,
+} from './dto/customer-order-requests.dto.js';
+import {
   CustomerJwtGuard,
   OptionalCustomerJwtGuard,
 } from '../auth/guards/customer-jwt.guard.js';
@@ -115,4 +119,33 @@ export class CustomerOrdersController {
     const userId = req.user?.id;
     return this.ordersService.payOrder(orderNumber, userId);
   }
+
+  @Post(':orderNumber/cancellation-request')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({ summary: 'Submit pre-fulfillment cancellation request' })
+  @ApiResponse({ status: 201, description: 'Cancellation request submitted' })
+  @ApiResponse({ status: 400, description: 'Order not eligible or pending request exists' })
+  async requestCancellation(
+    @Param('orderNumber') orderNumber: string,
+    @Body() dto: CustomerCreateCancellationDto,
+    @Request() req: AuthenticatedCustomerRequest,
+  ): Promise<ApiOrder> {
+    const userId = req.user?.id;
+    return this.ordersService.requestCancellation(orderNumber, dto, userId);
+  }
+
+  @Post(':orderNumber/return-request')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({ summary: 'Submit post-delivery return request' })
+  @ApiResponse({ status: 201, description: 'Return request submitted' })
+  @ApiResponse({ status: 400, description: 'Order not eligible or active return exists' })
+  async requestReturn(
+    @Param('orderNumber') orderNumber: string,
+    @Body() dto: CustomerCreateReturnDto,
+    @Request() req: AuthenticatedCustomerRequest,
+  ): Promise<ApiOrder> {
+    const userId = req.user?.id;
+    return this.ordersService.requestReturn(orderNumber, dto, userId);
+  }
 }
+

@@ -16,6 +16,14 @@ export type OrderDetailPayload = Prisma.OrderGetPayload<{
       };
     };
     payment: true;
+    refunds: { orderBy: { createdAt: 'desc' } };
+    cancellationRequests: { orderBy: { createdAt: 'desc' } };
+    returnRequests: {
+      include: {
+        items: true;
+      };
+      orderBy: { createdAt: 'desc' };
+    };
     shipments: {
       include: {
         logs: { orderBy: { logTimestamp: 'desc' } };

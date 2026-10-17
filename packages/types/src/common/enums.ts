@@ -119,6 +119,15 @@ export const ReturnStatus = {
 } as const;
 export type ReturnStatus = (typeof ReturnStatus)[keyof typeof ReturnStatus];
 
+// --- Cancellation Request ---
+export const CancellationRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+export type CancellationRequestStatus =
+  (typeof CancellationRequestStatus)[keyof typeof CancellationRequestStatus];
+
 // --- Refund ---
 export const RefundStatus = {
   PENDING: 'PENDING',

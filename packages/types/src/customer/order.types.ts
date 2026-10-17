@@ -3,10 +3,13 @@
 // ====================================================
 
 import type {
+  CancellationRequestStatus,
   CarrierCode,
   OrderStatus,
   PaymentMethod,
   PaymentStatus,
+  RefundStatus,
+  ReturnStatus,
   ShipmentStatus,
 } from '../common/enums.js';
 
@@ -29,6 +32,9 @@ export interface ApiOrder {
   shippingAddress: ApiOrderAddress;
   payment?: ApiPaymentSummary;
   shipments: ApiShipment[];
+  cancellationRequests?: ApiOrderCancellationRequest[];
+  returnRequests?: ApiReturnRequest[];
+  refunds?: ApiRefundSummary[];
   placedAt: string;
 }
 
@@ -94,4 +100,72 @@ export interface TrackingResult {
 export interface TrackOrderRequest {
   orderNumber: string;
   phone: string;
+}
+
+// --- Customer Order Cancellation Request ---
+export interface ApiOrderCancellationRequest {
+  id: string;
+  requestNumber: string;
+  orderId: string;
+  userId: string;
+  reason: string;
+  customerNote?: string;
+  adminNote?: string;
+  status: CancellationRequestStatus;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  createdAt: string;
+}
+
+export interface CreateCancellationRequestDto {
+  reason: string;
+  customerNote?: string;
+}
+
+// --- Customer Return Request (RMA) ---
+export interface ApiReturnItem {
+  id: string;
+  orderItemId: string;
+  quantity: number;
+  productName?: string;
+  variantInfo?: string;
+  unitPrice?: number;
+}
+
+export interface ApiReturnRequest {
+  id: string;
+  requestNumber: string;
+  orderId: string;
+  userId: string;
+  reason: string;
+  customerNote?: string;
+  adminNote?: string;
+  status: ReturnStatus;
+  items: ApiReturnItem[];
+  reviewedAt?: string;
+  reviewedBy?: string;
+  createdAt: string;
+}
+
+export interface CreateReturnRequestDto {
+  reason: string;
+  customerNote?: string;
+  items: {
+    orderItemId: string;
+    quantity: number;
+  }[];
+}
+
+// --- Refund Summary ---
+export interface ApiRefundSummary {
+  id: string;
+  refundNumber: string;
+  orderId: string;
+  paymentId: string;
+  amount: number;
+  reason?: string;
+  gatewayRefundId?: string;
+  status: RefundStatus;
+  createdAdminId?: string;
+  createdAt: string;
 }

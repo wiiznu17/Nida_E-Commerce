@@ -15,6 +15,7 @@ describe('OrdersService', () => {
   let prismaMock: any;
   let couponsServiceMock: any;
   let carrierMockService: CarrierMockService;
+  let paymentGatewayServiceMock: any;
 
   beforeEach(() => {
     prismaMock = {
@@ -54,6 +55,27 @@ describe('OrdersService', () => {
         findFirst: vi.fn(),
         create: vi.fn(),
       },
+      refund: {
+        create: vi.fn(),
+        count: vi.fn().mockResolvedValue(0),
+      },
+      orderCancellationRequest: {
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        update: vi.fn(),
+      },
+      returnRequest: {
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        update: vi.fn(),
+      },
+      user: {
+        findUnique: vi.fn(),
+        update: vi.fn(),
+      },
+      pointTransaction: {
+        create: vi.fn(),
+      },
       $transaction: vi.fn(async (callback) => callback(prismaMock)),
     };
 
@@ -70,11 +92,19 @@ describe('OrdersService', () => {
       prismaMock,
     );
 
+    paymentGatewayServiceMock = {
+      createRefund: vi.fn().mockResolvedValue({
+        gatewayRefundId: 'rfnd_test_mock_123',
+        status: 'SUCCEEDED',
+      }),
+    };
+
     service = new OrdersService(
       prismaMock,
       couponsServiceMock,
       carrierMockService,
       logisticsService,
+      paymentGatewayServiceMock,
     );
   });
 
@@ -630,6 +660,377 @@ describe('OrdersService', () => {
         }),
       );
       expect(result.status).toBe(OrderStatus.PAID);
+    });
+  });
+
+  describe('processRefund', () => {
+    const mockOrder = {
+      id: 'ord-123',
+      orderNumber: 'NIDA-20261017-001',
+      status: OrderStatus.PAID,
+      currency: 'THB',
+      userId: 'user-1',
+      subtotal: 1000,
+      discountTotal: 0,
+      shippingFee: 50,
+      taxAmount: 70,
+      totalAmount: 1050,
+      hasPreorderItems: false,
+      placedAt: new Date(),
+      items: [
+        {
+          id: 'item-1',
+          productNameSnapshot: 'Silk Shirt',
+          variantInfoSnapshot: 'Black / M',
+          quantity: 1,
+          unitPrice: 1000,
+          subtotal: 1000,
+          discountShare: 0,
+          netPrice: 1000,
+          isPreorder: false,
+          variant: {
+            id: 'var-1',
+            inventoryItem: {
+              id: 'inv-1',
+              quantityAvailable: 10,
+              preorderBooked: 0,
+            },
+          },
+        },
+      ],
+      shippingAddressSnapshot: {
+        recipientName: 'Customer Test',
+        phone: '0812345678',
+      },
+      payment: {
+        id: 'pay-123',
+        amount: 1050,
+        status: PaymentStatus.CAPTURED,
+        paymentMethod: PaymentMethod.CREDIT_CARD,
+        transactionReference: 'chrg_test_omise_123',
+      },
+      refunds: [] as any[],
+      pointTransactions: [
+        {
+          id: 'pt-1',
+          changeType: 'EARNED_ORDER',
+          pointsChange: 10,
+        },
+      ],
+      shipments: [],
+      cancellationRequests: [],
+      returnRequests: [],
+    };
+
+    it('throws NotFoundException if order is not found', async () => {
+      prismaMock.order.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.processRefund('non-existent', { reason: 'Wrong size' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException if order has no payment', async () => {
+      prismaMock.order.findFirst.mockResolvedValue({
+        ...mockOrder,
+        payment: null,
+      });
+
+      await expect(
+        service.processRefund(mockOrder.id, { reason: 'Customer change of mind' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException if order is already fully refunded', async () => {
+      prismaMock.order.findFirst.mockResolvedValue({
+        ...mockOrder,
+        status: OrderStatus.REFUNDED,
+        payment: { ...mockOrder.payment, status: PaymentStatus.REFUNDED },
+      });
+
+      await expect(
+        service.processRefund(mockOrder.id, { reason: 'Double refund' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('successfully processes full refund, calls payment gateway, restocks inventory, and reverses points', async () => {
+      prismaMock.order.findFirst.mockResolvedValue(mockOrder);
+      prismaMock.order.findUnique.mockResolvedValue(mockOrder);
+      prismaMock.refund.count.mockResolvedValue(0);
+      prismaMock.refund.create.mockResolvedValue({ id: 'rf-1' });
+      prismaMock.inventoryItem.update.mockResolvedValue({
+        id: 'inv-1',
+        quantityAvailable: 11,
+      });
+      prismaMock.user.findUnique.mockResolvedValue({ id: 'user-1', points: 50 });
+
+      const result = await service.processRefund(
+        mockOrder.id,
+        { reason: 'Customer cancellation', restockInventory: true },
+        'admin-001',
+      );
+
+      expect(paymentGatewayServiceMock.createRefund).toHaveBeenCalledWith({
+        transactionReference: 'chrg_test_omise_123',
+        amount: 1050,
+        reason: 'Customer cancellation',
+      });
+      expect(prismaMock.refund.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            orderId: mockOrder.id,
+            amount: 1050,
+            status: 'SUCCEEDED',
+            gatewayRefundId: 'rfnd_test_mock_123',
+            createdAdminId: 'admin-001',
+          }),
+        }),
+      );
+      expect(prismaMock.payment.update).toHaveBeenCalledWith({
+        where: { id: 'pay-123' },
+        data: { status: PaymentStatus.REFUNDED },
+      });
+      expect(prismaMock.order.update).toHaveBeenCalledWith({
+        where: { id: mockOrder.id },
+        data: { status: OrderStatus.REFUNDED },
+      });
+      expect(prismaMock.stockMovement.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            variantId: 'var-1',
+            quantityChange: 1,
+            adminId: 'admin-001',
+          }),
+        }),
+      );
+      expect(prismaMock.pointTransaction.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: 'user-1',
+            changeType: 'REFUND_CANCEL',
+            pointsChange: -10,
+          }),
+        }),
+      );
+      expect(result.id).toBe(mockOrder.id);
+    });
+
+    it('handles partial refund without marking order as REFUNDED', async () => {
+      prismaMock.order.findFirst.mockResolvedValue(mockOrder);
+      prismaMock.order.findUnique.mockResolvedValue(mockOrder);
+      prismaMock.refund.count.mockResolvedValue(0);
+
+      await service.processRefund(
+        mockOrder.id,
+        { amount: 500, reason: 'Partial Goodwill', restockInventory: false },
+        'admin-001',
+      );
+
+      expect(paymentGatewayServiceMock.createRefund).toHaveBeenCalledWith({
+        transactionReference: 'chrg_test_omise_123',
+        amount: 500,
+        reason: 'Partial Goodwill',
+      });
+      expect(prismaMock.payment.update).not.toHaveBeenCalled();
+      expect(prismaMock.order.update).not.toHaveBeenCalled();
+      expect(prismaMock.stockMovement.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('reviewCancellationRequest', () => {
+    const mockRequest = {
+      id: 'req-1',
+      requestNumber: 'CAN-001',
+      orderId: 'ord-123',
+      userId: 'user-1',
+      reason: 'Change address',
+      status: 'PENDING',
+      order: {
+        id: 'ord-123',
+        orderNumber: 'NIDA-20261017-001',
+        status: OrderStatus.PAID,
+        payment: { id: 'pay-123', amount: 1050, transactionReference: 'chrg_123' },
+      },
+    };
+
+    it('throws NotFoundException if cancellation request is not found', async () => {
+      prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.reviewCancellationRequest('non-existent', { action: 'REJECT' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException if cancellation request is already reviewed', async () => {
+      prismaMock.orderCancellationRequest.findUnique.mockResolvedValue({
+        ...mockRequest,
+        status: 'APPROVED',
+      });
+
+      await expect(
+        service.reviewCancellationRequest(mockRequest.id, { action: 'REJECT' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('successfully rejects cancellation request', async () => {
+      prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(mockRequest);
+
+      const res = await service.reviewCancellationRequest(
+        mockRequest.id,
+        { action: 'REJECT', adminNote: 'Order already prepared' },
+        'admin-001',
+      );
+
+      expect(prismaMock.orderCancellationRequest.update).toHaveBeenCalledWith({
+        where: { id: mockRequest.id },
+        data: expect.objectContaining({
+          status: 'REJECTED',
+          adminNote: 'Order already prepared',
+          reviewedBy: 'admin-001',
+        }),
+      });
+      expect(res.success).toBe(true);
+    });
+
+    it('successfully approves cancellation request and triggers refund', async () => {
+      prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(mockRequest);
+      const processRefundSpy = vi.spyOn(service, 'processRefund').mockResolvedValue({} as any);
+
+      const res = await service.reviewCancellationRequest(
+        mockRequest.id,
+        { action: 'APPROVE', adminNote: 'Approved by admin' },
+        'admin-001',
+      );
+
+      expect(prismaMock.orderCancellationRequest.update).toHaveBeenCalledWith({
+        where: { id: mockRequest.id },
+        data: expect.objectContaining({
+          status: 'APPROVED',
+          adminNote: 'Approved by admin',
+          reviewedBy: 'admin-001',
+        }),
+      });
+      expect(processRefundSpy).toHaveBeenCalledWith(
+        mockRequest.orderId,
+        expect.objectContaining({
+          reason: 'อนุมัติคำขอยกเลิก: Change address',
+          restockInventory: true,
+        }),
+        'admin-001',
+      );
+      expect(res.success).toBe(true);
+    });
+  });
+
+  describe('reviewReturnRequest', () => {
+    const mockReturn = {
+      id: 'ret-1',
+      requestNumber: 'RET-001',
+      orderId: 'ord-123',
+      userId: 'user-1',
+      reason: 'Defective item',
+      status: 'PENDING',
+      order: {
+        id: 'ord-123',
+        orderNumber: 'NIDA-20261017-001',
+        payment: { id: 'pay-123', amount: 1050 },
+      },
+    };
+
+    it('throws NotFoundException if return request is not found', async () => {
+      prismaMock.returnRequest.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.reviewReturnRequest('non-existent', { action: 'REJECT' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException if return request is already completed or rejected', async () => {
+      prismaMock.returnRequest.findUnique.mockResolvedValue({
+        ...mockReturn,
+        status: 'COMPLETED',
+      });
+
+      await expect(
+        service.reviewReturnRequest(mockReturn.id, { action: 'APPROVE' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('successfully rejects return request', async () => {
+      prismaMock.returnRequest.findUnique.mockResolvedValue(mockReturn);
+
+      const res = await service.reviewReturnRequest(
+        mockReturn.id,
+        { action: 'REJECT', adminNote: 'Item shows signs of wear' },
+        'admin-001',
+      );
+
+      expect(prismaMock.returnRequest.update).toHaveBeenCalledWith({
+        where: { id: mockReturn.id },
+        data: expect.objectContaining({
+          status: 'REJECTED',
+          adminNote: 'Item shows signs of wear',
+          reviewedBy: 'admin-001',
+        }),
+      });
+      expect(res.success).toBe(true);
+    });
+
+    it('successfully approves return request for item return', async () => {
+      prismaMock.returnRequest.findUnique.mockResolvedValue(mockReturn);
+
+      const res = await service.reviewReturnRequest(
+        mockReturn.id,
+        { action: 'APPROVE', adminNote: 'Please return within 7 days' },
+        'admin-001',
+      );
+
+      expect(prismaMock.returnRequest.update).toHaveBeenCalledWith({
+        where: { id: mockReturn.id },
+        data: expect.objectContaining({
+          status: 'APPROVED',
+          adminNote: 'Please return within 7 days',
+          reviewedBy: 'admin-001',
+        }),
+      });
+      expect(res.success).toBe(true);
+    });
+
+    it('completes return and executes refund on INSPECT_AND_REFUND', async () => {
+      prismaMock.returnRequest.findUnique.mockResolvedValue({
+        ...mockReturn,
+        status: 'APPROVED',
+      });
+      const processRefundSpy = vi.spyOn(service, 'processRefund').mockResolvedValue({} as any);
+
+      const res = await service.reviewReturnRequest(
+        mockReturn.id,
+        {
+          action: 'INSPECT_AND_REFUND',
+          adminNote: 'Item verified intact',
+          refundAmount: 1000,
+        },
+        'admin-001',
+      );
+
+      expect(prismaMock.returnRequest.update).toHaveBeenCalledWith({
+        where: { id: mockReturn.id },
+        data: expect.objectContaining({
+          status: 'COMPLETED',
+          adminNote: 'Item verified intact',
+          reviewedBy: 'admin-001',
+        }),
+      });
+      expect(processRefundSpy).toHaveBeenCalledWith(
+        mockReturn.orderId,
+        expect.objectContaining({
+          amount: 1000,
+          reason: 'ตรวจรับสินค้าคืน: Defective item',
+          restockInventory: true,
+        }),
+        'admin-001',
+      );
+      expect(res.success).toBe(true);
     });
   });
 });

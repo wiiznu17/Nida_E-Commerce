@@ -19,3 +19,25 @@ export interface CarrierBookingResult {
   estimatedDelivery: string;
   bookedAt: string;
 }
+
+// --- Admin Refund Processing ---
+export interface ProcessRefundDto {
+  amount?: number;
+  reason: string;
+  restockInventory?: boolean;
+}
+
+// --- Admin Cancellation Review ---
+export interface ReviewCancellationRequestDto {
+  action: 'APPROVE' | 'REJECT';
+  adminNote?: string;
+  restockInventory?: boolean;
+}
+
+// --- Admin Return Review ---
+export interface ReviewReturnRequestDto {
+  action: 'APPROVE' | 'REJECT' | 'COMPLETE';
+  adminNote?: string;
+  restockInventory?: boolean;
+  refundAmount?: number;
+}

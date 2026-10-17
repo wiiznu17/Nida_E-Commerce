@@ -4,3 +4,8 @@ export * from './OrdersFilterToolbar';
 export * from './OrdersListItem';
 export * from './OrdersPagination';
 export * from './useCustomerOrders';
+export * from './CustomerCancelOrderModal';
+export * from './CustomerReturnRequestModal';
+export * from './ReturnItemsSelector';
+export * from './CustomerOrderItemsCard';
+export * from './CustomerOrderSummarySidebar';

@@ -5,18 +5,29 @@ import {
   Patch,
   Body,
   Param,
+  Query,
   Headers,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { OrdersService } from './orders.service.js';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto.js';
 import { CarrierBookingDto } from './dto/carrier-booking.dto.js';
 import { TrackOrderQueryDto } from './dto/track-order.dto.js';
+import {
+  ProcessRefundRequestDto,
+  ReviewCancellationDto,
+  ReviewReturnDto,
+} from './dto/refund-and-requests.dto.js';
 import { OrderStatus } from '@repo/database';
-import { AdminPermission } from '@repo/types';
-import { RequirePermissions, Public } from '../auth/decorators/index.js';
+import {
+  AdminPermission,
+  CancellationRequestStatus,
+  ReturnStatus,
+  type ApiAdminUser,
+} from '@repo/types';
+import { RequirePermissions, Public, CurrentAdmin } from '../auth/decorators/index.js';
 
 import { LogisticsService } from './logistics/index.js';
 import { PaymentGatewayService } from './payment-gateway/index.js';
@@ -157,6 +168,81 @@ export class OrdersController {
   })
   async trackOrderByPost(@Body() dto: TrackOrderQueryDto) {
     return this.ordersService.trackShipment(dto.orderNumber);
+  }
+
+  @Post('orders/:id/refund')
+  @RequirePermissions(AdminPermission.ORDERS_FULFILL)
+  @ApiOperation({
+    summary: 'ดำเนินการคืนเงินคำสั่งซื้อ (Process Order Refund)',
+    description:
+      'ยิงคำขอคืนเงินไปยัง Payment Gateway (Omise), ปรับสถานะธุรกรรม, และดึงสต็อกกลับเข้าคลัง',
+  })
+  @ApiParam({ name: 'id', description: 'Order ID หรือ Order Number' })
+  @ApiResponse({ status: 200, description: 'ดำเนินการคืนเงินสำเร็จ' })
+  async processRefund(
+    @Param('id') id: string,
+    @Body() dto: ProcessRefundRequestDto,
+    @CurrentAdmin() admin?: ApiAdminUser,
+  ) {
+    return this.ordersService.processRefund(id, dto, admin?.id);
+  }
+
+  @Get('cancellation-requests')
+  @RequirePermissions(AdminPermission.ORDERS_READ)
+  @ApiOperation({
+    summary: 'ดูรายการคำขอยกเลิกคำสั่งซื้อทั้งหมด (Get Cancellation Requests)',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ['PENDING', 'APPROVED', 'REJECTED'],
+  })
+  async getCancellationRequests(
+    @Query('status') status?: CancellationRequestStatus,
+  ) {
+    return this.ordersService.getCancellationRequests(status);
+  }
+
+  @Post('cancellation-requests/:id/review')
+  @RequirePermissions(AdminPermission.ORDERS_FULFILL)
+  @ApiOperation({
+    summary: 'พิจารณาคำขอยกเลิกคำสั่งซื้อ (Review Cancellation Request)',
+  })
+  @ApiParam({ name: 'id', description: 'Cancellation Request ID' })
+  async reviewCancellationRequest(
+    @Param('id') id: string,
+    @Body() dto: ReviewCancellationDto,
+    @CurrentAdmin() admin?: ApiAdminUser,
+  ) {
+    return this.ordersService.reviewCancellationRequest(id, dto, admin?.id);
+  }
+
+  @Get('return-requests')
+  @RequirePermissions(AdminPermission.ORDERS_READ)
+  @ApiOperation({
+    summary: 'ดูรายการคำขอคืนสินค้าทั้งหมด (Get Return Requests)',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ['REQUESTED', 'APPROVED', 'REJECTED', 'COMPLETED'],
+  })
+  async getReturnRequests(@Query('status') status?: ReturnStatus) {
+    return this.ordersService.getReturnRequests(status);
+  }
+
+  @Post('return-requests/:id/review')
+  @RequirePermissions(AdminPermission.ORDERS_FULFILL)
+  @ApiOperation({
+    summary: 'พิจารณาหรือจัดการคำขอคืนสินค้า (Review Return Request)',
+  })
+  @ApiParam({ name: 'id', description: 'Return Request ID' })
+  async reviewReturnRequest(
+    @Param('id') id: string,
+    @Body() dto: ReviewReturnDto,
+    @CurrentAdmin() admin?: ApiAdminUser,
+  ) {
+    return this.ordersService.reviewReturnRequest(id, dto, admin?.id);
   }
 
 

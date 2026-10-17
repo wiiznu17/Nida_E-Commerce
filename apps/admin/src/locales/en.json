@@ -401,6 +401,7 @@
       "bookingInProgress": "Booking Tracking...",
       "autoBookSuccess": "Carrier Tracking {tracking} generated successfully",
       "dispatchNote": "Upon confirmation, order status updates to SHIPPED and customers can track in real-time.",
+      "cancellationPendingBlock": "Cannot fulfill while order cancellation is pending review",
       "cancel": "Cancel",
       "confirm": "Confirm Dispatch"
     },
@@ -539,6 +540,57 @@
       "confirm": "Confirm Override",
       "submitting": "Processing...",
       "successToast": "Payment override confirmed for order #{orderNumber}"
+    },
+    "refund": {
+      "modalTitle": "Process Order Refund",
+      "buttonLabel": "Refund",
+      "buttonTitle": "Process refund via Omise Gateway / Log refund audit",
+      "totalPaid": "Total Paid Amount",
+      "alreadyRefunded": "Already Refunded",
+      "maxRefundable": "Max Refundable Balance",
+      "amountLabel": "Refund Amount (THB) *",
+      "reasonLabel": "Refund Reason *",
+      "reasonPlaceholder": "e.g. Customer cancellation, item out of stock, shipping defect",
+      "restockCheckbox": "Automatically Restock Inventory",
+      "restockHint": "System will increment quantity available and record StockMovement automatically.",
+      "processing": "Processing Refund...",
+      "confirmButton": "Confirm Refund",
+      "successToast": "Refund processed successfully"
+    },
+    "cancellation": {
+      "sectionTitle": "Customer Cancellation Requests",
+      "status": {
+        "PENDING": "Pending Review",
+        "APPROVED": "Cancellation Approved",
+        "REJECTED": "Request Rejected"
+      },
+      "reason": "Reason",
+      "customerNote": "Customer Note",
+      "adminNote": "Admin Note",
+      "approveNoteLabel": "Approval Note (Optional)",
+      "rejectNoteLabel": "Rejection Reason *",
+      "notePlaceholder": "Enter note...",
+      "confirmAction": "Confirm Action",
+      "rejectButton": "Reject Request",
+      "approveButton": "Approve & Refund"
+    },
+    "return": {
+      "sectionTitle": "Customer Return Requests",
+      "status": {
+        "REQUESTED": "Return Requested",
+        "APPROVED": "Approved for Return",
+        "REJECTED": "Return Rejected",
+        "COMPLETED": "Inspected & Refunded"
+      },
+      "reason": "Return Reason",
+      "customerNote": "Customer Note",
+      "itemsLabel": "Items to Return",
+      "rejectButton": "Reject Return",
+      "approveShipButton": "Authorize Customer to Ship",
+      "inspectAndRefundButton": "Inspect & Refund",
+      "inspectModalTitle": "Inspect Returned Item & Issue Refund",
+      "inspectNotePlaceholder": "e.g. Items verified in original condition with tags",
+      "confirmRefundButton": "Confirm Inspection & Refund"
     }
   },
   "promotions": {

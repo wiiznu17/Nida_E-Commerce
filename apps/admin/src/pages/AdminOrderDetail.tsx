@@ -13,6 +13,9 @@ import {
   OrderFulfillModal,
   OrderShipmentStatusModal,
   OrderPaymentOverrideModal,
+  OrderRefundModal,
+  OrderCancellationSection,
+  OrderReturnSection,
 } from '../components/order';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
@@ -42,6 +45,9 @@ export default function AdminOrderDetail() {
 
   // Emergency Payment Override modal state
   const [isPaymentOverrideModalOpen, setIsPaymentOverrideModalOpen] = useState(false);
+
+  // Refund modal state
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
 
 
   const loadOrder = async () => {
@@ -136,7 +142,26 @@ export default function AdminOrderDetail() {
     }
   };
 
+  const hasPendingCancellation = Boolean(
+    order?.cancellationRequests?.some((r) => r.status === 'PENDING'),
+  );
+
+  const alreadyRefunded = (order?.refunds ?? [])
+    .filter((r) => r.status === 'SUCCEEDED')
+    .reduce((sum, r) => sum + Number(r.amount), 0);
+  const totalPaid = Number(order?.totalAmount ?? 0);
+  const canRefund = Boolean(
+    order?.payment &&
+      order.status !== 'PENDING' &&
+      order.status !== 'CANCELLED' &&
+      alreadyRefunded < totalPaid,
+  );
+
   const handleOpenFulfillModal = () => {
+    if (hasPendingCancellation) {
+      showToast(t('orders.fulfill.cancellationPendingBlock'));
+      return;
+    }
     setIsFulfillModalOpen(true);
   };
 
@@ -180,6 +205,14 @@ export default function AdminOrderDetail() {
           liveTrackingUrl={liveTrackingUrl}
           onOpenFulfill={handleOpenFulfillModal}
           onOpenPrint={() => setIsPrintModalOpen(true)}
+          onOpenRefund={() => setIsRefundModalOpen(true)}
+          canRefund={canRefund}
+          isFulfillDisabled={hasPendingCancellation}
+          fulfillDisabledReason={
+            hasPendingCancellation
+              ? t('orders.fulfill.cancellationPendingBlock')
+              : undefined
+          }
           trackingNumber={trackingNumber}
           onScrollTo={handleScrollTo}
         />
@@ -242,6 +275,46 @@ export default function AdminOrderDetail() {
             />
           </div>
         </div>
+
+        {/* Row 3: Cancellation & Return Request Hubs */}
+        {((order.cancellationRequests && order.cancellationRequests.length > 0) ||
+          (order.returnRequests && order.returnRequests.length > 0)) && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {order.cancellationRequests &&
+              order.cancellationRequests.length > 0 && (
+                <div
+                  className={
+                    order.returnRequests && order.returnRequests.length > 0
+                      ? 'lg:col-span-6 flex flex-col'
+                      : 'lg:col-span-12 flex flex-col'
+                  }
+                >
+                  <OrderCancellationSection
+                    cancellationRequests={order.cancellationRequests}
+                    onReviewed={loadOrder}
+                    onShowToast={showToast}
+                  />
+                </div>
+              )}
+
+            {order.returnRequests && order.returnRequests.length > 0 && (
+              <div
+                className={
+                  order.cancellationRequests &&
+                  order.cancellationRequests.length > 0
+                    ? 'lg:col-span-6 flex flex-col'
+                    : 'lg:col-span-12 flex flex-col'
+                }
+              >
+                <OrderReturnSection
+                  order={order}
+                  onReviewed={loadOrder}
+                  onShowToast={showToast}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Fulfill / Add Tracking Modal */}
@@ -335,6 +408,20 @@ export default function AdminOrderDetail() {
         onClose={() => setIsPrintModalOpen(false)}
         orders={order ? [order] : []}
       />
+
+      {order && (
+        <OrderRefundModal
+          isOpen={isRefundModalOpen}
+          onClose={() => setIsRefundModalOpen(false)}
+          order={order}
+          onSuccess={(updatedOrder) => {
+            setOrder(updatedOrder);
+            setSelectedStatus(updatedOrder.status);
+            showToast(t('orders.refund.successToast'));
+            loadOrder();
+          }}
+        />
+      )}
     </AdminLayout>
   );
 }

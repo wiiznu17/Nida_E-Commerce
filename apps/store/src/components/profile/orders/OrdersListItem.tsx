@@ -149,13 +149,13 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
 
         <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
           <Link
-            href="/collections"
+            href={`/profile/orders/${encodeURIComponent(order.orderNumber)}`}
             className="min-h-[44px] sm:min-h-0 border border-gray-300 hover:border-brand-brown text-gray-700 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center justify-center text-center"
           >
-            {t('trackOrder.reorder')}
+            {t('orderHistory.viewDetails')}
           </Link>
           <Link
-            href={`/track-order/${order.orderNumber}`}
+            href={`/track-order/${encodeURIComponent(order.orderNumber)}`}
             className="min-h-[44px] sm:min-h-0 bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1"
           >
             <span>{t('orderHistory.trackShipment')}</span>

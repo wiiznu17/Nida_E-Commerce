@@ -492,6 +492,50 @@
     "ordersUnit": "orders",
     "prevPage": "Previous",
     "nextPage": "Next",
-    "backToProfile": "Back to Profile"
+    "backToProfile": "Back to Profile",
+    "viewDetails": "View Details"
+  },
+  "orderDetail": {
+    "notFoundTitle": "Order Not Found",
+    "notFoundDesc": "The requested order could not be found or access is restricted.",
+    "backToOrders": "Back to Orders",
+    "liveTrackingLink": "Live Tracking",
+    "placedAt": "Ordered On",
+    "payPromptPayBtn": "Pay Now (PromptPay QR)",
+    "requestCancelBtn": "Request Cancellation",
+    "requestReturnBtn": "Request Return",
+    "cancellationPendingNotice": "Your order cancellation request is pending review by our team.",
+    "returnActiveNotice": "Your return request is currently being processed.",
+    "itemsPurchased": "Purchased Items",
+    "refundHistoryTitle": "Refund History",
+    "reasonPrefix": "Reason",
+    "summaryTitle": "Payment Summary",
+    "subtotal": "Subtotal",
+    "discountTotal": "Discount",
+    "shippingFee": "Shipping Fee",
+    "freeShipping": "Free",
+    "grandTotal": "Grand Total",
+    "shippingAddressTitle": "Shipping & Recipient Details",
+    "cancelSuccessToast": "Cancellation request submitted successfully",
+    "returnSuccessToast": "Return request submitted successfully",
+    "cancelModal": {
+      "title": "Cancel Order Request",
+      "reviewNoticeTitle": "Cancellation Request Terms",
+      "reviewNoticeDesc": "Your request will be reviewed by our team. If fulfillment has not begun, a full refund will be processed to your original payment method.",
+      "selectReasonLabel": "Select Reason",
+      "reasonPlaceholder": "Specify cancellation reason...",
+      "noteLabel": "Additional Note (Optional)",
+      "notePlaceholder": "e.g. Need to change size or address...",
+      "submitButton": "Submit Cancellation Request"
+    },
+    "returnModal": {
+      "title": "Submit Return Request",
+      "selectItemsLabel": "Select Items & Quantity to Return",
+      "qtyLabel": "Qty",
+      "reasonLabel": "Select Return Reason",
+      "reasonPlaceholder": "Specify return reason...",
+      "notePlaceholder": "Provide details or defect notes...",
+      "submitButton": "Submit Return Request"
+    }
   }
 }
