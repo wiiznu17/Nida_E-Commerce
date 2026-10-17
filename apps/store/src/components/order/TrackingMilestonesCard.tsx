@@ -57,9 +57,9 @@ export function TrackingMilestonesCard({ trackingData }: TrackingMilestonesCardP
         </span>
       </div>
 
-      <div className="relative py-2 sm:py-4">
+      <div className="relative py-2 sm:py-3">
         {/* Stepper Connecting Line */}
-        <div className="absolute top-8 sm:top-10 left-12 right-12 h-0.5 bg-gray-200 hidden sm:block -z-0">
+        <div className="absolute top-8 sm:top-[40px] -translate-y-1/2 left-[12.5%] right-[12.5%] h-0.5 bg-gray-200 hidden sm:block z-0">
           <div
             className="h-full bg-brand-brown transition-all duration-700"
             style={{
@@ -68,7 +68,7 @@ export function TrackingMilestonesCard({ trackingData }: TrackingMilestonesCardP
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 sm:gap-4 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 sm:gap-x-0 relative z-10">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isCompleted = index <= currentStep;

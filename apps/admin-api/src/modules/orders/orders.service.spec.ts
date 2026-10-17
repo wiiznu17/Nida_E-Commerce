@@ -996,7 +996,7 @@ describe('OrdersService', () => {
       expect(res.success).toBe(true);
     });
 
-    it('completes return and executes refund on INSPECT_AND_REFUND', async () => {
+    it('completes return and executes refund on COMPLETE', async () => {
       prismaMock.returnRequest.findUnique.mockResolvedValue({
         ...mockReturn,
         status: 'APPROVED',
@@ -1006,7 +1006,7 @@ describe('OrdersService', () => {
       const res = await service.reviewReturnRequest(
         mockReturn.id,
         {
-          action: 'INSPECT_AND_REFUND',
+          action: 'COMPLETE',
           adminNote: 'Item verified intact',
           refundAmount: 1000,
         },

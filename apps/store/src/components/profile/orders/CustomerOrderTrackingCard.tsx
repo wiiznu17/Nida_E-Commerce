@@ -100,9 +100,9 @@ export function CustomerOrderTrackingCard({
           </p>
         </div>
       ) : (
-        <div className="relative py-2 sm:py-4">
+        <div className="relative py-2 sm:py-3">
           {/* Stepper Connecting Line */}
-          <div className="absolute top-6 sm:top-7 left-10 right-10 h-0.5 bg-stone-200 hidden sm:block -z-0">
+          <div className="absolute top-[28px] sm:top-[36px] -translate-y-1/2 left-[12.5%] right-[12.5%] h-0.5 bg-stone-200 hidden sm:block z-0">
             <div
               className="h-full bg-brand-brown transition-all duration-700"
               style={{
@@ -111,7 +111,7 @@ export function CustomerOrderTrackingCard({
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-4 sm:gap-x-0 relative z-10">
             {steps.map((step, index) => {
               const Icon = step.icon;
               const isCompleted = index <= currentStep;
