@@ -516,6 +516,9 @@
     "freeShipping": "ฟรี (Free)",
     "grandTotal": "ยอดรวมทั้งสิ้น",
     "shippingAddressTitle": "ที่อยู่จัดส่งและผู้รับสินค้า",
+    "viewFullTracking": "ดูประวัติการจัดส่งแบบละเอียด",
+    "latestCheckpoint": "สถานะการเดินทางล่าสุด",
+    "trackingTransitTitle": "ความคืบหน้าการจัดส่ง",
     "cancelSuccessToast": "ส่งคำขอยกเลิกคำสั่งซื้อเรียบร้อยแล้ว",
     "returnSuccessToast": "ส่งคำขอคืนสินค้าเรียบร้อยแล้ว",
     "cancelModal": {

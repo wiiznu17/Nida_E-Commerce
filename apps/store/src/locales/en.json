@@ -516,6 +516,9 @@
     "freeShipping": "Free",
     "grandTotal": "Grand Total",
     "shippingAddressTitle": "Shipping & Recipient Details",
+    "viewFullTracking": "View Full Tracking History",
+    "latestCheckpoint": "Latest Tracking Event",
+    "trackingTransitTitle": "Fulfillment & Delivery Progress",
     "cancelSuccessToast": "Cancellation request submitted successfully",
     "returnSuccessToast": "Return request submitted successfully",
     "cancelModal": {
