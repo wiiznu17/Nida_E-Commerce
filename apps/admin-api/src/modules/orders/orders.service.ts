@@ -661,7 +661,8 @@ export class OrdersService {
       .reduce((sum, r) => sum + Number(r.amount), 0);
     const maxRefundable = Math.max(0, totalPaid - alreadyRefunded);
 
-    const refundAmount = dto.amount ? Number(dto.amount) : maxRefundable;
+    const refundAmount =
+      dto.amount !== undefined ? Number(dto.amount) : maxRefundable;
 
     if (refundAmount <= 0) {
       throw new BadRequestException('ยอดเงินคืนต้องมากกว่า 0 บาท');
