@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, CreditCard, Copy, Check, ExternalLink } from 'lucide-react';
+import { Package, CreditCard, Copy, Check, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { OrderStatus, type ApiOrder } from '@repo/types';
 import { StatusBadge } from '@/components/ui';
@@ -30,9 +30,12 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
       <div className="p-4 sm:p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-gray-50/40">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-black text-sm text-brand-brown font-mono tracking-tight">
+            <Link
+              href={`/profile/orders/${encodeURIComponent(currentOrder.orderNumber)}`}
+              className="font-black text-sm text-brand-brown font-mono tracking-tight hover:underline cursor-pointer"
+            >
               #{currentOrder.orderNumber}
-            </span>
+            </Link>
             <StatusBadge status={currentOrder.status} />
           </div>
 
@@ -144,21 +147,13 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
           </Link>
         )}
 
-        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
-          <Link
-            href={`/profile/orders/${encodeURIComponent(currentOrder.orderNumber)}`}
-            className="min-h-[44px] sm:min-h-0 border border-gray-300 hover:border-brand-brown text-gray-700 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center justify-center text-center"
-          >
-            {t('orderHistory.viewDetails')}
-          </Link>
-          <Link
-            href={`/track-order/${encodeURIComponent(currentOrder.orderNumber)}`}
-            className="min-h-[44px] sm:min-h-0 bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1"
-          >
-            <span>{t('orderHistory.trackShipment')}</span>
-            <ExternalLink size={13} className="ml-1" />
-          </Link>
-        </div>
+        <Link
+          href={`/profile/orders/${encodeURIComponent(currentOrder.orderNumber)}`}
+          className="min-h-[44px] sm:min-h-0 bg-brand-brown hover:bg-brand-amber text-white px-5 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1.5 shadow-2xs text-center cursor-pointer"
+        >
+          <span>{t('orderHistory.viewDetails')}</span>
+          <ArrowRight size={14} />
+        </Link>
       </div>
     </div>
   );

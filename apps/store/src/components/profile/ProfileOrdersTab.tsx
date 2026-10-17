@@ -95,9 +95,12 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 pb-4 mb-4 border-b border-gray-200">
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="font-black text-sm text-brand-brown font-mono">
+                      <Link
+                        href={`/profile/orders/${order.orderNumber}`}
+                        className="font-black text-sm text-brand-brown font-mono hover:underline cursor-pointer"
+                      >
                         {t('trackOrder.order')} #{order.orderNumber}
-                      </span>
+                      </Link>
                       <StatusBadge status={order.status} />
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
@@ -125,10 +128,10 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                       </span>
                     </div>
                     <Link
-                      href={`/track-order/${order.orderNumber}`}
-                      className="bg-brand-brown hover:bg-brand-amber text-white px-3.5 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center"
+                      href={`/profile/orders/${order.orderNumber}`}
+                      className="bg-brand-brown hover:bg-brand-amber text-white px-3.5 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1 shadow-2xs"
                     >
-                      <span>{t('orderSuccess.trackOrder')}</span>
+                      <span>{t('orderHistory.viewDetails')}</span>
                       <ArrowRight size={14} className="ml-1" />
                     </Link>
                   </div>
@@ -179,7 +182,7 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                 <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap justify-end gap-2">
                   {isPendingPromptPay && (
                     <Link
-                      href={`/order-success?orderNumber=${encodeURIComponent(order.orderNumber)}`}
+                      href={`/payment?orderNumber=${encodeURIComponent(order.orderNumber)}`}
                       className="bg-brand-amber hover:bg-brand-brown text-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors inline-flex items-center space-x-1 shadow-2xs"
                     >
                       <QrCode size={13} />
@@ -193,10 +196,11 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                     {t('trackOrder.reorder')}
                   </Link>
                   <Link
-                    href={`/track-order/${order.orderNumber}`}
-                    className="bg-stone-100 hover:bg-stone-200 text-brand-brown px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors"
+                    href={`/profile/orders/${order.orderNumber}`}
+                    className="border border-brand-brown/40 hover:border-brand-brown bg-brand-warm-cream/40 hover:bg-brand-warm-cream text-brand-brown px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors inline-flex items-center space-x-1"
                   >
-                    {t('orderSuccess.trackOrder')}
+                    <span>{t('orderHistory.viewDetails')}</span>
+                    <ArrowRight size={12} />
                   </Link>
                 </div>
               </div>
