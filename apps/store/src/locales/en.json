@@ -536,6 +536,26 @@
       "reasonPlaceholder": "Specify return reason...",
       "notePlaceholder": "Provide details or defect notes...",
       "submitButton": "Submit Return Request"
+    },
+    "payNowBtn": "Pay Now",
+    "payModal": {
+      "title": "Order Payment",
+      "methodTitle": "Select Payment Method",
+      "promptpayTab": "PromptPay QR",
+      "creditCardTab": "Credit / Debit Card",
+      "amountToPay": "Amount to Pay",
+      "cardholderLabel": "Cardholder Name",
+      "cardholderPlaceholder": "e.g. KALLAYA W.",
+      "cardNumberLabel": "Card Number",
+      "cardExpiryLabel": "Expiry Date",
+      "cardCvcLabel": "CVC / CVV",
+      "secureNotice": "Secured 256-bit SSL Encrypted Payment",
+      "payWithCardBtn": "Pay Now",
+      "confirmPromptPayBtn": "I Have Completed Payment",
+      "promptpayScanNotice": "Scan this QR code with your mobile banking app to pay",
+      "expiresIn": "Expires in",
+      "paymentSuccessToast": "Payment completed successfully. Thank you for your order!",
+      "paymentFailedToast": "Payment failed. Please check your card information and try again."
     }
   }
 }

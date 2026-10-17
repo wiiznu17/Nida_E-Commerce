@@ -82,15 +82,51 @@ export const orderRequester = {
   },
 
   /**
-   * Complete or simulate payment for an order.
+   * Complete or simulate payment for an order with optional payment method and card details.
    */
   payOrder: async (
     orderNumber: string,
-    token?: string | null,
+    payloadOrToken?:
+      | {
+          paymentMethod?: PaymentMethod;
+          cardLast4?: string;
+          cardBrand?: string;
+        }
+      | string
+      | null,
+    maybeToken?: string | null,
   ): Promise<ApiOrder> => {
+    let payload: {
+      paymentMethod?: PaymentMethod;
+      cardLast4?: string;
+      cardBrand?: string;
+    } = {};
+    let token: string | null | undefined = maybeToken;
+
+    if (typeof payloadOrToken === 'string' || payloadOrToken === null) {
+      token = payloadOrToken;
+    } else if (payloadOrToken) {
+      payload = payloadOrToken;
+    }
+
     return apiClient.post<ApiOrder>(
       `/orders/${encodeURIComponent(orderNumber)}/pay`,
-      {},
+      payload,
+      token,
+    );
+  },
+
+  /**
+   * Update payment method for a pending order.
+   */
+  updatePaymentMethod: async (
+    orderNumber: string,
+    paymentMethod: PaymentMethod,
+    token?: string | null,
+  ): Promise<ApiOrder> => {
+    return apiClient.patch<ApiOrder>(
+      `/orders/${encodeURIComponent(orderNumber)}/payment-method`,
+      { paymentMethod },
       token,
     );
   },

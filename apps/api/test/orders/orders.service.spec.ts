@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CustomerOrdersService } from '../../src/modules/orders/orders.service.js';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { OrderStatus, ReturnStatus } from '@repo/database';
+import { OrderStatus, ReturnStatus, PaymentMethod } from '@repo/database';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
 
@@ -30,6 +30,9 @@ describe('CustomerOrdersService', () => {
       },
       returnRequest: {
         create: vi.fn(),
+      },
+      payment: {
+        update: vi.fn(),
       },
       $transaction: vi.fn(),
     };
@@ -478,5 +481,169 @@ describe('CustomerOrdersService', () => {
       ).rejects.toThrow(BadRequestException);
     });
   });
+
+  describe('updatePaymentMethod', () => {
+    const basePendingOrder = {
+      id: 'ord-300',
+      orderNumber: 'NIDA-20261014-PAY',
+      userId: 'user-123',
+      status: OrderStatus.PENDING,
+      hasPreorderItems: false,
+      subtotal: 3890,
+      discountTotal: 0,
+      shippingFee: 0,
+      taxAmount: 0,
+      totalAmount: 3890,
+      currency: 'THB',
+      shippingAddressSnapshot: { recipientName: 'Phannida', phone: '0812345678' },
+      promoCodeUsed: null,
+      placedAt: new Date('2026-10-14T10:00:00Z'),
+      items: [],
+      payment: {
+        id: 'pay-1',
+        paymentMethod: PaymentMethod.CREDIT_CARD,
+        amount: 3890,
+        currency: 'THB',
+        status: 'PENDING',
+      },
+      shipments: [],
+      cancellationRequests: [],
+      returnRequests: [],
+      refunds: [],
+    };
+
+    it('successfully switches payment method for a pending order', async () => {
+      const orderFindUnique = (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique;
+
+      orderFindUnique.mockResolvedValueOnce(basePendingOrder);
+      orderFindUnique.mockResolvedValueOnce({
+        ...basePendingOrder,
+        payment: {
+          ...basePendingOrder.payment,
+          paymentMethod: PaymentMethod.PROMPTPAY,
+        },
+      });
+
+      const result = await service.updatePaymentMethod(
+        'NIDA-20261014-PAY',
+        PaymentMethod.PROMPTPAY,
+        'user-123',
+      );
+
+      expect(
+        (prismaMock as { payment: { update: ReturnType<typeof vi.fn> } }).payment
+          .update,
+      ).toHaveBeenCalledWith({
+        where: { id: 'pay-1' },
+        data: { paymentMethod: PaymentMethod.PROMPTPAY },
+      });
+      expect(result.payment?.paymentMethod).toBe(PaymentMethod.PROMPTPAY);
+    });
+
+    it('rejects changing payment method if order is not PENDING', async () => {
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique.mockResolvedValueOnce({
+        ...basePendingOrder,
+        status: OrderStatus.PAID,
+      });
+
+      await expect(
+        service.updatePaymentMethod(
+          'NIDA-20261014-PAY',
+          PaymentMethod.PROMPTPAY,
+          'user-123',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('payOrder', () => {
+    const basePendingOrder = {
+      id: 'ord-300',
+      orderNumber: 'NIDA-20261014-PAY',
+      userId: 'user-123',
+      status: OrderStatus.PENDING,
+      hasPreorderItems: false,
+      subtotal: 3890,
+      discountTotal: 0,
+      shippingFee: 0,
+      taxAmount: 0,
+      totalAmount: 3890,
+      currency: 'THB',
+      shippingAddressSnapshot: { recipientName: 'Phannida', phone: '0812345678' },
+      promoCodeUsed: null,
+      placedAt: new Date('2026-10-14T10:00:00Z'),
+      items: [],
+      payment: {
+        id: 'pay-1',
+        paymentMethod: PaymentMethod.PROMPTPAY,
+        amount: 3890,
+        currency: 'THB',
+        status: 'PENDING',
+      },
+      shipments: [],
+      cancellationRequests: [],
+      returnRequests: [],
+      refunds: [],
+    };
+
+    it('captures payment and updates payment method when payload is provided', async () => {
+      const orderFindUnique = (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique;
+
+      orderFindUnique.mockResolvedValueOnce(basePendingOrder);
+
+      const txPaymentUpdate = vi.fn().mockResolvedValue({});
+      const txOrderUpdate = vi.fn().mockResolvedValue({});
+      (
+        prismaMock as { $transaction: ReturnType<typeof vi.fn> }
+      ).$transaction.mockImplementation(
+        async (cb: (tx: unknown) => Promise<unknown>) =>
+          cb({
+            payment: { update: txPaymentUpdate },
+            order: { update: txOrderUpdate },
+          }),
+      );
+
+      orderFindUnique.mockResolvedValueOnce({
+        ...basePendingOrder,
+        status: OrderStatus.PAID,
+        payment: {
+          ...basePendingOrder.payment,
+          paymentMethod: PaymentMethod.CREDIT_CARD,
+          status: 'CAPTURED',
+          cardLast4: '4242',
+          cardBrand: 'Visa',
+        },
+      });
+
+      const result = await service.payOrder(
+        'NIDA-20261014-PAY',
+        'user-123',
+        {
+          paymentMethod: PaymentMethod.CREDIT_CARD,
+          cardLast4: '4242',
+          cardBrand: 'Visa',
+        },
+      );
+
+      expect(txPaymentUpdate).toHaveBeenCalledWith({
+        where: { id: 'pay-1' },
+        data: {
+          paymentMethod: PaymentMethod.CREDIT_CARD,
+          cardLast4: '4242',
+          cardBrand: 'Visa',
+          status: 'CAPTURED',
+          paidAt: expect.any(Date),
+        },
+      });
+      expect(result.status).toBe(OrderStatus.PAID);
+    });
+  });
 });
+
 

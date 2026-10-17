@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, ArrowRight, QrCode, Copy, Check, ExternalLink } from 'lucide-react';
+import { Package, CreditCard, Copy, Check, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { OrderStatus, PaymentMethod, type ApiOrder } from '@repo/types';
+import { OrderStatus, type ApiOrder } from '@repo/types';
 import { StatusBadge } from '@/components/ui';
+import { CustomerPayOrderModal } from './CustomerPayOrderModal';
 
 interface OrdersListItemProps {
   order: ApiOrder;
@@ -12,14 +13,12 @@ interface OrdersListItemProps {
 
 export function OrdersListItem({ order }: OrdersListItemProps) {
   const { language, t } = useLanguage();
+  const [currentOrder, setCurrentOrder] = useState<ApiOrder>(order);
   const [copiedTracking, setCopiedTracking] = useState(false);
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
 
-  const isPendingPromptPay =
-    order.status === OrderStatus.PENDING &&
-    (order.payment?.paymentMethod === PaymentMethod.PROMPTPAY || !order.payment);
-
-  const trackingNumber = order.shipments?.[0]?.trackingNumber;
-  const courierName = order.shipments?.[0]?.courierName;
+  const trackingNumber = currentOrder.shipments?.[0]?.trackingNumber;
+  const courierName = currentOrder.shipments?.[0]?.courierName;
 
   const handleCopyTracking = (code: string) => {
     void navigator.clipboard.writeText(code);
@@ -34,14 +33,14 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-black text-sm text-brand-brown font-mono tracking-tight">
-              #{order.orderNumber}
+              #{currentOrder.orderNumber}
             </span>
-            <StatusBadge status={order.status} />
+            <StatusBadge status={currentOrder.status} />
           </div>
 
           <div className="flex flex-wrap items-center gap-x-2 text-[11px] text-gray-500 mt-1">
             <span>
-              {new Date(order.placedAt).toLocaleDateString(
+              {new Date(currentOrder.placedAt).toLocaleDateString(
                 language === 'th' ? 'th-TH' : 'en-US',
                 {
                   day: 'numeric',
@@ -85,14 +84,14 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
             {t('checkout.total')}
           </span>
           <span className="text-lg font-black text-brand-brown font-mono">
-            ฿{Number(order.totalAmount).toLocaleString()}
+            ฿{Number(currentOrder.totalAmount).toLocaleString()}
           </span>
         </div>
       </div>
 
       {/* Items Preview List */}
       <div className="p-4 sm:p-5 divide-y divide-gray-100">
-        {order.items.map((item) => (
+        {currentOrder.items.map((item) => (
           <div
             key={item.id}
             className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0 gap-3"
@@ -137,25 +136,26 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
 
       {/* Action Buttons Footer - Mobile-First Grid (Min 44px Touch Targets) */}
       <div className="p-3 sm:p-4 bg-gray-50/60 border-t border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2">
-        {isPendingPromptPay && (
-          <Link
-            href={`/order-success?orderNumber=${encodeURIComponent(order.orderNumber)}`}
-            className="min-h-[44px] sm:min-h-0 bg-brand-amber hover:bg-brand-brown text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1.5 shadow-2xs"
+        {currentOrder.status === OrderStatus.PENDING && (
+          <button
+            type="button"
+            onClick={() => setIsPayModalOpen(true)}
+            className="min-h-[44px] sm:min-h-0 bg-brand-amber hover:bg-brand-brown text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer"
           >
-            <QrCode size={15} />
+            <CreditCard size={15} />
             <span>{t('orderHistory.payNow')}</span>
-          </Link>
+          </button>
         )}
 
         <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
           <Link
-            href={`/profile/orders/${encodeURIComponent(order.orderNumber)}`}
+            href={`/profile/orders/${encodeURIComponent(currentOrder.orderNumber)}`}
             className="min-h-[44px] sm:min-h-0 border border-gray-300 hover:border-brand-brown text-gray-700 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center justify-center text-center"
           >
             {t('orderHistory.viewDetails')}
           </Link>
           <Link
-            href={`/track-order/${encodeURIComponent(order.orderNumber)}`}
+            href={`/track-order/${encodeURIComponent(currentOrder.orderNumber)}`}
             className="min-h-[44px] sm:min-h-0 bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1"
           >
             <span>{t('orderHistory.trackShipment')}</span>
@@ -163,6 +163,13 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
           </Link>
         </div>
       </div>
+
+      <CustomerPayOrderModal
+        isOpen={isPayModalOpen}
+        onClose={() => setIsPayModalOpen(false)}
+        order={currentOrder}
+        onSuccess={(updatedOrder) => setCurrentOrder(updatedOrder)}
+      />
     </div>
   );
 }

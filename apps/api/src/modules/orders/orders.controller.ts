@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Param,
   Body,
   UseGuards,
@@ -23,7 +24,7 @@ import {
   CustomerJwtGuard,
   OptionalCustomerJwtGuard,
 } from '../auth/guards/customer-jwt.guard.js';
-import type { ApiOrder, TrackingResult } from '@repo/types';
+import type { ApiOrder, TrackingResult, PaymentMethod } from '@repo/types';
 
 interface AuthenticatedCustomerRequest {
   user?: {
@@ -107,6 +108,25 @@ export class CustomerOrdersController {
     return this.ordersService.getOrderByNumber(orderNumber, userId);
   }
 
+  @Patch(':orderNumber/payment-method')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({ summary: 'Update payment method for pending order' })
+  @ApiResponse({ status: 200, description: 'Payment method updated' })
+  @ApiResponse({ status: 400, description: 'Order not eligible' })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  async updatePaymentMethod(
+    @Param('orderNumber') orderNumber: string,
+    @Body() body: { paymentMethod: PaymentMethod },
+    @Request() req: AuthenticatedCustomerRequest,
+  ): Promise<ApiOrder> {
+    const userId = req.user?.id;
+    return this.ordersService.updatePaymentMethod(
+      orderNumber,
+      body.paymentMethod,
+      userId,
+    );
+  }
+
   @Post(':orderNumber/pay')
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Complete or simulate payment for an order' })
@@ -114,10 +134,16 @@ export class CustomerOrdersController {
   @ApiResponse({ status: 404, description: 'Order not found' })
   async payOrder(
     @Param('orderNumber') orderNumber: string,
+    @Body()
+    body: {
+      paymentMethod?: PaymentMethod;
+      cardLast4?: string;
+      cardBrand?: string;
+    },
     @Request() req: AuthenticatedCustomerRequest,
   ): Promise<ApiOrder> {
     const userId = req.user?.id;
-    return this.ordersService.payOrder(orderNumber, userId);
+    return this.ordersService.payOrder(orderNumber, userId, body);
   }
 
   @Post(':orderNumber/cancellation-request')

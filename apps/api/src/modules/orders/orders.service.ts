@@ -562,13 +562,59 @@ export class CustomerOrdersService {
     return this.getOrderByNumber(orderNumber, userId);
   }
 
-  async payOrder(orderNumber: string, userId?: string): Promise<ApiOrder> {
+  async updatePaymentMethod(
+    orderNumber: string,
+    paymentMethod: PaymentMethod,
+    userId?: string,
+  ): Promise<ApiOrder> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: { payment: true },
     });
 
     if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (userId && order.userId && order.userId !== userId) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      throw new BadRequestException(
+        'สามารถเปลี่ยนวิธีชำระเงินได้เฉพาะคำสั่งซื้อที่ยังไม่ได้ชำระเงินเท่านั้น',
+      );
+    }
+
+    if (order.payment) {
+      await this.prisma.payment.update({
+        where: { id: order.payment.id },
+        data: { paymentMethod },
+      });
+    }
+
+    return this.getOrderByNumber(orderNumber, userId);
+  }
+
+  async payOrder(
+    orderNumber: string,
+    userId?: string,
+    payload?: {
+      paymentMethod?: PaymentMethod;
+      cardLast4?: string;
+      cardBrand?: string;
+    },
+  ): Promise<ApiOrder> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: { payment: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (userId && order.userId && order.userId !== userId) {
       throw new NotFoundException(`Order #${orderNumber} not found`);
     }
 
@@ -585,6 +631,9 @@ export class CustomerOrdersService {
         await tx.payment.update({
           where: { id: order.payment.id },
           data: {
+            paymentMethod: payload?.paymentMethod ?? order.payment.paymentMethod,
+            cardLast4: payload?.cardLast4 ?? order.payment.cardLast4,
+            cardBrand: payload?.cardBrand ?? order.payment.cardBrand,
             status: PaymentStatus.CAPTURED,
             paidAt: new Date(),
           },

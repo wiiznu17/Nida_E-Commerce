@@ -536,6 +536,26 @@
       "reasonPlaceholder": "ระบุเหตุผลในการคืนสินค้า...",
       "notePlaceholder": "ระบุรายละเอียดเพิ่มเติม หรือตำหนิของสินค้า...",
       "submitButton": "ยืนยันส่งคำขอคืนสินค้า"
+    },
+    "payNowBtn": "ชำระเงิน",
+    "payModal": {
+      "title": "ชำระเงินคำสั่งซื้อ",
+      "methodTitle": "เลือกช่องทางชำระเงิน",
+      "promptpayTab": "พร้อมเพย์ QR",
+      "creditCardTab": "บัตรเครดิต / เดบิต",
+      "amountToPay": "ยอดที่ต้องชำระ",
+      "cardholderLabel": "ชื่อผู้ถือบัตร",
+      "cardholderPlaceholder": "เช่น KALLAYA W.",
+      "cardNumberLabel": "หมายเลขบัตร",
+      "cardExpiryLabel": "วันหมดอายุ",
+      "cardCvcLabel": "รหัส CVC",
+      "secureNotice": "ระบบชำระเงินปลอดภัยมาตรฐานสากล 256-bit SSL",
+      "payWithCardBtn": "ชำระเงินทันที",
+      "confirmPromptPayBtn": "ยืนยันการชำระเงินเรียบร้อยแล้ว",
+      "promptpayScanNotice": "สแกน QR Code ด้วยแอปพลิเคชันธนาคารเพื่อชำระเงิน",
+      "expiresIn": "หมดอายุภายใน",
+      "paymentSuccessToast": "ชำระเงินสำเร็จเรียบร้อยแล้ว ขอบคุณสำหรับคำสั่งซื้อ",
+      "paymentFailedToast": "การชำระเงินไม่สำเร็จ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง"
     }
   }
 }
