@@ -11,8 +11,14 @@ import {
   extractApiError,
   type CreateCustomerOrderPayload,
 } from '@/api';
+import { createOmiseCardToken } from '@/lib/omise';
 import { PaymentMethod, type ApiAddress, type CreateAddressDto } from '@repo/types';
-import type { ShippingFormData, CheckoutStep, PaymentMethodOption } from './checkoutTypes';
+import type {
+  ShippingFormData,
+  CheckoutStep,
+  PaymentMethodOption,
+  CardFormData,
+} from './checkoutTypes';
 
 export function useCheckoutForm() {
   const {
@@ -39,6 +45,46 @@ export function useCheckoutForm() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodOption>('card');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderError, setOrderError] = useState('');
+
+  const [cardData, setCardData] = useState<CardFormData>({
+    name: 'PHANNIDA W.',
+    number: '4242 4242 4242 4242',
+    expiry: '12/28',
+    cvc: '123',
+  });
+
+  const handleCardNumberChange = (val: string) => {
+    const digits = val.replace(/\D/g, '').slice(0, 16);
+    const parts = digits.match(/.{1,4}/g);
+    setCardData((prev) => ({ ...prev, number: parts ? parts.join(' ') : digits }));
+  };
+
+  const handleCardExpiryChange = (val: string) => {
+    const cleaned = val.replace(/\D/g, '').slice(0, 4);
+    if (cleaned.length >= 3) {
+      setCardData((prev) => ({ ...prev, expiry: `${cleaned.slice(0, 2)}/${cleaned.slice(2)}` }));
+    } else {
+      setCardData((prev) => ({ ...prev, expiry: cleaned }));
+    }
+  };
+
+  const handleCardCvcChange = (val: string) => {
+    const digits = val.replace(/\D/g, '').slice(0, 4);
+    setCardData((prev) => ({ ...prev, cvc: digits }));
+  };
+
+  const handleCardNameChange = (val: string) => {
+    setCardData((prev) => ({ ...prev, name: val }));
+  };
+
+  const handleFillTestCard = () => {
+    setCardData({
+      name: 'PHANNIDA W.',
+      number: '4242 4242 4242 4242',
+      expiry: '12/28',
+      cvc: '123',
+    });
+  };
 
   const [shippingData, setShippingData] = useState<ShippingFormData>({
     firstName: '',
@@ -226,7 +272,67 @@ export function useCheckoutForm() {
       clearCart();
 
       if (mappedMethod === PaymentMethod.CREDIT_CARD) {
-        await orderRequester.payOrder(createdOrder.orderNumber, token);
+        const rawDigits = cardData.number.replace(/\s+/g, '');
+        if (rawDigits.length < 15) {
+          throw new Error(
+            language === 'th'
+              ? 'กรุณากรอกหมายเลขบัตรเครดิตให้ถูกต้อง'
+              : 'Please enter a valid credit card number',
+          );
+        }
+
+        const [expMonthStr, expYearStr] = cardData.expiry.split('/');
+        const expirationMonth = parseInt(expMonthStr?.trim() || '', 10);
+        let expirationYear = parseInt(expYearStr?.trim() || '', 10);
+        if (isNaN(expirationMonth) || expirationMonth < 1 || expirationMonth > 12) {
+          throw new Error(
+            language === 'th'
+              ? 'กรุณากรอกเดือนที่หมดอายุให้ถูกต้อง (01-12)'
+              : 'Please enter a valid expiration month (01-12)',
+          );
+        }
+        if (isNaN(expirationYear)) {
+          throw new Error(
+            language === 'th'
+              ? 'กรุณากรอกปีที่หมดอายุให้ถูกต้อง'
+              : 'Please enter a valid expiration year',
+          );
+        }
+        if (expirationYear < 100) {
+          expirationYear += 2000;
+        }
+
+        if (!cardData.cvc.trim() || cardData.cvc.trim().length < 3) {
+          throw new Error(
+            language === 'th'
+              ? 'กรุณากรอกรหัส CVV / CVC 3 หรือ 4 หลัก'
+              : 'Please enter a valid 3 or 4 digit CVV/CVC code',
+          );
+        }
+
+        const tokenResult = await createOmiseCardToken({
+          name: cardData.name.trim() || 'TEST CARDHOLDER',
+          number: rawDigits,
+          expirationMonth,
+          expirationYear,
+          securityCode: cardData.cvc.trim(),
+        });
+
+        const payResult = await orderRequester.payOrder(
+          createdOrder.orderNumber,
+          {
+            paymentMethod: PaymentMethod.CREDIT_CARD,
+            omiseToken: tokenResult.id,
+            cardLast4: tokenResult.card.last_digits,
+            cardBrand: tokenResult.card.brand,
+          },
+          token,
+        );
+
+        if (payResult.authorizeUri) {
+          window.location.href = payResult.authorizeUri;
+          return;
+        }
       }
 
       router.push(`/order-success?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}`);
@@ -234,8 +340,8 @@ export function useCheckoutForm() {
       const extracted = extractApiError(
         err,
         language === 'th'
-          ? 'เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ กรุณาลองใหม่อีกครั้ง'
-          : 'Failed to create order. Please try again.',
+          ? 'เกิดข้อผิดพลาดในการประมวลผลการชำระเงิน กรุณาลองใหม่อีกครั้ง'
+          : 'Failed to process payment. Please try again.',
       );
       setOrderError(extracted.message);
     } finally {
@@ -266,6 +372,12 @@ export function useCheckoutForm() {
     setPaymentMethod,
     isSubmitting,
     orderError,
+    cardData,
+    handleCardNumberChange,
+    handleCardExpiryChange,
+    handleCardCvcChange,
+    handleCardNameChange,
+    handleFillTestCard,
     shippingData,
     setShippingData,
     savedAddresses,

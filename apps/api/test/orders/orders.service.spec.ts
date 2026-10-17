@@ -659,6 +659,7 @@ describe('CustomerOrdersService', () => {
         'user-123',
         {
           paymentMethod: PaymentMethod.CREDIT_CARD,
+          omiseToken: 'tokn_test_123',
           cardLast4: '4242',
           cardBrand: 'Visa',
         },
@@ -668,6 +669,7 @@ describe('CustomerOrdersService', () => {
         where: { id: 'pay-1' },
         data: {
           paymentMethod: PaymentMethod.CREDIT_CARD,
+          transactionReference: 'chrg_test_mock_card',
           cardLast4: '4242',
           cardBrand: 'Visa',
           status: 'CAPTURED',
@@ -675,6 +677,26 @@ describe('CustomerOrdersService', () => {
         },
       });
       expect(result.order.status).toBe(OrderStatus.PAID);
+    });
+
+    it('throws BadRequestException when paying with credit card without omiseToken', async () => {
+      const orderFindUnique = (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique;
+
+      orderFindUnique.mockResolvedValueOnce(basePendingOrder);
+
+      await expect(
+        service.payOrder(
+          'NIDA-20261014-PAY',
+          'user-123',
+          {
+            paymentMethod: PaymentMethod.CREDIT_CARD,
+            cardLast4: '4242',
+            cardBrand: 'Visa',
+          },
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

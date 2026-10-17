@@ -1,12 +1,18 @@
 import React from 'react';
 import { CreditCard, QrCode, ShieldCheck, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import type { PaymentMethodOption } from './checkoutTypes';
+import type { PaymentMethodOption, CardFormData } from './checkoutTypes';
 
 interface CheckoutPaymentFormProps {
   paymentMethod: PaymentMethodOption;
   isSubmitting: boolean;
   finalTotal: number;
+  cardData: CardFormData;
+  onCardNumberChange: (val: string) => void;
+  onExpiryChange: (val: string) => void;
+  onCvcChange: (val: string) => void;
+  onCardNameChange: (val: string) => void;
+  onFillTestCard: () => void;
   onSelectPaymentMethod: (method: PaymentMethodOption) => void;
   onBackToShipping: () => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -16,6 +22,12 @@ export function CheckoutPaymentForm({
   paymentMethod,
   isSubmitting,
   finalTotal,
+  cardData,
+  onCardNumberChange,
+  onExpiryChange,
+  onCvcChange,
+  onCardNameChange,
+  onFillTestCard,
   onSelectPaymentMethod,
   onBackToShipping,
   onSubmit,
@@ -67,8 +79,8 @@ export function CheckoutPaymentForm({
 
       <form onSubmit={onSubmit} className="space-y-5">
         {paymentMethod === 'card' && (
-          <div className="border border-brand-border p-6 bg-white shadow-xs">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+          <div className="border border-brand-border p-6 bg-white shadow-xs space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200">
               <div>
                 <span className="text-xs font-black uppercase tracking-wider text-brand-brown block">
                   {t('checkout.creditCard')}
@@ -79,7 +91,28 @@ export function CheckoutPaymentForm({
                     : 'Supports Visa, Mastercard, JCB (Omise Secure Payment Gateway)'}
                 </span>
               </div>
-              <CreditCard size={22} className="text-brand-brown shrink-0" />
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={onFillTestCard}
+                  className="text-[10px] font-bold text-brand-brown hover:text-brand-amber border border-brand-border px-2 py-0.5 uppercase tracking-wider bg-brand-warm-cream/50 transition-colors cursor-pointer"
+                >
+                  {language === 'th' ? 'เติมข้อมูลบัตรทดสอบ' : 'Fill Test Card'}
+                </button>
+                <CreditCard size={22} className="text-brand-brown shrink-0" />
+              </div>
+            </div>
+
+            <div className="p-3 bg-brand-warm-cream/40 border border-brand-border/60 text-[11px] text-stone-600 space-y-1">
+              <div className="flex items-center space-x-1.5 font-bold uppercase tracking-wider text-brand-brown">
+                <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
+                <span>{language === 'th' ? 'ระบบทดสอบ Omise Sandbox (3-D Secure)' : 'Omise Sandbox 3-D Secure'}</span>
+              </div>
+              <p>
+                {language === 'th'
+                  ? 'ข้อมูลบัตรจะถูกส่งเข้ารหัสโดยตรงไปยัง Omise Vault เมื่อกดยืนยัน ระบบจะเปิดหน้าจำลอง OTP ของธนาคารเพื่อยืนยันความปลอดภัย'
+                  : 'Card data is encrypted directly via Omise Vault. Submitting will launch the bank 3-D Secure OTP simulator.'}
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -89,7 +122,10 @@ export function CheckoutPaymentForm({
                 </label>
                 <input
                   type="text"
-                  defaultValue="4242 •••• •••• 4242"
+                  value={cardData.number}
+                  onChange={(e) => onCardNumberChange(e.target.value)}
+                  placeholder="4242 •••• •••• 4242"
+                  maxLength={19}
                   required
                   className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
                 />
@@ -102,7 +138,10 @@ export function CheckoutPaymentForm({
                   </label>
                   <input
                     type="text"
-                    defaultValue="12/28"
+                    value={cardData.expiry}
+                    onChange={(e) => onExpiryChange(e.target.value)}
+                    placeholder="12/28"
+                    maxLength={5}
                     required
                     className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
                   />
@@ -112,8 +151,11 @@ export function CheckoutPaymentForm({
                     CVV / CVC *
                   </label>
                   <input
-                    type="text"
-                    defaultValue="789"
+                    type="password"
+                    value={cardData.cvc}
+                    onChange={(e) => onCvcChange(e.target.value)}
+                    placeholder="123"
+                    maxLength={4}
                     required
                     className="w-full border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:border-brand-brown"
                   />
@@ -126,9 +168,11 @@ export function CheckoutPaymentForm({
                 </label>
                 <input
                   type="text"
-                  defaultValue="PHANNIDA W."
+                  value={cardData.name}
+                  onChange={(e) => onCardNameChange(e.target.value)}
+                  placeholder="PHANNIDA W."
                   required
-                  className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+                  className="w-full border border-gray-300 px-3 py-2 text-sm uppercase focus:outline-none focus:border-brand-brown"
                 />
               </div>
             </div>

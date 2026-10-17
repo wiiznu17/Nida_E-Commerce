@@ -36,6 +36,12 @@ export default function CheckoutPage() {
     setPaymentMethod,
     isSubmitting,
     orderError,
+    cardData,
+    handleCardNumberChange,
+    handleCardExpiryChange,
+    handleCardCvcChange,
+    handleCardNameChange,
+    handleFillTestCard,
     shippingData,
     setShippingData,
     savedAddresses,
@@ -111,6 +117,12 @@ export default function CheckoutPage() {
               paymentMethod={paymentMethod}
               isSubmitting={isSubmitting}
               finalTotal={finalTotal}
+              cardData={cardData}
+              onCardNumberChange={handleCardNumberChange}
+              onExpiryChange={handleCardExpiryChange}
+              onCvcChange={handleCardCvcChange}
+              onCardNameChange={handleCardNameChange}
+              onFillTestCard={handleFillTestCard}
               onSelectPaymentMethod={setPaymentMethod}
               onBackToShipping={() => setStep('shipping')}
               onSubmit={handlePaymentSubmit}

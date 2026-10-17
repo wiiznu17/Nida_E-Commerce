@@ -16,3 +16,10 @@ export interface ShippingFormData {
 
 export type CheckoutStep = 'shipping' | 'payment';
 export type PaymentMethodOption = 'card' | 'promptpay';
+
+export interface CardFormData {
+  name: string;
+  number: string;
+  expiry: string;
+  cvc: string;
+}

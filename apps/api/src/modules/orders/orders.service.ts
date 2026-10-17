@@ -724,7 +724,13 @@ export class CustomerOrdersService {
       PaymentMethod.PROMPTPAY;
 
     // Credit Card Charge with Omise Token (supports 3-D Secure OTP)
-    if (targetMethod === PaymentMethod.CREDIT_CARD && payload?.omiseToken) {
+    if (targetMethod === PaymentMethod.CREDIT_CARD) {
+      if (!payload?.omiseToken) {
+        throw new BadRequestException(
+          'กรุณาระบุ omiseToken สำหรับการชำระเงินผ่านบัตรเครดิต',
+        );
+      }
+
       const charge = await this.omiseService.createCreditCardCharge(
         orderNumber,
         Number(order.totalAmount),
@@ -835,33 +841,9 @@ export class CustomerOrdersService {
       return { order: updatedOrder, qrDownloadUri, expiresAt };
     }
 
-    // Fallback simulation (dev mode)
-    const nextStatus = order.hasPreorderItems
-      ? OrderStatus.PREORDER_AWAITING_STOCK
-      : OrderStatus.PAID;
-
-    await this.prisma.$transaction(async (tx) => {
-      if (order.payment) {
-        await tx.payment.update({
-          where: { id: order.payment.id },
-          data: {
-            paymentMethod: targetMethod,
-            cardLast4: payload?.cardLast4 ?? order.payment.cardLast4,
-            cardBrand: payload?.cardBrand ?? order.payment.cardBrand,
-            status: PaymentStatus.CAPTURED,
-            paidAt: new Date(),
-          },
-        });
-      }
-
-      await tx.order.update({
-        where: { id: order.id },
-        data: { status: nextStatus },
-      });
-    });
-
-    const current = await this.getOrderByNumber(orderNumber, userId);
-    return { order: current };
+    throw new BadRequestException(
+      `วิธีการชำระเงินไม่ถูกต้อง หรือยังไม่รองรับ: ${targetMethod}`,
+    );
   }
 
   async syncOmiseChargeStatus(

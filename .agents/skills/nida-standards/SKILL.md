@@ -383,7 +383,17 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   npm --prefix apps/admin-api run test
   ```
 
-### 5.4 Mandatory Verification Step
+### 5.4 Strict Prohibition on Fake Mocks and Silent Fallbacks for Integrated Services (ห้าม Mock หรือทำ Fallback จำลองสำหรับ Feature/Service ที่เชื่อมต่อจริงได้แล้วเด็ดขาด)
+
+- **Zero Fake Mocks for Integrated Services**:
+  - Once a service, provider, or gateway has been integrated into the system (e.g. Omise Payment Gateway, email notification services, cloud storage, etc.), **NEVER** leave behind fake fallback simulations, mock branches, or auto-success shortcuts in application code (e.g. automatically updating order status to `PAID` without authentic payment gateway authorization).
+  - **Fail Fast & Reject Explicitly**: If required external tokens or parameters are missing or invalid (such as a missing `omiseToken` for credit card checkout), the backend **MUST strictly reject the request with an explicit exception** (`BadRequestException`), rather than quietly swallowing the error or executing a fake simulation.
+  - **Permissible Mock Boundaries**:
+    1. **Automated Unit Tests (`*.spec.ts`)**: Mocking is required to keep tests fast, deterministic, and isolated from live networks.
+    2. **Unconnected External 3rd Parties**: Where commercial accounts or API contracts are not yet finalized (e.g. logistics carrier APIs), mocks must be contained strictly behind a designated Provider/Interface (such as `CarrierMockService`), never leaked into core business entities as silent inline shortcuts.
+  - **Immediate Cleanup of Dev Mocks**: As soon as a feature is connected to its actual service, all temporary local-dev mock shortcuts must be deleted immediately.
+
+### 5.5 Mandatory Verification Step
 
 Before completing any task or reporting back to the user:
 
@@ -433,6 +443,7 @@ When implementing any feature or refactoring:
 - [ ] Are action buttons clean, unified, and non-redundant?
 - [ ] Are all fallback values using nullish coalescing (`??`) or explicit helper functions instead of sloppy chained `||` operators?
 - [ ] Are comments free from robotic numbered step prefixes (ห้ามเขียน comment แบบ 1, 2, 3, 4 เช่น `// 1. Call API`, `// 2. Sync state`)?
+- [ ] **Are all fake mock simulations and dev shortcuts completely removed for integrated services (no fake auto-paid orders, strict BadRequestException on missing tokens)?**
 - [ ] **Did you write or update unit tests in a dedicated feature folder (e.g. `apps/admin-api/test/<feature>/` or `apps/api/test/<feature>/`) covering the new feature, guard rails, and state transitions?**
 - [ ] **Did you run unit tests on both APIs (`npm --prefix apps/api run test` and `npm --prefix apps/admin-api run test`) and pass 100% with 0 failures?**
 - [ ] Did you run builds across all packages (`packages/types`, `packages/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`) and pass with 0 errors?
