@@ -7,6 +7,8 @@ import {
   Body,
   UseGuards,
   Request,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -95,6 +97,15 @@ export class CustomerOrdersController {
     return this.ordersService.trackOrder(body.orderNumber, body.phone);
   }
 
+  @Post('webhook/omise')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Receive and process Omise webhook events' })
+  async handleOmiseWebhook(
+    @Body() event: Record<string, unknown>,
+  ): Promise<{ received: boolean }> {
+    return this.ordersService.handleOmiseWebhook(event);
+  }
+
   @Get(':orderNumber')
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Get order detail by order number' })
@@ -106,6 +117,28 @@ export class CustomerOrdersController {
   ): Promise<ApiOrder> {
     const userId = req.user?.id;
     return this.ordersService.getOrderByNumber(orderNumber, userId);
+  }
+
+  @Get(':orderNumber/omise-status')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({ summary: 'Sync and retrieve latest Omise payment status' })
+  async getOmiseStatus(
+    @Param('orderNumber') orderNumber: string,
+    @Request() req: AuthenticatedCustomerRequest,
+  ): Promise<{ order: ApiOrder; chargeStatus?: string; failureMessage?: string }> {
+    const userId = req.user?.id;
+    return this.ordersService.syncOmiseChargeStatus(orderNumber, userId);
+  }
+
+  @Post(':orderNumber/omise-simulate-pay')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({ summary: 'Sandbox only: simulate PromptPay charge payment' })
+  async simulateOmisePay(
+    @Param('orderNumber') orderNumber: string,
+    @Request() req: AuthenticatedCustomerRequest,
+  ): Promise<ApiOrder> {
+    const userId = req.user?.id;
+    return this.ordersService.simulateOmisePay(orderNumber, userId);
   }
 
   @Patch(':orderNumber/payment-method')
@@ -137,11 +170,17 @@ export class CustomerOrdersController {
     @Body()
     body: {
       paymentMethod?: PaymentMethod;
+      omiseToken?: string;
       cardLast4?: string;
       cardBrand?: string;
     },
     @Request() req: AuthenticatedCustomerRequest,
-  ): Promise<ApiOrder> {
+  ): Promise<{
+    order: ApiOrder;
+    authorizeUri?: string | null;
+    qrDownloadUri?: string | null;
+    expiresAt?: string | null;
+  }> {
     const userId = req.user?.id;
     return this.ordersService.payOrder(orderNumber, userId, body);
   }

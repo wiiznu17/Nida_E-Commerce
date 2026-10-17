@@ -69,6 +69,9 @@ export interface ApiPaymentSummary {
   cardLast4?: string;
   cardBrand?: string;
   paidAt?: string;
+  qrDownloadUri?: string;
+  qrExpiresAt?: string;
+  failureMessage?: string;
 }
 
 export interface ApiShipment {

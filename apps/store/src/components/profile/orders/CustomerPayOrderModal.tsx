@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { QrCode, CreditCard, X, AlertCircle, Loader2 } from 'lucide-react';
+import { X, AlertCircle, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { orderRequester } from '@/api/requester/orderRequester';
+import { createOmiseCardToken } from '@/lib/omise';
+import { PaymentMethodTabs } from './PaymentMethodTabs';
 import { PromptPayView } from './PromptPayView';
 import { CreditCardForm } from './CreditCardForm';
 import { PaymentMethod, type ApiOrder } from '@repo/types';
@@ -37,6 +39,7 @@ export function CustomerPayOrderModal({
   const [cardCvc, setCardCvc] = useState('');
   const [countdown, setCountdown] = useState<number>(15 * 60);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,33 +70,72 @@ export function CustomerPayOrderModal({
         setError(isTh ? 'กรุณากรอกรหัส CVC ให้ถูกต้อง' : 'Please enter a valid CVC');
         return;
       }
+
+      setIsSubmitting(true);
+      try {
+        const [monthStr, yearStr] = cardExpiry.split('/');
+        const omiseTokenResult = await createOmiseCardToken({
+          name: cardName.trim() || 'Cardholder',
+          number: cleanNum,
+          expirationMonth: parseInt(monthStr, 10),
+          expirationYear: parseInt(`20${yearStr}`, 10),
+          securityCode: cardCvc,
+        });
+
+        const result = await orderRequester.payOrder(
+          order.orderNumber,
+          {
+            paymentMethod: PaymentMethod.CREDIT_CARD,
+            omiseToken: omiseTokenResult.id,
+            cardLast4: omiseTokenResult.card.last_digits,
+            cardBrand: omiseTokenResult.card.brand,
+          },
+          token,
+        );
+
+        if (result.authorizeUri) {
+          window.location.href = result.authorizeUri;
+          return;
+        }
+
+        onSuccess(result.order);
+        onClose();
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : t('orderDetail.payModal.paymentFailedToast'));
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
     }
 
-    setIsSubmitting(true);
+    if (activeMethod === PaymentMethod.PROMPTPAY) {
+      setIsSubmitting(true);
+      try {
+        const result = await orderRequester.payOrder(
+          order.orderNumber,
+          { paymentMethod: PaymentMethod.PROMPTPAY },
+          token,
+        );
+        onSuccess(result.order);
+        onClose();
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : t('orderDetail.payModal.paymentFailedToast'));
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
+
+  const handleSimulatePromptPay = async () => {
+    setIsSimulating(true);
     try {
-      const updated = await orderRequester.payOrder(
-        order.orderNumber,
-        {
-          paymentMethod: activeMethod,
-          cardLast4:
-            activeMethod === PaymentMethod.CREDIT_CARD
-              ? cardNumber.replace(/\s/g, '').slice(-4)
-              : undefined,
-          cardBrand:
-            activeMethod === PaymentMethod.CREDIT_CARD ? 'Visa' : undefined,
-        },
-        token,
-      );
+      const updated = await orderRequester.simulateOmisePay(order.orderNumber, token);
       onSuccess(updated);
       onClose();
     } catch (err: unknown) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('orderDetail.payModal.paymentFailedToast'),
-      );
+      setError(err instanceof Error ? err.message : 'Simulate pay failed');
     } finally {
-      setIsSubmitting(false);
+      setIsSimulating(false);
     }
   };
 
@@ -145,50 +187,22 @@ export function CustomerPayOrderModal({
           )}
 
           {/* Payment Method Selector Tabs */}
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider">
-              {t('orderDetail.payModal.methodTitle')}
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveMethod(PaymentMethod.PROMPTPAY);
-                  setError(null);
-                }}
-                className={`flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xs border text-xs font-bold transition-all cursor-pointer ${
-                  activeMethod === PaymentMethod.PROMPTPAY
-                    ? 'border-brand-brown bg-brand-warm-cream/50 text-brand-dark-brown shadow-2xs'
-                    : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
-                }`}
-              >
-                <QrCode className="w-4 h-4 text-brand-brown" />
-                <span>{t('orderDetail.payModal.promptpayTab')}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveMethod(PaymentMethod.CREDIT_CARD);
-                  setError(null);
-                }}
-                className={`flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xs border text-xs font-bold transition-all cursor-pointer ${
-                  activeMethod === PaymentMethod.CREDIT_CARD
-                    ? 'border-brand-brown bg-brand-warm-cream/50 text-brand-dark-brown shadow-2xs'
-                    : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
-                }`}
-              >
-                <CreditCard className="w-4 h-4 text-brand-brown" />
-                <span>{t('orderDetail.payModal.creditCardTab')}</span>
-              </button>
-            </div>
-          </div>
+          <PaymentMethodTabs
+            activeMethod={activeMethod}
+            onSelectMethod={(method) => {
+              setActiveMethod(method);
+              setError(null);
+            }}
+          />
 
           {/* PromptPay View */}
           {activeMethod === PaymentMethod.PROMPTPAY && (
             <PromptPayView
               totalAmount={order.totalAmount}
               countdown={countdown}
+              qrDownloadUri={order.payment?.qrDownloadUri}
+              onSimulatePay={handleSimulatePromptPay}
+              isSimulating={isSimulating}
             />
           )}
 

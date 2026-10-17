@@ -27,6 +27,19 @@ export interface CreateCustomerOrderPayload {
   customerEmail?: string;
 }
 
+export interface PayOrderResult {
+  order: ApiOrder;
+  authorizeUri?: string | null;
+  qrDownloadUri?: string | null;
+  expiresAt?: string | null;
+}
+
+export interface SyncOmiseStatusResult {
+  order: ApiOrder;
+  chargeStatus?: string;
+  failureMessage?: string;
+}
+
 export const orderRequester = {
   /**
    * Place a customer order with atomic stock deduction and checkout calculation.
@@ -82,22 +95,24 @@ export const orderRequester = {
   },
 
   /**
-   * Complete or simulate payment for an order with optional payment method and card details.
+   * Complete payment for an order via Omise (supports Credit Card 3DS & PromptPay QR).
    */
   payOrder: async (
     orderNumber: string,
     payloadOrToken?:
       | {
           paymentMethod?: PaymentMethod;
+          omiseToken?: string;
           cardLast4?: string;
           cardBrand?: string;
         }
       | string
       | null,
     maybeToken?: string | null,
-  ): Promise<ApiOrder> => {
+  ): Promise<PayOrderResult> => {
     let payload: {
       paymentMethod?: PaymentMethod;
+      omiseToken?: string;
       cardLast4?: string;
       cardBrand?: string;
     } = {};
@@ -109,9 +124,37 @@ export const orderRequester = {
       payload = payloadOrToken;
     }
 
-    return apiClient.post<ApiOrder>(
+    return apiClient.post<PayOrderResult>(
       `/orders/${encodeURIComponent(orderNumber)}/pay`,
       payload,
+      token,
+    );
+  },
+
+  /**
+   * Sync and retrieve the latest payment status directly with Omise.
+   */
+  syncOmiseStatus: async (
+    orderNumber: string,
+    token?: string | null,
+  ): Promise<SyncOmiseStatusResult> => {
+    return apiClient.get<SyncOmiseStatusResult>(
+      `/orders/${encodeURIComponent(orderNumber)}/omise-status`,
+      undefined,
+      token,
+    );
+  },
+
+  /**
+   * Sandbox only: simulate instant PromptPay charge payment for testing.
+   */
+  simulateOmisePay: async (
+    orderNumber: string,
+    token?: string | null,
+  ): Promise<ApiOrder> => {
+    return apiClient.post<ApiOrder>(
+      `/orders/${encodeURIComponent(orderNumber)}/omise-simulate-pay`,
+      {},
       token,
     );
   },

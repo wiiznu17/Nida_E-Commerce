@@ -2,21 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import {
-  ArrowLeft,
-  Package,
-  Ban,
-  RotateCw,
-  ExternalLink,
-  QrCode,
-  CreditCard,
-  Clock,
-} from 'lucide-react';
+import { useParams, useSearchParams } from 'next/navigation';
+import { Package } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { orderRequester } from '@/api/requester/orderRequester';
-import { EmptyState, LoadingSpinner, StatusBadge } from '@/components/ui';
+import { EmptyState, LoadingSpinner } from '@/components/ui';
 import {
   CustomerCancelOrderModal,
   CustomerReturnRequestModal,
@@ -25,11 +16,13 @@ import {
   CustomerOrderItemsCard,
   CustomerOrderSummarySidebar,
 } from '@/components/profile/orders';
-import type { ApiOrder } from '@repo/types';
+import { OrderStatus, type ApiOrder } from '@repo/types';
 
 export default function CustomerOrderDetailPage() {
   const { orderNumber } = useParams<{ orderNumber: string }>();
-  const { t, isTh, language } = useLanguage();
+  const searchParams = useSearchParams();
+  const queryPaymentError = searchParams.get('paymentError');
+  const { t, isTh } = useLanguage();
   const { token, isLoading: isAuthLoading } = useAuth();
 
   const [order, setOrder] = useState<ApiOrder | null>(null);
@@ -57,10 +50,31 @@ export default function CustomerOrderDetailPage() {
     }
   }, [isAuthLoading, loadOrderDetail]);
 
+  // Real-time polling when order is PENDING to detect Omise QR or webhook payment automatically
+  useEffect(() => {
+    if (!order || order.status !== OrderStatus.PENDING || !orderNumber) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const syncResult = await orderRequester.syncOmiseStatus(orderNumber, token);
+        if (syncResult.order.status !== OrderStatus.PENDING) {
+          setOrder(syncResult.order);
+          setToastMessage(isTh ? 'การชำระเงินสำเร็จแล้ว!' : 'Payment completed successfully!');
+        }
+      } catch {
+        // Silently continue polling
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [order?.status, orderNumber, token, isTh]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
   };
+
+  const paymentError = queryPaymentError || order?.payment?.failureMessage;
 
   if (isLoading || isAuthLoading) {
     return <LoadingSpinner fullScreen />;
@@ -96,6 +110,27 @@ export default function CustomerOrderDetailPage() {
             className="text-emerald-700 hover:text-emerald-900 font-bold ml-4"
           >
             ✕
+          </button>
+        </div>
+      )}
+
+      {/* Payment Failure Alert Banner */}
+      {paymentError && order.status === OrderStatus.PENDING && (
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div>
+            <p className="text-xs font-black uppercase tracking-wider text-rose-800">
+              {isTh ? 'การชำระเงินไม่สำเร็จ' : 'Payment Failed'}
+            </p>
+            <p className="text-xs text-rose-700 mt-0.5">
+              {paymentError}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsPayModalOpen(true)}
+            className="shrink-0 px-4 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+          >
+            {t('orderHistory.payNow')}
           </button>
         </div>
       )}

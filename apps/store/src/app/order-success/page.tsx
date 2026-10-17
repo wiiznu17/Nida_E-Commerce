@@ -51,9 +51,9 @@ function OrderSuccessContent() {
 
     const pollInterval = setInterval(async () => {
       try {
-        const latest = await orderRequester.getOrderDetail(rawOrderNumber, token);
-        if (latest.status !== OrderStatus.PENDING) {
-          setOrder(latest);
+        const statusResult = await orderRequester.syncOmiseStatus(rawOrderNumber, token);
+        if (statusResult.order.status !== OrderStatus.PENDING) {
+          setOrder(statusResult.order);
         }
       } catch {
         // Continue polling silently
@@ -67,7 +67,7 @@ function OrderSuccessContent() {
     if (!order) return;
     setIsSimulating(true);
     try {
-      const updated = await orderRequester.payOrder(order.orderNumber, token);
+      const updated = await orderRequester.simulateOmisePay(order.orderNumber, token);
       setOrder(updated);
     } catch (err: unknown) {
       console.warn('[OrderSuccess] Simulate payment error:', err);

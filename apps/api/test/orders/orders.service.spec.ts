@@ -4,6 +4,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { OrderStatus, ReturnStatus, PaymentMethod } from '@repo/database';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
+import type { OmiseService } from '../../src/modules/orders/omise.service.js';
 
 describe('CustomerOrdersService', () => {
   let service: CustomerOrdersService;
@@ -41,9 +42,38 @@ describe('CustomerOrdersService', () => {
       sendOrderConfirmation: vi.fn().mockResolvedValue(undefined),
     };
 
+    const omiseMock = {
+      createPromptPayCharge: vi.fn().mockResolvedValue({
+        chargeId: 'chrg_test_mock_promptpay',
+        qrDownloadUri: 'https://api.omise.co/qr_mock.svg',
+        expiresAt: '2026-10-18T10:00:00Z',
+        status: 'pending',
+      }),
+      createCreditCardCharge: vi.fn().mockResolvedValue({
+        chargeId: 'chrg_test_mock_card',
+        status: 'successful',
+        authorizeUri: null,
+        failureCode: null,
+        failureMessage: null,
+        cardBrand: 'Visa',
+        cardLast4: '4242',
+      }),
+      getCharge: vi.fn().mockResolvedValue({
+        id: 'chrg_test_mock',
+        status: 'successful',
+        paid: true,
+      }),
+      simulateMarkAsPaid: vi.fn().mockResolvedValue({
+        id: 'chrg_test_mock',
+        status: 'successful',
+        paid: true,
+      }),
+    };
+
     service = new CustomerOrdersService(
       prismaMock as PrismaService,
       mailerMock as MailerService,
+      omiseMock as unknown as OmiseService,
     );
   });
 
@@ -537,7 +567,10 @@ describe('CustomerOrdersService', () => {
           .update,
       ).toHaveBeenCalledWith({
         where: { id: 'pay-1' },
-        data: { paymentMethod: PaymentMethod.PROMPTPAY },
+        data: expect.objectContaining({
+          paymentMethod: PaymentMethod.PROMPTPAY,
+          transactionReference: 'chrg_test_mock_promptpay',
+        }),
       });
       expect(result.payment?.paymentMethod).toBe(PaymentMethod.PROMPTPAY);
     });
@@ -641,7 +674,7 @@ describe('CustomerOrdersService', () => {
           paidAt: expect.any(Date),
         },
       });
-      expect(result.status).toBe(OrderStatus.PAID);
+      expect(result.order.status).toBe(OrderStatus.PAID);
     });
   });
 });

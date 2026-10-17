@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { MailerService } from '../../core/mailer/mailer.service.js';
+import { OmiseService } from './omise.service.js';
 import { CreateCustomerOrderDto } from './dto/create-customer-order.dto.js';
 import type {
   ApiOrder,
@@ -13,7 +14,6 @@ import type {
   ApiOrderAddress,
   ApiShipment,
   TrackingResult,
-  PaymentMethod,
   ShipmentStatus,
   CarrierCode,
   CancellationRequestStatus,
@@ -30,6 +30,7 @@ import {
   PaymentStatus,
   DiscountType,
   ReturnStatus,
+  PaymentMethod,
 } from '@repo/database';
 
 const FREE_SHIPPING_THRESHOLD = 1000;
@@ -76,6 +77,7 @@ export class CustomerOrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
+    private readonly omiseService: OmiseService,
   ) {}
 
   async createOrder(
@@ -339,6 +341,24 @@ export class CustomerOrdersService {
         });
       }
 
+      let omiseChargeId: string | undefined;
+      let omiseQrUri: string | undefined;
+      let omiseQrExpiresAt: string | undefined;
+
+      if (paymentMethod === PaymentMethod.PROMPTPAY && totalAmount > 0) {
+        try {
+          const qrResult = await this.omiseService.createPromptPayCharge(
+            orderNumber,
+            totalAmount,
+          );
+          omiseChargeId = qrResult.chargeId;
+          omiseQrUri = qrResult.qrDownloadUri;
+          omiseQrExpiresAt = qrResult.expiresAt;
+        } catch (err: unknown) {
+          this.logger.warn(`Failed to generate initial Omise PromptPay QR for #${orderNumber}: ${err}`);
+        }
+      }
+
       await tx.payment.create({
         data: {
           orderId: order.id,
@@ -346,6 +366,11 @@ export class CustomerOrdersService {
           amount: totalAmount,
           currency: 'THB',
           status: PaymentStatus.PENDING,
+          transactionReference: omiseChargeId,
+          rawWebhookPayload: {
+            qrDownloadUri: omiseQrUri,
+            qrExpiresAt: omiseQrExpiresAt,
+          },
         },
       });
 
@@ -586,10 +611,74 @@ export class CustomerOrdersService {
       );
     }
 
+    if (order.payment && order.payment.paymentMethod === paymentMethod) {
+      return this.getOrderByNumber(orderNumber, userId);
+    }
+
+    const MAX_SWITCH_LIMIT = 3;
+    const COOLDOWN_SECONDS = 15;
+
+    const rawMeta =
+      order.payment?.rawWebhookPayload &&
+      typeof order.payment.rawWebhookPayload === 'object' &&
+      !Array.isArray(order.payment.rawWebhookPayload)
+        ? (order.payment.rawWebhookPayload as Record<string, unknown>)
+        : {};
+
+    const switchCount =
+      typeof rawMeta.switchCount === 'number' ? rawMeta.switchCount : 0;
+    const lastSwitchedAt =
+      typeof rawMeta.lastSwitchedAt === 'string'
+        ? new Date(rawMeta.lastSwitchedAt).getTime()
+        : 0;
+
+    if (switchCount >= MAX_SWITCH_LIMIT) {
+      throw new BadRequestException(
+        `คุณได้เปลี่ยนช่องทางการชำระเงินครบโควตาสูงสุด (${MAX_SWITCH_LIMIT} ครั้ง) สำหรับคำสั่งซื้อนี้แล้ว หากต้องการความช่วยเหลือ กรุณาติดต่อฝ่ายบริการลูกค้า`,
+      );
+    }
+
+    const elapsedSeconds = Math.floor((Date.now() - lastSwitchedAt) / 1000);
+    if (lastSwitchedAt > 0 && elapsedSeconds < COOLDOWN_SECONDS) {
+      const waitRemaining = COOLDOWN_SECONDS - elapsedSeconds;
+      throw new BadRequestException(
+        `กรุณารอสักครู่ (${waitRemaining} วินาที) ก่อนทำการเปลี่ยนช่องทางการชำระเงินอีกครั้ง`,
+      );
+    }
+
+    let newQrUri: string | undefined;
+    let newExpiresAt: string | undefined;
+    let newChargeId: string | undefined;
+
+    if (paymentMethod === PaymentMethod.PROMPTPAY) {
+      try {
+        const qrResult = await this.omiseService.createPromptPayCharge(
+          orderNumber,
+          Number(order.totalAmount),
+        );
+        newQrUri = qrResult.qrDownloadUri;
+        newExpiresAt = qrResult.expiresAt;
+        newChargeId = qrResult.chargeId;
+      } catch (err: unknown) {
+        this.logger.warn(`Failed to create Omise PromptPay QR on method switch: ${err}`);
+      }
+    }
+
     if (order.payment) {
       await this.prisma.payment.update({
         where: { id: order.payment.id },
-        data: { paymentMethod },
+        data: {
+          paymentMethod,
+          transactionReference: newChargeId ?? order.payment.transactionReference,
+          rawWebhookPayload: {
+            ...rawMeta,
+            switchCount: switchCount + 1,
+            lastSwitchedAt: new Date().toISOString(),
+            qrDownloadUri: newQrUri,
+            qrExpiresAt: newExpiresAt,
+            failureMessage: null,
+          },
+        },
       });
     }
 
@@ -601,10 +690,16 @@ export class CustomerOrdersService {
     userId?: string,
     payload?: {
       paymentMethod?: PaymentMethod;
+      omiseToken?: string;
       cardLast4?: string;
       cardBrand?: string;
     },
-  ): Promise<ApiOrder> {
+  ): Promise<{
+    order: ApiOrder;
+    authorizeUri?: string | null;
+    qrDownloadUri?: string | null;
+    expiresAt?: string | null;
+  }> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: { payment: true },
@@ -619,9 +714,128 @@ export class CustomerOrdersService {
     }
 
     if (order.status !== OrderStatus.PENDING) {
-      return this.getOrderByNumber(orderNumber, userId);
+      const current = await this.getOrderByNumber(orderNumber, userId);
+      return { order: current };
     }
 
+    const targetMethod =
+      payload?.paymentMethod ??
+      order.payment?.paymentMethod ??
+      PaymentMethod.PROMPTPAY;
+
+    // Credit Card Charge with Omise Token (supports 3-D Secure OTP)
+    if (targetMethod === PaymentMethod.CREDIT_CARD && payload?.omiseToken) {
+      const charge = await this.omiseService.createCreditCardCharge(
+        orderNumber,
+        Number(order.totalAmount),
+        payload.omiseToken,
+      );
+
+      if (charge.status === 'failed') {
+        if (order.payment) {
+          const rawMeta =
+            (order.payment.rawWebhookPayload as Record<string, unknown> | null) ?? {};
+          await this.prisma.payment.update({
+            where: { id: order.payment.id },
+            data: {
+              rawWebhookPayload: {
+                ...rawMeta,
+                failureMessage: charge.failureMessage,
+              },
+            },
+          });
+        }
+        throw new BadRequestException(
+          charge.failureMessage || 'การชำระเงินผ่านบัตรไม่สำเร็จ กรุณาตรวจสอบข้อมูลบัตรหรือลองใหม่อีกครั้ง',
+        );
+      }
+
+      if (charge.status === 'pending' && charge.authorizeUri) {
+        if (order.payment) {
+          await this.prisma.payment.update({
+            where: { id: order.payment.id },
+            data: {
+              transactionReference: charge.chargeId,
+              cardBrand: charge.cardBrand,
+              cardLast4: charge.cardLast4,
+              paymentMethod: PaymentMethod.CREDIT_CARD,
+            },
+          });
+        }
+        const updatedOrder = await this.getOrderByNumber(orderNumber, userId);
+        return { order: updatedOrder, authorizeUri: charge.authorizeUri };
+      }
+
+      if (charge.status === 'successful') {
+        const nextStatus = order.hasPreorderItems
+          ? OrderStatus.PREORDER_AWAITING_STOCK
+          : OrderStatus.PAID;
+
+        await this.prisma.$transaction(async (tx) => {
+          if (order.payment) {
+            await tx.payment.update({
+              where: { id: order.payment.id },
+              data: {
+                paymentMethod: PaymentMethod.CREDIT_CARD,
+                transactionReference: charge.chargeId,
+                cardLast4: charge.cardLast4,
+                cardBrand: charge.cardBrand,
+                status: PaymentStatus.CAPTURED,
+                paidAt: new Date(),
+              },
+            });
+          }
+
+          await tx.order.update({
+            where: { id: order.id },
+            data: { status: nextStatus },
+          });
+        });
+
+        const updatedOrder = await this.getOrderByNumber(orderNumber, userId);
+        return { order: updatedOrder };
+      }
+    }
+
+    // PromptPay Refresh/Creation
+    if (targetMethod === PaymentMethod.PROMPTPAY) {
+      let qrDownloadUri: string | undefined;
+      let expiresAt: string | undefined;
+
+      try {
+        const qrResult = await this.omiseService.createPromptPayCharge(
+          orderNumber,
+          Number(order.totalAmount),
+        );
+        qrDownloadUri = qrResult.qrDownloadUri;
+        expiresAt = qrResult.expiresAt;
+
+        if (order.payment) {
+          const rawMeta =
+            (order.payment.rawWebhookPayload as Record<string, unknown> | null) ?? {};
+          await this.prisma.payment.update({
+            where: { id: order.payment.id },
+            data: {
+              paymentMethod: PaymentMethod.PROMPTPAY,
+              transactionReference: qrResult.chargeId,
+              rawWebhookPayload: {
+                ...rawMeta,
+                qrDownloadUri,
+                qrExpiresAt: expiresAt,
+                failureMessage: null,
+              },
+            },
+          });
+        }
+      } catch (err: unknown) {
+        this.logger.warn(`Failed to generate Omise PromptPay QR for #${orderNumber}: ${err}`);
+      }
+
+      const updatedOrder = await this.getOrderByNumber(orderNumber, userId);
+      return { order: updatedOrder, qrDownloadUri, expiresAt };
+    }
+
+    // Fallback simulation (dev mode)
     const nextStatus = order.hasPreorderItems
       ? OrderStatus.PREORDER_AWAITING_STOCK
       : OrderStatus.PAID;
@@ -631,7 +845,7 @@ export class CustomerOrdersService {
         await tx.payment.update({
           where: { id: order.payment.id },
           data: {
-            paymentMethod: payload?.paymentMethod ?? order.payment.paymentMethod,
+            paymentMethod: targetMethod,
             cardLast4: payload?.cardLast4 ?? order.payment.cardLast4,
             cardBrand: payload?.cardBrand ?? order.payment.cardBrand,
             status: PaymentStatus.CAPTURED,
@@ -646,7 +860,198 @@ export class CustomerOrdersService {
       });
     });
 
+    const current = await this.getOrderByNumber(orderNumber, userId);
+    return { order: current };
+  }
+
+  async syncOmiseChargeStatus(
+    orderNumber: string,
+    userId?: string,
+  ): Promise<{ order: ApiOrder; chargeStatus?: string; failureMessage?: string }> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: { payment: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (userId && order.userId && order.userId !== userId) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    const chargeId = order.payment?.transactionReference;
+    if (!chargeId || !chargeId.startsWith('chrg_')) {
+      const current = await this.getOrderByNumber(orderNumber, userId);
+      return { order: current };
+    }
+
+    try {
+      const charge = await this.omiseService.getCharge(chargeId);
+      const rawMeta =
+        (order.payment?.rawWebhookPayload as Record<string, unknown> | null) ?? {};
+
+      if (charge.paid || charge.status === 'successful') {
+        const nextStatus = order.hasPreorderItems
+          ? OrderStatus.PREORDER_AWAITING_STOCK
+          : OrderStatus.PAID;
+
+        await this.prisma.$transaction(async (tx) => {
+          if (order.payment) {
+            await tx.payment.update({
+              where: { id: order.payment.id },
+              data: {
+                status: PaymentStatus.CAPTURED,
+                paidAt: new Date(),
+                rawWebhookPayload: {
+                  ...rawMeta,
+                  failureMessage: null,
+                },
+              },
+            });
+          }
+
+          await tx.order.update({
+            where: { id: order.id },
+            data: { status: nextStatus },
+          });
+        });
+      } else if (charge.status === 'failed') {
+        if (order.payment) {
+          await this.prisma.payment.update({
+            where: { id: order.payment.id },
+            data: {
+              rawWebhookPayload: {
+                ...rawMeta,
+                failureMessage: charge.failure_message,
+              },
+            },
+          });
+        }
+      }
+
+      const updated = await this.getOrderByNumber(orderNumber, userId);
+      return {
+        order: updated,
+        chargeStatus: charge.status,
+        failureMessage: charge.failure_message ?? undefined,
+      };
+    } catch (err: unknown) {
+      this.logger.warn(`Failed to sync Omise charge #${chargeId}: ${err}`);
+      const current = await this.getOrderByNumber(orderNumber, userId);
+      return { order: current };
+    }
+  }
+
+  async simulateOmisePay(
+    orderNumber: string,
+    userId?: string,
+  ): Promise<ApiOrder> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: { payment: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (userId && order.userId && order.userId !== userId) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    const chargeId = order.payment?.transactionReference;
+    if (chargeId && chargeId.startsWith('chrg_test_')) {
+      try {
+        await this.omiseService.simulateMarkAsPaid(chargeId);
+      } catch (err: unknown) {
+        this.logger.warn(`Could not mark charge as paid in Omise: ${err}`);
+      }
+    }
+
+    const nextStatus = order.hasPreorderItems
+      ? OrderStatus.PREORDER_AWAITING_STOCK
+      : OrderStatus.PAID;
+
+    await this.prisma.$transaction(async (tx) => {
+      if (order.payment) {
+        await tx.payment.update({
+          where: { id: order.payment.id },
+          data: {
+            status: PaymentStatus.CAPTURED,
+            paidAt: new Date(),
+          },
+        });
+      }
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: { status: nextStatus },
+      });
+    });
+
     return this.getOrderByNumber(orderNumber, userId);
+  }
+
+  async handleOmiseWebhook(event: Record<string, unknown>): Promise<{ received: boolean }> {
+    const eventKey = event.key as string;
+    const data = event.data as Record<string, unknown> | undefined;
+
+    if (eventKey === 'charge.complete' && data) {
+      const chargeId = data.id as string;
+      const status = data.status as string;
+      const metadata = data.metadata as Record<string, unknown> | undefined;
+      const orderNumber = metadata?.orderNumber as string | undefined;
+
+      this.logger.log(`Received Omise charge.complete for charge ${chargeId}, status: ${status}, orderNumber: ${orderNumber}`);
+
+      if (orderNumber) {
+        const order = await this.prisma.order.findUnique({
+          where: { orderNumber },
+          include: { payment: true },
+        });
+
+        if (order && order.status === OrderStatus.PENDING) {
+          if (status === 'successful') {
+            const nextStatus = order.hasPreorderItems
+              ? OrderStatus.PREORDER_AWAITING_STOCK
+              : OrderStatus.PAID;
+
+            await this.prisma.$transaction(async (tx) => {
+              if (order.payment) {
+                await tx.payment.update({
+                  where: { id: order.payment.id },
+                  data: {
+                    status: PaymentStatus.CAPTURED,
+                    paidAt: new Date(),
+                  },
+                });
+              }
+
+              await tx.order.update({
+                where: { id: order.id },
+                data: { status: nextStatus },
+              });
+            });
+          } else if (status === 'failed' && order.payment) {
+            const rawMeta =
+              (order.payment.rawWebhookPayload as Record<string, unknown> | null) ?? {};
+            await this.prisma.payment.update({
+              where: { id: order.payment.id },
+              data: {
+                rawWebhookPayload: {
+                  ...rawMeta,
+                  failureMessage: typeof data.failure_message === 'string' ? data.failure_message : null,
+                },
+              },
+            });
+          }
+        }
+      }
+    }
+
+    return { received: true };
   }
 
   async trackOrder(
@@ -773,6 +1178,7 @@ export class CustomerOrdersService {
       cardLast4?: string | null;
       cardBrand?: string | null;
       paidAt: Date | null;
+      rawWebhookPayload?: unknown;
     } | null;
     shipments: Array<{
       id: string;
@@ -961,6 +1367,27 @@ export class CustomerOrdersService {
             paidAt: order.payment.paidAt
               ? order.payment.paidAt.toISOString()
               : undefined,
+            qrDownloadUri:
+              order.payment.rawWebhookPayload &&
+              typeof order.payment.rawWebhookPayload === 'object' &&
+              !Array.isArray(order.payment.rawWebhookPayload) &&
+              typeof (order.payment.rawWebhookPayload as Record<string, unknown>).qrDownloadUri === 'string'
+                ? ((order.payment.rawWebhookPayload as Record<string, unknown>).qrDownloadUri as string)
+                : undefined,
+            qrExpiresAt:
+              order.payment.rawWebhookPayload &&
+              typeof order.payment.rawWebhookPayload === 'object' &&
+              !Array.isArray(order.payment.rawWebhookPayload) &&
+              typeof (order.payment.rawWebhookPayload as Record<string, unknown>).qrExpiresAt === 'string'
+                ? ((order.payment.rawWebhookPayload as Record<string, unknown>).qrExpiresAt as string)
+                : undefined,
+            failureMessage:
+              order.payment.rawWebhookPayload &&
+              typeof order.payment.rawWebhookPayload === 'object' &&
+              !Array.isArray(order.payment.rawWebhookPayload) &&
+              typeof (order.payment.rawWebhookPayload as Record<string, unknown>).failureMessage === 'string'
+                ? ((order.payment.rawWebhookPayload as Record<string, unknown>).failureMessage as string)
+                : undefined,
           }
         : undefined,
       shipments,

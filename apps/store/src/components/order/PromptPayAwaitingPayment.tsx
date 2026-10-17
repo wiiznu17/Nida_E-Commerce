@@ -52,7 +52,16 @@ export function PromptPayAwaitingPayment({
 
         {/* Generated QR Code */}
         <div className="w-56 h-56 mx-auto bg-white p-3 border border-gray-300 shadow-2xs mb-3 flex items-center justify-center relative">
-          {order?.totalAmount ? (
+          {order?.payment?.qrDownloadUri ? (
+            <Image
+              src={order.payment.qrDownloadUri}
+              alt="PromptPay QR Code"
+              width={200}
+              height={200}
+              unoptimized
+              className="w-full h-full object-contain"
+            />
+          ) : order?.totalAmount ? (
             <Image
               src={`https://promptpay.io/0105567891234/${Number(order.totalAmount).toFixed(2)}.png`}
               alt="PromptPay QR Code"
