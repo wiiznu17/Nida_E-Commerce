@@ -1,38 +1,87 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useCatalog } from '@/context/CatalogContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { findMarketingTagByLabel } from '@repo/types';
 import type { ApiProduct } from '@repo/types';
 import { HomeProductCard } from './HomeProductCard';
 
-export type TrendingTab = 'all' | 'women' | 'men' | 'bags';
+interface TagTabItem {
+  id: string;
+  label: string;
+}
 
 export const TrendingProductsSection: React.FC = () => {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { productsList } = useCatalog();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<TrendingTab>('all');
+  const [activeTab, setActiveTab] = useState<string>('all');
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
-  // Filter products for trending section from live catalog
-  const trendingProducts = productsList
-    .filter((p) => {
-      const dept = p.department.toLowerCase();
-      if (activeTab === 'all') return true;
-      if (activeTab === 'women') return dept === 'women';
-      if (activeTab === 'men') return dept === 'men';
-      if (activeTab === 'bags')
-        return dept === 'bags' || dept === 'shoes';
-      return true;
-    })
-    .slice(0, 8);
+  // Dynamically extract active marketing tags with at least 1 product
+  const tabs = useMemo<TagTabItem[]>(() => {
+    const list: TagTabItem[] = [{ id: 'all', label: t('home.tabAll') }];
+
+    const tagCounts = new Map<string, { count: number; label: string; id: string }>();
+
+    productsList.forEach((p) => {
+      const raw = p.tag ?? p.tagTh;
+      if (!raw) return;
+      const preset = findMarketingTagByLabel(raw);
+      const tagId = preset ? preset.key : raw.trim();
+      const normKey = tagId.toUpperCase().replace(/[-_ ]/g, '');
+
+      const label = preset
+        ? language === 'th'
+          ? preset.labelTh
+          : preset.labelEn
+        : language === 'th'
+          ? (p.tagTh ?? raw)
+          : raw;
+
+      const existing = tagCounts.get(normKey);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        tagCounts.set(normKey, { count: 1, label, id: tagId });
+      }
+    });
+
+    // Sort by count descending, pick the top 5 most popular tags
+    const sorted = Array.from(tagCounts.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    sorted.forEach((item) => {
+      list.push({ id: item.id, label: item.label });
+    });
+
+    return list;
+  }, [productsList, language, t]);
+
+  // Filter products for trending section from live catalog based on active tag
+  const trendingProducts = useMemo(() => {
+    if (activeTab === 'all') {
+      return productsList.slice(0, 8);
+    }
+    const target = activeTab.toUpperCase().replace(/[-_ ]/g, '');
+    return productsList
+      .filter((p) => {
+        const raw = p.tag ?? p.tagTh;
+        if (!raw) return false;
+        const preset = findMarketingTagByLabel(raw);
+        const pKey = (preset ? preset.key : raw).toUpperCase().replace(/[-_ ]/g, '');
+        return pKey === target || pKey.includes(target) || target.includes(pKey);
+      })
+      .slice(0, 8);
+  }, [productsList, activeTab]);
 
   const handleQuickAdd = (e: React.MouseEvent, product: ApiProduct) => {
     e.preventDefault();
@@ -48,7 +97,7 @@ export const TrendingProductsSection: React.FC = () => {
 
     const defaultColor =
       product.colors && product.colors.length > 0
-        ? product.colors[0]?.name || 'Navy / Classic'
+        ? (product.colors[0]?.name ?? 'Standard')
         : 'Standard';
 
     addToCart(product, defaultSize, defaultColor);
@@ -56,16 +105,9 @@ export const TrendingProductsSection: React.FC = () => {
     setTimeout(() => setAddedProductId(null), 2000);
   };
 
-  const tabs: Array<{ id: TrendingTab; label: string }> = [
-    { id: 'all', label: t('home.tabAll') },
-    { id: 'women', label: t('home.tabWomen') },
-    { id: 'men', label: t('home.tabMen') },
-    { id: 'bags', label: t('home.tabBags') },
-  ];
-
   return (
     <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20">
-      {/* Section Header & Department Tabs */}
+      {/* Section Header & Tag Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 pb-4 border-b border-gray-200 gap-4">
         <div>
           <span className="text-xs font-black tracking-[0.25em] text-brand-amber uppercase block mb-1">
@@ -76,16 +118,16 @@ export const TrendingProductsSection: React.FC = () => {
           </h2>
         </div>
 
-        {/* Department Filter Pills */}
+        {/* Marketing Tag Filter Pills */}
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`text-xs font-black uppercase tracking-wider px-4 py-2 border transition-all whitespace-nowrap cursor-pointer ${
+              className={`text-xs font-black uppercase tracking-wider px-4 py-2 border transition-all whitespace-nowrap cursor-pointer rounded-xs ${
                 activeTab === tab.id
-                  ? 'bg-brand-brown text-white border-brand-brown'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-brand-brown'
+                  ? 'bg-brand-brown text-white border-brand-brown shadow-xs'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-brand-brown hover:text-brand-brown'
               }`}
             >
               {tab.label}
