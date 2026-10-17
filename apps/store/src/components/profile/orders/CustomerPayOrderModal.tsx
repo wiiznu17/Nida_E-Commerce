@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, AlertCircle, Loader2 } from 'lucide-react';
+import { X, AlertCircle, Loader2, ArrowLeftRight, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { orderRequester } from '@/api/requester/orderRequester';
@@ -15,6 +15,7 @@ interface CustomerPayOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
   order: ApiOrder;
+  initialMode?: 'pay' | 'change_method';
   onSuccess: (updatedOrder: ApiOrder) => void;
 }
 
@@ -22,41 +23,82 @@ export function CustomerPayOrderModal({
   isOpen,
   onClose,
   order,
+  initialMode = 'pay',
   onSuccess,
 }: CustomerPayOrderModalProps) {
   const { t, isTh } = useLanguage();
   const { token } = useAuth();
 
-  const [activeMethod, setActiveMethod] = useState<PaymentMethod>(
+  const currentMethod =
     order.payment?.paymentMethod === PaymentMethod.CREDIT_CARD
       ? PaymentMethod.CREDIT_CARD
-      : PaymentMethod.PROMPTPAY,
-  );
+      : PaymentMethod.PROMPTPAY;
 
+  const [mode, setMode] = useState<'pay' | 'change_method'>(initialMode);
+  const [selectedNewMethod, setSelectedNewMethod] = useState<PaymentMethod>(currentMethod);
   const [cardName, setCardName] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvc, setCardCvc] = useState('');
   const [countdown, setCountdown] = useState<number>(15 * 60);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [infoToast, setInfoToast] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isOpen || activeMethod !== PaymentMethod.PROMPTPAY) return;
+    if (isOpen) {
+      setMode(initialMode);
+      setSelectedNewMethod(currentMethod);
+      setError(null);
+      setInfoToast(null);
+    }
+  }, [isOpen, initialMode, currentMethod]);
+
+  useEffect(() => {
+    if (!isOpen || currentMethod !== PaymentMethod.PROMPTPAY) return;
     const timer = setInterval(() => {
       setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(timer);
-  }, [isOpen, activeMethod]);
+  }, [isOpen, currentMethod]);
 
   if (!isOpen) return null;
+
+  const handleConfirmChangeMethod = async () => {
+    if (selectedNewMethod === currentMethod) {
+      setMode('pay');
+      return;
+    }
+
+    setIsSwitching(true);
+    setError(null);
+    try {
+      const updated = await orderRequester.updatePaymentMethod(
+        order.orderNumber,
+        selectedNewMethod,
+        token,
+      );
+      onSuccess(updated);
+      setMode('pay');
+      setInfoToast(t('orderDetail.payModal.switchSuccessToast'));
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to update payment method',
+      );
+    } finally {
+      setIsSwitching(false);
+    }
+  };
 
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (activeMethod === PaymentMethod.CREDIT_CARD) {
+    if (currentMethod === PaymentMethod.CREDIT_CARD) {
       const cleanNum = cardNumber.replace(/\s/g, '');
       if (cleanNum.length < 15) {
         setError(isTh ? 'กรุณากรอกหมายเลขบัตรให้ครบถ้วน' : 'Please enter a valid card number');
@@ -108,7 +150,7 @@ export function CustomerPayOrderModal({
       return;
     }
 
-    if (activeMethod === PaymentMethod.PROMPTPAY) {
+    if (currentMethod === PaymentMethod.PROMPTPAY) {
       setIsSubmitting(true);
       try {
         const result = await orderRequester.payOrder(
@@ -161,7 +203,9 @@ export function CustomerPayOrderModal({
         <div className="px-6 py-4 border-b border-brand-border flex items-center justify-between bg-stone-50/50 shrink-0">
           <div>
             <h2 className="text-sm font-bold text-stone-900 tracking-tight">
-              {t('orderDetail.payModal.title')}
+              {mode === 'change_method'
+                ? t('orderDetail.payModal.selectNewMethodTitle')
+                : t('orderDetail.payModal.title')}
             </h2>
             <p className="text-[11px] text-stone-500 font-mono">
               #{order.orderNumber} • ฿{Number(order.totalAmount).toLocaleString()}
@@ -177,8 +221,8 @@ export function CustomerPayOrderModal({
           </button>
         </div>
 
-        {/* Scrollable Modal Content */}
-        <form onSubmit={handlePay} className="p-6 space-y-5 overflow-y-auto">
+        {/* Modal Body */}
+        <div className="p-6 space-y-5 overflow-y-auto">
           {error && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-xs text-xs text-rose-800 flex items-start space-x-2">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
@@ -186,59 +230,128 @@ export function CustomerPayOrderModal({
             </div>
           )}
 
-          {/* Payment Method Selector Tabs */}
-          <PaymentMethodTabs
-            activeMethod={activeMethod}
-            onSelectMethod={(method) => {
-              setActiveMethod(method);
-              setError(null);
-            }}
-          />
-
-          {/* PromptPay View */}
-          {activeMethod === PaymentMethod.PROMPTPAY && (
-            <PromptPayView
-              totalAmount={order.totalAmount}
-              countdown={countdown}
-              qrDownloadUri={order.payment?.qrDownloadUri}
-              onSimulatePay={handleSimulatePromptPay}
-              isSimulating={isSimulating}
-            />
+          {infoToast && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xs text-xs text-emerald-800 flex items-center space-x-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{infoToast}</span>
+            </div>
           )}
 
-          {/* Credit Card Inputs View */}
-          {activeMethod === PaymentMethod.CREDIT_CARD && (
-            <CreditCardForm
-              cardName={cardName}
-              setCardName={setCardName}
-              cardNumber={cardNumber}
-              onCardNumberChange={handleCardNumberChange}
-              cardExpiry={cardExpiry}
-              onExpiryChange={handleExpiryChange}
-              cardCvc={cardCvc}
-              setCardCvc={setCardCvc}
-            />
-          )}
+          {/* Mode 1: Change Payment Method (Deliberate Select & Confirm) */}
+          {mode === 'change_method' ? (
+            <div className="space-y-4">
+              <p className="text-xs text-stone-600 leading-relaxed">
+                {t('orderDetail.payModal.selectNewMethodDesc')}
+              </p>
 
-          {/* Action Button */}
-          <div className="pt-2 border-t border-brand-border">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-2.5 px-4 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <span>
-                  {activeMethod === PaymentMethod.PROMPTPAY
-                    ? t('orderDetail.payModal.confirmPromptPayBtn')
-                    : `${t('orderDetail.payModal.payWithCardBtn')} ฿${Number(order.totalAmount).toLocaleString()}`}
-                </span>
+              <PaymentMethodTabs
+                selectedMethod={selectedNewMethod}
+                onSelectMethod={setSelectedNewMethod}
+                disabled={isSwitching}
+              />
+
+              <div className="pt-4 border-t border-brand-border flex items-center justify-end space-x-2.5">
+                <button
+                  type="button"
+                  disabled={isSwitching}
+                  onClick={() => {
+                    setMode('pay');
+                    setSelectedNewMethod(currentMethod);
+                    setError(null);
+                  }}
+                  className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-stone-600 hover:text-stone-900 border border-stone-200 hover:bg-stone-50 rounded-xs transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {t('orderDetail.payModal.cancelChangeBtn')}
+                </button>
+                <button
+                  type="button"
+                  disabled={isSwitching}
+                  onClick={handleConfirmChangeMethod}
+                  className="px-5 py-2 text-xs font-bold uppercase tracking-wider bg-brand-brown hover:bg-brand-dark-brown text-white rounded-xs shadow-2xs transition-colors flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isSwitching && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{t('orderDetail.payModal.confirmChangeMethodBtn')}</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Mode 2: Pay with Selected Current Method */
+            <form onSubmit={handlePay} className="space-y-5">
+              {/* Current Method Indicator & Switch Action Link */}
+              <div className="flex items-center justify-between p-3 bg-brand-warm-cream/30 border border-brand-border/60 rounded-xs text-xs">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">
+                    {t('orderDetail.payModal.currentMethodLabel')}
+                  </span>
+                  <span className="font-bold text-brand-dark-brown">
+                    {currentMethod === PaymentMethod.CREDIT_CARD
+                      ? t('orderDetail.payModal.creditCardTab')
+                      : t('orderDetail.payModal.promptpayTab')}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedNewMethod(
+                      currentMethod === PaymentMethod.PROMPTPAY
+                        ? PaymentMethod.CREDIT_CARD
+                        : PaymentMethod.PROMPTPAY,
+                    );
+                    setMode('change_method');
+                  }}
+                  className="inline-flex items-center space-x-1 text-xs font-bold text-brand-brown hover:text-brand-dark-brown underline underline-offset-4 cursor-pointer"
+                >
+                  <ArrowLeftRight className="w-3.5 h-3.5" />
+                  <span>{t('orderDetail.changePaymentMethodBtn')}</span>
+                </button>
+              </div>
+
+              {/* PromptPay View */}
+              {currentMethod === PaymentMethod.PROMPTPAY && (
+                <PromptPayView
+                  totalAmount={order.totalAmount}
+                  countdown={countdown}
+                  qrDownloadUri={order.payment?.qrDownloadUri}
+                  onSimulatePay={handleSimulatePromptPay}
+                  isSimulating={isSimulating}
+                />
               )}
-            </button>
-          </div>
-        </form>
+
+              {/* Credit Card Inputs View */}
+              {currentMethod === PaymentMethod.CREDIT_CARD && (
+                <CreditCardForm
+                  cardName={cardName}
+                  setCardName={setCardName}
+                  cardNumber={cardNumber}
+                  onCardNumberChange={handleCardNumberChange}
+                  cardExpiry={cardExpiry}
+                  onExpiryChange={handleExpiryChange}
+                  cardCvc={cardCvc}
+                  setCardCvc={setCardCvc}
+                />
+              )}
+
+              {/* Submit Payment Action */}
+              <div className="pt-2 border-t border-brand-border">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-2.5 px-4 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <span>
+                      {currentMethod === PaymentMethod.PROMPTPAY
+                        ? t('orderDetail.payModal.confirmPromptPayBtn')
+                        : `${t('orderDetail.payModal.payWithCardBtn')} ฿${Number(order.totalAmount).toLocaleString()}`}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

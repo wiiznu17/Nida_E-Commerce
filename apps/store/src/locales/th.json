@@ -538,6 +538,7 @@
       "submitButton": "ยืนยันส่งคำขอคืนสินค้า"
     },
     "payNowBtn": "ชำระเงิน",
+    "changePaymentMethodBtn": "เปลี่ยนช่องทางชำระเงิน",
     "payModal": {
       "title": "ชำระเงินคำสั่งซื้อ",
       "methodTitle": "เลือกช่องทางชำระเงิน",
@@ -555,7 +556,25 @@
       "promptpayScanNotice": "สแกน QR Code ด้วยแอปพลิเคชันธนาคารเพื่อชำระเงิน",
       "expiresIn": "หมดอายุภายใน",
       "paymentSuccessToast": "ชำระเงินสำเร็จเรียบร้อยแล้ว ขอบคุณสำหรับคำสั่งซื้อ",
-      "paymentFailedToast": "การชำระเงินไม่สำเร็จ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง"
+      "paymentFailedToast": "การชำระเงินไม่สำเร็จ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง",
+      "currentMethodLabel": "ช่องทางชำระเงินปัจจุบัน",
+      "changeMethodBtn": "เปลี่ยนช่องทางการชำระเงิน",
+      "cancelChangeBtn": "ยกเลิก",
+      "confirmChangeMethodBtn": "ยืนยันการเปลี่ยนช่องทาง",
+      "selectNewMethodTitle": "เลือกช่องทางชำระเงินใหม่",
+      "selectNewMethodDesc": "เลือกช่องทางที่ต้องการแล้วกดยืนยันเพื่อดำเนินการต่อ",
+      "switchingMethod": "กำลังเปลี่ยนช่องทาง...",
+      "switchSuccessToast": "เปลี่ยนช่องทางการชำระเงินเรียบร้อยแล้ว"
     }
+  },
+  "status": {
+    "pending": "รอชำระเงิน",
+    "paid": "ชำระเงินแล้ว",
+    "preorderAwaitingStock": "รอสินค้าพรีออเดอร์",
+    "processing": "กำลังจัดเตรียม",
+    "shipped": "จัดส่งแล้ว",
+    "delivered": "จัดส่งสำเร็จ",
+    "cancelled": "ยกเลิกแล้ว",
+    "refunded": "คืนเงินแล้ว"
   }
 }

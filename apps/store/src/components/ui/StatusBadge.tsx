@@ -3,8 +3,16 @@
 import React from 'react';
 import { cn } from 'cn';
 import { OrderStatus } from '@repo/types';
+import { useLanguage } from '@/context/LanguageContext';
 
-export type StatusType = OrderStatus | 'active' | 'inactive' | 'success' | 'warning' | 'error' | 'info';
+export type StatusType =
+  | OrderStatus
+  | 'active'
+  | 'inactive'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'info';
 
 export interface StatusBadgeProps {
   status: StatusType | string;
@@ -23,48 +31,80 @@ export function StatusBadge({
   showDot = true,
   className,
 }: StatusBadgeProps) {
+  const { t } = useLanguage();
   const normalized = String(status).toUpperCase();
 
   const getStatusConfig = () => {
     switch (normalized) {
       case 'PAID':
-      case 'DELIVERED':
-      case 'SUCCESS':
-      case 'ACTIVE':
         return {
           bg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
           dot: 'bg-emerald-500',
-          defaultLabel: 'Delivered',
+          defaultLabel: t('status.paid'),
+        };
+      case 'DELIVERED':
+        return {
+          bg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+          dot: 'bg-emerald-500',
+          defaultLabel: t('status.delivered'),
+        };
+      case 'PREORDER_AWAITING_STOCK':
+        return {
+          bg: 'bg-amber-50 text-amber-800 border-amber-200',
+          dot: 'bg-amber-500',
+          defaultLabel: t('status.preorderAwaitingStock'),
+        };
+      case 'PROCESSING':
+        return {
+          bg: 'bg-amber-50 text-amber-800 border-amber-200',
+          dot: 'bg-amber-500',
+          defaultLabel: t('status.processing'),
         };
       case 'SHIPPED':
       case 'IN_TRANSIT':
         return {
           bg: 'bg-indigo-50 text-indigo-800 border-indigo-200',
           dot: 'bg-indigo-500',
-          defaultLabel: 'Shipped',
-        };
-      case 'PROCESSING':
-        return {
-          bg: 'bg-amber-50 text-amber-800 border-amber-200',
-          dot: 'bg-amber-500',
-          defaultLabel: 'Processing',
+          defaultLabel: t('status.shipped'),
         };
       case 'PENDING':
       case 'PENDING_PAYMENT':
-      case 'WARNING':
         return {
           bg: 'bg-stone-50 text-stone-700 border-stone-200',
           dot: 'bg-stone-400',
-          defaultLabel: 'Pending',
+          defaultLabel: t('status.pending'),
         };
       case 'CANCELLED':
+        return {
+          bg: 'bg-rose-50 text-rose-800 border-rose-200',
+          dot: 'bg-rose-500',
+          defaultLabel: t('status.cancelled'),
+        };
       case 'REFUNDED':
+        return {
+          bg: 'bg-purple-50 text-purple-800 border-purple-200',
+          dot: 'bg-purple-500',
+          defaultLabel: t('status.refunded'),
+        };
+      case 'ACTIVE':
+      case 'SUCCESS':
+        return {
+          bg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+          dot: 'bg-emerald-500',
+          defaultLabel: 'Active',
+        };
+      case 'WARNING':
+        return {
+          bg: 'bg-amber-50 text-amber-800 border-amber-200',
+          dot: 'bg-amber-500',
+          defaultLabel: 'Warning',
+        };
       case 'ERROR':
       case 'INACTIVE':
         return {
           bg: 'bg-rose-50 text-rose-800 border-rose-200',
           dot: 'bg-rose-500',
-          defaultLabel: 'Cancelled',
+          defaultLabel: 'Inactive',
         };
       default:
         return {
@@ -92,8 +132,8 @@ export function StatusBadge({
         className,
       )}
     >
-      {showDot && (
-        pulseDot ? (
+      {showDot &&
+        (pulseDot ? (
           <span className="relative flex h-1.5 w-1.5 shrink-0">
             <span
               className={cn(
@@ -110,8 +150,7 @@ export function StatusBadge({
           </span>
         ) : (
           <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', config.dot)} />
-        )
-      )}
+        ))}
       <span>{textLabel}</span>
     </span>
   );

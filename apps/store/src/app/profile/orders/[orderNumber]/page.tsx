@@ -28,6 +28,7 @@ export default function CustomerOrderDetailPage() {
   const [order, setOrder] = useState<ApiOrder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [payModalMode, setPayModalMode] = useState<'pay' | 'change_method'>('pay');
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -138,7 +139,10 @@ export default function CustomerOrderDetailPage() {
       {/* Order Header Card */}
       <CustomerOrderHeaderCard
         order={order}
-        onOpenPayModal={() => setIsPayModalOpen(true)}
+        onOpenPayModal={(mode) => {
+          setPayModalMode(mode ?? 'pay');
+          setIsPayModalOpen(true);
+        }}
         onOpenCancelModal={() => setIsCancelModalOpen(true)}
         onOpenReturnModal={() => setIsReturnModalOpen(true)}
       />
@@ -183,6 +187,7 @@ export default function CustomerOrderDetailPage() {
         isOpen={isPayModalOpen}
         onClose={() => setIsPayModalOpen(false)}
         order={order}
+        initialMode={payModalMode}
         onSuccess={(updated) => {
           setOrder(updated);
           showToast(t('orderDetail.payModal.paymentSuccessToast'));

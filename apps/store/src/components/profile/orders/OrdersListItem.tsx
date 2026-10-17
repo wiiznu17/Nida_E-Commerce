@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, CreditCard, Copy, Check, ExternalLink } from 'lucide-react';
+import { Package, CreditCard, Copy, Check, ExternalLink, ArrowLeftRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { OrderStatus, type ApiOrder } from '@repo/types';
 import { StatusBadge } from '@/components/ui';
@@ -16,6 +16,7 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
   const [currentOrder, setCurrentOrder] = useState<ApiOrder>(order);
   const [copiedTracking, setCopiedTracking] = useState(false);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [payModalMode, setPayModalMode] = useState<'pay' | 'change_method'>('pay');
 
   const trackingNumber = currentOrder.shipments?.[0]?.trackingNumber;
   const courierName = currentOrder.shipments?.[0]?.courierName;
@@ -137,14 +138,30 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
       {/* Action Buttons Footer - Mobile-First Grid (Min 44px Touch Targets) */}
       <div className="p-3 sm:p-4 bg-gray-50/60 border-t border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2">
         {currentOrder.status === OrderStatus.PENDING && (
-          <button
-            type="button"
-            onClick={() => setIsPayModalOpen(true)}
-            className="min-h-[44px] sm:min-h-0 bg-brand-amber hover:bg-brand-brown text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer"
-          >
-            <CreditCard size={15} />
-            <span>{t('orderHistory.payNow')}</span>
-          </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setPayModalMode('pay');
+                setIsPayModalOpen(true);
+              }}
+              className="min-h-[44px] sm:min-h-0 bg-brand-amber hover:bg-brand-brown text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer"
+            >
+              <CreditCard size={15} />
+              <span>{t('orderHistory.payNow')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPayModalMode('change_method');
+                setIsPayModalOpen(true);
+              }}
+              className="min-h-[44px] sm:min-h-0 border border-gray-300 hover:border-brand-brown hover:bg-stone-50 text-gray-700 px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1 cursor-pointer"
+            >
+              <ArrowLeftRight size={13} />
+              <span>{t('orderDetail.changePaymentMethodBtn')}</span>
+            </button>
+          </div>
         )}
 
         <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
@@ -168,6 +185,7 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
         isOpen={isPayModalOpen}
         onClose={() => setIsPayModalOpen(false)}
         order={currentOrder}
+        initialMode={payModalMode}
         onSuccess={(updatedOrder) => setCurrentOrder(updatedOrder)}
       />
     </div>

@@ -6,46 +6,73 @@ import { useLanguage } from '@/context/LanguageContext';
 import { PaymentMethod } from '@repo/types';
 
 interface PaymentMethodTabsProps {
-  activeMethod: PaymentMethod;
+  selectedMethod: PaymentMethod;
   onSelectMethod: (method: PaymentMethod) => void;
+  disabled?: boolean;
 }
 
 export function PaymentMethodTabs({
-  activeMethod,
+  selectedMethod,
   onSelectMethod,
+  disabled = false,
 }: PaymentMethodTabsProps) {
   const { t } = useLanguage();
 
   return (
-    <div>
-      <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-2">
-        {t('orderDetail.payModal.methodTitle')}
-      </label>
-      <div className="grid grid-cols-2 gap-2">
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2.5">
         <button
           type="button"
+          disabled={disabled}
           onClick={() => onSelectMethod(PaymentMethod.PROMPTPAY)}
-          className={`flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xs border text-xs font-bold transition-all cursor-pointer ${
-            activeMethod === PaymentMethod.PROMPTPAY
-              ? 'border-brand-brown bg-brand-warm-cream/50 text-brand-dark-brown shadow-2xs'
-              : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
+          className={`flex items-center justify-between p-3.5 rounded-xs border text-left transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+            selectedMethod === PaymentMethod.PROMPTPAY
+              ? 'border-brand-brown bg-brand-warm-cream/40 text-brand-dark-brown shadow-2xs ring-1 ring-brand-brown'
+              : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'
           }`}
         >
-          <QrCode className="w-4 h-4 text-brand-brown" />
-          <span>{t('orderDetail.payModal.promptpayTab')}</span>
+          <div className="flex items-center space-x-2.5">
+            <QrCode className="w-4 h-4 text-brand-brown shrink-0" />
+            <span className="text-xs font-bold">{t('orderDetail.payModal.promptpayTab')}</span>
+          </div>
+          <div
+            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+              selectedMethod === PaymentMethod.PROMPTPAY
+                ? 'border-brand-brown bg-brand-brown'
+                : 'border-stone-300'
+            }`}
+          >
+            {selectedMethod === PaymentMethod.PROMPTPAY && (
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            )}
+          </div>
         </button>
 
         <button
           type="button"
+          disabled={disabled}
           onClick={() => onSelectMethod(PaymentMethod.CREDIT_CARD)}
-          className={`flex items-center justify-center space-x-2 py-2.5 px-3 rounded-xs border text-xs font-bold transition-all cursor-pointer ${
-            activeMethod === PaymentMethod.CREDIT_CARD
-              ? 'border-brand-brown bg-brand-warm-cream/50 text-brand-dark-brown shadow-2xs'
-              : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
+          className={`flex items-center justify-between p-3.5 rounded-xs border text-left transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+            selectedMethod === PaymentMethod.CREDIT_CARD
+              ? 'border-brand-brown bg-brand-warm-cream/40 text-brand-dark-brown shadow-2xs ring-1 ring-brand-brown'
+              : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'
           }`}
         >
-          <CreditCard className="w-4 h-4 text-brand-brown" />
-          <span>{t('orderDetail.payModal.creditCardTab')}</span>
+          <div className="flex items-center space-x-2.5">
+            <CreditCard className="w-4 h-4 text-brand-brown shrink-0" />
+            <span className="text-xs font-bold">{t('orderDetail.payModal.creditCardTab')}</span>
+          </div>
+          <div
+            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+              selectedMethod === PaymentMethod.CREDIT_CARD
+                ? 'border-brand-brown bg-brand-brown'
+                : 'border-stone-300'
+            }`}
+          >
+            {selectedMethod === PaymentMethod.CREDIT_CARD && (
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            )}
+          </div>
         </button>
       </div>
     </div>

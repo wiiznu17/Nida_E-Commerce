@@ -538,6 +538,7 @@
       "submitButton": "Submit Return Request"
     },
     "payNowBtn": "Pay Now",
+    "changePaymentMethodBtn": "Change Payment Method",
     "payModal": {
       "title": "Order Payment",
       "methodTitle": "Select Payment Method",
@@ -555,7 +556,25 @@
       "promptpayScanNotice": "Scan this QR code with your mobile banking app to pay",
       "expiresIn": "Expires in",
       "paymentSuccessToast": "Payment completed successfully. Thank you for your order!",
-      "paymentFailedToast": "Payment failed. Please check your card information and try again."
+      "paymentFailedToast": "Payment failed. Please check your card information and try again.",
+      "currentMethodLabel": "Current Payment Method",
+      "changeMethodBtn": "Change Payment Method",
+      "cancelChangeBtn": "Cancel",
+      "confirmChangeMethodBtn": "Confirm Change",
+      "selectNewMethodTitle": "Select New Payment Method",
+      "selectNewMethodDesc": "Choose your preferred method and confirm to continue",
+      "switchingMethod": "Updating payment method...",
+      "switchSuccessToast": "Payment method updated successfully"
     }
+  },
+  "status": {
+    "pending": "Pending",
+    "paid": "Paid",
+    "preorderAwaitingStock": "Awaiting Pre-order Stock",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded"
   }
 }
