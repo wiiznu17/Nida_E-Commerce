@@ -50,11 +50,11 @@ function OmiseCallbackContent() {
               ? 'การชำระเงินด้วยบัตรไม่สำเร็จ (เช่น รหัส OTP ไม่ถูกต้องหรือวงเงินไม่พอ)'
               : 'Card payment was unsuccessful (e.g. invalid OTP or insufficient funds)');
           router.replace(
-            `/profile/orders/${encodeURIComponent(safeNum)}?paymentError=${encodeURIComponent(failMsg)}`,
+            `/payment?orderNumber=${encodeURIComponent(safeNum)}&paymentError=${encodeURIComponent(failMsg)}`,
           );
         } else {
-          // If still pending after 3DS redirect, take customer to order details to inspect or retry
-          router.replace(`/profile/orders/${encodeURIComponent(safeNum)}`);
+          // If still pending after 3DS redirect, take customer back to payment page
+          router.replace(`/payment?orderNumber=${encodeURIComponent(safeNum)}`);
         }
       } catch (err: unknown) {
         if (!isMounted) return;

@@ -10,8 +10,5 @@ export * from './ReturnItemsSelector';
 export * from './CustomerOrderItemsCard';
 export * from './CustomerOrderSummarySidebar';
 export * from './CustomerOrderHeaderCard';
-export * from './CustomerPayOrderModal';
-export * from './PromptPayView';
-export * from './CreditCardForm';
-export * from './PaymentMethodTabs';
 export * from './CustomerOrderTrackingCard';
+

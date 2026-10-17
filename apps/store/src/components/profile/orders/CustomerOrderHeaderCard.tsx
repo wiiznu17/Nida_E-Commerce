@@ -1,21 +1,20 @@
 'use client';
 
 import React from 'react';
-import { Ban, RotateCw, CreditCard, Clock, ArrowLeftRight } from 'lucide-react';
+import Link from 'next/link';
+import { Ban, RotateCw, CreditCard, Clock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { StatusBadge } from '@/components/ui';
 import type { ApiOrder } from '@repo/types';
 
 interface CustomerOrderHeaderCardProps {
   order: ApiOrder;
-  onOpenPayModal: (mode?: 'pay' | 'change_method') => void;
   onOpenCancelModal: () => void;
   onOpenReturnModal: () => void;
 }
 
 export function CustomerOrderHeaderCard({
   order,
-  onOpenPayModal,
   onOpenCancelModal,
   onOpenReturnModal,
 }: CustomerOrderHeaderCardProps) {
@@ -68,25 +67,13 @@ export function CustomerOrderHeaderCard({
         {/* Action Hub */}
         <div className="flex flex-wrap items-center gap-2">
           {isPendingPayment && (
-            <>
-              <button
-                type="button"
-                onClick={() => onOpenPayModal('pay')}
-                className="bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xs inline-flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer"
-              >
-                <CreditCard size={14} />
-                <span>{t('orderDetail.payNowBtn')}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onOpenPayModal('change_method')}
-                className="border border-stone-300 hover:border-brand-brown hover:bg-stone-50 text-stone-700 hover:text-brand-brown text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-xs inline-flex items-center space-x-1.5 transition-colors cursor-pointer"
-              >
-                <ArrowLeftRight size={13} />
-                <span>{t('orderDetail.changePaymentMethodBtn')}</span>
-              </button>
-            </>
+            <Link
+              href={`/payment?orderNumber=${encodeURIComponent(order.orderNumber)}`}
+              className="bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xs inline-flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer"
+            >
+              <CreditCard size={14} />
+              <span>{t('orderDetail.payNowBtn')}</span>
+            </Link>
           )}
 
           {canRequestCancellation && (

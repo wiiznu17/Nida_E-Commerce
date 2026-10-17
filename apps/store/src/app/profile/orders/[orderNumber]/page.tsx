@@ -11,7 +11,6 @@ import { EmptyState, LoadingSpinner } from '@/components/ui';
 import {
   CustomerCancelOrderModal,
   CustomerReturnRequestModal,
-  CustomerPayOrderModal,
   CustomerOrderHeaderCard,
   CustomerOrderItemsCard,
   CustomerOrderSummarySidebar,
@@ -28,8 +27,6 @@ export default function CustomerOrderDetailPage() {
 
   const [order, setOrder] = useState<ApiOrder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
-  const [payModalMode, setPayModalMode] = useState<'pay' | 'change_method'>('pay');
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -127,23 +124,18 @@ export default function CustomerOrderDetailPage() {
               {paymentError}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setIsPayModalOpen(true)}
+          <Link
+            href={`/payment?orderNumber=${encodeURIComponent(order.orderNumber)}`}
             className="shrink-0 px-4 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
           >
             {t('orderHistory.payNow')}
-          </button>
+          </Link>
         </div>
       )}
 
       {/* Order Header Card */}
       <CustomerOrderHeaderCard
         order={order}
-        onOpenPayModal={(mode) => {
-          setPayModalMode(mode ?? 'pay');
-          setIsPayModalOpen(true);
-        }}
         onOpenCancelModal={() => setIsCancelModalOpen(true)}
         onOpenReturnModal={() => setIsReturnModalOpen(true)}
       />
@@ -181,18 +173,6 @@ export default function CustomerOrderDetailPage() {
         onSuccess={(updated) => {
           setOrder(updated);
           showToast(t('orderDetail.returnSuccessToast'));
-        }}
-      />
-
-      {/* Pay Order Modal */}
-      <CustomerPayOrderModal
-        isOpen={isPayModalOpen}
-        onClose={() => setIsPayModalOpen(false)}
-        order={order}
-        initialMode={payModalMode}
-        onSuccess={(updated) => {
-          setOrder(updated);
-          showToast(t('orderDetail.payModal.paymentSuccessToast'));
         }}
       />
     </div>

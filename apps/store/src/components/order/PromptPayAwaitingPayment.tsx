@@ -27,20 +27,6 @@ export function PromptPayAwaitingPayment({
 
   return (
     <div>
-      <div className="inline-flex items-center space-x-2 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-900 rounded-full mb-4">
-        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-        <span className="text-[11px] font-bold uppercase tracking-wider">
-          {t('orderSuccess.orderPendingStatus')}
-        </span>
-      </div>
-
-      <h1 className="text-2xl font-black uppercase tracking-tight text-brand-brown mb-1.5">
-        {t('orderSuccess.awaitingPromptPay')}
-      </h1>
-      <p className="text-xs text-gray-600 leading-relaxed mb-6 font-medium">
-        {t('orderSuccess.promptPayDesc')}
-      </p>
-
       {/* QR Code Card */}
       <div className="border border-brand-border bg-brand-warm-cream/40 p-6 mb-6 text-center">
         {/* Thai QR Header Banner */}
@@ -77,7 +63,7 @@ export function PromptPayAwaitingPayment({
 
         {/* QR Meta Details */}
         <div className="space-y-1 text-xs">
-          <p className="font-mono text-xl font-black text-brand-brown tracking-tight">
+          <p className="font-mono text-2xl font-black text-brand-brown tracking-tight">
             ฿{Number(order?.totalAmount ?? 0).toLocaleString()}
           </p>
           <p className="text-[11px] font-bold text-gray-700">
@@ -99,16 +85,8 @@ export function PromptPayAwaitingPayment({
         </div>
       </div>
 
-      {/* Listening to Webhook Banner */}
-      <div className="mb-6 p-3 bg-brand-warm-cream border border-brand-border flex items-center justify-center space-x-2 text-xs text-gray-700">
-        <Loader2 size={14} className="animate-spin text-brand-amber shrink-0" />
-        <span className="text-[11px] font-medium">
-          {t('orderSuccess.listeningWebhook')}
-        </span>
-      </div>
-
       {/* Test Sandbox Simulate Payment Button */}
-      <div className="mb-6">
+      <div>
         <button
           type="button"
           onClick={onSimulatePayment}
@@ -127,11 +105,6 @@ export function PromptPayAwaitingPayment({
             </>
           )}
         </button>
-        <p className="text-[10px] text-gray-500 mt-1.5">
-          {language === 'th'
-            ? '* ปุ่มจำลองสำหรับทดสอบระบบในขั้นตอนพัฒนา โดยจะปรับสถานะเป็น PAID และตัดยอดทันที'
-            : '* Sandbox test button to immediately trigger PAID state and verify real-time polling'}
-        </p>
       </div>
     </div>
   );
