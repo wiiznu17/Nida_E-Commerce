@@ -44,8 +44,8 @@ export function CatalogProductGrid({
         const isJustAdded = addedProductId === product.id;
         const title = getProductTitle(product, language);
         const subCategory = getProductSubCategory(product, language);
-        const productHref = `/product/${product.slug || product.id}`;
-        const displayImage = product.primaryImage || '';
+        const productHref = `/product/${product.slug}`;
+        const displayImage = product.primaryImage ?? '';
 
         return (
           <div

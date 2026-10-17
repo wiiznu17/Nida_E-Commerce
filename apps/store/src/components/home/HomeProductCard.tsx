@@ -39,8 +39,8 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
         )
       : 0;
 
-  const productHref = `/product/${product.slug || product.id}`;
-  const displayImage = product.primaryImage || '';
+  const productHref = `/product/${product.slug}`;
+  const displayImage = product.primaryImage ?? '';
 
   return (
     <div className="group flex flex-col bg-white relative">

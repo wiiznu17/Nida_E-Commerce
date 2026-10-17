@@ -323,8 +323,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return matchSize && matchColor;
     }) ?? variants?.[0];
 
-    const variantId = explicitVariantId || matchedVariant?.id || product.id;
-    const sku = matchedVariant?.sku || product.slug || variantId;
+    const variantId = explicitVariantId ?? matchedVariant?.id ?? product.id;
+    const sku = matchedVariant?.sku ?? product.slug;
     const maxStock = matchedVariant?.quantityAvailable ?? 99;
 
     const primaryImage =
@@ -377,7 +377,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return [
         ...prev,
         {
-          id: `${product.slug || product.id}-${chosenSize}-${chosenColor}`,
+          id: `${product.id}-${chosenSize}-${chosenColor}`,
           productId: product.id,
           slug: product.slug,
           name: product.name,

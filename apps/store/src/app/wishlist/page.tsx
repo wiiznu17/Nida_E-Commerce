@@ -27,11 +27,9 @@ export default function WishlistPage() {
   const [isFilterVisible, setIsFilterVisible] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  // Match saved IDs or slugs to active catalog products
+  // Match saved IDs to active catalog products
   const rawWishlistProducts = useMemo(() => {
-    return productsList.filter(
-      (product) => wishlist.includes(product.id) || wishlist.includes(product.slug)
-    );
+    return productsList.filter((product) => wishlist.includes(product.id));
   }, [productsList, wishlist]);
 
   const {
@@ -48,7 +46,7 @@ export default function WishlistPage() {
   } = useWishlistFilters(rawWishlistProducts);
 
   const handleAddToCart = (product: ApiProduct) => {
-    const dept = (product.department || '').toLowerCase();
+    const dept = (product.department ?? '').toLowerCase();
     const defaultSize =
       dept === 'shoes'
         ? 'US 9'
@@ -57,7 +55,7 @@ export default function WishlistPage() {
           : 'M';
     const defaultColor =
       product.colors && product.colors.length > 0
-        ? product.colors[0]?.name || product.colors[0]?.hex
+        ? (product.colors[0]?.name ?? product.colors[0]?.hex ?? 'Standard')
         : 'Standard';
 
     addToCart(product, defaultSize, defaultColor);

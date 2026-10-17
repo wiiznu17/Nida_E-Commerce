@@ -115,12 +115,12 @@ export function HeaderSearchBar({
                   {searchResults.map((product) => (
                     <Link
                       key={product.id}
-                      href={`/product/${product.slug || product.id}`}
+                      href={`/product/${product.slug}`}
                       onClick={() => setIsSearchFocused(false)}
                       className="flex items-center space-x-3 p-1.5 hover:bg-brand-warm-cream rounded-lg transition-colors group"
                     >
                       <img
-                        src={product.primaryImage || ''}
+                        src={product.primaryImage ?? ''}
                         alt={product.name}
                         className="w-10 h-10 object-cover rounded-md flex-shrink-0 bg-gray-100"
                       />

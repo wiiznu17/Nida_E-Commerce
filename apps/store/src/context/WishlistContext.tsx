@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 
 type WishlistContextType = {
-  wishlist: string[]; // product IDs
+  wishlist: string[]; // Product IDs
   toggleWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
   wishlistCount: number;
@@ -35,7 +35,8 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleWishlist = (productId: string) => {
     setWishlist((prev) => {
-      const updated = prev.includes(productId)
+      const exists = prev.includes(productId);
+      const updated = exists
         ? prev.filter((id) => id !== productId)
         : [...prev, productId];
       try {

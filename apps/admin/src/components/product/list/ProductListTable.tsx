@@ -141,7 +141,7 @@ export function ProductListTable({
                     )}
                     <div className="flex items-center space-x-1.5 pt-0.5">
                       <span className="text-[10px] text-gray-400 font-mono tracking-tight">
-                        {product.slug || product.id.slice(0, 8)}
+                        {product.slug}
                       </span>
                       {product.isPreorder && (
                         <span className="bg-purple-100 text-purple-800 text-[9px] font-bold px-1.5 py-0.2 rounded-xs uppercase">
@@ -271,7 +271,7 @@ export function ProductListTable({
                       <Edit size={15} />
                     </Link>
                     <a
-                      href={`${STOREFRONT_URL}/products/${product.slug ?? product.id}`}
+                      href={`${STOREFRONT_URL}/product/${product.slug}`}
                       target="_blank"
                       rel="noreferrer"
                       className="p-1.5 text-gray-500 hover:text-brand-brown hover:bg-gray-100 rounded-xs transition-colors"
