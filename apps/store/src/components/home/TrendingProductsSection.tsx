@@ -22,13 +22,12 @@ export const TrendingProductsSection: React.FC = () => {
   const { productsList } = useCatalog();
   const { t, language } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<string>('all');
+  const [selectedTab, setSelectedTab] = useState<string | null>(null);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
-  // Dynamically extract active marketing tags with at least 1 product
+  // Dynamically extract active marketing tags with at least 1 product (strictly no generic 'all' tab)
   const tabs = useMemo<TagTabItem[]>(() => {
-    const list: TagTabItem[] = [{ id: 'all', label: t('home.tabAll') }];
-
+    const list: TagTabItem[] = [];
     const tagCounts = new Map<string, { count: number; label: string; id: string }>();
 
     productsList.forEach((p) => {
@@ -54,9 +53,13 @@ export const TrendingProductsSection: React.FC = () => {
       }
     });
 
-    // Sort by count descending, pick the top 5 most popular tags
+    // Prioritize TRENDING first if present, then sort by product count descending
     const sorted = Array.from(tagCounts.values())
-      .sort((a, b) => b.count - a.count)
+      .sort((a, b) => {
+        if (a.id === 'TRENDING') return -1;
+        if (b.id === 'TRENDING') return 1;
+        return b.count - a.count;
+      })
       .slice(0, 5);
 
     sorted.forEach((item) => {
@@ -64,13 +67,14 @@ export const TrendingProductsSection: React.FC = () => {
     });
 
     return list;
-  }, [productsList, language, t]);
+  }, [productsList, language]);
+
+  // Default active tab to the first marketing tag (e.g. TRENDING)
+  const activeTab = selectedTab ?? tabs[0]?.id ?? '';
 
   // Filter products for trending section from live catalog based on active tag
   const trendingProducts = useMemo(() => {
-    if (activeTab === 'all') {
-      return productsList.slice(0, 8);
-    }
+    if (!activeTab) return [];
     const target = activeTab.toUpperCase().replace(/[-_ ]/g, '');
     return productsList
       .filter((p) => {
@@ -105,6 +109,10 @@ export const TrendingProductsSection: React.FC = () => {
     setTimeout(() => setAddedProductId(null), 2000);
   };
 
+  if (tabs.length === 0) {
+    return null;
+  }
+
   return (
     <section className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20">
       {/* Section Header & Tag Tabs */}
@@ -123,7 +131,7 @@ export const TrendingProductsSection: React.FC = () => {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => setSelectedTab(tab.id)}
               className={`text-xs font-black uppercase tracking-wider px-4 py-2 border transition-all whitespace-nowrap cursor-pointer rounded-xs ${
                 activeTab === tab.id
                   ? 'bg-brand-brown text-white border-brand-brown shadow-xs'
