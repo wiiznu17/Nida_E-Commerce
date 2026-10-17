@@ -408,26 +408,26 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       expect(result.payment?.paymentMethod).toBe(PaymentMethod.CREDIT_CARD);
     });
 
-    it('enforces maximum switch quota limit against deliberate abuse', async () => {
-      const mockOrderExhausted = createMockOrderRecord({
+    it('allows updating payment method seamlessly for pending orders without hard limits', async () => {
+      const mockOrder = createMockOrderRecord({
         orderNumber: 'NIDA-20261017-LIMIT',
         payment: {
           id: 'pay-limit',
           paymentMethod: PaymentMethod.PROMPTPAY,
           status: PaymentStatus.PENDING,
-          rawWebhookPayload: { switchCount: 3, lastSwitchedAt: '2026-10-17T12:00:00Z' },
+          rawWebhookPayload: { lastSwitchedAt: '2026-10-17T12:00:00Z' },
         },
       });
 
-      prismaMock.order.findUnique.mockResolvedValue(mockOrderExhausted);
+      prismaMock.order.findUnique.mockResolvedValue(mockOrder);
+      prismaMock.payment.update.mockResolvedValue({ id: 'pay-limit' });
 
-      await expect(
-        service.updatePaymentMethod(
-          'NIDA-20261017-LIMIT',
-          PaymentMethod.CREDIT_CARD,
-          'usr-1',
-        ),
-      ).rejects.toThrow('ครบโควตาสูงสุด');
+      const result = await service.updatePaymentMethod(
+        'NIDA-20261017-LIMIT',
+        PaymentMethod.CREDIT_CARD,
+        'usr-1',
+      );
+      expect(result).toBeDefined();
     });
 
     it('rejects updating payment method when order status is no longer PENDING', async () => {

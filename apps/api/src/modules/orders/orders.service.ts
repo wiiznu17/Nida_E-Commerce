@@ -615,36 +615,12 @@ export class CustomerOrdersService {
       return this.getOrderByNumber(orderNumber, userId);
     }
 
-    const MAX_SWITCH_LIMIT = 3;
-    const COOLDOWN_SECONDS = 15;
-
     const rawMeta =
       order.payment?.rawWebhookPayload &&
       typeof order.payment.rawWebhookPayload === 'object' &&
       !Array.isArray(order.payment.rawWebhookPayload)
         ? (order.payment.rawWebhookPayload as Record<string, unknown>)
         : {};
-
-    const switchCount =
-      typeof rawMeta.switchCount === 'number' ? rawMeta.switchCount : 0;
-    const lastSwitchedAt =
-      typeof rawMeta.lastSwitchedAt === 'string'
-        ? new Date(rawMeta.lastSwitchedAt).getTime()
-        : 0;
-
-    if (switchCount >= MAX_SWITCH_LIMIT) {
-      throw new BadRequestException(
-        `คุณได้เปลี่ยนช่องทางการชำระเงินครบโควตาสูงสุด (${MAX_SWITCH_LIMIT} ครั้ง) สำหรับคำสั่งซื้อนี้แล้ว หากต้องการความช่วยเหลือ กรุณาติดต่อฝ่ายบริการลูกค้า`,
-      );
-    }
-
-    const elapsedSeconds = Math.floor((Date.now() - lastSwitchedAt) / 1000);
-    if (lastSwitchedAt > 0 && elapsedSeconds < COOLDOWN_SECONDS) {
-      const waitRemaining = COOLDOWN_SECONDS - elapsedSeconds;
-      throw new BadRequestException(
-        `กรุณารอสักครู่ (${waitRemaining} วินาที) ก่อนทำการเปลี่ยนช่องทางการชำระเงินอีกครั้ง`,
-      );
-    }
 
     let newQrUri: string | undefined;
     let newExpiresAt: string | undefined;
@@ -672,7 +648,6 @@ export class CustomerOrdersService {
           transactionReference: newChargeId ?? order.payment.transactionReference,
           rawWebhookPayload: {
             ...rawMeta,
-            switchCount: switchCount + 1,
             lastSwitchedAt: new Date().toISOString(),
             qrDownloadUri: newQrUri,
             qrExpiresAt: newExpiresAt,
