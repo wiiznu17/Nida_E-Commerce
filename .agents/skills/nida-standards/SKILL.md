@@ -363,12 +363,23 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
   2. **Dedicated Extraction Helpers**: When resolving hierarchical options (e.g. primary image -> first image -> fallback URL), write clean, strongly-typed helper functions with early returns or explicit array operations.
   3. **Explicit Ternaries / Conditions**: For structured data mappings, use explicit guards (`if/else` or typed resolvers) instead of lazy `||` chains.
 
-### 5.3 Test Co-Evolution & Unit Testing Standard (เขียนหรือแก้โค้ดต้องแก้และรัน Test เสมอ)
+### 5.3 Mandatory Feature Unit Testing Policy (ต้องเขียน Unit Test ทุกครั้งที่ทำ Feature / Strict Every-Feature Testing Standard)
 
-- **Mandatory Test Updates**: Whenever writing new features, modifying business logic, altering DTOs, schemas, or service methods, you **MUST** simultaneously write or update corresponding unit tests. Never leave existing tests failing or new logic untested.
-- **Dedicated Feature-Based Test Organization**: Group tests into dedicated domain folders (e.g. `apps/admin-api/test/product/`) and divide by feature per file (e.g. `create-product.spec.ts`, `get-products.spec.ts`, `get-by-slug.spec.ts`, `status-toggle.spec.ts`, `categories.spec.ts`, `validation.spec.ts`). Never dump unrelated test cases into a flat or monolithic test file.
-- **Run Unit Tests**: Always execute the test suite and ensure all tests pass:
+- **Strict Every-Feature Mandate (ห้ามส่งมอบ Feature โดยไม่มี Unit Test เด็ดขาด)**:
+  - Whenever developing a **new feature**, adding endpoints/service methods, modifying business logic, altering calculation formulas, changing inventory rules, or adjusting state transitions, you **MUST** simultaneously create or update comprehensive unit tests.
+  - **No Feature Merged Without Tests**: A feature is considered incomplete until corresponding unit tests are written and passing.
+- **Coverage Dimensions Required for Every Feature**:
+  1. **Happy Path**: Expected successful flow, return types, and correct data persistence.
+  2. **Negative Guard Rails & Validation**: Rejection of invalid inputs, forbidden transitions, unauthorized operations, and exact expected exceptions (`BadRequestException`, `NotFoundException`, `UnauthorizedException`).
+  3. **Boundary Values & Edge Cases**: Handling of `0`, negative amounts, boundary thresholds, quota limits, and null/undefined values.
+  4. **Cross-Entity Invariants**: Atomic state synchronization (e.g. OrderStatus and PaymentStatus staying in sync, inventory deductions/restocks matching order items, point earnings/reversals).
+- **Dedicated Feature-Based Test Organization**: Group tests into dedicated domain folders:
+  - Admin API: `apps/admin-api/test/<domain>/` (e.g. `test/orders/`, `test/product/`, `test/coupons/`)
+  - Storefront API: `apps/api/test/<domain>/` (e.g. `test/orders/`, `test/auth/`, `test/catalog/`)
+  - Divide by feature per file (e.g. `order-lifecycle-status.spec.ts`, `create-product.spec.ts`, `validation.spec.ts`).
+- **Run Unit Tests on Both APIs**: Always execute test suites and ensure 100% pass:
   ```bash
+  npm --prefix apps/api run test
   npm --prefix apps/admin-api run test
   ```
 
@@ -380,11 +391,14 @@ Before completing any task or reporting back to the user:
    ```bash
    npm --prefix packages/types run build
    npm --prefix packages/validators run build
+   npm --prefix apps/api run build
    npm --prefix apps/admin-api run build
    npm --prefix apps/admin run build
+   npm --prefix apps/store run build
    ```
 2. **Run Test Suites**:
    ```bash
+   npm --prefix apps/api run test
    npm --prefix apps/admin-api run test
    ```
 3. Verify that:
@@ -419,6 +433,6 @@ When implementing any feature or refactoring:
 - [ ] Are action buttons clean, unified, and non-redundant?
 - [ ] Are all fallback values using nullish coalescing (`??`) or explicit helper functions instead of sloppy chained `||` operators?
 - [ ] Are comments free from robotic numbered step prefixes (ห้ามเขียน comment แบบ 1, 2, 3, 4 เช่น `// 1. Call API`, `// 2. Sync state`)?
-- [ ] **Did you write or update unit tests in a dedicated feature folder (e.g. `test/<feature>/`) covering the new or changed logic?**
-- [ ] **Did you run `npm --prefix apps/admin-api run test` and pass 100% with 0 failures?**
-- [ ] Did you run `npm --prefix apps/admin run build` and `npm --prefix apps/admin-api run build` and pass with 0 errors?
+- [ ] **Did you write or update unit tests in a dedicated feature folder (e.g. `apps/admin-api/test/<feature>/` or `apps/api/test/<feature>/`) covering the new feature, guard rails, and state transitions?**
+- [ ] **Did you run unit tests on both APIs (`npm --prefix apps/api run test` and `npm --prefix apps/admin-api run test`) and pass 100% with 0 failures?**
+- [ ] Did you run builds across all packages (`packages/types`, `packages/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`) and pass with 0 errors?

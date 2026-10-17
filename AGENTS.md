@@ -97,11 +97,18 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 
 ## 5. Testing & Verification
 
-- **Test Co-Evolution (เขียนหรือแก้โค้ดต้องแก้และรัน Test เสมอ)**:
-  - Whenever writing new features, modifying business logic, altering DTOs, schemas, or service methods, you **MUST** simultaneously create or update unit tests.
-  - Keep test files organized in dedicated domain folders (e.g., `apps/admin-api/test/product/`) divided by feature per file (e.g. `create-product.spec.ts`, `get-products.spec.ts`).
-  - Always run tests and ensure 100% pass:
+- **Mandatory Feature Unit Testing Policy (ต้องเขียน Unit Test ทุกครั้งที่ทำ Feature / Strict Every-Feature Testing Standard)**:
+  - Whenever developing a **new feature**, adding endpoints/service methods, modifying business logic, altering calculation formulas, changing inventory rules, or adjusting state transitions, you **MUST** simultaneously create or update comprehensive unit tests.
+  - **Zero Untested Features**: A feature is strictly considered incomplete until corresponding unit tests are written and passing.
+  - Tests must cover:
+    1. **Happy Path**: Expected flow and data persistence.
+    2. **Negative Guard Rails**: Input rejection, forbidden transitions, and exceptions (`BadRequestException`, `NotFoundException`, etc.).
+    3. **Boundary Values & Edge Cases**: Handlings for `0`, negative amounts, boundary thresholds, and quota limits.
+    4. **Data Invariants**: Atomic state sync (OrderStatus vs PaymentStatus, inventory deductions/restocks, loyalty points).
+  - Keep test files organized in dedicated domain folders (e.g., `apps/admin-api/test/orders/`, `apps/api/test/orders/`, `apps/admin-api/test/product/`) divided by feature per file.
+  - Always run tests across both APIs and ensure 100% pass:
     ```bash
+    npm --prefix apps/api run test
     npm --prefix apps/admin-api run test
     ```
 - **Build Verification**:
@@ -109,8 +116,10 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
     ```bash
     npm --prefix packages/types run build
     npm --prefix packages/validators run build
+    npm --prefix apps/api run build
     npm --prefix apps/admin-api run build
     npm --prefix apps/admin run build
+    npm --prefix apps/store run build
     ```
   - Ensure 0 errors, no broken barrel exports, and no unused variables/imports.
 
