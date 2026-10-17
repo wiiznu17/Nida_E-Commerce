@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CarrierMockService } from './carrier-mock.service.js';
+import { CarrierMockService } from '../../src/modules/orders/carrier/carrier-mock.service.js';
 import type { CarrierCode } from '@repo/types';
 
 describe('CarrierMockService', () => {

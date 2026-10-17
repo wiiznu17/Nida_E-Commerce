@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { LogisticsService } from './logistics.service.js';
-import { InternalLogisticsProvider } from './internal-logistics.provider.js';
-import { ShippopLogisticsProvider } from './shippop-logistics.provider.js';
-import { CarrierMockService } from '../carrier/carrier-mock.service.js';
+import { LogisticsService } from '../../src/modules/orders/logistics/logistics.service.js';
+import { InternalLogisticsProvider } from '../../src/modules/orders/logistics/internal-logistics.provider.js';
+import { ShippopLogisticsProvider } from '../../src/modules/orders/logistics/shippop-logistics.provider.js';
+import { CarrierMockService } from '../../src/modules/orders/carrier/carrier-mock.service.js';
 import { CarrierCode, ShipmentStatus, OrderStatus } from '@repo/types';
 
 describe('LogisticsService', () => {

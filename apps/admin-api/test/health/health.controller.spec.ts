@@ -1,16 +1,19 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { HealthController } from './health.controller.js';
+import { HealthController } from '../../src/modules/health/health.controller.js';
 import { ServiceUnavailableException } from '@nestjs/common';
+import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 
 describe('HealthController', () => {
   let controller: HealthController;
-  let prismaMock: any;
+  let prismaMock: {
+    $queryRaw: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     prismaMock = {
       $queryRaw: vi.fn(),
     };
-    controller = new HealthController(prismaMock);
+    controller = new HealthController(prismaMock as unknown as PrismaService);
   });
 
   it('returns healthy status when database ping succeeds', async () => {

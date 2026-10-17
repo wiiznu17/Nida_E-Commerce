@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PaymentGatewayService } from './payment-gateway.service.js';
-import { MockPaymentGatewayProvider } from './mock-payment-gateway.provider.js';
-import { OmisePaymentGatewayProvider } from './omise-payment-gateway.provider.js';
+import { PaymentGatewayService } from '../../src/modules/orders/payment-gateway/payment-gateway.service.js';
+import { MockPaymentGatewayProvider } from '../../src/modules/orders/payment-gateway/mock-payment-gateway.provider.js';
+import { OmisePaymentGatewayProvider } from '../../src/modules/orders/payment-gateway/omise-payment-gateway.provider.js';
 import { PaymentMethod, PaymentStatus, OrderStatus } from '@repo/types';
 
 describe('PaymentGatewayService', () => {

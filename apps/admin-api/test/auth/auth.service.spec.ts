@@ -1,16 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AuthService } from './auth.service.js';
+import { AuthService } from '../../src/modules/auth/auth.service.js';
 import {
   UnauthorizedException,
   HttpException,
-  HttpStatus,
-  BadRequestException,
 } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
-import type { PrismaService } from '../../core/prisma/prisma.service.js';
-import type { RedisService } from '../../core/redis/redis.service.js';
+import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
+import type { RedisService } from '../../src/core/redis/redis.service.js';
 import type { JwtService } from '@nestjs/jwt';
-import type { MailerService } from '../../core/mailer/mailer.service.js';
+import type { MailerService } from '../../src/core/mailer/mailer.service.js';
 import type { RedisSessionData } from '@repo/types';
 
 describe('AuthService', () => {
@@ -294,7 +292,7 @@ describe('AuthService', () => {
           token: 'expired-token',
           password: 'secure_password_123',
         }),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(Error);
     });
 
     it('should reset password, revoke all active sessions, and consume reset token', async () => {

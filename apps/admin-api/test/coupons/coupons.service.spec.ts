@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CouponsService } from './coupons.service.js';
+import { CouponsService } from '../../src/modules/coupons/coupons.service.js';
 import { DiscountType } from '@repo/types';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import type { PrismaService } from '../../core/prisma/prisma.service.js';
+import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 
 describe('CouponsService', () => {
   let service: CouponsService;

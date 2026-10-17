@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AdminService } from './admin.service.js';
+import { AdminService } from '../../src/modules/admin/admin.service.js';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { OrderStatus, ShipmentStatus, StockChangeType } from '@repo/database';
-import type { PrismaService } from '../../core/prisma/prisma.service.js';
+import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 
 describe('AdminService', () => {
   let service: AdminService;

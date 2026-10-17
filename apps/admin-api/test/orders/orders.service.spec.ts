@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OrdersService } from './orders.service.js';
+import { OrdersService } from '../../src/modules/orders/orders.service.js';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PaymentMethod, OrderStatus, ShipmentStatus, PaymentStatus } from '@repo/types';
 
-import { CarrierMockService } from './carrier/index.js';
+import { CarrierMockService } from '../../src/modules/orders/carrier/index.js';
 import {
   LogisticsService,
   InternalLogisticsProvider,
   ShippopLogisticsProvider,
-} from './logistics/index.js';
+} from '../../src/modules/orders/logistics/index.js';
 
 describe('OrdersService', () => {
   let service: OrdersService;
