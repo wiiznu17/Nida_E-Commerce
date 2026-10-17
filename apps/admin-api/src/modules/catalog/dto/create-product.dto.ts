@@ -10,8 +10,10 @@ import {
   ValidateNested,
   IsObject,
   Min,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { MarketingTag } from '@repo/types';
 
 export class CreateSkuVariantDto {
   @ApiProperty({ description: 'Unique SKU Code', example: 'SWTR-WHT-S' })
@@ -156,11 +158,12 @@ export class CreateProductDto {
 
   @ApiPropertyOptional({
     description: 'Badge or promotional tag (EN)',
-    example: 'BESTSELLER',
+    enum: MarketingTag,
+    example: MarketingTag.BESTSELLER,
   })
   @IsOptional()
-  @IsString()
-  tag?: string;
+  @IsEnum(MarketingTag)
+  tag?: MarketingTag;
 
   @ApiPropertyOptional({
     description: 'Badge or promotional tag (TH)',

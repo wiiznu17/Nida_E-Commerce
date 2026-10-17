@@ -3,6 +3,7 @@
 // ====================================================
 
 import type { Department } from '../common/enums.js';
+import type { MarketingTag } from '../common/taxonomy.js';
 
 export interface ApiCategory {
   id: string;
@@ -35,7 +36,7 @@ export interface ApiProduct {
   categoryName: string;
   categoryNameTh?: string;
   categorySlug: string;
-  tag?: string;
+  tag?: MarketingTag | string;
   tagTh?: string;
   colors: ApiColorSwatch[];
   rating?: number;

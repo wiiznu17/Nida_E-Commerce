@@ -73,7 +73,7 @@ export function ProductForm({
       : undefined;
 
   const [tag, setTag] = useState(
-    initialTagMatch?.labelEn ?? initialData?.tag ?? '',
+    initialTagMatch?.key ?? initialData?.tag ?? '',
   );
   const [tagTh, setTagTh] = useState(
     initialTagMatch?.labelTh ?? initialData?.tagTh ?? '',
@@ -327,7 +327,7 @@ export function ProductForm({
       setTagTh('');
       return;
     }
-    setTag(tagOption.labelEn);
+    setTag(tagOption.key);
     setTagTh(tagOption.labelTh);
   };
 

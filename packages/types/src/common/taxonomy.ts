@@ -24,6 +24,7 @@ export const PRODUCT_DEPARTMENTS: DepartmentOption[] = [
 export const MarketingTagKey = {
   NEW_ARRIVAL: 'NEW_ARRIVAL',
   BESTSELLER: 'BESTSELLER',
+  TRENDING: 'TRENDING',
   SALE: 'SALE',
   EXCLUSIVE: 'EXCLUSIVE',
   LIMITED_EDITION: 'LIMITED_EDITION',
@@ -31,6 +32,9 @@ export const MarketingTagKey = {
 } as const;
 export type MarketingTagKey =
   (typeof MarketingTagKey)[keyof typeof MarketingTagKey];
+
+export type MarketingTag = MarketingTagKey;
+export const MarketingTag = MarketingTagKey;
 
 export interface MarketingTagOption {
   key: MarketingTagKey;
@@ -63,6 +67,16 @@ export const MARKETING_TAGS: MarketingTagOption[] = [
     badgeBorder: '#FDE68A',
     descriptionEn: 'High demand & customer favorite',
     descriptionTh: 'สินค้ายอดนิยมประจำฤดูกาล',
+  },
+  {
+    key: MarketingTagKey.TRENDING,
+    labelEn: 'TRENDING',
+    labelTh: 'กำลังนิยม',
+    badgeBg: '#FFF7ED',
+    badgeText: '#C2410C',
+    badgeBorder: '#FFEDD5',
+    descriptionEn: 'High trending interest & buzz',
+    descriptionTh: 'สินค้ามาแรงและได้รับความสนใจสูง',
   },
   {
     key: MarketingTagKey.SALE,
@@ -107,16 +121,27 @@ export const MARKETING_TAGS: MarketingTagOption[] = [
 ];
 
 export function findMarketingTagByLabel(
-  labelEnOrTh: string,
+  labelEnOrTh?: string | null,
 ): MarketingTagOption | undefined {
+  if (!labelEnOrTh) return undefined;
   const normalized = labelEnOrTh.trim().toUpperCase();
   const normalizedSpaces = normalized.replace(/_/g, ' ');
+  const normalizedNoHyphen = normalizedSpaces.replace(/-/g, ' ');
   return MARKETING_TAGS.find(
     (t) =>
+      t.key.toUpperCase() === normalized ||
       t.labelEn.toUpperCase() === normalized ||
       t.labelEn.toUpperCase() === normalizedSpaces ||
+      t.labelEn.toUpperCase() === normalizedNoHyphen ||
       t.labelTh.toUpperCase() === normalized ||
-      t.key.toUpperCase() === normalized ||
-      (normalized === 'NEW' && t.key === MarketingTagKey.NEW_ARRIVAL),
+      (normalized === 'NEW' && t.key === MarketingTagKey.NEW_ARRIVAL) ||
+      (normalized === 'POPULAR' && t.key === MarketingTagKey.TRENDING),
   );
+}
+
+export function getMarketingTagOption(
+  tag?: MarketingTagKey | string | null,
+): MarketingTagOption | undefined {
+  if (!tag) return undefined;
+  return MARKETING_TAGS.find((t) => t.key === tag) ?? findMarketingTagByLabel(tag);
 }

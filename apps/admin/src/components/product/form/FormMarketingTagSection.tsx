@@ -46,7 +46,7 @@ export function FormMarketingTagSection({
 
             {/* Predefined Marketing Tag Enums */}
             {MARKETING_TAGS.map((preset) => {
-              const isActive = tag === preset.labelEn;
+              const isActive = tag === preset.key || tag === preset.labelEn;
               return (
                 <button
                   key={preset.key}

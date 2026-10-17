@@ -3,6 +3,8 @@ import { Prisma } from '@repo/database';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import {
   Department,
+  MarketingTag,
+  findMarketingTagByLabel,
   type ApiProduct,
   type ApiProductDetail,
   type ApiCategory,
@@ -52,10 +54,15 @@ export class CustomerCatalogService {
         { nameTh: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
         { descriptionTh: { contains: search, mode: 'insensitive' } },
-        { tag: { contains: search, mode: 'insensitive' } },
+        { tagTh: { contains: search, mode: 'insensitive' } },
         { category: { name: { contains: search, mode: 'insensitive' } } },
         { category: { nameTh: { contains: search, mode: 'insensitive' } } },
       ];
+
+      const matchedTag = findMarketingTagByLabel(search);
+      if (matchedTag) {
+        where.OR.push({ tag: { equals: matchedTag.key } });
+      }
     }
 
     if (department || category || subCategory) {
@@ -100,32 +107,22 @@ export class CustomerCatalogService {
         .map((t) => t.trim())
         .filter(Boolean);
 
-      const tagConditions: Prisma.ProductWhereInput[] = [];
+      const matchedEnums: MarketingTag[] = [];
       for (const t of tagList) {
-        const upper = t.toUpperCase().replace(/_/g, ' ');
-        if (upper === 'NEW ARRIVAL' || upper === 'NEW') {
-          tagConditions.push(
-            { tag: { equals: 'NEW ARRIVAL', mode: 'insensitive' } },
-            { tag: { equals: 'NEW', mode: 'insensitive' } },
-          );
-        } else {
-          tagConditions.push({ tag: { equals: upper, mode: 'insensitive' } });
+        const option = findMarketingTagByLabel(t);
+        if (option) {
+          matchedEnums.push(option.key);
+        } else if (
+          Object.values(MarketingTag).includes(t.toUpperCase() as MarketingTag)
+        ) {
+          matchedEnums.push(t.toUpperCase() as MarketingTag);
         }
       }
 
-      if (tagConditions.length === 1) {
-        where.tag = tagConditions[0]?.tag;
-      } else if (tagConditions.length > 1) {
-        if (!where.AND) {
-          where.AND = [{ OR: tagConditions }];
-        } else if (Array.isArray(where.AND)) {
-          (where.AND as Prisma.ProductWhereInput[]).push({ OR: tagConditions });
-        } else {
-          where.AND = [
-            where.AND as Prisma.ProductWhereInput,
-            { OR: tagConditions },
-          ];
-        }
+      if (matchedEnums.length === 1) {
+        where.tag = matchedEnums[0];
+      } else if (matchedEnums.length > 1) {
+        where.tag = { in: matchedEnums };
       }
     }
 

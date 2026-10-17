@@ -23,7 +23,8 @@ import type {
   ApiColorSwatch,
   PaginatedResponse,
 } from '@repo/types';
-import { Prisma, Department } from '@repo/database';
+import { findMarketingTagByLabel } from '@repo/types';
+import { Prisma, Department, MarketingTag } from '@repo/database';
 import { UploadService } from '../upload/upload.service.js';
 
 @Injectable()
@@ -278,7 +279,14 @@ export class CatalogService {
     }
 
     if (tag) {
-      where.tag = tag;
+      const option = findMarketingTagByLabel(tag);
+      if (option) {
+        where.tag = option.key as MarketingTag;
+      } else if (
+        Object.values(MarketingTag).includes(tag.toUpperCase() as MarketingTag)
+      ) {
+        where.tag = tag.toUpperCase() as MarketingTag;
+      }
     }
 
     if (isPreorder !== undefined) {

@@ -31,6 +31,16 @@ enum Department {
   HOME
 }
 
+enum MarketingTag {
+  NEW_ARRIVAL
+  BESTSELLER
+  TRENDING
+  SALE
+  EXCLUSIVE
+  LIMITED_EDITION
+  PRE_ORDER
+}
+
 enum OrderStatus {
   PENDING
   PAID
@@ -280,7 +290,7 @@ model Product {
   materialsCareTh       String?          @map("materials_care_th") @db.Text
   basePrice             Decimal          @map("base_price") @db.Decimal(10, 2)
   originalPrice         Decimal?         @map("original_price") @db.Decimal(10, 2)
-  tag                   String?          @db.VarChar(50)
+  tag                   MarketingTag?
   tagTh                 String?          @map("tag_th") @db.VarChar(50)
   isActive              Boolean          @default(true) @map("is_active")
 

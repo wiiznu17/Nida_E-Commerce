@@ -16,6 +16,7 @@ import {
   TableCell,
 } from '../../ui';
 import type { ApiProduct, ApiInventoryItem } from '@repo/types';
+import { findMarketingTagByLabel } from '@repo/types';
 
 interface ProductListTableProps {
   products: ApiProduct[];
@@ -238,13 +239,25 @@ export function ProductListTable({
 
                 {/* Tag */}
                 <TableCell className="text-center">
-                  {product.tag ? (
-                    <span className="bg-brand-brown text-brand-yellow text-[9px] font-black uppercase px-2 py-0.5 rounded-xs tracking-wider">
-                      {product.tag}
-                    </span>
-                  ) : (
-                    <span className="text-gray-300">-</span>
-                  )}
+                  {(() => {
+                    if (!product.tag) return <span className="text-gray-300">-</span>;
+                    const tagOption = findMarketingTagByLabel(product.tag);
+                    const label = tagOption
+                      ? (language === 'th' ? tagOption.labelTh : tagOption.labelEn)
+                      : product.tag;
+                    return (
+                      <span
+                        style={{
+                          backgroundColor: tagOption?.badgeBg ?? '#2B1810',
+                          color: tagOption?.badgeText ?? '#F59E0B',
+                          borderColor: tagOption?.badgeBorder ?? 'transparent',
+                        }}
+                        className="text-[9px] font-black uppercase px-2 py-0.5 rounded-xs tracking-wider border select-none"
+                      >
+                        {label}
+                      </span>
+                    );
+                  })()}
                 </TableCell>
 
                 {/* Action Buttons */}
