@@ -6,7 +6,6 @@ import { ArrowLeft, Package, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { EmptyState, LoadingSpinner } from '@/components/ui';
 import {
-  OrdersMetricsOverview,
   OrdersFilterToolbar,
   OrdersListItem,
   OrdersPagination,
@@ -19,7 +18,6 @@ export default function ProfileOrdersPage() {
     user,
     isLoading,
     allOrdersCount,
-    metrics,
     statusCounts,
     statusFilter,
     handleStatusFilterChange,
@@ -67,8 +65,6 @@ export default function ProfileOrdersPage() {
         </p>
       </div>
 
-      {/* Metrics Stat Cards (Desktop Grid & Mobile Scroll) */}
-      {allOrdersCount > 0 && <OrdersMetricsOverview metrics={metrics} />}
 
       {/* Filter and Search Bar */}
       {allOrdersCount > 0 && (
