@@ -337,6 +337,34 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
      npm --prefix packages/types run build
      ```
 
+### 4.5 Mandatory Centralized Zod Validation (`@repo/validators`) (ต้องเขียน Zod Schema สำหรับ Request/Payload เสมอ)
+
+- **Single Validation Authority Across Monorepo**:
+  - Never write duplicate validation rules separately on client and server.
+  - All API mutation payloads (`POST`, `PUT`, `PATCH`) and complex query parameter filters must have a corresponding Zod schema declared in `packages/validators/src/<domain>/`.
+  - Re-export all schemas in `packages/validators/src/index.ts` and compile:
+    ```bash
+    npm --prefix packages/validators run build
+    ```
+- **Backend NestJS Controller Integration**:
+  - Every controller handler taking user input **MUST** use `ZodValidationPipe` directly in method arguments:
+    ```ts
+    import { ZodValidationPipe } from '@/core/pipes/zod-validation.pipe';
+    import { createCategorySchema, type CreateCategoryDto } from '@repo/validators';
+
+    @Post('categories')
+    async createCategory(
+      @Body(new ZodValidationPipe(createCategorySchema)) dto: CreateCategoryDto,
+    ) {
+      return this.catalogService.createCategory(dto);
+    }
+    ```
+  - Never allow unchecked raw `@Body() dto: any` or unvalidated DTOs to reach service methods.
+- **Frontend Form Alignment (`apps/admin`, `apps/store`)**:
+  - Frontend forms (e.g. React Hook Form, modal states) must import the exact same Zod schema from `@repo/validators` (via `zodResolver(schema)`) to validate input instantaneously on the client with 100% rule parity before dispatching network requests.
+- **Unit Testing Validation Guardrails**:
+  - Whenever creating or modifying a Zod schema and its controller/service, write comprehensive unit tests asserting that invalid payloads (e.g. exceeding max character limits, missing required fields, negative values) are rejected with `BadRequestException`.
+
 ---
 
 ## 5. Code Quality & Verification Workflow

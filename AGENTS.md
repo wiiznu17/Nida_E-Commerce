@@ -76,21 +76,28 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
 
 ---
 
-## 4. Central Types & Shared Models (`@repo/types`)
+## 4. Central Types & Shared Validators (`@repo/types`, `@repo/validators`)
 
 - **Single Source of Truth**: All shared domain entities, API contracts, DTOs, status enums, and taxonomy definitions must live in `packages/types/` (package `@repo/types`).
 - **Zero Duplicate Interfaces**: Never declare duplicate types or interfaces for entities (e.g. `Product`, `Sku`, `OrderStatus`, `Department`) inside `apps/admin`, `apps/store`, or backend APIs.
 - **Package-Level Imports**: Always import via package specifier:
   ```ts
   import { ApiProduct, Department, Category, ApiResponse } from '@repo/types';
+  import { createProductSchema, saveCmsBannerSchema } from '@repo/validators';
   ```
   Never use relative cross-package paths (e.g. `../../../../packages/types/...`).
 - **Local vs Central Separation**:
   - Central (`@repo/types`): Domain entities, database contracts, universal enums, API request/response types.
+  - Central (`@repo/validators`): Shared Zod schemas for all mutation payloads, query parameters, and form validation.
   - Local (`*Types.ts`): Component-specific UI state, modal visibility, form helper flags. Local form types must map to or extend types from `@repo/types`.
-- **Barrel Export & Build**: When adding or updating types in `packages/types/src/`, always re-export through `packages/types/src/index.ts` and run:
+- **Mandatory Centralized Zod Validation Policy (ต้องเขียน Zod Schema สำหรับ Request/Payload เสมอ)**:
+  - All API request bodies (`POST`, `PUT`, `PATCH`) and complex query parameters must have explicit Zod validation schemas declared in `packages/validators/src/`.
+  - Backend Controllers (`apps/api`, `apps/admin-api`) **MUST strictly consume these schemas using `@Body(new ZodValidationPipe(schema))`** (or `@Query(...)`). Never write unvalidated loose handlers or raw unchecked DTOs.
+  - Frontend forms (`apps/admin`, `apps/store`) **MUST import and reuse the exact same Zod schema** (e.g. with `zodResolver(schema)` in React Hook Form or modal state) to guarantee that validation rules (character limits, formats, required fields) match 100% on both client and server.
+- **Barrel Export & Build**: When adding or updating types or validators, always re-export through `index.ts` and run:
   ```bash
   npm --prefix packages/types run build
+  npm --prefix packages/validators run build
   ```
 
 ---
