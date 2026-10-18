@@ -133,8 +133,8 @@ async function main() {
         materialsCareTh: item.materialsCareTh,
         basePrice: item.basePrice,
         originalPrice: item.originalPrice ?? null,
-        tag: item.tag,
-        tagTh: item.tagTh,
+        tag: item.tag ?? null,
+        tagTh: item.tagTh ?? null,
         categoryId,
         isPreorder: item.isPreorder ?? false,
         preorderReleaseDate: item.preorderReleaseDate

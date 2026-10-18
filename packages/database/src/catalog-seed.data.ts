@@ -3,6 +3,39 @@
 // ====================================================
 // 21 Predefined Products with rich variants, categories, and inventory
 
+import { MarketingTag } from "./generated/prisma/index.js";
+
+export interface ProductSeedVariant {
+  sku: string;
+  size: string;
+  color: string;
+  colorTh?: string;
+  hex: string;
+  stock: number;
+  weight: number;
+}
+
+export interface ProductSeedItem {
+  name: string;
+  nameTh: string;
+  slug: string;
+  description: string;
+  descriptionTh: string;
+  materialsCare: string;
+  materialsCareTh: string;
+  basePrice: number;
+  originalPrice?: number | null;
+  tag?: MarketingTag | null;
+  tagTh?: string | null;
+  categorySlug: string;
+  isPreorder?: boolean;
+  preorderReleaseDate?: string | null;
+  preorderLimit?: number | null;
+  preorderDepositAmount?: number | null;
+  images: string[];
+  variants: ProductSeedVariant[];
+}
+
 export const CATEGORIES_SEED_DATA = [
   {
     name: 'Women Apparel',
@@ -207,7 +240,7 @@ export const CATEGORIES_SEED_DATA = [
   },
 ];
 
-export const PRODUCTS_SEED_DATA = [
+export const PRODUCTS_SEED_DATA: ProductSeedItem[] = [
   {
     name: 'Iconic Cable-Knit Crewneck Sweater',
     nameTh: 'สเวตเตอร์ไหมพรมถักลายเคเบิล ซิกเนเจอร์',
@@ -220,7 +253,7 @@ export const PRODUCTS_SEED_DATA = [
     materialsCareTh: 'ผ้าวูลเมอริโน 100%. แนะนำซักแห้งหรือซักมือด้วยน้ำเย็น',
     basePrice: 1290,
     originalPrice: 1790,
-    tag: 'BESTSELLER',
+    tag: MarketingTag.BESTSELLER,
     tagTh: 'สินค้าขายดี',
     categorySlug: 'women-sweaters-knits',
     isPreorder: false,
@@ -353,8 +386,8 @@ export const PRODUCTS_SEED_DATA = [
       'ผ้าคอตตอนกาบาร์ดีนเคลือบกันละอองน้ำ แนะนำซักแห้งโดยผู้เชี่ยวชาญ',
     basePrice: 2890,
     originalPrice: 3800,
-    tag: 'NEW ARRIVAL',
-    tagTh: 'สินค้ามาใหม่',
+    tag: MarketingTag.NEW_ARRIVAL,
+    tagTh: 'สินค้าใหม่',
     categorySlug: 'women-coats-jackets',
     isPreorder: false,
     images: [
@@ -459,8 +492,8 @@ export const PRODUCTS_SEED_DATA = [
       'ผ้าฝ้ายออร์แกนิกหวี 100%. ซักเครื่องด้วยน้ำเย็นร่วมกับผ้าสีใกล้เคียง',
     basePrice: 890,
     originalPrice: 1190,
-    tag: 'CLASSIC',
-    tagTh: 'คลาสสิกยอดนิยม',
+    tag: MarketingTag.EXCLUSIVE,
+    tagTh: 'คอลเลกชันพิเศษ',
     categorySlug: 'women-shirts-tops',
     isPreorder: false,
     images: [
@@ -562,8 +595,8 @@ export const PRODUCTS_SEED_DATA = [
     materialsCareTh: 'วัสดุคุณภาพสูง ปฏิบัติตามคำแนะนำบนป้ายดูแลรักษา',
     basePrice: 1150,
     originalPrice: 1500,
-    tag: 'TRENDING',
-    tagTh: 'กำลังเป็นที่นิยม',
+    tag: MarketingTag.TRENDING,
+    tagTh: 'กำลังนิยม',
     categorySlug: 'women-dresses',
     isPreorder: false,
     images: [
@@ -665,8 +698,8 @@ export const PRODUCTS_SEED_DATA = [
     materialsCareTh: 'คอตตอน 98%, อีลาสเทน 2%. กลับด้านซักด้วยน้ำเย็น',
     basePrice: 1350,
     originalPrice: 1650,
-    tag: 'EXTRA 20% OFF',
-    tagTh: 'ลดเพิ่ม 20%',
+    tag: MarketingTag.SALE,
+    tagTh: 'ลดราคาพิเศษ',
     categorySlug: 'women-denim-pants',
     isPreorder: false,
     images: [
@@ -770,8 +803,8 @@ export const PRODUCTS_SEED_DATA = [
       'ผ้าฝ้ายออร์แกนิกหวี 100%. ซักเครื่องด้วยน้ำเย็นร่วมกับผ้าสีใกล้เคียง',
     basePrice: 790,
     originalPrice: 980,
-    tag: 'HERITAGE',
-    tagTh: 'เฮอริเทจไอคอน',
+    tag: MarketingTag.EXCLUSIVE,
+    tagTh: 'คอลเลกชันพิเศษ',
     categorySlug: 'men-polos-tshirts',
     isPreorder: false,
     images: [
@@ -902,8 +935,8 @@ export const PRODUCTS_SEED_DATA = [
       'ผ้าคอตตอนกาบาร์ดีนเคลือบกันละอองน้ำ แนะนำซักแห้งโดยผู้เชี่ยวชาญ',
     basePrice: 1950,
     originalPrice: 2490,
-    tag: 'POPULAR',
-    tagTh: 'ยอดนิยม',
+    tag: MarketingTag.TRENDING,
+    tagTh: 'กำลังนิยม',
     categorySlug: 'men-coats-jackets',
     isPreorder: false,
     images: [
@@ -1005,8 +1038,8 @@ export const PRODUCTS_SEED_DATA = [
     materialsCareTh: 'คอตตอน 98%, อีลาสเทน 2%. กลับด้านซักด้วยน้ำเย็น',
     basePrice: 990,
     originalPrice: 1300,
-    tag: 'ESSENTIAL',
-    tagTh: 'ไอเทมประจำตู้',
+    tag: MarketingTag.EXCLUSIVE,
+    tagTh: 'คอลเลกชันพิเศษ',
     categorySlug: 'men-pants-shorts',
     isPreorder: false,
     images: [
@@ -1110,8 +1143,8 @@ export const PRODUCTS_SEED_DATA = [
       'ผ้าคอตตอนกาบาร์ดีนเคลือบกันละอองน้ำ แนะนำซักแห้งโดยผู้เชี่ยวชาญ',
     basePrice: 2600,
     originalPrice: 3400,
-    tag: 'LIMITED EDITION',
-    tagTh: 'รุ่นลิมิเต็ด',
+    tag: MarketingTag.LIMITED_EDITION,
+    tagTh: 'จำนวนจำกัด',
     categorySlug: 'men-coats-jackets',
     isPreorder: false,
     images: [
@@ -1188,8 +1221,8 @@ export const PRODUCTS_SEED_DATA = [
       'ผ้าฝ้ายออร์แกนิกหวี 100%. ซักเครื่องด้วยน้ำเย็นร่วมกับผ้าสีใกล้เคียง',
     basePrice: 490,
     originalPrice: 650,
-    tag: 'KIDS FAVORITE',
-    tagTh: 'ขวัญใจเด็กๆ',
+    tag: MarketingTag.EXCLUSIVE,
+    tagTh: 'คอลเลกชันพิเศษ',
     categorySlug: 'kids-polos-tees',
     isPreorder: false,
     images: [
@@ -1291,8 +1324,8 @@ export const PRODUCTS_SEED_DATA = [
     materialsCareTh: 'วัสดุคุณภาพสูง ปฏิบัติตามคำแนะนำบนป้ายดูแลรักษา',
     basePrice: 750,
     originalPrice: 950,
-    tag: 'NEW',
-    tagTh: 'มาใหม่',
+    tag: MarketingTag.NEW_ARRIVAL,
+    tagTh: 'สินค้าใหม่',
     categorySlug: 'kids-outerwear',
     isPreorder: false,
     images: [
@@ -1396,7 +1429,7 @@ export const PRODUCTS_SEED_DATA = [
       'หนังวัวแท้ฟูลเกรน 100%. ทำความสะอาดด้วยผ้านุ่มแห้งและน้ำยาบำรุงหนังแท้',
     basePrice: 1450,
     originalPrice: 1950,
-    tag: 'BESTSELLER',
+    tag: MarketingTag.BESTSELLER,
     tagTh: 'สินค้าขายดี',
     categorySlug: 'bags-crossbody',
     isPreorder: false,
@@ -1445,8 +1478,8 @@ export const PRODUCTS_SEED_DATA = [
     materialsCareTh: 'วัสดุคุณภาพสูง ปฏิบัติตามคำแนะนำบนป้ายดูแลรักษา',
     basePrice: 1850,
     originalPrice: 2400,
-    tag: 'TRAVEL PICK',
-    tagTh: 'แนะนำสำหรับการเดินทาง',
+    tag: MarketingTag.TRENDING,
+    tagTh: 'กำลังนิยม',
     categorySlug: 'bags-travel-duffles',
     isPreorder: false,
     images: [
@@ -1496,8 +1529,8 @@ export const PRODUCTS_SEED_DATA = [
       'หนังวัวแท้ฟูลเกรน 100%. ทำความสะอาดด้วยผ้านุ่มแห้งและน้ำยาบำรุงหนังแท้',
     basePrice: 650,
     originalPrice: 850,
-    tag: 'CLASSIC',
-    tagTh: 'คลาสสิก',
+    tag: MarketingTag.EXCLUSIVE,
+    tagTh: 'คอลเลกชันพิเศษ',
     categorySlug: 'bags-wallets-cardholders',
     isPreorder: false,
     images: [
@@ -1547,8 +1580,8 @@ export const PRODUCTS_SEED_DATA = [
       'หนังวัวพรีเมียมและพื้นยางธรรมชาติ เช็ดทำความสะอาดด้วยผ้าชุบน้ำหมาด',
     basePrice: 1100,
     originalPrice: 1400,
-    tag: 'TRENDING',
-    tagTh: 'กำลังเป็นที่นิยม',
+    tag: MarketingTag.TRENDING,
+    tagTh: 'กำลังนิยม',
     categorySlug: 'shoes-sneakers',
     isPreorder: false,
     images: [
@@ -1679,8 +1712,8 @@ export const PRODUCTS_SEED_DATA = [
       'หนังวัวพรีเมียมและพื้นยางธรรมชาติ เช็ดทำความสะอาดด้วยผ้าชุบน้ำหมาด',
     basePrice: 1850,
     originalPrice: 2350,
-    tag: 'HANDCRAFTED',
-    tagTh: 'งานฝีมือประณีต',
+    tag: MarketingTag.EXCLUSIVE,
+    tagTh: 'คอลเลกชันพิเศษ',
     categorySlug: 'shoes-dress-shoes',
     isPreorder: false,
     images: [
@@ -1809,8 +1842,8 @@ export const PRODUCTS_SEED_DATA = [
     materialsCareTh: 'วัสดุคุณภาพสูง ปฏิบัติตามคำแนะนำบนป้ายดูแลรักษา',
     basePrice: 390,
     originalPrice: 480,
-    tag: 'DAILY PICK',
-    tagTh: 'ไอเทมประจำวัน',
+    tag: MarketingTag.TRENDING,
+    tagTh: 'กำลังนิยม',
     categorySlug: 'accessories-hats-caps',
     isPreorder: false,
     images: [
@@ -1869,8 +1902,8 @@ export const PRODUCTS_SEED_DATA = [
       'หนังวัวแท้ฟูลเกรน 100%. ทำความสะอาดด้วยผ้านุ่มแห้งและน้ำยาบำรุงหนังแท้',
     basePrice: 550,
     originalPrice: 700,
-    tag: 'VERSATILE',
-    tagTh: 'อเนกประสงค์',
+    tag: null,
+    tagTh: null,
     categorySlug: 'accessories-belts',
     isPreorder: false,
     images: [
@@ -1920,8 +1953,8 @@ export const PRODUCTS_SEED_DATA = [
       'ผ้าฝ้ายออร์แกนิกตุรกี 100% ความหนา 600 GSM. ซักเครื่องน้ำอุ่น อบแห้งความร้อนต่ำ',
     basePrice: 680,
     originalPrice: 900,
-    tag: 'SUSTAINABLE',
-    tagTh: 'ผลิตจากวัสดุรักษ์โลก',
+    tag: MarketingTag.EXCLUSIVE,
+    tagTh: 'คอลเลกชันพิเศษ',
     categorySlug: 'home-bath-bedding',
     isPreorder: false,
     images: [
@@ -1971,8 +2004,8 @@ export const PRODUCTS_SEED_DATA = [
       'ไขถั่วเหลืองธรรมชาติ ไส้เทียนผ้าฝ้าย และน้ำมันหอมระเหยบริสุทธิ์',
     basePrice: 450,
     originalPrice: 550,
-    tag: 'TOP GIFT',
-    tagTh: 'ของขวัญยอดนิยม',
+    tag: MarketingTag.TRENDING,
+    tagTh: 'กำลังนิยม',
     categorySlug: 'home-fragrance',
     isPreorder: false,
     images: [
@@ -2002,7 +2035,7 @@ export const PRODUCTS_SEED_DATA = [
     materialsCareTh: 'ผ้าแคชเมียร์อิตาลี 100%. ซักแห้งโดยผู้เชี่ยวชาญเท่านั้น',
     basePrice: 4900,
     originalPrice: 5900,
-    tag: 'PRE-ORDER',
+    tag: MarketingTag.PRE_ORDER,
     tagTh: 'เปิดพรีออเดอร์',
     categorySlug: 'men-coats-jackets',
     isPreorder: true,
