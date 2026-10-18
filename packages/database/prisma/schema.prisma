@@ -136,6 +136,9 @@ enum AuditActionType {
 
 enum BannerPlacement {
   HERO_HOME
+  SEASONAL_SPOTLIGHT
+  PROMO_RIBBON
+  TOP_ANNOUNCEMENT
   COLLECTION_TOP
   PROMO_BAR
 }
@@ -779,12 +782,25 @@ model AdminAuditLog {
 
 model CmsBanner {
   id                 String          @id @default(uuid()) @db.Uuid
-  placement          BannerPlacement
-  title              String          @db.VarChar(150)
+  placement          BannerPlacement @default(HERO_HOME)
+  title              String          @default("") @db.VarChar(150)
+  titleTh            String?         @map("title_th") @db.VarChar(150)
+  titleEn            String?         @map("title_en") @db.VarChar(150)
   subtitle           String?         @db.VarChar(255)
+  subtitleTh         String?         @map("subtitle_th") @db.VarChar(255)
+  subtitleEn         String?         @map("subtitle_en") @db.VarChar(255)
+  tagTh              String?         @map("tag_th") @db.VarChar(50)
+  tagEn              String?         @map("tag_en") @db.VarChar(50)
   targetUrl          String?         @map("target_url") @db.VarChar(255)
   imageDesktopUrl    String          @map("image_desktop_url") @db.VarChar(500)
   imageMobileUrl     String?         @map("image_mobile_url") @db.VarChar(500)
+  ctaPrimaryTextTh   String?         @map("cta_primary_text_th") @db.VarChar(50)
+  ctaPrimaryTextEn   String?         @map("cta_primary_text_en") @db.VarChar(50)
+  ctaPrimaryLink     String?         @map("cta_primary_link") @db.VarChar(255)
+  ctaSecondaryTextTh String?         @map("cta_secondary_text_th") @db.VarChar(50)
+  ctaSecondaryTextEn String?         @map("cta_secondary_text_en") @db.VarChar(50)
+  ctaSecondaryLink   String?         @map("cta_secondary_link") @db.VarChar(255)
+  couponCode         String?         @map("coupon_code") @db.VarChar(50)
   sortOrder          Int             @default(0) @map("sort_order")
   isActive           Boolean         @default(true) @map("is_active")
   startDate          DateTime?       @map("start_date")
@@ -797,4 +813,19 @@ model CmsBanner {
 
   @@index([placement, isActive])
   @@map("cms_banners")
+}
+
+model StoreSettings {
+  id                    String   @id @default("default-store-settings") @db.VarChar(50)
+  announcementActive    Boolean  @default(true) @map("announcement_active")
+  announcementTextTh    String?  @map("announcement_text_th") @db.VarChar(255)
+  announcementTextEn    String?  @map("announcement_text_en") @db.VarChar(255)
+  announcementBadgeTh   String?  @map("announcement_badge_th") @db.VarChar(50)
+  announcementBadgeEn   String?  @map("announcement_badge_en") @db.VarChar(50)
+  announcementLink      String?  @map("announcement_link") @db.VarChar(255)
+  freeShippingThreshold Decimal  @default(1000) @map("free_shipping_threshold") @db.Decimal(10, 2)
+  returnWindowDays      Int      @default(7) @map("return_window_days")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("store_settings")
 }

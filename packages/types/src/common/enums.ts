@@ -151,6 +151,9 @@ export type AuditActionType =
 // --- CMS & Marketing ---
 export const BannerPlacement = {
   HERO_HOME: 'HERO_HOME',
+  SEASONAL_SPOTLIGHT: 'SEASONAL_SPOTLIGHT',
+  PROMO_RIBBON: 'PROMO_RIBBON',
+  TOP_ANNOUNCEMENT: 'TOP_ANNOUNCEMENT',
   COLLECTION_TOP: 'COLLECTION_TOP',
   PROMO_BAR: 'PROMO_BAR',
 } as const;

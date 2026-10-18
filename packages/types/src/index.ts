@@ -10,3 +10,6 @@ export * from './admin/index.js';
 
 // Dedicated Customer Storefront Types
 export * from './customer/index.js';
+
+// CMS & Store Content Types
+export * from './content/index.js';

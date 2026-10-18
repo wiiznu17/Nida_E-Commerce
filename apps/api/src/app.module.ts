@@ -7,6 +7,7 @@ import { CatalogModule } from './modules/catalog/catalog.module.js';
 import { OrdersModule } from './modules/orders/orders.module.js';
 import { AddressesModule } from './modules/addresses/addresses.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { StoreContentModule } from './modules/content/content.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -20,6 +21,7 @@ import { AppService } from './app.service.js';
     OrdersModule,
     AddressesModule,
     HealthModule,
+    StoreContentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

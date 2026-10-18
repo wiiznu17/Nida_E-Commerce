@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { MapPin, User } from 'lucide-react';
 import type { Language } from '@/context/LanguageContext';
+import { useStoreContent } from '@/context/StoreContentContext';
 
 interface TopPromoBannerProps {
   language: Language;
@@ -16,6 +17,23 @@ export function TopPromoBanner({
   isAuthenticated,
   t,
 }: TopPromoBannerProps) {
+  const { storeSettings } = useStoreContent();
+
+  if (storeSettings && storeSettings.announcementActive === false) {
+    return null;
+  }
+
+  const isTh = language === 'th';
+  const badge = isTh
+    ? storeSettings?.announcementBadgeTh || storeSettings?.announcementBadgeEn || t('promo.limited')
+    : storeSettings?.announcementBadgeEn || storeSettings?.announcementBadgeTh || t('promo.limited');
+
+  const text = isTh
+    ? storeSettings?.announcementTextTh || storeSettings?.announcementTextEn || t('promo.saleTitle')
+    : storeSettings?.announcementTextEn || storeSettings?.announcementTextTh || t('promo.saleTitle');
+
+  const link = storeSettings?.announcementLink || '/collections';
+
   return (
     <div className="bg-brand-brown text-white text-[11px] font-semibold tracking-wider uppercase py-2 border-b border-brand-dark-brown overflow-hidden">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex justify-between items-center gap-3">
@@ -33,17 +51,11 @@ export function TopPromoBanner({
         {/* Center Banner */}
         <div className="min-w-0 flex-1 text-center font-bold tracking-widest text-xs flex items-center justify-center space-x-2 px-2">
           <span className="shrink-0 bg-brand-yellow text-brand-brown text-[10px] px-2 py-0.5 font-black uppercase rounded-xs">
-            {t('promo.limited')}
+            {badge}
           </span>
-          <span className="truncate">
-            {t('promo.saleTitle')}
-            <strong className="underline decoration-brand-yellow underline-offset-2">
-              NIDA20
-            </strong>
-          </span>
-          <span className="hidden xl:inline text-white/60 shrink-0">
-            {t('promo.freeShipping')}
-          </span>
+          <Link href={link} className="truncate hover:text-brand-yellow transition-colors">
+            {text}
+          </Link>
         </div>
 
         {/* Right Actions */}

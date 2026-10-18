@@ -3,20 +3,30 @@
 import React from 'react';
 import { Truck, RefreshCw, ShieldCheck, Star } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useStoreContent } from '@/context/StoreContentContext';
 
 export const ValuePropsStrip: React.FC = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const { storeSettings } = useStoreContent();
+
+  const isTh = language === 'th';
+  const freeShipping = Number(storeSettings?.freeShippingThreshold ?? 1000);
+  const returnDays = Number(storeSettings?.returnWindowDays ?? 7);
 
   const valueProps = [
     {
       icon: Truck,
       title: t('home.freeShippingTitle'),
-      subtitle: t('home.freeShippingSub'),
+      subtitle: isTh
+        ? `เมื่อช้อปครบ ฿${freeShipping.toLocaleString()}`
+        : `Orders over ฿${freeShipping.toLocaleString()}`,
     },
     {
       icon: RefreshCw,
       title: t('home.returnsTitle'),
-      subtitle: t('home.returnsSub'),
+      subtitle: isTh
+        ? `ภายใน ${returnDays} วันหลังส่งมอบ`
+        : `Within ${returnDays} days of delivery`,
     },
     {
       icon: ShieldCheck,

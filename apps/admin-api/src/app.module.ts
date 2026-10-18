@@ -14,6 +14,7 @@ import { AdminModule } from './modules/admin/admin.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { UploadModule } from './modules/upload/upload.module.js';
 import { AuditLogModule } from './modules/audit-log/audit-log.module.js';
+import { ContentModule } from './modules/content/content.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -31,6 +32,7 @@ import { AppService } from './app.service.js';
     HealthModule,
     UploadModule,
     AuditLogModule,
+    ContentModule,
   ],
   controllers: [AppController],
   providers: [

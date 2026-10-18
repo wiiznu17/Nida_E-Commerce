@@ -25,6 +25,7 @@ import AdminOrderDetail from './pages/AdminOrderDetail';
 import AdminInventory from './pages/AdminInventory';
 import AdminInventoryAudit from './pages/AdminInventoryAudit';
 import AdminPromotions from './pages/AdminPromotions';
+import AdminCmsContent from './pages/AdminCmsContent';
 import { AdminUsers } from './pages/AdminUsers';
 import AdminAuditLogs from './pages/AdminAuditLogs';
 import { AdminAccessDenied } from './pages/AdminAccessDenied';
@@ -117,6 +118,8 @@ const router = createBrowserRouter([
         children: [
           { path: '/promotions', element: <AdminPromotions /> },
           { path: '/admin/promotions', element: <AdminPromotions /> },
+          { path: '/content', element: <AdminCmsContent /> },
+          { path: '/admin/content', element: <AdminCmsContent /> },
         ],
       },
 
