@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
-import { AdminPageHeader } from './AdminPageHeader';
+import { AdminPageHeader, type AdminBreadcrumbItem } from './AdminPageHeader';
 import { AdminFooter } from './AdminFooter';
 export { NidaLogo } from '../common/NidaLogo';
+export type { AdminBreadcrumbItem } from './AdminPageHeader';
 
 export interface AdminLayoutProps {
   children: React.ReactNode;
   title?: string;
   subtitle?: string;
   actionButton?: React.ReactNode;
+  breadcrumbs?: AdminBreadcrumbItem[];
   hidePageHeader?: boolean;
 }
 
@@ -18,6 +20,7 @@ export function AdminLayout({
   title,
   subtitle,
   actionButton,
+  breadcrumbs,
   hidePageHeader = false,
 }: AdminLayoutProps) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -39,11 +42,12 @@ export function AdminLayout({
         />
 
         {/* Page Title & Breadcrumb Header */}
-        {!hidePageHeader && (title || actionButton) && (
+        {!hidePageHeader && (title || actionButton || breadcrumbs) && (
           <AdminPageHeader
             title={title || ''}
             subtitle={subtitle}
             actionButton={actionButton}
+            breadcrumbs={breadcrumbs}
           />
         )}
 

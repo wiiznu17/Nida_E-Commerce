@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -6,7 +6,6 @@ import {
   FolderTree,
   Package,
   Boxes,
-  History,
   Tag,
   Sliders,
   Users,
@@ -20,8 +19,6 @@ import { NidaLogo } from '../common/NidaLogo';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { STOREFRONT_URL } from '../../config';
-import { orderRequester } from '../../api/requester/orderRequester';
-import { inventoryRequester } from '../../api/requester/inventoryRequester';
 import { SignOutConfirmModal } from '../common/SignOutConfirmModal';
 import { AdminPermission } from '@repo/types';
 
@@ -35,28 +32,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const { admin, hasPermission } = useAuth();
   const location = useLocation();
 
-  const [pendingOrdersCount, setPendingOrdersCount] = useState<number>(0);
-  const [lowStockCount, setLowStockCount] = useState<number>(0);
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
-
-  useEffect(() => {
-    orderRequester
-      .getOrders()
-      .then((orders) => {
-        setPendingOrdersCount(
-          orders.filter((o) => o.status === 'PROCESSING' || o.status === 'PAID')
-            .length,
-        );
-      })
-      .catch(() => {});
-
-    inventoryRequester
-      .getInventory({ lowStockOnly: true })
-      .then((items) => {
-        setLowStockCount(items.length);
-      })
-      .catch(() => {});
-  }, [location.pathname]);
 
   const rawSections = [
     {
@@ -68,8 +44,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/',
           label: t('nav.dashboard'),
           icon: LayoutDashboard,
-          badge: null,
-          badgeColor: undefined,
           permission: undefined,
         },
       ],
@@ -83,8 +57,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/products',
           label: t('nav.products'),
           icon: ShoppingBag,
-          badge: null,
-          badgeColor: undefined,
           permission: AdminPermission.CATALOG_READ,
         },
         {
@@ -93,8 +65,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/categories',
           label: t('nav.categories'),
           icon: FolderTree,
-          badge: null,
-          badgeColor: undefined,
           permission: AdminPermission.CATALOG_READ,
         },
         {
@@ -103,18 +73,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/inventory',
           label: t('nav.inventory'),
           icon: Boxes,
-          badge: lowStockCount > 0 ? lowStockCount : null,
-          badgeColor: 'bg-brand-yellow text-brand-dark-brown font-black',
-          permission: AdminPermission.INVENTORY_READ,
-        },
-        {
-          id: 'inventoryAudit',
-          path: '/admin/inventory/audit',
-          altPath: '/inventory/audit',
-          label: t('nav.inventoryAudit'),
-          icon: History,
-          badge: null,
-          badgeColor: undefined,
           permission: AdminPermission.INVENTORY_READ,
         },
       ],
@@ -128,8 +86,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/orders',
           label: t('nav.orders'),
           icon: Package,
-          badge: pendingOrdersCount > 0 ? pendingOrdersCount : null,
-          badgeColor: 'bg-red-500 text-white font-bold',
           permission: AdminPermission.ORDERS_READ,
         },
         {
@@ -138,8 +94,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/promotions',
           label: t('nav.promotions'),
           icon: Tag,
-          badge: null,
-          badgeColor: undefined,
           permission: AdminPermission.COUPONS_READ,
         },
         {
@@ -148,8 +102,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/content',
           label: t('nav.contentBanners'),
           icon: Sliders,
-          badge: null,
-          badgeColor: undefined,
           permission: AdminPermission.COUPONS_READ,
         },
       ],
@@ -163,8 +115,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/users',
           label: t('nav.staffManagement'),
           icon: Users,
-          badge: null,
-          badgeColor: undefined,
           permission: AdminPermission.ADMIN_USERS_MANAGE,
         },
         {
@@ -173,8 +123,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/audit-logs',
           label: t('nav.auditLogs'),
           icon: ShieldAlert,
-          badge: null,
-          badgeColor: undefined,
           permission: AdminPermission.AUDIT_LOGS_READ,
         },
       ],
@@ -201,7 +149,11 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         <Link
           to="/admin"
           className="flex flex-col items-center"
-          onClick={onClose}
+          onClick={() => {
+            if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+              onClose();
+            }
+          }}
         >
           <NidaLogo size="sm" dark />
         </Link>
@@ -234,10 +186,14 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                 <Link
                   key={item.id}
                   to={item.path}
-                  onClick={onClose}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all group ${
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                      onClose();
+                    }
+                  }}
+                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-colors duration-150 group ${
                     isActive
-                      ? 'bg-brand-yellow text-brand-dark-brown font-bold shadow-xs'
+                      ? 'bg-brand-yellow text-brand-dark-brown shadow-xs'
                       : 'text-white/70 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -252,14 +208,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                     />
                     <span>{item.label}</span>
                   </div>
-
-                  {item.badge !== null && item.badge > 0 && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full ${item.badgeColor}`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
                 </Link>
               );
             })}

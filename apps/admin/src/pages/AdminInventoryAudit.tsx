@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Boxes, History, Search, RotateCcw, Filter } from 'lucide-react';
+import { ArrowLeft, History, Search, RotateCcw, Filter } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
   DropdownSelect,
@@ -177,25 +177,21 @@ export default function AdminInventoryAudit() {
           ? `แสดง ${filteredMovements.length} จาก ${movementsList.length} รายการ`
           : `${filteredMovements.length} of ${movementsList.length} records displayed`
       })`}
+      breadcrumbs={[
+        { label: t('nav.inventory'), path: '/admin/inventory' },
+        { label: t('inventory.historyTab') },
+      ]}
+      actionButton={
+        <Link
+          to="/admin/inventory"
+          className="px-3.5 py-2 bg-white border border-gray-300 hover:bg-gray-100 text-brand-brown text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-1.5 shadow-2xs"
+        >
+          <ArrowLeft size={14} />
+          <span>{t('common.back')}</span>
+        </Link>
+      }
     >
       <div className="space-y-4">
-        {/* Top View Selector: Levels vs Audit History */}
-        <div className="flex items-center space-x-2 border-b border-gray-200 pb-3">
-          <Link
-            to="/admin/inventory"
-            className="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 cursor-pointer"
-          >
-            <Boxes size={14} />
-            <span>{t('inventory.levelsTab') || 'ระดับสต็อกสินค้าคงคลัง'}</span>
-          </Link>
-          <div className="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 bg-brand-brown text-white shadow-xs cursor-default">
-            <History size={14} />
-            <span>
-              {t('inventory.historyTab') ||
-                'ประวัติการเคลื่อนไหวสต็อก (Audit Log)'}
-            </span>
-          </div>
-        </div>
 
         {/* Filter and Search Bar (Styled like ProductListFilters) */}
         <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">

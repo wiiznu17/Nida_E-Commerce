@@ -186,6 +186,15 @@ export default function AdminInventory() {
           ? `แสดง ${filteredInventory.length} จาก ${inventoryList.length} รายการ`
           : `${filteredInventory.length} of ${inventoryList.length} items displayed`
       })`}
+      actionButton={
+        <Link
+          to="/admin/inventory/audit"
+          className="px-4 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 shadow-xs cursor-pointer"
+        >
+          <History size={15} />
+          <span>{t('inventory.historyTab')}</span>
+        </Link>
+      }
     >
       <div className="space-y-4">
         {/* Toast */}
@@ -196,24 +205,6 @@ export default function AdminInventory() {
             onClose={() => setToastMessage(null)}
           />
         )}
-
-        {/* Top View Selector: Levels vs Audit History */}
-        <div className="flex items-center space-x-2 border-b border-gray-200 pb-3">
-          <div className="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 bg-brand-brown text-white shadow-xs cursor-default">
-            <Boxes size={14} />
-            <span>{t('inventory.levelsTab') || 'ระดับสต็อกสินค้าคงคลัง'}</span>
-          </div>
-          <Link
-            to="/admin/inventory/audit"
-            className="px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-2 bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 cursor-pointer"
-          >
-            <History size={14} />
-            <span>
-              {t('inventory.historyTab') ||
-                'ประวัติการเคลื่อนไหวสต็อก (Audit Log)'}
-            </span>
-          </Link>
-        </div>
 
         {/* Filter and Search Bar (Styled like ProductListFilters) */}
         <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">
