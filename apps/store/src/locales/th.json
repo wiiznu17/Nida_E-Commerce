@@ -475,6 +475,7 @@
     "processingOrders": "กำลังจัดเตรียม",
     "inTransitOrders": "อยู่ระหว่างจัดส่ง",
     "deliveredOrders": "จัดส่งสำเร็จ",
+    "completedOrders": "สำเร็จสมบูรณ์",
     "totalSpent": "ยอดสั่งซื้อสะสม",
     "searchPlaceholder": "ค้นหาเลขคำสั่งซื้อ หรือชื่อสินค้า...",
     "filterAll": "ทั้งหมด",
@@ -482,7 +483,8 @@
     "filterPaid": "ชำระแล้ว",
     "filterProcessing": "กำลังเตรียม",
     "filterShipped": "จัดส่งแล้ว",
-    "filterDelivered": "สำเร็จแล้ว",
+    "filterDelivered": "จัดส่งสำเร็จ",
+    "filterCompleted": "สำเร็จสมบูรณ์",
     "filterCancelled": "ยกเลิก",
     "sortNewest": "วันที่สั่ง: ล่าสุด",
     "sortOldest": "วันที่สั่ง: เก่าสุด",
@@ -514,8 +516,10 @@
     "payPromptPayBtn": "ชำระเงินทันที (PromptPay QR)",
     "requestCancelBtn": "ขอยกเลิกคำสั่งซื้อ",
     "requestReturnBtn": "ขอคืนสินค้า",
+    "acceptDeliveryBtn": "ฉันได้ตรวจสอบและยอมรับสินค้าแล้ว",
     "cancellationPendingNotice": "คำขอยกเลิกคำสั่งซื้อของคุณกำลังรอเจ้าหน้าที่ตรวจสอบ",
     "returnActiveNotice": "คำขอคืนสินค้าของคุณอยู่ระหว่างดำเนินการ",
+    "completedNotice": "คำสั่งซื้อนี้เสร็จสมบูรณ์เรียบร้อยแล้ว ขอบคุณที่ไว้วางใจ NIDA",
     "itemsPurchased": "รายการสินค้าที่สั่งซื้อ",
     "refundHistoryTitle": "ประวัติการคืนเงิน (Refund History)",
     "reasonPrefix": "เหตุผล",
@@ -531,6 +535,13 @@
     "trackingTransitTitle": "ความคืบหน้าการจัดส่ง",
     "cancelSuccessToast": "ส่งคำขอยกเลิกคำสั่งซื้อเรียบร้อยแล้ว",
     "returnSuccessToast": "ส่งคำขอคืนสินค้าเรียบร้อยแล้ว",
+    "acceptSuccessToast": "ยืนยันการรับสินค้าสำเร็จ ขอบคุณที่เลือกซื้อสินค้ากับเรา",
+    "acceptModal": {
+      "title": "ยืนยันการรับสินค้า",
+      "reviewNoticeTitle": "ตรวจสอบสินค้าเรียบร้อยแล้ว",
+      "reviewNoticeDesc": "เมื่อกดยืนยัน คำสั่งซื้อจะเปลี่ยนสถานะเป็น 'สำเร็จสมบูรณ์' และระบบจะมอบคะแนนสะสมความภักดีให้คุณทันที โดยคุณยังคงได้รับสิทธิ์ขอคืนสินค้าภายใน 7 วันตามนโยบาย",
+      "confirmButton": "ยืนยันยอมรับสินค้า"
+    },
     "cancelModal": {
       "title": "ขอยกเลิกคำสั่งซื้อ",
       "reviewNoticeTitle": "เงื่อนไขการขอยกเลิกคำสั่งซื้อ",
@@ -587,6 +598,7 @@
     "processing": "กำลังจัดเตรียม",
     "shipped": "จัดส่งแล้ว",
     "delivered": "จัดส่งสำเร็จ",
+    "completed": "สำเร็จสมบูรณ์",
     "cancelled": "ยกเลิกแล้ว",
     "refunded": "คืนเงินแล้ว"
   }

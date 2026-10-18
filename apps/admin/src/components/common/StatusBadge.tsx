@@ -15,6 +15,11 @@ export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
           bg: 'bg-emerald-100 text-emerald-900 border-emerald-200',
           label: t('status.delivered'),
         };
+      case 'COMPLETED':
+        return {
+          bg: 'bg-emerald-100 text-emerald-900 border-emerald-300 font-black',
+          label: t('status.completed'),
+        };
       case 'SHIPPED':
         return {
           bg: 'bg-blue-100 text-blue-900 border-blue-200',

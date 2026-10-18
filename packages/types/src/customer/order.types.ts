@@ -36,6 +36,8 @@ export interface ApiOrder {
   returnRequests?: ApiReturnRequest[];
   refunds?: ApiRefundSummary[];
   placedAt: string;
+  completedAt?: string | null;
+  updatedAt?: string;
 }
 
 export interface ApiOrderItem {

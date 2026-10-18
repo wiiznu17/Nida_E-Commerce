@@ -11,6 +11,7 @@ import { EmptyState, LoadingSpinner } from '@/components/ui';
 import {
   CustomerCancelOrderModal,
   CustomerReturnRequestModal,
+  CustomerAcceptDeliveryModal,
   CustomerOrderHeaderCard,
   CustomerOrderItemsCard,
   CustomerOrderSummarySidebar,
@@ -29,6 +30,7 @@ export default function CustomerOrderDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const loadOrderDetail = useCallback(async () => {
@@ -138,6 +140,7 @@ export default function CustomerOrderDetailPage() {
         order={order}
         onOpenCancelModal={() => setIsCancelModalOpen(true)}
         onOpenReturnModal={() => setIsReturnModalOpen(true)}
+        onOpenAcceptModal={() => setIsAcceptModalOpen(true)}
       />
 
       {/* Main 12-Column Grid */}
@@ -173,6 +176,17 @@ export default function CustomerOrderDetailPage() {
         onSuccess={(updated) => {
           setOrder(updated);
           showToast(t('orderDetail.returnSuccessToast'));
+        }}
+      />
+
+      {/* Accept Delivery Modal */}
+      <CustomerAcceptDeliveryModal
+        isOpen={isAcceptModalOpen}
+        onClose={() => setIsAcceptModalOpen(false)}
+        orderNumber={order.orderNumber}
+        onSuccess={(updated) => {
+          setOrder(updated);
+          showToast(t('orderDetail.acceptSuccessToast'));
         }}
       />
     </div>

@@ -475,6 +475,7 @@
     "processingOrders": "Processing",
     "inTransitOrders": "In Transit",
     "deliveredOrders": "Delivered",
+    "completedOrders": "Completed",
     "totalSpent": "Total Spent",
     "searchPlaceholder": "Search by order # or item name...",
     "filterAll": "All",
@@ -483,6 +484,7 @@
     "filterProcessing": "Processing",
     "filterShipped": "Shipped",
     "filterDelivered": "Delivered",
+    "filterCompleted": "Completed",
     "filterCancelled": "Cancelled",
     "sortNewest": "Date: Newest",
     "sortOldest": "Date: Oldest",
@@ -514,8 +516,10 @@
     "payPromptPayBtn": "Pay Now (PromptPay QR)",
     "requestCancelBtn": "Request Cancellation",
     "requestReturnBtn": "Request Return",
+    "acceptDeliveryBtn": "Confirm Order Received",
     "cancellationPendingNotice": "Your order cancellation request is pending review by our team.",
     "returnActiveNotice": "Your return request is currently being processed.",
+    "completedNotice": "This order is completed. Thank you for shopping with NIDA.",
     "itemsPurchased": "Purchased Items",
     "refundHistoryTitle": "Refund History",
     "reasonPrefix": "Reason",
@@ -531,6 +535,13 @@
     "trackingTransitTitle": "Fulfillment & Delivery Progress",
     "cancelSuccessToast": "Cancellation request submitted successfully",
     "returnSuccessToast": "Return request submitted successfully",
+    "acceptSuccessToast": "Order receipt confirmed successfully. Thank you for shopping with us.",
+    "acceptModal": {
+      "title": "Confirm Order Receipt",
+      "reviewNoticeTitle": "Order Inspection & Acceptance",
+      "reviewNoticeDesc": "By confirming, your order will transition to 'Completed' and loyalty points will be credited immediately. You remain eligible to request a return within 7 days per our policy.",
+      "confirmButton": "Confirm Receipt"
+    },
     "cancelModal": {
       "title": "Cancel Order Request",
       "reviewNoticeTitle": "Cancellation Request Terms",
@@ -587,6 +598,7 @@
     "processing": "Processing",
     "shipped": "Shipped",
     "delivered": "Delivered",
+    "completed": "Completed",
     "cancelled": "Cancelled",
     "refunded": "Refunded"
   }

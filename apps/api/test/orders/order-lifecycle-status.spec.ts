@@ -33,6 +33,8 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
     orderCancellationRequest: { create: ReturnType<typeof vi.fn> };
     returnRequest: { create: ReturnType<typeof vi.fn> };
     payment: { create: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+    user: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+    pointTransaction: { findFirst: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
     $transaction: ReturnType<typeof vi.fn>;
   };
   let mailerMock: { sendOrderConfirmation: ReturnType<typeof vi.fn> };
@@ -98,6 +100,14 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       payment: {
         create: vi.fn().mockResolvedValue({ id: 'pay-new' }),
         update: vi.fn().mockResolvedValue({ id: 'pay-upd' }),
+      },
+      user: {
+        findUnique: vi.fn().mockResolvedValue({ id: 'usr-1', points: 50 }),
+        update: vi.fn().mockResolvedValue({ id: 'usr-1', points: 75 }),
+      },
+      pointTransaction: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({ id: 'pt-1' }),
       },
       $transaction: vi.fn(async (callback: (tx: typeof prismaMock) => Promise<unknown>) =>
         callback(prismaMock),
@@ -617,6 +627,160 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       });
 
       expect(prismaMock.order.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Scenario 8: Customer Delivery Acceptance (COMPLETED) & 7-Day Return Window Safeguard', () => {
+    it('accepts delivered order, transitions to COMPLETED, records completedAt, and awards loyalty points', async () => {
+      const mockDeliveredOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-ACCEPT',
+        userId: 'usr-1',
+        status: OrderStatus.DELIVERED,
+        totalAmount: 2500,
+        items: [],
+      });
+
+      const mockCompletedOrder = {
+        ...mockDeliveredOrder,
+        status: OrderStatus.COMPLETED,
+        completedAt: new Date(),
+      };
+
+      prismaMock.order.findUnique
+        .mockResolvedValueOnce(mockDeliveredOrder)
+        .mockResolvedValueOnce(mockCompletedOrder);
+
+      const result = await service.acceptOrder('NIDA-20261017-ACCEPT', 'usr-1');
+
+      expect(prismaMock.order.update).toHaveBeenCalledWith({
+        where: { id: mockDeliveredOrder.id },
+        data: expect.objectContaining({
+          status: OrderStatus.COMPLETED,
+          completedAt: expect.any(Date),
+        }),
+      });
+
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { id: 'usr-1' },
+        data: {
+          points: 75, // 50 + Math.floor(2500 / 100) = 75
+        },
+      });
+
+      expect(prismaMock.pointTransaction.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: 'usr-1',
+            orderId: mockDeliveredOrder.id,
+            pointsChange: 25,
+            balanceAfter: 75,
+          }),
+        }),
+      );
+
+      expect(result.status).toBe(OrderStatus.COMPLETED);
+    });
+
+    it('rejects acceptOrder when order is not in DELIVERED status', async () => {
+      const mockShippedOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-SHIPPED',
+        userId: 'usr-1',
+        status: OrderStatus.SHIPPED,
+      });
+
+      prismaMock.order.findUnique.mockResolvedValueOnce(mockShippedOrder);
+
+      await expect(
+        service.acceptOrder('NIDA-20261017-SHIPPED', 'usr-1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects acceptOrder when customer does not own the order', async () => {
+      const mockOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-OTHER',
+        userId: 'other-user',
+        status: OrderStatus.DELIVERED,
+      });
+
+      prismaMock.order.findUnique.mockResolvedValueOnce(mockOrder);
+
+      await expect(
+        service.acceptOrder('NIDA-20261017-OTHER', 'usr-1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('idempotently returns completed order if already COMPLETED without duplicate point awards', async () => {
+      const mockCompletedOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-ALREADY-DONE',
+        userId: 'usr-1',
+        status: OrderStatus.COMPLETED,
+        completedAt: new Date(),
+      });
+
+      prismaMock.order.findUnique.mockResolvedValue(mockCompletedOrder);
+
+      const result = await service.acceptOrder('NIDA-20261017-ALREADY-DONE', 'usr-1');
+
+      expect(prismaMock.order.update).not.toHaveBeenCalled();
+      expect(prismaMock.pointTransaction.create).not.toHaveBeenCalled();
+      expect(result.status).toBe(OrderStatus.COMPLETED);
+    });
+
+    it('allows return request for COMPLETED order within 7 days of delivery', async () => {
+      const recentDelivery = new Date(Date.now() - 2 * 86400 * 1000); // 2 days ago
+      const mockCompletedOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-RETURN-OK',
+        userId: 'usr-1',
+        status: OrderStatus.COMPLETED,
+        updatedAt: recentDelivery,
+        items: [{ id: 'item-1', orderId: 'ord-uuid-1', productName: 'Item 1', quantity: 1, unitPrice: 500 }],
+        shipments: [{ id: 'ship-1', status: 'DELIVERED', updatedAt: recentDelivery, logs: [] }],
+        returnRequests: [],
+      });
+
+      prismaMock.order.findUnique
+        .mockResolvedValueOnce(mockCompletedOrder)
+        .mockResolvedValueOnce(mockCompletedOrder);
+
+      prismaMock.returnRequest.create.mockResolvedValueOnce({ id: 'ret-1' });
+
+      const result = await service.requestReturn(
+        'NIDA-20261017-RETURN-OK',
+        {
+          reason: 'Size too big',
+          items: [{ orderItemId: 'item-1', quantity: 1 }],
+        },
+        'usr-1',
+      );
+
+      expect(prismaMock.returnRequest.create).toHaveBeenCalled();
+      expect(result).toBeDefined();
+    });
+
+    it('rejects return request when more than 7 days have passed since delivery', async () => {
+      const oldDelivery = new Date(Date.now() - 8 * 86400 * 1000); // 8 days ago
+      const mockExpiredOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-EXPIRED',
+        userId: 'usr-1',
+        status: OrderStatus.COMPLETED,
+        updatedAt: oldDelivery,
+        items: [{ id: 'item-1', orderId: 'ord-uuid-1', productName: 'Item 1', quantity: 1, unitPrice: 500 }],
+        shipments: [{ id: 'ship-1', status: 'DELIVERED', updatedAt: oldDelivery, logs: [] }],
+        returnRequests: [],
+      });
+
+      prismaMock.order.findUnique.mockResolvedValueOnce(mockExpiredOrder);
+
+      await expect(
+        service.requestReturn(
+          'NIDA-20261017-EXPIRED',
+          {
+            reason: 'Size too big',
+            items: [{ orderItemId: 'item-1', quantity: 1 }],
+          },
+          'usr-1',
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

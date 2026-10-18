@@ -76,6 +76,7 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         update: vi.fn(),
       },
       pointTransaction: {
+        findFirst: vi.fn(),
         create: vi.fn(),
       },
       $transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) =>
@@ -332,6 +333,88 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
           OrderStatus.SHIPPED,
           'FLASH',
           'FLASH-999',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('transitions DELIVERED to COMPLETED, records completedAt timestamp, and credits loyalty points', async () => {
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+        update: ReturnType<typeof vi.fn>;
+      };
+      const userMock = prismaMock.user as {
+        findUnique: ReturnType<typeof vi.fn>;
+        update: ReturnType<typeof vi.fn>;
+      };
+      const pointTxMock = prismaMock.pointTransaction as {
+        findFirst: ReturnType<typeof vi.fn>;
+        create: ReturnType<typeof vi.fn>;
+      };
+
+      orderFind.findFirst.mockResolvedValueOnce({
+        ...baseOrderFixture,
+        userId: 'usr-vip-01',
+        status: OrderStatus.DELIVERED,
+        totalAmount: 1550,
+      });
+
+      orderFind.update.mockResolvedValueOnce({
+        ...baseOrderFixture,
+        userId: 'usr-vip-01',
+        status: OrderStatus.COMPLETED,
+        completedAt: new Date(),
+      });
+
+      pointTxMock.findFirst.mockResolvedValueOnce(null);
+      userMock.findUnique.mockResolvedValueOnce({
+        id: 'usr-vip-01',
+        points: 100,
+      });
+
+      const result = await service.updateOrderStatus(
+        baseOrderFixture.orderNumber,
+        OrderStatus.COMPLETED,
+      );
+
+      expect(orderFind.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: OrderStatus.COMPLETED,
+            completedAt: expect.any(Date),
+          }),
+        }),
+      );
+
+      expect(userMock.update).toHaveBeenCalledWith({
+        where: { id: 'usr-vip-01' },
+        data: { points: 115 },
+      });
+
+      expect(pointTxMock.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: 'usr-vip-01',
+            orderId: baseOrderFixture.id,
+            pointsChange: 15,
+            balanceAfter: 115,
+          }),
+        }),
+      );
+
+      expect(result.status).toBe(OrderStatus.COMPLETED);
+    });
+
+    it('strictly forbids transitioning to COMPLETED unless order is DELIVERED', async () => {
+      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn> };
+      orderFind.findFirst.mockResolvedValueOnce({
+        ...baseOrderFixture,
+        status: OrderStatus.SHIPPED,
+      });
+
+      await expect(
+        service.updateOrderStatus(
+          baseOrderFixture.orderNumber,
+          OrderStatus.COMPLETED,
         ),
       ).rejects.toThrow(BadRequestException);
     });

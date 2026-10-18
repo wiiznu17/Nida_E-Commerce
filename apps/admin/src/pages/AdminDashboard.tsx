@@ -87,6 +87,12 @@ export default function AdminDashboard() {
   // Status Badge Helper
   const renderStatusBadge = (status: string) => {
     switch (status) {
+      case 'COMPLETED':
+        return (
+          <span className="bg-emerald-100 text-emerald-900 text-[10px] font-black uppercase px-2 py-0.5 rounded-xs border border-emerald-300">
+            {language === 'th' ? 'สำเร็จสมบูรณ์' : 'Completed'}
+          </span>
+        );
       case 'DELIVERED':
         return (
           <span className="bg-emerald-100 text-emerald-900 text-[10px] font-black uppercase px-2 py-0.5 rounded-xs">

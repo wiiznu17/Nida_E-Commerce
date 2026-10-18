@@ -55,6 +55,7 @@ export function useCustomerOrders() {
     let processingCount = 0;
     let inTransitCount = 0;
     let deliveredCount = 0;
+    let completedCount = 0;
     let totalSpent = 0;
 
     for (const o of allOrders) {
@@ -66,6 +67,7 @@ export function useCustomerOrders() {
       else if (o.status === 'PROCESSING' || o.status === 'PAID') processingCount++;
       else if (o.status === 'SHIPPED') inTransitCount++;
       else if (o.status === 'DELIVERED') deliveredCount++;
+      else if (o.status === 'COMPLETED') completedCount++;
     }
 
     return {
@@ -74,6 +76,7 @@ export function useCustomerOrders() {
       processingCount,
       inTransitCount,
       deliveredCount,
+      completedCount,
       totalSpent,
     };
   }, [allOrders]);
@@ -87,6 +90,7 @@ export function useCustomerOrders() {
       PROCESSING: 0,
       SHIPPED: 0,
       DELIVERED: 0,
+      COMPLETED: 0,
       CANCELLED: 0,
     };
 

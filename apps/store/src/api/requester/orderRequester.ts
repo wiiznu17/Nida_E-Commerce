@@ -203,5 +203,20 @@ export const orderRequester = {
       token,
     );
   },
+
+  /**
+   * Confirm delivery and accept order (transitions to COMPLETED).
+   */
+  acceptOrder: async (
+    orderNumber: string,
+    token?: string | null,
+  ): Promise<ApiOrder> => {
+    return apiClient.post<ApiOrder>(
+      `/orders/${encodeURIComponent(orderNumber)}/accept`,
+      {},
+      token,
+    );
+  },
 };
+
 

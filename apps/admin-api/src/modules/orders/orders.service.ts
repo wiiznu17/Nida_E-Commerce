@@ -27,6 +27,7 @@ import {
   PaymentMethod,
   CancellationRequestStatus,
   ReturnStatus,
+  PointChangeType,
 } from '@repo/database';
 
 import { validateOrderStatusTransition } from '@repo/validators';
@@ -361,9 +362,56 @@ export class OrdersService {
         }
       }
 
+      if (status === OrderStatus.COMPLETED && existing.userId) {
+        const pointsToEarn = Math.floor(Number(existing.totalAmount) / 100);
+        if (pointsToEarn > 0) {
+          try {
+            const existingPoints = await tx.pointTransaction.findFirst({
+              where: {
+                orderId: existing.id,
+                changeType: PointChangeType.EARNED_ORDER,
+              },
+            });
+            if (!existingPoints) {
+              const user = await tx.user.findUnique({
+                where: { id: existing.userId },
+                select: { points: true },
+              });
+              const currentPoints = user?.points ?? 0;
+              const newBalance = currentPoints + pointsToEarn;
+
+              await tx.pointTransaction.create({
+                data: {
+                  userId: existing.userId,
+                  orderId: existing.id,
+                  changeType: PointChangeType.EARNED_ORDER,
+                  pointsChange: pointsToEarn,
+                  balanceAfter: newBalance,
+                  description: `Loyalty points earned from completed order #${existing.orderNumber}`,
+                },
+              });
+
+              await tx.user.update({
+                where: { id: existing.userId },
+                data: {
+                  points: newBalance,
+                },
+              });
+            }
+          } catch (err: unknown) {
+            console.warn('[AdminOrdersService] Loyalty points error:', err);
+          }
+        }
+      }
+
       return tx.order.update({
         where: { id: existing.id },
-        data: { status },
+        data: {
+          status,
+          ...(status === OrderStatus.COMPLETED && !existing.completedAt
+            ? { completedAt: new Date() }
+            : {}),
+        },
         include: {
           items: {
             include: {
@@ -614,6 +662,7 @@ export class OrdersService {
         }),
       ),
       placedAt: order.placedAt.toISOString(),
+      completedAt: order.completedAt ? order.completedAt.toISOString() : null,
     };
   }
 

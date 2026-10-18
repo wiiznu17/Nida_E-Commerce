@@ -14,6 +14,7 @@ const ORDER_HIERARCHY: Record<OrderStatus, number> = {
   PROCESSING: 2,
   SHIPPED: 3,
   DELIVERED: 4,
+  COMPLETED: 5,
   CANCELLED: 0,
   REFUNDED: 0,
 };
@@ -61,6 +62,11 @@ export function OrderDetailStatusCard({
       {
         key: 'DELIVERED',
         label: t('orders.detail.stepDelivered'),
+        icon: CheckCircle2,
+      },
+      {
+        key: 'COMPLETED',
+        label: t('orders.detail.stepCompleted'),
         icon: CheckCircle2,
       },
     ];

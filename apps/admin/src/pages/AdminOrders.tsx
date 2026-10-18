@@ -202,6 +202,9 @@ export default function AdminOrders() {
   const deliveredCount = ordersList.filter(
     (o) => o.status === 'DELIVERED',
   ).length;
+  const completedCount = ordersList.filter(
+    (o) => o.status === 'COMPLETED',
+  ).length;
   const cancelledCount = ordersList.filter(
     (o) => o.status === 'CANCELLED',
   ).length;
@@ -260,6 +263,7 @@ export default function AdminOrders() {
 
   const getStatusBadgeStyle = (status: OrderStatus) => {
     switch (status) {
+      case 'COMPLETED':
       case 'DELIVERED':
         return 'bg-emerald-50 text-emerald-900 border-emerald-300';
       case 'SHIPPED':
@@ -376,6 +380,23 @@ export default function AdminOrders() {
                 />
                 <span>
                   {t('orders.filterDelivered')} ({deliveredCount})
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleStatusFilterChange('COMPLETED')}
+                className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-all cursor-pointer ${
+                  statusFilter === 'COMPLETED'
+                    ? 'bg-emerald-700 text-white shadow-2xs font-black'
+                    : 'text-emerald-900 hover:bg-emerald-50'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${statusFilter === 'COMPLETED' ? 'bg-white' : 'bg-emerald-600'}`}
+                />
+                <span>
+                  {t('orders.filterCompleted')} ({completedCount})
                 </span>
               </button>
 

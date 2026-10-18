@@ -5,6 +5,7 @@ export type OrderHistoryStatusFilter =
   | 'PROCESSING'
   | 'SHIPPED'
   | 'DELIVERED'
+  | 'COMPLETED'
   | 'CANCELLED';
 
 export type OrderHistorySortOption =
@@ -19,5 +20,6 @@ export interface OrderHistoryMetrics {
   processingCount: number;
   inTransitCount: number;
   deliveredCount: number;
+  completedCount: number;
   totalSpent: number;
 }

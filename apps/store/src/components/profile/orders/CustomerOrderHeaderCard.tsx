@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Ban, RotateCw, CreditCard, Clock } from 'lucide-react';
+import { Ban, RotateCw, CreditCard, Clock, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { StatusBadge } from '@/components/ui';
 import type { ApiOrder } from '@repo/types';
@@ -11,12 +11,14 @@ interface CustomerOrderHeaderCardProps {
   order: ApiOrder;
   onOpenCancelModal: () => void;
   onOpenReturnModal: () => void;
+  onOpenAcceptModal: () => void;
 }
 
 export function CustomerOrderHeaderCard({
   order,
   onOpenCancelModal,
   onOpenReturnModal,
+  onOpenAcceptModal,
 }: CustomerOrderHeaderCardProps) {
   const { t, language } = useLanguage();
 
@@ -34,7 +36,19 @@ export function CustomerOrderHeaderCard({
     ['PAID', 'PREORDER_AWAITING_STOCK', 'PROCESSING'].includes(order.status) &&
     !hasPendingCancellation;
 
-  const canRequestReturn = order.status === 'DELIVERED' && !hasActiveReturn;
+  const canAcceptDelivery = order.status === 'DELIVERED';
+
+  const referenceDate = new Date(
+    order.completedAt ?? order.updatedAt ?? order.placedAt,
+  );
+  const isWithinReturnWindow =
+    Date.now() - referenceDate.getTime() <= 7 * 24 * 60 * 60 * 1000;
+
+  const canRequestReturn =
+    (order.status === 'DELIVERED' || order.status === 'COMPLETED') &&
+    !hasActiveReturn &&
+    isWithinReturnWindow;
+
   const isPendingPayment = order.status === 'PENDING';
 
   return (
@@ -87,6 +101,17 @@ export function CustomerOrderHeaderCard({
             </button>
           )}
 
+          {canAcceptDelivery && (
+            <button
+              type="button"
+              onClick={onOpenAcceptModal}
+              className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xs inline-flex items-center space-x-1.5 shadow-2xs transition-colors cursor-pointer"
+            >
+              <CheckCircle2 size={13} />
+              <span>{t('orderDetail.acceptDeliveryBtn')}</span>
+            </button>
+          )}
+
           {canRequestReturn && (
             <button
               type="button"
@@ -99,6 +124,14 @@ export function CustomerOrderHeaderCard({
           )}
         </div>
       </div>
+
+      {/* Notice for Completed Order */}
+      {order.status === 'COMPLETED' && (
+        <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xs flex items-center space-x-2.5 text-xs text-emerald-900">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{t('orderDetail.completedNotice')}</span>
+        </div>
+      )}
 
       {/* Notices for Active Requests */}
       {hasPendingCancellation && (

@@ -38,6 +38,7 @@ export function OrdersFilterToolbar({
     { key: 'PROCESSING', label: t('orderHistory.filterProcessing') },
     { key: 'SHIPPED', label: t('orderHistory.filterShipped') },
     { key: 'DELIVERED', label: t('orderHistory.filterDelivered') },
+    { key: 'COMPLETED', label: t('orderHistory.filterCompleted') },
     { key: 'CANCELLED', label: t('orderHistory.filterCancelled') },
   ];
 

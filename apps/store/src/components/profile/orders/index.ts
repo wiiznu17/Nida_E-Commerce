@@ -11,4 +11,6 @@ export * from './CustomerOrderItemsCard';
 export * from './CustomerOrderSummarySidebar';
 export * from './CustomerOrderHeaderCard';
 export * from './CustomerOrderTrackingCard';
+export * from './CustomerAcceptDeliveryModal';
+
 

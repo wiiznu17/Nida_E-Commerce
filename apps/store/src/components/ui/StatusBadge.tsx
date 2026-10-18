@@ -48,6 +48,12 @@ export function StatusBadge({
           dot: 'bg-emerald-500',
           defaultLabel: t('status.delivered'),
         };
+      case 'COMPLETED':
+        return {
+          bg: 'bg-emerald-50 text-emerald-900 border-emerald-300',
+          dot: 'bg-emerald-600',
+          defaultLabel: t('status.completed'),
+        };
       case 'PREORDER_AWAITING_STOCK':
         return {
           bg: 'bg-amber-50 text-amber-800 border-amber-200',

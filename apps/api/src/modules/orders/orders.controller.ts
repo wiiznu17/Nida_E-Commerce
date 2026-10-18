@@ -212,5 +212,18 @@ export class CustomerOrdersController {
     const userId = req.user?.id;
     return this.ordersService.requestReturn(orderNumber, dto, userId);
   }
+
+  @Post(':orderNumber/accept')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({ summary: 'Customer confirms delivery and accepts order (COMPLETED)' })
+  @ApiResponse({ status: 200, description: 'Order completed successfully' })
+  @ApiResponse({ status: 400, description: 'Order not eligible for acceptance' })
+  async acceptOrder(
+    @Param('orderNumber') orderNumber: string,
+    @Request() req: AuthenticatedCustomerRequest,
+  ): Promise<ApiOrder> {
+    const userId = req.user?.id;
+    return this.ordersService.acceptOrder(orderNumber, userId);
+  }
 }
 

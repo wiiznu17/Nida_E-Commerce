@@ -31,6 +31,7 @@ import {
   DiscountType,
   ReturnStatus,
   PaymentMethod,
+  PointChangeType,
 } from '@repo/database';
 
 const FREE_SHIPPING_THRESHOLD = 1000;
@@ -504,6 +505,91 @@ export class CustomerOrdersService {
     return this.getOrderByNumber(orderNumber, userId);
   }
 
+  async acceptOrder(
+    orderNumber: string,
+    userId?: string,
+  ): Promise<ApiOrder> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        items: true,
+        user: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (userId && order.userId && order.userId !== userId) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (order.status === OrderStatus.COMPLETED) {
+      return this.getOrderByNumber(orderNumber, userId);
+    }
+
+    if (order.status !== OrderStatus.DELIVERED) {
+      throw new BadRequestException(
+        'สามารถกดยอมรับสินค้าได้เฉพาะคำสั่งซื้อที่จัดส่งสำเร็จ (DELIVERED) แล้วเท่านั้น',
+      );
+    }
+
+    const now = new Date();
+    await this.prisma.order.update({
+      where: { id: order.id },
+      data: {
+        status: OrderStatus.COMPLETED,
+        completedAt: now,
+      },
+    });
+
+    if (order.userId) {
+      const pointsToEarn = Math.floor(Number(order.totalAmount) / 100);
+      if (pointsToEarn > 0) {
+        try {
+          const existingPoints = await this.prisma.pointTransaction.findFirst({
+            where: {
+              orderId: order.id,
+              changeType: PointChangeType.EARNED_ORDER,
+            },
+          });
+
+          if (!existingPoints) {
+            const user = await this.prisma.user.findUnique({
+              where: { id: order.userId },
+              select: { points: true },
+            });
+            const currentPoints = user?.points ?? 0;
+            const newBalance = currentPoints + pointsToEarn;
+
+            await this.prisma.pointTransaction.create({
+              data: {
+                userId: order.userId,
+                orderId: order.id,
+                changeType: PointChangeType.EARNED_ORDER,
+                pointsChange: pointsToEarn,
+                balanceAfter: newBalance,
+                description: `Loyalty points earned from completed order #${order.orderNumber}`,
+              },
+            });
+
+            await this.prisma.user.update({
+              where: { id: order.userId },
+              data: {
+                points: newBalance,
+              },
+            });
+          }
+        } catch (err: unknown) {
+          console.warn('[CustomerOrdersService] Loyalty points error:', err);
+        }
+      }
+    }
+
+    return this.getOrderByNumber(orderNumber, userId);
+  }
+
   async requestReturn(
     orderNumber: string,
     dto: CreateReturnRequestDto,
@@ -513,6 +599,7 @@ export class CustomerOrdersService {
       where: { orderNumber },
       include: {
         items: true,
+        shipments: true,
         returnRequests: true,
       },
     });
@@ -525,9 +612,28 @@ export class CustomerOrdersService {
       throw new NotFoundException(`Order #${orderNumber} not found`);
     }
 
-    if (order.status !== OrderStatus.DELIVERED) {
+    const isDeliveredOrCompleted =
+      order.status === OrderStatus.DELIVERED ||
+      order.status === OrderStatus.COMPLETED;
+
+    if (!isDeliveredOrCompleted) {
       throw new BadRequestException(
         'สามารถขอคืนสินค้าได้เฉพาะคำสั่งซื้อที่จัดส่งสำเร็จแล้วเท่านั้น',
+      );
+    }
+
+    const RETURN_WINDOW_DAYS = 7;
+    const deliveredShipment = order.shipments?.find(
+      (s) => s.status === 'DELIVERED',
+    );
+    const deliveryDate = deliveredShipment?.updatedAt ?? order.updatedAt;
+    const isExpired =
+      Date.now() - new Date(deliveryDate).getTime() >
+      RETURN_WINDOW_DAYS * 86400 * 1000;
+
+    if (isExpired) {
+      throw new BadRequestException(
+        'คำสั่งซื้อนี้หมดระยะเวลาการยื่นคำร้องขอคืนสินค้าแล้ว (เกิน 7 วันหลังส่งมอบ)',
       );
     }
 
@@ -1108,6 +1214,8 @@ export class CustomerOrdersService {
     shippingAddressSnapshot: unknown;
     promoCodeUsed: string | null;
     placedAt: Date;
+    completedAt?: Date | null;
+    updatedAt?: Date;
     items: Array<{
       id: string;
       variantId: string;
@@ -1241,7 +1349,7 @@ export class CustomerOrdersService {
         ? s.estimatedDelivery.toISOString()
         : undefined,
       deliveredAt: s.deliveredAt ? s.deliveredAt.toISOString() : undefined,
-      timeline: s.logs.map((l) => ({
+      timeline: (s.logs ?? []).map((l) => ({
         id: l.id,
         statusTitle: l.statusTitle,
         statusDescription: l.statusDescription ?? undefined,
@@ -1352,6 +1460,8 @@ export class CustomerOrdersService {
       returnRequests,
       refunds,
       placedAt: order.placedAt.toISOString(),
+      completedAt: order.completedAt ? order.completedAt.toISOString() : null,
+      updatedAt: order.updatedAt?.toISOString(),
     };
   }
 }

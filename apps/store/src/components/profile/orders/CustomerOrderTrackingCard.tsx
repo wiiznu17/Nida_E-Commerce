@@ -22,7 +22,13 @@ function getStepProgressIndex(
   orderStatus?: OrderStatus,
   shipmentStatus?: ShipmentStatus,
 ): number {
-  if (orderStatus === 'DELIVERED' || shipmentStatus === 'DELIVERED') return 3;
+  if (
+    orderStatus === 'COMPLETED' ||
+    orderStatus === 'DELIVERED' ||
+    shipmentStatus === 'DELIVERED'
+  ) {
+    return 3;
+  }
   if (
     shipmentStatus === 'OUT_FOR_DELIVERY' ||
     shipmentStatus === 'IN_TRANSIT' ||

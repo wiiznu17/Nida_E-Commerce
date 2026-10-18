@@ -48,6 +48,7 @@ enum OrderStatus {
   PROCESSING
   SHIPPED
   DELIVERED
+  COMPLETED    // สิ้นสุดวงจรการสั่งซื้ออย่างสมบูรณ์ (ลูกค้ายอมรับสินค้าแล้ว)
   CANCELLED
   REFUNDED
 }
@@ -400,6 +401,7 @@ model Order {
   promoCodeUsed           String?            @map("promo_code_used") @db.VarChar(50)
 
   placedAt                DateTime           @default(now()) @map("placed_at")
+  completedAt             DateTime?          @map("completed_at")
   updatedAt               DateTime           @updatedAt @map("updated_at")
 
   user                    User?              @relation(fields: [userId], references: [id], onDelete: SetNull)

@@ -42,6 +42,7 @@ export function OrderDetailTopBar({
 
   const getStatusBadge = () => {
     switch (status) {
+      case 'COMPLETED':
       case 'DELIVERED':
         return 'bg-emerald-50 text-emerald-800 border-emerald-300';
       case 'SHIPPED':
