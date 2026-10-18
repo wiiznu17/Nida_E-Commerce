@@ -7,3 +7,5 @@ export * from './input';
 export * from './dialog';
 export * from './table';
 export * from './pagination';
+export * from './ApiErrorModal';
+export * from './InlineError';

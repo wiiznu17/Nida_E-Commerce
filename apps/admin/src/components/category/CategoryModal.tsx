@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { X, FolderTree, AlertCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, FolderTree, Loader2 } from 'lucide-react';
 import { Department, type ApiCategory } from '@repo/types';
 import type { CreateCategoryInput } from '@repo/validators';
 import { useLanguage } from '../../context/LanguageContext';
-import { Button, DropdownSelect } from '../ui';
+import { Button, DropdownSelect, InlineError, ApiErrorModal } from '../ui';
 
 export interface CategoryModalProps {
   isOpen: boolean;
@@ -37,7 +37,8 @@ export function CategoryModal({
   const [isActive, setIsActive] = useState<boolean>(true);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string }>({});
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -70,8 +71,9 @@ export function CategoryModal({
       setDisplayOrder(0);
       setIsActive(true);
     }
-    setError(null);
-  }, [initialData, isOpen]);
+    setFieldErrors({});
+    setApiError(null);
+  }, [initialData, isOpen, defaultParentId, parentCategories]);
 
   if (!isOpen) return null;
 
@@ -79,18 +81,21 @@ export function CategoryModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errs: { name?: string } = {};
     if (!name.trim()) {
-      setError(
-        isTh
-          ? 'กรุณากรอกชื่อหมวดหมู่ภาษาอังกฤษ'
-          : 'Category name (English) is required',
-      );
+      errs.name = isTh
+        ? 'กรุณากรอกชื่อหมวดหมู่ภาษาอังกฤษ'
+        : 'Category name (English) is required';
+    }
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
       return;
     }
+    setFieldErrors({});
 
     try {
       setIsSubmitting(true);
-      setError(null);
+      setApiError(null);
 
       const payload: CreateCategoryInput = {
         name: name.trim(),
@@ -110,7 +115,7 @@ export function CategoryModal({
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t('category.saveError');
-      setError(msg);
+      setApiError(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -170,13 +175,6 @@ export function CategoryModal({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="overflow-y-auto p-5 space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs flex items-center space-x-2">
-              <AlertCircle size={16} className="shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-
           {/* Department & Parent Category (2 cols) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1">
@@ -211,11 +209,18 @@ export function CategoryModal({
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (fieldErrors.name) {
+                    setFieldErrors((prev: { name?: string }) => ({ ...prev, name: undefined }));
+                  }
+                }}
                 placeholder={t('category.modal.nameEnPlaceholder')}
-                className="w-full px-3 py-2 text-xs border border-brand-border rounded-md bg-white focus:outline-hidden focus:ring-1 focus:ring-brand-dark-brown"
-                required
+                className={`w-full px-3 py-2 text-xs border rounded-md bg-white focus:outline-hidden focus:ring-1 focus:ring-brand-dark-brown ${
+                  fieldErrors.name ? 'border-red-500' : 'border-brand-border'
+                }`}
               />
+              <InlineError message={fieldErrors.name} />
             </div>
 
             <div className="space-y-1">
@@ -370,6 +375,12 @@ export function CategoryModal({
           </div>
         </form>
       </div>
+
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError}
+      />
     </div>
   );
 }

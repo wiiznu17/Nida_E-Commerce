@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { EmptyState } from '../components/ui';
+import { EmptyState, ApiErrorModal } from '../components/ui';
 import { ProductForm } from '../components/product';
 import { useLanguage } from '../context/LanguageContext';
 import { productRequester } from '../api/requester/productRequester';
@@ -18,6 +18,7 @@ export default function AdminProductEdit() {
   const [existingSkus, setExistingSkus] = useState<ProductSkuVariant[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -99,8 +100,11 @@ export default function AdminProductEdit() {
             : `Product "${data.name}" successfully updated`,
         },
       });
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
+      setApiError(
+        err instanceof Error ? err.message : t('common.apiErrorDesc'),
+      );
       setIsSubmitting(false);
     }
   };
@@ -166,6 +170,12 @@ export default function AdminProductEdit() {
         isEdit
         onSubmit={handleUpdate}
         isSubmitting={isSubmitting}
+      />
+
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError}
       />
     </AdminLayout>
   );

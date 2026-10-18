@@ -43,6 +43,67 @@ function processQueue(error: unknown, token: string | null = null): void {
   failedQueue = [];
 }
 
+async function refreshAuthToken(): Promise<string> {
+  if (isRefreshing) {
+    return new Promise<string>((resolve, reject) => {
+      failedQueue.push({ resolve, reject });
+    });
+  }
+
+  isRefreshing = true;
+  const currentRefreshToken =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('nida_refresh_token')
+      : null;
+
+  if (!currentRefreshToken) {
+    isRefreshing = false;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('nida_auth_token');
+      localStorage.removeItem('nida_refresh_token');
+      window.dispatchEvent(new Event('nida_auth_expired'));
+    }
+    throw new ApiError('Session has expired, please log in', 401);
+  }
+
+  try {
+    const refreshResponse = await fetch(
+      `${API_BASE_URL}/auth/admin/refresh`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: currentRefreshToken }),
+      },
+    );
+
+    if (!refreshResponse.ok) {
+      throw new Error('Refresh token rejected');
+    }
+
+    const refreshData = await refreshResponse.json();
+    const newAccessToken: string = refreshData.data?.accessToken;
+    const newRefreshToken: string = refreshData.data?.refreshToken;
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nida_auth_token', newAccessToken);
+      localStorage.setItem('nida_refresh_token', newRefreshToken);
+    }
+
+    processQueue(null, newAccessToken);
+    return newAccessToken;
+  } catch (refreshErr: unknown) {
+    processQueue(refreshErr, null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('nida_auth_token');
+      localStorage.removeItem('nida_refresh_token');
+      window.dispatchEvent(new Event('nida_auth_expired'));
+    }
+    throw new ApiError('Session expired, please sign in again', 401);
+  } finally {
+    isRefreshing = false;
+  }
+}
+
 async function request<T>(
   endpoint: string,
   options: RequestOptions = {},
@@ -93,87 +154,18 @@ async function request<T>(
       endpoint.includes('/auth/admin/verify-token');
 
     if (response.status === 401 && !isRetry && !isAuthBypassEndpoint) {
-      if (isRefreshing) {
-        return new Promise<string>((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then((newToken) => {
-          return request<T>(
-            endpoint,
-            {
-              ...options,
-              headers: {
-                ...(options.headers as Record<string, string>),
-                Authorization: `Bearer ${newToken}`,
-              },
-            },
-            true,
-          );
-        });
-      }
-
-      isRefreshing = true;
-      const currentRefreshToken =
-        typeof window !== 'undefined'
-          ? localStorage.getItem('nida_refresh_token')
-          : null;
-
-      if (!currentRefreshToken) {
-        isRefreshing = false;
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('nida_auth_token');
-          localStorage.removeItem('nida_refresh_token');
-          window.dispatchEvent(new Event('nida_auth_expired'));
-        }
-        throw new ApiError('Session has expired, please log in', 401);
-      }
-
-      try {
-        const refreshResponse = await fetch(
-          `${API_BASE_URL}/auth/admin/refresh`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken: currentRefreshToken }),
+      const newToken = await refreshAuthToken();
+      return request<T>(
+        endpoint,
+        {
+          ...options,
+          headers: {
+            ...(options.headers as Record<string, string>),
+            Authorization: `Bearer ${newToken}`,
           },
-        );
-
-        if (!refreshResponse.ok) {
-          throw new Error('Refresh token rejected');
-        }
-
-        const refreshData = await refreshResponse.json();
-        const newAccessToken: string = refreshData.data?.accessToken;
-        const newRefreshToken: string = refreshData.data?.refreshToken;
-
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('nida_auth_token', newAccessToken);
-          localStorage.setItem('nida_refresh_token', newRefreshToken);
-        }
-
-        processQueue(null, newAccessToken);
-
-        return request<T>(
-          endpoint,
-          {
-            ...options,
-            headers: {
-              ...(options.headers as Record<string, string>),
-              Authorization: `Bearer ${newAccessToken}`,
-            },
-          },
-          true,
-        );
-      } catch (refreshErr: unknown) {
-        processQueue(refreshErr, null);
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('nida_auth_token');
-          localStorage.removeItem('nida_refresh_token');
-          window.dispatchEvent(new Event('nida_auth_expired'));
-        }
-        throw new ApiError('Session expired, please sign in again', 401);
-      } finally {
-        isRefreshing = false;
-      }
+        },
+        true,
+      );
     }
 
     const isJson = response.headers
@@ -222,6 +214,7 @@ function upload<T>(
   endpoint: string,
   formData: FormData,
   onProgress?: (percent: number) => void,
+  isRetry = false,
 ): Promise<T> {
   const url = endpoint.startsWith('http')
     ? endpoint
@@ -248,7 +241,24 @@ function upload<T>(
       };
     }
 
-    xhr.onload = () => {
+    xhr.onload = async () => {
+      if (xhr.status === 401 && !isRetry) {
+        try {
+          await refreshAuthToken();
+          const retriedResult = await upload<T>(
+            endpoint,
+            formData,
+            onProgress,
+            true,
+          );
+          resolve(retriedResult);
+          return;
+        } catch (refreshErr) {
+          reject(refreshErr);
+          return;
+        }
+      }
+
       const isJson = xhr
         .getResponseHeader('content-type')
         ?.includes('application/json');

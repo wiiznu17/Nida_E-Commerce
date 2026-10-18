@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { Alert } from '../components/ui';
+import { ApiErrorModal } from '../components/ui';
+import { useToast } from '../context/ToastContext';
 import {
   ProductListFilters,
   ProductListPagination,
@@ -30,7 +31,7 @@ export default function AdminProducts() {
     useState<ProductFilterState>(DEFAULT_FILTERS);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [availableCategories, setAvailableCategories] = useState<
     Array<{ id: string; label: string }>
@@ -45,6 +46,8 @@ export default function AdminProducts() {
     published: 0,
     draft: 0,
   });
+
+  const toast = useToast();
 
   const fetchStatusCounts = useCallback(() => {
     productRequester
@@ -104,18 +107,13 @@ export default function AdminProducts() {
       });
   }, [isTh]);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
-
   useEffect(() => {
     const navState = location.state as { toast?: string } | null;
     if (navState?.toast) {
-      showToast(navState.toast);
+      toast.success(navState.toast);
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [location.state, toast]);
 
   const handleDelete = async (id: string, name: string) => {
     const confirmText = t('productList.confirmDelete').replace('{name}', name);
@@ -123,11 +121,13 @@ export default function AdminProducts() {
     if (window.confirm(confirmText)) {
       try {
         await productRequester.delete(id);
-        showToast(t('productList.deleteSuccess'));
+        toast.success(t('productList.deleteSuccess'));
         refetch();
         fetchStatusCounts();
-      } catch {
-        showToast(t('productList.deleteError'));
+      } catch (err: unknown) {
+        setApiError(
+          err instanceof Error ? err.message : t('productList.deleteError'),
+        );
       }
     }
   };
@@ -140,13 +140,15 @@ export default function AdminProducts() {
       const statusLabel = nextStatus
         ? t('productList.published')
         : t('productList.draft');
-      showToast(
+      toast.success(
         t('productList.statusToggleSuccess').replace('{status}', statusLabel),
       );
       refetch();
       fetchStatusCounts();
-    } catch {
-      showToast(t('productList.statusToggleError'));
+    } catch (err: unknown) {
+      setApiError(
+        err instanceof Error ? err.message : t('productList.statusToggleError'),
+      );
     } finally {
       setTogglingId(null);
     }
@@ -178,14 +180,6 @@ export default function AdminProducts() {
       }
     >
       <div className="space-y-4">
-        {toastMessage && (
-          <Alert
-            variant="success"
-            message={toastMessage}
-            onClose={() => setToastMessage(null)}
-          />
-        )}
-
         <ProductListFilters
           activeFilters={activeFilters}
           onApplyFilters={handleApplyFilters}
@@ -218,6 +212,12 @@ export default function AdminProducts() {
           />
         </div>
       </div>
+
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError}
+      />
     </AdminLayout>
   );
 }

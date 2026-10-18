@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Sliders, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, Image as ImageIcon } from 'lucide-react';
 import type { ApiCmsBanner } from '@repo/types';
 import type { SaveCmsBannerDto } from '@repo/validators';
 import { HeroSlideModal } from './HeroSlideModal';
@@ -45,9 +45,6 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white border border-stone-200 rounded-xs">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="p-1 bg-[#2B1810] text-white rounded-xs">
-              <Sliders size={14} />
-            </span>
             <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
               {t('cms.hero.title')}
             </h3>
@@ -89,7 +86,6 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
                   <th className="py-3 px-4 w-16 text-center">{t('cms.hero.thOrder')}</th>
                   <th className="py-3 px-4 w-28">{t('cms.hero.thPreview')}</th>
                   <th className="py-3 px-4">{t('cms.hero.thHeadline')}</th>
-                  <th className="py-3 px-4 w-48">{t('cms.hero.thActions')}</th>
                   <th className="py-3 px-4 w-24 text-center">{t('cms.hero.thStatus')}</th>
                   <th className="py-3 px-4 w-24 text-right">{t('cms.hero.thManage')}</th>
                 </tr>
@@ -119,9 +115,9 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
 
                     <td className="py-3 px-4 space-y-0.5">
                       <div className="flex items-center space-x-2">
-                        {slide.tagEn && (
+                        {(slide.tagEn || slide.tagTh) && (
                           <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-[#FAF7F2] border border-stone-300 text-stone-700 rounded-xs">
-                            {slide.tagEn}
+                            {slide.tagEn ?? slide.tagTh}
                           </span>
                         )}
                         <span className="font-bold text-[#2B1810]">
@@ -130,28 +126,6 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
                       </div>
                       {slide.titleTh && (
                         <p className="text-[11px] text-stone-500">{slide.titleTh}</p>
-                      )}
-                      {slide.subtitleEn && (
-                        <p className="text-[10px] text-stone-400 italic">{slide.subtitleEn}</p>
-                      )}
-                    </td>
-
-                    <td className="py-3 px-4 space-y-1">
-                      {slide.ctaPrimaryLink && (
-                        <div className="text-[10px] truncate max-w-[180px]">
-                          <span className="font-bold text-stone-700">{t('cms.hero.btn1')} </span>
-                          <span className="text-stone-500 font-mono">
-                            {slide.ctaPrimaryTextEn ?? slide.ctaPrimaryTextTh ?? 'Link'}
-                          </span>
-                        </div>
-                      )}
-                      {slide.ctaSecondaryLink && (
-                        <div className="text-[10px] truncate max-w-[180px]">
-                          <span className="font-bold text-stone-500">{t('cms.hero.btn2')} </span>
-                          <span className="text-stone-400 font-mono">
-                            {slide.ctaSecondaryTextEn ?? slide.ctaSecondaryTextTh ?? 'Link'}
-                          </span>
-                        </div>
                       )}
                     </td>
 

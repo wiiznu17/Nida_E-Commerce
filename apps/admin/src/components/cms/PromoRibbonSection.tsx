@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Tag, Image as ImageIcon, Link as LinkIcon, Check, AlertCircle, Ticket } from 'lucide-react';
+import { Image as ImageIcon, Check, AlertCircle } from 'lucide-react';
 import type { ApiCmsBanner } from '@repo/types';
-import { BannerPlacement } from '@repo/types';
+import { BannerPlacement, UploadFolder } from '@repo/types';
 import { saveCmsBannerSchema, type SaveCmsBannerDto } from '@repo/validators';
 import { ImageUploader } from '../media/ImageUploader';
 import { useLanguage } from '../../context/LanguageContext';
@@ -115,15 +115,10 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
     <div className="space-y-6">
       {/* Header */}
       <div className="p-4 bg-white border border-stone-200 rounded-xs">
-        <div className="flex items-center space-x-2">
-          <span className="p-1 bg-[#2B1810] text-white rounded-xs">
-            <Ticket size={14} />
-          </span>
-          <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
-            {t('cms.promo.title')}
-          </h3>
-        </div>
-        <p className="text-[11px] text-stone-500 mt-1">
+        <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+          {t('cms.promo.title')}
+        </h3>
+        <p className="text-[11px] text-stone-500 mt-0.5">
           {t('cms.promo.subtitle')}
         </p>
       </div>
@@ -179,11 +174,8 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                   placeholder="e.g. NIDA20"
-                  className="w-full text-sm font-mono font-black tracking-widest px-3 py-2 bg-white border-2 border-dashed border-[#2B1810] rounded-xs uppercase text-[#2B1810]"
+                  className="w-full text-sm font-mono font-black tracking-widest px-3 py-2 bg-white border border-stone-300 rounded-xs uppercase text-[#2B1810] focus:outline-hidden focus:border-[#2B1810]"
                 />
-                <span className="absolute right-3 top-2.5 text-[10px] font-bold text-stone-400">
-                  {t('cms.promo.codeHint')}
-                </span>
               </div>
             </div>
           </div>
@@ -204,6 +196,8 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                   value={imageDesktopUrl}
                   onChange={setImageDesktopUrl}
                   description={t('cms.promo.desktopImageHint')}
+                  aspectRatio="landscape"
+                  folder={UploadFolder.BANNERS}
                 />
               </div>
               <div>
@@ -212,6 +206,8 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                   value={imageMobileUrl}
                   onChange={setImageMobileUrl}
                   description="800x600 px"
+                  aspectRatio="landscape"
+                  folder={UploadFolder.BANNERS}
                 />
               </div>
             </div>
@@ -219,111 +215,118 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
 
           {/* Headlines & Copy */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2 border-b border-stone-200 pb-2">
-              <Tag size={14} className="text-[#2B1810]" />
+            <div className="border-b border-stone-200 pb-2">
               <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
                 {t('cms.promo.secHeadlines')}
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-4">
+              {/* Title */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.promo.titleEn')}
+                  {t('cms.heroModal.title')} <span className="text-rose-600">*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={titleEn}
-                  onChange={(e) => setTitleEn(e.target.value)}
-                  placeholder="e.g. EXCLUSIVE NIDA PRIVILEGE"
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.promo.titleTh')}
-                </label>
-                <input
-                  type="text"
-                  value={titleTh}
-                  onChange={(e) => setTitleTh(e.target.value)}
-                  placeholder="เช่น สิทธิพิเศษสำหรับสมาชิก NIDA CLUB"
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.promo.descEn')}
-                </label>
-                <input
-                  type="text"
-                  value={subtitleEn}
-                  onChange={(e) => setSubtitleEn(e.target.value)}
-                  placeholder="e.g. Receive 20% privilege on orders over ฿2,000"
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.promo.descTh')}
-                </label>
-                <input
-                  type="text"
-                  value={subtitleTh}
-                  onChange={(e) => setSubtitleTh(e.target.value)}
-                  placeholder="เช่น รับส่วนลด 20% ทันทีเมื่อสั่งซื้อครบ ฿2,000"
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <input
+                      type="text"
+                      value={titleTh}
+                      onChange={(e) => setTitleTh(e.target.value)}
+                      placeholder="เช่น สิทธิพิเศษสำหรับสมาชิก NIDA CLUB"
+                      className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
+                    />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')} *</span>
+                    <input
+                      type="text"
+                      required
+                      value={titleEn}
+                      onChange={(e) => setTitleEn(e.target.value)}
+                      placeholder="e.g. EXCLUSIVE NIDA PRIVILEGE"
+                      className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
+                    />
+                  </div>
+                </div>
               </div>
 
+              {/* Subtitle */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.promo.tagEn')}
+                  {t('cms.heroModal.subtitle')}
                 </label>
-                <input
-                  type="text"
-                  value={tagEn}
-                  onChange={(e) => setTagEn(e.target.value)}
-                  placeholder="e.g. EXCLUSIVE PRIVILEGE"
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <textarea
+                      rows={2}
+                      value={subtitleTh}
+                      onChange={(e) => setSubtitleTh(e.target.value)}
+                      placeholder="เช่น รับส่วนลด 20% ทันทีเมื่อสั่งซื้อครบ ฿2,000"
+                      className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810] resize-none"
+                    />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+                    <textarea
+                      rows={2}
+                      value={subtitleEn}
+                      onChange={(e) => setSubtitleEn(e.target.value)}
+                      placeholder="e.g. Receive 20% privilege on orders over ฿2,000"
+                      className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810] resize-none"
+                    />
+                  </div>
+                </div>
               </div>
+
+              {/* Micro Tag */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.promo.tagTh')}
+                  {t('cms.heroModal.tag')}
                 </label>
-                <input
-                  type="text"
-                  value={tagTh}
-                  onChange={(e) => setTagTh(e.target.value)}
-                  placeholder="เช่น ข้อเสนอพิเศษ"
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <input
+                      type="text"
+                      value={tagTh}
+                      onChange={(e) => setTagTh(e.target.value)}
+                      placeholder="เช่น ข้อเสนอพิเศษ"
+                      className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
+                    />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+                    <input
+                      type="text"
+                      value={tagEn}
+                      onChange={(e) => setTagEn(e.target.value)}
+                      placeholder="e.g. EXCLUSIVE PRIVILEGE"
+                      className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Target Link */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2 border-b border-stone-200 pb-2">
-              <LinkIcon size={14} className="text-[#2B1810]" />
+            <div className="border-b border-stone-200 pb-2">
               <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
-                {t('cms.promo.link')}
+                {t('cms.heroModal.link')}
               </h4>
             </div>
 
             <div>
-              <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                {t('cms.promo.link')}
-              </label>
               <input
                 type="text"
                 value={targetUrl}
                 onChange={(e) => setTargetUrl(e.target.value)}
                 placeholder="e.g. /collections"
-                className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs"
+                className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
               />
             </div>
           </div>

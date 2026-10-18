@@ -34,7 +34,8 @@ export class ContentController {
   @RequirePermissions(AdminPermission.COUPONS_READ)
   @ApiOperation({
     summary: 'ดึงข้อมูลเนื้อหาหน้าแรกทั้งหมดสำหรับจัดการหลังบ้าน',
-    description: 'ส่งคืนแบนเนอร์ทั้งหมดรวมทั้งที่ปิดใช้งาน และการตั้งค่าร้านค้า',
+    description:
+      'ส่งคืนแบนเนอร์ทั้งหมดรวมทั้งที่ปิดใช้งาน และการตั้งค่าร้านค้า',
   })
   @ApiResponse({ status: 200, description: 'ข้อมูลเนื้อหาหน้าแรก' })
   async getAdminHomeContent() {

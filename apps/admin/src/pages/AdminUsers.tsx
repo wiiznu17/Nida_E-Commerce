@@ -4,7 +4,6 @@ import {
   ShieldCheck,
   Check,
   Copy,
-  AlertCircle,
   ToggleLeft,
   ToggleRight,
   ExternalLink,
@@ -12,7 +11,9 @@ import {
 import { authRequester } from '../api/requester/authRequester';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import { AdminLayout } from '../components/layout';
+import { ApiErrorModal, InlineError } from '../components/ui';
 import type { ApiAdminUser, ApiAdminRole } from '@repo/types';
 
 export const AdminUsers: React.FC = () => {
@@ -22,7 +23,9 @@ export const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<ApiAdminUser[]>([]);
   const [roles, setRoles] = useState<ApiAdminRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const toast = useToast();
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Invite modal state
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -31,7 +34,6 @@ export const AdminUsers: React.FC = () => {
   const [inviteRoleId, setInviteRoleId] = useState('');
   const [inviteDept, setInviteDept] = useState('');
   const [isSubmittingInvite, setIsSubmittingInvite] = useState(false);
-  const [inviteError, setInviteError] = useState<string | null>(null);
 
   // Dev link copy dialog state
   const [createdInviteLink, setCreatedInviteLink] = useState<string | null>(
@@ -41,7 +43,6 @@ export const AdminUsers: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
-    setErrorMessage(null);
     try {
       const [userList, roleList] = await Promise.all([
         authRequester.getUsers(),
@@ -54,7 +55,7 @@ export const AdminUsers: React.FC = () => {
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t('users.load_error');
-      setErrorMessage(msg);
+      setApiError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +69,7 @@ export const AdminUsers: React.FC = () => {
     setInviteName('');
     setInviteEmail('');
     setInviteDept('');
-    setInviteError(null);
+    setFieldErrors({});
     if (roles.length > 0) {
       setInviteRoleId(roles[0]?.id ?? '');
     }
@@ -77,10 +78,21 @@ export const AdminUsers: React.FC = () => {
 
   const handleInviteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteName.trim() || !inviteEmail.trim() || !inviteRoleId) return;
+    setFieldErrors({});
+
+    const errors: Record<string, string> = {};
+    if (!inviteName.trim()) {
+      errors.name = t('common.error') ?? 'Required';
+    }
+    if (!inviteEmail.trim()) {
+      errors.email = t('common.error') ?? 'Required';
+    }
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
 
     setIsSubmittingInvite(true);
-    setInviteError(null);
 
     try {
       const res = await authRequester.inviteUser({
@@ -92,6 +104,7 @@ export const AdminUsers: React.FC = () => {
 
       setIsInviteOpen(false);
       fetchData();
+      toast.success(t('users.invite_success_title'));
 
       if (res.inviteLink) {
         setCreatedInviteLink(res.inviteLink);
@@ -99,7 +112,7 @@ export const AdminUsers: React.FC = () => {
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t('users.invite_failed');
-      setInviteError(msg);
+      setApiError(msg);
     } finally {
       setIsSubmittingInvite(false);
     }
@@ -117,8 +130,9 @@ export const AdminUsers: React.FC = () => {
     try {
       await authRequester.toggleUserStatus(user.id);
       fetchData();
+      toast.success(t('common.success') ?? 'Status updated');
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Error updating status');
+      setApiError(err instanceof Error ? err.message : 'Error updating status');
     }
   };
 
@@ -137,12 +151,6 @@ export const AdminUsers: React.FC = () => {
       }
     >
       <div className="space-y-6">
-        {errorMessage && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-3 text-red-900 text-xs">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
 
         {/* Users Table Card */}
         <div className="bg-white border border-[#EAE3D9] rounded-2xl shadow-sm overflow-hidden">
@@ -302,12 +310,6 @@ export const AdminUsers: React.FC = () => {
                 {t('users.invite_modal_desc')}
               </p>
 
-              {inviteError && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-900 text-xs">
-                  {inviteError}
-                </div>
-              )}
-
               <form onSubmit={handleInviteSubmit} className="space-y-4">
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
@@ -319,8 +321,11 @@ export const AdminUsers: React.FC = () => {
                     value={inviteName}
                     onChange={(e) => setInviteName(e.target.value)}
                     placeholder="Kanya Somchai"
-                    className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs text-[#2B1810] focus:outline-none focus:ring-2 focus:ring-[#2B1810]"
+                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-[#2B1810] focus:outline-none ${
+                      fieldErrors.name ? 'border-rose-400 focus:ring-2 focus:ring-rose-500' : 'border-stone-200 focus:ring-2 focus:ring-[#2B1810]'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.name} />
                 </div>
 
                 <div>
@@ -333,8 +338,11 @@ export const AdminUsers: React.FC = () => {
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="kanya@nida-apparel.com"
-                    className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs text-[#2B1810] focus:outline-none focus:ring-2 focus:ring-[#2B1810]"
+                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-[#2B1810] focus:outline-none ${
+                      fieldErrors.email ? 'border-rose-400 focus:ring-2 focus:ring-rose-500' : 'border-stone-200 focus:ring-2 focus:ring-[#2B1810]'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.email} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -456,6 +464,14 @@ export const AdminUsers: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* API Error Modal */}
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError ?? ''}
+        onRetry={fetchData}
+      />
     </AdminLayout>
   );
 };

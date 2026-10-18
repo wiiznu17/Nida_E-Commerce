@@ -3,7 +3,6 @@ import {
   UploadCloud,
   X,
   Loader2,
-  CheckCircle2,
   Crop,
   AlertCircle,
 } from 'lucide-react';
@@ -17,7 +16,7 @@ export interface ImageUploaderProps {
   onChange: (url: string) => void;
   label?: string;
   description?: string;
-  aspectRatio?: 'square' | 'portrait' | 'auto';
+  aspectRatio?: 'square' | 'portrait' | 'landscape' | 'wide' | 'auto';
   compact?: boolean;
   folder?: UploadFolder;
 }
@@ -173,28 +172,33 @@ export function ImageUploader({
     setIsCropModalOpen(true);
   };
 
+  const numericAspectRatio =
+    aspectRatio === 'landscape'
+      ? 16 / 9
+      : aspectRatio === 'wide'
+        ? 21 / 9
+        : aspectRatio === 'square'
+          ? 1
+          : 3 / 4;
+
   const aspectClass =
     aspectRatio === 'square'
       ? 'aspect-square'
-      : aspectRatio === 'portrait'
-        ? 'aspect-[3/4]'
-        : 'min-h-[140px]';
+      : aspectRatio === 'landscape'
+        ? 'aspect-[16/9]'
+        : aspectRatio === 'wide'
+          ? 'aspect-[21/9]'
+          : aspectRatio === 'portrait'
+            ? 'aspect-[3/4]'
+            : 'min-h-[140px]';
 
   return (
     <div className="space-y-1.5">
       {/* Label */}
       {label && (
-        <div className="flex items-center justify-between">
-          <label className="text-[11px] font-bold text-gray-700 block">
-            {label}
-          </label>
-          {value && (
-            <span className="inline-flex items-center text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-xs border border-emerald-200">
-              <CheckCircle2 size={10} className="mr-0.5 text-emerald-600" />
-              {isTh ? 'มีรูปแล้ว' : 'Uploaded'}
-            </span>
-          )}
-        </div>
+        <label className="text-[11px] font-bold text-gray-700 block">
+          {label}
+        </label>
       )}
 
       {description && (
@@ -245,11 +249,21 @@ export function ImageUploader({
                 disabled={isUploading}
                 className="px-2 py-1 text-[10px] font-bold bg-brand-brown text-brand-yellow rounded-xs hover:bg-brand-dark-brown transition-colors shadow-xs flex items-center space-x-1 cursor-pointer"
                 title={
-                  isTh ? 'ครอบตัดหรือปรับสัดส่วน 3:4' : 'Crop / Reposition 3:4'
+                  isTh
+                    ? `ครอบตัดหรือปรับสัดส่วน ${aspectRatio === 'landscape' ? '16:9' : aspectRatio === 'wide' ? '21:9' : '3:4'}`
+                    : `Crop / Reposition ${aspectRatio === 'landscape' ? '16:9' : aspectRatio === 'wide' ? '21:9' : '3:4'}`
                 }
               >
                 <Crop size={11} />
-                <span>{isTh ? 'ครอบ 3:4' : 'Crop'}</span>
+                <span>
+                  {isTh
+                    ? aspectRatio === 'landscape'
+                      ? 'ครอบ 16:9'
+                      : aspectRatio === 'wide'
+                        ? 'ครอบ 21:9'
+                        : 'ครอบ 3:4'
+                    : 'Crop'}
+                </span>
               </button>
               <button
                 type="button"
@@ -289,8 +303,12 @@ export function ImageUploader({
             </p>
             <p className="text-[10px] text-gray-500 mt-0.5">
               {isTh
-                ? 'รองรับ JPG, PNG, WebP (สูงสุด 10MB) • ครอบตัด 3:4 อัตโนมัติ'
-                : 'JPG, PNG, WebP (Max 10MB) • Auto 3:4 Crop'}
+                ? aspectRatio === 'landscape' || aspectRatio === 'wide'
+                  ? 'รองรับ JPG, PNG, WebP (สูงสุด 10MB) • ครอบตัดแนวนอน 16:9'
+                  : 'รองรับ JPG, PNG, WebP (สูงสุด 10MB) • ครอบตัด 3:4 อัตโนมัติ'
+                : aspectRatio === 'landscape' || aspectRatio === 'wide'
+                  ? 'JPG, PNG, WebP (Max 10MB) • Landscape 16:9 Crop'
+                  : 'JPG, PNG, WebP (Max 10MB) • Auto 3:4 Crop'}
             </p>
           </div>
         )}
@@ -324,11 +342,12 @@ export function ImageUploader({
         </div>
       )}
 
-      {/* Interactive 3:4 Image Crop Modal */}
+      {/* Interactive Image Crop Modal */}
       <ImageCropModal
         isOpen={isCropModalOpen}
         imageSrc={cropImageSrc}
         originalFileName={cropFileName}
+        aspectRatio={numericAspectRatio}
         onClose={handleCloseCropModal}
         onConfirm={handleCropConfirmed}
       />

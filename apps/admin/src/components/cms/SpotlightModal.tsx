@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Image as ImageIcon, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { X, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import { ImageUploader } from '../media/ImageUploader';
-import { BannerPlacement } from '@repo/types';
+import { BannerPlacement, UploadFolder } from '@repo/types';
 import type { ApiCmsBanner } from '@repo/types';
 import { saveCmsBannerSchema, type SaveCmsBannerDto } from '@repo/validators';
 import { useLanguage } from '../../context/LanguageContext';
+import { InlineError, ApiErrorModal } from '../ui';
 
 interface SpotlightModalProps {
   isOpen: boolean;
@@ -36,7 +37,8 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
   const [ctaPrimaryTextEn, setCtaPrimaryTextEn] = useState('');
   const [ctaPrimaryLink, setCtaPrimaryLink] = useState('');
   const [isActive, setIsActive] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     setSlot(targetSlot);
@@ -78,12 +80,14 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
       setCtaPrimaryLink(isSlot1 ? '/collections/women' : '/collections/men');
       setIsActive(true);
     }
-    setErrorMsg(null);
+    setFieldErrors({});
+    setApiError(null);
   }, [banner, targetSlot, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg(null);
+    setFieldErrors({});
+    setApiError(null);
 
     const payload: SaveCmsBannerDto = {
       placement: BannerPlacement.SEASONAL_SPOTLIGHT,
@@ -111,8 +115,14 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
 
     const validation = saveCmsBannerSchema.safeParse(payload);
     if (!validation.success) {
-      const firstError = validation.error.issues[0]?.message ?? 'Validation error';
-      setErrorMsg(firstError);
+      const errMap: Record<string, string> = {};
+      for (const issue of validation.error.issues) {
+        const fieldName = String(issue.path[0] ?? '');
+        if (fieldName && !errMap[fieldName]) {
+          errMap[fieldName] = issue.message;
+        }
+      }
+      setFieldErrors(errMap);
       return;
     }
 
@@ -120,11 +130,8 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
       await onSave(payload);
       onClose();
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErrorMsg(err.message);
-      } else {
-        setErrorMsg('Failed to save spotlight story');
-      }
+      const msg = err instanceof Error ? err.message : 'Failed to save spotlight story';
+      setApiError(msg);
     }
   };
 
@@ -158,12 +165,6 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-          {errorMsg && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xs flex items-center space-x-2 text-xs text-red-700">
-              <AlertCircle size={15} className="shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
 
           {/* Slot Selector */}
           <div className="flex items-center space-x-3 p-3 bg-stone-50 border border-stone-200 rounded-xs">
@@ -210,94 +211,126 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
               value={imageDesktopUrl}
               onChange={setImageDesktopUrl}
               description={t('cms.spotlightModal.imageHint')}
+              folder={UploadFolder.BANNERS}
             />
+            <InlineError message={fieldErrors.imageDesktopUrl} />
           </div>
 
           {/* Headlines & Tag */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center space-x-2 border-b border-stone-200 pb-2">
               <h4 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
                 {t('cms.spotlightModal.secHeadlines')}
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-4">
+              {/* Title */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.spotlightModal.tagEn')}
+                  {t('cms.heroModal.title')} <span className="text-rose-600">*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={tagEn}
-                  onChange={(e) => setTagEn(e.target.value)}
-                  placeholder={t('cms.spotlightModal.tagEnPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.spotlightModal.tagTh')}
-                </label>
-                <input
-                  type="text"
-                  value={tagTh}
-                  onChange={(e) => setTagTh(e.target.value)}
-                  placeholder={t('cms.spotlightModal.tagThPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <input
+                      type="text"
+                      value={titleTh}
+                      onChange={(e) => setTitleTh(e.target.value)}
+                      placeholder={t('cms.spotlightModal.titleThPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
+                        fieldErrors.titleTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.titleTh} />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')} *</span>
+                    <input
+                      type="text"
+                      required
+                      value={titleEn}
+                      onChange={(e) => setTitleEn(e.target.value)}
+                      placeholder={t('cms.spotlightModal.titleEnPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
+                        fieldErrors.titleEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.titleEn} />
+                  </div>
+                </div>
               </div>
 
+              {/* Subtitle / Description */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.spotlightModal.titleEn')}
+                  {t('cms.heroModal.subtitle')}
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={titleEn}
-                  onChange={(e) => setTitleEn(e.target.value)}
-                  placeholder={t('cms.spotlightModal.titleEnPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <textarea
+                      rows={2}
+                      value={subtitleTh}
+                      onChange={(e) => setSubtitleTh(e.target.value)}
+                      placeholder={t('cms.spotlightModal.descThPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden resize-none ${
+                        fieldErrors.subtitleTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.subtitleTh} />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+                    <textarea
+                      rows={2}
+                      value={subtitleEn}
+                      onChange={(e) => setSubtitleEn(e.target.value)}
+                      placeholder={t('cms.spotlightModal.descEnPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden resize-none ${
+                        fieldErrors.subtitleEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.subtitleEn} />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.spotlightModal.titleTh')}
-                </label>
-                <input
-                  type="text"
-                  value={titleTh}
-                  onChange={(e) => setTitleTh(e.target.value)}
-                  placeholder={t('cms.spotlightModal.titleThPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                {t('cms.spotlightModal.descEn')}
-              </label>
-              <textarea
-                rows={2}
-                value={subtitleEn}
-                onChange={(e) => setSubtitleEn(e.target.value)}
-                placeholder={t('cms.spotlightModal.descEnPlaceholder')}
-                className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                {t('cms.spotlightModal.descTh')}
-              </label>
-              <textarea
-                rows={2}
-                value={subtitleTh}
-                onChange={(e) => setSubtitleTh(e.target.value)}
-                placeholder={t('cms.spotlightModal.descThPlaceholder')}
-                className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-              />
+              {/* Micro Tag */}
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
+                  {t('cms.heroModal.tag')} <span className="text-rose-600">*</span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <input
+                      type="text"
+                      value={tagTh}
+                      onChange={(e) => setTagTh(e.target.value)}
+                      placeholder={t('cms.spotlightModal.tagThPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
+                        fieldErrors.tagTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.tagTh} />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')} *</span>
+                    <input
+                      type="text"
+                      required
+                      value={tagEn}
+                      onChange={(e) => setTagEn(e.target.value)}
+                      placeholder={t('cms.spotlightModal.tagEnPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
+                        fieldErrors.tagEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.tagEn} />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -312,40 +345,43 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[10px] text-stone-600 mb-1">
-                  {t('cms.spotlightModal.btnTextTh')}
-                </label>
+                <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</label>
                 <input
                   type="text"
                   value={ctaPrimaryTextTh}
                   onChange={(e) => setCtaPrimaryTextTh(e.target.value)}
                   placeholder={t('cms.spotlightModal.btnTextThPlaceholder')}
-                  className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs"
+                  className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
+                    fieldErrors.ctaPrimaryTextTh ? 'border-rose-400' : 'border-stone-300'
+                  }`}
                 />
+                <InlineError message={fieldErrors.ctaPrimaryTextTh} />
               </div>
               <div>
-                <label className="block text-[10px] text-stone-600 mb-1">
-                  {t('cms.spotlightModal.btnTextEn')}
-                </label>
+                <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</label>
                 <input
                   type="text"
                   value={ctaPrimaryTextEn}
                   onChange={(e) => setCtaPrimaryTextEn(e.target.value)}
                   placeholder={t('cms.spotlightModal.btnTextEnPlaceholder')}
-                  className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs"
+                  className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
+                    fieldErrors.ctaPrimaryTextEn ? 'border-rose-400' : 'border-stone-300'
+                  }`}
                 />
+                <InlineError message={fieldErrors.ctaPrimaryTextEn} />
               </div>
               <div>
-                <label className="block text-[10px] text-stone-600 mb-1">
-                  {t('cms.spotlightModal.btnLink')}
-                </label>
+                <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.link')}</label>
                 <input
                   type="text"
                   value={ctaPrimaryLink}
                   onChange={(e) => setCtaPrimaryLink(e.target.value)}
                   placeholder="e.g. /collections/women"
-                  className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs"
+                  className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
+                    fieldErrors.ctaPrimaryLink ? 'border-rose-400' : 'border-stone-300'
+                  }`}
                 />
+                <InlineError message={fieldErrors.ctaPrimaryLink} />
               </div>
             </div>
           </div>
@@ -391,6 +427,13 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
           </div>
         </form>
       </div>
+
+      {/* API Error Modal */}
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError ?? ''}
+      />
     </div>
   );
 };

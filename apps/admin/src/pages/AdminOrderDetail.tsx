@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { Alert, EmptyState } from '../components/ui';
+import { ApiErrorModal, EmptyState } from '../components/ui';
+import { useToast } from '../context/ToastContext';
 import {
   OrderDetailTopBar,
   OrderDetailStatusCard,
@@ -28,11 +29,12 @@ export default function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t, isTh, language } = useLanguage();
+  const toast = useToast();
 
   const [order, setOrder] = useState<ApiOrder | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PAID');
   const [isUpdating, setIsUpdating] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Print modal state
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
@@ -69,11 +71,6 @@ export default function AdminOrderDetail() {
     loadOrder();
   }, [id]);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
-
   const handleScrollTo = (elementId: string) => {
     const el = document.getElementById(elementId);
     if (el) {
@@ -108,12 +105,12 @@ export default function AdminOrderDetail() {
         order.status === 'PROCESSING' &&
         !hasTracking
       ) {
-        showToast(t('orders.detail.specifyTrackingRequired'));
+        toast.error(t('orders.detail.specifyTrackingRequired'));
         setIsFulfillModalOpen(true);
         return;
       }
 
-      showToast(
+      toast.error(
         isTh
           ? (validation.errorTh ??
               validation.error ??
@@ -128,13 +125,13 @@ export default function AdminOrderDetail() {
     try {
       await orderRequester.updateStatus(order.id, selectedStatus);
       await loadOrder();
-      showToast(
+      toast.success(
         t('orders.detail.statusUpdatedToast')
           .replace('{orderNumber}', order.orderNumber)
           .replace('{status}', selectedStatus),
       );
     } catch (err: unknown) {
-      showToast(
+      setApiError(
         err instanceof Error ? err.message : 'Failed to update order status',
       );
     } finally {
@@ -159,7 +156,7 @@ export default function AdminOrderDetail() {
 
   const handleOpenFulfillModal = () => {
     if (hasPendingCancellation) {
-      showToast(t('orders.fulfill.cancellationPendingBlock'));
+      toast.info(t('orders.fulfill.cancellationPendingBlock'));
       return;
     }
     setIsFulfillModalOpen(true);
@@ -216,15 +213,6 @@ export default function AdminOrderDetail() {
           trackingNumber={trackingNumber}
           onScrollTo={handleScrollTo}
         />
-
-        {/* Feedback Alert */}
-        {toastMessage && (
-          <Alert
-            variant="success"
-            message={toastMessage}
-            onClose={() => setToastMessage(null)}
-          />
-        )}
 
         {/* Row 1: Core Items (8 cols) + Status Action Hub (4 cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
@@ -292,7 +280,7 @@ export default function AdminOrderDetail() {
                   <OrderCancellationSection
                     cancellationRequests={order.cancellationRequests}
                     onReviewed={loadOrder}
-                    onShowToast={showToast}
+                    onShowToast={toast.info}
                   />
                 </div>
               )}
@@ -309,7 +297,7 @@ export default function AdminOrderDetail() {
                 <OrderReturnSection
                   order={order}
                   onReviewed={loadOrder}
-                  onShowToast={showToast}
+                  onShowToast={toast.info}
                 />
               </div>
             )}
@@ -345,7 +333,7 @@ export default function AdminOrderDetail() {
                 : null,
             );
             setSelectedStatus('SHIPPED');
-            showToast(
+            toast.success(
               t('orders.detail.dispatchSuccessToast')
                 .replace('{orderNumber}', order.orderNumber)
                 .replace('{tracking}', newTracking),
@@ -366,7 +354,7 @@ export default function AdminOrderDetail() {
           courierName={order.shipments[0].courierName}
           currentShipmentStatus={order.shipments[0].status}
           onSuccess={(updatedShipment) => {
-            showToast(
+            toast.success(
               t('orders.shipmentWebhook.successToast').replace(
                 '{tracking}',
                 updatedShipment.trackingNumber,
@@ -392,7 +380,7 @@ export default function AdminOrderDetail() {
           totalAmount={order.totalAmount}
           paymentMethod={order.payment?.paymentMethod}
           onSuccess={() => {
-            showToast(
+            toast.success(
               t('orders.paymentOverride.successToast').replace(
                 '{orderNumber}',
                 order.orderNumber,
@@ -417,11 +405,17 @@ export default function AdminOrderDetail() {
           onSuccess={(updatedOrder) => {
             setOrder(updatedOrder);
             setSelectedStatus(updatedOrder.status);
-            showToast(t('orders.refund.successToast'));
+            toast.success(t('orders.refund.successToast'));
             loadOrder();
           }}
         />
       )}
+
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError}
+      />
     </AdminLayout>
   );
 }

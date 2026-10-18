@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Edit2, RotateCcw, ArrowRight } from 'lucide-react';
+import { Edit2, RotateCcw, ArrowRight } from 'lucide-react';
 import type { ApiCmsBanner } from '@repo/types';
 import type { SaveCmsBannerDto } from '@repo/validators';
 import { SpotlightModal } from './SpotlightModal';
@@ -46,10 +46,7 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
     <div className="space-y-5">
       {/* Section Header */}
       <div className="p-4 bg-white border border-stone-200 rounded-xs">
-        <div className="flex items-center space-x-2">
-          <span className="p-1 bg-[#2B1810] text-white rounded-xs">
-            <Sparkles size={14} />
-          </span>
+        <div>
           <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
             {t('cms.spotlight.title')}
           </h3>
@@ -128,17 +125,11 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
 
           {/* Card Info & Actions */}
           <div className="p-4 flex-1 flex flex-col justify-between space-y-3 bg-white">
-            <div className="space-y-1 text-xs text-stone-600">
+            <div className="text-xs text-stone-600">
               <div className="flex items-center justify-between">
                 <span className="text-stone-400">{t('cms.spotlight.targetUrlLabel')}</span>
                 <span className="font-mono text-stone-700 font-bold">
                   {slot1Banner?.ctaPrimaryLink ?? '/collections/women'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-stone-400">{t('cms.spotlight.statusLabel')}</span>
-                <span>
-                  {slot1Banner ? t('cms.spotlight.customStatus') : t('cms.spotlight.defaultStatus')}
                 </span>
               </div>
             </div>
@@ -237,17 +228,11 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
 
           {/* Card Info & Actions */}
           <div className="p-4 flex-1 flex flex-col justify-between space-y-3 bg-white">
-            <div className="space-y-1 text-xs text-stone-600">
+            <div className="text-xs text-stone-600">
               <div className="flex items-center justify-between">
                 <span className="text-stone-400">{t('cms.spotlight.targetUrlLabel')}</span>
                 <span className="font-mono text-stone-700 font-bold">
                   {slot2Banner?.ctaPrimaryLink ?? '/collections/men'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-stone-400">{t('cms.spotlight.statusLabel')}</span>
-                <span>
-                  {slot2Banner ? t('cms.spotlight.customStatus') : t('cms.spotlight.defaultStatus')}
                 </span>
               </div>
             </div>

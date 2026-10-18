@@ -6,7 +6,6 @@ import {
   Megaphone,
   RefreshCw,
   Eye,
-  AlertCircle,
 } from 'lucide-react';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import {
@@ -20,6 +19,8 @@ import { contentRequester } from '../api';
 import type { ApiCmsBanner, ApiStoreSettings } from '@repo/types';
 import type { SaveCmsBannerDto, UpdateStoreSettingsDto } from '@repo/validators';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
+import { ApiErrorModal } from '../components/ui';
 
 export const AdminCmsContent: React.FC = () => {
   const { t } = useLanguage();
@@ -30,7 +31,8 @@ export const AdminCmsContent: React.FC = () => {
   const [storeSettings, setStoreSettings] = useState<ApiStoreSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const toast = useToast();
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Dedicated Tab State
   const [activeTab, setActiveTab] = useState<'hero' | 'spotlight' | 'promo' | 'settings'>('hero');
@@ -40,7 +42,6 @@ export const AdminCmsContent: React.FC = () => {
 
   const fetchContent = useCallback(async () => {
     setIsLoading(true);
-    setErrorMsg(null);
     try {
       const [homeData, bannersList] = await Promise.all([
         contentRequester.getHomeContent(),
@@ -54,9 +55,9 @@ export const AdminCmsContent: React.FC = () => {
       setStoreSettings(homeData.storeSettings);
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setErrorMsg(err.message);
+        setApiError(err.message);
       } else {
-        setErrorMsg('Failed to load storefront content');
+        setApiError('Failed to load storefront content');
       }
     } finally {
       setIsLoading(false);
@@ -76,6 +77,9 @@ export const AdminCmsContent: React.FC = () => {
         await contentRequester.createBanner(payload);
       }
       await fetchContent();
+      toast.success(t('cms.bannerSaved') ?? 'Banner saved successfully');
+    } catch (err: unknown) {
+      setApiError(err instanceof Error ? err.message : 'Failed to save banner');
     } finally {
       setIsSaving(false);
     }
@@ -86,6 +90,9 @@ export const AdminCmsContent: React.FC = () => {
     try {
       await contentRequester.deleteBanner(id);
       await fetchContent();
+      toast.success(t('cms.bannerDeleted') ?? 'Banner deleted successfully');
+    } catch (err: unknown) {
+      setApiError(err instanceof Error ? err.message : 'Failed to delete banner');
     } finally {
       setIsSaving(false);
     }
@@ -96,6 +103,9 @@ export const AdminCmsContent: React.FC = () => {
     try {
       const updated = await contentRequester.updateStoreSettings(payload);
       setStoreSettings(updated);
+      toast.success(t('cms.settingsSaved') ?? 'Store settings updated successfully');
+    } catch (err: unknown) {
+      setApiError(err instanceof Error ? err.message : 'Failed to save store settings');
     } finally {
       setIsSaving(false);
     }
@@ -107,14 +117,9 @@ export const AdminCmsContent: React.FC = () => {
         {/* Page Top Action Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-5">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="p-1.5 bg-[#2B1810] text-white rounded-xs">
-                <Sliders size={16} />
-              </span>
-              <h1 className="text-xl font-black uppercase tracking-tight text-[#2B1810]">
-                {t('cms.pageTitle')}
-              </h1>
-            </div>
+            <h1 className="text-xl font-black uppercase tracking-tight text-[#2B1810]">
+              {t('cms.pageTitle')}
+            </h1>
             <p className="text-xs text-stone-500 mt-1">
               {t('cms.pageSubtitle')}
             </p>
@@ -143,13 +148,6 @@ export const AdminCmsContent: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {errorMsg && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-xs flex items-center space-x-2 text-xs text-red-700">
-            <AlertCircle size={16} className="shrink-0" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
 
         {/* Modular Navigation Tabs (Separated Per Feature) */}
         <div className="flex flex-wrap border-b border-stone-200 bg-white rounded-t-xs">
@@ -270,6 +268,14 @@ export const AdminCmsContent: React.FC = () => {
         promoRibbon={promoRibbon}
         storeSettings={storeSettings}
         onNavigateTab={(tab) => setActiveTab(tab)}
+      />
+
+      {/* API Error Modal */}
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError ?? ''}
+        onRetry={fetchContent}
       />
     </AdminLayout>
   );

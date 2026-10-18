@@ -15,7 +15,6 @@ import {
 import { AdminLayout } from '../components/layout';
 import {
   DropdownSelect,
-  Alert,
   SearchInput,
   EmptyState,
   TableContainer,
@@ -26,8 +25,10 @@ import {
   TableHead,
   TableCell,
   Pagination,
+  ApiErrorModal,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import { inventoryRequester } from '../api/requester/inventoryRequester';
 import { PermissionGate } from '../components/common';
 import { AdminPermission, type ApiInventoryItem } from '@repo/types';
@@ -62,7 +63,8 @@ export default function AdminInventory() {
   const [adjustReason, setAdjustReason] = useState(
     'นำเข้าล็อตใหม่จากโรงงานตัดเย็บ (Restocked)',
   );
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toast = useToast();
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const loadInventory = async () => {
     try {
@@ -78,11 +80,6 @@ export default function AdminInventory() {
     loadInventory();
   }, []);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
-
   const handleAdjustSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!adjustTarget) return;
@@ -95,7 +92,7 @@ export default function AdminInventory() {
         reasonNote: adjustReason,
       });
       await loadInventory();
-      showToast(
+      toast.success(
         language === 'th'
           ? `ปรับสต็อก SKU: ${adjustTarget.sku} จำนวน ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity} ชิ้น เรียบร้อยแล้ว`
           : `Stock for ${adjustTarget.sku} adjusted by ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity}`,
@@ -103,7 +100,7 @@ export default function AdminInventory() {
     } catch (err: unknown) {
       const errMsg =
         err instanceof Error ? err.message : 'Failed to adjust stock';
-      showToast(errMsg);
+      setApiError(errMsg);
     } finally {
       setAdjustTarget(null);
       setAdjustQuantity(10);
@@ -197,15 +194,6 @@ export default function AdminInventory() {
       }
     >
       <div className="space-y-4">
-        {/* Toast */}
-        {toastMessage && (
-          <Alert
-            variant="success"
-            message={toastMessage}
-            onClose={() => setToastMessage(null)}
-          />
-        )}
-
         {/* Filter and Search Bar (Styled like ProductListFilters) */}
         <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">
           {/* Top Row: Stock Status Tabs */}
@@ -705,6 +693,13 @@ export default function AdminInventory() {
           </div>
         </div>
       )}
+
+      {/* API Error Modal */}
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError ?? ''}
+      />
     </AdminLayout>
   );
 }

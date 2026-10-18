@@ -17,7 +17,7 @@ import {
 import { AdminLayout } from '../components/layout';
 import {
   DropdownSelect,
-  Alert,
+  ApiErrorModal,
   SearchInput,
   EmptyState,
   TableContainer,
@@ -30,6 +30,7 @@ import {
   Pagination,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import { orderRequester } from '../api/requester/orderRequester';
 import { formatOrderDateTime, formatPrice } from '../utils';
 import { STOREFRONT_URL } from '../config';
@@ -73,7 +74,9 @@ export default function AdminOrders() {
   const [orderToSimulate, setOrderToSimulate] = useState<ApiOrder | null>(null);
   const [isPaymentOverrideModalOpen, setIsPaymentOverrideModalOpen] = useState(false);
   const [orderToOverridePayment, setOrderToOverridePayment] = useState<ApiOrder | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const toast = useToast();
 
   // Print states
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
@@ -93,11 +96,6 @@ export default function AdminOrders() {
   useEffect(() => {
     loadOrders();
   }, []);
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -158,7 +156,7 @@ export default function AdminOrders() {
         targetOrder.status === 'PROCESSING' &&
         !hasTracking
       ) {
-        showToast(
+        toast.error(
           language === 'th'
             ? 'กรุณาระบุเลขพัสดุ (Tracking Number) เพื่อจัดส่งสินค้า'
             : 'Please specify carrier tracking number to dispatch this order',
@@ -167,7 +165,7 @@ export default function AdminOrders() {
         return;
       }
 
-      showToast(
+      toast.error(
         language === 'th'
           ? (validation.errorTh ??
               validation.error ??
@@ -180,13 +178,13 @@ export default function AdminOrders() {
     try {
       await orderRequester.updateStatus(orderId, newStatus);
       await loadOrders();
-      showToast(
+      toast.success(
         language === 'th'
           ? `เปลี่ยนสถานะคำสั่งซื้อเป็น ${newStatus} เรียบร้อยแล้ว`
           : `Order status updated to ${newStatus}`,
       );
     } catch (err: unknown) {
-      showToast(
+      setApiError(
         err instanceof Error ? err.message : 'Failed to update order status',
       );
     }
@@ -289,15 +287,6 @@ export default function AdminOrders() {
       })`}
     >
       <div className="space-y-4">
-        {/* Toast */}
-        {toastMessage && (
-          <Alert
-            variant="success"
-            message={toastMessage}
-            onClose={() => setToastMessage(null)}
-          />
-        )}
-
         {/* Filter and Search Bar (Styled like ProductListFilters & AdminInventory) */}
         <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">
           {/* Top Row: Order Status Tabs */}
@@ -785,7 +774,7 @@ export default function AdminOrders() {
                   : o,
               ),
             );
-            showToast(
+            toast.success(
               language === 'th'
                 ? `อัปเดตคำสั่งซื้อ #${orderToFulfill.orderNumber} เป็น 'จัดส่งแล้ว' พร้อมเลขพัสดุ ${trackingNum}`
                 : `Order #${orderToFulfill.orderNumber} fulfilled with tracking ${trackingNum}`,
@@ -809,7 +798,7 @@ export default function AdminOrders() {
           courierName={orderToSimulate.shipments[0].courierName}
           currentShipmentStatus={orderToSimulate.shipments[0].status}
           onSuccess={(updatedShipment) => {
-            showToast(
+            toast.success(
               t('orders.shipmentWebhook.successToast').replace(
                 '{tracking}',
                 updatedShipment.trackingNumber,
@@ -833,7 +822,7 @@ export default function AdminOrders() {
           totalAmount={orderToOverridePayment.totalAmount}
           paymentMethod={orderToOverridePayment.payment?.paymentMethod}
           onSuccess={() => {
-            showToast(
+            toast.success(
               t('orders.paymentOverride.successToast').replace(
                 '{orderNumber}',
                 orderToOverridePayment.orderNumber,
@@ -1008,6 +997,12 @@ export default function AdminOrders() {
         onClose={() => setIsPrintModalOpen(false)}
         orders={ordersToPrint}
         initialDocType={printDocType}
+      />
+
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError}
       />
     </AdminLayout>
   );

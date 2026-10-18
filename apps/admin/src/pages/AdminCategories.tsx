@@ -11,7 +11,7 @@ import type {
 } from '@repo/validators';
 import { AdminLayout } from '../components/layout';
 import { PermissionGate } from '../components/common';
-import { Button, Alert } from '../components/ui';
+import { Button, ApiErrorModal } from '../components/ui';
 import {
   CategoryModal,
   CategoryStatsCards,
@@ -22,6 +22,7 @@ import {
 } from '../components/category';
 import { productRequester } from '../api/requester/productRequester';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 
 export default function AdminCategories() {
   const { t, isTh } = useLanguage();
@@ -30,10 +31,8 @@ export default function AdminCategories() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDept, setSelectedDept] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [toastMessage, setToastMessage] = useState<{
-    type: 'success' | 'error';
-    text: string;
-  } | null>(null);
+  const toast = useToast();
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Expandable tree state: set of expanded main category IDs
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -57,11 +56,6 @@ export default function AdminCategories() {
   // Status toggling state
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  const showToast = (text: string, type: 'success' | 'error' = 'success') => {
-    setToastMessage({ type, text });
-    setTimeout(() => setToastMessage(null), 4000);
-  };
-
   const loadCategories = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -73,7 +67,7 @@ export default function AdminCategories() {
     } catch (err: unknown) {
       const errMsg =
         err instanceof Error ? err.message : t('category.saveError');
-      showToast(errMsg, 'error');
+      setApiError(errMsg);
     } finally {
       setIsLoading(false);
     }
@@ -226,15 +220,15 @@ export default function AdminCategories() {
       } else {
         await productRequester.createCategory(data);
       }
-      showToast(t('category.saveSuccess'), 'success');
       setIsModalOpen(false);
       setEditingCategory(null);
       setModalParentId(undefined);
       await loadCategories();
+      toast.success(t('category.saveSuccess'));
     } catch (err: unknown) {
       const errMsg =
         err instanceof Error ? err.message : t('category.saveError');
-      showToast(errMsg, 'error');
+      setApiError(errMsg);
       throw err;
     }
   };
@@ -245,13 +239,13 @@ export default function AdminCategories() {
     setIsDeleting(true);
     try {
       await productRequester.deleteCategory(deletingCategory.id);
-      showToast(t('category.deleteSuccess'), 'success');
+      toast.success(t('category.deleteSuccess'));
       setDeletingCategory(null);
       await loadCategories();
     } catch (err: unknown) {
       const errMsg =
         err instanceof Error ? err.message : t('category.deleteError');
-      showToast(errMsg, 'error');
+      setApiError(errMsg);
     } finally {
       setIsDeleting(false);
     }
@@ -265,12 +259,12 @@ export default function AdminCategories() {
       setCategories((prev) =>
         prev.map((c) => (c.id === cat.id ? { ...c, isActive: false } : c)),
       );
-      showToast(t('category.deactivateSuccess'), 'success');
+      toast.success(t('category.deactivateSuccess'));
       setDeletingCategory(null);
     } catch (err: unknown) {
       const errMsg =
         err instanceof Error ? err.message : t('category.saveError');
-      showToast(errMsg, 'error');
+      setApiError(errMsg);
     } finally {
       setIsDeactivating(false);
     }
@@ -285,11 +279,11 @@ export default function AdminCategories() {
       setCategories((prev) =>
         prev.map((c) => (c.id === cat.id ? { ...c, isActive: nextStatus } : c)),
       );
-      showToast(t('category.saveSuccess'), 'success');
+      toast.success(t('category.saveSuccess'));
     } catch (err: unknown) {
       const errMsg =
         err instanceof Error ? err.message : t('category.saveError');
-      showToast(errMsg, 'error');
+      setApiError(errMsg);
     } finally {
       setTogglingId(null);
     }
@@ -327,14 +321,6 @@ export default function AdminCategories() {
       }
     >
       <div className="space-y-6">
-        {toastMessage && (
-          <Alert
-            variant={toastMessage.type}
-            message={toastMessage.text}
-            onClose={() => setToastMessage(null)}
-          />
-        )}
-
         {/* 1. Metric Cards */}
         <CategoryStatsCards stats={stats} />
 
@@ -399,6 +385,13 @@ export default function AdminCategories() {
         onClose={() => setDeletingCategory(null)}
         onConfirm={handleConfirmDelete}
         onDeactivate={handleDeactivateCategory}
+      />
+
+      {/* API Error Modal */}
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError ?? ''}
       />
     </AdminLayout>
   );

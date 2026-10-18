@@ -240,10 +240,10 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
                 <ImageUploader
                   value={imageDesktopUrl}
                   onChange={setImageDesktopUrl}
-                  aspectRatio="auto"
+                  aspectRatio="landscape"
                   compact
                   folder="banners"
-                  description="Recommended: 2560x1080px (Max 3MB)"
+                  description="Recommended: 1920x1080px (16:9 Landscape)"
                 />
                 <input
                   type="text"

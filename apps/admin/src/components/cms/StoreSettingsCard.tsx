@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Megaphone, Truck, RefreshCw, Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 import type { ApiStoreSettings } from '@repo/types';
 import {
   updateStoreSettingsSchema,
@@ -83,10 +83,10 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
       {/* Top Header */}
       <div className="flex items-center justify-between border-b border-stone-100 pb-4">
         <div>
-          <h3 className="text-sm font-black uppercase tracking-wider text-[#2B1810]">
+          <h3 className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
             {t('cms.settings.title')}
           </h3>
-          <p className="text-xs text-stone-500">
+          <p className="text-[11px] text-stone-500 mt-0.5">
             {t('cms.settings.subtitle')}
           </p>
         </div>
@@ -117,13 +117,10 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
 
       {/* Announcement Bar Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Megaphone size={16} className="text-[#E6C687]" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
-              {t('cms.settings.secAnnouncement')}
-            </span>
-          </div>
+        <div className="flex items-center justify-between border-b border-stone-100 pb-2">
+          <span className="text-xs font-black uppercase tracking-wider text-[#2B1810]">
+            {t('cms.settings.secAnnouncement')}
+          </span>
 
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -139,90 +136,92 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
           </label>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
-              {t('cms.settings.badgeTh')}
-            </label>
-            <input
-              type="text"
-              maxLength={25}
-              placeholder="เช่น ข้อเสนอพิเศษ"
-              value={announcementBadgeTh}
-              onChange={(e) => setAnnouncementBadgeTh(e.target.value)}
-              className="w-full h-8 px-2.5 text-xs border border-stone-300 rounded-xs"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
-              {t('cms.settings.badgeEn')}
-            </label>
-            <input
-              type="text"
-              maxLength={25}
-              placeholder="e.g. LIMITED OFFER"
-              value={announcementBadgeEn}
-              onChange={(e) => setAnnouncementBadgeEn(e.target.value)}
-              className="w-full h-8 px-2.5 text-xs border border-stone-300 rounded-xs"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
-              {t('cms.settings.textTh')}
-            </label>
-            <input
-              type="text"
-              maxLength={120}
-              placeholder="FALL SALE: รับส่วนลดสูงสุด 50% | ส่งฟรีเมื่อช้อปครบ ฿1,000"
-              value={announcementTextTh}
-              onChange={(e) => setAnnouncementTextTh(e.target.value)}
-              className="w-full h-8 px-2.5 text-xs border border-stone-300 rounded-xs"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
-              {t('cms.settings.textEn')}
-            </label>
-            <input
-              type="text"
-              maxLength={120}
-              placeholder="FALL SALE: UP TO 50% OFF | FREE SHIPPING OVER ฿1,000"
-              value={announcementTextEn}
-              onChange={(e) => setAnnouncementTextEn(e.target.value)}
-              className="w-full h-8 px-2.5 text-xs border border-stone-300 rounded-xs"
-            />
-          </div>
-        </div>
-
+        {/* Badge */}
         <div>
-          <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
-            {t('cms.settings.link')}
+          <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
+            {t('cms.settings.badgeLabel')}
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+              <input
+                type="text"
+                maxLength={25}
+                placeholder="เช่น ข้อเสนอพิเศษ"
+                value={announcementBadgeTh}
+                onChange={(e) => setAnnouncementBadgeTh(e.target.value)}
+                className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
+              />
+            </div>
+            <div>
+              <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+              <input
+                type="text"
+                maxLength={25}
+                placeholder="e.g. LIMITED OFFER"
+                value={announcementBadgeEn}
+                onChange={(e) => setAnnouncementBadgeEn(e.target.value)}
+                className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Message */}
+        <div>
+          <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
+            {t('cms.settings.messageLabel')}
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+              <textarea
+                rows={2}
+                maxLength={120}
+                placeholder="FALL SALE: รับส่วนลดสูงสุด 50% | ส่งฟรีเมื่อช้อปครบ ฿1,000"
+                value={announcementTextTh}
+                onChange={(e) => setAnnouncementTextTh(e.target.value)}
+                className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810] resize-none"
+              />
+            </div>
+            <div>
+              <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+              <textarea
+                rows={2}
+                maxLength={120}
+                placeholder="FALL SALE: UP TO 50% OFF | FREE SHIPPING OVER ฿1,000"
+                value={announcementTextEn}
+                onChange={(e) => setAnnouncementTextEn(e.target.value)}
+                className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810] resize-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Destination Link */}
+        <div>
+          <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
+            {t('cms.heroModal.link')}
           </label>
           <input
             type="text"
             placeholder="/collections/sale"
             value={announcementLink}
             onChange={(e) => setAnnouncementLink(e.target.value)}
-            className="w-full h-8 px-2.5 text-xs border border-stone-300 rounded-xs"
+            className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
           />
         </div>
       </div>
 
       {/* Store Policies Section */}
       <div className="space-y-4 pt-4 border-t border-stone-100">
-        <span className="text-xs font-black uppercase tracking-wider text-[#2B1810] block">
+        <span className="text-xs font-black uppercase tracking-wider text-[#2B1810] block border-b border-stone-100 pb-2">
           {t('cms.settings.secPolicies')}
         </span>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1 flex items-center">
-              <Truck size={12} className="mr-1 text-stone-500" />
+            <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
               {t('cms.settings.freeShippingLabel')}
             </label>
             <div className="relative">
@@ -235,17 +234,13 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
                 step={50}
                 value={freeShippingThreshold}
                 onChange={(e) => setFreeShippingThreshold(Number(e.target.value))}
-                className="w-full h-9 pl-7 pr-3 text-xs border border-stone-300 rounded-xs font-mono font-bold"
+                className="w-full h-9 pl-7 pr-3 text-xs border border-stone-300 rounded-xs font-mono font-bold focus:outline-hidden focus:border-[#2B1810]"
               />
             </div>
-            <p className="text-[10px] text-stone-400 mt-1">
-              {t('cms.settings.freeShippingHint')}
-            </p>
           </div>
 
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1 flex items-center">
-              <RefreshCw size={12} className="mr-1 text-stone-500" />
+            <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
               {t('cms.settings.returnDaysLabel')}
             </label>
             <div className="relative">
@@ -255,12 +250,9 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
                 max={90}
                 value={returnWindowDays}
                 onChange={(e) => setReturnWindowDays(Number(e.target.value))}
-                className="w-full h-9 px-3 text-xs border border-stone-300 rounded-xs font-mono font-bold"
+                className="w-full h-9 px-3 text-xs border border-stone-300 rounded-xs font-mono font-bold focus:outline-hidden focus:border-[#2B1810]"
               />
             </div>
-            <p className="text-[10px] text-stone-400 mt-1">
-              {t('cms.settings.returnDaysHint')}
-            </p>
           </div>
         </div>
       </div>

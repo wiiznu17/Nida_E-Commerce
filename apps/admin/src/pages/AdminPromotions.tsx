@@ -20,10 +20,12 @@ import {
   SearchInput,
   TableContainer,
   Pagination,
-  Alert,
   EmptyState,
+  ApiErrorModal,
+  InlineError,
 } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import {
   promotionsApi,
   type CreateCouponPayload,
@@ -56,8 +58,8 @@ export default function AdminPromotions() {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
+  const toast = useToast();
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState<{
     code: string;
@@ -82,11 +84,6 @@ export default function AdminPromotions() {
     expiresAt: '2026-12-31',
     isActive: true,
   });
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
 
   const loadCoupons = async () => {
     try {
@@ -113,7 +110,7 @@ export default function AdminPromotions() {
   const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
-    showToast(t('promotions.messages.copySuccess'));
+    toast.success(t('promotions.messages.copySuccess'));
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
@@ -142,7 +139,7 @@ export default function AdminPromotions() {
 
     try {
       await promotionsApi.toggle(coupon.id);
-      showToast(
+      toast.success(
         t('promotions.messages.toggleSuccess').replace('{code}', coupon.code),
       );
     } catch {
@@ -151,7 +148,7 @@ export default function AdminPromotions() {
           c.id === coupon.id ? { ...c, isActive: coupon.isActive } : c,
         ),
       );
-      showToast(
+      toast.error(
         language === 'th'
           ? 'เกิดข้อผิดพลาดในการเปลี่ยนสถานะ'
           : 'Failed to update coupon status',
@@ -166,22 +163,16 @@ export default function AdminPromotions() {
       setIsDeleting(true);
       await promotionsApi.delete(couponToDelete.id);
       setCouponsList((prev) => prev.filter((c) => c.id !== couponToDelete.id));
-      showToast(
+      toast.success(
         t('promotions.messages.deleteSuccess').replace(
           '{code}',
           couponToDelete.code,
         ),
       );
       setCouponToDelete(null);
-    } catch {
-      setCouponsList((prev) => prev.filter((c) => c.id !== couponToDelete.id));
-      showToast(
-        t('promotions.messages.deleteSuccess').replace(
-          '{code}',
-          couponToDelete.code,
-        ),
-      );
-      setCouponToDelete(null);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete coupon';
+      setApiError(msg);
     } finally {
       setIsDeleting(false);
     }
@@ -189,13 +180,13 @@ export default function AdminPromotions() {
 
   const handleAddSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setFormError(null);
+    setFieldErrors({});
 
     const cleanCode = formData.code.toUpperCase().trim();
     if (!cleanCode) {
-      setFormError(
-        language === 'th' ? 'กรุณาระบุรหัสคูปอง' : 'Coupon code is required',
-      );
+      setFieldErrors({
+        code: language === 'th' ? 'กรุณาระบุรหัสคูปอง' : 'Coupon code is required',
+      });
       return;
     }
 
@@ -203,11 +194,12 @@ export default function AdminPromotions() {
       formData.discountType === DiscountType.PERCENTAGE &&
       (formData.discountValue <= 0 || formData.discountValue > 100)
     ) {
-      setFormError(
-        language === 'th'
-          ? 'ส่วนลดแบบเปอร์เซ็นต์ต้องอยู่ระหว่าง 1 ถึง 100%'
-          : 'Percentage discount must be between 1 and 100%',
-      );
+      setFieldErrors({
+        discountValue:
+          language === 'th'
+            ? 'ส่วนลดแบบเปอร์เซ็นต์ต้องอยู่ระหว่าง 1 ถึง 100%'
+            : 'Percentage discount must be between 1 and 100%',
+      });
       return;
     }
 
@@ -238,7 +230,7 @@ export default function AdminPromotions() {
       const created = await promotionsApi.create(payload);
       setCouponsList((prev) => [created, ...prev]);
       setIsAddModalOpen(false);
-      showToast(
+      toast.success(
         t('promotions.messages.createSuccess').replace('{code}', created.code),
       );
       setFormData({
@@ -256,7 +248,7 @@ export default function AdminPromotions() {
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : 'Failed to create promo code';
-      setFormError(msg);
+      setApiError(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -427,7 +419,7 @@ export default function AdminPromotions() {
         <PermissionGate permission={AdminPermission.COUPONS_MANAGE}>
           <button
             onClick={() => {
-              setFormError(null);
+              setFieldErrors({});
               setIsAddModalOpen(true);
             }}
             className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 shadow-xs cursor-pointer"
@@ -439,21 +431,6 @@ export default function AdminPromotions() {
       }
     >
       <div className="space-y-4">
-        {toastMessage && (
-          <Alert
-            variant="success"
-            message={toastMessage}
-            onClose={() => setToastMessage(null)}
-          />
-        )}
-
-        {apiError && (
-          <Alert
-            variant="error"
-            message={apiError}
-            onClose={() => setApiError(null)}
-          />
-        )}
 
         {/* Filter and Search Bar */}
         <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">
@@ -881,12 +858,6 @@ export default function AdminPromotions() {
               </button>
             </div>
 
-            {formError && (
-              <div className="mb-4">
-                <Alert variant="error" message={formError} />
-              </div>
-            )}
-
             <form onSubmit={handleAddSubmit} className="space-y-4 text-xs">
               {/* Promo Code Input */}
               <div>
@@ -904,8 +875,11 @@ export default function AdminPromotions() {
                     })
                   }
                   placeholder={t('promotions.modal.codePlaceholder')}
-                  className="w-full border border-gray-300 px-3 py-2 font-mono font-bold uppercase focus:outline-none focus:border-brand-brown rounded-xs"
+                  className={`w-full border px-3 py-2 font-mono font-bold uppercase focus:outline-none rounded-xs ${
+                    fieldErrors.code ? 'border-rose-400 focus:border-rose-600' : 'border-gray-300 focus:border-brand-brown'
+                  }`}
                 />
+                <InlineError message={fieldErrors.code} />
               </div>
 
               {/* Discount Type and Value */}
@@ -966,8 +940,11 @@ export default function AdminPromotions() {
                         discountValue: Number(e.target.value),
                       })
                     }
-                    className="w-full border border-gray-300 px-3 py-2 font-mono font-bold focus:outline-none focus:border-brand-brown rounded-xs disabled:bg-gray-100 disabled:text-gray-400"
+                    className={`w-full border px-3 py-2 font-mono font-bold focus:outline-none rounded-xs disabled:bg-gray-100 disabled:text-gray-400 ${
+                      fieldErrors.discountValue ? 'border-rose-400' : 'border-gray-300 focus:border-brand-brown'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.discountValue} />
                 </div>
               </div>
 
@@ -1190,6 +1167,14 @@ export default function AdminPromotions() {
           </div>
         </div>
       )}
+
+      {/* API Error Modal */}
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError ?? ''}
+        onRetry={loadCoupons}
+      />
     </AdminLayout>
   );
 }

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Image as ImageIcon, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { X, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import { ImageUploader } from '../media/ImageUploader';
-import { BannerPlacement } from '@repo/types';
+import { BannerPlacement, UploadFolder } from '@repo/types';
 import type { ApiCmsBanner } from '@repo/types';
 import { saveCmsBannerSchema, type SaveCmsBannerDto } from '@repo/validators';
 import { useLanguage } from '../../context/LanguageContext';
+import { InlineError, ApiErrorModal } from '../ui';
 
 interface HeroSlideModalProps {
   isOpen: boolean;
@@ -38,7 +39,8 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
   const [ctaSecondaryLink, setCtaSecondaryLink] = useState('');
   const [sortOrder, setSortOrder] = useState(0);
   const [isActive, setIsActive] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     if (banner) {
@@ -76,12 +78,14 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
       setSortOrder(0);
       setIsActive(true);
     }
-    setErrorMsg(null);
+    setFieldErrors({});
+    setApiError(null);
   }, [banner, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg(null);
+    setFieldErrors({});
+    setApiError(null);
 
     const payload: SaveCmsBannerDto = {
       placement: BannerPlacement.HERO_HOME,
@@ -109,8 +113,14 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
 
     const validation = saveCmsBannerSchema.safeParse(payload);
     if (!validation.success) {
-      const firstError = validation.error.issues[0]?.message ?? 'ข้อมูลไม่ถูกต้อง';
-      setErrorMsg(firstError);
+      const errMap: Record<string, string> = {};
+      for (const issue of validation.error.issues) {
+        const fieldName = String(issue.path[0] ?? '');
+        if (fieldName && !errMap[fieldName]) {
+          errMap[fieldName] = issue.message;
+        }
+      }
+      setFieldErrors(errMap);
       return;
     }
 
@@ -118,11 +128,8 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
       await onSave(payload);
       onClose();
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErrorMsg(err.message);
-      } else {
-        setErrorMsg('Failed to save hero slide');
-      }
+      const msg = err instanceof Error ? err.message : 'Failed to save hero slide';
+      setApiError(msg);
     }
   };
 
@@ -130,7 +137,7 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-xs shadow-2xl flex flex-col overflow-hidden border border-stone-200">
+      <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-xs shadow-2xl flex flex-col overflow-hidden border border-stone-200">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-[#FAF7F2]">
           <div>
@@ -152,12 +159,6 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          {errorMsg && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xs flex items-center space-x-2 text-xs text-red-700">
-              <AlertCircle size={15} className="shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
 
           {/* Section 1: Visual Media */}
           <div className="space-y-4">
@@ -168,14 +169,17 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-[9fr_4fr] gap-5 items-start">
               <div>
                 <ImageUploader
                   label={t('cms.heroModal.desktopImage')}
                   value={imageDesktopUrl}
                   onChange={setImageDesktopUrl}
                   description={t('cms.heroModal.desktopImageHint')}
+                  folder={UploadFolder.BANNERS}
+                  aspectRatio="landscape"
                 />
+                <InlineError message={fieldErrors.imageDesktopUrl} />
               </div>
               <div>
                 <ImageUploader
@@ -183,7 +187,10 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
                   value={imageMobileUrl}
                   onChange={setImageMobileUrl}
                   description={t('cms.heroModal.mobileImageHint')}
+                  folder={UploadFolder.BANNERS}
+                  aspectRatio="portrait"
                 />
+                <InlineError message={fieldErrors.imageMobileUrl} />
               </div>
             </div>
           </div>
@@ -196,81 +203,111 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-4">
+              {/* Title */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.titleTh')}
+                  {t('cms.heroModal.title')} <span className="text-rose-600">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={titleTh}
-                  onChange={(e) => setTitleTh(e.target.value)}
-                  placeholder={t('cms.heroModal.titleThPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.titleEn')}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={titleEn}
-                  onChange={(e) => setTitleEn(e.target.value)}
-                  placeholder={t('cms.heroModal.titleEnPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.subtitleTh')}
-                </label>
-                <input
-                  type="text"
-                  value={subtitleTh}
-                  onChange={(e) => setSubtitleTh(e.target.value)}
-                  placeholder={t('cms.heroModal.subtitleThPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.subtitleEn')}
-                </label>
-                <input
-                  type="text"
-                  value={subtitleEn}
-                  onChange={(e) => setSubtitleEn(e.target.value)}
-                  placeholder={t('cms.heroModal.subtitleEnPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <input
+                      type="text"
+                      value={titleTh}
+                      onChange={(e) => setTitleTh(e.target.value)}
+                      placeholder={t('cms.heroModal.titleThPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
+                        fieldErrors.titleTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.titleTh} />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')} *</span>
+                    <input
+                      type="text"
+                      required
+                      value={titleEn}
+                      onChange={(e) => setTitleEn(e.target.value)}
+                      placeholder={t('cms.heroModal.titleEnPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
+                        fieldErrors.titleEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.titleEn} />
+                  </div>
+                </div>
               </div>
 
+              {/* Subtitle */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.tagTh')}
+                  {t('cms.heroModal.subtitle')}
                 </label>
-                <input
-                  type="text"
-                  value={tagTh}
-                  onChange={(e) => setTagTh(e.target.value)}
-                  placeholder={t('cms.heroModal.tagThPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <textarea
+                      rows={2}
+                      value={subtitleTh}
+                      onChange={(e) => setSubtitleTh(e.target.value)}
+                      placeholder={t('cms.heroModal.subtitleThPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden resize-none ${
+                        fieldErrors.subtitleTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.subtitleTh} />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+                    <textarea
+                      rows={2}
+                      value={subtitleEn}
+                      onChange={(e) => setSubtitleEn(e.target.value)}
+                      placeholder={t('cms.heroModal.subtitleEnPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden resize-none ${
+                        fieldErrors.subtitleEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.subtitleEn} />
+                  </div>
+                </div>
               </div>
+
+              {/* Micro Tag */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.tagEn')}
+                  {t('cms.heroModal.tag')}
                 </label>
-                <input
-                  type="text"
-                  value={tagEn}
-                  onChange={(e) => setTagEn(e.target.value)}
-                  placeholder={t('cms.heroModal.tagEnPlaceholder')}
-                  className="w-full text-xs px-3 py-2 border border-stone-300 rounded-xs focus:outline-hidden focus:border-[#2B1810]"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <input
+                      type="text"
+                      value={tagTh}
+                      onChange={(e) => setTagTh(e.target.value)}
+                      placeholder={t('cms.heroModal.tagThPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
+                        fieldErrors.tagTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.tagTh} />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+                    <input
+                      type="text"
+                      value={tagEn}
+                      onChange={(e) => setTagEn(e.target.value)}
+                      placeholder={t('cms.heroModal.tagEnPlaceholder')}
+                      className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
+                        fieldErrors.tagEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                      }`}
+                    />
+                    <InlineError message={fieldErrors.tagEn} />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -285,79 +322,97 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
             </div>
 
             {/* Primary CTA */}
-            <div className="p-3 bg-[#FAF7F2] border border-stone-200 rounded-xs space-y-3">
+            <div className="p-3.5 bg-[#FAF7F2] border border-stone-200 rounded-xs space-y-2">
               <span className="text-[10px] font-black uppercase tracking-wider text-[#2B1810] block">
                 {t('cms.heroModal.btn1Label')}
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[10px] text-stone-600 mb-1">{t('cms.heroModal.btn1TextTh')}</label>
+                  <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</label>
                   <input
                     type="text"
                     value={ctaPrimaryTextTh}
                     onChange={(e) => setCtaPrimaryTextTh(e.target.value)}
                     placeholder={t('cms.heroModal.btn1TextThPlaceholder')}
-                    className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs bg-white"
+                    className={`w-full text-xs px-2.5 py-1.5 border rounded-xs bg-white ${
+                      fieldErrors.ctaPrimaryTextTh ? 'border-rose-400' : 'border-stone-300'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.ctaPrimaryTextTh} />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-stone-600 mb-1">{t('cms.heroModal.btn1TextEn')}</label>
+                  <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</label>
                   <input
                     type="text"
                     value={ctaPrimaryTextEn}
                     onChange={(e) => setCtaPrimaryTextEn(e.target.value)}
                     placeholder={t('cms.heroModal.btn1TextEnPlaceholder')}
-                    className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs bg-white"
+                    className={`w-full text-xs px-2.5 py-1.5 border rounded-xs bg-white ${
+                      fieldErrors.ctaPrimaryTextEn ? 'border-rose-400' : 'border-stone-300'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.ctaPrimaryTextEn} />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-stone-600 mb-1">{t('cms.heroModal.btn1Link')}</label>
+                  <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.link')}</label>
                   <input
                     type="text"
                     value={ctaPrimaryLink}
                     onChange={(e) => setCtaPrimaryLink(e.target.value)}
                     placeholder="e.g. /collections/women"
-                    className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs bg-white"
+                    className={`w-full text-xs px-2.5 py-1.5 border rounded-xs bg-white ${
+                      fieldErrors.ctaPrimaryLink ? 'border-rose-400' : 'border-stone-300'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.ctaPrimaryLink} />
                 </div>
               </div>
             </div>
 
             {/* Secondary CTA */}
-            <div className="p-3 bg-white border border-stone-200 rounded-xs space-y-3">
+            <div className="p-3.5 bg-white border border-stone-200 rounded-xs space-y-2">
               <span className="text-[10px] font-black uppercase tracking-wider text-stone-600 block">
                 {t('cms.heroModal.btn2Label')}
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[10px] text-stone-600 mb-1">{t('cms.heroModal.btn2TextTh')}</label>
+                  <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</label>
                   <input
                     type="text"
                     value={ctaSecondaryTextTh}
                     onChange={(e) => setCtaSecondaryTextTh(e.target.value)}
                     placeholder={t('cms.heroModal.btn2TextThPlaceholder')}
-                    className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs"
+                    className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
+                      fieldErrors.ctaSecondaryTextTh ? 'border-rose-400' : 'border-stone-300'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.ctaSecondaryTextTh} />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-stone-600 mb-1">{t('cms.heroModal.btn2TextEn')}</label>
+                  <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</label>
                   <input
                     type="text"
                     value={ctaSecondaryTextEn}
                     onChange={(e) => setCtaSecondaryTextEn(e.target.value)}
                     placeholder={t('cms.heroModal.btn2TextEnPlaceholder')}
-                    className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs"
+                    className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
+                      fieldErrors.ctaSecondaryTextEn ? 'border-rose-400' : 'border-stone-300'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.ctaSecondaryTextEn} />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-stone-600 mb-1">{t('cms.heroModal.btn2Link')}</label>
+                  <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.link')}</label>
                   <input
                     type="text"
                     value={ctaSecondaryLink}
                     onChange={(e) => setCtaSecondaryLink(e.target.value)}
                     placeholder="e.g. /collections/men"
-                    className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-xs"
+                    className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
+                      fieldErrors.ctaSecondaryLink ? 'border-rose-400' : 'border-stone-300'
+                    }`}
                   />
+                  <InlineError message={fieldErrors.ctaSecondaryLink} />
                 </div>
               </div>
             </div>
@@ -416,6 +471,13 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
           </div>
         </form>
       </div>
+
+      {/* API Error Modal */}
+      <ApiErrorModal
+        isOpen={Boolean(apiError)}
+        onClose={() => setApiError(null)}
+        errorMessage={apiError ?? ''}
+      />
     </div>
   );
 };

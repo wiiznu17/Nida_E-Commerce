@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import {
   ProtectedRoute,
   PublicOnlyRoute,
@@ -159,7 +160,9 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
       </AuthProvider>
     </LanguageProvider>
   );
