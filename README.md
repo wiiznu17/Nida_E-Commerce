@@ -149,3 +149,12 @@ npm run build
 6. **Lightweight Return Request**: ระบบคำขอคืนสินค้าแบบเรียบง่าย ลูกค้าแจ้งขอ แอดมินอนุมัติ/ปฏิเสธ
 7. **Loyalty Points Ledger**: สมุดบันทึกประวัติการได้/ใช้แต้มสะสม ป้องกันแต้มสูญหาย
 8. **Payment Security**: รองรับ Idempotency Key และเกตเวย์ Webhook เพื่อความปลอดภัยสูงสุด
+
+---
+
+## 📚 เอกสารคู่มือและการ Deploy (Documentation & Deployment)
+
+- 📋 **[Pre-Deployment Checklist (สิ่งที่ต้องเตรียมและทำให้เสร็จก่อน Deploy)](docs/PRE_DEPLOYMENT_CHECKLIST.md)**: รายการตรวจสอบความปลอดภัย Secrets, Database Migration, Storage, Webhook, และ Build Verification
+- 🚀 **[Free Tier Production Deployment Guide (คู่มือ Deploy สายฟรี 100%)](docs/FREE_TIER_DEPLOYMENT_GUIDE.md)**: ขั้นตอนการนำระบบขึ้น Production ด้วย Vercel, Cloudflare Pages, Render, Neon, Upstash, และเทคนิคแก้เซิร์ฟเวอร์หลับด้วย UptimeRobot
+- 📦 **[Order Flow & Fulfillment Guide](docs/ORDER_FLOW_AND_FULFILLMENT.md)**: ภาพรวมการจัดการคำสั่งซื้อ การจัดส่ง และการคืนสินค้า
+- 🔄 **[Order Lifecycle Business Logic](docs/ORDER_LIFECYCLE_BUSINESS_LOGIC.md)**: กฎเกณฑ์และ State Transition ของระบบออเดอร์
