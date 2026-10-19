@@ -25,14 +25,14 @@
     - `JWT_CUSTOMER_SECRET`: คีย์เข้ารหัส Token ของลูกค้าหน้าร้าน (`apps/api`)
     - `JWT_ACCESS_SECRET`: คีย์เข้ารหัส Access Token ของแอดมิน (`apps/admin-api`)
     - `JWT_REFRESH_SECRET`: คีย์เข้ารหัส Refresh Token ของแอดมิน (`apps/admin-api`)
-- [ ] **ป้องกัน Swagger API Documentation บน Production**
+- [x] **ป้องกัน Swagger API Documentation บน Production**
   - ปิดการเข้าถึง Swagger หรือครอบด้วย Basic Auth บน Production เพื่อไม่ให้โครงสร้าง API และ Schema รั่วไหล:
   ```ts
   if (process.env.NODE_ENV !== 'production') {
     SwaggerModule.setup('api/docs', app, document);
   }
   ```
-- [ ] **เปิดใช้งาน HTTP Security Headers (Helmet)**
+- [x] **เปิดใช้งาน HTTP Security Headers (Helmet)**
   - ติดตั้งและเปิดใช้งาน `helmet` บนทั้ง `apps/api` และ `apps/admin-api` เพื่อป้องกัน XSS, Clickjacking, MIME sniffing
 - [ ] **เปิดใช้งาน API Rate Limiting (Throttler)**
   - ป้องกันการยิง Brute-force OTP, รหัสผ่านแอดมิน, หรือ DDoS ด้วย `@nestjs/throttler`
@@ -102,34 +102,32 @@
 
 ## 6. ระบบส่งอีเมลแจ้งเตือนและ OTP (Transactional Mailer)
 
-- [ ] **เปลี่ยนจาก Log/Mock Mailer เป็น Production SMTP/API Mailer**
-  - ตั้งค่าผู้ให้บริการอีเมล Transactional (เช่น Resend, Brevo, SendGrid, หรือ Amazon SES)
-  - ยืนยัน Sender Domain (DNS SPF, DKIM, DMARC) เพื่อไม่ให้อีเมลตกไปอยู่ในโฟลเดอร์ Junk/Spam
+- [x] **เปลี่ยนจาก Log/Mock Mailer เป็น Production SMTP/API Mailer**
+  - ติดตั้งและตั้งค่า Nodemailer SMTP Transport พร้อม Development Logger Fallback เรียบร้อยแล้ว
+  - รองรับทั้ง SMTP Host, Port, Secure, User, Pass, และ From Name/Address
   - ตั้งค่า Environment Variables:
-    - `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`
+    - `MAIL_HOST` (หรือ `SMTP_HOST`), `MAIL_PORT` (หรือ `SMTP_PORT`), `MAIL_USER` (หรือ `SMTP_USER`), `MAIL_PASSWORD` (หรือ `SMTP_PASS`), `MAIL_FROM`
 
 ---
 
 ## 7. การตั้งค่า CORS และความปลอดภัยระดับ HTTP
 
-- [ ] **ระบุ Origin ใน CORS Whitelist อย่างเข้มงวด**
-  - ห้ามใช้ `origin: true` หรือ `origin: '*'` บน Production
+- [x] **ระบุ Origin ใน CORS Whitelist อย่างเข้มงวด**
+  - รองรับการตั้งค่าผ่าน `ALLOWED_ORIGINS` (comma-separated), `STORE_FRONTEND_URL`, และ `ADMIN_FRONTEND_URL`
+  - หากอยู่ในโหมด Production จะปฏิเสธ Origin แปลกปลอมที่ไม่ตรงกับ Whitelist ทันที
   - ใน `apps/api/src/main.ts`:
     ```ts
+    const isProd = process.env.NODE_ENV === 'production';
     app.enableCors({
-      origin: [
-        'https://nidabrand.com',
-        'https://www.nidabrand.com',
-      ],
+      origin: isProd ? allowedOrigins : (origin, callback) => { /* dev allowed */ },
       credentials: true,
     });
     ```
   - ใน `apps/admin-api/src/main.ts`:
     ```ts
+    const isProd = process.env.NODE_ENV === 'production';
     app.enableCors({
-      origin: [
-        'https://admin.nidabrand.com',
-      ],
+      origin: isProd ? allowedOrigins : (origin, callback) => { /* dev allowed */ },
       credentials: true,
     });
     ```
