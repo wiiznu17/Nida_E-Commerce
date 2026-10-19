@@ -46,6 +46,7 @@ describe('OrdersService', () => {
       },
       couponRedemption: {
         create: vi.fn(),
+        deleteMany: vi.fn(),
       },
       payment: {
         create: vi.fn(),

@@ -129,6 +129,74 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
+  async get(key: string): Promise<string | null> {
+    if (this.isConnected && this.client) {
+      try {
+        return await this.client.get(key);
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis get failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+    const item = this.memoryStore.get(key);
+    if (item && item.expiresAt > Date.now()) {
+      return item.value;
+    }
+    return null;
+  }
+
+  async set(key: string, value: string, ttlSeconds?: number): Promise<void> {
+    if (this.isConnected && this.client) {
+      try {
+        if (ttlSeconds && ttlSeconds > 0) {
+          await this.client.set(key, value, 'EX', ttlSeconds);
+        } else {
+          await this.client.set(key, value);
+        }
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis set failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+    this.memoryStore.set(key, {
+      value,
+      expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : Infinity,
+    });
+  }
+
+  async del(key: string): Promise<void> {
+    if (this.isConnected && this.client) {
+      try {
+        await this.client.del(key);
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis del failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+    this.memoryStore.delete(key);
+  }
+
+  async ttl(key: string): Promise<number> {
+    if (this.isConnected && this.client) {
+      try {
+        return await this.client.ttl(key);
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis ttl failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+    const item = this.memoryStore.get(key);
+    if (item && item.expiresAt > Date.now()) {
+      return Math.max(0, Math.floor((item.expiresAt - Date.now()) / 1000));
+    }
+    return -2;
+  }
+
   private cleanupExpiredMemoryItems() {
     const now = Date.now();
     for (const [key, item] of this.memoryStore.entries()) {
@@ -138,3 +206,4 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 }
+

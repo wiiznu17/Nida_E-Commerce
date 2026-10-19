@@ -558,10 +558,10 @@ flowchart TD
 > **เป้าหมาย**: ป้องกันการทุจริต การสแปมระบบ บอทกวาดซื้อ การแย่งชิงสต็อก (Flash Sale Race Conditions) และการใช้คูปองซ้ำซ้อน ด้วยสถาปัตยกรรมความปลอดภัยระดับสูง (High Concurrency & Fraud Prevention)
 
 ### 9.1 หมวดความปลอดภัยและการยืนยันตัวตน (Security & Authentication Safeguards)
-- [ ] **1. ควบคุมอัตราการขอ OTP และล็อกอิน (OTP Request & Login Rate Limiting)**:
-  - [ ] ใช้ Redis Sliding Window / Token Bucket จำกัดการขอ OTP สูงสุด 3 ครั้งต่อ 15 นาที ต่อ 1 อีเมล หรือ IP Address
-  - [ ] บังคับ Cooldown 60 วินาที ก่อนที่ปุ่ม "ขอรหัสใหม่" (Resend OTP) จะสามารถกดได้อีกครั้ง
-  - [ ] หน่วงเวลาและล็อกบัญชีชั่วคราว (Account Lockout) 15 นาที หากกรอกรหัส OTP ผิดติดต่อกันเกิน 5 ครั้ง
+- [x] **1. ควบคุมอัตราการขอ OTP และล็อกอิน (OTP Request & Login Rate Limiting)**:
+  - [x] ใช้ Redis Sliding Window / Token Bucket จำกัดการขอ OTP สูงสุด 3 ครั้งต่อ 5 นาทีต่ออีเมล และ 10 ครั้งต่อ 15 นาทีต่อ IP Address
+  - [x] บังคับ Cooldown 60 วินาที ทั้งระดับ Backend Redis Key (`otp:cooldown:${email}`) และ Frontend Timer ป้องกันการกดยิง API ซ้ำซ้อน
+  - [x] หน่วงเวลาและล็อกบัญชีชั่วคราว (Account Lockout) 15 นาที (`otp:lockout:${email}`) หากกรอกรหัส OTP ผิดติดต่อกันเกิน 5 ครั้ง พร้อมเคลียร์เมื่อยืนยันสำเร็จ
 - [ ] **2. การบริหารจัดการวงจรอายุ Token และการเพิกถอนสิทธิ์ (Token Lifecycle & Session Revocation)**:
   - [ ] กำหนดอายุ JWT Access Token สั้น (15-30 นาที) ควบคู่กับ HTTP-Only Secure Cookie สำหรับ Refresh Token
   - [ ] ใช้เทคนิค Refresh Token Rotation ป้องกัน Token Reuse Attack
@@ -576,12 +576,12 @@ flowchart TD
   - [ ] เมื่อลูกค้าเข้าสู่หน้าชำระเงิน (Checkout) หรือสั่งซื้อสินค้า Flash Sale ระบบจะกันสต็อกในระดับ Redis ด้วย Key Expiration (เช่น 10 นาที)
   - [ ] แสดงเวลานับถอยหลัง (Countdown Timer) บนหน้า Checkout: *"สินค้าในตะกร้าถูกล็อคไว้ให้คุณ 10:00 นาที"*
   - [ ] หากไม่ชำระเงินภายในเวลา: ปล่อยสต็อกคืนสู่ Pool ส่วนกลางทันที ป้องกันผู้ใช้กักตุนสินค้าข้ามวัน
-- [ ] **2. ป้องกันการใช้โค้ดส่วนลดและคูปองซ้ำซ้อน (Voucher Quota & Concurrency Guard)**:
-  - [ ] จำกัดสิทธิ์การใช้งานคูปอง: 1 สิทธิ์ / 1 บัญชีผู้ใช้ (Enforce Per-User Quota)
-  - [ ] ป้องกัน Race Condition กรณีลูกค้าเปิดหลายเบราว์เซอร์หรือหลายแท็บเพื่อกดใช้โค้ดพร้อมกัน โดยใช้ Distributed Lock (`Redlock`) หรือ Atomic Check-and-Decrement บน Redis
-  - [ ] ระบบคืนสิทธิ์คูปอง (Coupon Re-instatement): หากคำสั่งซื้อถูกยกเลิก (Unpaid Auto-Cancel หรือ Cancellation Approval) คูปองจะถูกคืนกลับเข้ากระเป๋าลูกค้าโดยอัตโนมัติ
-- [ ] **3. ตรวจจับและแจ้งเตือนสินค้าใกล้หมดแบบเรียลไทม์ (Real-time Low-Stock Alert & Overselling Shield)**:
-  - [ ] บังคับใช้ Database Row-Level Locking (`SELECT ... FOR UPDATE` หรือ Prisma Transaction) ในขั้นตอนการตัดสต็อก เพื่อรับประกัน 100% ว่าไม่มีการขายเกินสต็อกจริง (Zero Overselling)
+- [x] **2. ป้องกันการใช้โค้ดส่วนลดและคูปองซ้ำซ้อน (Voucher Quota & Concurrency Guard)**:
+  - [x] จำกัดสิทธิ์การใช้งานคูปอง: 1 สิทธิ์ / 1 บัญชีผู้ใช้ ตรวจสอบภายใน Prisma Transaction
+  - [x] ป้องกัน Race Condition กรณีลูกค้าเปิดหลายแท็บกดใช้พร้อมกัน ด้วย Atomic Conditional Update (`currentUsageCount: { lt: totalUsageLimit }`)
+  - [x] ระบบคืนสิทธิ์คูปอง (Coupon Re-instatement): รองรับทั้ง Unpaid Timeout Auto-Cancel, Auto-approved Cancellation, และ Admin Manual Refund/Cancel
+- [x] **3. ตรวจจับและแจ้งเตือนสินค้าใกล้หมดแบบเรียลไทม์ (Real-time Low-Stock Alert & Overselling Shield)**:
+  - [x] บังคับใช้ Atomic Conditional Update ภายใน Prisma Transaction (`quantityAvailable: { gte: quantity }`) รับประกัน 100% ว่าไม่มีการขายเกินสต็อกจริง (Zero Overselling) พร้อม Atomic Guard สำหรับเพดานสินค้า Pre-order (`preorderLimit`)
   - [ ] ส่งการแจ้งเตือนแบบเรียลไทม์ (Webhooks / WebSockets) ไปยัง Admin Dashboard เมื่อสต็อก SKU ลดลงต่ำกว่าค่าความปลอดภัย (Safety Stock Threshold <= 5 ชิ้น)
 - [ ] **4. ป้องกันการทุจริตแต้มสะสมและการกำหนดอายุคะแนน (Loyalty Points Anti-Fraud & Expiry)**:
   - [ ] กำหนดอายุคะแนนสะสม (เช่น หมดอายุทุกสิ้นปี หรือ 365 วันหลังได้รับ)

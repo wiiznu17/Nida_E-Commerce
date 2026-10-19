@@ -1010,6 +1010,17 @@ export class OrdersService {
           });
         }
       }
+
+      if (order.couponId) {
+        await tx.couponRedemption.deleteMany({
+          where: { orderId: order.id },
+        });
+
+        await tx.promotionCoupon.update({
+          where: { id: order.couponId },
+          data: { currentUsageCount: { decrement: 1 } },
+        });
+      }
     });
 
     return this.getOrderByNumber(order.orderNumber);

@@ -30,15 +30,61 @@ export class CustomerAuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async requestOtp(dto: RequestOtpInput): Promise<RequestOtpResponse> {
+  async requestOtp(
+    dto: RequestOtpInput,
+    clientIp?: string,
+  ): Promise<RequestOtpResponse> {
     const email = dto.email.trim().toLowerCase();
 
+    // 1. Check if account is temporarily locked out from excessive failed attempts
+    const isLocked = await this.redis.get(`otp:lockout:${email}`);
+    if (isLocked) {
+      const remainingSeconds = await this.redis.ttl(`otp:lockout:${email}`);
+      const mins = Math.max(1, Math.ceil(remainingSeconds / 60));
+      throw new HttpException(
+        `บัญชีนี้ถูกระงับการขอ OTP ชั่วคราวเนื่องจากกรอกรหัสผิดเกินจำนวนครั้ง กรุณารอ ${mins} นาที (Account temporarily locked. Please wait ${mins} minutes.)`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    // 2. Enforce 60-second cooldown per email
+    const inCooldown = await this.redis.get(`otp:cooldown:${email}`);
+    if (inCooldown) {
+      const remainingCooldown = await this.redis.ttl(`otp:cooldown:${email}`);
+      const waitSec = remainingCooldown > 0 ? remainingCooldown : 60;
+      throw new HttpException(
+        `กรุณารอ ${waitSec} วินาทีก่อนขอรหัส OTP ใหม่อีกครั้ง (Please wait ${waitSec}s before requesting a new OTP)`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    // 3. Rate limit: Max 3 requests per 5 minutes per email
     const rateLimit = await this.redis.checkRateLimit(`otp:${email}`, 3, 300);
     if (!rateLimit.allowed) {
       throw new HttpException(
         'ขอรหัส OTP ถี่เกินไป กรุณารอ 5 นาทีก่อนลองใหม่อีกครั้ง (Too many OTP requests. Please wait 5 minutes.)',
         HttpStatus.TOO_MANY_REQUESTS,
       );
+    }
+
+    // 4. Rate limit: Max 10 requests per 15 minutes per IP address (bot prevention)
+    if (
+      clientIp &&
+      clientIp !== 'unknown' &&
+      clientIp !== '127.0.0.1' &&
+      clientIp !== '::1'
+    ) {
+      const ipRateLimit = await this.redis.checkRateLimit(
+        `otp:ip:${clientIp}`,
+        10,
+        900,
+      );
+      if (!ipRateLimit.allowed) {
+        throw new HttpException(
+          'มีคำขอรหัส OTP จาก IP นี้มากเกินไป กรุณารอ 15 นาที (Too many OTP requests from this IP address. Please wait 15 minutes.)',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
     }
 
     await this.prisma.otpVerification.updateMany({
@@ -60,6 +106,9 @@ export class CustomerAuthService {
       },
     });
 
+    // 5. Set 60-second cooldown key in Redis
+    await this.redis.set(`otp:cooldown:${email}`, '1', 60);
+
     await this.mailer.sendOtpEmail({ to: email, otpCode });
 
     this.logger.log(
@@ -79,6 +128,17 @@ export class CustomerAuthService {
   async verifyOtp(dto: VerifyOtpInput): Promise<VerifyOtpResponse> {
     const email = dto.email.trim().toLowerCase();
     const otpCode = dto.otpCode.trim();
+
+    // 1. Check if account is temporarily locked out
+    const isLocked = await this.redis.get(`otp:lockout:${email}`);
+    if (isLocked) {
+      const remainingSeconds = await this.redis.ttl(`otp:lockout:${email}`);
+      const mins = Math.max(1, Math.ceil(remainingSeconds / 60));
+      throw new HttpException(
+        `บัญชีนี้ถูกระงับการตรวจสอบ OTP ชั่วคราวเนื่องจากกรอกรหัสผิดเกินจำนวนครั้ง กรุณารอ ${mins} นาที (Account temporarily locked. Please wait ${mins} minutes.)`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
 
     const otpRecord = await this.prisma.otpVerification.findFirst({
       where: {
@@ -100,23 +160,45 @@ export class CustomerAuthService {
         where: { id: otpRecord.id },
         data: { isUsed: true },
       });
-      throw new BadRequestException(
-        'กรอกรหัสผิดเกินจำนวนครั้งที่กำหนด กรุณาขอรหัสใหม่ (Too many failed attempts)',
+      await this.redis.set(`otp:lockout:${email}`, '1', 900);
+      throw new HttpException(
+        'กรอกรหัสผิดเกินจำนวนครั้งที่กำหนด บัญชีถูกระงับชั่วคราว 15 นาทีเพื่อความปลอดภัย (Too many failed attempts. Account locked for 15 minutes.)',
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
     if (otpRecord.otpCode !== otpCode) {
+      const nextAttempts = otpRecord.attemptsCount + 1;
       await this.prisma.otpVerification.update({
         where: { id: otpRecord.id },
-        data: { attemptsCount: { increment: 1 } },
+        data: {
+          attemptsCount: nextAttempts,
+          isUsed: nextAttempts >= 5,
+        },
       });
-      throw new BadRequestException('รหัส OTP ไม่ถูกต้อง (Incorrect OTP code)');
+
+      if (nextAttempts >= 5) {
+        await this.redis.set(`otp:lockout:${email}`, '1', 900);
+        throw new HttpException(
+          'กรอกรหัสผิดเกิน 5 ครั้ง บัญชีนี้ถูกระงับชั่วคราว 15 นาทีเพื่อความปลอดภัย (Too many failed attempts. Account locked for 15 minutes.)',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+
+      const remainingTries = 5 - nextAttempts;
+      throw new BadRequestException(
+        `รหัส OTP ไม่ถูกต้อง (เหลือโอกาสอีก ${remainingTries} ครั้ง)`,
+      );
     }
 
     await this.prisma.otpVerification.update({
       where: { id: otpRecord.id },
       data: { isUsed: true },
     });
+
+    // Clear cooldown and lockout keys on successful verification
+    await this.redis.del(`otp:cooldown:${email}`);
+    await this.redis.del(`otp:lockout:${email}`);
 
     let user = await this.prisma.user.findUnique({
       where: { email },

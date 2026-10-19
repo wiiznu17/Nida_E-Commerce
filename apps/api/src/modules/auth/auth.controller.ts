@@ -42,8 +42,22 @@ export class CustomerAuthController {
   })
   @ApiResponse({ status: 200, description: 'OTP sent successfully' })
   @ApiResponse({ status: 429, description: 'Too many requests' })
-  async requestOtp(@Body() dto: RequestOtpDto): Promise<RequestOtpResponse> {
-    return this.authService.requestOtp(dto);
+  async requestOtp(
+    @Body() dto: RequestOtpDto,
+    @Req() req: { headers: Record<string, string | string[] | undefined>; ip?: string; socket?: { remoteAddress?: string } },
+  ): Promise<RequestOtpResponse> {
+    const rawForwarded = req.headers['x-forwarded-for'];
+    const clientIp =
+      (typeof rawForwarded === 'string'
+        ? rawForwarded.split(',')[0]?.trim()
+        : Array.isArray(rawForwarded)
+          ? rawForwarded[0]?.trim()
+          : undefined) ??
+      req.ip ??
+      req.socket?.remoteAddress ??
+      'unknown';
+
+    return this.authService.requestOtp(dto, clientIp);
   }
 
   @Post('verify-otp')

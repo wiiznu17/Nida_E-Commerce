@@ -293,10 +293,26 @@ export class CustomerOrdersService {
 
         if (ci.isPreorder) {
           if (ci.variant.inventoryItem) {
-            await tx.inventoryItem.update({
-              where: { id: ci.variant.inventoryItem.id },
-              data: { preorderBooked: { increment: ci.quantity } },
-            });
+            if (ci.variant.preorderLimit && ci.variant.preorderLimit > 0) {
+              const maxAllowedBooked = ci.variant.preorderLimit - ci.quantity;
+              const updateResult = await tx.inventoryItem.updateMany({
+                where: {
+                  id: ci.variant.inventoryItem.id,
+                  preorderBooked: { lte: maxAllowedBooked },
+                },
+                data: { preorderBooked: { increment: ci.quantity } },
+              });
+              if (updateResult.count === 0) {
+                throw new BadRequestException(
+                  `Pre-order quota exceeded for "${ci.variant.product.name} (${ci.variant.colorName}/${ci.variant.size})"`,
+                );
+              }
+            } else {
+              await tx.inventoryItem.update({
+                where: { id: ci.variant.inventoryItem.id },
+                data: { preorderBooked: { increment: ci.quantity } },
+              });
+            }
           }
         } else if (ci.variant.inventoryItem) {
           const updateResult = await tx.inventoryItem.updateMany({
@@ -333,6 +349,39 @@ export class CustomerOrdersService {
       }
 
       if (couponId) {
+        const couponDef = await tx.promotionCoupon.findUnique({
+          where: { id: couponId },
+          select: { userUsageLimit: true, totalUsageLimit: true, isActive: true },
+        });
+
+        if (!couponDef || !couponDef.isActive) {
+          throw new BadRequestException('Coupon code is invalid or inactive');
+        }
+
+        if (effectiveUserId && couponDef.userUsageLimit > 0) {
+          const userRedemptions = await tx.couponRedemption.count({
+            where: { couponId, userId: effectiveUserId },
+          });
+          if (userRedemptions >= couponDef.userUsageLimit) {
+            throw new BadRequestException(
+              'You have reached the redemption limit for this coupon',
+            );
+          }
+        }
+
+        const couponUpdate = await tx.promotionCoupon.updateMany({
+          where: {
+            id: couponId,
+            currentUsageCount: { lt: couponDef.totalUsageLimit },
+            isActive: true,
+          },
+          data: { currentUsageCount: { increment: 1 } },
+        });
+
+        if (couponUpdate.count === 0) {
+          throw new BadRequestException('Coupon usage limit reached');
+        }
+
         await tx.couponRedemption.create({
           data: {
             couponId,
@@ -340,11 +389,6 @@ export class CustomerOrdersService {
             orderId: order.id,
             discountGranted: discountTotal,
           },
-        });
-
-        await tx.promotionCoupon.update({
-          where: { id: couponId },
-          data: { currentUsageCount: { increment: 1 } },
         });
       }
 
