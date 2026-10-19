@@ -18,6 +18,12 @@ import type {
   ShipmentTimelineEntry,
   TrackingResult,
   CarrierCode,
+  PaginatedOrdersResponse,
+  AdminOrderStatusCounts,
+  PaginatedCancellationsResponse,
+  AdminCancellationStatusCounts,
+  PaginatedReturnsResponse,
+  AdminReturnStatusCounts,
 } from '@repo/types';
 import {
   OrderStatus,
@@ -28,9 +34,15 @@ import {
   CancellationRequestStatus,
   ReturnStatus,
   PointChangeType,
+  type Prisma,
 } from '@repo/database';
 
-import { validateOrderStatusTransition } from '@repo/validators';
+import {
+  validateOrderStatusTransition,
+  type AdminOrderQueryInput,
+  type AdminCancellationQueryInput,
+  type AdminReturnQueryInput,
+} from '@repo/validators';
 import { CarrierMockService } from './carrier/index.js';
 import { LogisticsService } from './logistics/index.js';
 import { PaymentGatewayService } from './payment-gateway/index.js';
@@ -267,13 +279,116 @@ export class OrdersService {
     return this.mapOrder(order as unknown as OrderDetailPayload);
   }
 
-  async getOrders(): Promise<ApiOrder[]> {
-    const orders = await this.prisma.order.findMany({
-      include: ORDER_INCLUDE,
-      orderBy: { placedAt: 'desc' },
-    });
+  async getOrders(
+    query?: AdminOrderQueryInput,
+  ): Promise<PaginatedOrdersResponse> {
+    const page = query?.page ?? 1;
+    const pageSize = query?.pageSize ?? 10;
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
 
-    return orders.map((o) => this.mapOrder(o as unknown as OrderDetailPayload));
+    const where: Prisma.OrderWhereInput = {};
+
+    if (query?.status && query.status !== 'ALL') {
+      if (query.status === 'CANCELLATIONS') {
+        where.cancellationRequests = {
+          some: { status: 'PENDING' },
+        };
+      } else if (query.status === 'RETURNS') {
+        where.returnRequests = {
+          some: { status: { in: ['REQUESTED', 'APPROVED'] } },
+        };
+      } else {
+        where.status = query.status as OrderStatus;
+      }
+    }
+
+    if (query?.paymentMethod && query.paymentMethod !== 'ALL') {
+      where.payment = {
+        paymentMethod: query.paymentMethod as PaymentMethod,
+      };
+    }
+
+    if (query?.search) {
+      const s = query.search.trim();
+      where.OR = [
+        { orderNumber: { contains: s, mode: 'insensitive' } },
+        { promoCodeUsed: { contains: s, mode: 'insensitive' } },
+        { user: { email: { contains: s, mode: 'insensitive' } } },
+        { user: { firstName: { contains: s, mode: 'insensitive' } } },
+        { user: { lastName: { contains: s, mode: 'insensitive' } } },
+        {
+          shipments: {
+            some: {
+              trackingNumber: { contains: s, mode: 'insensitive' },
+            },
+          },
+        },
+      ];
+    }
+
+    let orderBy: Prisma.OrderOrderByWithRelationInput = { placedAt: 'desc' };
+    if (query?.sortBy === 'oldest') {
+      orderBy = { placedAt: 'asc' };
+    } else if (query?.sortBy === 'amount_desc') {
+      orderBy = { totalAmount: 'desc' };
+    } else if (query?.sortBy === 'amount_asc') {
+      orderBy = { totalAmount: 'asc' };
+    }
+
+    const [orders, total, groupedStatus, pendingCancellations, pendingReturns] =
+      await Promise.all([
+        this.prisma.order.findMany({
+          where,
+          include: ORDER_INCLUDE,
+          orderBy,
+          skip,
+          take,
+        }),
+        this.prisma.order.count({ where }),
+        this.prisma.order.groupBy({
+          by: ['status'],
+          _count: { id: true },
+        }),
+        this.prisma.orderCancellationRequest.count({
+          where: { status: 'PENDING' },
+        }),
+        this.prisma.returnRequest.count({
+          where: { status: { in: ['REQUESTED', 'APPROVED'] } },
+        }),
+      ]);
+
+    const statusMap = Object.fromEntries(
+      groupedStatus.map((g) => [g.status, g._count.id]),
+    );
+
+    const totalOrdersCount = groupedStatus.reduce(
+      (sum, g) => sum + g._count.id,
+      0,
+    );
+
+    const statusCounts: AdminOrderStatusCounts = {
+      all: totalOrdersCount,
+      paid: statusMap['PAID'] ?? 0,
+      processing: statusMap['PROCESSING'] ?? 0,
+      shipped: statusMap['SHIPPED'] ?? 0,
+      delivered: statusMap['DELIVERED'] ?? 0,
+      completed: statusMap['COMPLETED'] ?? 0,
+      cancelled: statusMap['CANCELLED'] ?? 0,
+      pendingCancellations,
+      pendingReturns,
+    };
+
+    return {
+      items: orders.map((o) =>
+        this.mapOrder(o as unknown as OrderDetailPayload),
+      ),
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize) || 1,
+      statusCounts,
+    };
   }
 
   async updateOrderStatus(
@@ -412,6 +527,34 @@ export class OrdersService {
           } catch (err: unknown) {
             console.warn('[AdminOrdersService] Loyalty points error:', err);
           }
+        }
+      }
+
+      if (status === OrderStatus.CANCELLED) {
+        const itemsWithVariant = await tx.orderItem.findMany({
+          where: { orderId: existing.id },
+        });
+        for (const item of itemsWithVariant) {
+          if (!item.variantId) continue;
+          await tx.inventoryItem.updateMany({
+            where: { variantId: item.variantId },
+            data: { quantityAvailable: { increment: item.quantity } },
+          });
+          const updatedInv = await tx.inventoryItem.findUnique({
+            where: { variantId: item.variantId },
+            select: { quantityAvailable: true },
+          });
+          await tx.stockMovement.create({
+            data: {
+              variantId: item.variantId,
+              changeType: StockChangeType.RESTOCK,
+              quantityChange: item.quantity,
+              balanceAfter: updatedInv?.quantityAvailable ?? 0,
+              reasonNote:
+                overrideReason?.trim() ||
+                `Admin order cancellation #${existing.orderNumber}`,
+            },
+          });
         }
       }
 
@@ -858,30 +1001,118 @@ export class OrdersService {
     return this.getOrderByNumber(order.orderNumber);
   }
 
-  async getCancellationRequests(status?: CancellationRequestStatus) {
-    return this.prisma.orderCancellationRequest.findMany({
-      where: status ? { status } : undefined,
-      include: {
-        order: {
-          select: {
-            id: true,
-            orderNumber: true,
-            status: true,
-            totalAmount: true,
-            placedAt: true,
+  async getCancellationRequests(
+    query?: AdminCancellationQueryInput,
+  ): Promise<PaginatedCancellationsResponse> {
+    const page = query?.page ?? 1;
+    const pageSize = query?.pageSize ?? 10;
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+
+    const where: Prisma.OrderCancellationRequestWhereInput = {};
+
+    if (query?.status && query.status !== 'ALL') {
+      where.status = query.status as CancellationRequestStatus;
+    }
+
+    if (query?.search) {
+      const s = query.search.trim();
+      where.OR = [
+        { requestNumber: { contains: s, mode: 'insensitive' } },
+        { order: { orderNumber: { contains: s, mode: 'insensitive' } } },
+        { user: { email: { contains: s, mode: 'insensitive' } } },
+        { user: { firstName: { contains: s, mode: 'insensitive' } } },
+        { user: { lastName: { contains: s, mode: 'insensitive' } } },
+      ];
+    }
+
+    const orderBy: Prisma.OrderCancellationRequestOrderByWithRelationInput = {
+      createdAt: query?.sortBy === 'oldest' ? 'asc' : 'desc',
+    };
+
+    const [requests, total, groupedStatus] = await Promise.all([
+      this.prisma.orderCancellationRequest.findMany({
+        where,
+        include: {
+          order: {
+            select: {
+              id: true,
+              orderNumber: true,
+              status: true,
+              totalAmount: true,
+              placedAt: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
           },
         },
-        user: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy,
+        skip,
+        take,
+      }),
+      this.prisma.orderCancellationRequest.count({ where }),
+      this.prisma.orderCancellationRequest.groupBy({
+        by: ['status'],
+        _count: { id: true },
+      }),
+    ]);
+
+    const statusMap = Object.fromEntries(
+      groupedStatus.map((g) => [g.status, g._count.id]),
+    );
+
+    const totalCount = groupedStatus.reduce((sum, g) => sum + g._count.id, 0);
+
+    const statusCounts: AdminCancellationStatusCounts = {
+      all: totalCount,
+      pending: statusMap['PENDING'] ?? 0,
+      approved: statusMap['APPROVED'] ?? 0,
+      rejected: statusMap['REJECTED'] ?? 0,
+    };
+
+    return {
+      items: requests.map((r) => ({
+        id: r.id,
+        requestNumber: r.requestNumber,
+        orderId: r.orderId,
+        userId: r.userId,
+        reason: r.reason,
+        customerNote: r.customerNote ?? undefined,
+        adminNote: r.adminNote ?? undefined,
+        status: r.status as CancellationRequestStatus,
+        reviewedAt: r.reviewedAt?.toISOString(),
+        reviewedBy: r.reviewedBy ?? undefined,
+        createdAt: r.createdAt.toISOString(),
+        order: r.order
+          ? {
+              id: r.order.id,
+              orderNumber: r.order.orderNumber,
+              status: r.order.status as OrderStatus,
+              totalAmount: Number(r.order.totalAmount),
+              placedAt: r.order.placedAt.toISOString(),
+            }
+          : undefined,
+        user: r.user
+          ? {
+              id: r.user.id,
+              email: r.user.email,
+              firstName: r.user.firstName,
+              lastName: r.user.lastName,
+            }
+          : undefined,
+      })),
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize) || 1,
+      statusCounts,
+    };
   }
 
   async reviewCancellationRequest(
@@ -944,35 +1175,132 @@ export class OrdersService {
     return { success: true, message: 'อนุมัติคำขอยกเลิกและดำเนินการคืนเงินสำเร็จ' };
   }
 
-  async getReturnRequests(status?: ReturnStatus) {
-    return this.prisma.returnRequest.findMany({
-      where: status ? { status } : undefined,
-      include: {
-        order: {
-          select: {
-            id: true,
-            orderNumber: true,
-            status: true,
-            totalAmount: true,
-            placedAt: true,
+  async getReturnRequests(
+    query?: AdminReturnQueryInput,
+  ): Promise<PaginatedReturnsResponse> {
+    const page = query?.page ?? 1;
+    const pageSize = query?.pageSize ?? 10;
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+
+    const where: Prisma.ReturnRequestWhereInput = {};
+
+    if (query?.status && query.status !== 'ALL') {
+      where.status = query.status as ReturnStatus;
+    }
+
+    if (query?.search) {
+      const s = query.search.trim();
+      where.OR = [
+        { requestNumber: { contains: s, mode: 'insensitive' } },
+        { order: { orderNumber: { contains: s, mode: 'insensitive' } } },
+        { user: { email: { contains: s, mode: 'insensitive' } } },
+        { user: { firstName: { contains: s, mode: 'insensitive' } } },
+        { user: { lastName: { contains: s, mode: 'insensitive' } } },
+      ];
+    }
+
+    const orderBy: Prisma.ReturnRequestOrderByWithRelationInput = {
+      createdAt: query?.sortBy === 'oldest' ? 'asc' : 'desc',
+    };
+
+    const [requests, total, groupedStatus] = await Promise.all([
+      this.prisma.returnRequest.findMany({
+        where,
+        include: {
+          order: {
+            select: {
+              id: true,
+              orderNumber: true,
+              status: true,
+              totalAmount: true,
+              placedAt: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          items: {
+            include: {
+              orderItem: true,
+            },
           },
         },
-        user: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-        items: {
-          include: {
-            orderItem: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy,
+        skip,
+        take,
+      }),
+      this.prisma.returnRequest.count({ where }),
+      this.prisma.returnRequest.groupBy({
+        by: ['status'],
+        _count: { id: true },
+      }),
+    ]);
+
+    const statusMap = Object.fromEntries(
+      groupedStatus.map((g) => [g.status, g._count.id]),
+    );
+
+    const totalCount = groupedStatus.reduce((sum, g) => sum + g._count.id, 0);
+
+    const statusCounts: AdminReturnStatusCounts = {
+      all: totalCount,
+      requested: statusMap['REQUESTED'] ?? 0,
+      approved: statusMap['APPROVED'] ?? 0,
+      completed: statusMap['COMPLETED'] ?? 0,
+      rejected: statusMap['REJECTED'] ?? 0,
+    };
+
+    return {
+      items: requests.map((r) => ({
+        id: r.id,
+        requestNumber: r.requestNumber,
+        orderId: r.orderId,
+        userId: r.userId,
+        reason: r.reason,
+        customerNote: r.customerNote ?? undefined,
+        adminNote: r.adminNote ?? undefined,
+        status: r.status as ReturnStatus,
+        reviewedAt: r.reviewedAt?.toISOString(),
+        reviewedBy: r.reviewedBy ?? undefined,
+        createdAt: r.createdAt.toISOString(),
+        order: r.order
+          ? {
+              id: r.order.id,
+              orderNumber: r.order.orderNumber,
+              status: r.order.status as OrderStatus,
+              totalAmount: Number(r.order.totalAmount),
+              placedAt: r.order.placedAt.toISOString(),
+            }
+          : undefined,
+        user: r.user
+          ? {
+              id: r.user.id,
+              email: r.user.email,
+              firstName: r.user.firstName,
+              lastName: r.user.lastName,
+            }
+          : undefined,
+        items: r.items.map((item) => ({
+          id: item.id,
+          orderItemId: item.orderItemId,
+          quantity: item.quantity,
+          productName: item.orderItem.productNameSnapshot,
+          variantInfo: item.orderItem.variantInfoSnapshot,
+          unitPrice: Number(item.orderItem.unitPrice),
+        })),
+      })),
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize) || 1,
+      statusCounts,
+    };
   }
 
   async reviewReturnRequest(

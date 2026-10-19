@@ -135,3 +135,49 @@ export const reviewReturnRequestSchema = z.object({
 export type ReviewReturnRequestInput = z.infer<
   typeof reviewReturnRequestSchema
 >;
+
+/**
+ * Admin Orders Query Schema (Server Search & Filter)
+ */
+export const adminOrderQuerySchema = z.object({
+  search: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  paymentMethod: z.string().trim().optional(),
+  sortBy: z
+    .enum(['newest', 'oldest', 'amount_desc', 'amount_asc'])
+    .optional()
+    .default('newest'),
+  page: z.coerce.number().int().positive().optional().default(1),
+  pageSize: z.coerce.number().int().positive().max(100).optional().default(10),
+});
+
+export type AdminOrderQueryInput = z.infer<typeof adminOrderQuerySchema>;
+
+/**
+ * Admin Cancellation Requests Query Schema
+ */
+export const adminCancellationQuerySchema = z.object({
+  search: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  sortBy: z.enum(['newest', 'oldest']).optional().default('newest'),
+  page: z.coerce.number().int().positive().optional().default(1),
+  pageSize: z.coerce.number().int().positive().max(100).optional().default(10),
+});
+
+export type AdminCancellationQueryInput = z.infer<
+  typeof adminCancellationQuerySchema
+>;
+
+/**
+ * Admin Return Requests Query Schema
+ */
+export const adminReturnQuerySchema = z.object({
+  search: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  sortBy: z.enum(['newest', 'oldest']).optional().default('newest'),
+  page: z.coerce.number().int().positive().optional().default(1),
+  pageSize: z.coerce.number().int().positive().max(100).optional().default(10),
+});
+
+export type AdminReturnQueryInput = z.infer<typeof adminReturnQuerySchema>;
+

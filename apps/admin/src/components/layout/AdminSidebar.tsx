@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   ShieldAlert,
   LogOut,
+  Ban,
+  RotateCw,
 } from 'lucide-react';
 import { NidaLogo } from '../common/NidaLogo';
 import { useLanguage } from '../../context/LanguageContext';
@@ -86,6 +88,22 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/orders',
           label: t('nav.orders'),
           icon: Package,
+          permission: AdminPermission.ORDERS_READ,
+        },
+        {
+          id: 'cancellations',
+          path: '/admin/cancellations',
+          altPath: '/cancellations',
+          label: t('nav.cancellations'),
+          icon: Ban,
+          permission: AdminPermission.ORDERS_READ,
+        },
+        {
+          id: 'returns',
+          path: '/admin/returns',
+          altPath: '/returns',
+          label: t('nav.returns'),
+          icon: RotateCw,
           permission: AdminPermission.ORDERS_READ,
         },
         {

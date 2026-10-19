@@ -174,3 +174,116 @@ export interface ApiRefundSummary {
   createdAdminId?: string;
   createdAt: string;
 }
+
+// --- Admin Server Search & Pagination Types ---
+export interface AdminOrderQueryParams {
+  search?: string;
+  status?: string;
+  paymentMethod?: string;
+  sortBy?: 'newest' | 'oldest' | 'amount_desc' | 'amount_asc';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminOrderStatusCounts {
+  all: number;
+  paid: number;
+  processing: number;
+  shipped: number;
+  delivered: number;
+  completed: number;
+  cancelled: number;
+  pendingCancellations: number;
+  pendingReturns: number;
+}
+
+export interface PaginatedOrdersResponse {
+  items: ApiOrder[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  statusCounts: AdminOrderStatusCounts;
+}
+
+export interface AdminCancellationQueryParams {
+  search?: string;
+  status?: string;
+  sortBy?: 'newest' | 'oldest';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminCancellationStatusCounts {
+  all: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+}
+
+export interface ApiOrderCancellationWithOrder extends ApiOrderCancellationRequest {
+  order?: {
+    id: string;
+    orderNumber: string;
+    status: OrderStatus;
+    totalAmount: number;
+    placedAt: string;
+  };
+  user?: {
+    id: string;
+    email: string;
+    firstName?: string | null;
+    lastName?: string | null;
+  };
+}
+
+export interface PaginatedCancellationsResponse {
+  items: ApiOrderCancellationWithOrder[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  statusCounts: AdminCancellationStatusCounts;
+}
+
+export interface AdminReturnQueryParams {
+  search?: string;
+  status?: string;
+  sortBy?: 'newest' | 'oldest';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface AdminReturnStatusCounts {
+  all: number;
+  requested: number;
+  approved: number;
+  completed: number;
+  rejected: number;
+}
+
+export interface ApiReturnRequestWithOrder extends ApiReturnRequest {
+  order?: {
+    id: string;
+    orderNumber: string;
+    status: OrderStatus;
+    totalAmount: number;
+    placedAt: string;
+  };
+  user?: {
+    id: string;
+    email: string;
+    firstName?: string | null;
+    lastName?: string | null;
+  };
+}
+
+export interface PaginatedReturnsResponse {
+  items: ApiReturnRequestWithOrder[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  statusCounts: AdminReturnStatusCounts;
+}
+

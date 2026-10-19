@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Ban, RotateCw, CreditCard, Clock, CheckCircle2 } from 'lucide-react';
+import { Ban, RotateCw, CreditCard, Clock, CheckCircle2, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { StatusBadge } from '@/components/ui';
 import type { ApiOrder } from '@repo/types';
@@ -36,7 +36,8 @@ export function CustomerOrderHeaderCard({
     ['PAID', 'PREORDER_AWAITING_STOCK', 'PROCESSING'].includes(order.status) &&
     !hasPendingCancellation;
 
-  const canAcceptDelivery = order.status === 'DELIVERED';
+  const canAcceptDelivery =
+    order.status === 'DELIVERED' && !hasActiveReturn;
 
   const referenceDate = new Date(
     order.completedAt ?? order.updatedAt ?? order.placedAt,
@@ -50,6 +51,54 @@ export function CustomerOrderHeaderCard({
     isWithinReturnWindow;
 
   const isPendingPayment = order.status === 'PENDING';
+
+  const isPaid = Boolean(
+    order.payment?.paidAt ||
+      order.payment?.status === 'CAPTURED' ||
+      order.payment?.status === 'REFUNDED',
+  );
+
+  const isApprovedCancellation = Boolean(
+    order.cancellationRequests?.some((req) => req.status === 'APPROVED'),
+  );
+
+  const isUnpaidTimeout =
+    !isPaid &&
+    (order.payment?.status === 'FAILED' ||
+      Date.now() - new Date(order.placedAt).getTime() > 15 * 60 * 1000);
+
+  const renderCancelledNotice = () => {
+    if (isApprovedCancellation) {
+      return (
+        <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xs flex items-center space-x-2.5 text-xs text-emerald-900">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{t('orderDetail.cancellationApprovedNotice')}</span>
+        </div>
+      );
+    }
+    if (isPaid) {
+      return (
+        <div className="mt-4 p-3.5 bg-stone-50 border border-stone-200 rounded-xs flex items-center space-x-2.5 text-xs text-stone-700">
+          <Ban className="w-4 h-4 text-stone-500 shrink-0" />
+          <span>{t('orderDetail.adminCancelledPaidNotice')}</span>
+        </div>
+      );
+    }
+    if (isUnpaidTimeout) {
+      return (
+        <div className="mt-4 p-3.5 bg-stone-50 border border-stone-200 rounded-xs flex items-center space-x-2.5 text-xs text-stone-700">
+          <Ban className="w-4 h-4 text-stone-500 shrink-0" />
+          <span>{t('orderDetail.unpaidTimeoutCancelledNotice')}</span>
+        </div>
+      );
+    }
+    return (
+      <div className="mt-4 p-3.5 bg-stone-50 border border-stone-200 rounded-xs flex items-center space-x-2.5 text-xs text-stone-700">
+        <Ban className="w-4 h-4 text-stone-500 shrink-0" />
+        <span>{t('orderDetail.adminCancelledNotice')}</span>
+      </div>
+    );
+  };
 
   return (
     <div className="border border-brand-border bg-white p-6 rounded-md mb-6 shadow-2xs font-sans">
@@ -130,6 +179,17 @@ export function CustomerOrderHeaderCard({
         <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xs flex items-center space-x-2.5 text-xs text-emerald-900">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{t('orderDetail.completedNotice')}</span>
+        </div>
+      )}
+
+      {/* Notice for Cancelled Order */}
+      {order.status === 'CANCELLED' && renderCancelledNotice()}
+
+      {/* Notice for Refunded Order */}
+      {order.status === 'REFUNDED' && (
+        <div className="mt-4 p-3.5 bg-stone-50 border border-stone-200 rounded-xs flex items-center space-x-2.5 text-xs text-stone-700">
+          <RotateCcw className="w-4 h-4 text-stone-500 shrink-0" />
+          <span>{t('orderDetail.refundedNotice')}</span>
         </div>
       )}
 

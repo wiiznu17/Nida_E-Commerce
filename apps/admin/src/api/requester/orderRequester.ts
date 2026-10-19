@@ -8,8 +8,12 @@ import type {
   ProcessRefundDto,
   ReviewCancellationRequestDto,
   ReviewReturnRequestDto,
-  CancellationRequestStatus,
-  ReturnStatus,
+  AdminOrderQueryParams,
+  PaginatedOrdersResponse,
+  AdminCancellationQueryParams,
+  PaginatedCancellationsResponse,
+  AdminReturnQueryParams,
+  PaginatedReturnsResponse,
 } from '@repo/types';
 
 export interface FulfillOrderPayload {
@@ -27,8 +31,20 @@ export interface UpdateShipmentStatusPayload {
 }
 
 export const orderRequester = {
-  async getOrders(): Promise<ApiOrder[]> {
-    const data = await apiClient.get<ApiOrder[]>('/orders');
+  async getOrders(
+    params?: AdminOrderQueryParams,
+  ): Promise<PaginatedOrdersResponse> {
+    const sp = new URLSearchParams();
+    if (params?.search) sp.set('search', params.search);
+    if (params?.status && params.status !== 'ALL')
+      sp.set('status', params.status);
+    if (params?.paymentMethod && params.paymentMethod !== 'ALL')
+      sp.set('paymentMethod', params.paymentMethod);
+    if (params?.sortBy) sp.set('sortBy', params.sortBy);
+    if (params?.page) sp.set('page', params.page.toString());
+    if (params?.pageSize) sp.set('pageSize', params.pageSize.toString());
+    const query = sp.toString() ? `?${sp.toString()}` : '';
+    const data = await apiClient.get<PaginatedOrdersResponse>(`/orders${query}`);
     return data;
   },
 
@@ -98,9 +114,20 @@ export const orderRequester = {
     return data;
   },
 
-  async getCancellationRequests(status?: CancellationRequestStatus) {
-    const query = status ? `?status=${status}` : '';
-    const data = await apiClient.get(`/cancellation-requests${query}`);
+  async getCancellationRequests(
+    params?: AdminCancellationQueryParams,
+  ): Promise<PaginatedCancellationsResponse> {
+    const sp = new URLSearchParams();
+    if (params?.search) sp.set('search', params.search);
+    if (params?.status && params.status !== 'ALL')
+      sp.set('status', params.status);
+    if (params?.sortBy) sp.set('sortBy', params.sortBy);
+    if (params?.page) sp.set('page', params.page.toString());
+    if (params?.pageSize) sp.set('pageSize', params.pageSize.toString());
+    const query = sp.toString() ? `?${sp.toString()}` : '';
+    const data = await apiClient.get<PaginatedCancellationsResponse>(
+      `/cancellation-requests${query}`,
+    );
     return data;
   },
 
@@ -115,9 +142,20 @@ export const orderRequester = {
     return data;
   },
 
-  async getReturnRequests(status?: ReturnStatus) {
-    const query = status ? `?status=${status}` : '';
-    const data = await apiClient.get(`/return-requests${query}`);
+  async getReturnRequests(
+    params?: AdminReturnQueryParams,
+  ): Promise<PaginatedReturnsResponse> {
+    const sp = new URLSearchParams();
+    if (params?.search) sp.set('search', params.search);
+    if (params?.status && params.status !== 'ALL')
+      sp.set('status', params.status);
+    if (params?.sortBy) sp.set('sortBy', params.sortBy);
+    if (params?.page) sp.set('page', params.page.toString());
+    if (params?.pageSize) sp.set('pageSize', params.pageSize.toString());
+    const query = sp.toString() ? `?${sp.toString()}` : '';
+    const data = await apiClient.get<PaginatedReturnsResponse>(
+      `/return-requests${query}`,
+    );
     return data;
   },
 

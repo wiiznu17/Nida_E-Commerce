@@ -170,6 +170,13 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
             )}
 
             {/* Action Bar based on state */}
+            {req.status === 'APPROVED' && (
+              <div className="flex items-center space-x-1.5 text-[11px] text-blue-800 bg-blue-50 px-2.5 py-1.5 rounded-xs border border-blue-200">
+                <Clock className="w-3.5 h-3.5 flex-shrink-0 text-blue-600" />
+                <span>{t('orders.return.shipmentDeadline')}</span>
+              </div>
+            )}
+
             {req.status === 'REQUESTED' && (
               <div className="pt-2 border-t border-brand-border/60 flex justify-end space-x-2">
                 <button

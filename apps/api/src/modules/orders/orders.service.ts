@@ -558,6 +558,18 @@ export class CustomerOrdersService {
       );
     }
 
+    const activeReturn = await this.prisma.returnRequest.findFirst({
+      where: {
+        orderId: order.id,
+        status: { in: [ReturnStatus.REQUESTED, ReturnStatus.APPROVED] },
+      },
+    });
+    if (activeReturn) {
+      throw new BadRequestException(
+        'ไม่สามารถกดยอมรับสินค้าได้เนื่องจากมีคำขอคืนสินค้าอยู่ระหว่างดำเนินการ',
+      );
+    }
+
     const now = new Date();
     await this.prisma.order.update({
       where: { id: order.id },

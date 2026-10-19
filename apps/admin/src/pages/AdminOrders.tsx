@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Package,
   Truck,
@@ -42,7 +42,12 @@ import {
   OrderPaymentOverrideModal,
   type PrintDocumentType,
 } from '../components/order';
-import { AdminPermission, type ApiOrder, type OrderStatus } from '@repo/types';
+import {
+  AdminPermission,
+  type ApiOrder,
+  type OrderStatus,
+  type AdminOrderStatusCounts,
+} from '@repo/types';
 
 import {
   ALLOWED_STATUS_TRANSITIONS,
@@ -52,19 +57,46 @@ import {
 export default function AdminOrders() {
   const { t, language } = useLanguage();
   const [ordersList, setOrdersList] = useState<ApiOrder[]>([]);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [statusCounts, setStatusCounts] = useState<AdminOrderStatusCounts>({
+    all: 0,
+    paid: 0,
+    processing: 0,
+    shipped: 0,
+    delivered: 0,
+    completed: 0,
+    cancelled: 0,
+    pendingCancellations: 0,
+    pendingReturns: 0,
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Filter & Search states
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [paymentFilter, setPaymentFilter] = useState<string>('ALL');
-  const [sortBy, setSortBy] = useState<
-    'newest' | 'oldest' | 'amount_desc' | 'amount_asc'
-  >('newest');
-  const [searchInput, setSearchInput] = useState('');
-  const [appliedSearch, setAppliedSearch] = useState('');
+  // Read search & filter params from URL
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlSearch = searchParams.get('search') ?? '';
+  const statusFilter = searchParams.get('status') ?? 'ALL';
+  const urlPayment = searchParams.get('paymentMethod') ?? 'ALL';
+  const urlSortBy =
+    (searchParams.get('sortBy') as
+      | 'newest'
+      | 'oldest'
+      | 'amount_desc'
+      | 'amount_asc') ?? 'newest';
+  const currentPage = parseInt(searchParams.get('page') ?? '1', 10) || 1;
+  const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10) || 10;
 
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  // Local draft inputs for form fields (only applied when clicking Search)
+  const [searchInput, setSearchInput] = useState(urlSearch);
+  const [paymentFilterInput, setPaymentFilterInput] = useState(urlPayment);
+  const [sortByInput, setSortByInput] = useState(urlSortBy);
+
+  // Sync draft form state when URL searchParams change
+  useEffect(() => {
+    setSearchInput(urlSearch);
+    setPaymentFilterInput(urlPayment);
+    setSortByInput(urlSortBy);
+  }, [urlSearch, urlPayment, urlSortBy]);
 
   // Modals & interaction states
   const [selectedOrder, setSelectedOrder] = useState<ApiOrder | null>(null);
@@ -83,38 +115,79 @@ export default function AdminOrders() {
   const [ordersToPrint, setOrdersToPrint] = useState<ApiOrder[]>([]);
   const [printDocType, setPrintDocType] = useState<PrintDocumentType>('LABEL');
 
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const apiOrders = await orderRequester.getOrders();
-      setOrdersList(apiOrders ?? []);
+      const res = await orderRequester.getOrders({
+        search: urlSearch || undefined,
+        status: statusFilter,
+        paymentMethod: urlPayment,
+        sortBy: urlSortBy,
+        page: currentPage,
+        pageSize,
+      });
+      setOrdersList(res.items ?? []);
+      setTotalOrders(res.total ?? 0);
+      setTotalPages(res.totalPages ?? 1);
+      if (res.statusCounts) {
+        setStatusCounts(res.statusCounts);
+      }
     } catch (err: unknown) {
       console.warn('Backend orders unavailable:', err);
       setOrdersList([]);
+      setTotalOrders(0);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [urlSearch, statusFilter, urlPayment, urlSortBy, currentPage, pageSize]);
 
   useEffect(() => {
     loadOrders();
-  }, []);
+  }, [loadOrders]);
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    setAppliedSearch(searchInput.trim());
-    setCurrentPage(1);
+    const next = new URLSearchParams();
+    if (searchInput.trim()) next.set('search', searchInput.trim());
+    if (statusFilter && statusFilter !== 'ALL') next.set('status', statusFilter);
+    if (paymentFilterInput && paymentFilterInput !== 'ALL')
+      next.set('paymentMethod', paymentFilterInput);
+    if (sortByInput && sortByInput !== 'newest') next.set('sortBy', sortByInput);
+    if (pageSize !== 10) next.set('pageSize', pageSize.toString());
+    next.set('page', '1');
+    setSearchParams(next);
   };
 
   const handleResetSearch = () => {
     setSearchInput('');
-    setAppliedSearch('');
-    setStatusFilter('ALL');
-    setPaymentFilter('ALL');
-    setSortBy('newest');
-    setCurrentPage(1);
+    setPaymentFilterInput('ALL');
+    setSortByInput('newest');
+    setSearchParams(new URLSearchParams());
   };
 
   const handleStatusFilterChange = (status: string) => {
-    setStatusFilter(status);
-    setCurrentPage(1);
+    const next = new URLSearchParams(searchParams);
+    if (status === 'ALL') {
+      next.delete('status');
+    } else {
+      next.set('status', status);
+    }
+    next.set('page', '1');
+    setSearchParams(next);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('page', newPage.toString());
+    setSearchParams(next);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('pageSize', newSize.toString());
+    next.set('page', '1');
+    setSearchParams(next);
   };
 
   const handleOpenFulfill = (order: ApiOrder) => {
@@ -190,68 +263,16 @@ export default function AdminOrders() {
     }
   };
 
-  // Status counts for top tabs
-  const allCount = ordersList.length;
-  const paidCount = ordersList.filter((o) => o.status === 'PAID').length;
-  const processingCount = ordersList.filter(
-    (o) => o.status === 'PROCESSING',
-  ).length;
-  const shippedCount = ordersList.filter((o) => o.status === 'SHIPPED').length;
-  const deliveredCount = ordersList.filter(
-    (o) => o.status === 'DELIVERED',
-  ).length;
-  const completedCount = ordersList.filter(
-    (o) => o.status === 'COMPLETED',
-  ).length;
-  const cancelledCount = ordersList.filter(
-    (o) => o.status === 'CANCELLED',
-  ).length;
+  // Status counts from server
+  const allCount = statusCounts.all;
+  const paidCount = statusCounts.paid;
+  const processingCount = statusCounts.processing;
+  const shippedCount = statusCounts.shipped;
+  const deliveredCount = statusCounts.delivered;
+  const completedCount = statusCounts.completed;
+  const cancelledCount = statusCounts.cancelled;
 
-  // Filtered & Sorted Orders
-  const filteredOrders = ordersList
-    .filter((order) => {
-      const matchesStatus =
-        statusFilter === 'ALL' || order.status === statusFilter;
-
-      const query = appliedSearch.toLowerCase();
-      const primaryShipment = order.shipments?.[0];
-      const trackingNumber = primaryShipment?.trackingNumber;
-      const recipientName = order.shippingAddress?.recipientName ?? '';
-      const phone = order.shippingAddress?.phone ?? '';
-      const paymentMethod = order.payment?.paymentMethod ?? '';
-
-      const matchesSearch =
-        !query ||
-        order.orderNumber.toLowerCase().includes(query) ||
-        recipientName.toLowerCase().includes(query) ||
-        phone.toLowerCase().includes(query) ||
-        (trackingNumber && trackingNumber.toLowerCase().includes(query));
-
-      const matchesPayment =
-        paymentFilter === 'ALL' ||
-        paymentMethod === paymentFilter ||
-        (paymentFilter === 'CREDIT_CARD' &&
-          paymentMethod.toLowerCase().includes('credit')) ||
-        (paymentFilter === 'PROMPTPAY' &&
-          paymentMethod.toLowerCase().includes('promptpay')) ||
-        (paymentFilter === 'BANK_TRANSFER' &&
-          paymentMethod.toLowerCase().includes('bank'));
-
-      return matchesStatus && matchesSearch && matchesPayment;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'newest') return b.placedAt.localeCompare(a.placedAt);
-      if (sortBy === 'oldest') return a.placedAt.localeCompare(b.placedAt);
-      if (sortBy === 'amount_desc') return b.totalAmount - a.totalAmount;
-      if (sortBy === 'amount_asc') return a.totalAmount - b.totalAmount;
-      return 0;
-    });
-
-  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
-  const paginatedOrders = filteredOrders.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
+  const paginatedOrders = ordersList;
 
   const handleOpenPrintSingle = (order: ApiOrder) => {
     setOrdersToPrint([order]);
@@ -282,8 +303,8 @@ export default function AdminOrders() {
       title={t('orders.title')}
       subtitle={`${t('orders.subtitle')} (${
         language === 'th'
-          ? `แสดง ${filteredOrders.length} จาก ${ordersList.length} รายการ`
-          : `${filteredOrders.length} of ${ordersList.length} orders displayed`
+          ? `แสดง ${ordersList.length} จาก ${totalOrders} รายการ`
+          : `${ordersList.length} of ${totalOrders} orders displayed`
       })`}
     >
       <div className="space-y-4">
@@ -409,8 +430,8 @@ export default function AdminOrders() {
 
             <div className="text-[11px] font-bold text-gray-500">
               {language === 'th'
-                ? `แสดง ${filteredOrders.length} จากทั้งหมด ${ordersList.length} ออเดอร์`
-                : `Showing ${filteredOrders.length} of ${ordersList.length} orders`}
+                ? `แสดง ${ordersList.length} จากทั้งหมด ${totalOrders} ออเดอร์`
+                : `Showing ${ordersList.length} of ${totalOrders} orders`}
             </div>
           </div>
 
@@ -429,11 +450,8 @@ export default function AdminOrders() {
               {/* Payment Method Filter Dropdown (3 cols on lg) */}
               <div className="lg:col-span-3">
                 <DropdownSelect
-                  value={paymentFilter}
-                  onChange={(val) => {
-                    setPaymentFilter(val);
-                    setCurrentPage(1);
-                  }}
+                  value={paymentFilterInput}
+                  onChange={(val) => setPaymentFilterInput(val)}
                   options={[
                     { value: 'ALL', label: t('orders.allPaymentMethods') },
                     { value: 'CREDIT_CARD', label: 'Credit Card' },
@@ -446,13 +464,12 @@ export default function AdminOrders() {
               {/* Sort By Dropdown (3 cols on lg) */}
               <div className="lg:col-span-3">
                 <DropdownSelect
-                  value={sortBy}
-                  onChange={(val) => {
-                    setSortBy(
+                  value={sortByInput}
+                  onChange={(val) =>
+                    setSortByInput(
                       val as 'newest' | 'oldest' | 'amount_desc' | 'amount_asc',
-                    );
-                    setCurrentPage(1);
-                  }}
+                    )
+                  }
                   options={[
                     { value: 'newest', label: t('orders.sortNewest') },
                     { value: 'oldest', label: t('orders.sortOldest') },
@@ -486,7 +503,13 @@ export default function AdminOrders() {
 
         {/* Orders Table Container */}
         <div className="space-y-0">
-          <TableContainer>
+          <TableContainer
+            className={
+              isLoading
+                ? 'opacity-60 transition-opacity pointer-events-none'
+                : 'transition-opacity'
+            }
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -529,12 +552,29 @@ export default function AdminOrders() {
                     <TableRow key={order.id}>
                       {/* Order # & Date */}
                       <TableCell className="whitespace-nowrap">
-                        <Link
-                          to={`/admin/orders/${order.orderNumber}`}
-                          className="font-mono font-bold text-brand-brown text-xs hover:underline hover:text-brand-dark-brown block"
-                        >
-                          {order.orderNumber}
-                        </Link>
+                        <div className="flex items-center space-x-1.5">
+                          <Link
+                            to={`/admin/orders/${order.orderNumber}`}
+                            className="font-mono font-bold text-brand-brown text-xs hover:underline hover:text-brand-dark-brown block"
+                          >
+                            {order.orderNumber}
+                          </Link>
+                          {order.cancellationRequests?.some(
+                            (c) => c.status === 'PENDING',
+                          ) ? (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-xs text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200">
+                              {t('orders.table.pendingCancellationChip')}
+                            </span>
+                          ) : null}
+                          {order.returnRequests?.some(
+                            (r) =>
+                              r.status === 'REQUESTED' || r.status === 'APPROVED',
+                          ) ? (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-xs text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
+                              {t('orders.table.pendingReturnChip')}
+                            </span>
+                          ) : null}
+                        </div>
                         <div className="text-[10px] text-gray-500 font-medium mt-0.5">
                           {formatOrderDateTime(order.placedAt, language)}
                         </div>
@@ -735,12 +775,9 @@ export default function AdminOrders() {
             currentPage={currentPage}
             totalPages={totalPages}
             pageSize={pageSize}
-            totalItems={filteredOrders.length}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={(newSize) => {
-              setPageSize(newSize);
-              setCurrentPage(1);
-            }}
+            totalItems={totalOrders}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
           />
         </div>
       </div>

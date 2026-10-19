@@ -42,6 +42,8 @@
     "inventoryAudit": "ประวัติสต็อก (Audit Log)",
     "auditLogs": "ประวัติการทำงานระบบ (Audit Log)",
     "orders": "คำสั่งซื้อ & จัดส่ง",
+    "cancellations": "คำขอยกเลิกคำสั่งซื้อ",
+    "returns": "คำขอคืนสินค้า",
     "promotions": "โค้ดโปรโมชัน & คูปอง",
     "contentBanners": "เนื้อหาหน้าแรกและแบนเนอร์",
     "backOffice": "ADMIN BACK-OFFICE",
@@ -379,6 +381,8 @@
     "filterDelivered": "จัดส่งสำเร็จ",
     "filterCompleted": "สำเร็จสมบูรณ์",
     "filterCancelled": "ยกเลิก",
+    "filterCancellations": "คำขอยกเลิก",
+    "filterReturns": "คำขอคืนสินค้า",
     "searchPlaceholder": "ค้นหาเลขออเดอร์, ชื่อลูกค้า, อีเมล, เลขพัสดุ...",
     "searchBtn": "ค้นหา",
     "resetBtn": "ล้างตัวกรอง",
@@ -396,7 +400,9 @@
       "total": "ยอดเงิน",
       "status": "สถานะคำสั่งซื้อ",
       "courier": "ขนส่ง / หมายเลขพัสดุ",
-      "actions": "การจัดการ"
+      "actions": "การจัดการ",
+      "pendingCancellationChip": "คำขอยกเลิก",
+      "pendingReturnChip": "ขอคืนสินค้า"
     },
     "fulfill": {
       "addTracking": "+ ใส่เลขพัสดุ",
@@ -567,6 +573,8 @@
     },
     "cancellation": {
       "sectionTitle": "คำขอยกเลิกคำสั่งซื้อจากลูกค้า (Cancellation Requests)",
+      "slaRemaining": "เหลือเวลาตรวจสอบอีก {time} ก่อนระบบอนุมัติอัตโนมัติ (48h SLA)",
+      "autoApprovedBadge": "อนุมัติอัตโนมัติ (48h Timeout)",
       "status": {
         "PENDING": "รอการตรวจสอบ",
         "APPROVED": "อนุมัติยกเลิกแล้ว",
@@ -584,6 +592,7 @@
     },
     "return": {
       "sectionTitle": "คำขอคืนสินค้าจากลูกค้า (Return Requests)",
+      "shipmentDeadline": "กำหนดส่งพัสดุคืนภายใน 7 วัน นับจากวันอนุมัติ",
       "status": {
         "REQUESTED": "ยื่นเรื่องขอคืนสินค้า",
         "APPROVED": "อนุมัติให้ส่งคืนได้",
@@ -598,8 +607,57 @@
       "inspectAndRefundButton": "ตรวจรับสินค้า & คืนเงิน",
       "inspectModalTitle": "ตรวจรับสินค้าคืนและดำเนินการคืนเงิน",
       "inspectNotePlaceholder": "เช่น สินค้าสภาพสมบูรณ์ พร้อมป้ายราคา",
-      "confirmRefundButton": "ยืนยันตรวจรับและคืนเงิน"
+      "confirmRefundButton": "ยืนยันตรวจรับและคืนเงิน",
+      "reviewModalTitle": "ตรวจสอบคำขอคืนสินค้า",
+      "rejectNoteLabel": "เหตุผลในการปฏิเสธคำขอคืน *",
+      "approveDeadlineHint": "เมื่ออนุมัติ ลูกค้าจะมีเวลา 7 วันในการจัดส่งพัสดุกลับมายังร้านค้า",
+      "attachedImages": "รูปภาพประกอบจากลูกค้า"
     }
+  },
+  "cancellationsPage": {
+    "title": "คำขอยกเลิกคำสั่งซื้อ",
+    "subtitle": "จัดการและตรวจสอบคำขอยกเลิกคำสั่งซื้อจากลูกค้า (48-Hour SLA Guarantee)",
+    "filterAll": "ทั้งหมด",
+    "filterPending": "รอตรวจสอบ",
+    "filterApproved": "อนุมัติแล้ว",
+    "filterRejected": "ปฏิเสธแล้ว",
+    "searchPlaceholder": "ค้นหารหัสคำขอ, เลขออเดอร์, อีเมล หรือชื่อลูกค้า...",
+    "table": {
+      "requestNumber": "รหัสคำขอ / วันที่ขอ",
+      "order": "คำสั่งซื้อ / ยอดเงิน",
+      "customer": "ลูกค้า",
+      "reason": "เหตุผล & หมายเหตุ",
+      "sla": "การควบคุม SLA",
+      "status": "สถานะคำขอ",
+      "action": "การจัดการ"
+    },
+    "emptyTitle": "ไม่พบคำขอยกเลิกคำสั่งซื้อ",
+    "emptySubtitle": "ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองสถานะ",
+    "reviewBtn": "ตรวจสอบคำขอ",
+    "viewDetails": "ดูรายละเอียด"
+  },
+  "returnsPage": {
+    "title": "คำขอคืนสินค้า (RMA)",
+    "subtitle": "จัดการและตรวจสอบคำขอคืนสินค้า การตรวจรับสภาพสินค้า และการคืนเงิน",
+    "filterAll": "ทั้งหมด",
+    "filterRequested": "ยื่นเรื่องขอคืน",
+    "filterApproved": "อนุมัติส่งคืน",
+    "filterCompleted": "เสร็จสิ้น",
+    "filterRejected": "ปฏิเสธแล้ว",
+    "searchPlaceholder": "ค้นหารหัสคำขอคืน, เลขออเดอร์, อีเมล หรือชื่อลูกค้า...",
+    "table": {
+      "requestNumber": "รหัสคำขอ / วันที่ขอ",
+      "order": "คำสั่งซื้อ / ยอดเงิน",
+      "customer": "ลูกค้า",
+      "items": "รายการสินค้าที่ขอคืน",
+      "shipment": "สถานะการส่งคืน (7 วัน)",
+      "status": "สถานะคำขอ",
+      "action": "การจัดการ"
+    },
+    "emptyTitle": "ไม่พบคำขอคืนสินค้า",
+    "emptySubtitle": "ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองสถานะ",
+    "reviewBtn": "ตรวจสอบคำขอ",
+    "inspectBtn": "ตรวจรับ & คืนเงิน"
   },
   "promotions": {
     "title": "แคมเปญและโค้ดส่วนลด",

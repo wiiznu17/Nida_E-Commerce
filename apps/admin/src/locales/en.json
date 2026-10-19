@@ -42,6 +42,8 @@
     "inventoryAudit": "Stock Audit Log",
     "auditLogs": "System Audit Log",
     "orders": "Orders & Shipping",
+    "cancellations": "Cancellations",
+    "returns": "Return Requests",
     "promotions": "Coupons & Promos",
     "contentBanners": "Home Content & Banners",
     "backOffice": "ADMIN BACK-OFFICE",
@@ -379,6 +381,8 @@
     "filterDelivered": "Delivered",
     "filterCompleted": "Completed",
     "filterCancelled": "Cancelled",
+    "filterCancellations": "Cancellations",
+    "filterReturns": "Returns",
     "searchPlaceholder": "Search order #, customer, email, tracking...",
     "searchBtn": "Search",
     "resetBtn": "Reset",
@@ -396,7 +400,9 @@
       "total": "Total",
       "status": "Fulfillment Status",
       "courier": "Courier / Tracking",
-      "actions": "Actions"
+      "actions": "Actions",
+      "pendingCancellationChip": "Cancellation",
+      "pendingReturnChip": "Return"
     },
     "fulfill": {
       "addTracking": "+ Add Tracking",
@@ -567,6 +573,8 @@
     },
     "cancellation": {
       "sectionTitle": "Customer Cancellation Requests",
+      "slaRemaining": "{time} remaining before 48-hour auto-approval SLA",
+      "autoApprovedBadge": "Auto-Approved (48h Timeout)",
       "status": {
         "PENDING": "Pending Review",
         "APPROVED": "Cancellation Approved",
@@ -584,6 +592,7 @@
     },
     "return": {
       "sectionTitle": "Customer Return Requests",
+      "shipmentDeadline": "Return shipment must be dispatched within 7 days of approval",
       "status": {
         "REQUESTED": "Return Requested",
         "APPROVED": "Approved for Return",
@@ -598,8 +607,57 @@
       "inspectAndRefundButton": "Inspect & Refund",
       "inspectModalTitle": "Inspect Returned Item & Issue Refund",
       "inspectNotePlaceholder": "e.g. Items verified in original condition with tags",
-      "confirmRefundButton": "Confirm Inspection & Refund"
+      "confirmRefundButton": "Confirm Inspection & Refund",
+      "reviewModalTitle": "Review Return Request",
+      "rejectNoteLabel": "Rejection Reason *",
+      "approveDeadlineHint": "Once approved, the customer will have 7 days to dispatch the return shipment.",
+      "attachedImages": "Attached Photos from Customer"
     }
+  },
+  "cancellationsPage": {
+    "title": "Order Cancellation Requests",
+    "subtitle": "Review and manage customer order cancellation requests (48-Hour SLA Guarantee)",
+    "filterAll": "All",
+    "filterPending": "Pending Review",
+    "filterApproved": "Approved",
+    "filterRejected": "Rejected",
+    "searchPlaceholder": "Search request #, order #, email, or customer name...",
+    "table": {
+      "requestNumber": "Request # / Date",
+      "order": "Order / Amount",
+      "customer": "Customer",
+      "reason": "Reason & Note",
+      "sla": "SLA Control",
+      "status": "Request Status",
+      "action": "Actions"
+    },
+    "emptyTitle": "No cancellation requests found",
+    "emptySubtitle": "Try adjusting your search terms or status filters",
+    "reviewBtn": "Review Request",
+    "viewDetails": "View Details"
+  },
+  "returnsPage": {
+    "title": "Return Requests (RMA)",
+    "subtitle": "Manage customer product returns, item condition inspections, and refund settlements",
+    "filterAll": "All",
+    "filterRequested": "Requested",
+    "filterApproved": "Approved to Ship",
+    "filterCompleted": "Completed",
+    "filterRejected": "Rejected",
+    "searchPlaceholder": "Search return #, order #, email, or customer name...",
+    "table": {
+      "requestNumber": "Return # / Date",
+      "order": "Order / Amount",
+      "customer": "Customer",
+      "items": "Returned Items",
+      "shipment": "Return Shipment (7 Days)",
+      "status": "Request Status",
+      "action": "Actions"
+    },
+    "emptyTitle": "No return requests found",
+    "emptySubtitle": "Try adjusting your search terms or status filters",
+    "reviewBtn": "Review Request",
+    "inspectBtn": "Inspect & Refund"
   },
   "promotions": {
     "title": "Promotions & Coupon Codes",

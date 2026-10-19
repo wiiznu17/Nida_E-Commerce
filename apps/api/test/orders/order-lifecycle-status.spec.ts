@@ -33,7 +33,10 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
     };
     stockMovement: { create: ReturnType<typeof vi.fn> };
     orderCancellationRequest: { create: ReturnType<typeof vi.fn> };
-    returnRequest: { create: ReturnType<typeof vi.fn> };
+    returnRequest: {
+      create: ReturnType<typeof vi.fn>;
+      findFirst: ReturnType<typeof vi.fn>;
+    };
     payment: { create: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
     user: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
     pointTransaction: { findFirst: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
@@ -113,7 +116,7 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       orderCancellationRequest: {
         create: vi.fn().mockResolvedValue({ id: 'can-req-1', status: 'PENDING' }),
       },
-      returnRequest: { create: vi.fn() },
+      returnRequest: { create: vi.fn(), findFirst: vi.fn().mockResolvedValue(null) },
       payment: {
         create: vi.fn().mockResolvedValue({ id: 'pay-new' }),
         update: vi.fn().mockResolvedValue({ id: 'pay-upd' }),
@@ -822,6 +825,25 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       await expect(
         service.acceptOrder('NIDA-20261017-OTHER', 'usr-1'),
       ).rejects.toThrow(NotFoundException);
+    });
+
+    it('rejects acceptOrder when there is an active return request', async () => {
+      const mockDeliveredOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-HAS-RETURN',
+        userId: 'usr-1',
+        status: OrderStatus.DELIVERED,
+      });
+
+      prismaMock.order.findUnique.mockResolvedValueOnce(mockDeliveredOrder);
+      prismaMock.returnRequest.findFirst.mockResolvedValueOnce({
+        id: 'ret-active',
+        orderId: mockDeliveredOrder.id,
+        status: 'REQUESTED',
+      });
+
+      await expect(
+        service.acceptOrder('NIDA-20261017-HAS-RETURN', 'usr-1'),
+      ).rejects.toThrow('ไม่สามารถกดยอมรับสินค้าได้เนื่องจากมีคำขอคืนสินค้าอยู่ระหว่างดำเนินการ');
     });
 
     it('idempotently returns completed order if already COMPLETED without duplicate point awards', async () => {

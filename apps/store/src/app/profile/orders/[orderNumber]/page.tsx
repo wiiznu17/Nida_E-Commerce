@@ -16,6 +16,8 @@ import {
   CustomerOrderItemsCard,
   CustomerOrderSummarySidebar,
   CustomerOrderTrackingCard,
+  CustomerOrderCancellationCard,
+  CustomerOrderReturnCard,
 } from '@/components/profile/orders';
 import { OrderStatus, type ApiOrder } from '@repo/types';
 
@@ -145,9 +147,17 @@ export default function CustomerOrderDetailPage() {
 
       {/* Main 12-Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left 8 Cols: Tracking Progress & Items */}
+        {/* Left 8 Cols: Tracking Progress, Requests & Items */}
         <div className="lg:col-span-8 space-y-6">
           <CustomerOrderTrackingCard order={order} />
+          {order.cancellationRequests && order.cancellationRequests.length > 0 && (
+            <CustomerOrderCancellationCard
+              cancellationRequests={order.cancellationRequests}
+            />
+          )}
+          {order.returnRequests && order.returnRequests.length > 0 && (
+            <CustomerOrderReturnCard order={order} />
+          )}
           <CustomerOrderItemsCard order={order} />
         </div>
 

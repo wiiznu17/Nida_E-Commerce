@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Ban, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Ban, CheckCircle2, XCircle, Clock, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { orderRequester } from '../../api/requester/orderRequester';
 import type { ApiOrderCancellationRequest } from '@repo/types';
@@ -10,21 +10,32 @@ interface OrderCancellationSectionProps {
   onShowToast: (msg: string) => void;
 }
 
-export const OrderCancellationSection: React.FC<
-  OrderCancellationSectionProps
-> = ({ cancellationRequests, onReviewed, onShowToast }) => {
+const formatSlaRemaining = (createdAt: string, isTh: boolean): string => {
+  const diff = new Date(createdAt).getTime() + 48 * 60 * 60 * 1000 - Date.now();
+  if (diff <= 0) return isTh ? 'ครบกำหนดแล้ว' : 'Due now';
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  return isTh ? `${hours} ชม. ${minutes} นาที` : `${hours}h ${minutes}m`;
+};
+
+const isAutoApproved = (adminNote?: string | null): boolean => {
+  if (!adminNote) return false;
+  const note = adminNote.toLowerCase();
+  return note.includes('auto-approved') || note.includes('48-hour');
+};
+
+export const OrderCancellationSection: React.FC<OrderCancellationSectionProps> = ({
+  cancellationRequests,
+  onReviewed,
+  onShowToast,
+}) => {
   const { t, isTh } = useLanguage();
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [activeReview, setActiveReview] = useState<{
-    id: string;
-    action: 'APPROVE' | 'REJECT';
-  } | null>(null);
+  const [activeReview, setActiveReview] = useState<{ id: string; action: 'APPROVE' | 'REJECT' } | null>(null);
   const [adminNote, setAdminNote] = useState('');
   const [restockInventory, setRestockInventory] = useState(true);
 
-  if (!cancellationRequests || cancellationRequests.length === 0) {
-    return null;
-  }
+  if (!cancellationRequests || cancellationRequests.length === 0) return null;
 
   const handleConfirmReview = async () => {
     if (!activeReview) return;
@@ -76,25 +87,45 @@ export const OrderCancellationSection: React.FC<
               <span className="font-mono text-xs font-bold text-stone-800">
                 {req.requestNumber}
               </span>
-              <span
-                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-flex items-center space-x-1 ${
-                  req.status === 'PENDING'
-                    ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                    : req.status === 'APPROVED'
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                      : 'bg-rose-100 text-rose-800 border border-rose-300'
-                }`}
-              >
-                {req.status === 'PENDING' ? (
-                  <Clock className="w-3 h-3 mr-1" />
-                ) : req.status === 'APPROVED' ? (
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                ) : (
-                  <XCircle className="w-3 h-3 mr-1" />
+              <div className="flex items-center space-x-1.5">
+                {req.status === 'APPROVED' && isAutoApproved(req.adminNote) && (
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-flex items-center space-x-1 bg-stone-100 text-stone-700 border border-stone-300">
+                    <ShieldCheck className="w-3 h-3 mr-1 text-stone-500" />
+                    {t('orders.cancellation.autoApprovedBadge')}
+                  </span>
                 )}
-                {t(`orders.cancellation.status.${req.status}`)}
-              </span>
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-flex items-center space-x-1 ${
+                    req.status === 'PENDING'
+                      ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                      : req.status === 'APPROVED'
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        : 'bg-rose-100 text-rose-800 border border-rose-300'
+                  }`}
+                >
+                  {req.status === 'PENDING' ? (
+                    <Clock className="w-3 h-3 mr-1" />
+                  ) : req.status === 'APPROVED' ? (
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                  ) : (
+                    <XCircle className="w-3 h-3 mr-1" />
+                  )}
+                  {t(`orders.cancellation.status.${req.status}`)}
+                </span>
+              </div>
             </div>
+
+            {req.status === 'PENDING' && (
+              <div className="flex items-center space-x-1.5 text-[11px] text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-xs border border-amber-200">
+                <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-600" />
+                <span>
+                  {t('orders.cancellation.slaRemaining').replace(
+                    '{time}',
+                    formatSlaRemaining(req.createdAt, isTh),
+                  )}
+                </span>
+              </div>
+            )}
 
             <div className="text-xs space-y-1">
               <div className="flex items-baseline space-x-2">

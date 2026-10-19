@@ -31,6 +31,15 @@ import { RequirePermissions, Public, CurrentAdmin } from '../auth/decorators/ind
 
 import { LogisticsService } from './logistics/index.js';
 import { PaymentGatewayService } from './payment-gateway/index.js';
+import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
+import {
+  adminOrderQuerySchema,
+  adminCancellationQuerySchema,
+  adminReturnQuerySchema,
+  type AdminOrderQueryInput,
+  type AdminCancellationQueryInput,
+  type AdminReturnQueryInput,
+} from '@repo/validators';
 
 @ApiTags('Orders & Shipments')
 @Controller()
@@ -62,11 +71,14 @@ export class OrdersController {
   @RequirePermissions(AdminPermission.ORDERS_READ)
   @ApiOperation({
     summary: 'ดูรายการคำสั่งซื้อทั้งหมด (Get All Orders)',
-    description: 'ดึงรายการคำสั่งซื้อทั้งหมดสำหรับแอดมินและประวัติคำสั่งซื้อ',
+    description: 'ดึงรายการคำสั่งซื้อทั้งหมดสำหรับแอดมินพร้อมรองรับการค้นหา กรองสถานะ และแบ่งหน้า',
   })
-  @ApiResponse({ status: 200, description: 'รายการคำสั่งซื้อทั้งหมด' })
-  async getOrders() {
-    return this.ordersService.getOrders();
+  @ApiResponse({ status: 200, description: 'รายการคำสั่งซื้อและข้อมูลการแบ่งหน้า' })
+  async getOrders(
+    @Query(new ZodValidationPipe(adminOrderQuerySchema))
+    query: AdminOrderQueryInput,
+  ) {
+    return this.ordersService.getOrders(query);
   }
 
   @Get('orders/:orderNumber')
@@ -192,15 +204,11 @@ export class OrdersController {
   @ApiOperation({
     summary: 'ดูรายการคำขอยกเลิกคำสั่งซื้อทั้งหมด (Get Cancellation Requests)',
   })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: ['PENDING', 'APPROVED', 'REJECTED'],
-  })
   async getCancellationRequests(
-    @Query('status') status?: CancellationRequestStatus,
+    @Query(new ZodValidationPipe(adminCancellationQuerySchema))
+    query: AdminCancellationQueryInput,
   ) {
-    return this.ordersService.getCancellationRequests(status);
+    return this.ordersService.getCancellationRequests(query);
   }
 
   @Post('cancellation-requests/:id/review')
@@ -222,13 +230,11 @@ export class OrdersController {
   @ApiOperation({
     summary: 'ดูรายการคำขอคืนสินค้าทั้งหมด (Get Return Requests)',
   })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: ['REQUESTED', 'APPROVED', 'REJECTED', 'COMPLETED'],
-  })
-  async getReturnRequests(@Query('status') status?: ReturnStatus) {
-    return this.ordersService.getReturnRequests(status);
+  async getReturnRequests(
+    @Query(new ZodValidationPipe(adminReturnQuerySchema))
+    query: AdminReturnQueryInput,
+  ) {
+    return this.ordersService.getReturnRequests(query);
   }
 
   @Post('return-requests/:id/review')

@@ -36,11 +36,11 @@ export default function AdminDashboard() {
 
   const loadData = async () => {
     try {
-      const [apiOrders, apiInv] = await Promise.all([
-        orderRequester.getOrders().catch(() => []),
+      const [apiOrdersRes, apiInv] = await Promise.all([
+        orderRequester.getOrders().catch(() => null),
         inventoryRequester.getInventory().catch(() => []),
       ]);
-      setOrdersList(apiOrders ?? []);
+      setOrdersList(apiOrdersRes?.items ?? []);
       setInventoryList(apiInv ?? []);
     } catch (err: unknown) {
       console.warn('Backend dashboard data unavailable:', err);
