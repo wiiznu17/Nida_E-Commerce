@@ -26,6 +26,7 @@ import {
   ApiRefundSummary,
   CreateCancellationRequestDto,
   CreateReturnRequestDto,
+  SubmitReturnShipmentDto,
 } from '@repo/types';
 import {
   OrderStatus,
@@ -561,7 +562,13 @@ export class CustomerOrdersService {
     const activeReturn = await this.prisma.returnRequest.findFirst({
       where: {
         orderId: order.id,
-        status: { in: [ReturnStatus.REQUESTED, ReturnStatus.APPROVED] },
+        status: {
+          in: [
+            ReturnStatus.REQUESTED,
+            ReturnStatus.APPROVED,
+            ReturnStatus.SHIPPED,
+          ],
+        },
       },
     });
     if (activeReturn) {
@@ -677,7 +684,8 @@ export class CustomerOrdersService {
     const hasActiveReturn = order.returnRequests.some(
       (req) =>
         req.status === ReturnStatus.REQUESTED ||
-        req.status === ReturnStatus.APPROVED,
+        req.status === ReturnStatus.APPROVED ||
+        req.status === ReturnStatus.SHIPPED,
     );
     if (hasActiveReturn) {
       throw new BadRequestException(
@@ -726,6 +734,59 @@ export class CustomerOrdersService {
         },
       },
     });
+
+    return this.getOrderByNumber(orderNumber, userId);
+  }
+
+  async submitReturnShipment(
+    orderNumber: string,
+    returnRequestId: string,
+    dto: SubmitReturnShipmentDto,
+    userId?: string,
+  ): Promise<ApiOrder> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        returnRequests: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (userId && order.userId && order.userId !== userId) {
+      throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    const returnReq = order.returnRequests.find((r) => r.id === returnRequestId);
+    if (!returnReq) {
+      throw new NotFoundException(
+        `Return request ${returnRequestId} not found for this order`,
+      );
+    }
+
+    if (returnReq.status !== ReturnStatus.APPROVED) {
+      throw new BadRequestException(
+        'สามารถแจ้งเลขพัสดุได้เฉพาะคำขอคืนสินค้าที่ได้รับอนุมัติแล้วเท่านั้น (Status must be APPROVED)',
+      );
+    }
+
+    await this.prisma.returnRequest.update({
+      where: { id: returnRequestId },
+      data: {
+        status: ReturnStatus.SHIPPED,
+        returnCarrier: dto.returnCarrier.trim(),
+        returnTrackingNumber: dto.returnTrackingNumber.trim(),
+        returnShippingFee:
+          dto.returnShippingFee !== undefined ? dto.returnShippingFee : null,
+        returnShippingReceiptUrl: dto.returnShippingReceiptUrl?.trim() || null,
+        shippedAt: new Date(),
+      },
+    });
+
+    // Cancel 7-day auto-void timer as customer dispatched the parcel
+    await this.orderLifecycleProducer.cancelReturnDeadline(returnRequestId);
 
     return this.getOrderByNumber(orderNumber, userId);
   }
@@ -1362,6 +1423,11 @@ export class CustomerOrdersService {
       customerNote: string | null;
       adminNote: string | null;
       status: string;
+      returnCarrier?: string | null;
+      returnTrackingNumber?: string | null;
+      returnShippingFee?: { toNumber(): number } | number | null;
+      returnShippingReceiptUrl?: string | null;
+      shippedAt?: Date | null;
       items?: Array<{
         id: string;
         orderItemId: string;
@@ -1463,6 +1529,11 @@ export class CustomerOrdersService {
       customerNote: r.customerNote ?? undefined,
       adminNote: r.adminNote ?? undefined,
       status: r.status as ReturnStatus,
+      returnCarrier: r.returnCarrier ?? undefined,
+      returnTrackingNumber: r.returnTrackingNumber ?? undefined,
+      returnShippingFee: r.returnShippingFee ? Number(r.returnShippingFee) : undefined,
+      returnShippingReceiptUrl: r.returnShippingReceiptUrl ?? undefined,
+      shippedAt: r.shippedAt?.toISOString() ?? undefined,
       items: (r.items ?? []).map((i) => ({
         id: i.id,
         orderItemId: i.orderItemId,

@@ -4,7 +4,7 @@ import { SearchInput, DropdownSelect } from '../ui';
 import { useLanguage } from '../../context/LanguageContext';
 import type { AdminReturnStatusCounts } from '@repo/types';
 
-export type ReturnFilterTab = 'ALL' | 'REQUESTED' | 'APPROVED' | 'COMPLETED' | 'REJECTED';
+export type ReturnFilterTab = 'ALL' | 'REQUESTED' | 'APPROVED' | 'SHIPPED' | 'COMPLETED' | 'REJECTED';
 
 interface ReturnFilterCardProps {
   statusFilter: ReturnFilterTab;
@@ -39,6 +39,7 @@ export const ReturnFilterCard: React.FC<ReturnFilterCardProps> = ({
     { id: 'ALL' as const, label: t('returnsPage.filterAll'), count: statusCounts.all, activeBg: 'bg-[#2B1810]', dotBg: '' },
     { id: 'REQUESTED' as const, label: t('returnsPage.filterRequested'), count: statusCounts.requested, activeBg: 'bg-amber-600', dotBg: 'bg-amber-500' },
     { id: 'APPROVED' as const, label: t('returnsPage.filterApproved'), count: statusCounts.approved, activeBg: 'bg-blue-600', dotBg: 'bg-blue-500' },
+    { id: 'SHIPPED' as const, label: t('returnsPage.filterShipped'), count: statusCounts.shipped, activeBg: 'bg-purple-700', dotBg: 'bg-purple-500' },
     { id: 'COMPLETED' as const, label: t('returnsPage.filterCompleted'), count: statusCounts.completed, activeBg: 'bg-emerald-700', dotBg: 'bg-emerald-500' },
     { id: 'REJECTED' as const, label: t('returnsPage.filterRejected'), count: statusCounts.rejected, activeBg: 'bg-stone-700', dotBg: 'bg-stone-400' },
   ];

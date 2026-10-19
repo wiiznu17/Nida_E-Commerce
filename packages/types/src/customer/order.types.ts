@@ -146,6 +146,11 @@ export interface ApiReturnRequest {
   customerNote?: string;
   adminNote?: string;
   status: ReturnStatus;
+  returnCarrier?: string;
+  returnTrackingNumber?: string;
+  returnShippingFee?: number;
+  returnShippingReceiptUrl?: string;
+  shippedAt?: string;
   items: ApiReturnItem[];
   reviewedAt?: string;
   reviewedBy?: string;
@@ -159,6 +164,13 @@ export interface CreateReturnRequestDto {
     orderItemId: string;
     quantity: number;
   }[];
+}
+
+export interface SubmitReturnShipmentDto {
+  returnCarrier: string;
+  returnTrackingNumber: string;
+  returnShippingFee?: number;
+  returnShippingReceiptUrl?: string;
 }
 
 // --- Refund Summary ---
@@ -258,6 +270,7 @@ export interface AdminReturnStatusCounts {
   all: number;
   requested: number;
   approved: number;
+  shipped: number;
   completed: number;
   rejected: number;
 }

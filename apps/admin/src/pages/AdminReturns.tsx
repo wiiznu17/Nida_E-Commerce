@@ -28,6 +28,7 @@ export default function AdminReturns() {
     all: 0,
     requested: 0,
     approved: 0,
+    shipped: 0,
     completed: 0,
     rejected: 0,
   });
@@ -116,8 +117,28 @@ export default function AdminReturns() {
   };
 
   const handleOpenInspect = (req: ApiReturnRequestWithOrder) => {
-    const max = req.order?.totalAmount ?? 0;
-    setInspectModal({ id: req.id, maxAmount: max, amount: max.toString(), adminNote: '', restock: true });
+    const itemsTotal = req.items.reduce(
+      (sum, item) => sum + (item.unitPrice ?? 0) * item.quantity,
+      0,
+    );
+    const shippingFee = req.returnShippingFee ?? 0;
+    const defaultRefund = itemsTotal + shippingFee;
+    const max = req.order?.totalAmount
+      ? req.order.totalAmount + shippingFee
+      : defaultRefund;
+
+    setInspectModal({
+      id: req.id,
+      requestNumber: req.requestNumber,
+      carrier: req.returnCarrier,
+      trackingNumber: req.returnTrackingNumber,
+      shippingFee: req.returnShippingFee,
+      receiptUrl: req.returnShippingReceiptUrl,
+      maxAmount: max,
+      amount: defaultRefund.toString(),
+      adminNote: '',
+      restock: true,
+    });
   };
 
   const handleConfirmInspect = async () => {

@@ -1252,6 +1252,7 @@ export class OrdersService {
       all: totalCount,
       requested: statusMap['REQUESTED'] ?? 0,
       approved: statusMap['APPROVED'] ?? 0,
+      shipped: statusMap['SHIPPED'] ?? 0,
       completed: statusMap['COMPLETED'] ?? 0,
       rejected: statusMap['REJECTED'] ?? 0,
     };
@@ -1266,6 +1267,11 @@ export class OrdersService {
         customerNote: r.customerNote ?? undefined,
         adminNote: r.adminNote ?? undefined,
         status: r.status as ReturnStatus,
+        returnCarrier: r.returnCarrier ?? undefined,
+        returnTrackingNumber: r.returnTrackingNumber ?? undefined,
+        returnShippingFee: r.returnShippingFee ? Number(r.returnShippingFee) : undefined,
+        returnShippingReceiptUrl: r.returnShippingReceiptUrl ?? undefined,
+        shippedAt: r.shippedAt?.toISOString(),
         reviewedAt: r.reviewedAt?.toISOString(),
         reviewedBy: r.reviewedBy ?? undefined,
         createdAt: r.createdAt.toISOString(),
@@ -1313,6 +1319,9 @@ export class OrdersService {
       include: {
         order: {
           include: { payment: true },
+        },
+        items: {
+          include: { orderItem: true },
         },
       },
     });
@@ -1370,10 +1379,19 @@ export class OrdersService {
 
     await this.orderLifecycleProducer.cancelReturnDeadline(requestId);
 
+    const itemsTotal = (request.items ?? []).reduce(
+      (sum, item) => sum + Number(item.orderItem?.unitPrice ?? 0) * item.quantity,
+      0,
+    );
+    const shippingFee = request.returnShippingFee
+      ? Number(request.returnShippingFee)
+      : 0;
+    const finalRefundAmount = dto.refundAmount ?? (itemsTotal + shippingFee);
+
     await this.processRefund(
       request.orderId,
       {
-        amount: dto.refundAmount,
+        amount: finalRefundAmount,
         reason: `ตรวจรับสินค้าคืน: ${request.reason}`,
         restockInventory: dto.restockInventory ?? true,
       },

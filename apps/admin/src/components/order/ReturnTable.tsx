@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCw, Clock } from 'lucide-react';
+import { RotateCw, Clock, Truck } from 'lucide-react';
 import {
   TableContainer,
   Table,
@@ -44,6 +44,13 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
           <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             <span>{t('returnsPage.filterApproved')}</span>
+          </span>
+        );
+      case 'SHIPPED':
+        return (
+          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+            <span>{t('returnsPage.filterShipped')}</span>
           </span>
         );
       case 'COMPLETED':
@@ -125,7 +132,19 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
                   </div>
                 </TableCell>
                 <TableCell>
-                  {req.status === 'APPROVED' && req.reviewedAt ? (
+                  {req.status === 'SHIPPED' && req.returnTrackingNumber ? (
+                    <div className="space-y-0.5">
+                      <div className="inline-flex items-center space-x-1 text-[11px] font-bold text-purple-900 bg-purple-50 px-2 py-0.5 rounded-xs border border-purple-200">
+                        <Truck size={11} className="text-purple-700 shrink-0" />
+                        <span className="font-mono">{req.returnCarrier}: {req.returnTrackingNumber}</span>
+                      </div>
+                      {req.returnShippingFee !== undefined && req.returnShippingFee > 0 && (
+                        <div className="text-[10px] text-emerald-700 font-bold font-mono">
+                          Claim: {formatPrice(req.returnShippingFee)}
+                        </div>
+                      )}
+                    </div>
+                  ) : req.status === 'APPROVED' && req.reviewedAt ? (
                     <div className="inline-flex items-center space-x-1 text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-xs border border-blue-200">
                       <Clock size={11} />
                       <span>{formatReturnDeadlineRemaining(req.reviewedAt, language)}</span>
@@ -145,7 +164,7 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
                       {t('returnsPage.reviewBtn')}
                     </button>
                   )}
-                  {req.status === 'APPROVED' && (
+                  {(req.status === 'APPROVED' || req.status === 'SHIPPED') && (
                     <button
                       type="button"
                       onClick={() => onInspect(req)}

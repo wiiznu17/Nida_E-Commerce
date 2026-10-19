@@ -7,6 +7,7 @@ import {
   ValidateNested,
   IsUUID,
   IsInt,
+  IsNumber,
   Min,
   ArrayMinSize,
 } from 'class-validator';
@@ -14,6 +15,7 @@ import { Type } from 'class-transformer';
 import type {
   CreateCancellationRequestDto,
   CreateReturnRequestDto,
+  SubmitReturnShipmentDto,
 } from '@repo/types';
 
 export class CustomerCreateCancellationDto
@@ -82,3 +84,40 @@ export class CustomerCreateReturnDto implements CreateReturnRequestDto {
   @Type(() => CustomerReturnItemDto)
   items!: CustomerReturnItemDto[];
 }
+
+export class CustomerSubmitReturnShipmentDto implements SubmitReturnShipmentDto {
+  @ApiProperty({
+    description: 'ชื่อบริษัทขนส่งที่ใช้ส่งพัสดุคืน',
+    example: 'Flash Express',
+  })
+  @IsString()
+  @IsNotEmpty()
+  returnCarrier!: string;
+
+  @ApiProperty({
+    description: 'หมายเลขติดตามพัสดุส่งคืน',
+    example: 'TH0123456789',
+  })
+  @IsString()
+  @IsNotEmpty()
+  returnTrackingNumber!: string;
+
+  @ApiPropertyOptional({
+    description: 'ค่าบริการจัดส่งที่ลูกค้าชำระไป (กรณีแบรนด์รับผิดชอบค่าส่ง)',
+    example: 45,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  returnShippingFee?: number;
+
+  @ApiPropertyOptional({
+    description: 'URL รูปใบเสร็จหรือสลิปค่าจัดส่ง',
+    example: 'https://res.cloudinary.com/.../receipt.jpg',
+  })
+  @IsOptional()
+  @IsString()
+  returnShippingReceiptUrl?: string;
+}
+

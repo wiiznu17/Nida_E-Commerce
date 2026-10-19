@@ -19,6 +19,7 @@ export interface DropdownSelectProps<T extends string = string> {
   size?: 'sm' | 'md';
   variant?: 'outline' | 'ghost' | 'pill';
   className?: string;
+  buttonClassName?: string;
   menuClassName?: string;
 }
 
@@ -32,6 +33,7 @@ export function DropdownSelect<T extends string = string>({
   size = 'md',
   variant = 'outline',
   className,
+  buttonClassName,
   menuClassName,
 }: DropdownSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
@@ -81,8 +83,17 @@ export function DropdownSelect<T extends string = string>({
     pill: 'border border-gray-200 bg-white text-brand-brown rounded-full hover:border-brand-brown',
   };
 
+  const isFullWidth = className?.includes('w-full');
+
   return (
-    <div className={cn('relative inline-block text-left', className)} ref={containerRef}>
+    <div
+      className={cn(
+        'relative text-left',
+        isFullWidth ? 'block w-full' : 'inline-block',
+        className,
+      )}
+      ref={containerRef}
+    >
       <button
         type="button"
         disabled={disabled}
@@ -93,6 +104,8 @@ export function DropdownSelect<T extends string = string>({
           'inline-flex items-center justify-between gap-1.5 font-bold tracking-wider uppercase rounded-xs transition-colors cursor-pointer select-none outline-none',
           sizeStyles[size],
           variantStyles[variant],
+          isFullWidth && 'w-full',
+          buttonClassName,
           disabled && 'opacity-50 cursor-not-allowed',
         )}
       >
@@ -117,7 +130,8 @@ export function DropdownSelect<T extends string = string>({
         <div
           role="listbox"
           className={cn(
-            'absolute right-0 mt-1 min-w-[12rem] bg-white border border-brand-border shadow-xl rounded-xs py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150',
+            'absolute mt-1 min-w-[12rem] bg-white border border-brand-border shadow-xl rounded-xs py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150 max-h-60 overflow-y-auto',
+            isFullWidth ? 'w-full left-0 right-0' : 'right-0',
             menuClassName,
           )}
         >

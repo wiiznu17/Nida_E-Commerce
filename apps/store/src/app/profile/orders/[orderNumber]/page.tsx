@@ -156,7 +156,11 @@ export default function CustomerOrderDetailPage() {
             />
           )}
           {order.returnRequests && order.returnRequests.length > 0 && (
-            <CustomerOrderReturnCard order={order} />
+            <CustomerOrderReturnCard
+              order={order}
+              onOrderUpdate={(updated) => setOrder(updated)}
+              showToast={showToast}
+            />
           )}
           <CustomerOrderItemsCard order={order} />
         </div>

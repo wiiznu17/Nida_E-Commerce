@@ -76,9 +76,10 @@ enum RefundStatus {
 
 enum ReturnStatus {
   REQUESTED          // ลูกค้าแจ้งเรื่องขอคืนสินค้า
-  APPROVED           // แอดมินอนุมัติคำขอ
+  APPROVED           // แอดมินอนุมัติคำขอ (รอลูกค้าส่งสินค้าคืน)
+  SHIPPED            // ลูกค้าจัดส่งสินค้าแล้ว (อยู่ระหว่างเดินทางไปคลัง)
   REJECTED           // แอดมินปฏิเสธคำขอ
-  COMPLETED          // จัดการเสร็จสิ้น (คืนเงิน/ปิดเคส)
+  COMPLETED          // จัดการเสร็จสิ้น (ตรวจรับสินค้า คืนเงินและปิดเคส)
 }
 
 enum CancellationRequestStatus {
@@ -537,24 +538,29 @@ model ShipmentLog {
 // ====================================================
 
 model ReturnRequest {
-  id            String       @id @default(uuid()) @db.Uuid
-  requestNumber String       @unique @map("request_number") @db.VarChar(50)
-  orderId       String       @map("order_id") @db.Uuid
-  userId        String       @map("user_id") @db.Uuid
-  reason        String       @db.VarChar(255)     // เหตุผลที่ขอคืน
-  customerNote  String?      @map("customer_note") @db.Text
-  adminNote     String?      @map("admin_note") @db.Text
-  status        ReturnStatus @default(REQUESTED)  // REQUESTED, APPROVED, REJECTED, COMPLETED
-  reviewedAt    DateTime?    @map("reviewed_at")
-  reviewedBy    String?      @map("reviewed_by") @db.Uuid
+  id                        String       @id @default(uuid()) @db.Uuid
+  requestNumber             String       @unique @map("request_number") @db.VarChar(50)
+  orderId                   String       @map("order_id") @db.Uuid
+  userId                    String       @map("user_id") @db.Uuid
+  reason                    String       @db.VarChar(255)     // เหตุผลที่ขอคืน
+  customerNote              String?      @map("customer_note") @db.Text
+  adminNote                 String?      @map("admin_note") @db.Text
+  status                    ReturnStatus @default(REQUESTED)  // REQUESTED, APPROVED, SHIPPED, REJECTED, COMPLETED
+  returnCarrier             String?      @map("return_carrier") @db.VarChar(100)
+  returnTrackingNumber      String?      @map("return_tracking_number") @db.VarChar(100)
+  returnShippingFee         Decimal?     @map("return_shipping_fee") @db.Decimal(10, 2)
+  returnShippingReceiptUrl  String?      @map("return_shipping_receipt_url") @db.Text
+  shippedAt                 DateTime?    @map("shipped_at")
+  reviewedAt                DateTime?    @map("reviewed_at")
+  reviewedBy                String?      @map("reviewed_by") @db.Uuid
 
-  order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reviewer      AdminUser?   @relation(fields: [reviewedBy], references: [id], onDelete: SetNull)
-  items         ReturnItem[]
+  order                     Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user                      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewer                  AdminUser?   @relation(fields: [reviewedBy], references: [id], onDelete: SetNull)
+  items                     ReturnItem[]
 
-  createdAt     DateTime     @default(now()) @map("created_at")
-  updatedAt     DateTime     @updatedAt @map("updated_at")
+  createdAt                 DateTime     @default(now()) @map("created_at")
+  updatedAt                 DateTime     @updatedAt @map("updated_at")
 
   @@index([userId, status])
   @@index([orderId])

@@ -5,6 +5,7 @@ import type {
   PaymentMethod,
   CreateCancellationRequestDto,
   CreateReturnRequestDto,
+  SubmitReturnShipmentDto,
 } from '@repo/types';
 
 export interface CreateCustomerOrderPayload {
@@ -199,6 +200,22 @@ export const orderRequester = {
   ): Promise<ApiOrder> => {
     return apiClient.post<ApiOrder>(
       `/orders/${encodeURIComponent(orderNumber)}/return-request`,
+      payload,
+      token,
+    );
+  },
+
+  /**
+   * Submit return shipment details (courier, tracking, shipping fee, receipt).
+   */
+  submitReturnShipment: async (
+    orderNumber: string,
+    returnRequestId: string,
+    payload: SubmitReturnShipmentDto,
+    token?: string | null,
+  ): Promise<ApiOrder> => {
+    return apiClient.post<ApiOrder>(
+      `/orders/${encodeURIComponent(orderNumber)}/returns/${encodeURIComponent(returnRequestId)}/shipment`,
       payload,
       token,
     );

@@ -611,7 +611,11 @@
       "reviewModalTitle": "ตรวจสอบคำขอคืนสินค้า",
       "rejectNoteLabel": "เหตุผลในการปฏิเสธคำขอคืน *",
       "approveDeadlineHint": "เมื่ออนุมัติ ลูกค้าจะมีเวลา 7 วันในการจัดส่งพัสดุกลับมายังร้านค้า",
-      "attachedImages": "รูปภาพประกอบจากลูกค้า"
+      "attachedImages": "รูปภาพประกอบจากลูกค้า",
+      "inspectCarrierLabel": "ผู้ให้บริการขนส่งส่งคืน",
+      "inspectTrackingLabel": "หมายเลขพัสดุส่งคืน",
+      "inspectShippingFeeClaim": "ค่าจัดส่งที่ขอเบิกคืน",
+      "inspectReceiptSlip": "สลิป/ใบเสร็จค่าส่ง"
     }
   },
   "cancellationsPage": {
@@ -642,6 +646,7 @@
     "filterAll": "ทั้งหมด",
     "filterRequested": "ยื่นเรื่องขอคืน",
     "filterApproved": "อนุมัติส่งคืน",
+    "filterShipped": "กำลังจัดส่งคืน",
     "filterCompleted": "เสร็จสิ้น",
     "filterRejected": "ปฏิเสธแล้ว",
     "searchPlaceholder": "ค้นหารหัสคำขอคืน, เลขออเดอร์, อีเมล หรือชื่อลูกค้า...",

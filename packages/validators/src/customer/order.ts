@@ -63,3 +63,34 @@ export const createReturnRequestSchema = z.object({
 export type CreateReturnRequestInput = z.infer<
   typeof createReturnRequestSchema
 >;
+
+/**
+ * Customer Return Shipment Submission Schema
+ */
+export const submitReturnShipmentSchema = z.object({
+  returnCarrier: z
+    .string()
+    .trim()
+    .min(1, { message: 'Carrier name is required' })
+    .max(100),
+  returnTrackingNumber: z
+    .string()
+    .trim()
+    .min(1, { message: 'Tracking number is required' })
+    .max(100),
+  returnShippingFee: z
+    .number()
+    .min(0, { message: 'Shipping fee must be 0 or greater' })
+    .optional(),
+  returnShippingReceiptUrl: z
+    .string()
+    .trim()
+    .url({ message: 'Invalid receipt URL format' })
+    .optional()
+    .or(z.literal('')),
+});
+
+export type SubmitReturnShipmentInput = z.infer<
+  typeof submitReturnShipmentSchema
+>;
+

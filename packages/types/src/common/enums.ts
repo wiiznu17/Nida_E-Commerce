@@ -115,6 +115,7 @@ export type PointChangeType =
 export const ReturnStatus = {
   REQUESTED: 'REQUESTED',
   APPROVED: 'APPROVED',
+  SHIPPED: 'SHIPPED',
   REJECTED: 'REJECTED',
   COMPLETED: 'COMPLETED',
 } as const;

@@ -611,7 +611,11 @@
       "reviewModalTitle": "Review Return Request",
       "rejectNoteLabel": "Rejection Reason *",
       "approveDeadlineHint": "Once approved, the customer will have 7 days to dispatch the return shipment.",
-      "attachedImages": "Attached Photos from Customer"
+      "attachedImages": "Attached Photos from Customer",
+      "inspectCarrierLabel": "Return Courier",
+      "inspectTrackingLabel": "Return Tracking Number",
+      "inspectShippingFeeClaim": "Shipping Fee Claim",
+      "inspectReceiptSlip": "Receipt / Shipping Slip"
     }
   },
   "cancellationsPage": {
@@ -642,6 +646,7 @@
     "filterAll": "All",
     "filterRequested": "Requested",
     "filterApproved": "Approved to Ship",
+    "filterShipped": "In Transit",
     "filterCompleted": "Completed",
     "filterRejected": "Rejected",
     "searchPlaceholder": "Search return #, order #, email, or customer name...",

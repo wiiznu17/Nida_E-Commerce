@@ -6,6 +6,7 @@ import {
   PaymentStatus,
   PaymentMethod,
   StockChangeType,
+  ReturnStatus,
 } from '@repo/types';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
@@ -35,6 +36,7 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
     orderCancellationRequest: { create: ReturnType<typeof vi.fn> };
     returnRequest: {
       create: ReturnType<typeof vi.fn>;
+      update: ReturnType<typeof vi.fn>;
       findFirst: ReturnType<typeof vi.fn>;
     };
     payment: { create: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
@@ -116,7 +118,11 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       orderCancellationRequest: {
         create: vi.fn().mockResolvedValue({ id: 'can-req-1', status: 'PENDING' }),
       },
-      returnRequest: { create: vi.fn(), findFirst: vi.fn().mockResolvedValue(null) },
+      returnRequest: {
+        create: vi.fn(),
+        update: vi.fn(),
+        findFirst: vi.fn().mockResolvedValue(null),
+      },
       payment: {
         create: vi.fn().mockResolvedValue({ id: 'pay-new' }),
         update: vi.fn().mockResolvedValue({ id: 'pay-upd' }),
@@ -918,6 +924,131 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           'usr-1',
         ),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('submits return shipment details, updates status to SHIPPED, and cancels 7-day void deadline', async () => {
+      const mockApprovedOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-SHIP-RET',
+        userId: 'usr-1',
+        status: OrderStatus.DELIVERED,
+        returnRequests: [
+          {
+            id: 'ret-approved-1',
+            requestNumber: 'RET-20261017-001',
+            orderId: 'ord-uuid-1',
+            userId: 'usr-1',
+            status: ReturnStatus.APPROVED,
+            reason: 'สินค้าชำรุด มีตำหนิ',
+            items: [],
+            createdAt: new Date(),
+          },
+        ],
+      });
+
+      prismaMock.order.findUnique
+        .mockResolvedValueOnce(mockApprovedOrder)
+        .mockResolvedValueOnce({
+          ...mockApprovedOrder,
+          returnRequests: [
+            {
+              ...mockApprovedOrder.returnRequests[0],
+              status: ReturnStatus.SHIPPED,
+              returnCarrier: 'Flash Express',
+              returnTrackingNumber: 'TH0998877665',
+              returnShippingFee: 45,
+            },
+          ],
+        });
+
+      prismaMock.returnRequest.update.mockResolvedValueOnce({
+        id: 'ret-approved-1',
+        status: ReturnStatus.SHIPPED,
+      });
+
+      const result = await service.submitReturnShipment(
+        'NIDA-20261017-SHIP-RET',
+        'ret-approved-1',
+        {
+          returnCarrier: 'Flash Express',
+          returnTrackingNumber: 'TH0998877665',
+          returnShippingFee: 45,
+          returnShippingReceiptUrl: 'https://example.com/receipt.jpg',
+        },
+        'usr-1',
+      );
+
+      expect(prismaMock.returnRequest.update).toHaveBeenCalledWith({
+        where: { id: 'ret-approved-1' },
+        data: expect.objectContaining({
+          status: ReturnStatus.SHIPPED,
+          returnCarrier: 'Flash Express',
+          returnTrackingNumber: 'TH0998877665',
+          returnShippingFee: 45,
+          returnShippingReceiptUrl: 'https://example.com/receipt.jpg',
+        }),
+      });
+
+      expect(
+        orderLifecycleProducerMock.cancelReturnDeadline,
+      ).toHaveBeenCalledWith('ret-approved-1');
+      expect(result.returnRequests?.[0].status).toBe(ReturnStatus.SHIPPED);
+    });
+
+    it('rejects return shipment submission if return request is not APPROVED', async () => {
+      const mockPendingOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-NOT-APPROVED',
+        userId: 'usr-1',
+        status: OrderStatus.DELIVERED,
+        returnRequests: [
+          {
+            id: 'ret-pending-1',
+            requestNumber: 'RET-20261017-002',
+            orderId: 'ord-uuid-1',
+            userId: 'usr-1',
+            status: ReturnStatus.REQUESTED,
+            reason: 'Size too big',
+            items: [],
+            createdAt: new Date(),
+          },
+        ],
+      });
+
+      prismaMock.order.findUnique.mockResolvedValueOnce(mockPendingOrder);
+
+      await expect(
+        service.submitReturnShipment(
+          'NIDA-20261017-NOT-APPROVED',
+          'ret-pending-1',
+          {
+            returnCarrier: 'Kerry Express',
+            returnTrackingNumber: 'KEX123456',
+          },
+          'usr-1',
+        ),
+      ).rejects.toThrow(
+        'สามารถแจ้งเลขพัสดุได้เฉพาะคำขอคืนสินค้าที่ได้รับอนุมัติแล้วเท่านั้น (Status must be APPROVED)',
+      );
+    });
+
+    it('blocks order delivery acceptance if return request is in SHIPPED status', async () => {
+      const mockShippedOrder = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-HAS-SHIPPED-RET',
+        userId: 'usr-1',
+        status: OrderStatus.DELIVERED,
+      });
+
+      prismaMock.order.findUnique.mockResolvedValueOnce(mockShippedOrder);
+      prismaMock.returnRequest.findFirst.mockResolvedValueOnce({
+        id: 'ret-shipped-1',
+        orderId: mockShippedOrder.id,
+        status: ReturnStatus.SHIPPED,
+      });
+
+      await expect(
+        service.acceptOrder('NIDA-20261017-HAS-SHIPPED-RET', 'usr-1'),
+      ).rejects.toThrow(
+        'ไม่สามารถกดยอมรับสินค้าได้เนื่องจากมีคำขอคืนสินค้าอยู่ระหว่างดำเนินการ',
+      );
     });
   });
 });

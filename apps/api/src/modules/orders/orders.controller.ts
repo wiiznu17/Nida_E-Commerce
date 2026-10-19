@@ -21,6 +21,7 @@ import { CreateCustomerOrderDto } from './dto/create-customer-order.dto.js';
 import {
   CustomerCreateCancellationDto,
   CustomerCreateReturnDto,
+  CustomerSubmitReturnShipmentDto,
 } from './dto/customer-order-requests.dto.js';
 import {
   CustomerJwtGuard,
@@ -211,6 +212,26 @@ export class CustomerOrdersController {
   ): Promise<ApiOrder> {
     const userId = req.user?.id;
     return this.ordersService.requestReturn(orderNumber, dto, userId);
+  }
+
+  @Post(':orderNumber/returns/:returnRequestId/shipment')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({ summary: 'Customer submits return shipment tracking & courier info' })
+  @ApiResponse({ status: 200, description: 'Return shipment tracking recorded' })
+  @ApiResponse({ status: 400, description: 'Return request not approved or invalid tracking' })
+  async submitReturnShipment(
+    @Param('orderNumber') orderNumber: string,
+    @Param('returnRequestId') returnRequestId: string,
+    @Body() dto: CustomerSubmitReturnShipmentDto,
+    @Request() req: AuthenticatedCustomerRequest,
+  ): Promise<ApiOrder> {
+    const userId = req.user?.id;
+    return this.ordersService.submitReturnShipment(
+      orderNumber,
+      returnRequestId,
+      dto,
+      userId,
+    );
   }
 
   @Post(':orderNumber/accept')
