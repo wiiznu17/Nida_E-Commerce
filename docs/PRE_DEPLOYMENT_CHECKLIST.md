@@ -41,32 +41,36 @@
 
 ## 2. ระบบฐานข้อมูลและการจัดการ Schema (Database & Migrations)
 
-- [ ] **ห้ามใช้ `prisma db push` บน Production**
-  - ใช้เฉพาะคำสั่ง Migration ที่ผ่านการทดสอบแล้ว:
+- [x] **ห้ามใช้ `prisma db push` บน Production**
+  - เพิ่ม Script ใน `packages/database/package.json`:
     ```bash
-    npm --prefix packages/database run prisma:migrate:deploy
+    npm --prefix packages/database run db:migrate:deploy
     ```
-- [ ] **ตั้งค่า Connection Pooler (สำคัญมากสำหรับ Free/Serverless Tier)**
-  - ผู้ให้บริการ PostgreSQL ฟรี (เช่น Supabase, Neon) มีขีดจำกัด Connection พร้อมกันต่ำ (เช่น 10-20 connections)
-  - ต้องเชื่อมต่อผ่าน Connection Pooler (PgBouncer หรือ Prisma Data Proxy) โดยใช้ `connection_limit=10` หรือ `pgbouncer=true` ใน `DATABASE_URL`
-- [ ] **รัน Seed ข้อมูลระบบที่จำเป็น (Initial System Seed)**
-  - รันคำสั่ง Seed เพื่อสร้าง:
-    1. Roles & Granular Permissions พื้นฐาน
-    2. บัญชี Super Admin แรกเริ่มสำหรับเข้าระบบ (บังคับเปลี่ยนรหัสผ่านทันทีหลังล็อกอินครั้งแรก)
+- [x] **ตั้งค่า Connection Pooler (สำคัญมากสำหรับ Free/Serverless Tier)**
+  - กำหนด `directUrl = env("DIRECT_URL")` ใน `schema.prisma` และ `prisma.config.ts` เรียบร้อยแล้ว
+  - รองรับ Transaction Pooler (`DATABASE_URL` พอร์ต 6543) สำหรับ Runtime และ Direct Connection (`DIRECT_URL` พอร์ต 5432) สำหรับ Migrations
+  - ปรับปรุง `PrismaService` ทั้งใน `apps/api` และ `apps/admin-api` ให้ใช้ Production-friendly logging
+- [x] **รัน Seed ข้อมูลระบบที่จำเป็น (Initial System Seed)**
+  - สร้าง Script Idempotent Safe Seed สำหรับ Production:
+    ```bash
+    npm --prefix packages/database run db:seed:prod
+    ```
+  - ทำการ Upsert:
+    1. Roles & Granular Permissions พื้นฐาน (ผ่าน `syncRbac`)
+    2. บัญชี Super Admin แรกเริ่ม (สร้างเฉพาะเมื่อยังไม่มีในระบบ)
     3. หมวดหมู่สินค้าหลัก (Departments, Categories, Sub-Categories)
+    4. **ไม่มีคำสั่ง deleteMany ข้อมูลเดิมเด็ดขาด**
 
 ---
 
 ## 3. ระบบจัดเก็บไฟล์รูปภาพ (Cloud Storage & Assets)
 
-- [ ] **ย้ายโฟลเดอร์ Local Uploads ขึ้น Cloud Storage**
-  - ปัจจุบัน `apps/admin-api/uploads/` เก็บไฟล์ไว้ในเครื่อง Server โลคอล ซึ่งบน Cloud Free Tier (เช่น Render, Railway, Vercel) ไฟล์จะหายไปทันทีเมื่อ Server Restart หรือ Redeploy (Ephemeral Filesystem)
-  - สิ่งที่ต้องต่อบริการจริง:
-    - รูปภาพสินค้าและ Cover Colors
-    - รูปภาพ CMS Banners
-    - รูปภาพสลิปชำระเงินโอนบัญชี (Bank Transfer Receipts)
-    - ใบเสร็จค่าจัดส่งพัสดุคืนของลูกค้า (Return Shipping Receipts)
-  - **ผู้ให้บริการฟรีที่แนะนำ**: Cloudinary (ฟรี 25GB/เดือน), Supabase Storage (ฟรี 1GB), หรือ Cloudflare R2 (ฟรี 10GB/เดือน ไม่มีค่า Egress Transfer)
+- [x] **ย้ายโฟลเดอร์ Local Uploads ขึ้น Cloud Storage**
+  - ปรับปรุง `UploadService` ใน `apps/admin-api` เชื่อมต่อ Cloudinary REST API โดยตรง
+  - รองรับทั้ง `CLOUDINARY_URL` (`cloudinary://key:secret@cloud_name`) หรือแยกตัวแปร `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+  - มี Production Fail-Fast Guard: ปฏิเสธการอัปโหลดทันทีหาก Cloudinary ไม่พร้อมบน Production เพื่อป้องกันรูปหายจาก Ephemeral Filesystem
+  - ตรวจสอบความปลอดภัยของไฟล์ (MIME types: JPG, PNG, WebP, AVIF, SVG และจำกัดขนาดไม่เกิน 10MB)
+  - มี Unit Tests ทดสอบครบ 9 กรณี (ผ่าน 100%)
 
 ---
 

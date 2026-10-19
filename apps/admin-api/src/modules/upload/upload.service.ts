@@ -50,12 +50,33 @@ export class UploadService implements OnModuleInit {
     ).unref();
   }
 
+  private readonly allowedMimeTypes = new Set([
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/avif',
+    'image/svg+xml',
+  ]);
+  private readonly maxFileSizeBytes = 10 * 1024 * 1024; // 10MB limit
+
   async uploadImage(
     file: UploadedFileDto,
     subFolder: string = 'products',
   ): Promise<UploadResult> {
-    if (!file) {
-      throw new BadRequestException('No file provided');
+    if (!file || !file.buffer) {
+      throw new BadRequestException('No file provided or file buffer is empty');
+    }
+
+    if (!this.allowedMimeTypes.has(file.mimetype)) {
+      throw new BadRequestException(
+        `Invalid file format: ${file.mimetype}. Allowed formats: JPG, PNG, WebP, AVIF, SVG`,
+      );
+    }
+
+    if (file.size > this.maxFileSizeBytes) {
+      throw new BadRequestException(
+        `File size exceeds 10MB limit (provided: ${(file.size / (1024 * 1024)).toFixed(2)}MB)`,
+      );
     }
 
     const cleanFolder = subFolder
@@ -63,6 +84,7 @@ export class UploadService implements OnModuleInit {
       .replace(/[^a-zA-Z0-9_\-]/g, '')
       .toLowerCase();
     const targetFolder = cleanFolder.length > 0 ? cleanFolder : 'products';
+    const isProd = process.env.NODE_ENV === 'production';
 
     const cloudinaryConfig = this.resolveCloudinaryConfig();
     if (cloudinaryConfig) {
@@ -80,10 +102,21 @@ export class UploadService implements OnModuleInit {
       } catch (err: unknown) {
         const errMsg = err instanceof Error ? err.message : String(err);
         this.logger.error(`Cloudinary upload failed: ${errMsg}`);
+
+        if (isProd) {
+          throw new BadRequestException(
+            `Cloud storage upload failed: ${errMsg}. Local storage fallback is prohibited in production.`,
+          );
+        }
       }
     } else {
+      if (isProd) {
+        throw new BadRequestException(
+          'Cloud storage (Cloudinary) is not configured in production environment. Local storage fallback is prohibited in production.',
+        );
+      }
       this.logger.warn(
-        'Cloudinary credentials not configured in apps/admin-api/.env. Falling back to local storage.',
+        'Cloudinary credentials not configured in apps/admin-api/.env. Falling back to local storage (Development only).',
       );
     }
 
@@ -119,8 +152,11 @@ export class UploadService implements OnModuleInit {
   }
 
   private buildLocalUrl(subFolder: string, filename: string): string {
-    const port = process.env.PORT ?? 4000;
-    return `http://localhost:${port}/uploads/${subFolder}/${filename}`;
+    const baseUrl =
+      process.env.API_PUBLIC_URL ??
+      process.env.SERVER_BASE_URL ??
+      `http://localhost:${process.env.PORT ?? 4000}`;
+    return `${baseUrl.replace(/\/+$/, '')}/uploads/${subFolder}/${filename}`;
   }
 
   private async uploadToCloudinaryApi(
