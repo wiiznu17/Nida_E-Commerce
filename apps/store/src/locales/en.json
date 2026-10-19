@@ -429,7 +429,10 @@
     "addToBag": "ADD TO BAG",
     "remove": "Remove",
     "clearAll": "Clear Wishlist",
-    "itemRemoved": "Removed from wishlist"
+    "itemRemoved": "Removed from wishlist",
+    "loginRequiredTitle": "SIGN IN TO VIEW YOUR WISHLIST",
+    "loginRequiredDesc": "Sign in to save and access your favorite pieces seamlessly across all your devices.",
+    "signInBtn": "Sign In / Register"
   },
   "addressBook": {
     "title": "Saved Addresses",

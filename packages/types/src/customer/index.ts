@@ -3,3 +3,4 @@ export * from './user.types.js';
 export * from './catalog.types.js';
 export * from './order.types.js';
 export * from './cart.types.js';
+export * from './wishlist.types.js';

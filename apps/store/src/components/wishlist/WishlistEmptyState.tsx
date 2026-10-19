@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Heart, SlidersHorizontal } from 'lucide-react';
+import { Heart, SlidersHorizontal, Lock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { EmptyState } from '@/components/ui';
 import type { WishlistEmptyStateProps } from './wishlistTypes';
@@ -9,8 +9,29 @@ import type { WishlistEmptyStateProps } from './wishlistTypes';
 export function WishlistEmptyState({
   isFiltered,
   onClearFilters,
+  isUnauthenticated = false,
 }: WishlistEmptyStateProps) {
   const { language, t } = useLanguage();
+
+  if (isUnauthenticated) {
+    return (
+      <EmptyState
+        variant="card"
+        icon={Lock}
+        title={t('wishlistPage.loginRequiredTitle')}
+        description={t('wishlistPage.loginRequiredDesc')}
+        action={{
+          label: t('wishlistPage.signInBtn'),
+          href: '/login?redirect=/wishlist',
+        }}
+        secondaryAction={{
+          label: t('wishlistPage.exploreCatalog'),
+          href: '/collections/women',
+        }}
+        className="max-w-xl mx-auto py-16"
+      />
+    );
+  }
 
   if (isFiltered) {
     return (
@@ -44,7 +65,7 @@ export function WishlistEmptyState({
       description={t('wishlistPage.emptyDesc')}
       action={{
         label: t('wishlistPage.exploreCatalog'),
-        href: '/search',
+        href: '/collections/women',
       }}
       className="max-w-xl mx-auto py-16"
     />
