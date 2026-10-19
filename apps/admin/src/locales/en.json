@@ -596,6 +596,7 @@
       "status": {
         "REQUESTED": "Return Requested",
         "APPROVED": "Approved for Return",
+        "SHIPPED": "Return Parcel Shipped",
         "REJECTED": "Return Rejected",
         "COMPLETED": "Inspected & Refunded"
       },
@@ -615,7 +616,16 @@
       "inspectCarrierLabel": "Return Courier",
       "inspectTrackingLabel": "Return Tracking Number",
       "inspectShippingFeeClaim": "Shipping Fee Claim",
-      "inspectReceiptSlip": "Receipt / Shipping Slip"
+      "inspectReceiptSlip": "Receipt / Shipping Slip",
+      "shipmentDetailsTitle": "Customer Return Shipment Details",
+      "carrierLabel": "Courier Service",
+      "trackingLabel": "Return Tracking Number",
+      "shippedDateLabel": "Return Shipped Date",
+      "shippingFeeLabel": "Shipping Reimbursement",
+      "receiptSlipLabel": "Shipping Receipt Slip",
+      "viewReceiptSlip": "View Courier Slip",
+      "waitingForCustomerShipment": "Waiting for customer to dispatch return parcel",
+      "parcelDeliveredForInspection": "Return tracking submitted. Ready for inspection and refund."
     }
   },
   "cancellationsPage": {
@@ -662,7 +672,9 @@
     "emptyTitle": "No return requests found",
     "emptySubtitle": "Try adjusting your search terms or status filters",
     "reviewBtn": "Review Request",
-    "inspectBtn": "Inspect & Refund"
+    "inspectBtn": "Inspect & Refund",
+    "viewOrderBtn": "View Order",
+    "waitingShipmentTooltip": "Cannot inspect yet. Waiting for customer to submit return tracking."
   },
   "promotions": {
     "title": "Promotions & Coupon Codes",

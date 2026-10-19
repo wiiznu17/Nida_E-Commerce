@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
-import { RotateCw, CheckCircle2, XCircle, Clock, PackageCheck } from 'lucide-react';
+import {
+  RotateCw,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  PackageCheck,
+  Truck,
+  ExternalLink,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { orderRequester } from '../../api/requester/orderRequester';
+import { formatOrderDateTime, formatPrice } from '../../utils';
 import {
   OrderReturnInspectModal,
   type ReturnInspectModalData,
@@ -19,7 +28,7 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
   onReviewed,
   onShowToast,
 }) => {
-  const { t, isTh } = useLanguage();
+  const { t, isTh, language } = useLanguage();
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [inspectModal, setInspectModal] =
     useState<ReturnInspectModalData | null>(null);
@@ -105,15 +114,19 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
                     ? 'bg-amber-100 text-amber-800 border border-amber-300'
                     : req.status === 'APPROVED'
                       ? 'bg-blue-100 text-blue-800 border border-blue-300'
-                      : req.status === 'COMPLETED'
-                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                        : 'bg-rose-100 text-rose-800 border border-rose-300'
+                      : req.status === 'SHIPPED'
+                        ? 'bg-purple-100 text-purple-800 border border-purple-300'
+                        : req.status === 'COMPLETED'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : 'bg-rose-100 text-rose-800 border border-rose-300'
                 }`}
               >
                 {req.status === 'REQUESTED' ? (
                   <Clock className="w-3 h-3 mr-1" />
                 ) : req.status === 'APPROVED' ? (
                   <PackageCheck className="w-3 h-3 mr-1" />
+                ) : req.status === 'SHIPPED' ? (
+                  <Truck className="w-3 h-3 mr-1" />
                 ) : req.status === 'COMPLETED' ? (
                   <CheckCircle2 className="w-3 h-3 mr-1" />
                 ) : (
@@ -136,7 +149,7 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
                     {t('orders.return.customerNote')}:
                   </span>
                   <span className="text-stone-700 italic">
-                    {req.customerNote}
+                    "{req.customerNote}"
                   </span>
                 </div>
               )}
@@ -169,14 +182,71 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
               </div>
             )}
 
-            {/* Action Bar based on state */}
-            {req.status === 'APPROVED' && (
-              <div className="flex items-center space-x-1.5 text-[11px] text-blue-800 bg-blue-50 px-2.5 py-1.5 rounded-xs border border-blue-200">
-                <Clock className="w-3.5 h-3.5 flex-shrink-0 text-blue-600" />
-                <span>{t('orders.return.shipmentDeadline')}</span>
+            {/* Return Shipment Details Card (if submitted by customer) */}
+            {req.returnTrackingNumber && (
+              <div className="pt-2 border-t border-brand-border/40 text-xs space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-purple-900 flex items-center space-x-1.5">
+                  <Truck size={13} className="text-purple-700" />
+                  <span>{t('orders.return.shipmentDetailsTitle')}</span>
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-white p-3 border border-brand-border/60 rounded-xs">
+                  <div>
+                    <span className="block text-[10px] text-stone-400 font-bold uppercase">
+                      {t('orders.return.carrierLabel')}
+                    </span>
+                    <span className="font-semibold text-stone-800 text-xs">
+                      {req.returnCarrier || '-'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] text-stone-400 font-bold uppercase">
+                      {t('orders.return.trackingLabel')}
+                    </span>
+                    <span className="font-mono font-bold text-stone-900 text-xs">
+                      {req.returnTrackingNumber}
+                    </span>
+                  </div>
+                  {req.shippedAt && (
+                    <div>
+                      <span className="block text-[10px] text-stone-400 font-bold uppercase">
+                        {t('orders.return.shippedDateLabel')}
+                      </span>
+                      <span className="font-mono text-stone-700 text-[11px]">
+                        {formatOrderDateTime(req.shippedAt, language)}
+                      </span>
+                    </div>
+                  )}
+                  {req.returnShippingFee !== undefined && req.returnShippingFee > 0 && (
+                    <div>
+                      <span className="block text-[10px] text-stone-400 font-bold uppercase">
+                        {t('orders.return.shippingFeeLabel')}
+                      </span>
+                      <span className="font-mono font-bold text-emerald-700 text-xs">
+                        {formatPrice(req.returnShippingFee)}
+                      </span>
+                    </div>
+                  )}
+                  {req.returnShippingReceiptUrl && (
+                    <div className="col-span-2">
+                      <span className="block text-[10px] text-stone-400 font-bold uppercase mb-0.5">
+                        {t('orders.return.receiptSlipLabel')}
+                      </span>
+                      <a
+                        href={req.returnShippingReceiptUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-brand-brown hover:underline inline-flex items-center space-x-1"
+                      >
+                        <ExternalLink size={12} />
+                        <span>{t('orders.return.viewReceiptSlip')}</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
+            {/* Action Bar based on state */}
             {req.status === 'REQUESTED' && (
               <div className="pt-2 border-t border-brand-border/60 flex justify-end space-x-2">
                 <button
@@ -198,20 +268,52 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
               </div>
             )}
 
-            {req.status === 'APPROVED' && (
-              <div className="pt-2 border-t border-brand-border/60 flex justify-end space-x-2">
+            {(req.status === 'APPROVED' || req.status === 'SHIPPED') && (
+              <div className="pt-2 border-t border-brand-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                {req.status === 'APPROVED' && !req.returnTrackingNumber ? (
+                  <div className="flex items-center space-x-1.5 text-[11px] text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-xs border border-amber-200">
+                    <Clock className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+                    <span>{t('orders.return.waitingForCustomerShipment')}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-1.5 text-[11px] text-purple-900 bg-purple-50 px-2.5 py-1.5 rounded-xs border border-purple-200">
+                    <Truck className="w-3.5 h-3.5 shrink-0 text-purple-700" />
+                    <span>{t('orders.return.parcelDeliveredForInspection')}</span>
+                  </div>
+                )}
+
                 <button
                   type="button"
+                  disabled={req.status !== 'SHIPPED' || !req.returnTrackingNumber}
                   onClick={() =>
                     setInspectModal({
                       id: req.id,
                       maxAmount: order.totalAmount,
-                      amount: order.totalAmount.toString(),
+                      amount: (
+                        order.totalAmount +
+                        (req.returnShippingFee ? Number(req.returnShippingFee) : 0)
+                      ).toString(),
                       adminNote: '',
                       restock: true,
+                      shippingFee:
+                        req.returnShippingFee !== undefined
+                          ? Number(req.returnShippingFee)
+                          : undefined,
+                      receiptUrl: req.returnShippingReceiptUrl,
+                      carrier: req.returnCarrier,
+                      trackingNumber: req.returnTrackingNumber,
                     })
                   }
-                  className="px-3 py-1.5 bg-emerald-700 text-white hover:bg-emerald-800 text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-1 cursor-pointer"
+                  className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-1 shadow-2xs whitespace-nowrap ${
+                    req.status === 'SHIPPED' && req.returnTrackingNumber
+                      ? 'bg-emerald-700 text-white hover:bg-emerald-800 cursor-pointer'
+                      : 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'
+                  }`}
+                  title={
+                    req.status !== 'SHIPPED' || !req.returnTrackingNumber
+                      ? t('orders.return.waitingForCustomerShipment')
+                      : undefined
+                  }
                 >
                   <PackageCheck className="w-3.5 h-3.5" />
                   <span>{t('orders.return.inspectAndRefundButton')}</span>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCw, Clock, Truck } from 'lucide-react';
+import { RotateCw, Clock, Truck, ExternalLink } from 'lucide-react';
 import {
   TableContainer,
   Table,
@@ -83,7 +83,7 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
             <TableHead className="w-[20%] min-w-[160px]">{t('returnsPage.table.items')}</TableHead>
             <TableHead className="w-[12%] min-w-[110px]">{t('returnsPage.table.shipment')}</TableHead>
             <TableHead className="w-[10%] min-w-[100px] text-center">{t('returnsPage.table.status')}</TableHead>
-            <TableHead className="w-[12%] min-w-[110px] text-right">{t('returnsPage.table.action')}</TableHead>
+            <TableHead className="w-[16%] min-w-[170px] text-right">{t('returnsPage.table.action')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -105,7 +105,7 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
                   <div className="text-[11px] text-stone-500 font-mono mt-0.5">{formatOrderDateTime(req.createdAt, language)}</div>
                 </TableCell>
                 <TableCell>
-                  <Link to={`/admin/orders/${req.orderId}`} className="font-mono text-xs font-bold text-brand-brown hover:underline block">
+                  <Link to={`/admin/orders/${req.order?.orderNumber ?? req.orderId}`} className="font-mono text-xs font-bold text-brand-brown hover:underline block">
                     #{req.order?.orderNumber}
                   </Link>
                   <div className="text-xs font-black text-stone-900 mt-0.5">{formatPrice(req.order?.totalAmount ?? 0)}</div>
@@ -155,32 +155,44 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
                 </TableCell>
                 <TableCell className="text-center">{getStatusBadge(req.status)}</TableCell>
                 <TableCell className="text-right">
-                  {req.status === 'REQUESTED' && (
-                    <button
-                      type="button"
-                      onClick={() => onReview(req)}
-                      className="px-2.5 py-1 text-xs font-bold bg-[#2B1810] hover:bg-[#3D2317] text-white rounded-xs transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
-                    >
-                      {t('returnsPage.reviewBtn')}
-                    </button>
-                  )}
-                  {(req.status === 'APPROVED' || req.status === 'SHIPPED') && (
-                    <button
-                      type="button"
-                      onClick={() => onInspect(req)}
-                      className="px-2 py-1 text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white rounded-xs transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
-                    >
-                      {t('returnsPage.inspectBtn')}
-                    </button>
-                  )}
-                  {(req.status === 'COMPLETED' || req.status === 'REJECTED') && (
+                  <div className="flex items-center justify-end space-x-1.5">
                     <Link
-                      to={`/admin/orders/${req.orderId}`}
-                      className="text-xs font-bold text-brand-brown hover:underline inline-flex items-center"
+                      to={`/admin/orders/${req.order?.orderNumber ?? req.orderId}`}
+                      className="px-2 py-1 text-xs font-bold border border-brand-border bg-white hover:bg-stone-50 text-stone-700 rounded-xs transition-colors inline-flex items-center space-x-1 shadow-2xs whitespace-nowrap"
                     >
-                      {t('cancellationsPage.viewDetails')}
+                      <ExternalLink size={12} />
+                      <span>{t('returnsPage.viewOrderBtn')}</span>
                     </Link>
-                  )}
+
+                    {req.status === 'REQUESTED' && (
+                      <button
+                        type="button"
+                        onClick={() => onReview(req)}
+                        className="px-2.5 py-1 text-xs font-bold bg-[#2B1810] hover:bg-[#3D2317] text-white rounded-xs transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
+                      >
+                        {t('returnsPage.reviewBtn')}
+                      </button>
+                    )}
+                    {(req.status === 'APPROVED' || req.status === 'SHIPPED') && (
+                      <button
+                        type="button"
+                        disabled={req.status !== 'SHIPPED' || !req.returnTrackingNumber}
+                        onClick={() => onInspect(req)}
+                        title={
+                          req.status !== 'SHIPPED' || !req.returnTrackingNumber
+                            ? t('returnsPage.waitingShipmentTooltip')
+                            : undefined
+                        }
+                        className={`px-2 py-1 text-xs font-bold rounded-xs transition-colors shadow-2xs whitespace-nowrap ${
+                          req.status === 'SHIPPED' && req.returnTrackingNumber
+                            ? 'bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer'
+                            : 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'
+                        }`}
+                      >
+                        {t('returnsPage.inspectBtn')}
+                      </button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))

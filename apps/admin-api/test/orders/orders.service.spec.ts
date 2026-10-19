@@ -1009,10 +1009,28 @@ describe('OrdersService', () => {
       expect(res.success).toBe(true);
     });
 
-    it('completes return and executes refund on COMPLETE', async () => {
+    it('throws BadRequestException if attempting COMPLETE when return tracking has not been submitted', async () => {
       prismaMock.returnRequest.findUnique.mockResolvedValue({
         ...mockReturn,
         status: 'APPROVED',
+        returnTrackingNumber: null,
+      });
+
+      await expect(
+        service.reviewReturnRequest(
+          mockReturn.id,
+          { action: 'COMPLETE', adminNote: 'Premature inspect' },
+          'admin-001',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('completes return and executes refund on COMPLETE', async () => {
+      prismaMock.returnRequest.findUnique.mockResolvedValue({
+        ...mockReturn,
+        status: 'SHIPPED',
+        returnTrackingNumber: 'TH123456789',
+        returnCarrier: 'Flash Express',
       });
       const processRefundSpy = vi.spyOn(service, 'processRefund').mockResolvedValue({} as any);
 

@@ -259,10 +259,17 @@ export class OrdersService {
   }
 
   async getOrderByNumber(orderNumber: string): Promise<ApiOrder> {
-    const order = await this.prisma.order.findUnique({
+    let order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: ORDER_INCLUDE,
     });
+
+    if (!order) {
+      order = await this.prisma.order.findUnique({
+        where: { id: orderNumber },
+        include: ORDER_INCLUDE,
+      });
+    }
 
     if (!order) {
       throw new NotFoundException(`Order #${orderNumber} not found`);
@@ -803,6 +810,13 @@ export class OrdersService {
           customerNote: r.customerNote ?? undefined,
           adminNote: r.adminNote ?? undefined,
           status: r.status as ReturnStatus,
+          returnCarrier: r.returnCarrier ?? undefined,
+          returnTrackingNumber: r.returnTrackingNumber ?? undefined,
+          returnShippingFee: r.returnShippingFee
+            ? Number(r.returnShippingFee)
+            : undefined,
+          returnShippingReceiptUrl: r.returnShippingReceiptUrl ?? undefined,
+          shippedAt: r.shippedAt?.toISOString() ?? undefined,
           items: (r.items ?? []).map((i) => ({
             id: i.id,
             orderItemId: i.orderItemId,
@@ -1365,6 +1379,12 @@ export class OrdersService {
         ORDER_TIMEOUT_MS.RETURN_SHIPMENT_DEADLINE,
       );
       return { success: true, message: 'อนุมัติคำขอคืนสินค้า ลูกค้าสามารถส่งสินค้ากลับได้' };
+    }
+
+    if (!request.returnTrackingNumber || request.status !== 'SHIPPED') {
+      throw new BadRequestException(
+        'ไม่สามารถตรวจรับหรือคืนเงินได้ เนื่องจากลูกค้ายังไม่ได้แจ้งข้อมูลการจัดส่งสินค้าคืน',
+      );
     }
 
     await this.prisma.returnRequest.update({

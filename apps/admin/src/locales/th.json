@@ -596,6 +596,7 @@
       "status": {
         "REQUESTED": "ยื่นเรื่องขอคืนสินค้า",
         "APPROVED": "อนุมัติให้ส่งคืนได้",
+        "SHIPPED": "ลูกค้าจัดส่งคืนแล้ว",
         "REJECTED": "ปฏิเสธคำขอคืน",
         "COMPLETED": "ตรวจรับและคืนเงินแล้ว"
       },
@@ -615,7 +616,16 @@
       "inspectCarrierLabel": "ผู้ให้บริการขนส่งส่งคืน",
       "inspectTrackingLabel": "หมายเลขพัสดุส่งคืน",
       "inspectShippingFeeClaim": "ค่าจัดส่งที่ขอเบิกคืน",
-      "inspectReceiptSlip": "สลิป/ใบเสร็จค่าส่ง"
+      "inspectReceiptSlip": "สลิป/ใบเสร็จค่าส่ง",
+      "shipmentDetailsTitle": "ข้อมูลการจัดส่งสินค้าคืนจากลูกค้า",
+      "carrierLabel": "ผู้ให้บริการขนส่ง",
+      "trackingLabel": "หมายเลขพัสดุส่งคืน",
+      "shippedDateLabel": "วันที่จัดส่งคืน",
+      "shippingFeeLabel": "ค่าส่งขอเบิกคืน",
+      "receiptSlipLabel": "สลิปค่าจัดส่ง",
+      "viewReceiptSlip": "ดูสลิปขนส่ง",
+      "waitingForCustomerShipment": "รอลูกค้าส่งสินค้าคืนและแจ้งเลขพัสดุ",
+      "parcelDeliveredForInspection": "ลูกค้าแจ้งเลขพัสดุแล้ว พร้อมสำหรับการตรวจรับสภาพและคืนเงิน"
     }
   },
   "cancellationsPage": {
@@ -662,7 +672,9 @@
     "emptyTitle": "ไม่พบคำขอคืนสินค้า",
     "emptySubtitle": "ลองปรับเปลี่ยนคำค้นหาหรือตัวกรองสถานะ",
     "reviewBtn": "ตรวจสอบคำขอ",
-    "inspectBtn": "ตรวจรับ & คืนเงิน"
+    "inspectBtn": "ตรวจรับ & คืนเงิน",
+    "viewOrderBtn": "ดูออเดอร์",
+    "waitingShipmentTooltip": "ไม่สามารถตรวจรับได้เนื่องจากลูกค้ายังไม่ได้แจ้งข้อมูลการส่งคืน"
   },
   "promotions": {
     "title": "แคมเปญและโค้ดส่วนลด",

@@ -600,7 +600,9 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         id: 'ret-pass',
         orderId: baseOrderFixture.id,
         reason: 'Wrong size chosen',
-        status: 'APPROVED',
+        status: 'SHIPPED',
+        returnTrackingNumber: 'TH-RET-123456',
+        returnCarrier: 'Flash Express',
         order: {
           ...baseOrderFixture,
           status: OrderStatus.DELIVERED,
