@@ -10,7 +10,7 @@ import type { ApiAddress, CreateAddressDto, ApiOrder } from '@repo/types';
 import type { ProfileTab, ProfileFormData } from './profileTypes';
 
 export function useProfilePage() {
-  const { user, token, logout, updateProfile } = useAuth();
+  const { user, token, logout, logoutAll, updateProfile } = useAuth();
   const { language, t } = useLanguage();
   const router = useRouter();
 
@@ -89,18 +89,32 @@ export function useProfilePage() {
     }
   }, [user, router, language]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push('/');
   };
 
-  const handleSubmitProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateProfile(formData);
-    setIsEditing(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+  const handleLogoutAll = async () => {
+    await logoutAll();
+    router.push('/login');
   };
+
+  const handleSubmitProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateProfile({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+      });
+      setIsEditing(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch {
+      // Ignore update error
+    }
+  };
+
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -160,7 +174,9 @@ export function useProfilePage() {
     handleFormChange,
     handleSubmitProfile,
     handleLogout,
+    handleLogoutAll,
     orders,
+
     isOrdersLoading,
     addresses,
     isAddressesLoading,

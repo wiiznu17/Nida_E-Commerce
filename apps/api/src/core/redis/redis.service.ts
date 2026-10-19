@@ -5,6 +5,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Redis } from 'ioredis';
+import type { CustomerSessionData } from '@repo/types';
 
 interface MemoryItem {
   value: string;
@@ -23,7 +24,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client: Redis | null = null;
   private isConnected = false;
   private readonly memoryStore = new Map<string, MemoryItem>();
+  private readonly memorySets = new Map<string, Set<string>>();
   private cleanupInterval: NodeJS.Timeout | null = null;
+
 
   async onModuleInit() {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
@@ -197,6 +200,163 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return -2;
   }
 
+  async setCustomerSession(
+    sessionId: string,
+    data: CustomerSessionData,
+    ttlSeconds: number,
+  ): Promise<void> {
+    const key = `customer:refresh:${sessionId}`;
+    const payload = JSON.stringify(data);
+
+    if (this.isConnected && this.client) {
+      try {
+        await this.client.set(key, payload, 'EX', ttlSeconds);
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis setCustomerSession failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    this.memoryStore.set(key, {
+      value: payload,
+      expiresAt: Date.now() + ttlSeconds * 1000,
+    });
+  }
+
+  async getCustomerSession(
+    sessionId: string,
+  ): Promise<CustomerSessionData | null> {
+    const key = `customer:refresh:${sessionId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        const raw = await this.client.get(key);
+        if (!raw) return null;
+        return JSON.parse(raw) as CustomerSessionData;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis getCustomerSession failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    const item = this.memoryStore.get(key);
+    if (!item) return null;
+    if (Date.now() > item.expiresAt) {
+      this.memoryStore.delete(key);
+      return null;
+    }
+
+    return JSON.parse(item.value) as CustomerSessionData;
+  }
+
+  async deleteCustomerSession(sessionId: string): Promise<void> {
+    const key = `customer:refresh:${sessionId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        await this.client.del(key);
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis deleteCustomerSession failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    this.memoryStore.delete(key);
+  }
+
+  async addCustomerSession(userId: string, sessionId: string): Promise<void> {
+    const key = `customer:user_sessions:${userId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        await this.client.sadd(key, sessionId);
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis addCustomerSession failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    let set = this.memorySets.get(key);
+    if (!set) {
+      set = new Set<string>();
+      this.memorySets.set(key, set);
+    }
+    set.add(sessionId);
+  }
+
+  async removeCustomerSession(
+    userId: string,
+    sessionId: string,
+  ): Promise<void> {
+    const key = `customer:user_sessions:${userId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        await this.client.srem(key, sessionId);
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis removeCustomerSession failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    const set = this.memorySets.get(key);
+    if (set) {
+      set.delete(sessionId);
+    }
+  }
+
+  async getCustomerSessions(userId: string): Promise<string[]> {
+    const key = `customer:user_sessions:${userId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        return await this.client.smembers(key);
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis getCustomerSessions failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    const set = this.memorySets.get(key);
+    if (!set) return [];
+    return Array.from(set);
+  }
+
+  async revokeAllCustomerSessions(userId: string): Promise<void> {
+    const tokens = await this.getCustomerSessions(userId);
+    const sessionKeys = tokens.map((t) => `customer:refresh:${t}`);
+    const userSetKey = `customer:user_sessions:${userId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        const keysToDelete = [...sessionKeys, userSetKey];
+        if (keysToDelete.length > 0) {
+          await this.client.del(...keysToDelete);
+        }
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis revokeAllCustomerSessions failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    for (const key of sessionKeys) {
+      this.memoryStore.delete(key);
+    }
+    this.memorySets.delete(userSetKey);
+  }
+
   private cleanupExpiredMemoryItems() {
     const now = Date.now();
     for (const [key, item] of this.memoryStore.entries()) {
@@ -206,4 +366,5 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 }
+
 

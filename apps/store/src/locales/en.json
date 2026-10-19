@@ -406,7 +406,7 @@
     "verifyOtpSubtitle": "Enter the 6-digit code sent to",
     "resendCode": "Resend Code",
     "verifyBtn": "VERIFY & CONTINUE",
-    "demoTip": "💡 Demo Mode: Click above to auto-fill the test OTP code",
+    "demoTip": "Demo Mode: Click above to auto-fill the test OTP code",
     "profileTitle": "NIDA MEMBER ACCOUNT",
     "memberSince": "Member since: 2026",
     "tabProfile": "Profile Info",
@@ -416,7 +416,18 @@
     "saveChanges": "Save Changes",
     "cancel": "Cancel",
     "profileUpdated": "Profile updated successfully!",
-    "logout": "Sign Out"
+    "logout": "Sign Out",
+    "changeEmail": "Change Email",
+    "changeEmailTitle": "Change Account Email",
+    "changeEmailSubtitle": "An OTP code will be dispatched to your new email address to securely verify ownership.",
+    "newEmailLabel": "New Email Address *",
+    "sendOtp": "Send OTP Code",
+    "verifyAndChange": "Verify & Switch Email",
+    "emailChangeSuccess": "Email updated successfully",
+    "sessionSecurity": "Session Security",
+    "sessionSecurityDesc": "Manage authenticated access across all your devices and browsers.",
+    "signOutAllDevices": "Sign Out All Devices",
+    "signOutAllDesc": "Immediately revoke refresh tokens and sign out of all active devices and sessions."
   },
   "wishlistPage": {
     "title": "MY WISHLIST",

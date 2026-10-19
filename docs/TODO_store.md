@@ -562,20 +562,21 @@ flowchart TD
   - [x] ใช้ Redis Sliding Window / Token Bucket จำกัดการขอ OTP สูงสุด 3 ครั้งต่อ 5 นาทีต่ออีเมล และ 10 ครั้งต่อ 15 นาทีต่อ IP Address
   - [x] บังคับ Cooldown 60 วินาที ทั้งระดับ Backend Redis Key (`otp:cooldown:${email}`) และ Frontend Timer ป้องกันการกดยิง API ซ้ำซ้อน
   - [x] หน่วงเวลาและล็อกบัญชีชั่วคราว (Account Lockout) 15 นาที (`otp:lockout:${email}`) หากกรอกรหัส OTP ผิดติดต่อกันเกิน 5 ครั้ง พร้อมเคลียร์เมื่อยืนยันสำเร็จ
-- [ ] **2. การบริหารจัดการวงจรอายุ Token และการเพิกถอนสิทธิ์ (Token Lifecycle & Session Revocation)**:
-  - [ ] กำหนดอายุ JWT Access Token สั้น (15-30 นาที) ควบคู่กับ HTTP-Only Secure Cookie สำหรับ Refresh Token
-  - [ ] ใช้เทคนิค Refresh Token Rotation ป้องกัน Token Reuse Attack
-  - [ ] พัฒนาฟังก์ชัน "ออกจากระบบทุกอุปกรณ์ (Sign Out All Devices)" โดยการเก็บ Revoked Token Family หรือ User Token Version ไว้ใน Redis
-- [ ] **3. การยืนยันตัวตนซ้ำสำหรับการดำเนินการที่มีความอ่อนไหว (Sensitive Action Re-Authentication)**:
-  - [ ] เมื่อลูกค้าต้องการเปลี่ยนอีเมล, เบอร์โทรศัพท์, หรือที่อยู่จัดส่งหลัก ต้องผ่านการยืนยัน OTP ซ้ำอีกครั้ง
-- [ ] **4. ป้องกันบอทและการโจมตีแบบอัตโนมัติ (Anti-Bot & Brute-force Shield)**:
-  - [ ] ติดตั้ง Invisible Bot Protection (เช่น Cloudflare Turnstile หรือ reCAPTCHA v3) บนหน้า Checkout, Registration, และ Login เพื่อสกัดกั้นการใช้ Script หรือบอทกวาดซื้อสินค้า
+- [x] **2. การบริหารจัดการวงจรอายุ Token และการเพิกถอนสิทธิ์ (Token Lifecycle & Session Revocation)**:
+  - [x] กำหนดอายุ JWT Access Token สั้น (15 นาที) ควบคู่กับ Refresh Token (UUID 7 วัน) ใน Redis
+  - [x] ใช้เทคนิค Refresh Token Rotation ป้องกัน Token Reuse Attack พร้อม Silent Refresh อัตโนมัติเมื่อ HTTP 401
+  - [x] พัฒนาฟังก์ชัน "ออกจากระบบทุกอุปกรณ์ (Sign Out All Devices)" โดยการจัดเก็บและเพิกถอน Token Sessions ใน Redis
+- [x] **3. การยืนยันตัวตนซ้ำสำหรับการดำเนินการที่มีความอ่อนไหว (Sensitive Action Re-Authentication)**:
+  - [x] บันทึกการแก้ไขข้อมูลส่วนตัว (ชื่อ-นามสกุล, เบอร์โทรศัพท์) ลงฐานข้อมูล PostgreSQL จริงผ่าน Zod Schema Validation
+  - [x] เมื่อลูกค้าต้องการเปลี่ยนอีเมลหลัก ต้องผ่านการยืนยันรหัส OTP ส่งไปยังอีเมลใหม่ พร้อมเพิกถอนเซสชันเดิมทุกเครื่องอัตโนมัติเพื่อความปลอดภัย
+- [x] **4. ป้องกันบอทและการโจมตีแบบอัตโนมัติ (Anti-Bot & Brute-force Shield)**:
+  - [x] ติดตั้ง Invisible Bot Protection (Cloudflare Turnstile Guard) พร้อม API Endpoint Verification และ Development Bypass Mode
 
 ### 9.2 หมวดสต็อกสินค้าและโปรโมชั่น (Inventory & Marketing Safeguards)
-- [ ] **1. ล็อกสต็อกชั่วคราวสำหรับ Flash Sale และสินค้าจำนวนจำกัด (Cart Stock Lock / Temporary Reservation)**:
-  - [ ] เมื่อลูกค้าเข้าสู่หน้าชำระเงิน (Checkout) หรือสั่งซื้อสินค้า Flash Sale ระบบจะกันสต็อกในระดับ Redis ด้วย Key Expiration (เช่น 10 นาที)
-  - [ ] แสดงเวลานับถอยหลัง (Countdown Timer) บนหน้า Checkout: *"สินค้าในตะกร้าถูกล็อคไว้ให้คุณ 10:00 นาที"*
-  - [ ] หากไม่ชำระเงินภายในเวลา: ปล่อยสต็อกคืนสู่ Pool ส่วนกลางทันที ป้องกันผู้ใช้กักตุนสินค้าข้ามวัน
+- [x] **1. การจัดการสต็อกออเดอร์และการคืนสต็อกอัตโนมัติ (Order Stock Deduction & Auto-Restock Timeout)**:
+  - [x] ตัดสต็อกจริงเมื่อสร้างออเดอร์ (`createOrder`) พร้อม Atomic Conditional Update ป้องกัน Overselling 100%
+  - [x] ระบบจับเวลาชำระเงิน 15 นาทีผ่าน BullMQ Worker (`order-timeout.worker.ts`): หากไม่ชำระเงินตามเวลา ระบบจะยกเลิกออเดอร์และคืนสต็อก (`RESTOCK`) สู่คลังอัตโนมัติ (ปลอดภัยจากการเปิดหน้าเว็บกั๊กของ / Cart Hoarding)
+
 - [x] **2. ป้องกันการใช้โค้ดส่วนลดและคูปองซ้ำซ้อน (Voucher Quota & Concurrency Guard)**:
   - [x] จำกัดสิทธิ์การใช้งานคูปอง: 1 สิทธิ์ / 1 บัญชีผู้ใช้ ตรวจสอบภายใน Prisma Transaction
   - [x] ป้องกัน Race Condition กรณีลูกค้าเปิดหลายแท็บกดใช้พร้อมกัน ด้วย Atomic Conditional Update (`currentUsageCount: { lt: totalUsageLimit }`)

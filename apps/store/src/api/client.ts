@@ -3,7 +3,7 @@
  *
  * Pattern: Centralized request wrapper with base URL handling,
  * header management, JWT token injection, query parameter serialization,
- * and unified ApiError response handling.
+ * silent token refresh rotation on HTTP 401, and unified ApiError response handling.
  */
 
 export const API_BASE_URL =
@@ -24,13 +24,14 @@ export class ApiError<T = unknown> extends Error {
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
   token?: string | null;
+  _isRetry?: boolean;
 }
 
 async function request<T>(
   endpoint: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { params, headers = {}, token: explicitToken, ...rest } = options;
+  const { params, headers = {}, token: explicitToken, _isRetry, ...rest } = options;
 
   let url = endpoint.startsWith('http')
     ? endpoint
@@ -67,6 +68,56 @@ async function request<T>(
       ...rest,
       headers: defaultHeaders,
     });
+
+    // Handle silent refresh on 401 Unauthorized
+    if (
+      response.status === 401 &&
+      !_isRetry &&
+      !url.includes('/auth/refresh') &&
+      !url.includes('/auth/logout') &&
+      !url.includes('/auth/request-otp') &&
+      !url.includes('/auth/verify-otp') &&
+      typeof window !== 'undefined'
+    ) {
+      const storedRefreshToken = localStorage.getItem('nida_customer_refresh_token');
+      if (storedRefreshToken) {
+        try {
+          const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken: storedRefreshToken }),
+          });
+
+          if (refreshRes.ok) {
+            const rawJson = await refreshRes.json();
+            const unwrap =
+              rawJson && typeof rawJson === 'object' && 'data' in rawJson
+                ? (rawJson as { data: { accessToken: string; refreshToken: string } }).data
+                : (rawJson as { accessToken: string; refreshToken: string });
+
+            if (unwrap?.accessToken && unwrap?.refreshToken) {
+              localStorage.setItem('nida_customer_jwt_token', unwrap.accessToken);
+              localStorage.setItem('nida_customer_refresh_token', unwrap.refreshToken);
+
+              // Retry original request with newly rotated token
+              return await request<T>(endpoint, {
+                ...options,
+                token: unwrap.accessToken,
+                _isRetry: true,
+              });
+            }
+          }
+        } catch {
+          // Token rotation failed
+        }
+
+        // Clear session if refresh failed completely
+        localStorage.removeItem('nida_customer_jwt_token');
+        localStorage.removeItem('nida_customer_refresh_token');
+        localStorage.removeItem('nida_customer_user_cache');
+        window.dispatchEvent(new CustomEvent('nida:auth:session_expired'));
+      }
+    }
 
     const isJson = response.headers
       .get('content-type')

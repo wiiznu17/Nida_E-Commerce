@@ -26,6 +26,7 @@ export default function ProfilePage() {
     handleFormChange,
     handleSubmitProfile,
     handleLogout,
+    handleLogoutAll,
     orders,
     isOrdersLoading,
     addresses,
@@ -70,8 +71,10 @@ export default function ProfilePage() {
               onSetIsEditing={setIsEditing}
               onChange={handleFormChange}
               onSubmit={handleSubmitProfile}
+              onLogoutAll={handleLogoutAll}
             />
           )}
+
 
           {activeTab === 'orders' && (
             <ProfileOrdersTab

@@ -119,7 +119,7 @@ export function useVerifyOtp() {
     try {
       const res = await authRequester.verifyOtp(email, otpCode);
       sessionStorage.removeItem('nida_dev_otp');
-      setSession(res.accessToken, res.user);
+      setSession(res.accessToken, res.refreshToken, res.user);
 
       if (redirect && redirect.startsWith('/')) {
         router.push(redirect);

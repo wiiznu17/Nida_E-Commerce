@@ -8,6 +8,8 @@ import {
   CustomerJwtGuard,
   OptionalCustomerJwtGuard,
 } from './guards/customer-jwt.guard.js';
+import { TurnstileService } from '../../core/security/turnstile.service.js';
+
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import {
       secret:
         process.env.JWT_CUSTOMER_SECRET ??
         'nida_store_customer_jwt_secret_key_2026_luxury_apparel',
-      signOptions: { expiresIn: '7d' },
+      signOptions: { expiresIn: '900s' },
     }),
   ],
   controllers: [CustomerAuthController],
@@ -25,13 +27,16 @@ import {
     CustomerJwtStrategy,
     CustomerJwtGuard,
     OptionalCustomerJwtGuard,
+    TurnstileService,
   ],
   exports: [
     CustomerAuthService,
     CustomerJwtGuard,
     OptionalCustomerJwtGuard,
+    TurnstileService,
     PassportModule,
     JwtModule,
   ],
 })
+
 export class CustomerAuthModule {}

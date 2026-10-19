@@ -5,7 +5,9 @@ import { z } from 'zod';
  */
 export const requestOtpSchema = z.object({
   email: z.string().trim().email('Invalid email address').toLowerCase(),
+  cfTurnstileToken: z.string().trim().optional(),
 });
+
 
 export type RequestOtpInput = z.infer<typeof requestOtpSchema>;
 
@@ -35,6 +37,45 @@ export const updateCustomerProfileSchema = z.object({
 export type UpdateCustomerProfileInput = z.infer<
   typeof updateCustomerProfileSchema
 >;
+
+/**
+ * Customer Refresh Token Schema
+ */
+export const customerRefreshTokenSchema = z.object({
+  refreshToken: z.string().trim().min(1, 'Refresh token is required'),
+});
+
+export type CustomerRefreshTokenInput = z.infer<
+  typeof customerRefreshTokenSchema
+>;
+
+/**
+ * Request Email Change Schema (Sensitive Action Re-Auth)
+ */
+export const requestEmailChangeSchema = z.object({
+  newEmail: z.string().trim().email('Invalid email address').toLowerCase(),
+});
+
+export type RequestEmailChangeInput = z.infer<
+  typeof requestEmailChangeSchema
+>;
+
+/**
+ * Verify Email Change Schema (Sensitive Action Re-Auth)
+ */
+export const verifyEmailChangeSchema = z.object({
+  newEmail: z.string().trim().email('Invalid email address').toLowerCase(),
+  otpCode: z
+    .string()
+    .trim()
+    .length(6, 'OTP must be exactly 6 digits')
+    .regex(/^\d{6}$/, 'OTP must be numeric digits'),
+});
+
+export type VerifyEmailChangeInput = z.infer<
+  typeof verifyEmailChangeSchema
+>;
+
 
 /**
  * Customer Shipping / Billing Address Schema

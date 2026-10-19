@@ -26,7 +26,9 @@ export const createOrderSchema = z.object({
   paymentMethod: z.enum(['PROMPTPAY', 'CREDIT_CARD', 'BANK_TRANSFER', 'COD']),
   couponCode: z.string().optional(),
   userId: z.string().uuid().optional(),
+  cfTurnstileToken: z.string().optional(),
 });
+
 
 export type OrderItemInput = z.infer<typeof orderItemSchema>;
 export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;

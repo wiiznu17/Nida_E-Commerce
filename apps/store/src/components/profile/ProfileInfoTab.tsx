@@ -1,9 +1,12 @@
-import React from 'react';
-import { Edit3 } from 'lucide-react';
+'use client';
+
+import React, { useState } from 'react';
+import { Edit3, KeyRound, ShieldAlert, LogOut } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Alert } from '@/components/ui';
 import type { User } from '@/context/AuthContext';
 import type { ProfileFormData } from './profileTypes';
+import { EmailChangeModal } from './EmailChangeModal';
 
 interface ProfileInfoTabProps {
   user: User;
@@ -12,6 +15,7 @@ interface ProfileInfoTabProps {
   onSetIsEditing: (val: boolean) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
+  onLogoutAll?: () => void;
 }
 
 export function ProfileInfoTab({
@@ -21,8 +25,10 @@ export function ProfileInfoTab({
   onSetIsEditing,
   onChange,
   onSubmit,
+  onLogoutAll,
 }: ProfileInfoTabProps) {
   const { language, t } = useLanguage();
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
 
   return (
     <div>
@@ -87,10 +93,19 @@ export function ProfileInfoTab({
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-              {t('auth.emailLabel')} -{' '}
-              {language === 'th' ? 'ปลอดภัยด้วย OTP' : 'OTP Protected'}
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700">
+                {t('auth.emailLabel')} -{' '}
+                {language === 'th' ? 'ปลอดภัยด้วย OTP' : 'OTP Protected'}
+              </label>
+              <button
+                type="button"
+                onClick={() => setEmailModalOpen(true)}
+                className="text-[10px] font-black uppercase tracking-wider text-brand-amber hover:underline cursor-pointer"
+              >
+                {t('auth.changeEmail')}
+              </button>
+            </div>
             <input
               type="email"
               value={user.email}
@@ -99,8 +114,8 @@ export function ProfileInfoTab({
             />
             <p className="text-[10px] text-gray-400 mt-1">
               {language === 'th'
-                ? 'อีเมลผูกกับระบบ OTP เพื่อความปลอดภัยสูงสุด'
-                : 'Email linked to passwordless OTP system for maximum protection'}
+                ? 'อีเมลผูกกับระบบ OTP เพื่อความปลอดภัยสูงสุด หากต้องการเปลี่ยนให้คลิกเปลี่ยนอีเมล'
+                : 'Email linked to passwordless OTP system. Click change email to update.'}
             </p>
           </div>
 
@@ -160,10 +175,19 @@ export function ProfileInfoTab({
 
           <div className="grid grid-cols-2 gap-6 bg-brand-warm-cream p-4 border border-brand-border">
             <div>
-              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
-                {language === 'th' ? 'อีเมลยืนยันแล้ว' : 'Verified Email'}
-              </p>
-              <p className="text-sm font-bold text-brand-brown mt-0.5">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                  {language === 'th' ? 'อีเมลยืนยันแล้ว' : 'Verified Email'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setEmailModalOpen(true)}
+                  className="text-[10px] font-black uppercase tracking-wider text-brand-amber hover:underline cursor-pointer"
+                >
+                  {t('auth.changeEmail')}
+                </button>
+              </div>
+              <p className="text-sm font-bold text-brand-brown mt-0.5 truncate">
                 {user.email}
               </p>
             </div>
@@ -182,8 +206,36 @@ export function ProfileInfoTab({
               ? 'บัญชีผ่านการตรวจสอบตัวตนด้วย OTP 2 ชั้น พร้อมใช้งานสมบูรณ์'
               : 'Account authenticated via 2-factor OTP verification.'}
           </Alert>
+
+          {onLogoutAll && (
+            <div className="pt-6 border-t border-gray-200">
+              <div className="flex items-center space-x-2 mb-1">
+                <ShieldAlert size={16} className="text-brand-brown" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
+                  {t('auth.sessionSecurity')}
+                </h3>
+              </div>
+              <p className="text-[11px] text-gray-500 mb-3">
+                {t('auth.sessionSecurityDesc')}
+              </p>
+              <button
+                type="button"
+                onClick={onLogoutAll}
+                className="inline-flex items-center space-x-2 px-4 py-2 border border-red-200 text-red-700 hover:bg-red-50 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                <LogOut size={13} />
+                <span>{t('auth.signOutAllDevices')}</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
+
+      <EmailChangeModal
+        isOpen={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        currentEmail={user.email}
+      />
     </div>
   );
 }
