@@ -13,8 +13,10 @@ import { OrdersModule } from './modules/orders/orders.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { UploadModule } from './modules/upload/upload.module.js';
+import { BullModule } from '@nestjs/bullmq';
 import { AuditLogModule } from './modules/audit-log/audit-log.module.js';
 import { ContentModule } from './modules/content/content.module.js';
+import { OrderLifecycleModule } from './modules/order-lifecycle/index.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -23,6 +25,16 @@ import { AppService } from './app.service.js';
     PrismaModule,
     RedisModule,
     MailerModule,
+    BullModule.forRootAsync({
+      useFactory: () => ({
+        connection: {
+          host: process.env.REDIS_HOST ?? 'localhost',
+          port: Number(process.env.REDIS_PORT ?? 6379),
+          password: process.env.REDIS_PASSWORD ?? 'redis123',
+          maxRetriesPerRequest: null,
+        },
+      }),
+    }),
     AuthModule,
     AdminUsersModule,
     CatalogModule,
@@ -33,6 +45,7 @@ import { AppService } from './app.service.js';
     UploadModule,
     AuditLogModule,
     ContentModule,
+    OrderLifecycleModule,
   ],
   controllers: [AppController],
   providers: [

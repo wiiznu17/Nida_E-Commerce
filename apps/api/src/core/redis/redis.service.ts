@@ -27,9 +27,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    const password = process.env.REDIS_PASSWORD;
 
     try {
       this.client = new Redis(redisUrl, {
+        password: password || undefined,
         maxRetriesPerRequest: 1,
         enableReadyCheck: true,
         lazyConnect: true,

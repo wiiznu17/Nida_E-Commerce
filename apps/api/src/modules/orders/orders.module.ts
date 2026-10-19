@@ -6,8 +6,10 @@ import { PrismaModule } from '../../core/prisma/prisma.module.js';
 import { MailerModule } from '../../core/mailer/mailer.module.js';
 import { CustomerAuthModule } from '../auth/auth.module.js';
 
+import { OrderLifecycleModule } from '../order-lifecycle/index.js';
+
 @Module({
-  imports: [PrismaModule, MailerModule, CustomerAuthModule],
+  imports: [PrismaModule, MailerModule, CustomerAuthModule, OrderLifecycleModule],
   controllers: [CustomerOrdersController],
   providers: [CustomerOrdersService, OmiseService],
   exports: [CustomerOrdersService, OmiseService],
