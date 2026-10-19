@@ -14,8 +14,10 @@ import {
   OmisePaymentGatewayProvider,
 } from './payment-gateway/index.js';
 
+import { OrderLifecycleModule } from '../order-lifecycle/index.js';
+
 @Module({
-  imports: [CouponsModule],
+  imports: [CouponsModule, OrderLifecycleModule],
   controllers: [OrdersController],
   providers: [
     OrdersService,

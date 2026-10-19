@@ -10,6 +10,8 @@ import {
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
 import type { OmiseService } from '../../src/modules/orders/omise.service.js';
+import type { OrderLifecycleProducerService } from '../../src/modules/order-lifecycle/order-lifecycle-producer.service.js';
+import type { RedisService } from '../../src/core/redis/redis.service.js';
 
 describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () => {
   let service: CustomerOrdersService;
@@ -44,6 +46,19 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
     getCharge: ReturnType<typeof vi.fn>;
     simulateMarkAsPaid: ReturnType<typeof vi.fn>;
   };
+  let orderLifecycleProducerMock: {
+    scheduleOrderTimeout: ReturnType<typeof vi.fn>;
+    cancelOrderTimeout: ReturnType<typeof vi.fn>;
+    scheduleCancellationReviewTimeout: ReturnType<typeof vi.fn>;
+    cancelCancellationReviewTimeout: ReturnType<typeof vi.fn>;
+    scheduleDeliveryCompletion: ReturnType<typeof vi.fn>;
+    cancelDeliveryCompletion: ReturnType<typeof vi.fn>;
+    scheduleReturnDeadline: ReturnType<typeof vi.fn>;
+    cancelReturnDeadline: ReturnType<typeof vi.fn>;
+  };
+  let redisMock: {
+    checkRateLimit: ReturnType<typeof vi.fn>;
+  };
 
   const createMockOrderRecord = (overrides?: Record<string, unknown>) => ({
     id: 'ord-uuid-1',
@@ -59,7 +74,7 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
     currency: 'THB',
     shippingAddressSnapshot: { recipientName: 'Customer Test', phone: '0812345678' },
     promoCodeUsed: null,
-    placedAt: new Date('2026-10-17T10:00:00Z'),
+    placedAt: new Date(),
     items: [],
     payment: {
       id: 'pay-1',
@@ -95,7 +110,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
         updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       },
       stockMovement: { create: vi.fn() },
-      orderCancellationRequest: { create: vi.fn() },
+      orderCancellationRequest: {
+        create: vi.fn().mockResolvedValue({ id: 'can-req-1', status: 'PENDING' }),
+      },
       returnRequest: { create: vi.fn() },
       payment: {
         create: vi.fn().mockResolvedValue({ id: 'pay-new' }),
@@ -146,10 +163,31 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       }),
     };
 
+    orderLifecycleProducerMock = {
+      scheduleOrderTimeout: vi.fn().mockResolvedValue('job-123'),
+      cancelOrderTimeout: vi.fn().mockResolvedValue(true),
+      scheduleCancellationReviewTimeout: vi.fn().mockResolvedValue('job-456'),
+      cancelCancellationReviewTimeout: vi.fn().mockResolvedValue(true),
+      scheduleDeliveryCompletion: vi.fn().mockResolvedValue('job-789'),
+      cancelDeliveryCompletion: vi.fn().mockResolvedValue(true),
+      scheduleReturnDeadline: vi.fn().mockResolvedValue('job-101'),
+      cancelReturnDeadline: vi.fn().mockResolvedValue(true),
+    };
+
+    redisMock = {
+      checkRateLimit: vi.fn().mockResolvedValue({
+        allowed: true,
+        remaining: 1,
+        retryAfter: 2,
+      }),
+    };
+
     service = new CustomerOrdersService(
       prismaMock as unknown as PrismaService,
       mailerMock as unknown as MailerService,
       omiseMock as unknown as OmiseService,
+      orderLifecycleProducerMock as unknown as OrderLifecycleProducerService,
+      redisMock as unknown as RedisService,
     );
   });
 
@@ -440,6 +478,22 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       expect(result).toBeDefined();
     });
 
+    it('rejects payment method switch when requested within 2-second cooldown window', async () => {
+      redisMock.checkRateLimit.mockResolvedValueOnce({
+        allowed: false,
+        remaining: 0,
+        retryAfter: 2,
+      });
+
+      prismaMock.order.findUnique.mockResolvedValue(
+        createMockOrderRecord({ status: OrderStatus.PENDING }),
+      );
+
+      await expect(
+        service.updatePaymentMethod('NIDA-20261017-LIMIT', PaymentMethod.CREDIT_CARD, 'usr-1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('rejects updating payment method when order status is no longer PENDING', async () => {
       const mockOrderPaid = createMockOrderRecord({
         orderNumber: 'NIDA-20261017-ALREADYPAID',
@@ -455,6 +509,67 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           'usr-1',
         ),
       ).rejects.toThrow('สามารถเปลี่ยนวิธีชำระเงินได้เฉพาะคำสั่งซื้อที่ยังไม่ได้ชำระเงินเท่านั้น');
+    });
+
+    it('rejects payment method switch when remaining time before order timeout is 1 minute or less', async () => {
+      // Placed 14 minutes and 30 seconds ago (only 30 seconds remaining of 15m window)
+      const nearExpiredPlacedAt = new Date(Date.now() - 14.5 * 60 * 1000);
+      const mockOrderNearExpired = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-NEAR-EXP',
+        placedAt: nearExpiredPlacedAt,
+        payment: {
+          id: 'pay-near-exp',
+          paymentMethod: PaymentMethod.PROMPTPAY,
+          status: PaymentStatus.PENDING,
+          rawWebhookPayload: {},
+        },
+      });
+
+      prismaMock.order.findUnique.mockResolvedValue(mockOrderNearExpired);
+
+      await expect(
+        service.updatePaymentMethod(
+          'NIDA-20261017-NEAR-EXP',
+          PaymentMethod.CREDIT_CARD,
+          'usr-1',
+        ),
+      ).rejects.toThrow('คำสั่งซื้อนี้ใกล้หมดเวลาชำระเงินแล้ว ไม่สามารถสลับช่องทางได้ กรุณาสั่งซื้อใหม่อีกครั้ง');
+    });
+
+    it('synchronizes PromptPay QR expires_at with original placedAt + 15m and preserves queue timer without resetting', async () => {
+      const placedAt = new Date(Date.now() - 5 * 60 * 1000); // Placed 5m ago, 10m remaining
+      const expectedDeadline = new Date(placedAt.getTime() + 15 * 60 * 1000);
+
+      const mockOrderCard = createMockOrderRecord({
+        orderNumber: 'NIDA-20261017-SYNC-EXP',
+        placedAt,
+        payment: {
+          id: 'pay-sync-exp',
+          paymentMethod: PaymentMethod.CREDIT_CARD,
+          status: PaymentStatus.PENDING,
+          rawWebhookPayload: {},
+        },
+      });
+
+      prismaMock.order.findUnique
+        .mockResolvedValueOnce(mockOrderCard)
+        .mockResolvedValueOnce(mockOrderCard);
+
+      await service.updatePaymentMethod(
+        'NIDA-20261017-SYNC-EXP',
+        PaymentMethod.PROMPTPAY,
+        'usr-1',
+      );
+
+      // Verify Omise createPromptPayCharge was called with exact synchronized expiration
+      expect(omiseMock.createPromptPayCharge).toHaveBeenCalledWith(
+        'NIDA-20261017-SYNC-EXP',
+        2500,
+        expectedDeadline,
+      );
+
+      // Verify that orderLifecycleProducer.scheduleOrderTimeout was NOT called (no timer reset)
+      expect(orderLifecycleProducerMock.scheduleOrderTimeout).not.toHaveBeenCalled();
     });
   });
 

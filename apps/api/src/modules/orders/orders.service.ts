@@ -6,10 +6,13 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { MailerService } from '../../core/mailer/mailer.service.js';
+import { RedisService } from '../../core/redis/redis.service.js';
 import { OmiseService } from './omise.service.js';
+import { OrderLifecycleProducerService } from '../order-lifecycle/order-lifecycle-producer.service.js';
 import { CreateCustomerOrderDto } from './dto/create-customer-order.dto.js';
-import type {
-  ApiOrder,
+import {
+  ORDER_TIMEOUT_MS,
+  type ApiOrder,
   ApiOrderItem,
   ApiOrderAddress,
   ApiShipment,
@@ -79,6 +82,8 @@ export class CustomerOrdersService {
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
     private readonly omiseService: OmiseService,
+    private readonly orderLifecycleProducer: OrderLifecycleProducerService,
+    private readonly redisService: RedisService,
   ) {}
 
   async createOrder(
@@ -342,6 +347,10 @@ export class CustomerOrdersService {
         });
       }
 
+      const orderExpiresAt = new Date(
+        Date.now() + ORDER_TIMEOUT_MS.STOREFRONT_UNPAID,
+      );
+
       let omiseChargeId: string | undefined;
       let omiseQrUri: string | undefined;
       let omiseQrExpiresAt: string | undefined;
@@ -351,6 +360,7 @@ export class CustomerOrdersService {
           const qrResult = await this.omiseService.createPromptPayCharge(
             orderNumber,
             totalAmount,
+            orderExpiresAt,
           );
           omiseChargeId = qrResult.chargeId;
           omiseQrUri = qrResult.qrDownloadUri;
@@ -377,6 +387,12 @@ export class CustomerOrdersService {
 
       return order;
     });
+
+    await this.orderLifecycleProducer.scheduleOrderTimeout(
+      createdOrder.id,
+      createdOrder.orderNumber,
+      ORDER_TIMEOUT_MS.STOREFRONT_UNPAID,
+    );
 
     const recipientEmail = customerEmail ?? null;
     if (recipientEmail) {
@@ -491,7 +507,7 @@ export class CustomerOrdersService {
     const count = order.cancellationRequests.length;
     const requestNumber = `CAN-${order.orderNumber}-${count + 1}`;
 
-    await this.prisma.orderCancellationRequest.create({
+    const newRequest = await this.prisma.orderCancellationRequest.create({
       data: {
         requestNumber,
         orderId: order.id,
@@ -501,6 +517,13 @@ export class CustomerOrdersService {
         status: 'PENDING',
       },
     });
+
+    await this.orderLifecycleProducer.scheduleCancellationReviewTimeout(
+      order.id,
+      newRequest.id,
+      order.orderNumber,
+      ORDER_TIMEOUT_MS.CANCELLATION_REVIEW,
+    );
 
     return this.getOrderByNumber(orderNumber, userId);
   }
@@ -543,6 +566,8 @@ export class CustomerOrdersService {
         completedAt: now,
       },
     });
+
+    await this.orderLifecycleProducer.cancelDeliveryCompletion(order.id);
 
     if (order.userId) {
       const pointsToEarn = Math.floor(Number(order.totalAmount) / 100);
@@ -717,6 +742,28 @@ export class CustomerOrdersService {
       );
     }
 
+    const orderExpiresAt = new Date(
+      order.placedAt.getTime() + ORDER_TIMEOUT_MS.STOREFRONT_UNPAID,
+    );
+    const remainingMs = orderExpiresAt.getTime() - Date.now();
+
+    if (remainingMs <= 60_000) {
+      throw new BadRequestException(
+        'คำสั่งซื้อนี้ใกล้หมดเวลาชำระเงินแล้ว ไม่สามารถสลับช่องทางได้ กรุณาสั่งซื้อใหม่อีกครั้ง',
+      );
+    }
+
+    const rateLimit = await this.redisService.checkRateLimit(
+      `switch-payment:${orderNumber}`,
+      1,
+      2,
+    );
+    if (!rateLimit.allowed) {
+      throw new BadRequestException(
+        'กรุณารอ 2 วินาทีก่อนเปลี่ยนช่องทางชำระเงินอีกครั้ง (Please wait 2 seconds before switching payment method again)',
+      );
+    }
+
     if (order.payment && order.payment.paymentMethod === paymentMethod) {
       return this.getOrderByNumber(orderNumber, userId);
     }
@@ -737,6 +784,7 @@ export class CustomerOrdersService {
         const qrResult = await this.omiseService.createPromptPayCharge(
           orderNumber,
           Number(order.totalAmount),
+          orderExpiresAt,
         );
         newQrUri = qrResult.qrDownloadUri;
         newExpiresAt = qrResult.expiresAt;
@@ -879,6 +927,8 @@ export class CustomerOrdersService {
           });
         });
 
+        await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
+
         const updatedOrder = await this.getOrderByNumber(orderNumber, userId);
         return { order: updatedOrder };
       }
@@ -886,6 +936,15 @@ export class CustomerOrdersService {
 
     // PromptPay Refresh/Creation
     if (targetMethod === PaymentMethod.PROMPTPAY) {
+      const orderExpiresAt = new Date(
+        order.placedAt.getTime() + ORDER_TIMEOUT_MS.STOREFRONT_UNPAID,
+      );
+      if (Date.now() >= orderExpiresAt.getTime()) {
+        throw new BadRequestException(
+          'คำสั่งซื้อนี้หมดเวลาชำระเงินแล้ว กรุณาสั่งซื้อใหม่อีกครั้ง',
+        );
+      }
+
       let qrDownloadUri: string | undefined;
       let expiresAt: string | undefined;
 
@@ -893,6 +952,7 @@ export class CustomerOrdersService {
         const qrResult = await this.omiseService.createPromptPayCharge(
           orderNumber,
           Number(order.totalAmount),
+          orderExpiresAt,
         );
         qrDownloadUri = qrResult.qrDownloadUri;
         expiresAt = qrResult.expiresAt;
@@ -980,6 +1040,8 @@ export class CustomerOrdersService {
             data: { status: nextStatus },
           });
         });
+
+        await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
       } else if (charge.status === 'failed') {
         if (order.payment) {
           await this.prisma.payment.update({
@@ -1054,6 +1116,8 @@ export class CustomerOrdersService {
       });
     });
 
+    await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
+
     return this.getOrderByNumber(orderNumber, userId);
   }
 
@@ -1097,6 +1161,8 @@ export class CustomerOrdersService {
                 data: { status: nextStatus },
               });
             });
+
+            await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
           } else if (status === 'failed' && order.payment) {
             const rawMeta =
               (order.payment.rawWebhookPayload as Record<string, unknown> | null) ?? {};

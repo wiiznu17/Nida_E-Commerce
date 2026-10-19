@@ -34,13 +34,15 @@ import { validateOrderStatusTransition } from '@repo/validators';
 import { CarrierMockService } from './carrier/index.js';
 import { LogisticsService } from './logistics/index.js';
 import { PaymentGatewayService } from './payment-gateway/index.js';
-import type {
-  ProcessRefundDto,
-  ReviewCancellationRequestDto,
-  ReviewReturnRequestDto,
-  ApiOrderCancellationRequest,
-  ApiReturnRequest,
-  ApiRefundSummary,
+import { OrderLifecycleProducerService } from '../order-lifecycle/order-lifecycle-producer.service.js';
+import {
+  ORDER_TIMEOUT_MS,
+  type ProcessRefundDto,
+  type ReviewCancellationRequestDto,
+  type ReviewReturnRequestDto,
+  type ApiOrderCancellationRequest,
+  type ApiReturnRequest,
+  type ApiRefundSummary,
 } from '@repo/types';
 
 const ORDER_INCLUDE = {
@@ -79,6 +81,7 @@ export class OrdersService {
     private readonly carrierMockService: CarrierMockService,
     private readonly logisticsService: LogisticsService,
     private readonly paymentGatewayService: PaymentGatewayService,
+    private readonly orderLifecycleProducer: OrderLifecycleProducerService,
   ) {}
 
   async createOrder(dto: CreateOrderDto): Promise<ApiOrder> {
@@ -251,6 +254,14 @@ export class OrdersService {
 
     if (!order) {
       throw new NotFoundException(`Order #${orderNumber} not found`);
+    }
+
+    if (order.status === OrderStatus.PENDING) {
+      await this.orderLifecycleProducer.scheduleOrderTimeout(
+        order.id,
+        order.orderNumber,
+        ORDER_TIMEOUT_MS.ADMIN_MANUAL_DRAFT,
+      );
     }
 
     return this.mapOrder(order as unknown as OrderDetailPayload);
@@ -434,6 +445,18 @@ export class OrdersService {
         },
       });
     });
+
+    if (status === OrderStatus.DELIVERED) {
+      await this.orderLifecycleProducer.scheduleDeliveryCompletion(
+        existing.id,
+        existing.orderNumber,
+        ORDER_TIMEOUT_MS.DELIVERY_COMPLETION,
+      );
+    } else if (status === OrderStatus.COMPLETED) {
+      await this.orderLifecycleProducer.cancelDeliveryCompletion(existing.id);
+    } else if (status === OrderStatus.CANCELLED) {
+      await this.orderLifecycleProducer.cancelOrderTimeout(existing.id);
+    }
 
     return this.mapOrder(updated as unknown as OrderDetailPayload);
   }
@@ -893,6 +916,7 @@ export class OrdersService {
           reviewedBy: adminId ?? null,
         },
       });
+      await this.orderLifecycleProducer.cancelCancellationReviewTimeout(requestId);
       return { success: true, message: 'ปฏิเสธคำขอยกเลิกเรียบร้อย' };
     }
 
@@ -905,6 +929,8 @@ export class OrdersService {
         reviewedBy: adminId ?? null,
       },
     });
+
+    await this.orderLifecycleProducer.cancelCancellationReviewTimeout(requestId);
 
     await this.processRefund(
       request.orderId,
@@ -981,6 +1007,7 @@ export class OrdersService {
           reviewedBy: adminId ?? null,
         },
       });
+      await this.orderLifecycleProducer.cancelReturnDeadline(requestId);
       return { success: true, message: 'ปฏิเสธคำขอคืนสินค้าเรียบร้อย' };
     }
 
@@ -994,6 +1021,12 @@ export class OrdersService {
           reviewedBy: adminId ?? null,
         },
       });
+      await this.orderLifecycleProducer.scheduleReturnDeadline(
+        request.orderId,
+        request.id,
+        request.order.orderNumber,
+        ORDER_TIMEOUT_MS.RETURN_SHIPMENT_DEADLINE,
+      );
       return { success: true, message: 'อนุมัติคำขอคืนสินค้า ลูกค้าสามารถส่งสินค้ากลับได้' };
     }
 
@@ -1006,6 +1039,8 @@ export class OrdersService {
         reviewedBy: adminId ?? null,
       },
     });
+
+    await this.orderLifecycleProducer.cancelReturnDeadline(requestId);
 
     await this.processRefund(
       request.orderId,

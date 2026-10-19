@@ -65,6 +65,7 @@ export class OmiseService {
   async createPromptPayCharge(
     orderNumber: string,
     amountThb: number,
+    expiresAt?: Date | string,
   ): Promise<OmisePromptPayChargeResult> {
     if (!this.secretKey) {
       throw new BadRequestException('Omise secret key is not configured');
@@ -72,7 +73,6 @@ export class OmiseService {
 
     const satangs = Math.round(amountThb * 100);
 
-    // 1. Create PromptPay source
     const sourceRes = await fetch(`${this.apiBase}/sources`, {
       method: 'POST',
       headers: {
@@ -98,7 +98,12 @@ export class OmiseService {
 
     const sourceData = (await sourceRes.json()) as { id: string };
 
-    // 2. Create Charge with the Source
+    const expirationIso = expiresAt
+      ? typeof expiresAt === 'string'
+        ? expiresAt
+        : expiresAt.toISOString()
+      : new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
     const chargeRes = await fetch(`${this.apiBase}/charges`, {
       method: 'POST',
       headers: {
@@ -110,7 +115,7 @@ export class OmiseService {
         currency: 'thb',
         source: sourceData.id,
         'metadata[orderNumber]': orderNumber,
-        expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+        expires_at: expirationIso,
       }).toString(),
     });
 
@@ -238,5 +243,39 @@ export class OmiseService {
     }
 
     return (await res.json()) as OmiseChargeData;
+  }
+
+  /**
+   * Process refund for a charge through Omise.
+   */
+  async createRefund(
+    chargeId: string,
+    amountThb?: number,
+  ): Promise<{ id: string }> {
+    if (!this.secretKey) {
+      throw new BadRequestException('Omise secret key is not configured');
+    }
+
+    const payload: Record<string, unknown> = {};
+    if (amountThb !== undefined) {
+      payload.amount = Math.round(amountThb * 100);
+    }
+
+    const res = await fetch(`${this.apiBase}/charges/${chargeId}/refunds`, {
+      method: 'POST',
+      headers: {
+        Authorization: this.authHeader,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = (await res.json().catch(() => ({}))) as { message?: string };
+      this.logger.error(`Omise refund error: ${err.message ?? 'Unknown error'}`);
+      throw new BadRequestException(err.message ?? 'Cannot process refund via Omise');
+    }
+
+    return (await res.json()) as { id: string };
   }
 }

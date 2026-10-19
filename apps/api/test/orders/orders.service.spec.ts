@@ -5,6 +5,8 @@ import { OrderStatus, ReturnStatus, PaymentMethod } from '@repo/database';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
 import type { OmiseService } from '../../src/modules/orders/omise.service.js';
+import type { OrderLifecycleProducerService } from '../../src/modules/order-lifecycle/order-lifecycle-producer.service.js';
+import type { RedisService } from '../../src/core/redis/redis.service.js';
 
 describe('CustomerOrdersService', () => {
   let service: CustomerOrdersService;
@@ -70,10 +72,31 @@ describe('CustomerOrdersService', () => {
       }),
     };
 
+    const orderLifecycleProducerMock = {
+      scheduleOrderTimeout: vi.fn().mockResolvedValue('job-123'),
+      cancelOrderTimeout: vi.fn().mockResolvedValue(true),
+      scheduleCancellationReviewTimeout: vi.fn().mockResolvedValue('job-456'),
+      cancelCancellationReviewTimeout: vi.fn().mockResolvedValue(true),
+      scheduleDeliveryCompletion: vi.fn().mockResolvedValue('job-789'),
+      cancelDeliveryCompletion: vi.fn().mockResolvedValue(true),
+      scheduleReturnDeadline: vi.fn().mockResolvedValue('job-101'),
+      cancelReturnDeadline: vi.fn().mockResolvedValue(true),
+    };
+
+    const redisMock = {
+      checkRateLimit: vi.fn().mockResolvedValue({
+        allowed: true,
+        remaining: 1,
+        retryAfter: 2,
+      }),
+    };
+
     service = new CustomerOrdersService(
-      prismaMock as PrismaService,
-      mailerMock as MailerService,
+      prismaMock as unknown as PrismaService,
+      mailerMock as unknown as MailerService,
       omiseMock as unknown as OmiseService,
+      orderLifecycleProducerMock as unknown as OrderLifecycleProducerService,
+      redisMock as unknown as RedisService,
     );
   });
 
@@ -527,7 +550,7 @@ describe('CustomerOrdersService', () => {
       currency: 'THB',
       shippingAddressSnapshot: { recipientName: 'Phannida', phone: '0812345678' },
       promoCodeUsed: null,
-      placedAt: new Date('2026-10-14T10:00:00Z'),
+      placedAt: new Date(),
       items: [],
       payment: {
         id: 'pay-1',
@@ -608,7 +631,7 @@ describe('CustomerOrdersService', () => {
       currency: 'THB',
       shippingAddressSnapshot: { recipientName: 'Phannida', phone: '0812345678' },
       promoCodeUsed: null,
-      placedAt: new Date('2026-10-14T10:00:00Z'),
+      placedAt: new Date(),
       items: [],
       payment: {
         id: 'pay-1',

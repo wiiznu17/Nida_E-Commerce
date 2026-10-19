@@ -46,8 +46,9 @@ export interface VoidExpiredReturnJobData {
 }
 
 export const ORDER_TIMEOUT_MS = {
-  PROMPTPAY: 15 * 60 * 1000, // 15 mins
-  CREDIT_CARD: 30 * 60 * 1000, // 30 mins
+  STOREFRONT_UNPAID: 15 * 60 * 1000, // 15 mins (Universal timeout for all storefront orders)
+  PROMPTPAY: 15 * 60 * 1000, // 15 mins (synced with Order timeout)
+  CREDIT_CARD: 15 * 60 * 1000, // 15 mins (synced with PromptPay)
   ADMIN_MANUAL_DRAFT: 24 * 60 * 60 * 1000, // 24 hours
   CANCELLATION_REVIEW: 48 * 60 * 60 * 1000, // 48 hours
   DELIVERY_COMPLETION: 5 * 24 * 60 * 60 * 1000, // 5 days (120 hours)

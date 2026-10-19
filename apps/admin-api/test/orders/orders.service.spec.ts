@@ -9,6 +9,7 @@ import {
   InternalLogisticsProvider,
   ShippopLogisticsProvider,
 } from '../../src/modules/orders/logistics/index.js';
+import type { OrderLifecycleProducerService } from '../../src/modules/order-lifecycle/order-lifecycle-producer.service.js';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -99,12 +100,24 @@ describe('OrdersService', () => {
       }),
     };
 
+    const orderLifecycleProducerMock = {
+      scheduleOrderTimeout: vi.fn().mockResolvedValue('job-123'),
+      cancelOrderTimeout: vi.fn().mockResolvedValue(true),
+      scheduleCancellationReviewTimeout: vi.fn().mockResolvedValue('job-456'),
+      cancelCancellationReviewTimeout: vi.fn().mockResolvedValue(true),
+      scheduleDeliveryCompletion: vi.fn().mockResolvedValue('job-789'),
+      cancelDeliveryCompletion: vi.fn().mockResolvedValue(true),
+      scheduleReturnDeadline: vi.fn().mockResolvedValue('job-101'),
+      cancelReturnDeadline: vi.fn().mockResolvedValue(true),
+    };
+
     service = new OrdersService(
       prismaMock,
       couponsServiceMock,
       carrierMockService,
       logisticsService,
       paymentGatewayServiceMock,
+      orderLifecycleProducerMock as unknown as OrderLifecycleProducerService,
     );
   });
 
