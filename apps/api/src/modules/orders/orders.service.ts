@@ -1191,9 +1191,12 @@ export class CustomerOrdersService {
     orderNumber: string,
     userId?: string,
   ): Promise<ApiOrder> {
-    if (process.env.NODE_ENV === 'production') {
+    const isTestKey = process.env.OMISE_SECRET_KEY?.startsWith('skey_test_');
+    const allowSimulation = process.env.ALLOW_PAYMENT_SIMULATION === 'true' || isTestKey;
+
+    if (process.env.NODE_ENV === 'production' && !allowSimulation) {
       throw new ForbiddenException(
-        'Payment simulation is strictly disabled in production environment',
+        'Payment simulation is strictly disabled in production environment with live keys',
       );
     }
 
