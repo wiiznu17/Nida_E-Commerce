@@ -14,7 +14,8 @@
     "db:migrate:status": "prisma migrate status"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.3"
+    "@prisma/client": "^6.19.3",
+    "dotenv": "^18.0.8"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",
