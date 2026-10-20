@@ -230,9 +230,8 @@ sequenceDiagram
 อัปเดตไฟล์ `packages/types/src/auth.types.ts`:
 
 ```ts
-// ====================================================
+
 // RBAC & PERMISSION CONSTANTS & TYPES
-// ====================================================
 
 export enum AdminRoleCode {
   SUPER_ADMIN = 'SUPER_ADMIN',
@@ -273,9 +272,7 @@ export interface ApiAdminUser {
   createdAt: string;
 }
 
-// ====================================================
 // AUTH REQUEST & RESPONSE PAYLOADS
-// ====================================================
 
 export interface AdminLoginResponse {
   accessToken: string;
@@ -311,9 +308,7 @@ export interface RedisSessionData {
   userAgent?: string;
 }
 
-// ====================================================
 // INVITATION & PASSWORD LIFECYCLE DTO & RESPONSES
-// ====================================================
 
 export interface InviteAdminDto {
   fullName: string;

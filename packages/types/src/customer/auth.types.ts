@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Customer Auth & OTP Types (Storefront)
-// ====================================================
 
 import type { ApiUser } from './user.types.js';
 

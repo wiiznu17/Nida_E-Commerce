@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/validators — Admin CMS & Content Schemas
-// ====================================================
 
 import { z } from 'zod';
 import { BannerPlacement } from '@repo/types';

@@ -111,9 +111,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  // ====================================================
   // REFRESH TOKEN SESSION MANAGEMENT
-  // ====================================================
 
   async setSession(
     tokenId: string,
@@ -182,9 +180,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.memoryStore.delete(key);
   }
 
-  // ====================================================
   // USER MULTI-DEVICE SESSION TRACKING
-  // ====================================================
 
   async addSessionToUser(adminId: string, tokenId: string): Promise<void> {
     const key = `admin:user_sessions:${adminId}`;
@@ -271,9 +267,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.memorySets.delete(userSetKey);
   }
 
-  // ====================================================
   // INVITATION ONE-TIME TOKENS
-  // ====================================================
 
   async setInviteToken(
     token: string,
@@ -342,9 +336,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.memoryStore.delete(key);
   }
 
-  // ====================================================
   // PASSWORD RESET ONE-TIME TOKENS
-  // ====================================================
 
   async setResetToken(
     token: string,
@@ -413,9 +405,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.memoryStore.delete(key);
   }
 
-  // ====================================================
   // BRUTE-FORCE RATE LIMITING
-  // ====================================================
 
   async checkRateLimit(
     key: string,

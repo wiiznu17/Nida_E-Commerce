@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/validators — Root Barrel Export
-// ====================================================
 
 // Admin Validation Domain
 export * as adminValidators from './admin/index.js';

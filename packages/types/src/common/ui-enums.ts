@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Application & UI Enums (Non-Prisma)
-// ====================================================
 // Enums and query options used in UI, API queries, and storage
 // that do not have a dedicated enum in Prisma schema.
 

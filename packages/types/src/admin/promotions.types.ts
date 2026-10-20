@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Admin Coupon & Promotions Types
-// ====================================================
 
 import type { DiscountType, MembershipTier } from '../common/enums.js';
 

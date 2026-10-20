@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Root Barrel Export
-// ====================================================
 
 // Common / Universal Foundations
 export * from './common/index.js';

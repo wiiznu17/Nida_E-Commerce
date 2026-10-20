@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Prisma Database Schema Enums
-// ====================================================
 // 100% matched with packages/database/prisma/schema.prisma
 // Uses `as const` object + type union pattern for 100% compatibility
 // with Prisma 7 generated enums and string literals.

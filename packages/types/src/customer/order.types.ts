@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Customer Order & Tracking Types (Storefront)
-// ====================================================
 
 import type {
   CancellationRequestStatus,

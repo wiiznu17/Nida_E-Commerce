@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Admin Inventory Types
-// ====================================================
 
 import type { Department, StockChangeType } from '../common/enums.js';
 

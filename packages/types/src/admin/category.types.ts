@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Admin Category Management Types
-// ====================================================
 
 import type { Department } from '../common/enums.js';
 

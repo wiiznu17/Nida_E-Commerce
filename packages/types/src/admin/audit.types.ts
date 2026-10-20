@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Admin Audit Log Types
-// ====================================================
 
 import type { AuditActionType } from '../common/enums.js';
 

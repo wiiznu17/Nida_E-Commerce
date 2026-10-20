@@ -1,6 +1,4 @@
-// ====================================================
 // Order Lifecycle Queue Constants & Job Payloads
-// ====================================================
 
 export const OrderLifecycleQueueName = {
   ORDER_TIMEOUT: 'order-timeout-queue',

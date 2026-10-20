@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Master Product Taxonomy Definitions
-// ====================================================
 
 import { Department } from './enums.js';
 

@@ -10,9 +10,7 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({
 }) => {
   return (
     <div className="min-h-screen w-full bg-white flex selection:bg-[#EE593B] selection:text-white">
-      {/* ==================================================== */}
       {/* LEFT COLUMN: PURE WHITE WITH FLOATING MINIMAL CARD   */}
-      {/* ==================================================== */}
       <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-center p-6 sm:p-12 md:p-16 z-10 bg-white">
         <div className="w-full max-w-[420px] bg-white rounded-3xl p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] border border-stone-100/80">
           {/* Brand Logo - Top of card like "Logo Here" */}
@@ -24,9 +22,7 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({
         </div>
       </div>
 
-      {/* ==================================================== */}
       {/* RIGHT COLUMN: FLAT SOFT PEACH WITH VECTOR ARTWORK    */}
-      {/* ==================================================== */}
       <div className="hidden lg:flex lg:w-1/2 min-h-screen bg-[#FFF2EB] items-center justify-center p-12 xl:p-16 relative overflow-hidden select-none">
         <div className="w-full max-w-lg">
           <svg

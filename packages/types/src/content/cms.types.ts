@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — CMS & Store Content Types
-// ====================================================
 
 import type { BannerPlacement } from '../common/enums.js';
 

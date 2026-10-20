@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Admin Order Fulfillment & Carrier Types
-// ====================================================
 
 import type { CarrierCode, ShipmentStatus } from '../common/enums.js';
 

@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Admin Product Management Types
-// ====================================================
 
 export interface ProductSkuVariant {
   sku: string;

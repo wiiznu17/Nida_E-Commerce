@@ -12,9 +12,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ====================================================
 // ENUMS
-// ====================================================
 
 enum MembershipTier {
   REGULAR
@@ -145,9 +143,7 @@ enum BannerPlacement {
   PROMO_BAR
 }
 
-// ====================================================
-// 1. CUSTOMER, AUTHENTICATION & LOYALTY
-// ====================================================
+// CUSTOMER, AUTHENTICATION & LOYALTY
 
 model User {
   id           String             @id @default(uuid()) @db.Uuid
@@ -225,9 +221,7 @@ model PointTransaction {
   @@map("point_transactions")
 }
 
-// ====================================================
-// 2. SHOPPING CART (PERSISTED)
-// ====================================================
+// SHOPPING CART (PERSISTED)
 
 model Cart {
   id        String     @id @default(uuid()) @db.Uuid
@@ -255,9 +249,7 @@ model CartItem {
   @@map("cart_items")
 }
 
-// ====================================================
-// 3. PRODUCT CATALOG & INVENTORY (WITH WEIGHT & DIMENSIONS)
-// ====================================================
+// PRODUCT CATALOG & INVENTORY (WITH WEIGHT & DIMENSIONS)
 
 model Category {
   id            String      @id @default(uuid()) @db.Uuid
@@ -383,9 +375,7 @@ model ProductImage {
   @@map("product_images")
 }
 
-// ====================================================
-// 4. ORDERS, CHECKOUT & FULFILLMENT
-// ====================================================
+// ORDERS, CHECKOUT & FULFILLMENT
 
 model Order {
   id                      String             @id @default(uuid()) @db.Uuid
@@ -534,9 +524,7 @@ model ShipmentLog {
   @@map("shipment_logs")
 }
 
-// ====================================================
-// 5. LIGHTWEIGHT RETURN REQUEST (คำขอคืนสินค้าแบบเรียบง่าย)
-// ====================================================
+// LIGHTWEIGHT RETURN REQUEST (คำขอคืนสินค้าแบบเรียบง่าย)
 
 model ReturnRequest {
   id                        String       @id @default(uuid()) @db.Uuid
@@ -568,9 +556,7 @@ model ReturnRequest {
   @@map("return_requests")
 }
 
-// ====================================================
-// 5.1 ORDER CANCELLATION REQUEST (คำขอยกเลิกคำสั่งซื้อ)
-// ====================================================
+// 1 ORDER CANCELLATION REQUEST (คำขอยกเลิกคำสั่งซื้อ)
 
 model OrderCancellationRequest {
   id            String                    @id @default(uuid()) @db.Uuid
@@ -608,9 +594,7 @@ model ReturnItem {
   @@map("return_items")
 }
 
-// ====================================================
-// 6. PROMOTIONS & COUPON ENGINE
-// ====================================================
+// PROMOTIONS & COUPON ENGINE
 
 model PromotionCoupon {
   id                String             @id @default(uuid()) @db.Uuid
@@ -684,9 +668,7 @@ model Review {
   @@map("reviews")
 }
 
-// ====================================================
-// 7. ADMIN & RBAC BACK-OFFICE
-// ====================================================
+// ADMIN & RBAC BACK-OFFICE
 
 model AdminUser {
   id               String          @id @default(uuid()) @db.Uuid

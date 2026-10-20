@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/database — Catalog Master Seed Data
-// ====================================================
 // 21 Predefined Products with rich variants, categories, and inventory
 
 import { MarketingTag } from "./generated/prisma/index.js";

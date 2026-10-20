@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Customer Catalog Types (Storefront)
-// ====================================================
 
 import type { Department } from '../common/enums.js';
 import type { MarketingTag } from '../common/taxonomy.js';

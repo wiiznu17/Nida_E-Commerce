@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Customer Profile & Address Types
-// ====================================================
 
 import type { MembershipTier } from '../common/enums.js';
 

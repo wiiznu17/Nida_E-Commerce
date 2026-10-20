@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Customer Cart & Checkout Calculation Types
-// ====================================================
 
 export interface ApiCartItem {
   id: string;

@@ -1,6 +1,4 @@
-// ====================================================
 // @repo/types — Admin Auth & RBAC Types
-// ====================================================
 
 export enum AdminRoleCode {
   SUPER_ADMIN = 'SUPER_ADMIN',
