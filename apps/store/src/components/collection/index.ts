@@ -5,4 +5,5 @@ export * from './CollectionCategoryNav';
 export * from './CollectionControlBar';
 export * from './CollectionProductGrid';
 export * from './CollectionEmptyState';
+export * from './CollectionDepartmentView';
 export * from './useCollectionDepartment';

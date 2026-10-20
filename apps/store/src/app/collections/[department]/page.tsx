@@ -1,108 +1,67 @@
-'use client';
-
 import React, { Suspense } from 'react';
-import {
-  CollectionBanner,
-  CollectionCategoryNav,
-  CollectionControlBar,
-  CollectionProductGrid,
-  CollectionEmptyState,
-  useCollectionDepartment,
-} from '@/components/collection';
-import { LoadingSpinner, Pagination } from '@/components/ui';
+import type { Metadata } from 'next';
+import { CollectionDepartmentView } from '@/components/collection';
+import { LoadingSpinner } from '@/components/ui';
 
-function CollectionDepartmentContent() {
-  const {
-    selectedCategory,
-    selectedSubCategory,
-    sortBy,
-    currentPage,
-    totalPages,
-    pageSize,
-    handlePageChange,
-    gridCols,
-    setGridCols,
-    primaryCategories,
-    availableSubCategories,
-    updateUrlFilters,
-    serverProducts,
-    totalCount,
-    isLoading,
-    currentTitle,
-    currentSubtitle,
-    currentTag,
-    currentBgImage,
-    addToCart,
-  } = useCollectionDepartment();
+interface Props {
+  params: Promise<{ department: string }>;
+}
 
-  return (
-    <div className="bg-brand-cream min-h-screen">
-      <CollectionBanner
-        title={currentTitle}
-        subtitle={currentSubtitle}
-        bannerTag={currentTag}
-        bgImage={currentBgImage}
-      />
+const DEPARTMENT_METADATA_MAP: Record<
+  string,
+  { title: string; description: string }
+> = {
+  men: {
+    title: "Men's Luxury Collection — Timeless Prep & Modern Classic",
+    description:
+      "Explore NIDA's curated Men's luxury apparel, tailored jackets, knitwear, and essential prep wear.",
+  },
+  women: {
+    title: "Women's Collection — Refined Elegance & Heritage Craft",
+    description:
+      "Discover the NIDA Women's collection. Beautifully draped dresses, intentional silhouettes, and timeless essentials.",
+  },
+  shoes: {
+    title: 'Footwear & Loafers — Handcrafted Luxury Shoes',
+    description:
+      'Step into artisanal craftsmanship with NIDA leather footwear, Belgian loafers, and heritage boots.',
+  },
+  bags: {
+    title: 'Leather Bags & Small Leather Goods — NIDA Handcrafted',
+    description:
+      'Artisanal leather totes, structured bags, and timeless leather goods crafted with durable precision.',
+  },
+  home: {
+    title: 'Home & Living — Modern Classic Lifestyle',
+    description:
+      'Curated lifestyle essentials, artisanal ceramics, and cozy textures designed to enrich your sanctuary.',
+  },
+};
 
-      <CollectionCategoryNav
-        categories={primaryCategories}
-        selectedCategory={selectedCategory}
-        onSelectCategory={(slug) =>
-          updateUrlFilters({ category: slug, subCategory: null, page: 1 })
-        }
-        subCategories={availableSubCategories}
-        selectedSubCategory={selectedSubCategory}
-        onSelectSubCategory={(slug) =>
-          updateUrlFilters({ subCategory: slug, page: 1 })
-        }
-        totalCount={totalCount}
-      />
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { department } = await params;
+  const normalized = department.toLowerCase();
+  const info = DEPARTMENT_METADATA_MAP[normalized] ?? {
+    title: `${department.charAt(0).toUpperCase() + department.slice(1)} Collection — NIDA Apparel`,
+    description: `Shop the latest ${department} collection at NIDA. Intentional craftsmanship and modern classic luxury.`,
+  };
 
-      <CollectionControlBar
-        totalCount={totalCount}
-        sortBy={sortBy}
-        gridCols={gridCols}
-        onSortChange={(sort) => updateUrlFilters({ sort, page: 1 })}
-        onToggleGridCols={setGridCols}
-      />
-
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8">
-        {isLoading ? (
-          <LoadingSpinner className="py-24" />
-        ) : serverProducts.length > 0 ? (
-          <div className="space-y-8">
-            <CollectionProductGrid
-              products={serverProducts}
-              gridCols={gridCols}
-              onAddToCart={addToCart}
-            />
-
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalCount}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-            />
-          </div>
-        ) : (
-          <CollectionEmptyState
-            onResetFilters={() =>
-              updateUrlFilters({ category: null, subCategory: null, page: 1 })
-            }
-          />
-        )}
-      </div>
-    </div>
-  );
+  return {
+    title: `${info.title} | NIDA`,
+    description: info.description,
+    openGraph: {
+      title: `${info.title} | NIDA`,
+      description: info.description,
+      siteName: 'NIDA Official Store',
+      type: 'website',
+    },
+  };
 }
 
 export default function CollectionDepartmentPage() {
   return (
-    <Suspense
-      fallback={<LoadingSpinner fullScreen />}
-    >
-      <CollectionDepartmentContent />
+    <Suspense fallback={<LoadingSpinner fullScreen />}>
+      <CollectionDepartmentView />
     </Suspense>
   );
 }

@@ -5,4 +5,5 @@ export * from './ProductVariantSelector';
 export * from './ProductActions';
 export * from './ProductAccordions';
 export * from './ProductRecommendations';
+export * from './ProductDetailView';
 export * from './useProductDetail';
