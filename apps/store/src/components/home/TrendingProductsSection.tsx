@@ -91,13 +91,13 @@ export const TrendingProductsSection: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    const dept = product.department.toLowerCase();
-    const defaultSize =
-      dept === 'shoes'
-        ? 'US 9'
-        : product.categorySlug === 'bags' || dept === 'home'
-          ? 'One Size'
-          : 'M';
+    const dept = (product.department ?? '').toLowerCase();
+    const isOneSize =
+      product.categorySlug === 'bags' ||
+      product.categorySlug === 'lifestyle' ||
+      dept === 'home' ||
+      dept === 'lifestyle';
+    const defaultSize = dept === 'shoes' ? 'US 9' : isOneSize ? 'One Size' : 'M';
 
     const defaultColor =
       product.colors && product.colors.length > 0

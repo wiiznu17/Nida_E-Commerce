@@ -117,7 +117,14 @@ function SearchPageContent() {
       product.colors && product.colors.length > 0
         ? product.colors[0]?.name || product.colors[0]?.hex
         : 'Standard';
-    addToCart(product, 'M', defaultColor);
+    const dept = (product.department ?? '').toLowerCase();
+    const isOneSize =
+      product.categorySlug === 'bags' ||
+      product.categorySlug === 'lifestyle' ||
+      dept === 'home' ||
+      dept === 'lifestyle';
+    const defaultSize = dept === 'shoes' ? 'US 9' : isOneSize ? 'One Size' : 'M';
+    addToCart(product, defaultSize, defaultColor);
   };
 
   return (

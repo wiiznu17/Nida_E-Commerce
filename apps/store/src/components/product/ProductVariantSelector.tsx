@@ -66,35 +66,40 @@ export function ProductVariantSelector({
       </div>
 
       {/* Size Selection */}
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
-            {t('product.selectSize')}
-          </span>
-          <button
-            type="button"
-            className="text-xs font-bold text-brand-brown hover:text-brand-amber underline tracking-wider cursor-pointer"
-          >
-            {t('product.sizeGuide')}
-          </button>
-        </div>
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-          {sizes.map((size) => (
+      {sizes.length > 0 && (
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
+              {t('product.selectSize')}
+            </span>
             <button
-              key={size}
               type="button"
-              onClick={() => onSelectSize(size)}
-              className={`py-3 text-xs font-black tracking-wider uppercase border transition-all cursor-pointer ${
-                selectedSize === size
-                  ? 'bg-brand-brown text-white border-brand-brown shadow-2xs'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-brand-brown'
-              }`}
+              className="text-xs font-bold text-brand-brown hover:text-brand-amber underline tracking-wider cursor-pointer"
             >
-              {size}
+              {t('product.sizeGuide')}
             </button>
-          ))}
+          </div>
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+            {sizes.map((size) => {
+              const isSelected = selectedSize.toLowerCase() === size.toLowerCase();
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => onSelectSize(size)}
+                  className={`py-3 text-xs font-black tracking-wider uppercase border transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-brand-brown text-white border-brand-brown shadow-2xs'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-brand-brown'
+                  }`}
+                >
+                  {size}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

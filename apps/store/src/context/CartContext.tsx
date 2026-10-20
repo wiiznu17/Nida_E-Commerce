@@ -304,13 +304,35 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           : rawColors[0].name
         : 'Classic';
 
-    const chosenSize = size || 'M';
-    const chosenColor = color || firstColor;
-
     const variants =
       'variants' in product && Array.isArray(product.variants)
         ? product.variants
         : undefined;
+
+    const availableSizes = variants
+      ? Array.from(new Set(variants.map((v) => v.size).filter(Boolean)))
+      : [];
+
+    let chosenSize: string;
+    if (availableSizes.length > 0) {
+      if (
+        !size ||
+        !availableSizes.some((s) => s.toLowerCase() === size.toLowerCase())
+      ) {
+        chosenSize =
+          availableSizes.find((s) => s.toUpperCase() === 'M') ??
+          availableSizes[0] ??
+          'One Size';
+      } else {
+        chosenSize =
+          availableSizes.find((s) => s.toLowerCase() === size.toLowerCase()) ??
+          size;
+      }
+    } else {
+      chosenSize = size || 'One Size';
+    }
+
+    const chosenColor = color || firstColor;
 
     // Resolve variant matching chosen size & color
     const matchedVariant = variants?.find((v) => {

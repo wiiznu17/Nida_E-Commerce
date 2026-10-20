@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 interface ProductActionsProps {
   isAdded: boolean;
   isWish: boolean;
+  hasSelectedSize?: boolean;
   onAddToCart: () => void;
   onToggleWishlist: () => void;
 }
@@ -12,6 +13,7 @@ interface ProductActionsProps {
 export function ProductActions({
   isAdded,
   isWish,
+  hasSelectedSize = true,
   onAddToCart,
   onToggleWishlist,
 }: ProductActionsProps) {
@@ -25,17 +27,21 @@ export function ProductActions({
         <button
           type="button"
           onClick={onAddToCart}
-          disabled={isAdded}
-          className={`w-full py-4 text-xs uppercase tracking-[0.2em] font-black transition-all flex justify-center items-center space-x-2 shadow-md cursor-pointer ${
+          disabled={!hasSelectedSize || isAdded}
+          className={`w-full py-4 text-xs uppercase tracking-[0.2em] font-black transition-all flex justify-center items-center space-x-2 shadow-md ${
             isAdded
-              ? 'bg-emerald-600 text-white'
-              : 'bg-brand-brown hover:bg-brand-amber text-white hover:shadow-lg'
+              ? 'bg-emerald-600 text-white cursor-default'
+              : !hasSelectedSize
+                ? 'bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300 shadow-none'
+                : 'bg-brand-brown hover:bg-brand-amber text-white hover:shadow-lg cursor-pointer'
           }`}
         >
           {isAdded ? (
             <>
               <Check size={18} /> <span>{t('product.added')}</span>
             </>
+          ) : !hasSelectedSize ? (
+            <span>{isTh ? 'กรุณาเลือกขนาดไซส์' : 'SELECT A SIZE'}</span>
           ) : (
             <>
               <ShoppingBag size={18} /> <span>{t('product.addToBag')}</span>

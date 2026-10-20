@@ -26,6 +26,7 @@ export default function ProductDetailPage() {
     activeDisplayImage,
     isWish,
     isAdded,
+    hasSelectedSize,
     availableColors,
     selectedColor,
     setSelectedColor,
@@ -116,6 +117,7 @@ export default function ProductDetailPage() {
           <ProductActions
             isAdded={isAdded}
             isWish={isWish}
+            hasSelectedSize={hasSelectedSize}
             onAddToCart={handleAddToCart}
             onToggleWishlist={handleToggleWishlist}
           />

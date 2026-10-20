@@ -51,7 +51,7 @@ export function useProductDetail() {
     }
   }, [id, fetchedProduct]);
 
-  const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [mainImage, setMainImage] = useState('');
   const [openAccordion, setOpenAccordion] = useState<ProductAccordionKey | null>('details');
@@ -112,7 +112,7 @@ export function useProductDetail() {
   }, [product?.id, availableColors, isTh]);
 
   const sizes = useMemo(() => {
-    if (!product) return ['S', 'M', 'L'];
+    if (!product) return [];
     if (
       'variants' in product &&
       product.variants &&
@@ -123,7 +123,7 @@ export function useProductDetail() {
       );
       if (uniqueSizes.length > 0) return uniqueSizes;
     }
-    const dept = product.department.toLowerCase();
+    const dept = (product.department ?? '').toLowerCase();
     if (dept === 'shoes') {
       return ['US 8', 'US 8.5', 'US 9', 'US 9.5', 'US 10', 'US 11'];
     }
@@ -136,10 +136,25 @@ export function useProductDetail() {
           ? product.category.slug
           : '';
     if (catSlug === 'bags' || dept === 'home') {
-      return [isTh ? 'ไซส์เดียว' : 'ONE SIZE'];
+      return ['One Size'];
     }
     return ['XS', 'S', 'M', 'L', 'XL'];
-  }, [product, isTh]);
+  }, [product]);
+
+  // Synchronize selectedSize: auto-select only if single size (e.g. 'One Size'), otherwise require user selection
+  useEffect(() => {
+    if (sizes.length === 1) {
+      setSelectedSize(sizes[0] ?? '');
+    } else if (sizes.length > 1) {
+      if (selectedSize && !sizes.some((s) => s.toLowerCase() === selectedSize.toLowerCase())) {
+        setSelectedSize('');
+      }
+    } else {
+      setSelectedSize('');
+    }
+  }, [sizes]);
+
+  const hasSelectedSize = sizes.length === 0 || Boolean(selectedSize);
 
   const images = useMemo(() => {
     if (!product) return [];
@@ -207,6 +222,7 @@ export function useProductDetail() {
 
   const handleAddToCart = () => {
     if (!product) return;
+    if (sizes.length > 0 && !selectedSize) return;
     addToCart(product, selectedSize, selectedColor, currentVariant?.id);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2500);
@@ -247,6 +263,7 @@ export function useProductDetail() {
     activeDisplayImage,
     isWish,
     isAdded,
+    hasSelectedSize,
     availableColors,
     selectedColor,
     setSelectedColor,
