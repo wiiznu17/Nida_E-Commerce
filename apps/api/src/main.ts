@@ -43,6 +43,21 @@ async function bootstrap() {
 
   // Strict CORS Whitelist Configuration
   const isProd = process.env.NODE_ENV === 'production';
+
+  // Production Security Verification
+  if (isProd) {
+    const defaultSecret = 'nida_store_customer_jwt_secret_key_2026_luxury_apparel';
+    const secret = process.env.JWT_CUSTOMER_SECRET;
+    if (!secret || secret === defaultSecret || secret.length < 32) {
+      logger.error(
+        'SECURITY CRITICAL: JWT_CUSTOMER_SECRET must be configured with a cryptographically random string (min 32 chars) in production!',
+      );
+      throw new Error(
+        'SECURITY MISCONFIGURATION: Weak or default JWT_CUSTOMER_SECRET detected on production.',
+      );
+    }
+  }
+
   const customOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
     : [];

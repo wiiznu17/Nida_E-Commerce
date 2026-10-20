@@ -20,14 +20,35 @@ import { AppService } from './app.service.js';
     RedisModule,
     MailerModule,
     BullModule.forRootAsync({
-      useFactory: () => ({
-        connection: {
-          host: process.env.REDIS_HOST ?? 'localhost',
-          port: Number(process.env.REDIS_PORT ?? 6379),
-          password: process.env.REDIS_PASSWORD ?? 'redis123',
-          maxRetriesPerRequest: null,
-        },
-      }),
+      useFactory: () => {
+        const redisUrl = process.env.REDIS_URL;
+        if (redisUrl) {
+          try {
+            const parsed = new URL(redisUrl);
+            const isTls = parsed.protocol === 'rediss:';
+            return {
+              connection: {
+                host: parsed.hostname,
+                port: Number(parsed.port || (isTls ? 6380 : 6379)),
+                username: parsed.username ? decodeURIComponent(parsed.username) : undefined,
+                password: parsed.password ? decodeURIComponent(parsed.password) : undefined,
+                tls: isTls ? { rejectUnauthorized: false } : undefined,
+                maxRetriesPerRequest: null,
+              },
+            };
+          } catch {
+            // fallback to host/port
+          }
+        }
+        return {
+          connection: {
+            host: process.env.REDIS_HOST ?? 'localhost',
+            port: Number(process.env.REDIS_PORT ?? 6379),
+            password: process.env.REDIS_PASSWORD ?? 'redis123',
+            maxRetriesPerRequest: null,
+          },
+        };
+      },
     }),
     CustomerAuthModule,
     CatalogModule,

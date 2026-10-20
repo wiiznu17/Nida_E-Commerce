@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
@@ -1190,6 +1191,12 @@ export class CustomerOrdersService {
     orderNumber: string,
     userId?: string,
   ): Promise<ApiOrder> {
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenException(
+        'Payment simulation is strictly disabled in production environment',
+      );
+    }
+
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: { payment: true },

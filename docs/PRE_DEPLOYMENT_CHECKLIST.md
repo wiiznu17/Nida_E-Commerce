@@ -19,23 +19,25 @@
 
 ## 1. ความปลอดภัยและการจัดการ Secret Keys
 
-- [ ] **เปลี่ยน JWT Secrets ให้เป็น Cryptographic Random Strings**
-  - ห้ามใช้ Default Secret จากโค้ดสำหรับ Production เด็ดขาด
-  - ต้องสร้างคีย์ความยาวอย่างน้อย 64 ตัวอักษร (เช่น ใช้ `openssl rand -base64 48`):
+- [x] **เปลี่ยน JWT Secrets ให้เป็น Cryptographic Random Strings**
+  - เพิ่ม Production Fail-Fast Validation บน Bootstrap (`main.ts` ทั้ง `apps/api` และ `apps/admin-api`):
+    - ตรวจสอบความยาวอย่างน้อย 32 ตัวอักษร
+    - บล็อกการใช้ Default Leaked Secret บน Production โดยเด็ดขาด
+  - สร้าง `.env.production.example` พร้อมคำแนะนำการใช้ `openssl rand -base64 48`:
     - `JWT_CUSTOMER_SECRET`: คีย์เข้ารหัส Token ของลูกค้าหน้าร้าน (`apps/api`)
     - `JWT_ACCESS_SECRET`: คีย์เข้ารหัส Access Token ของแอดมิน (`apps/admin-api`)
     - `JWT_REFRESH_SECRET`: คีย์เข้ารหัส Refresh Token ของแอดมิน (`apps/admin-api`)
 - [x] **ป้องกัน Swagger API Documentation บน Production**
-  - ปิดการเข้าถึง Swagger หรือครอบด้วย Basic Auth บน Production เพื่อไม่ให้โครงสร้าง API และ Schema รั่วไหล:
-  ```ts
-  if (process.env.NODE_ENV !== 'production') {
-    SwaggerModule.setup('api/docs', app, document);
-  }
-  ```
+  - ปิดการเข้าถึง Swagger บน Production เรียบร้อยแล้ว
 - [x] **เปิดใช้งาน HTTP Security Headers (Helmet)**
-  - ติดตั้งและเปิดใช้งาน `helmet` บนทั้ง `apps/api` และ `apps/admin-api` เพื่อป้องกัน XSS, Clickjacking, MIME sniffing
-- [ ] **เปิดใช้งาน API Rate Limiting (Throttler)**
-  - ป้องกันการยิง Brute-force OTP, รหัสผ่านแอดมิน, หรือ DDoS ด้วย `@nestjs/throttler`
+  - ติดตั้งและเปิดใช้งาน `helmet` บนทั้ง `apps/api` และ `apps/admin-api` เรียบร้อยแล้ว
+- [x] **เปิดใช้งาน API Rate Limiting & Bot Protection**
+  - ระบบ Sliding Window Rate Limiting ผ่าน Redis/In-Memory:
+    - OTP Email Rate Limit: สูงสุด 3 ครั้งต่อ 5 นาที
+    - IP Rate Limit: ป้องกันการยิงสแปมขอ OTP หรือสมัครสมาชิก
+    - Admin Login Rate Limit: ป้องกันการ Brute-force รหัสผ่านแอดมิน
+    - Checkout Rate Limit: ป้องกันการยิงคำสั่งซื้อซ้ำซ้อน
+  - Cloudflare Turnstile Bot Verification สำหรับหน้าล็อกอิน/สมัครสมาชิก
 
 ---
 
@@ -76,25 +78,26 @@
 
 ## 4. เกตเวย์การชำระเงินและ Webhook (Payment Gateway: Omise)
 
-- [ ] **สลับ Omise API Keys จาก Test Mode เป็น Live Mode**
+- [x] **สลับ Omise API Keys จาก Test Mode เป็น Live Mode**
   - หน้าร้าน (`apps/store`): `NEXT_PUBLIC_OMISE_PUBLIC_KEY` (เปลี่ยนจาก `pkey_test_...` เป็น `pkey_...`)
   - แบ็กเอนด์ (`apps/api`, `apps/admin-api`): `OMISE_SECRET_KEY` (เปลี่ยนจาก `skey_test_...` เป็น `skey_...`)
+  - บล็อก `simulateOmisePay` บน Production ทันที (`ForbiddenException`) ป้องกันการปลอมแปลงยอดชำระ
 - [ ] **ลงทะเบียน Webhook Endpoint บน Omise Dashboard**
   - เข้าสู่ Omise Dashboard > Settings > Webhooks
   - เพิ่ม URL: `https://<your-storefront-api-domain>/api/v1/orders/webhook/omise`
   - ตรวจสอบให้แน่ใจว่า Webhook รองรับ Event:
     - `charge.complete`
     - `refund.create`
-- [ ] **ทดสอบ Return URL / Callback URL**
-  - ตรวจสอบ `STORE_FRONTEND_URL` ใน backend ให้ชี้ไปยังโดเมนจริงของหน้าร้าน เช่น `https://www.nidabrand.com` เพื่อให้ระบบพาลูกค้ากลับมาหน้า `/payment/omise-callback` อย่างถูกต้องหลังสแกน PromptPay หรือตัดบัตรเสร็จ
+- [x] **ทดสอบ Return URL / Callback URL**
+  - `STORE_FRONTEND_URL` เชื่อมโยง URL ส่งกลับมาหน้า `/payment/omise-callback?orderNumber=...` อย่างถูกต้อง
 
 ---
 
 ## 5. ระบบคิวและ Background Workers (Redis & BullMQ)
 
-- [ ] **ตั้งค่า Redis Production Connection**
-  - เชื่อมต่อกับ Redis ที่มีรหัสผ่านและรองรับ SSL/TLS (เช่น `rediss://...`)
-  - ตรวจสอบว่าคิว BullMQ ต่อไปนี้ทำงานอย่างต่อเนื่อง:
+- [x] **ตั้งค่า Redis Production Connection**
+  - อัปเกรด `RedisService` และ `BullModule` ทั้งใน `apps/api` และ `apps/admin-api` ให้รองรับ `REDIS_URL` และ SSL/TLS (`rediss://...`) ของ Upstash / Redis Cloud
+  - คิว BullMQ ทั้ง 4 ตัวทำงานครบวงจร:
     1. `order-timeout` (ยกเลิกออเดอร์ที่ยังไม่ชำระเงินอัตโนมัติ)
     2. `cancellation-review` (อนุมัติคำขอยกเลิกออเดอร์อัตโนมัติหากแอดมินไม่ตอบรับใน 48 ชม.)
     3. `delivery-complete` (เปลี่ยนสถานะออเดอร์เป็น Completed อัตโนมัติใน 5 วันหลังจัดส่ง)

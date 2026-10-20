@@ -41,27 +41,36 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly memorySets = new Map<string, Set<string>>();
 
   onModuleInit(): void {
+    const redisUrl = process.env.REDIS_URL;
     const host = process.env.REDIS_HOST ?? 'localhost';
     const port = Number(process.env.REDIS_PORT ?? 6379);
     const password = process.env.REDIS_PASSWORD ?? 'redis123';
 
     try {
-      this.client = new Redis({
-        host,
-        port,
-        password: password.length > 0 ? password : undefined,
-        lazyConnect: true,
-        maxRetriesPerRequest: 1,
-        retryStrategy: (times) => {
-          if (times > 3) {
-            this.logger.warn(
-              'Redis reconnection attempts exhausted, operating in memory fallback mode',
-            );
-            return null;
-          }
-          return Math.min(times * 200, 1000);
-        },
-      });
+      const retryStrategy = (times: number) => {
+        if (times > 3) {
+          this.logger.warn(
+            'Redis reconnection attempts exhausted, operating in memory fallback mode',
+          );
+          return null;
+        }
+        return Math.min(times * 200, 1000);
+      };
+
+      this.client = redisUrl
+        ? new Redis(redisUrl, {
+            lazyConnect: true,
+            maxRetriesPerRequest: 1,
+            retryStrategy,
+          })
+        : new Redis({
+            host,
+            port,
+            password: password.length > 0 ? password : undefined,
+            lazyConnect: true,
+            maxRetriesPerRequest: 1,
+            retryStrategy,
+          });
 
       this.client.on('connect', () => {
         this.isConnected = true;
