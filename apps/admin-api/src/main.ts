@@ -52,25 +52,49 @@ async function bootstrap() {
     }
   }
 
-  const customOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
-    : [];
-
-  const defaultOrigins = [
+  const rawOrigins = [
+    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []),
     process.env.ADMIN_FRONTEND_URL,
     process.env.STORE_FRONTEND_URL,
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-  ].filter((o): o is string => Boolean(o));
+  ];
 
   const allowedOrigins = Array.from(
-    new Set([...customOrigins, ...defaultOrigins]),
+    new Set(
+      rawOrigins
+        .filter((o): o is string => Boolean(o && typeof o === 'string'))
+        .map((o) => o.trim().replace(/\/+$/, '')),
+    ),
   );
 
   app.enableCors({
-    origin: isProd ? allowedOrigins : true,
+    origin: (
+      requestOrigin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!requestOrigin || !isProd) {
+        return callback(null, true);
+      }
+      const normalizedRequest = requestOrigin.replace(/\/+$/, '');
+      let isAllowed = allowedOrigins.includes(normalizedRequest);
+      if (!isAllowed) {
+        try {
+          const reqHost = new URL(normalizedRequest).hostname;
+          isAllowed = reqHost.endsWith('.vercel.app');
+        } catch {
+          isAllowed = false;
+        }
+      }
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+      logger.warn(`CORS rejected for origin: ${requestOrigin}`);
+      return callback(null, false);
+    },
     credentials: true,
   });
 
