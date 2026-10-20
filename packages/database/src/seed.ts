@@ -236,7 +236,7 @@ async function main() {
     ],
   });
 
-  await seedOrders();
+  await seedOrders(prisma);
   await seedCms(prisma);
 
   console.log('✅ Seeding completed successfully!');

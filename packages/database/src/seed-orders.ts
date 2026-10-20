@@ -142,9 +142,10 @@ const SEED_ORDERS_DATA = [
   },
 ];
 
-export async function seedOrders() {
+export async function seedOrders(client?: PrismaClient) {
+  const p = client ?? prisma;
   console.log('📦 Seeding orders into database...');
-  const variants = await prisma.productVariant.findMany({
+  const variants = await p.productVariant.findMany({
     take: 5,
     include: { product: true },
   });
@@ -155,7 +156,7 @@ export async function seedOrders() {
   }
 
   for (const item of SEED_ORDERS_DATA) {
-    const existing = await prisma.order.findUnique({
+    const existing = await p.order.findUnique({
       where: { orderNumber: item.orderNumber },
     });
 
@@ -165,7 +166,7 @@ export async function seedOrders() {
     }
 
     const primaryVariant = variants[0];
-    const order = await prisma.order.create({
+    const order = await p.order.create({
       data: {
         orderNumber: item.orderNumber,
         status: item.status,
@@ -203,7 +204,7 @@ export async function seedOrders() {
     });
 
     if (item.trackingNumber && item.courierName) {
-      const shipment = await prisma.shipment.create({
+      const shipment = await p.shipment.create({
         data: {
           orderId: order.id,
           courierName: item.courierName,
@@ -218,7 +219,7 @@ export async function seedOrders() {
         },
       });
 
-      await prisma.shipmentLog.create({
+      await p.shipmentLog.create({
         data: {
           shipmentId: shipment.id,
           statusTitle: 'Label Created',
@@ -233,14 +234,13 @@ export async function seedOrders() {
   }
 }
 
-async function run() {
-  try {
-    await seedOrders();
-  } catch (err) {
-    console.error('Error seeding orders:', err);
-  } finally {
-    await prisma.$disconnect();
-  }
+// Allow direct execution
+if (import.meta.url === `file://${process.argv[1]}`) {
+  seedOrders()
+    .catch((err) => {
+      console.error('Error seeding orders:', err);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
 }
-
-run();
