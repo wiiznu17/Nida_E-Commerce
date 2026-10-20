@@ -1,6 +1,5 @@
-'use client';
-
 import React from 'react';
+import type { Metadata } from 'next';
 import {
   HeroBillboard,
   ValuePropsStrip,
@@ -10,6 +9,12 @@ import {
   CategoryDiscoveryTiles,
   BrandStoryBanner,
 } from '@/components/home';
+
+export const metadata: Metadata = {
+  title: 'NIDA — Modern Classic Apparel & Luxury Lifestyle',
+  description:
+    'Explore curated luxury fashion, timeless prep essentials, crafted leather bags, and intentional apparel designed for the modern wardrobe.',
+};
 
 export default function HomePage() {
   return (
