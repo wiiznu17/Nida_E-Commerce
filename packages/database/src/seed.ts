@@ -116,13 +116,14 @@ async function main() {
     `👗 Creating Products (${PRODUCTS_SEED_DATA.length} products with complete SKU matrix)...`,
   );
 
-  for (const item of PRODUCTS_SEED_DATA) {
+  for (let idx = 0; idx < PRODUCTS_SEED_DATA.length; idx++) {
+    const item = PRODUCTS_SEED_DATA[idx]!;
     const categoryId =
       categoriesMap[item.categorySlug] ||
       categoriesMap['women-apparel'] ||
       Object.values(categoriesMap)[0]!;
 
-    const product = await prisma.product.create({
+    await prisma.product.create({
       data: {
         name: item.name,
         nameTh: item.nameTh,
@@ -143,56 +144,35 @@ async function main() {
         preorderLimit: item.preorderLimit ?? null,
         preorderDepositAmount: item.preorderDepositAmount ?? null,
         createdByAdminId: admin.id,
+        images: {
+          create: item.images.map((img, i) => ({
+            imageUrl: img,
+            displayOrder: i,
+            isPrimary: i === 0,
+          })),
+        },
+        variants: {
+          create: item.variants.map((v) => ({
+            skuCode: v.sku,
+            size: v.size,
+            colorName: v.color,
+            colorHex: v.hex,
+            weightGrams: v.weight,
+            inventoryItem: {
+              create: {
+                quantityAvailable: v.stock,
+                quantityReserved: 0,
+                preorderBooked: 0,
+              },
+            },
+          })),
+        },
       },
     });
 
-    // Images
-    for (let i = 0; i < item.images.length; i++) {
-      await prisma.productImage.create({
-        data: {
-          productId: product.id,
-          imageUrl: item.images[i]!,
-          displayOrder: i,
-          isPrimary: i === 0,
-        },
-      });
-    }
-
-    // Variants & Inventory
-    for (const v of item.variants) {
-      const variant = await prisma.productVariant.create({
-        data: {
-          productId: product.id,
-          skuCode: v.sku,
-          size: v.size,
-          colorName: v.color,
-          colorHex: v.hex,
-          weightGrams: v.weight,
-        },
-      });
-
-      await prisma.inventoryItem.create({
-        data: {
-          variantId: variant.id,
-          quantityAvailable: v.stock,
-          quantityReserved: 0,
-          preorderBooked: 0,
-        },
-      });
-
-      if (v.stock > 0) {
-        await prisma.stockMovement.create({
-          data: {
-            variantId: variant.id,
-            adminId: admin.id,
-            changeType: StockChangeType.RESTOCK,
-            quantityChange: v.stock,
-            balanceAfter: v.stock,
-            reasonNote: 'Initial warehouse batch intake',
-          },
-        });
-      }
-    }
+    console.log(
+      `  • [${idx + 1}/${PRODUCTS_SEED_DATA.length}] ${item.name} (${item.variants.length} SKUs)`,
+    );
   }
 
   // 5. Create Sample Promotion Coupons
