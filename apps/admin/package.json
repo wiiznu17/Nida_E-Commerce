@@ -43,6 +43,9 @@
     "vite": "^8.3.0"
   },
   "optionalDependencies": {
-    "@rolldown/binding-darwin-arm64": "^1.2.9"
+    "@rolldown/binding-darwin-arm64": "^1.2.9",
+    "@rolldown/binding-darwin-x64": "^1.2.9",
+    "@rolldown/binding-linux-x64-gnu": "^1.2.9",
+    "@rolldown/binding-linux-x64-musl": "^1.2.9"
   }
 }
