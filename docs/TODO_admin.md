@@ -125,16 +125,63 @@ graph TD
 ---
 
 ### 📈 ลำดับที่ 5: แดชบอร์ดวิเคราะห์และส่งออกข้อมูล (Analytics & Data Export)
-> **เป้าหมาย**: ช่วยให้ผู้บริหารดูรายงานเชิงลึกและส่งออกข้อมูลบัญชีได้ทันที
+> **เป้าหมาย**: ช่วยให้ผู้บริหารดูรายงานเชิงลึกและส่งออกข้อมูลบัญชีได้ทันที พร้อมระบบแคช Redis เพื่อลดภาระการประมวลผลของ PostgreSQL
 
-- [ ] **การส่งออกข้อมูล (Data Export)**:
-  - [ ] ส่งออกรายการสินค้าเป็น CSV / Excel
-  - [ ] ส่งออกคำสั่งซื้อและยอดขายรายเดือน/รายไตรมาสเพื่อใช้ทำบัญชี
-  - [ ] ส่งออกรายการสต็อกสินค้าและ Audit Log
-- [ ] **กราฟและรายงานวิเคราะห์ (Analytics Dashboard)**:
-  - [ ] กราฟยอดขายแยกตามแผนกสินค้า (Women, Men, Bags, Shoes)
-  - [ ] สรุปสินค้าขายดี Top 10 และสินค้าสต็อกจม (Slow-Moving Items)
-  - [ ] อัตราการใช้คูปองส่วนลดและผลตอบแทนจากแคมเปญ
+#### 🏗️ สถาปัตยกรรมการทำงานและ Redis Caching (Architecture & Caching Strategy)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Admin Web / Executive
+    participant API as AnalyticsController (NestJS)
+    participant Redis as Redis Cache (admin:analytics:*)
+    participant PG as PostgreSQL (Prisma Engine)
+
+    Admin->>API: GET /admin/analytics/sales-by-department?timeframe=month
+    API->>Redis: ตรวจสอบ Cache (admin:analytics:dept:month)
+    alt Cache Hit (ลดงาน Postgres 100%)
+        Redis-->>API: ข้อมูลสรุป JSON จาก Memory (< 5ms)
+        API-->>Admin: HTTP 200
+    else Cache Miss / Expired
+        API->>PG: รัน Query Aggregation (Sum, GroupBy, Count)
+        PG-->>API: Raw aggregated rows
+        API->>API: แปลงเป็นเปอร์เซ็นต์และสัดส่วน
+        API->>Redis: บันทึก Cache (TTL 5 - 15 นาที)
+        API-->>Admin: HTTP 200
+    end
+```
+
+- [ ] **การออกแบบระบบแคช Redis (`apps/admin-api`)**:
+  - [ ] เพิ่ม Generic Key-Value Cache Methods ใน `RedisService` (`get<T>`, `set`, `delByPattern`) พร้อม In-Memory Map Fallback
+  - [ ] กำหนด Cache Keys และ TTL อย่างเหมาะสม:
+    - `admin:analytics:overview:{timeframe}` — TTL 5 นาที (300s)
+    - `admin:analytics:dept:{timeframe}` — TTL 10 นาที (600s)
+    - `admin:analytics:top_products:{timeframe}` — TTL 15 นาที (900s)
+    - `admin:analytics:slow_moving:{days}` — TTL 1 ชั่วโมง (3600s)
+    - `admin:analytics:coupon_roi:{timeframe}` — TTL 10 นาที (600s)
+  - [ ] Event-Driven Invalidation: ล้างแคชอัตโนมัติเมื่อมีออเดอร์ชำระเงินสำเร็จ (`order.paid`) หรือมีการปรับยอดสต็อกสินค้า (`inventory.adjusted`)
+
+- [ ] **การพัฒนา Backend APIs (`apps/admin-api` - 9 Endpoints)**:
+  - **กลุ่มรายงานสถิติ (Analytics Dashboard - 5 APIs)**:
+    - [ ] `GET /admin/analytics/overview?timeframe=today|week|month|year` (ยอดขายรวม, จำนวนออเดอร์, AOV, อัตราเติบโตเทียบรอบก่อน)
+    - [ ] `GET /admin/analytics/sales-by-department?timeframe=&startDate=&endDate=` (สัดส่วนยอดขายจริงตามแผนก Women, Men, Bags, Shoes, Home)
+    - [ ] `GET /admin/analytics/top-products?limit=10&timeframe=` (10 สินค้าขายดีที่สุดตามยอดขายและจำนวนชิ้น)
+    - [ ] `GET /admin/analytics/slow-moving-products?days=30&limit=10` (10 สินค้าค้างสต็อก ยอดขายช้า เพื่อวางแผนจัดโปรโมชัน)
+    - [ ] `GET /admin/analytics/coupon-roi?timeframe=` (อัตราการใช้คูปอง, มูลค่าส่วนลดรวม, ยอดขายสุทธิที่เกิดขึ้น)
+  - **กลุ่มส่งออกข้อมูล (Data Export Stream CSV - 4 APIs)**:
+    - [ ] `GET /admin/analytics/export/orders?startDate=&endDate=&status=` (เลขออเดอร์, วันเวลา, ลูกค้า, เบอร์โทร, ยอดเงิน, ส่วนลด, สถานะ, ขนส่ง, เลขพัสดุ)
+    - [ ] `GET /admin/analytics/export/products?department=&category=` (รหัส SKU, ชื่อสินค้า, แผนก, หมวดหมู่, ราคาขาย, สต็อกรวม, สถานะ)
+    - [ ] `GET /admin/analytics/export/inventory?status=all|low_stock|out_of_stock` (SKU, ชื่อสินค้า, สี, ไซส์, สต็อกคงเหลือ, สต็อกจอง, จุดสั่งซื้อซ้ำ, สถานะ)
+    - [ ] `GET /admin/analytics/export/audit-logs?startDate=&endDate=&action=` (วันเวลา, อีเมลแอดมิน, สิทธิ์, Action, ตารางเป้าหมาย, Entity ID, IP Address)
+    - [ ] รองรับ UTF-8 BOM (`\uFEFF`) เพื่อให้เปิดไฟล์ภาษาไทยใน Microsoft Excel ได้อย่างถูกต้องสมบูรณ์
+
+- [ ] **การพัฒนา Frontend (`apps/admin`)** *(รอสรุป UI Design เพิ่มเติมกับผู้ใช้ก่อนเริ่มลงมือ)*:
+  - [ ] อัปเกรด `AdminDashboard.tsx` ดึงข้อมูลสัดส่วนยอดขายจริงจาก API แทนค่าจำลอง (Mock Data)
+  - [ ] ออกแบบและสร้างหน้า Analytics & Export Center (`/admin/analytics`)
+  - [ ] รองรับ i18n (`th.json` และ `en.json`) สไตล์ Clean Editorial Luxury ปราศจาก Emoji
+
+- [ ] **การทดสอบความถูกต้อง (Testing & Quality Assurance)**:
+  - [ ] Unit Tests สำหรับ `AnalyticsService` ใน `apps/admin-api/test/analytics/` ครอบคลุม 100% Pass
+  - [ ] ทดสอบประสิทธิภาพการทำงานของ Redis Caching และ Cache Invalidation Flow
 
 ---
 
