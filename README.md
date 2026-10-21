@@ -1,160 +1,140 @@
-# Nida (นิดา) — Modern Classic Apparel & Lifestyle Platform
+# Nida — Modern Classic Apparel & Lifestyle Platform
 
-Nida คือแพลตฟอร์ม E-Commerce สำหรับแบรนด์แฟชั่นและไลฟ์สไตล์ระดับพรีเมียม (Modern Classic Apparel & Lifestyle) พัฒนาบนสถาปัตยกรรม **Monorepo (Turborepo)** ที่มีทั้งหน้าร้าน (Storefront), ระบบแอดมินหลังบ้าน (Admin Portal), เซิร์ฟเวอร์ API (NestJS), และฐานข้อมูล (Prisma ORM บน PostgreSQL)
+Nida is a full-stack e-commerce platform designed for fashion and lifestyle brands. Built on a **Monorepo architecture powered by Turborepo**, it features a customer-facing storefront, an admin back-office portal, a robust NestJS backend API, and a PostgreSQL database managed via Prisma ORM.
 
----
-
-## 🏗️ โครงสร้าง Monorepo (Workspace Architecture)
+## 🏗️ Workspace Architecture
 
 ```
 Nida_Project/
 ├── apps/
-│   ├── store/          # Next.js 16 (App Router) + React 19 + TailwindCSS v4 (สำหรับลูกค้า)
-│   ├── admin/          # React 19 + Vite + TailwindCSS v4 (สำหรับทีมงานแอดมินหลังบ้าน)
-│   └── admin-api/      # NestJS Admin API + Swagger API Documentation (พอร์ต 4000)
+│   ├── store/          # Next.js (Customer Storefront)
+│   ├── admin/          # React (Admin Portal)
+│   └── admin-api/      # NestJS Admin API
+|   └── api/            # NestJS Store API
 ├── packages/
-│   ├── database/       # Prisma Schema & PostgreSQL Client, Migrations, Seed script
+│   ├── database/       # Prisma Schema, PostgreSQL Client, Migrations, and Seed Scripts
 │   ├── ui/             # Shared UI Component Library
 │   ├── validators/     # Shared Zod Schemas & Validation Logic
 │   ├── eslint-config/  # Shared ESLint Configuration
 │   ├── prettier-config/# Shared Prettier Code Style
-│   └── typescript-config/# Shared TypeScript tsconfig
+│   └── typescript-config/# Shared TypeScript Configuration
 ├── docker-compose.yml  # PostgreSQL 16 + pgAdmin 4 Container Setup
-└── README.md           # คู่มือการติดตั้งและคำสั่งใช้งาน
+└── README.md           # Documentation & Usage Guide
+
 ```
 
----
+## 🚀 Quick Setup Guide
 
-## 🚀 เริ่มต้นใช้งานอย่างรวดเร็ว (Quick Setup Guide)
+### 1. Prerequisites
 
-### 1. ความต้องการของระบบ (Prerequisites)
+* **Node.js**: v20 or higher
 
-- **Node.js**: v20 ขึ้นไป (แนะนำ v22 หรือ v24)
-- **Docker Desktop**: สำหรับรัน PostgreSQL และ pgAdmin
+* **Docker Desktop**: For running PostgreSQL and pgAdmin containers
 
-### 2. ติดตั้ง Dependencies
+### 2. Install Dependencies
 
-```bash
+```
 npm install
+
 ```
 
-### 3. ตั้งค่า Environment Variables
+### 3. Environment Variables
 
-คัดลอกไฟล์ `.env.example` เป็น `.env` ที่ root ของโปรเจกต์:
+Copy `.env.example` to `.env` at the project root:
 
-```bash
+```
 cp .env.example .env
+
 ```
 
-_(ค่าเริ่มต้นถูกกำหนดไว้สำหรับ Local Development เรียบร้อยแล้ว)_
+*(Default values are pre-configured for local development.)*
 
----
+## 🗄️ Database & Docker Setup
 
-## 🗄️ การจัดการฐานข้อมูล (Database & Docker)
+### 1. Start PostgreSQL and pgAdmin via Docker
 
-### 1. เริ่มต้น PostgreSQL และ pgAdmin ผ่าน Docker
+Open **Docker Desktop** and run:
 
-เปิดโปรแกรม **Docker Desktop** แล้วรันคำสั่ง:
-
-```bash
+```
 docker compose up -d
+
 ```
 
-- **PostgreSQL**: ทำงานที่พอร์ต `5432` (`localhost:5432/ecommerce_db`)
-- **pgAdmin 4**: เข้าใช้งานผ่านเว็บเบราว์เซอร์ที่ `http://localhost:5050`
-  - **Email**: `admin@admin.com`
-  - **Password**: `admin`
+* **PostgreSQL**: Runs on port `5432` (`localhost:5432/ecommerce_db`)
 
-### 2. ผลักดัน Schema เข้าฐานข้อมูล (Push Schema)
+* **pgAdmin 4**: Access via web browser at `http://localhost:5050`
 
-```bash
+  * **Email**: `admin@admin.com`
+
+  * **Password**: `admin`
+
+### 2. Push Schema to Database
+
+```
 npm run db:push -w @repo/database
+
 ```
 
-### 3. เติมข้อมูลตัวอย่าง (Run Seed Data)
+### 3. Seed Mock Data
 
-คำสั่งนี้จะสร้างหมวดหมู่, สินค้าพร้อมไซส์และสต็อก, สินค้า Pre-order, คูปองส่วนลด, และบัญชี Super Admin:
+Populate the database with sample categories, products with sizes and stock levels, pre-order items, promotional coupons, and a default Super Admin account:
 
-```bash
+```
 npm run db:seed -w @repo/database
+
 ```
 
-#### 🔑 ข้อมูลบัญชีและคูปองตัวอย่างที่ถูกสร้าง:
+#### 🔑 Seed Credentials & Sample Coupons:
 
-- **Super Admin Login**:
-  - **Email**: `admin@nida-apparel.com`
-  - **Username**: `superadmin`
-  - **Password**: `admin123`
-- **โค้ดคูปองส่วนลด (Sample Coupons)**:
-  - `NIDA20`: ลด 20% (เมื่อซื้อขั้นต่ำ $100 ลดสูงสุด $50)
-  - `FREESHIP`: ยกเว้นค่าจัดส่งฟรี (เมื่อซื้อขั้นต่ำ $50)
-  - `WELCOME50`: ลดทันที $50 (เมื่อซื้อขั้นต่ำ $200)
+* **Super Admin Credentials**:
 
-### 4. เปิดดูตารางฐานข้อมูลผ่าน GUI (Prisma Studio)
+  * **Email**: `admin@nida-apparel.com`
 
-```bash
+  * **Username**: `superadmin`
+
+  * **Password**: `admin123`
+
+* **Sample Coupon Codes**:
+
+  * `NIDA20`: 20% off (Min. spend \$100, max discount $50)
+
+  * `FREESHIP`: Free shipping (Min. spend \$50)
+
+  * `WELCOME50`: Flat \$50 off (Min. spend $200)
+
+### 4. Database GUI (Prisma Studio)
+
+```
 npm run db:studio -w @repo/database
+
 ```
 
-เปิดดูที่ `http://localhost:5555`
+Access Prisma Studio at `http://localhost:5555`.
 
----
+## 🖥️ Local Development
 
-## 🖥️ การรัน Application เพื่อพัฒนา (Local Development)
+You can start all services concurrently or run specific applications individually.
 
-คุณสามารถเลือกรันทีละระบบ หรือรันทั้งหมดพร้อมกันได้:
+### Run All Services (Turborepo Dev Mode)
 
-### รันทุกระบบพร้อมกัน (Turborepo Dev Mode)
-
-```bash
+```
 npm run dev
 ```
 
-### หรือเลือกรันเฉพาะระบบที่ต้องการ:
+## 🌟 Core Database & Business Features
 
-| ระบบ                               | คำสั่งรัน               | URL ในการเข้าใช้งาน                                              |
-| :--------------------------------- | :---------------------- | :--------------------------------------------------------------- |
-| **Store (หน้าร้าน)**               | `npm run dev:store`     | [http://localhost:3000](http://localhost:3000)                   |
-| **Admin Portal (หลังบ้าน)**        | `npm run dev:admin`     | [http://localhost:5173](http://localhost:5173)                   |
-| **Admin API Server (NestJS)**      | `npm run dev:admin-api` | [http://localhost:4000](http://localhost:4000)                   |
-| **Interactive API Docs (Swagger)** | _(รัน API ก่อน)_        | [http://localhost:4000/api/docs](http://localhost:4000/api/docs) |
+1. **Pre-Order Engine**: Supports advance order items, target release dates, and allocated reservation quotas.
 
----
+2. **Promotion & Coupon Engine**: Flexible discount rules (percentage, fixed amount, free shipping, discount caps) with abuse-prevention logic.
 
-## 🛠️ คำสั่งตรวจสอบคุณภาพโค้ด (Quality & Verification)
+3. **Weight & Dimensions Matrix**: Accurate shipping fee calculations based on package dimensions and weight (grams).
 
-```bash
-# ตรวจสอบ TypeScript Types ทั่วทั้ง Monorepo
-npm run check-types
+4. **Pro-rated Net Price Calculation**: Automated item-level net cost breakdown for compliant partial refunds.
 
-# ตรวจสอบ Prettier Code Formatting
-npm run format:check
+5. **Partial Refund Ledger**: Dedicated refund transaction ledger with actor audit trails for financial integrity.
 
-# จัด Format โค้ดทั้งหมดอัตโนมัติ
-npm run format
+6. **Lightweight Return Workflow**: Streamlined return request lifecycle with customer submission and admin review/approval flows.
 
-# Build ทุกโปรเจกต์
-npm run build
-```
+7. **Loyalty Points Ledger**: Immutable point balance and transaction history ledger to prevent credit loss or mismatch.
 
----
-
-## 🌟 ฟีเจอร์สำคัญที่รองรับในฐานข้อมูล (Core Database Features)
-
-1. **Pre-Order Engine**: รองรับสินค้าสั่งจองล่วงหน้า, กำหนดวันปล่อยสินค้า, และโควตายอดจอง
-2. **Promotion & Coupon Engine**: โค้ดส่วนลด %, บาท, ส่งฟรี, เพดานลดสูงสุด, และระบบป้องกันโกง
-3. **Weight & Dimensions**: คำนวณค่าจัดส่งตามจริงจากน้ำหนักกรัมและขนาดพัสดุ
-4. **Pro-rated Net Price Calculation**: คำนวณยอดเงินที่จ่ายจริงต่อชิ้นสำหรับกรณีขอคืนเงินบางส่วน
-5. **Partial Refund Ledger**: สมุดบันทึกการคืนเงินย่อย พร้อม Audit ผู้ดำเนินการเพื่อตรวจสอบทางบัญชี
-6. **Lightweight Return Request**: ระบบคำขอคืนสินค้าแบบเรียบง่าย ลูกค้าแจ้งขอ แอดมินอนุมัติ/ปฏิเสธ
-7. **Loyalty Points Ledger**: สมุดบันทึกประวัติการได้/ใช้แต้มสะสม ป้องกันแต้มสูญหาย
-8. **Payment Security**: รองรับ Idempotency Key และเกตเวย์ Webhook เพื่อความปลอดภัยสูงสุด
-
----
-
-## 📚 เอกสารคู่มือและการ Deploy (Documentation & Deployment)
-
-- 📋 **[Pre-Deployment Checklist (สิ่งที่ต้องเตรียมและทำให้เสร็จก่อน Deploy)](docs/PRE_DEPLOYMENT_CHECKLIST.md)**: รายการตรวจสอบความปลอดภัย Secrets, Database Migration, Storage, Webhook, และ Build Verification
-- 🚀 **[Free Tier Production Deployment Guide (คู่มือ Deploy สายฟรี 100%)](docs/FREE_TIER_DEPLOYMENT_GUIDE.md)**: ขั้นตอนการนำระบบขึ้น Production ด้วย Vercel, Cloudflare Pages, Render, Neon, Upstash, และเทคนิคแก้เซิร์ฟเวอร์หลับด้วย UptimeRobot
-- 📦 **[Order Flow & Fulfillment Guide](docs/ORDER_FLOW_AND_FULFILLMENT.md)**: ภาพรวมการจัดการคำสั่งซื้อ การจัดส่ง และการคืนสินค้า
-- 🔄 **[Order Lifecycle Business Logic](docs/ORDER_LIFECYCLE_BUSINESS_LOGIC.md)**: กฎเกณฑ์และ State Transition ของระบบออเดอร์
+8. **Payment Security**: Built-in Idempotency Key handling and robust payment gateway webhook verification.
