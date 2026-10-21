@@ -23,7 +23,6 @@ export const TrendingProductsSection: React.FC = () => {
   const { t, language } = useLanguage();
 
   const [selectedTab, setSelectedTab] = useState<string | null>(null);
-  const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
   // Dynamically extract active marketing tags with at least 1 product (strictly no generic 'all' tab)
   const tabs = useMemo<TagTabItem[]>(() => {
@@ -87,28 +86,6 @@ export const TrendingProductsSection: React.FC = () => {
       .slice(0, 8);
   }, [productsList, activeTab]);
 
-  const handleQuickAdd = (e: React.MouseEvent, product: ApiProduct) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const dept = (product.department ?? '').toLowerCase();
-    const isOneSize =
-      product.categorySlug === 'bags' ||
-      product.categorySlug === 'lifestyle' ||
-      dept === 'home' ||
-      dept === 'lifestyle';
-    const defaultSize = dept === 'shoes' ? 'US 9' : isOneSize ? 'One Size' : 'M';
-
-    const defaultColor =
-      product.colors && product.colors.length > 0
-        ? (product.colors[0]?.name ?? 'Standard')
-        : 'Standard';
-
-    addToCart(product, defaultSize, defaultColor);
-    setAddedProductId(product.id);
-    setTimeout(() => setAddedProductId(null), 2000);
-  };
-
   if (tabs.length === 0) {
     return null;
   }
@@ -151,9 +128,8 @@ export const TrendingProductsSection: React.FC = () => {
             key={product.id}
             product={product}
             isWish={isInWishlist(product.id)}
-            isJustAdded={addedProductId === product.id}
             onToggleWishlist={toggleWishlist}
-            onQuickAdd={handleQuickAdd}
+            onAddToCart={addToCart}
           />
         ))}
       </div>

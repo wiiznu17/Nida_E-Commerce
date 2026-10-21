@@ -37,6 +37,7 @@ export interface ApiProduct {
   tag?: MarketingTag | string;
   tagTh?: string;
   colors: ApiColorSwatch[];
+  sizes?: string[];
   rating?: number;
   reviewsCount?: number;
   inStock: boolean;

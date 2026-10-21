@@ -48,5 +48,5 @@ export interface CollectionControlBarProps {
 export interface CollectionProductGridProps {
   products: ApiProduct[];
   gridCols: 3 | 4;
-  onAddToCart: (product: ApiProduct) => void;
+  onAddToCart: (product: ApiProduct, size?: string, color?: string) => void;
 }

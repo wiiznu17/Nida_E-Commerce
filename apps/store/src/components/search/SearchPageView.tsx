@@ -111,20 +111,6 @@ export function SearchPageView() {
     };
   }, [query, filters, currentPage, pageSize]);
 
-  const handleAddToCart = (product: ApiProduct) => {
-    const defaultColor =
-      product.colors && product.colors.length > 0
-        ? product.colors[0]?.name || product.colors[0]?.hex
-        : 'Standard';
-    const dept = (product.department ?? '').toLowerCase();
-    const isOneSize =
-      product.categorySlug === 'bags' ||
-      product.categorySlug === 'lifestyle' ||
-      dept === 'home' ||
-      dept === 'lifestyle';
-    const defaultSize = dept === 'shoes' ? 'US 9' : isOneSize ? 'One Size' : 'M';
-    addToCart(product, defaultSize, defaultColor);
-  };
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -172,7 +158,7 @@ export function SearchPageView() {
                 <CatalogProductGrid
                   products={serverProducts}
                   isFilterVisible={isFilterVisible}
-                  onAddToCart={handleAddToCart}
+                  onAddToCart={addToCart}
                 />
 
                 <Pagination

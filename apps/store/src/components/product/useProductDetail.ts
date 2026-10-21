@@ -13,6 +13,7 @@ import {
   getProductDescription,
 } from '@/context/LanguageContext';
 import type { ApiProduct, ApiProductDetail } from '@repo/types';
+import { getProductSizes } from '@/utils';
 import type { ProductColor, ProductAccordionKey } from './productTypes';
 
 export function useProductDetail() {
@@ -112,33 +113,7 @@ export function useProductDetail() {
   }, [product?.id, availableColors, isTh]);
 
   const sizes = useMemo(() => {
-    if (!product) return [];
-    if (
-      'variants' in product &&
-      product.variants &&
-      product.variants.length > 0
-    ) {
-      const uniqueSizes = Array.from(
-        new Set(product.variants.map((v) => v.size).filter(Boolean)),
-      );
-      if (uniqueSizes.length > 0) return uniqueSizes;
-    }
-    const dept = (product.department ?? '').toLowerCase();
-    if (dept === 'shoes') {
-      return ['US 8', 'US 8.5', 'US 9', 'US 9.5', 'US 10', 'US 11'];
-    }
-    const catSlug =
-      'categorySlug' in product
-        ? product.categorySlug
-        : 'category' in product &&
-            typeof product.category === 'object' &&
-            product.category !== null
-          ? product.category.slug
-          : '';
-    if (catSlug === 'bags' || dept === 'home') {
-      return ['One Size'];
-    }
-    return ['XS', 'S', 'M', 'L', 'XL'];
+    return getProductSizes(product);
   }, [product]);
 
   // Synchronize selectedSize: auto-select only if single size (e.g. 'One Size'), otherwise require user selection

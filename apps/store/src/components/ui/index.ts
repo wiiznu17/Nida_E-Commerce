@@ -9,3 +9,4 @@ export * from './Alert';
 export * from './MetricCard';
 export * from './Breadcrumb';
 export * from './Pagination';
+export * from './ProductCardQuickAdd';

@@ -2,30 +2,28 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Heart, ShoppingBag, Check } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import type { ApiProduct } from '@repo/types';
 import {
   useLanguage,
   getProductTitle,
   getProductSubCategory,
 } from '@/context/LanguageContext';
-import { ProductBadge } from '@/components/ui';
+import { ProductBadge, ProductCardQuickAdd } from '@/components/ui';
 import { formatPrice } from '@/utils';
 
 export interface HomeProductCardProps {
   product: ApiProduct;
   isWish: boolean;
-  isJustAdded: boolean;
   onToggleWishlist: (productId: string) => void;
-  onQuickAdd: (e: React.MouseEvent, product: ApiProduct) => void;
+  onAddToCart: (product: ApiProduct, size?: string, color?: string) => void;
 }
 
 export const HomeProductCard: React.FC<HomeProductCardProps> = ({
   product,
   isWish,
-  isJustAdded,
   onToggleWishlist,
-  onQuickAdd,
+  onAddToCart,
 }) => {
   const { language, t } = useLanguage();
   const title = getProductTitle(product, language);
@@ -77,29 +75,9 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
           />
         </button>
 
-        {/* Quick Add Button on Hover */}
-        <div className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <button
-            onClick={(e) => onQuickAdd(e, product)}
-            disabled={isJustAdded}
-            className={`w-full py-3 font-black text-xs uppercase tracking-widest transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer ${
-              isJustAdded
-                ? 'bg-emerald-600 text-white'
-                : 'bg-brand-brown hover:bg-brand-amber text-white'
-            }`}
-          >
-            {isJustAdded ? (
-              <>
-                <Check size={14} />
-                <span>{t('home.addedToBag')}</span>
-              </>
-            ) : (
-              <>
-                <ShoppingBag size={14} />
-                <span>{t('home.quickAdd')}</span>
-              </>
-            )}
-          </button>
+        {/* Quick Add Overlay on Hover */}
+        <div className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+          <ProductCardQuickAdd product={product} onAddToCart={onAddToCart} />
         </div>
       </div>
 

@@ -16,6 +16,7 @@ import type {
 import { couponRequester } from '@/api';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { isOneSizeProduct, getProductSizes } from '@/utils';
 
 export interface CartItem {
   id: string;
@@ -313,23 +314,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       ? Array.from(new Set(variants.map((v) => v.size).filter(Boolean)))
       : [];
 
+    const isOneSize = isOneSizeProduct(product);
+
     let chosenSize: string;
-    if (availableSizes.length > 0) {
-      if (
-        !size ||
-        !availableSizes.some((s) => s.toLowerCase() === size.toLowerCase())
-      ) {
-        chosenSize =
-          availableSizes.find((s) => s.toUpperCase() === 'M') ??
-          availableSizes[0] ??
-          'One Size';
-      } else {
+    if (size) {
+      if (availableSizes.length > 0) {
         chosenSize =
           availableSizes.find((s) => s.toLowerCase() === size.toLowerCase()) ??
           size;
+      } else {
+        chosenSize = size;
       }
+    } else if (isOneSize) {
+      chosenSize = 'One Size';
+    } else if (availableSizes.length > 0) {
+      chosenSize = availableSizes[0] ?? 'One Size';
     } else {
-      chosenSize = size || 'One Size';
+      const fallbackSizes = getProductSizes(product);
+      chosenSize = fallbackSizes[0] ?? 'One Size';
     }
 
     const chosenColor = color || firstColor;

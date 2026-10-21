@@ -48,21 +48,6 @@ export default function WishlistPage() {
     clearAllFilters,
   } = useWishlistFilters(rawWishlistProducts);
 
-  const handleAddToCart = (product: ApiProduct) => {
-    const dept = (product.department ?? '').toLowerCase();
-    const isOneSize =
-      product.categorySlug === 'bags' ||
-      product.categorySlug === 'lifestyle' ||
-      dept === 'home' ||
-      dept === 'lifestyle';
-    const defaultSize = dept === 'shoes' ? 'US 9' : isOneSize ? 'One Size' : 'M';
-    const defaultColor =
-      product.colors && product.colors.length > 0
-        ? (product.colors[0]?.name ?? product.colors[0]?.hex ?? 'Standard')
-        : 'Standard';
-
-    addToCart(product, defaultSize, defaultColor);
-  };
 
   const isPageLoading = isAuthLoading || (isAuthenticated && (isWishlistLoading || isCatalogLoading));
 
@@ -120,7 +105,7 @@ export default function WishlistPage() {
               <CatalogProductGrid
                 products={filteredProducts}
                 isFilterVisible={isFilterVisible}
-                onAddToCart={handleAddToCart}
+                onAddToCart={addToCart}
               />
             )}
           </main>

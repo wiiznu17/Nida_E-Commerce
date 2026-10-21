@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { Heart, ShoppingBag, Check } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { useWishlist } from '@/context/WishlistContext';
 import {
   useLanguage,
   getProductTitle,
   getProductSubCategory,
 } from '@/context/LanguageContext';
-import { ProductBadge } from '@/components/ui';
+import { ProductBadge, ProductCardQuickAdd } from '@/components/ui';
 import { formatPrice } from '@/utils';
 import type { ApiProduct } from '@repo/types';
 import type { CatalogProductGridProps } from './catalogTypes';
@@ -21,17 +21,6 @@ export function CatalogProductGrid({
 }: CatalogProductGridProps) {
   const { language, t } = useLanguage();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const [addedProductId, setAddedProductId] = useState<string | null>(null);
-
-  const handleQuickAdd = (e: React.MouseEvent, product: ApiProduct) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onAddToCart(product);
-    setAddedProductId(product.id);
-    setTimeout(() => {
-      setAddedProductId(null);
-    }, 1500);
-  };
 
   return (
     <div
@@ -41,7 +30,6 @@ export function CatalogProductGrid({
     >
       {products.map((product) => {
         const isWish = isInWishlist(product.id);
-        const isJustAdded = addedProductId === product.id;
         const title = getProductTitle(product, language);
         const subCategory = getProductSubCategory(product, language);
         const productHref = `/product/${product.slug}`;
@@ -88,27 +76,11 @@ export function CatalogProductGrid({
               </button>
 
               {/* Quick Add Overlay */}
-              <div className="absolute inset-x-2.5 bottom-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <button
-                  type="button"
-                  onClick={(e) => handleQuickAdd(e, product)}
-                  disabled={isJustAdded}
-                  className={`w-full py-2.5 font-black text-[11px] uppercase tracking-widest transition-colors shadow-md flex items-center justify-center space-x-1.5 rounded-xs cursor-pointer ${
-                    isJustAdded
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-brand-brown hover:bg-brand-amber text-white'
-                  }`}
-                >
-                  {isJustAdded ? (
-                    <>
-                      <Check size={14} /> <span>{t('home.addedToBag')}</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag size={14} /> <span>{t('home.quickAdd')}</span>
-                    </>
-                  )}
-                </button>
+              <div className="absolute inset-x-2.5 bottom-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                <ProductCardQuickAdd
+                  product={product}
+                  onAddToCart={onAddToCart}
+                />
               </div>
             </div>
 

@@ -55,5 +55,5 @@ export interface CatalogMobileDrawerProps {
 export interface CatalogProductGridProps {
   products: ApiProduct[];
   isFilterVisible: boolean;
-  onAddToCart: (product: ApiProduct) => void;
+  onAddToCart: (product: ApiProduct, size?: string, color?: string) => void;
 }

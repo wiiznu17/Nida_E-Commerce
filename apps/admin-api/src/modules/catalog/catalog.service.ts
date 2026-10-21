@@ -719,6 +719,7 @@ export class CatalogService {
 
   private mapProductListItem(p: ProductListPayload): ApiProduct {
     const colorMap = new Map<string, ApiColorSwatch>();
+    const sizeSet = new Set<string>();
     for (const v of p.variants) {
       if (!colorMap.has(v.colorHex)) {
         colorMap.set(v.colorHex, {
@@ -726,6 +727,9 @@ export class CatalogService {
           nameTh: v.colorNameTh ?? undefined,
           hex: v.colorHex,
         });
+      }
+      if (v.size && v.size.trim()) {
+        sizeSet.add(v.size.trim());
       }
     }
 
@@ -749,6 +753,7 @@ export class CatalogService {
       tag: p.tag ?? undefined,
       tagTh: p.tagTh ?? undefined,
       colors: Array.from(colorMap.values()),
+      sizes: Array.from(sizeSet),
       reviewsCount: p._count.reviews,
       inStock,
       isPreorder: p.isPreorder,
