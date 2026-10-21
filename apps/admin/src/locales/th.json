@@ -1173,5 +1173,100 @@
       "promoRibbon": "แถบแบนเนอร์โปรโมชัน & โค้ดคูปองส่วนลด",
       "promoRibbonEn": "Promotional Ribbon & Voucher Code"
     }
+  },
+  "dashboard": {
+    "title": "แดชบอร์ดวิเคราะห์และภาพรวมร้านค้า",
+    "subtitle": "ข้อมูลเชิงลึกด้านยอดขาย ความเร็วการจัดส่ง สต็อกสินค้า และการส่งออกข้อมูล",
+    "exportBtn": "ส่งออกรายงาน",
+    "addProduct": "เพิ่มสินค้าใหม่",
+    "timeframe": {
+      "today": "วันนี้",
+      "week": "7 วันล่าสุด",
+      "month": "30 วันล่าสุด",
+      "year": "ปีนี้"
+    },
+    "health": {
+      "storeStatus": "สถานะร้านค้า",
+      "online": "ออนไลน์ปกติ",
+      "pendingShipments": "รอจัดส่ง",
+      "lowStockSkus": "สต็อกใกล้หมด",
+      "conversion": "คอนเวอร์ชัน",
+      "liveShoppers": "ผู้เยี่ยมชมสด",
+      "active": "คนช้อปอยู่"
+    },
+    "hero": {
+      "netRevenueTitle": "ยอดขายสุทธิ (Net Revenue)",
+      "netRevenueSub": "รายได้สุทธิหลังหักโค้ดส่วนลดและการคืนเงิน",
+      "grossSales": "ยอดขายรวม",
+      "discounts": "ส่วนลด",
+      "refunds": "คืนเงิน",
+      "ordersVelocityTitle": "อัตราคำสั่งซื้อ & จัดส่ง",
+      "ordersVelocitySub": "ความเร็วและประสิทธิภาพการจัดเตรียมพัสดุ",
+      "ordersUnit": "ออเดอร์",
+      "fulfillmentRate": "อัตราจัดส่งสำเร็จ",
+      "avgFulfillmentTime": "เวลาจัดส่งเฉลี่ย",
+      "hours": "ชม.",
+      "dispatchBenchmark": "เร็วกว่ามาตรฐาน SLA 32%",
+      "goToFulfillment": "ไปยังคิวจัดส่ง"
+    },
+    "kpi": {
+      "aovTitle": "ยอดซื้อเฉลี่ยต่อออเดอร์ (AOV)",
+      "vsLastPeriod": "จากช่วงก่อน",
+      "retentionTitle": "สัดส่วนลูกค้าประจำ/ใหม่",
+      "returning": "ลูกค้าประจำ",
+      "newCustomers": "ลูกค้าใหม่",
+      "cartAbandonmentTitle": "อัตราการละทิ้งตะกร้า",
+      "healthyBenchmark": "อยู่ในเกณฑ์ดีเยี่ยม (<20%)",
+      "returnRateTitle": "อัตราการขอคืนสินค้า",
+      "returnRateSub": "ต่ำกว่าเกณฑ์มาตรฐานอุตสาหกรรม"
+    },
+    "charts": {
+      "revenueTrendTitle": "แนวโน้มรายได้ & ความเร็วการขาย",
+      "revenueTrendSub": "กราฟแสดงยอดขายและจำนวนคำสั่งซื้อจำแนกตามวัน",
+      "periodRevenue": "ยอดรวมช่วงนี้",
+      "dailyAverage": "เฉลี่ยต่อวัน",
+      "departmentTitle": "สัดส่วนยอดขายตามแผนกสินค้า",
+      "departmentSub": "เปรียบเทียบสัดส่วนรายได้แยกตามประเภทสินค้า",
+      "totalSales": "ยอดขายรวม",
+      "operationsTitle": "ประสิทธิภาพการดำเนินงาน",
+      "operationsSub": "ความแม่นยำในการจัดส่งและจัดการคลัง",
+      "operationsOptimal": "ระดับมาตรฐานดีเยี่ยม",
+      "onTimeDispatch": "จัดส่งตรงเวลา",
+      "avgProcessing": "เวลาเตรียมพัสดุเฉลี่ย"
+    },
+    "merch": {
+      "bestSellersTitle": "5 อันดับสินค้าขายดี (Best Sellers)",
+      "allCatalog": "ดูสินค้าทั้งหมด",
+      "unitsSold": "ชิ้นที่ขายได้",
+      "velocityTitle": "การคาดการณ์สต็อก & สินค้าหมุนเวียนเร็ว",
+      "adjustStock": "ปรับยอดสต็อก",
+      "burnRate": "อัตราการขาย",
+      "daysRemaining": "วันคงเหลือ",
+      "suggestedRestock": "ชิ้นที่ควรเติม"
+    },
+    "orders": {
+      "recentOrdersTitle": "คำสั่งซื้อล่าสุด (Recent Orders)",
+      "recentOrdersSub": "ตรวจสอบสถานะและกดจัดส่งพัสดุได้ทันที",
+      "viewAll": "ดูคำสั่งซื้อทั้งหมด",
+      "orderNo": "เลขออเดอร์",
+      "customer": "ลูกค้า",
+      "guestCustomer": "ลูกค้าทั่วไป",
+      "items": "สินค้า",
+      "total": "ยอดรวม",
+      "status": "สถานะ",
+      "shipNow": "กดจัดส่งทันที"
+    },
+    "export": {
+      "modalTitle": "ศูนย์ส่งออกข้อมูล & รายงาน (Data Export Center)",
+      "selectType": "เลือกชุดข้อมูลที่ต้องการส่งออก",
+      "ordersData": "รายงานคำสั่งซื้อ (Orders)",
+      "inventoryData": "รายงานสต็อกสินค้า (Inventory)",
+      "revenueData": "รายงานสรุปยอดขาย (Revenue)",
+      "customersData": "รายงานฐานลูกค้า (Customers)",
+      "selectPeriod": "เลือกช่วงเวลา",
+      "selectFormat": "เลือกรูปแบบไฟล์",
+      "downloadButton": "เริ่มส่งออกไฟล์",
+      "downloadFailed": "ไม่สามารถส่งออกข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง"
+    }
   }
 }

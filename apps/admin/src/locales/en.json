@@ -1173,5 +1173,100 @@
       "promoRibbon": "Promotional Ribbon & Voucher Code",
       "promoRibbonEn": "Promotional Ribbon & Voucher Code"
     }
+  },
+  "dashboard": {
+    "title": "Store Analytics & Performance Dashboard",
+    "subtitle": "Real-time revenue insights, fulfillment velocity, inventory risks, and data export",
+    "exportBtn": "Export Report",
+    "addProduct": "Add Product",
+    "timeframe": {
+      "today": "Today",
+      "week": "Past 7 Days",
+      "month": "Past 30 Days",
+      "year": "This Year"
+    },
+    "health": {
+      "storeStatus": "Store Status",
+      "online": "Online",
+      "pendingShipments": "Pending Dispatch",
+      "lowStockSkus": "Low Stock SKUs",
+      "conversion": "Conversion Rate",
+      "liveShoppers": "Live Visitors",
+      "active": "Shoppers Active"
+    },
+    "hero": {
+      "netRevenueTitle": "Net Revenue",
+      "netRevenueSub": "Net sales after promotional vouchers and refunds",
+      "grossSales": "Gross Sales",
+      "discounts": "Discounts",
+      "refunds": "Refunds",
+      "ordersVelocityTitle": "Order Velocity & Operations",
+      "ordersVelocitySub": "Fulfillment speed and dispatch efficiency",
+      "ordersUnit": "orders",
+      "fulfillmentRate": "Fulfillment Rate",
+      "avgFulfillmentTime": "Avg Dispatch Time",
+      "hours": "hrs",
+      "dispatchBenchmark": "32% faster than SLA benchmark",
+      "goToFulfillment": "Go to Dispatch Queue"
+    },
+    "kpi": {
+      "aovTitle": "Average Order Value (AOV)",
+      "vsLastPeriod": "vs previous period",
+      "retentionTitle": "Customer Retention",
+      "returning": "Returning",
+      "newCustomers": "New Customers",
+      "cartAbandonmentTitle": "Cart Abandonment Rate",
+      "healthyBenchmark": "Healthy luxury benchmark (<20%)",
+      "returnRateTitle": "Return & Refund Rate",
+      "returnRateSub": "Far below industry standard (3.5%)"
+    },
+    "charts": {
+      "revenueTrendTitle": "Revenue & Sales Velocity Trend",
+      "revenueTrendSub": "Daily revenue trajectory with hover inspection",
+      "periodRevenue": "Period Total",
+      "dailyAverage": "Daily Average",
+      "departmentTitle": "Sales by Department",
+      "departmentSub": "Revenue distribution across product lines",
+      "totalSales": "Total Sales",
+      "operationsTitle": "Operations Fulfillment Health",
+      "operationsSub": "Dispatch accuracy and warehouse SLA",
+      "operationsOptimal": "Optimal Health",
+      "onTimeDispatch": "On-Time Dispatch",
+      "avgProcessing": "Avg Processing Time"
+    },
+    "merch": {
+      "bestSellersTitle": "Top 5 Best-Selling Products",
+      "allCatalog": "View All Catalog",
+      "unitsSold": "units sold",
+      "velocityTitle": "Inventory Velocity & Restock Forecast",
+      "adjustStock": "Adjust Stock",
+      "burnRate": "Burn Rate",
+      "daysRemaining": "days left",
+      "suggestedRestock": "suggested restock"
+    },
+    "orders": {
+      "recentOrdersTitle": "Recent Customer Orders",
+      "recentOrdersSub": "Verify status and dispatch shipments instantly",
+      "viewAll": "View All Orders",
+      "orderNo": "Order #",
+      "customer": "Customer",
+      "guestCustomer": "Valued Customer",
+      "items": "Items",
+      "total": "Total",
+      "status": "Status",
+      "shipNow": "Ship Now"
+    },
+    "export": {
+      "modalTitle": "Data Export Center & Reports",
+      "selectType": "Select Dataset to Export",
+      "ordersData": "Orders Dataset",
+      "inventoryData": "Inventory Stock Report",
+      "revenueData": "Revenue Summary",
+      "customersData": "Customer Directory",
+      "selectPeriod": "Select Date Range",
+      "selectFormat": "Select File Format",
+      "downloadButton": "Start Export Download",
+      "downloadFailed": "Failed to download export report. Please try again."
+    }
   }
 }

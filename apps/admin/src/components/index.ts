@@ -6,3 +6,4 @@ export * from './order';
 export * from './ui';
 export * from './audit';
 export * from './category';
+export * from './dashboard';

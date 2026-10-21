@@ -5,3 +5,4 @@ export * from './inventory.types.js';
 export * from './order.types.js';
 export * from './audit.types.js';
 export * from './promotions.types.js';
+export * from './analytics.types.js';
