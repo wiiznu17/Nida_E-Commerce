@@ -46,7 +46,8 @@ export const BannerListTable: React.FC<BannerListTableProps> = ({
             No Banners Configured
           </p>
           <p className="text-[11px] text-stone-400 mb-4">
-            Create your first hero banner slide to customize the storefront homepage.
+            Create your first hero banner slide to customize the storefront
+            homepage.
           </p>
           <button
             type="button"
@@ -72,8 +73,10 @@ export const BannerListTable: React.FC<BannerListTableProps> = ({
             <tbody className="divide-y divide-stone-100 text-xs">
               {banners.map((item) => {
                 const isHero = item.placement === BannerPlacement.HERO_HOME;
-                const isSpotlight = item.placement === BannerPlacement.SEASONAL_SPOTLIGHT;
-                const isRibbon = item.placement === BannerPlacement.PROMO_RIBBON;
+                const isSpotlight =
+                  item.placement === BannerPlacement.SEASONAL_SPOTLIGHT;
+                const isRibbon =
+                  item.placement === BannerPlacement.PROMO_RIBBON;
 
                 return (
                   <tr
@@ -95,10 +98,15 @@ export const BannerListTable: React.FC<BannerListTableProps> = ({
                     {/* Title */}
                     <td className="py-2.5 px-3">
                       <div className="font-bold text-[#2B1810] line-clamp-1">
-                        {item.titleEn || item.titleTh || item.title || 'Untitled Banner'}
+                        {item.titleEn ||
+                          item.titleTh ||
+                          item.title ||
+                          'Untitled Banner'}
                       </div>
                       <div className="text-[10px] text-stone-500 line-clamp-1">
-                        {item.titleTh && item.titleEn ? item.titleTh : item.subtitle || item.subtitleEn || '-'}
+                        {item.titleTh && item.titleEn
+                          ? item.titleTh
+                          : item.subtitle || item.subtitleEn || '-'}
                       </div>
                     </td>
 
@@ -115,7 +123,13 @@ export const BannerListTable: React.FC<BannerListTableProps> = ({
                                 : 'bg-stone-100 text-stone-700 border border-stone-200'
                         }`}
                       >
-                        {isHero ? 'Hero Home' : isSpotlight ? 'Spotlight Bento' : isRibbon ? 'Promo Ribbon' : 'Collection'}
+                        {isHero
+                          ? 'Hero Home'
+                          : isSpotlight
+                            ? 'Spotlight Bento'
+                            : isRibbon
+                              ? 'Promo Ribbon'
+                              : 'Collection'}
                       </span>
                     </td>
 

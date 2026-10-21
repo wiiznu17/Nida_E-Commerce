@@ -42,7 +42,9 @@ export interface ParsedPaymentWebhook {
 
 export interface IPaymentGatewayProvider {
   readonly providerName: string;
-  createPaymentIntent(input: CreatePaymentIntentInput): Promise<CreatePaymentIntentResult>;
+  createPaymentIntent(
+    input: CreatePaymentIntentInput,
+  ): Promise<CreatePaymentIntentResult>;
   checkPaymentStatus(transactionReference: string): Promise<PaymentStatus>;
   createRefund(input: CreateRefundInput): Promise<CreateRefundResult>;
   parseWebhook(

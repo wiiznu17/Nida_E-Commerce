@@ -12,7 +12,11 @@ import {
   EmptyState,
 } from '../ui';
 import { useLanguage } from '../../context/LanguageContext';
-import { formatOrderDateTime, formatPrice, formatSlaRemaining } from '../../utils';
+import {
+  formatOrderDateTime,
+  formatPrice,
+  formatSlaRemaining,
+} from '../../utils';
 import type { ApiOrderCancellationWithOrder } from '@repo/types';
 
 interface CancellationTableProps {
@@ -57,17 +61,37 @@ export const CancellationTable: React.FC<CancellationTableProps> = ({
   };
 
   return (
-    <TableContainer className={isLoading ? 'opacity-60 transition-opacity pointer-events-none' : 'transition-opacity'}>
+    <TableContainer
+      className={
+        isLoading
+          ? 'opacity-60 transition-opacity pointer-events-none'
+          : 'transition-opacity'
+      }
+    >
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[18%] min-w-[140px]">{t('cancellationsPage.table.requestNumber')}</TableHead>
-            <TableHead className="w-[16%] min-w-[130px]">{t('cancellationsPage.table.order')}</TableHead>
-            <TableHead className="w-[20%] min-w-[160px]">{t('cancellationsPage.table.customer')}</TableHead>
-            <TableHead className="w-[20%] min-w-[160px]">{t('cancellationsPage.table.reason')}</TableHead>
-            <TableHead className="w-[14%] min-w-[120px]">{t('cancellationsPage.table.sla')}</TableHead>
-            <TableHead className="w-[12%] min-w-[100px] text-center">{t('cancellationsPage.table.status')}</TableHead>
-            <TableHead className="w-[10%] min-w-[90px] text-right">{t('cancellationsPage.table.action')}</TableHead>
+            <TableHead className="w-[18%] min-w-[140px]">
+              {t('cancellationsPage.table.requestNumber')}
+            </TableHead>
+            <TableHead className="w-[16%] min-w-[130px]">
+              {t('cancellationsPage.table.order')}
+            </TableHead>
+            <TableHead className="w-[20%] min-w-[160px]">
+              {t('cancellationsPage.table.customer')}
+            </TableHead>
+            <TableHead className="w-[20%] min-w-[160px]">
+              {t('cancellationsPage.table.reason')}
+            </TableHead>
+            <TableHead className="w-[14%] min-w-[120px]">
+              {t('cancellationsPage.table.sla')}
+            </TableHead>
+            <TableHead className="w-[12%] min-w-[100px] text-center">
+              {t('cancellationsPage.table.status')}
+            </TableHead>
+            <TableHead className="w-[10%] min-w-[90px] text-right">
+              {t('cancellationsPage.table.action')}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -85,24 +109,44 @@ export const CancellationTable: React.FC<CancellationTableProps> = ({
             items.map((req) => (
               <TableRow key={req.id} className="hover:bg-brand-cream/20">
                 <TableCell>
-                  <div className="font-mono text-xs font-black text-brand-dark-brown">{req.requestNumber}</div>
-                  <div className="text-[11px] text-stone-500 font-mono mt-0.5">{formatOrderDateTime(req.createdAt, language)}</div>
+                  <div className="font-mono text-xs font-black text-brand-dark-brown">
+                    {req.requestNumber}
+                  </div>
+                  <div className="text-[11px] text-stone-500 font-mono mt-0.5">
+                    {formatOrderDateTime(req.createdAt, language)}
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Link to={`/admin/orders/${req.orderId}`} className="font-mono text-xs font-bold text-brand-brown hover:underline block">
+                  <Link
+                    to={`/admin/orders/${req.orderId}`}
+                    className="font-mono text-xs font-bold text-brand-brown hover:underline block"
+                  >
                     #{req.order?.orderNumber}
                   </Link>
-                  <div className="text-xs font-black text-stone-900 mt-0.5">{formatPrice(req.order?.totalAmount ?? 0)}</div>
+                  <div className="text-xs font-black text-stone-900 mt-0.5">
+                    {formatPrice(req.order?.totalAmount ?? 0)}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="text-xs font-bold text-stone-900">
-                    {req.user ? `${req.user.firstName ?? ''} ${req.user.lastName ?? ''}`.trim() || req.user.email : '-'}
+                    {req.user
+                      ? `${req.user.firstName ?? ''} ${req.user.lastName ?? ''}`.trim() ||
+                        req.user.email
+                      : '-'}
                   </div>
-                  <div className="text-[11px] text-stone-500 font-mono truncate">{req.user?.email}</div>
+                  <div className="text-[11px] text-stone-500 font-mono truncate">
+                    {req.user?.email}
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <div className="text-xs font-semibold text-stone-800 line-clamp-1">{req.reason}</div>
-                  {req.customerNote && <div className="text-[11px] text-stone-500 italic line-clamp-1 mt-0.5">"{req.customerNote}"</div>}
+                  <div className="text-xs font-semibold text-stone-800 line-clamp-1">
+                    {req.reason}
+                  </div>
+                  {req.customerNote && (
+                    <div className="text-[11px] text-stone-500 italic line-clamp-1 mt-0.5">
+                      "{req.customerNote}"
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>
                   {req.status === 'PENDING' ? (
@@ -111,10 +155,14 @@ export const CancellationTable: React.FC<CancellationTableProps> = ({
                       <span>{formatSlaRemaining(req.createdAt, language)}</span>
                     </div>
                   ) : (
-                    <span className="text-[11px] text-stone-400 font-medium">-</span>
+                    <span className="text-[11px] text-stone-400 font-medium">
+                      -
+                    </span>
                   )}
                 </TableCell>
-                <TableCell className="text-center">{getStatusBadge(req.status)}</TableCell>
+                <TableCell className="text-center">
+                  {getStatusBadge(req.status)}
+                </TableCell>
                 <TableCell className="text-right">
                   {req.status === 'PENDING' ? (
                     <button

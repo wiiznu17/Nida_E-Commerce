@@ -27,7 +27,10 @@ export const TrendingProductsSection: React.FC = () => {
   // Dynamically extract active marketing tags with at least 1 product (strictly no generic 'all' tab)
   const tabs = useMemo<TagTabItem[]>(() => {
     const list: TagTabItem[] = [];
-    const tagCounts = new Map<string, { count: number; label: string; id: string }>();
+    const tagCounts = new Map<
+      string,
+      { count: number; label: string; id: string }
+    >();
 
     productsList.forEach((p) => {
       const raw = p.tag ?? p.tagTh;
@@ -80,8 +83,12 @@ export const TrendingProductsSection: React.FC = () => {
         const raw = p.tag ?? p.tagTh;
         if (!raw) return false;
         const preset = findMarketingTagByLabel(raw);
-        const pKey = (preset ? preset.key : raw).toUpperCase().replace(/[-_ ]/g, '');
-        return pKey === target || pKey.includes(target) || target.includes(pKey);
+        const pKey = (preset ? preset.key : raw)
+          .toUpperCase()
+          .replace(/[-_ ]/g, '');
+        return (
+          pKey === target || pKey.includes(target) || target.includes(pKey)
+        );
       })
       .slice(0, 8);
   }, [productsList, activeTab]);

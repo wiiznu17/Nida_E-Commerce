@@ -82,7 +82,8 @@ export class ShippopLogisticsProvider implements ILogisticsProvider {
             },
             to: {
               name: input.recipientName,
-              address: `${input.shippingAddress.addressLine1} ${input.shippingAddress.addressLine2 ?? ''}`.trim(),
+              address:
+                `${input.shippingAddress.addressLine1} ${input.shippingAddress.addressLine2 ?? ''}`.trim(),
               district: input.shippingAddress.district,
               state: input.shippingAddress.province,
               province: input.shippingAddress.province,
@@ -139,7 +140,9 @@ export class ShippopLogisticsProvider implements ILogisticsProvider {
       };
     } catch (err: unknown) {
       this.logger.error('Failed to create SHIPPOP booking:', err);
-      throw new BadRequestException('ไม่สามารถเชื่อมต่อกับ SHIPPOP Gateway ได้');
+      throw new BadRequestException(
+        'ไม่สามารถเชื่อมต่อกับ SHIPPOP Gateway ได้',
+      );
     }
   }
 
@@ -180,12 +183,17 @@ export class ShippopLogisticsProvider implements ILogisticsProvider {
 
       return {
         trackingNumber,
-        courierName: json.courier_code ? `SHIPPOP (${json.courier_code})` : 'SHIPPOP Partner',
+        courierName: json.courier_code
+          ? `SHIPPOP (${json.courier_code})`
+          : 'SHIPPOP Partner',
         status: parsedStatus.status,
         events,
       };
     } catch (err: unknown) {
-      this.logger.error(`Error querying SHIPPOP tracking for ${trackingNumber}:`, err);
+      this.logger.error(
+        `Error querying SHIPPOP tracking for ${trackingNumber}:`,
+        err,
+      );
       return {
         trackingNumber,
         courierName: 'SHIPPOP Partner',
@@ -199,9 +207,7 @@ export class ShippopLogisticsProvider implements ILogisticsProvider {
     return `${this.endpointUrl}/label/?api_key=${this.apiKey}&tracking_code=${encodeURIComponent(trackingNumber)}`;
   }
 
-  async parseWebhook(
-    payload: unknown,
-  ): Promise<ParsedLogisticsWebhook | null> {
+  async parseWebhook(payload: unknown): Promise<ParsedLogisticsWebhook | null> {
     if (!payload || typeof payload !== 'object') {
       return null;
     }
@@ -219,7 +225,8 @@ export class ShippopLogisticsProvider implements ILogisticsProvider {
     );
 
     const states = body.states ?? body.state ?? [];
-    const latestState = states.length > 0 ? states[states.length - 1] : undefined;
+    const latestState =
+      states.length > 0 ? states[states.length - 1] : undefined;
 
     let statusTitle = this.mapShippopCodeToTitle(
       latestState?.status ?? latestState?.code ?? body.order_status,

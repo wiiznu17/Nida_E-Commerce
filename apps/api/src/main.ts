@@ -46,7 +46,8 @@ async function bootstrap() {
 
   // Production Security Verification
   if (isProd) {
-    const defaultSecret = 'nida_store_customer_jwt_secret_key_2026_luxury_apparel';
+    const defaultSecret =
+      'nida_store_customer_jwt_secret_key_2026_luxury_apparel';
     const secret = process.env.JWT_CUSTOMER_SECRET;
     if (!secret || secret === defaultSecret || secret.length < 32) {
       logger.error(
@@ -59,7 +60,9 @@ async function bootstrap() {
   }
 
   const rawOrigins = [
-    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []),
+    ...(process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(',')
+      : []),
     process.env.STORE_FRONTEND_URL,
     process.env.NEXT_PUBLIC_SITE_URL,
     'http://localhost:3000',

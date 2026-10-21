@@ -1,4 +1,11 @@
-import { Check, Clock, Truck, CheckCircle2, XCircle, ShieldAlert } from 'lucide-react';
+import {
+  Check,
+  Clock,
+  Truck,
+  CheckCircle2,
+  XCircle,
+  ShieldAlert,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect } from '../ui';
 import {
@@ -90,7 +97,11 @@ export function OrderDetailStatusCard({
       return;
     }
 
-    if (currentStatus === 'PENDING' && val === 'PAID' && onOpenPaymentOverride) {
+    if (
+      currentStatus === 'PENDING' &&
+      val === 'PAID' &&
+      onOpenPaymentOverride
+    ) {
       onOpenPaymentOverride();
       return;
     }
@@ -146,7 +157,10 @@ export function OrderDetailStatusCard({
           {currentStatus === 'PENDING' && (
             <div className="p-3 bg-amber-50/90 border border-amber-200/90 rounded-xs flex items-center justify-between gap-2">
               <div className="flex items-center space-x-2 text-amber-900 text-xs min-w-0">
-                <ShieldAlert size={15} className="text-amber-700 flex-shrink-0" />
+                <ShieldAlert
+                  size={15}
+                  className="text-amber-700 flex-shrink-0"
+                />
                 <span className="font-bold truncate">
                   {t('orders.paymentOverride.button')}
                 </span>

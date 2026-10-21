@@ -6,9 +6,7 @@ import {
   OrderLifecycleJobName,
   type VoidExpiredReturnJobData,
 } from '@repo/types';
-import {
-  AuditActionType,
-} from '@repo/database';
+import { AuditActionType } from '@repo/database';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
 @Processor(OrderLifecycleQueueName.RETURN_DEADLINE)

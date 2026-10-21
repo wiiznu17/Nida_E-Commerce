@@ -151,7 +151,6 @@ export const AdminUsers: React.FC = () => {
       }
     >
       <div className="space-y-6">
-
         {/* Users Table Card */}
         <div className="bg-white border border-[#EAE3D9] rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
@@ -322,7 +321,9 @@ export const AdminUsers: React.FC = () => {
                     onChange={(e) => setInviteName(e.target.value)}
                     placeholder="Kanya Somchai"
                     className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-[#2B1810] focus:outline-none ${
-                      fieldErrors.name ? 'border-rose-400 focus:ring-2 focus:ring-rose-500' : 'border-stone-200 focus:ring-2 focus:ring-[#2B1810]'
+                      fieldErrors.name
+                        ? 'border-rose-400 focus:ring-2 focus:ring-rose-500'
+                        : 'border-stone-200 focus:ring-2 focus:ring-[#2B1810]'
                     }`}
                   />
                   <InlineError message={fieldErrors.name} />
@@ -339,7 +340,9 @@ export const AdminUsers: React.FC = () => {
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="kanya@nida-apparel.com"
                     className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-[#2B1810] focus:outline-none ${
-                      fieldErrors.email ? 'border-rose-400 focus:ring-2 focus:ring-rose-500' : 'border-stone-200 focus:ring-2 focus:ring-[#2B1810]'
+                      fieldErrors.email
+                        ? 'border-rose-400 focus:ring-2 focus:ring-rose-500'
+                        : 'border-stone-200 focus:ring-2 focus:ring-[#2B1810]'
                     }`}
                   />
                   <InlineError message={fieldErrors.email} />

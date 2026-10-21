@@ -64,7 +64,8 @@ export function useCustomerOrders() {
         totalSpent += amount;
       }
       if (o.status === 'PENDING') pendingCount++;
-      else if (o.status === 'PROCESSING' || o.status === 'PAID') processingCount++;
+      else if (o.status === 'PROCESSING' || o.status === 'PAID')
+        processingCount++;
       else if (o.status === 'SHIPPED') inTransitCount++;
       else if (o.status === 'DELIVERED') deliveredCount++;
       else if (o.status === 'COMPLETED') completedCount++;

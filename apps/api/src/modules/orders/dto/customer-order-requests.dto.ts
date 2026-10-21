@@ -18,9 +18,7 @@ import type {
   SubmitReturnShipmentDto,
 } from '@repo/types';
 
-export class CustomerCreateCancellationDto
-  implements CreateCancellationRequestDto
-{
+export class CustomerCreateCancellationDto implements CreateCancellationRequestDto {
   @ApiProperty({
     description: 'เหตุผลในการขอยกเลิกคำสั่งซื้อ',
     example: 'สั่งสินค้าผิดสี/ไซส์',
@@ -120,4 +118,3 @@ export class CustomerSubmitReturnShipmentDto implements SubmitReturnShipmentDto 
   @IsString()
   returnShippingReceiptUrl?: string;
 }
-

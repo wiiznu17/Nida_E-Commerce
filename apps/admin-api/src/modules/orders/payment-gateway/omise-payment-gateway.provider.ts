@@ -141,7 +141,9 @@ export class OmisePaymentGatewayProvider implements IPaymentGatewayProvider {
       throw new BadRequestException('รูปแบบการชำระเงินไม่รองรับผ่าน Omise');
     } catch (err: unknown) {
       this.logger.error('Failed to create Omise payment intent:', err);
-      throw new BadRequestException('ไม่สามารถสร้างรายการชำระเงินผ่าน Omise ได้');
+      throw new BadRequestException(
+        'ไม่สามารถสร้างรายการชำระเงินผ่าน Omise ได้',
+      );
     }
   }
 
@@ -154,9 +156,12 @@ export class OmisePaymentGatewayProvider implements IPaymentGatewayProvider {
 
     try {
       const authHeader = `Basic ${Buffer.from(`${this.secretKey}:`).toString('base64')}`;
-      const res = await fetch(`${this.baseUrl}/charges/${transactionReference}`, {
-        headers: { Authorization: authHeader },
-      });
+      const res = await fetch(
+        `${this.baseUrl}/charges/${transactionReference}`,
+        {
+          headers: { Authorization: authHeader },
+        },
+      );
       const charge = (await res.json()) as OmiseChargeResponse;
 
       if (charge.status === 'successful') {
@@ -167,7 +172,10 @@ export class OmisePaymentGatewayProvider implements IPaymentGatewayProvider {
       }
       return PaymentStatus.PENDING;
     } catch (err: unknown) {
-      this.logger.error(`Error checking Omise status for ${transactionReference}:`, err);
+      this.logger.error(
+        `Error checking Omise status for ${transactionReference}:`,
+        err,
+      );
       return PaymentStatus.PENDING;
     }
   }
@@ -209,9 +217,7 @@ export class OmisePaymentGatewayProvider implements IPaymentGatewayProvider {
     }
   }
 
-  async parseWebhook(
-    payload: unknown,
-  ): Promise<ParsedPaymentWebhook | null> {
+  async parseWebhook(payload: unknown): Promise<ParsedPaymentWebhook | null> {
     if (!payload || typeof payload !== 'object') {
       return null;
     }
@@ -231,7 +237,9 @@ export class OmisePaymentGatewayProvider implements IPaymentGatewayProvider {
     return {
       transactionReference: chargeId,
       gatewayEventId: event.id ?? `evnt_${Date.now()}`,
-      paymentStatus: isSuccessful ? PaymentStatus.CAPTURED : PaymentStatus.FAILED,
+      paymentStatus: isSuccessful
+        ? PaymentStatus.CAPTURED
+        : PaymentStatus.FAILED,
       isSuccessful,
       paidAt: isSuccessful ? new Date() : undefined,
       cardLast4: charge.card?.last_digits,

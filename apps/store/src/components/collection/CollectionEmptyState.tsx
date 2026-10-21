@@ -9,7 +9,9 @@ interface CollectionEmptyStateProps {
   onResetFilters: () => void;
 }
 
-export function CollectionEmptyState({ onResetFilters }: CollectionEmptyStateProps) {
+export function CollectionEmptyState({
+  onResetFilters,
+}: CollectionEmptyStateProps) {
   const { language, t } = useLanguage();
 
   return (

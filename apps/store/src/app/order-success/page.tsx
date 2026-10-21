@@ -33,7 +33,9 @@ function OrderSuccessContent() {
 
       // If order is still pending, redirect customer to the payment page
       if (data.status === OrderStatus.PENDING) {
-        router.replace(`/payment?orderNumber=${encodeURIComponent(rawOrderNumber)}`);
+        router.replace(
+          `/payment?orderNumber=${encodeURIComponent(rawOrderNumber)}`,
+        );
       }
     } catch (err: unknown) {
       console.warn('[OrderSuccess] Fetch order failed:', err);
@@ -58,7 +60,11 @@ function OrderSuccessContent() {
     return (
       <div className="max-w-xl w-full bg-white border border-brand-border p-12 text-center shadow-xs">
         <LoadingSpinner
-          text={language === 'th' ? 'กำลังโหลดข้อมูลคำสั่งซื้อ...' : 'Loading order details...'}
+          text={
+            language === 'th'
+              ? 'กำลังโหลดข้อมูลคำสั่งซื้อ...'
+              : 'Loading order details...'
+          }
         />
       </div>
     );
@@ -74,13 +80,18 @@ function OrderSuccessContent() {
           {language === 'th' ? 'ไม่พบคำสั่งซื้อ' : 'Order Not Found'}
         </h2>
         <p className="text-xs text-rose-700">
-          {errorMessage || (language === 'th' ? 'หมายเลขคำสั่งซื้อไม่ถูกต้อง' : 'Invalid order number')}
+          {errorMessage ||
+            (language === 'th'
+              ? 'หมายเลขคำสั่งซื้อไม่ถูกต้อง'
+              : 'Invalid order number')}
         </p>
         <Link
           href="/profile/orders"
           className="inline-block py-2.5 px-6 bg-brand-brown text-white text-xs font-bold uppercase tracking-wider transition-colors hover:bg-brand-dark-brown"
         >
-          {language === 'th' ? 'กลับไปยังประวัติคำสั่งซื้อ' : 'Back to My Orders'}
+          {language === 'th'
+            ? 'กลับไปยังประวัติคำสั่งซื้อ'
+            : 'Back to My Orders'}
         </Link>
       </div>
     );

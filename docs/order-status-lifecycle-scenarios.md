@@ -8,45 +8,46 @@
 
 ระบบคำสั่งซื้อของ NIDA แบ่งสถานะออกเป็น 6 มิติ ตามหลักการ **Separation of Concerns**:
 
-| มิติ | Enum Type | ค่าที่เป็นไปได้ทั้งหมด (All Enum Values) | ความรับผิดชอบหลัก |
-| :--- | :--- | :--- | :--- |
-| **1. Order Status** | `OrderStatus` | `PENDING`, `PAID`, `PREORDER_AWAITING_STOCK`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `REFUNDED` | สถานะหลักของคำสั่งซื้อในระดับข้อตกลงธุรกิจ (Macro Aggregate) |
-| **2. Payment Status** | `PaymentStatus` | `PENDING`, `AUTHORIZED`, `CAPTURED`, `FAILED`, `REFUNDED` | สถานะธุรกรรมการเงินกับ Payment Gateway (Omise) |
-| **3. Shipment Status** | `ShipmentStatus` | `LABEL_CREATED`, `PICKED_UP`, `IN_TRANSIT`, `OUT_FOR_DELIVERY`, `DELIVERED`, `FAILED` | สถานะการเดินทางของพัสดุในระบบโลจิสติกส์ |
-| **4. Cancellation** | `CancellationRequestStatus` | `PENDING`, `APPROVED`, `REJECTED` | กระบวนการขอยกเลิกคำสั่งซื้อก่อนจัดส่ง |
-| **5. Return Request** | `ReturnStatus` | `REQUESTED`, `APPROVED`, `REJECTED`, `COMPLETED` | กระบวนการขอคืนสินค้าหลังรับมอบพัสดุ |
-| **6. Refund Gateway** | `RefundStatus` | `PENDING`, `SUCCEEDED`, `FAILED` | สถานะการดำเนินการคืนเงินผ่าน Payment Gateway |
+| มิติ                   | Enum Type                   | ค่าที่เป็นไปได้ทั้งหมด (All Enum Values)                                                                    | ความรับผิดชอบหลัก                                            |
+| :--------------------- | :-------------------------- | :---------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------- |
+| **1. Order Status**    | `OrderStatus`               | `PENDING`, `PAID`, `PREORDER_AWAITING_STOCK`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `REFUNDED` | สถานะหลักของคำสั่งซื้อในระดับข้อตกลงธุรกิจ (Macro Aggregate) |
+| **2. Payment Status**  | `PaymentStatus`             | `PENDING`, `AUTHORIZED`, `CAPTURED`, `FAILED`, `REFUNDED`                                                   | สถานะธุรกรรมการเงินกับ Payment Gateway (Omise)               |
+| **3. Shipment Status** | `ShipmentStatus`            | `LABEL_CREATED`, `PICKED_UP`, `IN_TRANSIT`, `OUT_FOR_DELIVERY`, `DELIVERED`, `FAILED`                       | สถานะการเดินทางของพัสดุในระบบโลจิสติกส์                      |
+| **4. Cancellation**    | `CancellationRequestStatus` | `PENDING`, `APPROVED`, `REJECTED`                                                                           | กระบวนการขอยกเลิกคำสั่งซื้อก่อนจัดส่ง                        |
+| **5. Return Request**  | `ReturnStatus`              | `REQUESTED`, `APPROVED`, `REJECTED`, `COMPLETED`                                                            | กระบวนการขอคืนสินค้าหลังรับมอบพัสดุ                          |
+| **6. Refund Gateway**  | `RefundStatus`              | `PENDING`, `SUCCEEDED`, `FAILED`                                                                            | สถานะการดำเนินการคืนเงินผ่าน Payment Gateway                 |
 
 ---
 
 ## 2. ตารางความสัมพันธ์ของสถานะในแต่ละจังหวะ (Status Synchronization Matrix)
 
-| เหตุการณ์ / จุดกระตุ้น (Trigger Event) | OrderStatus | PaymentStatus | ShipmentStatus | Inventory Effect | Loyalty Points | หมายเหตุทางธุรกิจ |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **ลูกค้ากดยืนยันสั่งซื้อ (Checkout)** | `PENDING` | `PENDING` | *- (ยังไม่มี)* | ตัดสต็อกจอง (`ORDER_DEDUCT`) หรือเพิ่ม `preorderBooked` | บันทึก `REDEEMED_CHECKOUT` (ถ้าใช้แต้ม) | ออกเลขออเดอร์ + เริ่มนับเวลาชำระเงิน 30 นาที |
-| **ชำระเงินสำเร็จ (สินค้าพร้อมส่ง)** | `PAID` | `CAPTURED` | *-* | สต็อกถูกตัดสมบูรณ์ | *-* | Gateway ยืนยันยอดเงิน (PromptPay/Card) |
-| **ชำระเงินสำเร็จ (มีสินค้า Pre-Order)** | `PREORDER_AWAITING_STOCK` | `CAPTURED` | *-* | คงยอด `preorderBooked` | *-* | รอสินค้าผลิตเสร็จเข้าคลัง |
-| **สินค้า Pre-Order เข้าคลังสินค้า** | `PROCESSING` | `CAPTURED` | *-* | รับเข้าคลัง (`PREORDER_RECEIVE`) และเคลียร์ `preorderBooked` | *-* | ปรับสถานะพร้อมหยิบแพ็ค |
-| **คลังสินค้าเริ่มจัดเตรียมและแพ็คกล่อง** | `PROCESSING` | `CAPTURED` | *-* | สต็อกคงเดิม | *-* | เตรียมออกใบปะหน้ากล่อง |
-| **ออกเลขพัสดุ / พิมพ์ใบปะหน้า (Fulfill)** | `PROCESSING` | `CAPTURED` | `LABEL_CREATED` | สต็อกคงเดิม | *-* | มี Tracking Number แล้ว แต่ยังไม่มอบให้รถขนส่ง |
-| **รถขนส่งสแกนรับพัสดุออกจากคลัง** | `SHIPPED` | `CAPTURED` | `PICKED_UP` | สต็อกอยู่ระหว่างขนส่ง | *-* | พัสดุเริ่มเดินทาง |
-| **พัสดุอยู่ระหว่างนำส่ง** | `SHIPPED` | `CAPTURED` | `IN_TRANSIT` / `OUT_FOR_DELIVERY` | สต็อกอยู่ระหว่างขนส่ง | *-* | บันทึกประวัติใน `ShipmentLog` |
-| **ลูกค้าเซ็นรับพัสดุสำเร็จ** | `DELIVERED` | `CAPTURED` | `DELIVERED` | สิ้นสุดภาระการจัดส่ง | คำนวณแจกแต้ม `EARNED_ORDER` | สิ้นสุดกระบวนการขายปกติ เริ่มนับระยะเวลารับประกัน 14 วัน |
-| **ชำระเงินไม่ผ่าน / บัตรถูกปฏิเสธ** | `PENDING` | `FAILED` | *-* | สต็อกยังคงจองอยู่จนกว่าจะหมดเวลา | *-* | ลูกค้าสามารถกดเปลี่ยนช่องทางหรือชำระใหม่ได้ |
-| **หมดเวลาชำระเงิน (Timeout 30 นาที)** | `CANCELLED` | `FAILED` | *-* | คืนสต็อกกลับ (`RESTOCK`) | คืนแต้มที่ใช้ (`REFUND_CANCEL`) | ระบบ Auto-expire ยกเลิกออเดอร์อัตโนมัติ |
-| **ลูกค้ายกเลิกเองขณะรอชำระ (Pending)** | `CANCELLED` | `FAILED` | *-* | คืนสต็อกกลับ (`RESTOCK`) | คืนแต้มที่ใช้ (`REFUND_CANCEL`) | ยกเลิกทันที ไม่ต้องรอแอดมินอนุมัติ |
-| **ลูกค้ายื่นคำขอยกเลิก (ชำระเงินแล้ว)** | `PAID` หรือ `PROCESSING` | `CAPTURED` | *-* | สต็อกยังไม่อัปเดต | *-* | สร้าง `CancellationRequest` สถานะ `PENDING` |
-| **แอดมินอนุมัติคำขอยกเลิก** | `REFUNDED` | `REFUNDED` | *-* | คืนสต็อกเข้าคลัง (`RESTOCK`) | คืนแต้มที่ใช้ (`REFUND_CANCEL`) | คืนเงินผ่าน Omise Gateway สำเร็จ (`SUCCEEDED`) |
-| **แอดมินปฏิเสธคำขอยกเลิก** | `PAID` หรือ `PROCESSING` | `CAPTURED` | *-* | คงเดิม | *-* | ออเดอร์ดำเนินขั้นตอนเตรียมจัดส่งต่อไป |
-| **ลูกค้ายื่นขอคืนสินค้าหลังรับของ** | `DELIVERED` | `CAPTURED` | `DELIVERED` | สต็อกอยู่ที่ลูกค้า | *-* | สร้าง `ReturnRequest` สถานะ `REQUESTED` |
-| **แอดมินอนุมัติคำขอคืนสินค้า** | `DELIVERED` | `CAPTURED` | `DELIVERED` | สต็อกรอส่งกลับ | *-* | ส่งใบจัดส่งพัสดุตีกลับให้ลูกค้า |
-| **ตรวจรับสินค้าคืนผ่าน QC สมบูรณ์** | `REFUNDED` | `REFUNDED` | `DELIVERED` | รับสินค้าคืนเข้าคลัง (`RETURNED`) | หักแต้มที่เคยแจกกลับ (`REFUND_CANCEL`) | ดำเนินการคืนเงินผ่าน Gateway สำเร็จ (`SUCCEEDED`) |
+| เหตุการณ์ / จุดกระตุ้น (Trigger Event)    | OrderStatus               | PaymentStatus | ShipmentStatus                    | Inventory Effect                                             | Loyalty Points                          | หมายเหตุทางธุรกิจ                                        |
+| :---------------------------------------- | :------------------------ | :------------ | :-------------------------------- | :----------------------------------------------------------- | :-------------------------------------- | :------------------------------------------------------- |
+| **ลูกค้ากดยืนยันสั่งซื้อ (Checkout)**     | `PENDING`                 | `PENDING`     | _- (ยังไม่มี)_                    | ตัดสต็อกจอง (`ORDER_DEDUCT`) หรือเพิ่ม `preorderBooked`      | บันทึก `REDEEMED_CHECKOUT` (ถ้าใช้แต้ม) | ออกเลขออเดอร์ + เริ่มนับเวลาชำระเงิน 30 นาที             |
+| **ชำระเงินสำเร็จ (สินค้าพร้อมส่ง)**       | `PAID`                    | `CAPTURED`    | _-_                               | สต็อกถูกตัดสมบูรณ์                                           | _-_                                     | Gateway ยืนยันยอดเงิน (PromptPay/Card)                   |
+| **ชำระเงินสำเร็จ (มีสินค้า Pre-Order)**   | `PREORDER_AWAITING_STOCK` | `CAPTURED`    | _-_                               | คงยอด `preorderBooked`                                       | _-_                                     | รอสินค้าผลิตเสร็จเข้าคลัง                                |
+| **สินค้า Pre-Order เข้าคลังสินค้า**       | `PROCESSING`              | `CAPTURED`    | _-_                               | รับเข้าคลัง (`PREORDER_RECEIVE`) และเคลียร์ `preorderBooked` | _-_                                     | ปรับสถานะพร้อมหยิบแพ็ค                                   |
+| **คลังสินค้าเริ่มจัดเตรียมและแพ็คกล่อง**  | `PROCESSING`              | `CAPTURED`    | _-_                               | สต็อกคงเดิม                                                  | _-_                                     | เตรียมออกใบปะหน้ากล่อง                                   |
+| **ออกเลขพัสดุ / พิมพ์ใบปะหน้า (Fulfill)** | `PROCESSING`              | `CAPTURED`    | `LABEL_CREATED`                   | สต็อกคงเดิม                                                  | _-_                                     | มี Tracking Number แล้ว แต่ยังไม่มอบให้รถขนส่ง           |
+| **รถขนส่งสแกนรับพัสดุออกจากคลัง**         | `SHIPPED`                 | `CAPTURED`    | `PICKED_UP`                       | สต็อกอยู่ระหว่างขนส่ง                                        | _-_                                     | พัสดุเริ่มเดินทาง                                        |
+| **พัสดุอยู่ระหว่างนำส่ง**                 | `SHIPPED`                 | `CAPTURED`    | `IN_TRANSIT` / `OUT_FOR_DELIVERY` | สต็อกอยู่ระหว่างขนส่ง                                        | _-_                                     | บันทึกประวัติใน `ShipmentLog`                            |
+| **ลูกค้าเซ็นรับพัสดุสำเร็จ**              | `DELIVERED`               | `CAPTURED`    | `DELIVERED`                       | สิ้นสุดภาระการจัดส่ง                                         | คำนวณแจกแต้ม `EARNED_ORDER`             | สิ้นสุดกระบวนการขายปกติ เริ่มนับระยะเวลารับประกัน 14 วัน |
+| **ชำระเงินไม่ผ่าน / บัตรถูกปฏิเสธ**       | `PENDING`                 | `FAILED`      | _-_                               | สต็อกยังคงจองอยู่จนกว่าจะหมดเวลา                             | _-_                                     | ลูกค้าสามารถกดเปลี่ยนช่องทางหรือชำระใหม่ได้              |
+| **หมดเวลาชำระเงิน (Timeout 30 นาที)**     | `CANCELLED`               | `FAILED`      | _-_                               | คืนสต็อกกลับ (`RESTOCK`)                                     | คืนแต้มที่ใช้ (`REFUND_CANCEL`)         | ระบบ Auto-expire ยกเลิกออเดอร์อัตโนมัติ                  |
+| **ลูกค้ายกเลิกเองขณะรอชำระ (Pending)**    | `CANCELLED`               | `FAILED`      | _-_                               | คืนสต็อกกลับ (`RESTOCK`)                                     | คืนแต้มที่ใช้ (`REFUND_CANCEL`)         | ยกเลิกทันที ไม่ต้องรอแอดมินอนุมัติ                       |
+| **ลูกค้ายื่นคำขอยกเลิก (ชำระเงินแล้ว)**   | `PAID` หรือ `PROCESSING`  | `CAPTURED`    | _-_                               | สต็อกยังไม่อัปเดต                                            | _-_                                     | สร้าง `CancellationRequest` สถานะ `PENDING`              |
+| **แอดมินอนุมัติคำขอยกเลิก**               | `REFUNDED`                | `REFUNDED`    | _-_                               | คืนสต็อกเข้าคลัง (`RESTOCK`)                                 | คืนแต้มที่ใช้ (`REFUND_CANCEL`)         | คืนเงินผ่าน Omise Gateway สำเร็จ (`SUCCEEDED`)           |
+| **แอดมินปฏิเสธคำขอยกเลิก**                | `PAID` หรือ `PROCESSING`  | `CAPTURED`    | _-_                               | คงเดิม                                                       | _-_                                     | ออเดอร์ดำเนินขั้นตอนเตรียมจัดส่งต่อไป                    |
+| **ลูกค้ายื่นขอคืนสินค้าหลังรับของ**       | `DELIVERED`               | `CAPTURED`    | `DELIVERED`                       | สต็อกอยู่ที่ลูกค้า                                           | _-_                                     | สร้าง `ReturnRequest` สถานะ `REQUESTED`                  |
+| **แอดมินอนุมัติคำขอคืนสินค้า**            | `DELIVERED`               | `CAPTURED`    | `DELIVERED`                       | สต็อกรอส่งกลับ                                               | _-_                                     | ส่งใบจัดส่งพัสดุตีกลับให้ลูกค้า                          |
+| **ตรวจรับสินค้าคืนผ่าน QC สมบูรณ์**       | `REFUNDED`                | `REFUNDED`    | `DELIVERED`                       | รับสินค้าคืนเข้าคลัง (`RETURNED`)                            | หักแต้มที่เคยแจกกลับ (`REFUND_CANCEL`)  | ดำเนินการคืนเงินผ่าน Gateway สำเร็จ (`SUCCEEDED`)        |
 
 ---
 
 ## 3. รายละเอียด Use Cases & Scenarios สำหรับการทดสอบ
 
 ### Scenario 1: Standard Happy Path (สินค้าพร้อมส่ง ชำระสำเร็จจนถึงส่งมอบ)
+
 - **Starting State**: ลูกค้าทำรายการสั่งซื้อเสร็จสิ้น
   - `order.status = PENDING`
   - `payment.status = PENDING`
@@ -75,6 +76,7 @@
 ---
 
 ### Scenario 2: Pre-Order Flow (สินค้าพรีออเดอร์ รอสินค้าเข้าคลัง)
+
 - **Starting State**: ลูกค้าสั่งซื้อสินค้าที่มีชิ้นใดชิ้นหนึ่งเป็น `isPreorder: true`
   - `order.hasPreorderItems = true`
   - `order.status = PENDING`
@@ -95,6 +97,7 @@
 ---
 
 ### Scenario 3: Payment Retry & Deliberate Method Switching (ชำระเงินใหม่ / เปลี่ยนช่องทางด้วยการยืนยัน)
+
 - **Starting State**: ลูกค้าสั่งซื้อสินค้าแล้วยังไม่ได้ชำระเงิน หรือชำระเงินไม่ผ่าน
   - `order.status = PENDING`
   - `payment.status = PENDING` หรือ `FAILED`
@@ -117,6 +120,7 @@
 ---
 
 ### Scenario 4: Payment Timeout & Cancellation (หมดเวลาชำระเงินหรือลูกค้ายกเลิกเอง)
+
 - **Case 4A — ลูกค้ายกเลิกเองตอน Pending**:
   - `order.status = PENDING`
   - ลูกค้ากดยกเลิกคำสั่งซื้อ
@@ -133,6 +137,7 @@
 ---
 
 ### Scenario 5: Customer Paid Cancellation Request (ยกเลิกหลังชำระเงินแล้ว)
+
 - **Starting State**: ลูกค้าชำระเงินแล้ว `order.status = PAID` หรือ `PROCESSING`
 - **Step 1 — ลูกค้าส่งคำขอยกเลิก (`requestCancellation`)**:
   - ตรวจสอบว่าออเดอร์ยังไม่ถูกจัดส่ง (`order.status !== SHIPPED` และ `!== DELIVERED`)
@@ -154,6 +159,7 @@
 ---
 
 ### Scenario 6: Post-Delivery Return & Inspection Flow (การคืนสินค้าหลังรับมอบ)
+
 - **Starting State**: ออเดอร์ส่งมอบสำเร็จแล้ว
   - `order.status = DELIVERED`
   - `shipment.status = DELIVERED`
@@ -179,6 +185,7 @@
 ---
 
 ### Scenario 7: Partial Return & Partial Refund (ขอคืนสินค้าบางชิ้น)
+
 - **Starting State**: ออเดอร์ประกอบด้วยสินค้า 2 ชิ้น ยอดรวม ฿5,000 ชำระสำเร็จและส่งมอบแล้ว (`DELIVERED`)
 - **Step 1 — ขอคืนสินค้า 1 ชิ้น (มูลค่า ฿2,000)**:
   - สร้าง `ReturnRequest` ระบุคืนเฉพาะ Item 1 จำนวน 1 ชิ้น
@@ -197,6 +204,7 @@
 ---
 
 ### Scenario 8: Logistics Delivery Failure & Return to Sender (นำจ่ายไม่สำเร็จ / พัสดุตีกลับ)
+
 - **Starting State**: ออเดอร์จัดส่งแล้ว
   - `order.status = SHIPPED`
   - `shipment.status = OUT_FOR_DELIVERY`
@@ -217,17 +225,17 @@
 
 ### Scenario 9: Negative Cases & State Machine Guard Rails (การป้องกันสถานะผิดกฎ)
 
-| กรณีทดสอบ (Forbidden Transition Test Case) | สถานะเริ่มต้น | สถานะที่พยายามเปลี่ยนไป | ผลลัพธ์ที่คาดหวัง |
-| :--- | :--- | :--- | :--- |
-| **ข้ามขั้นตอน: ยังไม่ชำระเงินแต่ขอกระโดดไป SHIPPED** | `PENDING` | `SHIPPED` | **BadRequestException**: ไม่อนุญาต ต้องชำระเงิน (`PAID`) และเตรียมของ (`PROCESSING`) ก่อน |
-| **ข้ามขั้นตอน: ชำระเงินแล้วแต่ขอกระโดดไป DELIVERED ทันที** | `PAID` | `DELIVERED` | **BadRequestException**: ต้องผ่าน `PROCESSING` และ `SHIPPED` ก่อน |
-| **จัดส่งสินค้าโดยไม่มี Tracking Number** | `PROCESSING` | `SHIPPED` | **BadRequestException**: ต้องระบุเลขพัสดุ (Tracking Number) ก่อนเปลี่ยนสถานะ |
-| **ยกเลิกออเดอร์ที่จัดส่งไปแล้ว** | `SHIPPED` | `CANCELLED` | **BadRequestException**: พัสดุถูกส่งออกไปแล้ว ไม่อนุญาตให้ยกเลิกตรง ต้องใช้ Return Request |
-| **ยกเลิกออเดอร์ที่ลูกค้ารับของไปแล้ว** | `DELIVERED` | `CANCELLED` | **BadRequestException**: ส่งมอบสำเร็จแล้ว ต้องเปิด Return Request เท่านั้น |
-| **พยายามชำระเงินในออเดอร์ที่ถูกยกเลิกไปแล้ว** | `CANCELLED` | `PAID` | **BadRequestException**: คำสั่งซื้อนี้ถูกยกเลิกแล้ว ไม่สามารถทำรายการชำระเงินได้ |
-| **พยายามเปลี่ยนสถานะต่อจาก Terminal State** | `CANCELLED` หรือ `REFUNDED` | สถานะใดๆ | **BadRequestException**: สถานะสิ้นสุดแล้ว ไม่สามารถแก้ไขได้ |
-| **พยายามคืนเงินเกินยอดที่จ่ายจริง** | `PAID` ยอด ฿3,000 | ขอคืน ฿3,500 | **BadRequestException**: ยอดเงินคืนเกินยอดคงเหลือที่สามารถคืนได้ |
-| **ขอคืนเงินซ้ำในออเดอร์ที่คืนเงินเต็มจำนวนไปแล้ว** | `REFUNDED` | ขอคืนเงินอีกรอบ | **BadRequestException**: คำสั่งซื้อนี้ได้รับการคืนเงินเต็มจำนวนไปแล้ว |
+| กรณีทดสอบ (Forbidden Transition Test Case)                 | สถานะเริ่มต้น               | สถานะที่พยายามเปลี่ยนไป | ผลลัพธ์ที่คาดหวัง                                                                          |
+| :--------------------------------------------------------- | :-------------------------- | :---------------------- | :----------------------------------------------------------------------------------------- |
+| **ข้ามขั้นตอน: ยังไม่ชำระเงินแต่ขอกระโดดไป SHIPPED**       | `PENDING`                   | `SHIPPED`               | **BadRequestException**: ไม่อนุญาต ต้องชำระเงิน (`PAID`) และเตรียมของ (`PROCESSING`) ก่อน  |
+| **ข้ามขั้นตอน: ชำระเงินแล้วแต่ขอกระโดดไป DELIVERED ทันที** | `PAID`                      | `DELIVERED`             | **BadRequestException**: ต้องผ่าน `PROCESSING` และ `SHIPPED` ก่อน                          |
+| **จัดส่งสินค้าโดยไม่มี Tracking Number**                   | `PROCESSING`                | `SHIPPED`               | **BadRequestException**: ต้องระบุเลขพัสดุ (Tracking Number) ก่อนเปลี่ยนสถานะ               |
+| **ยกเลิกออเดอร์ที่จัดส่งไปแล้ว**                           | `SHIPPED`                   | `CANCELLED`             | **BadRequestException**: พัสดุถูกส่งออกไปแล้ว ไม่อนุญาตให้ยกเลิกตรง ต้องใช้ Return Request |
+| **ยกเลิกออเดอร์ที่ลูกค้ารับของไปแล้ว**                     | `DELIVERED`                 | `CANCELLED`             | **BadRequestException**: ส่งมอบสำเร็จแล้ว ต้องเปิด Return Request เท่านั้น                 |
+| **พยายามชำระเงินในออเดอร์ที่ถูกยกเลิกไปแล้ว**              | `CANCELLED`                 | `PAID`                  | **BadRequestException**: คำสั่งซื้อนี้ถูกยกเลิกแล้ว ไม่สามารถทำรายการชำระเงินได้           |
+| **พยายามเปลี่ยนสถานะต่อจาก Terminal State**                | `CANCELLED` หรือ `REFUNDED` | สถานะใดๆ                | **BadRequestException**: สถานะสิ้นสุดแล้ว ไม่สามารถแก้ไขได้                                |
+| **พยายามคืนเงินเกินยอดที่จ่ายจริง**                        | `PAID` ยอด ฿3,000           | ขอคืน ฿3,500            | **BadRequestException**: ยอดเงินคืนเกินยอดคงเหลือที่สามารถคืนได้                           |
+| **ขอคืนเงินซ้ำในออเดอร์ที่คืนเงินเต็มจำนวนไปแล้ว**         | `REFUNDED`                  | ขอคืนเงินอีกรอบ         | **BadRequestException**: คำสั่งซื้อนี้ได้รับการคืนเงินเต็มจำนวนไปแล้ว                      |
 
 ---
 

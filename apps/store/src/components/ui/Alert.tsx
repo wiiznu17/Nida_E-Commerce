@@ -1,7 +1,13 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle, CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+  X,
+} from 'lucide-react';
 import { cn } from 'cn';
 
 export type AlertVariant = 'error' | 'success' | 'warning' | 'info';
@@ -56,7 +62,10 @@ export function Alert({
         className,
       )}
     >
-      <IconComponent size={16} className={cn('shrink-0 mt-0.5', config.iconColor)} />
+      <IconComponent
+        size={16}
+        className={cn('shrink-0 mt-0.5', config.iconColor)}
+      />
       <div className="flex-1 min-w-0">
         {title && (
           <h4 className="font-bold text-xs uppercase tracking-wider mb-0.5">

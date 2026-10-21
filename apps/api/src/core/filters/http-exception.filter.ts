@@ -78,7 +78,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message = 'An unexpected server error occurred';
       if (process.env.NODE_ENV !== 'production') {
         details = {
-          devError: exception instanceof Error ? exception.message : String(exception),
+          devError:
+            exception instanceof Error ? exception.message : String(exception),
           devStack: exception instanceof Error ? exception.stack : undefined,
         };
       }

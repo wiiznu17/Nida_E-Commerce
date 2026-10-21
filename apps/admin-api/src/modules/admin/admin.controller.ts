@@ -101,8 +101,7 @@ export class AdminController {
   @ApiOperation({
     operationId: 'adjustInventory',
     summary: 'ปรับยอดสินค้าคงคลัง (Adjust Inventory)',
-    description:
-      'ปรับจำนวนสต็อกสินค้าในคลัง (บวก/ลบ) สำหรับการตรวจนับสต็อก',
+    description: 'ปรับจำนวนสต็อกสินค้าในคลัง (บวก/ลบ) สำหรับการตรวจนับสต็อก',
   })
   @ApiResponse({ status: 200, description: 'ปรับสต็อกสินค้าสำเร็จ' })
   @ApiResponse({ status: 404, description: 'ไม่พบสินค้า Variant ที่ระบุ' })

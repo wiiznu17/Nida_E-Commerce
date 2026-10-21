@@ -435,7 +435,6 @@ export default function AdminInventory() {
                           </div>
                         </TableCell>
 
-
                         {/* SKU & Dept */}
                         <TableCell>
                           <div className="font-mono font-bold text-brand-brown">

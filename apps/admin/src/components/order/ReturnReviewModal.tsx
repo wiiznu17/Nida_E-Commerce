@@ -84,25 +84,38 @@ export const ReturnReviewModal: React.FC<ReturnReviewModalProps> = ({
         {/* Core Order & Customer Context */}
         <div className="bg-stone-50 p-3 rounded-xs border border-brand-border/60 text-xs space-y-1.5">
           <div className="flex justify-between items-center">
-            <span className="text-stone-500 font-semibold">{t('orders.table.orderNumber')}:</span>
+            <span className="text-stone-500 font-semibold">
+              {t('orders.table.orderNumber')}:
+            </span>
             <span className="font-mono font-bold text-brand-brown">
               #{request.order?.orderNumber ?? request.orderId}
               {request.order?.totalAmount !== undefined && (
-                <span className="text-stone-900 font-mono ml-2">({formatPrice(request.order.totalAmount)})</span>
+                <span className="text-stone-900 font-mono ml-2">
+                  ({formatPrice(request.order.totalAmount)})
+                </span>
               )}
             </span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-stone-500 font-semibold">{t('returnsPage.table.customer')}:</span>
+            <span className="text-stone-500 font-semibold">
+              {t('returnsPage.table.customer')}:
+            </span>
             <span className="text-stone-800 font-medium">
-              {request.user ? `${request.user.firstName ?? ''} ${request.user.lastName ?? ''}`.trim() || request.user.email : '-'}
+              {request.user
+                ? `${request.user.firstName ?? ''} ${request.user.lastName ?? ''}`.trim() ||
+                  request.user.email
+                : '-'}
             </span>
           </div>
 
           <div className="flex justify-between items-start pt-1 border-t border-stone-200/60">
-            <span className="text-stone-500 font-semibold shrink-0 mr-2">{t('orders.return.reason')}:</span>
-            <span className="text-stone-800 font-medium text-right">{request.reason}</span>
+            <span className="text-stone-500 font-semibold shrink-0 mr-2">
+              {t('orders.return.reason')}:
+            </span>
+            <span className="text-stone-800 font-medium text-right">
+              {request.reason}
+            </span>
           </div>
 
           {request.customerNote && (
@@ -116,18 +129,27 @@ export const ReturnReviewModal: React.FC<ReturnReviewModalProps> = ({
         <div className="space-y-1.5">
           <div className="flex items-center space-x-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-700">
             <Package size={13} className="text-brand-brown" />
-            <span>{t('orders.return.itemsLabel')} ({request.items.length})</span>
+            <span>
+              {t('orders.return.itemsLabel')} ({request.items.length})
+            </span>
           </div>
           <div className="border border-brand-border rounded-xs divide-y divide-brand-border/40 max-h-36 overflow-y-auto bg-white">
             {request.items.map((item) => (
-              <div key={item.id} className="p-2.5 flex items-center justify-between text-xs hover:bg-stone-50/50">
+              <div
+                key={item.id}
+                className="p-2.5 flex items-center justify-between text-xs hover:bg-stone-50/50"
+              >
                 <div className="min-w-0 pr-2">
                   <div className="font-bold text-stone-900 truncate">
-                    <span className="text-brand-brown font-mono mr-1.5">{item.quantity}x</span>
+                    <span className="text-brand-brown font-mono mr-1.5">
+                      {item.quantity}x
+                    </span>
                     {item.productName ?? 'Product'}
                   </div>
                   {item.variantInfo && (
-                    <div className="text-[11px] text-stone-500">{item.variantInfo}</div>
+                    <div className="text-[11px] text-stone-500">
+                      {item.variantInfo}
+                    </div>
                   )}
                 </div>
                 {item.unitPrice !== undefined && (

@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CreditCard, ShieldCheck, Loader2, Lock, AlertCircle } from 'lucide-react';
+import {
+  CreditCard,
+  ShieldCheck,
+  Loader2,
+  Lock,
+  AlertCircle,
+} from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import type { ApiOrder } from '@repo/types';
 
@@ -151,7 +157,6 @@ export function CreditCardAwaitingPayment({
         </div>
       )}
 
-
       {activeError && (
         <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 flex items-start space-x-2.5 text-xs text-rose-800">
           <AlertCircle size={16} className="text-rose-600 shrink-0 mt-0.5" />
@@ -160,7 +165,10 @@ export function CreditCardAwaitingPayment({
       )}
 
       {/* Card Detail Container */}
-      <form onSubmit={handleSubmit} className="border border-brand-border bg-white p-6 shadow-xs space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="border border-brand-border bg-white p-6 shadow-xs space-y-4"
+      >
         <div className="flex items-center justify-between pb-3 border-b border-gray-200">
           <div>
             <span className="text-xs font-black uppercase tracking-wider text-brand-brown block">
@@ -184,7 +192,6 @@ export function CreditCardAwaitingPayment({
           </div>
         </div>
 
-
         <div className="space-y-3.5">
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
@@ -204,7 +211,9 @@ export function CreditCardAwaitingPayment({
           <div className="grid grid-cols-2 gap-3.5">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1">
-                {language === 'th' ? 'วันหมดอายุ (MM/YY) *' : 'Exp Date (MM/YY) *'}
+                {language === 'th'
+                  ? 'วันหมดอายุ (MM/YY) *'
+                  : 'Exp Date (MM/YY) *'}
               </label>
               <input
                 type="text"

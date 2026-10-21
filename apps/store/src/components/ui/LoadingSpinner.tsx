@@ -32,7 +32,12 @@ export function LoadingSpinner({
   };
 
   const spinner = (
-    <div className={cn('flex flex-col items-center justify-center font-sans', className)}>
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center font-sans',
+        className,
+      )}
+    >
       <div
         className={cn(
           'rounded-full animate-spin shrink-0',

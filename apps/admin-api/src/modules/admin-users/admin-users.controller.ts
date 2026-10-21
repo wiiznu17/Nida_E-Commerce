@@ -9,12 +9,7 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { AdminUsersService } from './admin-users.service.js';
 import { InviteAdminUserDto } from './dto/admin-user.dto.js';
 import {
@@ -43,7 +38,8 @@ export class AdminUsersController {
   @Get()
   @ApiOperation({
     summary: 'List all admin users',
-    description: 'Retrieve all back-office administrative staff accounts with their assigned roles.',
+    description:
+      'Retrieve all back-office administrative staff accounts with their assigned roles.',
   })
   @ApiResponse({ status: 200, description: 'List of admin users' })
   async getAdminUsers(): Promise<ApiGenericResponse<ApiAdminUser[]>> {
@@ -57,7 +53,8 @@ export class AdminUsersController {
   @Get('roles')
   @ApiOperation({
     summary: 'List system roles',
-    description: 'Retrieve predefined administrative roles and their permission sets.',
+    description:
+      'Retrieve predefined administrative roles and their permission sets.',
   })
   @ApiResponse({ status: 200, description: 'List of system roles' })
   async getRoles(): Promise<ApiGenericResponse<ApiAdminRole[]>> {
@@ -72,9 +69,13 @@ export class AdminUsersController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Invite new admin user',
-    description: 'Generate an invitation token and send onboarding setup email to new staff member.',
+    description:
+      'Generate an invitation token and send onboarding setup email to new staff member.',
   })
-  @ApiResponse({ status: 201, description: 'Invitation created and dispatched' })
+  @ApiResponse({
+    status: 201,
+    description: 'Invitation created and dispatched',
+  })
   @ApiResponse({ status: 409, description: 'Email already registered' })
   async inviteAdmin(
     @Body() dto: InviteAdminUserDto,
@@ -89,7 +90,8 @@ export class AdminUsersController {
   @Patch(':id/toggle')
   @ApiOperation({
     summary: 'Toggle admin active status',
-    description: 'Activate or suspend an admin user account. Super admin cannot suspend themselves.',
+    description:
+      'Activate or suspend an admin user account. Super admin cannot suspend themselves.',
   })
   @ApiParam({ name: 'id', description: 'Admin user UUID' })
   @ApiResponse({ status: 200, description: 'Status toggled successfully' })

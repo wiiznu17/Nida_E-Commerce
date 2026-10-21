@@ -77,17 +77,28 @@ export function DashboardRecentOrders({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-36">{t('dashboard.orders.orderNo')}</TableHead>
-            <TableHead className="w-48">{t('dashboard.orders.customer')}</TableHead>
+            <TableHead className="w-36">
+              {t('dashboard.orders.orderNo')}
+            </TableHead>
+            <TableHead className="w-48">
+              {t('dashboard.orders.customer')}
+            </TableHead>
             <TableHead>{t('dashboard.orders.items')}</TableHead>
-            <TableHead className="w-28 text-right">{t('dashboard.orders.total')}</TableHead>
-            <TableHead className="w-28 text-center">{t('dashboard.orders.status')}</TableHead>
-            <TableHead className="w-28 text-right">{t('common.actions')}</TableHead>
+            <TableHead className="w-28 text-right">
+              {t('dashboard.orders.total')}
+            </TableHead>
+            <TableHead className="w-28 text-center">
+              {t('dashboard.orders.status')}
+            </TableHead>
+            <TableHead className="w-28 text-right">
+              {t('common.actions')}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.slice(0, 5).map((order) => {
-            const isFulfillable = order.status === 'PROCESSING' || order.status === 'PAID';
+            const isFulfillable =
+              order.status === 'PROCESSING' || order.status === 'PAID';
 
             return (
               <TableRow key={order.id}>
@@ -99,7 +110,8 @@ export function DashboardRecentOrders({
                 </TableCell>
                 <TableCell>
                   <div className="font-bold text-brand-brown">
-                    {order.shippingAddress?.recipientName ?? t('dashboard.orders.guestCustomer')}
+                    {order.shippingAddress?.recipientName ??
+                      t('dashboard.orders.guestCustomer')}
                   </div>
                   <div className="text-[11px] text-gray-400 font-mono">
                     {order.shippingAddress?.phone ?? '-'}

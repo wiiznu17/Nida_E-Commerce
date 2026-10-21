@@ -74,7 +74,9 @@ export function CollectionControlBar({
           <DropdownSelect
             value={sortBy}
             onChange={(val) =>
-              onSortChange(val as 'featured' | 'price-asc' | 'price-desc' | 'newest')
+              onSortChange(
+                val as 'featured' | 'price-asc' | 'price-desc' | 'newest',
+              )
             }
             options={sortOptions}
             prefixLabel={t('catalog.sortBy')}

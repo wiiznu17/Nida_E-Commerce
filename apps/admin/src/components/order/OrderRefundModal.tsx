@@ -77,9 +77,7 @@ export const OrderRefundModal: React.FC<OrderRefundModalProps> = ({
       onSuccess(updated);
       onClose();
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to process refund',
-      );
+      setError(err instanceof Error ? err.message : 'Failed to process refund');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,8 +1,5 @@
 import 'dotenv/config';
-import {
-  PrismaClient,
-  BannerPlacement,
-} from './generated/prisma/index.js';
+import { PrismaClient, BannerPlacement } from './generated/prisma/index.js';
 
 export async function seedCms(prisma: PrismaClient) {
   console.log('🖼️  Seeding Storefront CMS Banners & Store Settings...');

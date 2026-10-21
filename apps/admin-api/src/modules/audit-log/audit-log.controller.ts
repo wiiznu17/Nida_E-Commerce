@@ -1,10 +1,5 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { AuditLogService } from './audit-log.service.js';
 import { AuditLogQueryDto } from './dto/audit-log-query.dto.js';
 import { Roles, RequirePermissions } from '../auth/decorators/index.js';
@@ -29,9 +24,13 @@ export class AuditLogController {
   @Get()
   @ApiOperation({
     summary: 'Search & query audit logs',
-    description: 'Retrieve paginated system audit trails, filtered by table, action type, admin ID, date range, and keyword.',
+    description:
+      'Retrieve paginated system audit trails, filtered by table, action type, admin ID, date range, and keyword.',
   })
-  @ApiResponse({ status: 200, description: 'Paginated list of audit trail entries' })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated list of audit trail entries',
+  })
   async getAuditLogs(
     @Query() query: AuditLogQueryDto,
   ): Promise<PaginatedResponse<ApiAuditLog>> {
@@ -41,7 +40,8 @@ export class AuditLogController {
   @Get('stats')
   @ApiOperation({
     summary: 'Get audit log statistics',
-    description: 'Retrieve aggregate audit statistics breakdown for past 24 hours, top actors, and critical mutations.',
+    description:
+      'Retrieve aggregate audit statistics breakdown for past 24 hours, top actors, and critical mutations.',
   })
   @ApiResponse({ status: 200, description: 'Audit statistics summary' })
   async getAuditLogStats(): Promise<ApiGenericResponse<AuditLogStats>> {
@@ -55,7 +55,8 @@ export class AuditLogController {
   @Get(':id')
   @ApiOperation({
     summary: 'Get audit log detail',
-    description: 'Retrieve full diff details, actor identity, request IP, and user-agent for a specific audit entry.',
+    description:
+      'Retrieve full diff details, actor identity, request IP, and user-agent for a specific audit entry.',
   })
   @ApiParam({ name: 'id', description: 'Audit log entry UUID' })
   @ApiResponse({ status: 200, description: 'Audit log entry details' })

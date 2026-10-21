@@ -108,7 +108,10 @@ describe('WishlistService', () => {
     it('should delete wishlist entry and return success', async () => {
       prismaMock.wishlist.deleteMany.mockResolvedValue({ count: 1 });
 
-      const result = await service.removeFromWishlist(mockUserId, mockProductId);
+      const result = await service.removeFromWishlist(
+        mockUserId,
+        mockProductId,
+      );
 
       expect(prismaMock.wishlist.deleteMany).toHaveBeenCalledWith({
         where: {

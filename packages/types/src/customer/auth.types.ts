@@ -44,4 +44,3 @@ export interface CustomerJwtPayload {
   iat?: number;
   exp?: number;
 }
-

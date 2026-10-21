@@ -76,7 +76,9 @@ export class ContentService {
       _max: { sortOrder: true },
     });
     const nextSortOrder =
-      dto.sortOrder > 0 ? dto.sortOrder : (maxSortOrder._max.sortOrder ?? -1) + 1;
+      dto.sortOrder > 0
+        ? dto.sortOrder
+        : (maxSortOrder._max.sortOrder ?? -1) + 1;
 
     const banner = await this.prisma.cmsBanner.create({
       data: {
@@ -260,7 +262,8 @@ export class ContentService {
     const updated = await this.prisma.storeSettings.update({
       where: { id: DEFAULT_STORE_SETTINGS_ID },
       data: {
-        announcementActive: dto.announcementActive ?? existing.announcementActive,
+        announcementActive:
+          dto.announcementActive ?? existing.announcementActive,
         announcementTextTh:
           dto.announcementTextTh !== undefined
             ? dto.announcementTextTh

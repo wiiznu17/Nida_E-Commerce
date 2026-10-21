@@ -60,7 +60,7 @@ describe('CancellationReviewWorker — BullMQ Pre-Fulfillment 48h Auto-Approval 
     ({
       name,
       data,
-    } as unknown as Job<AutoApproveCancellationJobData>);
+    }) as unknown as Job<AutoApproveCancellationJobData>;
 
   beforeEach(() => {
     prismaMock = {
@@ -113,12 +113,18 @@ describe('CancellationReviewWorker — BullMQ Pre-Fulfillment 48h Auto-Approval 
 
     await worker.process(job);
 
-    expect(prismaMock.orderCancellationRequest.findUnique).not.toHaveBeenCalled();
+    expect(
+      prismaMock.orderCancellationRequest.findUnique,
+    ).not.toHaveBeenCalled();
   });
 
   it('skips processing if cancellation request is not found', async () => {
     prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(null);
-    const job = createMockJob({ orderId: 'ord-1', requestId: 'req-404', orderNumber: 'NIDA-404' });
+    const job = createMockJob({
+      orderId: 'ord-1',
+      requestId: 'req-404',
+      orderNumber: 'NIDA-404',
+    });
 
     await worker.process(job);
 
@@ -133,7 +139,11 @@ describe('CancellationReviewWorker — BullMQ Pre-Fulfillment 48h Auto-Approval 
       order: { id: 'ord-1', status: OrderStatus.PAID, items: [] },
     });
 
-    const job = createMockJob({ orderId: 'ord-1', requestId: 'req-already', orderNumber: 'NIDA-001' });
+    const job = createMockJob({
+      orderId: 'ord-1',
+      requestId: 'req-already',
+      orderNumber: 'NIDA-001',
+    });
 
     await worker.process(job);
 
@@ -148,7 +158,11 @@ describe('CancellationReviewWorker — BullMQ Pre-Fulfillment 48h Auto-Approval 
       order: { id: 'ord-1', status: OrderStatus.CANCELLED, items: [] },
     });
 
-    const job = createMockJob({ orderId: 'ord-1', requestId: 'req-cancelled-ord', orderNumber: 'NIDA-001' });
+    const job = createMockJob({
+      orderId: 'ord-1',
+      requestId: 'req-cancelled-ord',
+      orderNumber: 'NIDA-001',
+    });
 
     await worker.process(job);
 
@@ -183,7 +197,9 @@ describe('CancellationReviewWorker — BullMQ Pre-Fulfillment 48h Auto-Approval 
       },
     };
 
-    prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(mockRequest);
+    prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(
+      mockRequest,
+    );
 
     const job = createMockJob({
       orderId: 'ord-paid-1',
@@ -223,7 +239,10 @@ describe('CancellationReviewWorker — BullMQ Pre-Fulfillment 48h Auto-Approval 
     });
 
     // 4. Omise refund invoked
-    expect(omiseMock.createRefund).toHaveBeenCalledWith('chrg_test_captured_123', 3200);
+    expect(omiseMock.createRefund).toHaveBeenCalledWith(
+      'chrg_test_captured_123',
+      3200,
+    );
 
     // 5. Refund record created
     expect(prismaMock.refund.create).toHaveBeenCalledWith({

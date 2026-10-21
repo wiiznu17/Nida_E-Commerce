@@ -62,7 +62,8 @@ export async function createOmiseCardToken(
 
   if (!response.ok || !data.id || !data.card) {
     const errorMsg =
-      data.message || 'ข้อมูลบัตรเครดิตไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง';
+      data.message ||
+      'ข้อมูลบัตรเครดิตไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง';
     throw new Error(errorMsg);
   }
 

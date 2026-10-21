@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!product) {
       return {
         title: 'Product Details | NIDA Modern Classic Apparel',
-        description: 'Explore luxury fashion, timeless prep apparel, and crafted leather at NIDA.',
+        description:
+          'Explore luxury fashion, timeless prep apparel, and crafted leather at NIDA.',
       };
     }
 
@@ -45,7 +46,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   } catch {
     return {
       title: 'Product Details | NIDA Modern Classic Apparel',
-      description: 'Explore luxury fashion, timeless prep apparel, and crafted leather at NIDA.',
+      description:
+        'Explore luxury fashion, timeless prep apparel, and crafted leather at NIDA.',
     };
   }
 }

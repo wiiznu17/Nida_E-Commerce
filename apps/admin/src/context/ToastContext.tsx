@@ -43,17 +43,20 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   );
 
   const success = useCallback(
-    (message: string, duration?: number) => showToast(message, 'success', duration),
+    (message: string, duration?: number) =>
+      showToast(message, 'success', duration),
     [showToast],
   );
 
   const error = useCallback(
-    (message: string, duration?: number) => showToast(message, 'error', duration),
+    (message: string, duration?: number) =>
+      showToast(message, 'error', duration),
     [showToast],
   );
 
   const info = useCallback(
-    (message: string, duration?: number) => showToast(message, 'info', duration),
+    (message: string, duration?: number) =>
+      showToast(message, 'info', duration),
     [showToast],
   );
 

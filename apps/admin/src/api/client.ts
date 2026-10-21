@@ -67,14 +67,11 @@ async function refreshAuthToken(): Promise<string> {
   }
 
   try {
-    const refreshResponse = await fetch(
-      `${API_BASE_URL}/auth/admin/refresh`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken: currentRefreshToken }),
-      },
-    );
+    const refreshResponse = await fetch(`${API_BASE_URL}/auth/admin/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: currentRefreshToken }),
+    });
 
     if (!refreshResponse.ok) {
       throw new Error('Refresh token rejected');

@@ -6,22 +6,22 @@
 
 ## 📊 สถานะปัจจุบันของระบบ (Current System Status)
 
-| โมดูล / ระบบ | Backend (API) | Frontend (Admin UI) | สถานะภาพรวม |
-| :--- | :---: | :---: | :--- |
-| **Authentication & Sessions** | ✅ Dual-Token (JWT+Redis) | ✅ Split-Screen Clean UI | **พร้อมใช้งาน 100%** |
-| **Multi-Device & Security** | ✅ Redis Session List/Revoke | ✅ Session Control | **พร้อมใช้งาน 100%** |
-| **Staff & Team Management** | ✅ Invite Link / Status | ✅ Staff Table & Invite Modal | **พร้อมใช้งาน 100%** |
-| **Product & Catalog** | ✅ CRUD / Categories / Variant | ✅ Matrix Form / Image Crop | **พร้อมใช้งาน 100%** |
-| **Inventory Control** | ✅ Stock Balance / Adjustments | ✅ Inventory Table / Restock | **พร้อมใช้งาน 100%** |
-| **Inventory Movements Log** | ✅ Stock Movement Log API | ✅ Movement Audit Table | **พร้อมใช้งาน 100%** |
-| **Orders & Fulfillment** | ✅ Status Flow / Courier / Tracking | ✅ Order List & Detail Page | **พร้อมใช้งานพื้นฐาน** |
-| **Promotions & Coupons** | ✅ Coupon CRUD & Validations | ✅ Promotion Manager Modal | **พร้อมใช้งาน 100%** |
-| **System Activity Audit Log** | ✅ AuditLog API & Interceptors | ✅ Audit Table & Diff Viewer | **พร้อมใช้งาน 100%** |
-| **Granular RBAC Permissions** | ✅ PermissionsGuard & Seed | ✅ Route Guards & PermissionGates | **พร้อมใช้งาน 100%** |
-| **CMS Banner Management** | ⏳ มี Prisma Model | ⏳ ยังไม่ได้ทำ | **รอดำเนินการ** |
-| **Analytics & Data Export** | ⏳ กำลังพัฒนา API | ✅ แดชบอร์ด & โมดอลเสร็จแล้ว | **กำลังดำเนินการ** |
-| **Order Item Product Snapshot** | ⏳ มี Partial Snapshot | ⏳ ใช้ Live Query บางฟิลด์ | **รอดำเนินการ (เตรียมพัฒนา)** |
-| **Order Packing & Invoicing** | ⏳ ยังไม่ได้ทำ | ⏳ ยังไม่ได้ทำ | **รอดำเนินการ** |
+| โมดูล / ระบบ                    |            Backend (API)            |        Frontend (Admin UI)        | สถานะภาพรวม                   |
+| :------------------------------ | :---------------------------------: | :-------------------------------: | :---------------------------- |
+| **Authentication & Sessions**   |      ✅ Dual-Token (JWT+Redis)      |     ✅ Split-Screen Clean UI      | **พร้อมใช้งาน 100%**          |
+| **Multi-Device & Security**     |    ✅ Redis Session List/Revoke     |        ✅ Session Control         | **พร้อมใช้งาน 100%**          |
+| **Staff & Team Management**     |       ✅ Invite Link / Status       |   ✅ Staff Table & Invite Modal   | **พร้อมใช้งาน 100%**          |
+| **Product & Catalog**           |   ✅ CRUD / Categories / Variant    |    ✅ Matrix Form / Image Crop    | **พร้อมใช้งาน 100%**          |
+| **Inventory Control**           |   ✅ Stock Balance / Adjustments    |   ✅ Inventory Table / Restock    | **พร้อมใช้งาน 100%**          |
+| **Inventory Movements Log**     |      ✅ Stock Movement Log API      |      ✅ Movement Audit Table      | **พร้อมใช้งาน 100%**          |
+| **Orders & Fulfillment**        | ✅ Status Flow / Courier / Tracking |    ✅ Order List & Detail Page    | **พร้อมใช้งานพื้นฐาน**        |
+| **Promotions & Coupons**        |    ✅ Coupon CRUD & Validations     |    ✅ Promotion Manager Modal     | **พร้อมใช้งาน 100%**          |
+| **System Activity Audit Log**   |   ✅ AuditLog API & Interceptors    |   ✅ Audit Table & Diff Viewer    | **พร้อมใช้งาน 100%**          |
+| **Granular RBAC Permissions**   |     ✅ PermissionsGuard & Seed      | ✅ Route Guards & PermissionGates | **พร้อมใช้งาน 100%**          |
+| **CMS Banner Management**       |         ⏳ มี Prisma Model          |          ⏳ ยังไม่ได้ทำ           | **รอดำเนินการ**               |
+| **Analytics & Data Export**     |          ⏳ กำลังพัฒนา API          |   ✅ แดชบอร์ด & โมดอลเสร็จแล้ว    | **กำลังดำเนินการ**            |
+| **Order Item Product Snapshot** |       ⏳ มี Partial Snapshot        |    ⏳ ใช้ Live Query บางฟิลด์     | **รอดำเนินการ (เตรียมพัฒนา)** |
+| **Order Packing & Invoicing**   |           ⏳ ยังไม่ได้ทำ            |          ⏳ ยังไม่ได้ทำ           | **รอดำเนินการ**               |
 
 ---
 
@@ -39,6 +39,7 @@ graph TD
 ---
 
 ### 🔥 ลำดับที่ 1: ระบบประวัติการทำงานและความปลอดภัยของแอดมิน (System Activity Audit Log)
+
 > **เป้าหมาย**: บันทึกทุกความเคลื่อนไหวสำคัญของแอดมิน (ใคร ทำอะไร ที่ไหน เมื่อไหร่ ก่อน-หลังแก้ไขเป็นอย่างไร) เพื่อความโปร่งใสและตรวจสอบได้ในระดับ Enterprise
 
 - [x] **Backend (`apps/admin-api`)**:
@@ -67,6 +68,7 @@ graph TD
 ---
 
 ### 🛡️ ลำดับที่ 2: ระบบจัดการสิทธิ์การเข้าถึงอย่างละเอียด (Granular RBAC & Permissions)
+
 > **เป้าหมาย**: ควบคุมสิทธิ์ของแต่ละตำแหน่ง (Super Admin, Inventory Manager, Order Manager, Marketing Admin) ไม่ให้เข้าถึงหรือแก้ไขข้อมูลข้ามสายงาน
 
 - [x] **Shared Types & Constants (`@repo/types`)**:
@@ -93,6 +95,7 @@ graph TD
 ---
 
 ### 📦 ลำดับที่ 3: ระบบจัดการคำสั่งซื้อและจัดส่งสินค้า (Order Fulfillment & Printing)
+
 > **เป้าหมาย**: เพิ่มประสิทธิภาพให้ทีมจัดส่งพัสดุทำงานได้รวดเร็ว ลดข้อผิดพลาด (ดูคู่มือและไดอะแกรมแบบละเอียดได้ที่ [ORDER_FLOW_AND_FULFILLMENT.md](file:///docs/ORDER_FLOW_AND_FULFILLMENT.md))
 
 - [x] **ใบปะหน้าพัสดุและใบเสร็จ (Shipping Label & Packing Slip)**:
@@ -112,6 +115,7 @@ graph TD
 ---
 
 ### 🖼️ ลำดับที่ 4: ระบบจัดการแบนเนอร์หน้าร้าน (CMS Banner Management)
+
 > **เป้าหมาย**: ให้ฝ่ายการตลาดจัดการรูปภาพแบนเนอร์และโปรโมชันหน้าร้านได้เองโดยไม่ต้องแก้โค้ด
 
 - [ ] **Backend (`apps/admin-api`)**:
@@ -128,9 +132,11 @@ graph TD
 ---
 
 ### 📈 ลำดับที่ 5: แดชบอร์ดวิเคราะห์และส่งออกข้อมูล (Analytics & Data Export)
+
 > **เป้าหมาย**: ช่วยให้ผู้บริหารดูรายงานเชิงลึกและส่งออกข้อมูลบัญชีได้ทันที พร้อมระบบแคช Redis เพื่อลดภาระการประมวลผลของ PostgreSQL
 
 #### 🏗️ สถาปัตยกรรมการทำงานและ Redis Caching (Architecture & Caching Strategy)
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -177,7 +183,7 @@ sequenceDiagram
     - [ ] `GET /admin/analytics/export/audit-logs?startDate=&endDate=&action=` (วันเวลา, อีเมลแอดมิน, สิทธิ์, Action, ตารางเป้าหมาย, Entity ID, IP Address)
     - [ ] รองรับ UTF-8 BOM (`\uFEFF`) เพื่อให้เปิดไฟล์ภาษาไทยใน Microsoft Excel ได้อย่างถูกต้องสมบูรณ์
 
-- [ ] **การพัฒนา Frontend (`apps/admin`)** *(รอสรุป UI Design เพิ่มเติมกับผู้ใช้ก่อนเริ่มลงมือ)*:
+- [ ] **การพัฒนา Frontend (`apps/admin`)** _(รอสรุป UI Design เพิ่มเติมกับผู้ใช้ก่อนเริ่มลงมือ)_:
   - [ ] อัปเกรด `AdminDashboard.tsx` ดึงข้อมูลสัดส่วนยอดขายจริงจาก API แทนค่าจำลอง (Mock Data)
   - [ ] ออกแบบและสร้างหน้า Analytics & Export Center (`/admin/analytics`)
   - [ ] รองรับ i18n (`th.json` และ `en.json`) สไตล์ Clean Editorial Luxury ปราศจาก Emoji
@@ -189,6 +195,7 @@ sequenceDiagram
 ---
 
 ### 🛒 ลำดับที่ 6: ระบบบันทึกประวัติสินค้าฉบับเต็มในคำสั่งซื้อ (Full Product Snapshot in Order Items)
+
 > **เป้าหมาย**: ล็อกข้อมูลสินค้า, รูปภาพปก, รหัส SKU, เนื้อผ้า, และคำอธิบายสินค้า ณ วินาทีที่ลูกค้าสั่งซื้ออย่างถาวร ป้องกันปัญหาข้อมูลในประวัติการสั่งซื้อเปลี่ยนรูปหรือหายไป เมื่อแอดมินแก้ไขหรือลบสินค้าในอนาคต
 
 - [ ] **Database Schema (`packages/database/prisma/schema.prisma`)**:

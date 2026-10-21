@@ -215,11 +215,13 @@ export function CartDrawer() {
                       {appliedCoupon.code}
                     </span>
                     <span className="text-[11px] text-emerald-700 ml-2">
-                      ({appliedCoupon.discountType === 'PERCENTAGE'
+                      (
+                      {appliedCoupon.discountType === 'PERCENTAGE'
                         ? `${appliedCoupon.discountValue}% OFF`
                         : appliedCoupon.discountType === 'FREE_SHIPPING'
                           ? t('cart.freeShippingEligible')
-                          : `$${appliedCoupon.discountValue} OFF`})
+                          : `$${appliedCoupon.discountValue} OFF`}
+                      )
                     </span>
                   </div>
                 </div>
@@ -240,7 +242,9 @@ export function CartDrawer() {
                     <input
                       type="text"
                       value={promoInput}
-                      onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setPromoInput(e.target.value.toUpperCase())
+                      }
                       placeholder={t('cart.promoCodePlaceholder')}
                       className="w-full text-xs font-mono px-3 py-2 bg-white border border-brand-border focus:border-brand-brown focus:outline-hidden uppercase placeholder:normal-case placeholder:text-gray-400"
                     />
@@ -277,7 +281,9 @@ export function CartDrawer() {
               {discountAmount > 0 && (
                 <div className="flex justify-between items-center text-emerald-700 font-medium">
                   <span>{t('cart.discountLabel')}</span>
-                  <span className="font-bold">-{formatPrice(discountAmount)}</span>
+                  <span className="font-bold">
+                    -{formatPrice(discountAmount)}
+                  </span>
                 </div>
               )}
 
@@ -295,18 +301,20 @@ export function CartDrawer() {
               </div>
 
               <div className="flex justify-between items-center pt-2 border-t border-brand-border/60 text-sm font-black text-brand-brown">
-                <span className="uppercase tracking-wider">{t('cart.total')}</span>
+                <span className="uppercase tracking-wider">
+                  {t('cart.total')}
+                </span>
                 <span className="text-base">{formatPrice(finalTotal)}</span>
               </div>
             </div>
 
-            <p className="text-[10px] text-gray-400">
-              {t('cart.disclaimer')}
-            </p>
+            <p className="text-[10px] text-gray-400">{t('cart.disclaimer')}</p>
 
             <div className="space-y-2 pt-1">
               <Link
-                href={isAuthenticated ? '/checkout' : '/login?redirect=/checkout'}
+                href={
+                  isAuthenticated ? '/checkout' : '/login?redirect=/checkout'
+                }
                 onClick={() => setIsCartOpen(false)}
                 className="w-full py-3.5 bg-brand-brown hover:bg-brand-amber text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md cursor-pointer"
               >

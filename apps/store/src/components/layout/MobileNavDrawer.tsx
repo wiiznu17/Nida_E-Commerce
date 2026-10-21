@@ -86,7 +86,7 @@ export function MobileNavDrawer({
           {departments.map((item) => {
             const hasSubcategories = Boolean(
               megaMenuData[item.id] &&
-                megaMenuData[item.id].categories.length > 0,
+              megaMenuData[item.id].categories.length > 0,
             );
 
             return (

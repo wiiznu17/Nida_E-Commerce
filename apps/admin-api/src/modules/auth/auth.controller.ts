@@ -45,10 +45,17 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Admin login',
-    description: 'Authenticate an admin staff member with identifier (username/email) and password.',
+    description:
+      'Authenticate an admin staff member with identifier (username/email) and password.',
   })
-  @ApiResponse({ status: 200, description: 'Authentication successful with tokens and user profile' })
-  @ApiResponse({ status: 401, description: 'Invalid credentials or inactive account' })
+  @ApiResponse({
+    status: 200,
+    description: 'Authentication successful with tokens and user profile',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid credentials or inactive account',
+  })
   async login(
     @Body() dto: AdminLoginDto,
     @Req() req: Request,
@@ -68,7 +75,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Refresh access token',
-    description: 'Issue a new short-lived access token using a valid refresh token.',
+    description:
+      'Issue a new short-lived access token using a valid refresh token.',
   })
   @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
   @ApiResponse({ status: 401, description: 'Refresh token expired or revoked' })
@@ -90,12 +98,25 @@ export class AuthController {
   @Get('verify-token')
   @ApiOperation({
     summary: 'Verify invitation or password reset token',
-    description: 'Verify if a one-time token is valid, unexpired, and not yet claimed.',
+    description:
+      'Verify if a one-time token is valid, unexpired, and not yet claimed.',
   })
-  @ApiQuery({ name: 'token', description: 'One-time token string', required: true })
-  @ApiQuery({ name: 'type', enum: ['invite', 'reset'], description: 'Token purpose type', required: true })
+  @ApiQuery({
+    name: 'token',
+    description: 'One-time token string',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'type',
+    enum: ['invite', 'reset'],
+    description: 'Token purpose type',
+    required: true,
+  })
   @ApiResponse({ status: 200, description: 'Token is valid' })
-  @ApiResponse({ status: 400, description: 'Invalid, malformed, or expired token' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid, malformed, or expired token',
+  })
   async verifyToken(
     @Query('token') token: string,
     @Query('type') type: 'invite' | 'reset',
@@ -118,9 +139,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Setup initial password (Claim invitation)',
-    description: 'Set an initial password for a newly invited admin user using an invitation token.',
+    description:
+      'Set an initial password for a newly invited admin user using an invitation token.',
   })
-  @ApiResponse({ status: 200, description: 'Password setup completed successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password setup completed successfully',
+  })
   @ApiResponse({ status: 400, description: 'Invalid token or weak password' })
   async setupPassword(
     @Body() dto: SetupPasswordDto,
@@ -137,7 +162,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Request password reset link',
-    description: 'Trigger a password reset email to a registered admin address.',
+    description:
+      'Trigger a password reset email to a registered admin address.',
   })
   @ApiResponse({ status: 200, description: 'Reset email initiated' })
   async forgotPassword(
@@ -155,7 +181,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Reset password with token',
-    description: 'Complete password reset using a verified reset token and new password.',
+    description:
+      'Complete password reset using a verified reset token and new password.',
   })
   @ApiResponse({ status: 200, description: 'Password reset successful' })
   @ApiResponse({ status: 400, description: 'Invalid token or weak password' })
@@ -172,7 +199,8 @@ export class AuthController {
   @Get('me')
   @ApiOperation({
     summary: 'Get current admin profile',
-    description: 'Retrieve profile and permissions for the currently authenticated admin session.',
+    description:
+      'Retrieve profile and permissions for the currently authenticated admin session.',
   })
   @ApiResponse({ status: 200, description: 'Current admin profile data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -208,7 +236,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Logout from all devices',
-    description: 'Revoke all active refresh tokens and sessions for this admin user.',
+    description:
+      'Revoke all active refresh tokens and sessions for this admin user.',
   })
   @ApiResponse({ status: 200, description: 'All active sessions invalidated' })
   async logoutAll(

@@ -82,7 +82,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     // Guard: Require login first
     if (!isAuthenticated || !token || !user) {
-      const targetUrl = pathname ? `/login?redirect=${encodeURIComponent(pathname)}` : '/login';
+      const targetUrl = pathname
+        ? `/login?redirect=${encodeURIComponent(pathname)}`
+        : '/login';
       router.push(targetUrl);
       return;
     }
@@ -92,7 +94,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     // Optimistic UI update
     setWishlist((prev) =>
-      isAlreadyIn ? prev.filter((id) => id !== productId) : [...prev, productId],
+      isAlreadyIn
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId],
     );
 
     try {
@@ -124,7 +128,13 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       return wishlist.length;
     }
     return wishlist.filter((id) => catalogProductIds.has(id)).length;
-  }, [isAuthenticated, isCatalogLoading, productsList.length, wishlist, catalogProductIds]);
+  }, [
+    isAuthenticated,
+    isCatalogLoading,
+    productsList.length,
+    wishlist,
+    catalogProductIds,
+  ]);
 
   return (
     <WishlistContext.Provider

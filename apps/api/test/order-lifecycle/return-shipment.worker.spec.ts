@@ -27,7 +27,7 @@ describe('ReturnShipmentWorker — BullMQ 7-Day Return Shipment Deadline Expirat
     ({
       name,
       data,
-    } as unknown as Job<VoidExpiredReturnJobData>);
+    }) as unknown as Job<VoidExpiredReturnJobData>;
 
   beforeEach(() => {
     prismaMock = {
@@ -107,7 +107,9 @@ describe('ReturnShipmentWorker — BullMQ 7-Day Return Shipment Deadline Expirat
       where: { id: 'ret-approved-1' },
       data: expect.objectContaining({
         status: 'REJECTED',
-        adminNote: expect.stringContaining('7-day return shipment deadline passed'),
+        adminNote: expect.stringContaining(
+          '7-day return shipment deadline passed',
+        ),
         reviewedAt: expect.any(Date),
       }),
     });

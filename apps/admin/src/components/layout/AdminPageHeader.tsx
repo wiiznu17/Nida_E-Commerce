@@ -25,13 +25,19 @@ export function AdminPageHeader({
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           {breadcrumbs && breadcrumbs.length > 0 && (
-            <nav aria-label="Breadcrumb" className="flex items-center space-x-1.5 text-xs text-stone-500 mb-1.5">
+            <nav
+              aria-label="Breadcrumb"
+              className="flex items-center space-x-1.5 text-xs text-stone-500 mb-1.5"
+            >
               {breadcrumbs.map((bc, idx) => {
                 const isLast = idx === breadcrumbs.length - 1;
                 return (
                   <React.Fragment key={idx}>
                     {idx > 0 && (
-                      <ChevronRight size={11} className="text-stone-400 shrink-0" />
+                      <ChevronRight
+                        size={11}
+                        className="text-stone-400 shrink-0"
+                      />
                     )}
                     {bc.path && !isLast ? (
                       <Link
@@ -41,7 +47,11 @@ export function AdminPageHeader({
                         {bc.label}
                       </Link>
                     ) : (
-                      <span className={isLast ? 'text-brand-brown font-black' : 'font-medium'}>
+                      <span
+                        className={
+                          isLast ? 'text-brand-brown font-black' : 'font-medium'
+                        }
+                      >
                         {bc.label}
                       </span>
                     )}

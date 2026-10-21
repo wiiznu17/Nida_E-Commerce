@@ -2,14 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, RotateCcw } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import {
-  DropdownSelect,
-  SearchInput,
-  Pagination,
-} from '../components/ui';
+import { DropdownSelect, SearchInput, Pagination } from '../components/ui';
 import { useLanguage } from '../context/LanguageContext';
 import { orderRequester } from '../api/requester/orderRequester';
-import { CancellationTable, CancellationReviewModal } from '../components/order';
+import {
+  CancellationTable,
+  CancellationReviewModal,
+} from '../components/order';
 import type {
   ApiOrderCancellationWithOrder,
   AdminCancellationStatusCounts,
@@ -20,19 +19,23 @@ export default function AdminCancellations() {
   const [items, setItems] = useState<ApiOrderCancellationWithOrder[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [statusCounts, setStatusCounts] = useState<AdminCancellationStatusCounts>({
-    all: 0,
-    pending: 0,
-    approved: 0,
-    rejected: 0,
-  });
+  const [statusCounts, setStatusCounts] =
+    useState<AdminCancellationStatusCounts>({
+      all: 0,
+      pending: 0,
+      approved: 0,
+      rejected: 0,
+    });
   const [isLoading, setIsLoading] = useState(false);
 
   // URL-driven search & filter params
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get('search') ?? '';
-  const statusFilter = (searchParams.get('status') as 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED') ?? 'ALL';
-  const urlSortBy = (searchParams.get('sortBy') as 'newest' | 'oldest') ?? 'newest';
+  const statusFilter =
+    (searchParams.get('status') as
+      'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED') ?? 'ALL';
+  const urlSortBy =
+    (searchParams.get('sortBy') as 'newest' | 'oldest') ?? 'newest';
   const currentPage = parseInt(searchParams.get('page') ?? '1', 10) || 1;
   const pageSize = 10;
 
@@ -46,7 +49,8 @@ export default function AdminCancellations() {
   }, [urlSearch, urlSortBy]);
 
   // Review Modal
-  const [selectedRequest, setSelectedRequest] = useState<ApiOrderCancellationWithOrder | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<ApiOrderCancellationWithOrder | null>(null);
 
   const loadRequests = useCallback(async () => {
     setIsLoading(true);
@@ -82,8 +86,10 @@ export default function AdminCancellations() {
     if (e) e.preventDefault();
     const next = new URLSearchParams();
     if (searchInput.trim()) next.set('search', searchInput.trim());
-    if (statusFilter && statusFilter !== 'ALL') next.set('status', statusFilter);
-    if (sortByInput && sortByInput !== 'newest') next.set('sortBy', sortByInput);
+    if (statusFilter && statusFilter !== 'ALL')
+      next.set('status', statusFilter);
+    if (sortByInput && sortByInput !== 'newest')
+      next.set('sortBy', sortByInput);
     next.set('page', '1');
     setSearchParams(next);
   };
@@ -129,44 +135,71 @@ export default function AdminCancellations() {
                 type="button"
                 onClick={() => handleStatusFilterChange('ALL')}
                 className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-all cursor-pointer ${
-                  statusFilter === 'ALL' ? 'bg-[#2B1810] text-white shadow-2xs font-black' : 'text-stone-700 hover:bg-stone-100'
+                  statusFilter === 'ALL'
+                    ? 'bg-[#2B1810] text-white shadow-2xs font-black'
+                    : 'text-stone-700 hover:bg-stone-100'
                 }`}
               >
-                <span>{t('cancellationsPage.filterAll')} ({statusCounts.all})</span>
+                <span>
+                  {t('cancellationsPage.filterAll')} ({statusCounts.all})
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => handleStatusFilterChange('PENDING')}
                 className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-all cursor-pointer ${
-                  statusFilter === 'PENDING' ? 'bg-amber-600 text-white shadow-2xs font-black' : 'text-amber-800 hover:bg-amber-50'
+                  statusFilter === 'PENDING'
+                    ? 'bg-amber-600 text-white shadow-2xs font-black'
+                    : 'text-amber-800 hover:bg-amber-50'
                 }`}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === 'PENDING' ? 'bg-white' : 'bg-amber-500'}`} />
-                <span>{t('cancellationsPage.filterPending')} ({statusCounts.pending})</span>
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${statusFilter === 'PENDING' ? 'bg-white' : 'bg-amber-500'}`}
+                />
+                <span>
+                  {t('cancellationsPage.filterPending')} ({statusCounts.pending}
+                  )
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => handleStatusFilterChange('APPROVED')}
                 className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-all cursor-pointer ${
-                  statusFilter === 'APPROVED' ? 'bg-emerald-700 text-white shadow-2xs font-black' : 'text-emerald-800 hover:bg-emerald-50'
+                  statusFilter === 'APPROVED'
+                    ? 'bg-emerald-700 text-white shadow-2xs font-black'
+                    : 'text-emerald-800 hover:bg-emerald-50'
                 }`}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === 'APPROVED' ? 'bg-white' : 'bg-emerald-500'}`} />
-                <span>{t('cancellationsPage.filterApproved')} ({statusCounts.approved})</span>
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${statusFilter === 'APPROVED' ? 'bg-white' : 'bg-emerald-500'}`}
+                />
+                <span>
+                  {t('cancellationsPage.filterApproved')} (
+                  {statusCounts.approved})
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => handleStatusFilterChange('REJECTED')}
                 className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-all cursor-pointer ${
-                  statusFilter === 'REJECTED' ? 'bg-stone-700 text-white shadow-2xs font-black' : 'text-stone-700 hover:bg-stone-100'
+                  statusFilter === 'REJECTED'
+                    ? 'bg-stone-700 text-white shadow-2xs font-black'
+                    : 'text-stone-700 hover:bg-stone-100'
                 }`}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${statusFilter === 'REJECTED' ? 'bg-white' : 'bg-stone-400'}`} />
-                <span>{t('cancellationsPage.filterRejected')} ({statusCounts.rejected})</span>
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${statusFilter === 'REJECTED' ? 'bg-white' : 'bg-stone-400'}`}
+                />
+                <span>
+                  {t('cancellationsPage.filterRejected')} (
+                  {statusCounts.rejected})
+                </span>
               </button>
             </div>
             <div className="text-[11px] font-bold text-gray-500">
-              {language === 'th' ? `แสดง ${items.length} จากทั้งหมด ${totalItems} คำขอ` : `Showing ${items.length} of ${totalItems} requests`}
+              {language === 'th'
+                ? `แสดง ${items.length} จากทั้งหมด ${totalItems} คำขอ`
+                : `Showing ${items.length} of ${totalItems} requests`}
             </div>
           </div>
 
@@ -174,7 +207,11 @@ export default function AdminCancellations() {
           <form onSubmit={handleSearchSubmit}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
               <div className="lg:col-span-7">
-                <SearchInput value={searchInput} onChange={setSearchInput} placeholder={t('cancellationsPage.searchPlaceholder')} />
+                <SearchInput
+                  value={searchInput}
+                  onChange={setSearchInput}
+                  placeholder={t('cancellationsPage.searchPlaceholder')}
+                />
               </div>
               <div className="lg:col-span-3">
                 <DropdownSelect

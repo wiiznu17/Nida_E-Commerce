@@ -103,7 +103,10 @@ export type UpdateShipmentStatusInput = z.infer<
  */
 export const processRefundSchema = z.object({
   amount: z.number().positive('Refund amount must be positive').optional(),
-  reason: z.string().trim().min(3, 'Refund reason must be at least 3 characters'),
+  reason: z
+    .string()
+    .trim()
+    .min(3, 'Refund reason must be at least 3 characters'),
   restockInventory: z.boolean().default(true),
 });
 
@@ -180,4 +183,3 @@ export const adminReturnQuerySchema = z.object({
 });
 
 export type AdminReturnQueryInput = z.infer<typeof adminReturnQuerySchema>;
-

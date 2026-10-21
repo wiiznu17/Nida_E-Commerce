@@ -4,11 +4,7 @@ import {
   OrderLifecycleJobName,
   type AutoCancelOrderJobData,
 } from '@repo/types';
-import {
-  OrderStatus,
-  PaymentStatus,
-  StockChangeType,
-} from '@repo/database';
+import { OrderStatus, PaymentStatus, StockChangeType } from '@repo/database';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { Job } from 'bullmq';
 
@@ -38,11 +34,14 @@ describe('OrderTimeoutWorker — BullMQ Unpaid Order Auto-Cancel & Restock', () 
     $transaction: ReturnType<typeof vi.fn>;
   };
 
-  const createMockJob = (data: AutoCancelOrderJobData, name = OrderLifecycleJobName.AUTO_CANCEL_ORDER): Job<AutoCancelOrderJobData> =>
+  const createMockJob = (
+    data: AutoCancelOrderJobData,
+    name = OrderLifecycleJobName.AUTO_CANCEL_ORDER,
+  ): Job<AutoCancelOrderJobData> =>
     ({
       name,
       data,
-    } as unknown as Job<AutoCancelOrderJobData>);
+    }) as unknown as Job<AutoCancelOrderJobData>;
 
   beforeEach(() => {
     prismaMock = {
@@ -66,14 +65,20 @@ describe('OrderTimeoutWorker — BullMQ Unpaid Order Auto-Cancel & Restock', () 
       promotionCoupon: {
         update: vi.fn().mockResolvedValue({ id: 'cpn-1' }),
       },
-      $transaction: vi.fn(async (cb: (tx: typeof prismaMock) => Promise<unknown>) => cb(prismaMock)),
+      $transaction: vi.fn(
+        async (cb: (tx: typeof prismaMock) => Promise<unknown>) =>
+          cb(prismaMock),
+      ),
     };
 
     worker = new OrderTimeoutWorker(prismaMock as unknown as PrismaService);
   });
 
   it('ignores jobs with unhandled job names', async () => {
-    const job = createMockJob({ orderId: 'ord-1', orderNumber: 'NIDA-001' }, 'unrecognized-job' as any);
+    const job = createMockJob(
+      { orderId: 'ord-1', orderNumber: 'NIDA-001' },
+      'unrecognized-job' as any,
+    );
 
     await worker.process(job);
 
@@ -82,7 +87,10 @@ describe('OrderTimeoutWorker — BullMQ Unpaid Order Auto-Cancel & Restock', () 
 
   it('skips processing if order is not found in database', async () => {
     prismaMock.order.findUnique.mockResolvedValue(null);
-    const job = createMockJob({ orderId: 'ord-non-existent', orderNumber: 'NIDA-404' });
+    const job = createMockJob({
+      orderId: 'ord-non-existent',
+      orderNumber: 'NIDA-404',
+    });
 
     await worker.process(job);
 
@@ -99,7 +107,10 @@ describe('OrderTimeoutWorker — BullMQ Unpaid Order Auto-Cancel & Restock', () 
       payment: { id: 'pay-1', status: PaymentStatus.CAPTURED },
     });
 
-    const job = createMockJob({ orderId: 'ord-paid-1', orderNumber: 'NIDA-PAID-001' });
+    const job = createMockJob({
+      orderId: 'ord-paid-1',
+      orderNumber: 'NIDA-PAID-001',
+    });
 
     await worker.process(job);
 

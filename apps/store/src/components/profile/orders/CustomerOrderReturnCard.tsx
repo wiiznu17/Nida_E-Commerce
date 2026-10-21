@@ -99,7 +99,6 @@ export function CustomerOrderReturnCard({
 
         <div className="space-y-4">
           {returnRequests.map((req) => {
-
             return (
               <div
                 key={req.id}
@@ -180,7 +179,9 @@ export function CustomerOrderReturnCard({
                     <div className="p-3 bg-white border border-blue-200 rounded-xs space-y-1">
                       <div className="flex items-center space-x-1.5 text-[10px] font-black uppercase tracking-wider text-blue-900">
                         <MapPin size={12} className="text-blue-700 shrink-0" />
-                        <span>{t('orderDetail.returnCard.warehouseTitle')}</span>
+                        <span>
+                          {t('orderDetail.returnCard.warehouseTitle')}
+                        </span>
                       </div>
                       <p className="font-bold text-stone-900 text-xs">
                         {t('orderDetail.returnCard.warehouseName')}
@@ -211,7 +212,9 @@ export function CustomerOrderReturnCard({
                         className="px-4 py-2 bg-[#2B1810] hover:bg-[#3D2317] text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors cursor-pointer flex items-center space-x-1.5 shadow-2xs"
                       >
                         <Truck size={14} />
-                        <span>{t('orderDetail.returnCard.submitShipmentBtn')}</span>
+                        <span>
+                          {t('orderDetail.returnCard.submitShipmentBtn')}
+                        </span>
                       </button>
                     </div>
                   </div>
@@ -232,17 +235,19 @@ export function CustomerOrderReturnCard({
                           </span>
                         </div>
 
-                        {req.returnShippingFee !== undefined && req.returnShippingFee > 0 && (
-                          <div className="flex items-center space-x-1.5 text-[11px] font-bold text-stone-700 bg-white px-2 py-0.5 rounded-xs border border-stone-200">
-                            <Receipt size={12} className="text-emerald-700" />
-                            <span>
-                              {t('orderDetail.returnCard.reimbursementClaim')}:
-                            </span>
-                            <span className="font-mono text-emerald-800">
-                              {formatPrice(req.returnShippingFee)}
-                            </span>
-                          </div>
-                        )}
+                        {req.returnShippingFee !== undefined &&
+                          req.returnShippingFee > 0 && (
+                            <div className="flex items-center space-x-1.5 text-[11px] font-bold text-stone-700 bg-white px-2 py-0.5 rounded-xs border border-stone-200">
+                              <Receipt size={12} className="text-emerald-700" />
+                              <span>
+                                {t('orderDetail.returnCard.reimbursementClaim')}
+                                :
+                              </span>
+                              <span className="font-mono text-emerald-800">
+                                {formatPrice(req.returnShippingFee)}
+                              </span>
+                            </div>
+                          )}
                       </div>
 
                       {req.returnShippingReceiptUrl && (
@@ -253,7 +258,9 @@ export function CustomerOrderReturnCard({
                             rel="noopener noreferrer"
                             className="inline-flex items-center space-x-1 text-[11px] font-semibold text-purple-800 hover:text-purple-950 hover:underline"
                           >
-                            <span>{t('orderDetail.returnCard.receiptUrlLabel')}</span>
+                            <span>
+                              {t('orderDetail.returnCard.receiptUrlLabel')}
+                            </span>
                             <ExternalLink size={11} />
                           </a>
                         </div>
@@ -270,7 +277,9 @@ export function CustomerOrderReturnCard({
                 {req.status === 'COMPLETED' && (
                   <div className="p-2.5 bg-emerald-50 border border-emerald-200/80 rounded-xs text-[11px] text-emerald-900 flex items-center space-x-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                    <span>{t('orderDetail.returnCard.inspectRefundNotice')}</span>
+                    <span>
+                      {t('orderDetail.returnCard.inspectRefundNotice')}
+                    </span>
                   </div>
                 )}
               </div>

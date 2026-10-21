@@ -1,4 +1,5 @@
 # Nida Admin Authentication & RBAC System — Implementation Plan
+
 ## Dual-Token (JWT + Redis Session), Refresh Token Rotation, Email Invitation & Password Lifecycle
 
 > **เอกสารแผนงานสถาปัตยกรรมและคู่มือการพัฒนาระบบรักษาความปลอดภัย การยืนยันตัวตน (Authentication), การจัดการ Session ด้วย Redis, Refresh Token Rotation, การเชิญแอดมินใหม่ (Admin Invitation), การตั้งและรีเซ็ตรหัสผ่าน (Password Lifecycle) และการกำหนดสิทธิ์ (RBAC) สำหรับ Nida Admin Portal & Admin API**
@@ -15,7 +16,8 @@
 ระบบจำเป็นต้องใช้สถาปัตยกรรม **Dual-Token Authentication** ร่วมกับ **Redis In-Memory Session Store** เพื่อตอบโจทย์ความปลอดภัยระดับ **Enterprise-Grade** ควบคู่ไปกับประสบการณ์การใช้งานที่ลื่นไหลไร้รอยต่อ (Seamless UX) สำหรับเจ้าหน้าที่แอดมิน
 
 ### 1.1 วัตถุประสงค์หลัก (Core Objectives)
-1. **Short-Lived Access Token (อายุ 15 นาที)**: 
+
+1. **Short-Lived Access Token (อายุ 15 นาที)**:
    - ลดความเสี่ยงกรณี Access Token รั่วไหล (Window of vulnerability สั้นมาก)
    - เซ็นด้วย HMAC-SHA256 (JWT Secret) บรรจุ Payload ที่จำเป็น (`sub`, `username`, `email`, `roleCode`, `permissions`)
 2. **Secure Refresh Token Rotation (อายุ 7 วัน) & Token Family Tracking**:
@@ -185,7 +187,7 @@ sequenceDiagram
     Admin->>Web: กรอก email@nida-apparel.com
     Web->>API: POST /api/v1/auth/admin/forgot-password { email }
     API->>DB: ค้นหา AdminUser จาก email
-    
+
     alt ไม่พบบัญชีในระบบ หรือ isActive = false
         Note over API: ป้องกัน User Enumeration Attack:<br/>ไม่บอกแฮกเกอร์ว่ามีอีเมลนี้หรือไม่
         API-->>Web: HTTP 200 "หากอีเมลนี้มีอยู่ในระบบ ลิงก์รีเซ็ตจะถูกส่งไปที่กล่องข้อความของคุณ"
@@ -202,7 +204,7 @@ sequenceDiagram
     Admin->>Web: กรอกรหัสผ่านใหม่ 2 ครั้ง
     Web->>API: POST /api/v1/auth/admin/reset-password { token, newPassword }
     API->>Redis: GET admin:reset_password:<token>
-    
+
     alt Token ผิด หรือหมดอายุ (> 15 นาที)
         Redis-->>API: null
         API-->>Web: HTTP 400 Bad Request ("ลิงก์รีเซ็ตรหัสผ่านหมดอายุแล้ว")
@@ -210,14 +212,14 @@ sequenceDiagram
         Redis-->>API: { adminId, email }
         API->>API: แฮชรหัสผ่านใหม่ด้วย bcryptjs
         API->>DB: UPDATE admin_users SET password_hash = newHash WHERE id = adminId
-        
+
         Note over API,Redis: Critical Security Action:<br/>สั่งลบ Session ทั้งหมดของแอดมินคนนี้ออกจาก Redis ทันที!<br/>(ตัดอุปกรณ์เก่าทั้งหมดออกเพื่อความปลอดภัย)
         API->>Redis: SMEMBERS admin:user_sessions:<adminId>
         Redis-->>API: [sessionToken1, sessionToken2]
         API->>Redis: DEL admin:refresh:<sessionToken1>, admin:refresh:<sessionToken2>
         API->>Redis: DEL admin:user_sessions:<adminId>
         API->>Redis: DEL admin:reset_password:<token> (ทำลาย Reset Token ทันที)
-        
+
         API-->>Web: HTTP 200 { success: true, message: "เปลี่ยนรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบใหม่" }
         Web-->>Admin: นำทางกลับหน้า /admin/login พร้อม Toast ยืนยันความปลอดภัย
     end
@@ -230,7 +232,6 @@ sequenceDiagram
 อัปเดตไฟล์ `packages/types/src/auth.types.ts`:
 
 ```ts
-
 // RBAC & PERMISSION CONSTANTS & TYPES
 
 export enum AdminRoleCode {
@@ -319,8 +320,8 @@ export interface InviteAdminDto {
 
 export interface InviteAdminResponse {
   adminUser: ApiAdminUser;
-  inviteToken?: string;  // แนบเฉพาะใน Dev/Staging Mode
-  inviteLink?: string;   // แนบเฉพาะใน Dev/Staging Mode เพื่อความสะดวกในการทดสอบ
+  inviteToken?: string; // แนบเฉพาะใน Dev/Staging Mode
+  inviteLink?: string; // แนบเฉพาะใน Dev/Staging Mode เพื่อความสะดวกในการทดสอบ
 }
 
 export interface VerifyTokenQueryDto {
@@ -399,6 +400,7 @@ apps/admin-api/src/
 ```
 
 ### 5.2 การทำงานของ `MailerService` (Dev & Prod Dual Mode)
+
 - **Production Mode**: เมื่อมี `SMTP_HOST` หรือ `RESEND_API_KEY` จะส่งอีเมล HTML จริง ดีไซน์พรีเมียมสไตล์ Nida
 - **Development Mode**: หากไม่มี SMTP คอนฟิกไว้:
   - พิมพ์ Magic URL สวยงามลงบน Terminal Output:
@@ -412,6 +414,7 @@ apps/admin-api/src/
   - ส่งค่า `inviteLink` กลับไปใน JSON Response ของคำขอสร้างแอดมิน เพื่อให้ UI ขึ้นปุ่ม **"Copy Setup Link"** ทันที
 
 ### 5.3 กลไกการจัดการ Token ใน `RedisService`
+
 - **Session Tokens**: `admin:refresh:<token>` (TTL 7 วัน)
 - **Session Sets**: `admin:user_sessions:<adminId>` (Set of active token IDs)
 - **Invitation Tokens**: `admin:invite:<token>` (TTL 48 ชั่วโมง)
@@ -426,13 +429,13 @@ apps/admin-api/src/
 
 1. **`/admin/login`**:
    - ช่องกรอก Username / Email และ Password
-   - ลิงก์ *"ลืมรหัสผ่าน?" (Forgot Password)* ใต้ช่องรหัสผ่าน
-   - ปุ่มหลัก *"เข้าสู่ระบบ"* สี Espresso `#2B1810`
-   - ปุ่ม *"Demo Super Admin (1-Click Fill)"* สีทอง Accent `#D4AF37`
+   - ลิงก์ _"ลืมรหัสผ่าน?" (Forgot Password)_ ใต้ช่องรหัสผ่าน
+   - ปุ่มหลัก _"เข้าสู่ระบบ"_ สี Espresso `#2B1810`
+   - ปุ่ม _"Demo Super Admin (1-Click Fill)"_ สีทอง Accent `#D4AF37`
 2. **`/admin/forgot-password`**:
    - กล่องการ์ดมินิมอลหรูหรา กรอกอีเมลบริษัท
-   - ปุ่ม *"ส่งลิงก์รีเซ็ตรหัสผ่าน"*
-   - เมื่อส่งสำเร็จ แสดงการ์ดข้อความยืนยัน พร้อมปุ่ม *"กลับไปหน้าเข้าสู่ระบบ"*
+   - ปุ่ม _"ส่งลิงก์รีเซ็ตรหัสผ่าน"_
+   - เมื่อส่งสำเร็จ แสดงการ์ดข้อความยืนยัน พร้อมปุ่ม _"กลับไปหน้าเข้าสู่ระบบ"_
 3. **`/admin/reset-password?token=xxxx`**:
    - ระบบเช็ค Token ก่อนแสดงฟอร์ม
    - แสดงช่องกรอกรหัสผ่านใหม่ และยืนยันรหัสผ่านใหม่
@@ -440,30 +443,30 @@ apps/admin-api/src/
    - เมื่อกดบันทึก -> สำเร็จ -> พาไปหน้า Login พร้อม Toast แจ้งเตือน
 4. **`/admin/setup-password?token=xxxx`**:
    - สำหรับแอดมินใหม่ที่ได้รับคำเชิญ
-   - แสดงหัวข้อ *"ยินดีต้อนรับสู่ Nida Back-Office Portal"*
+   - แสดงหัวข้อ _"ยินดีต้อนรับสู่ Nida Back-Office Portal"_
    - แสดงอีเมลของแอดมินคนนั้นแบบ Read-only
    - ช่องตั้งรหัสผ่านใหม่ 2 ช่อง
    - เมื่อตั้งเสร็จ -> เปิดใช้งานบัญชี -> พาเข้า Dashboard ทันที
 5. **`/admin/users` (หน้าจัดการทีมแอดมิน)**:
    - ตารางรายชื่อแอดมิน, Role, แผนก, สถานะ (Active / Pending Invitation), วันที่ล็อกอินล่าสุด
-   - ปุ่ม *"เชิญแอดมินใหม่ (+ Invite Admin)"* เปิด Modal เชิญแอดมิน
+   - ปุ่ม _"เชิญแอดมินใหม่ (+ Invite Admin)"_ เปิด Modal เชิญแอดมิน
    - ในโหมด Dev หลังกดเชิญ จะมี Dialog แสดง **"Copy Setup Link"** ให้ก๊อปปี้ไปเปิดเทสได้ทันที
 
 ---
 
 ## 7. ตารางสิทธิ์การใช้งาน (RBAC Permissions Matrix)
 
-| Module / Action | SUPER_ADMIN | INVENTORY_MANAGER | ORDER_MANAGER | MARKETING_ADMIN |
-| :--- | :---: | :---: | :---: | :---: |
-| **ดูรายการสินค้า (Catalog View)** | Yes | Yes | Yes | Yes |
-| **สร้าง/แก้ไขสินค้า (Catalog Edit)** | Yes | No | No | No |
-| **ดูสต็อกสินค้า (Inventory View)** | Yes | Yes | Yes | No |
-| **ปรับสต็อกสินค้า (Restock / Adjust)** | Yes | Yes | No | No |
-| **ดูประวัติ Audit Log คลัง** | Yes | Yes | No | No |
-| **ดูรายการคำสั่งซื้อ (Orders View)** | Yes | Yes | Yes | No |
-| **อัปเดตสถานะจัดส่ง (Fulfill Order)** | Yes | No | Yes | No |
-| **จัดการคูปอง/โปรโมชั่น (Coupons)** | Yes | No | No | Yes |
-| **เชิญ/จัดการแอดมิน (Admin Users)**| **Yes** | No | No | No |
+| Module / Action                        | SUPER_ADMIN | INVENTORY_MANAGER | ORDER_MANAGER | MARKETING_ADMIN |
+| :------------------------------------- | :---------: | :---------------: | :-----------: | :-------------: |
+| **ดูรายการสินค้า (Catalog View)**      |     Yes     |        Yes        |      Yes      |       Yes       |
+| **สร้าง/แก้ไขสินค้า (Catalog Edit)**   |     Yes     |        No         |      No       |       No        |
+| **ดูสต็อกสินค้า (Inventory View)**     |     Yes     |        Yes        |      Yes      |       No        |
+| **ปรับสต็อกสินค้า (Restock / Adjust)** |     Yes     |        Yes        |      No       |       No        |
+| **ดูประวัติ Audit Log คลัง**           |     Yes     |        Yes        |      No       |       No        |
+| **ดูรายการคำสั่งซื้อ (Orders View)**   |     Yes     |        Yes        |      Yes      |       No        |
+| **อัปเดตสถานะจัดส่ง (Fulfill Order)**  |     Yes     |        No         |      Yes      |       No        |
+| **จัดการคูปอง/โปรโมชั่น (Coupons)**    |     Yes     |        No         |      No       |       Yes       |
+| **เชิญ/จัดการแอดมิน (Admin Users)**    |   **Yes**   |        No         |      No       |       No        |
 
 ---
 
@@ -523,4 +526,3 @@ apps/admin-api/src/
     - `npm --prefix apps/admin-api run build`
     - `npm --prefix apps/admin run build`
   - ทดสอบผ่าน `browser_subagent` ครอบคลุม: Login, Invite แอดมินใหม่, Setup Password, ปรับสต็อกพร้อม Audit Log, Forgot & Reset Password, และ Logout (สำเร็จ 100%)
-

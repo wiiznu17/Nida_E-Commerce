@@ -169,7 +169,9 @@ export function getProductSubCategory(
     product.categoryName ??
     catObj?.name ??
     product.subCategory ??
-    (typeof product.category === 'string' ? product.category : product.categorySlug ?? '')
+    (typeof product.category === 'string'
+      ? product.category
+      : (product.categorySlug ?? ''))
   );
 }
 

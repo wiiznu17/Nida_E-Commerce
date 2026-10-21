@@ -12,12 +12,9 @@ interface CancellationReviewModalProps {
   onSuccess: () => void;
 }
 
-export const CancellationReviewModal: React.FC<CancellationReviewModalProps> = ({
-  isOpen,
-  request,
-  onClose,
-  onSuccess,
-}) => {
+export const CancellationReviewModal: React.FC<
+  CancellationReviewModalProps
+> = ({ isOpen, request, onClose, onSuccess }) => {
   const { t, isTh } = useLanguage();
   const toast = useToast();
   const [action, setAction] = useState<'APPROVE' | 'REJECT'>('APPROVE');
@@ -74,11 +71,17 @@ export const CancellationReviewModal: React.FC<CancellationReviewModalProps> = (
 
         <div className="bg-stone-50 p-3 rounded-xs border border-brand-border/60 text-xs space-y-1">
           <div className="flex justify-between">
-            <span className="text-stone-500 font-semibold">{t('orders.table.orderNumber')}:</span>
-            <span className="font-mono font-bold text-brand-brown">{request.order?.orderNumber ?? request.orderId}</span>
+            <span className="text-stone-500 font-semibold">
+              {t('orders.table.orderNumber')}:
+            </span>
+            <span className="font-mono font-bold text-brand-brown">
+              {request.order?.orderNumber ?? request.orderId}
+            </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-stone-500 font-semibold">{t('orders.cancellation.reason')}:</span>
+            <span className="text-stone-500 font-semibold">
+              {t('orders.cancellation.reason')}:
+            </span>
             <span className="text-stone-800 font-medium">{request.reason}</span>
           </div>
           {request.customerNote && (

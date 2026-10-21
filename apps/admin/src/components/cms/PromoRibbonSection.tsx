@@ -49,12 +49,16 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
       setTitleTh('สิทธิพิเศษสำหรับสมาชิก NIDA CLUB');
       setTitleEn('EXCLUSIVE NIDA PRIVILEGE');
       setSubtitleTh('รับส่วนลด 20% ทันทีเมื่อสั่งซื้อครบ ฿2,000');
-      setSubtitleEn('Receive 20% privilege on orders over ฿2,000 with private code');
+      setSubtitleEn(
+        'Receive 20% privilege on orders over ฿2,000 with private code',
+      );
       setTagTh('ข้อเสนอพิเศษ');
       setTagEn('EXCLUSIVE PRIVILEGE');
       setCouponCode('NIDA20');
       setTargetUrl('/collections');
-      setImageDesktopUrl('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1920&q=80');
+      setImageDesktopUrl(
+        'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1920&q=80',
+      );
       setImageMobileUrl('');
       setIsActive(true);
     }
@@ -93,7 +97,8 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
 
     const validation = saveCmsBannerSchema.safeParse(payload);
     if (!validation.success) {
-      const firstError = validation.error.issues[0]?.message ?? 'Validation failed';
+      const firstError =
+        validation.error.issues[0]?.message ?? 'Validation failed';
       setErrorMsg(firstError);
       return;
     }
@@ -225,11 +230,14 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
               {/* Title */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.title')} <span className="text-rose-600">*</span>
+                  {t('cms.heroModal.title')}{' '}
+                  <span className="text-rose-600">*</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.th')}
+                    </span>
                     <input
                       type="text"
                       value={titleTh}
@@ -239,7 +247,9 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                     />
                   </div>
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')} *</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.en')} *
+                    </span>
                     <input
                       type="text"
                       required
@@ -259,7 +269,9 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.th')}
+                    </span>
                     <textarea
                       rows={2}
                       value={subtitleTh}
@@ -269,7 +281,9 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                     />
                   </div>
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.en')}
+                    </span>
                     <textarea
                       rows={2}
                       value={subtitleEn}
@@ -288,7 +302,9 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.th')}
+                    </span>
                     <input
                       type="text"
                       value={tagTh}
@@ -298,7 +314,9 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                     />
                   </div>
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.en')}
+                    </span>
                     <input
                       type="text"
                       value={tagEn}

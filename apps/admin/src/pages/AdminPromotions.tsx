@@ -171,7 +171,8 @@ export default function AdminPromotions() {
       );
       setCouponToDelete(null);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to delete coupon';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to delete coupon';
       setApiError(msg);
     } finally {
       setIsDeleting(false);
@@ -185,7 +186,8 @@ export default function AdminPromotions() {
     const cleanCode = formData.code.toUpperCase().trim();
     if (!cleanCode) {
       setFieldErrors({
-        code: language === 'th' ? 'กรุณาระบุรหัสคูปอง' : 'Coupon code is required',
+        code:
+          language === 'th' ? 'กรุณาระบุรหัสคูปอง' : 'Coupon code is required',
       });
       return;
     }
@@ -431,7 +433,6 @@ export default function AdminPromotions() {
       }
     >
       <div className="space-y-4">
-
         {/* Filter and Search Bar */}
         <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">
           {/* Top Row: Promo Status Tabs */}
@@ -876,7 +877,9 @@ export default function AdminPromotions() {
                   }
                   placeholder={t('promotions.modal.codePlaceholder')}
                   className={`w-full border px-3 py-2 font-mono font-bold uppercase focus:outline-none rounded-xs ${
-                    fieldErrors.code ? 'border-rose-400 focus:border-rose-600' : 'border-gray-300 focus:border-brand-brown'
+                    fieldErrors.code
+                      ? 'border-rose-400 focus:border-rose-600'
+                      : 'border-gray-300 focus:border-brand-brown'
                   }`}
                 />
                 <InlineError message={fieldErrors.code} />
@@ -941,7 +944,9 @@ export default function AdminPromotions() {
                       })
                     }
                     className={`w-full border px-3 py-2 font-mono font-bold focus:outline-none rounded-xs disabled:bg-gray-100 disabled:text-gray-400 ${
-                      fieldErrors.discountValue ? 'border-rose-400' : 'border-gray-300 focus:border-brand-brown'
+                      fieldErrors.discountValue
+                        ? 'border-rose-400'
+                        : 'border-gray-300 focus:border-brand-brown'
                     }`}
                   />
                   <InlineError message={fieldErrors.discountValue} />

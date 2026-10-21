@@ -115,7 +115,6 @@ export function useProfilePage() {
     }
   };
 
-
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };

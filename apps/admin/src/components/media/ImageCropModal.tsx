@@ -44,8 +44,16 @@ export function ImageCropModal({
   // Dynamic viewport dimensions based on aspect ratio
   const isLandscape = aspectRatio > 1;
   const isSquare = aspectRatio === 1;
-  const VIEWPORT_WIDTH = isLandscape ? 520 : isSquare ? 360 : Math.round(400 * aspectRatio);
-  const VIEWPORT_HEIGHT = isLandscape ? Math.round(520 / aspectRatio) : isSquare ? 360 : 400;
+  const VIEWPORT_WIDTH = isLandscape
+    ? 520
+    : isSquare
+      ? 360
+      : Math.round(400 * aspectRatio);
+  const VIEWPORT_HEIGHT = isLandscape
+    ? Math.round(520 / aspectRatio)
+    : isSquare
+      ? 360
+      : 400;
 
   // Calculate base scale so image always completely covers the crop viewport
   const getBaseScale = useCallback(
@@ -208,9 +216,7 @@ export function ImageCropModal({
             ? 1200
             : Math.round(1200 * aspectRatio);
       const targetHeight =
-        aspectRatio > 1
-          ? Math.round(1920 / aspectRatio)
-          : 1200;
+        aspectRatio > 1 ? Math.round(1920 / aspectRatio) : 1200;
 
       const canvas = document.createElement('canvas');
       canvas.width = targetWidth;
@@ -273,7 +279,8 @@ export function ImageCropModal({
           }
 
           const baseName = originalFileName.replace(/\.[^/.]+$/, '');
-          const ratioTag = aspectRatio > 1 ? 'landscape' : aspectRatio === 1 ? '1x1' : '3x4';
+          const ratioTag =
+            aspectRatio > 1 ? 'landscape' : aspectRatio === 1 ? '1x1' : '3x4';
           const newFileName = `${baseName || 'image'}-${ratioTag}-${Date.now().toString().slice(-4)}.webp`;
           const croppedFile = new File([blob], newFileName, {
             type: 'image/webp',
@@ -297,19 +304,21 @@ export function ImageCropModal({
   const currentScale = baseScale * zoom;
 
   const ratioLabel =
-    aspectRatio > 1
-      ? '16:9'
-      : aspectRatio === 1
-        ? '1:1'
-        : '3:4';
+    aspectRatio > 1 ? '16:9' : aspectRatio === 1 ? '1:1' : '3:4';
   const cropTitle =
     aspectRatio > 1
-      ? (isTh ? 'ครอบตัดรูปภาพแบนเนอร์ (16:9 แนวนอน)' : 'Crop Banner Image (16:9 Landscape)')
-      : (isTh ? `ครอบตัดรูปภาพสินค้า (${ratioLabel})` : `Crop Image (${ratioLabel})`);
+      ? isTh
+        ? 'ครอบตัดรูปภาพแบนเนอร์ (16:9 แนวนอน)'
+        : 'Crop Banner Image (16:9 Landscape)'
+      : isTh
+        ? `ครอบตัดรูปภาพสินค้า (${ratioLabel})`
+        : `Crop Image (${ratioLabel})`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className={`relative w-full ${aspectRatio > 1 ? 'max-w-2xl' : 'max-w-xl'} bg-brand-cream border border-brand-border rounded-xl shadow-2xl overflow-hidden flex flex-col`}>
+      <div
+        className={`relative w-full ${aspectRatio > 1 ? 'max-w-2xl' : 'max-w-xl'} bg-brand-cream border border-brand-border rounded-xl shadow-2xl overflow-hidden flex flex-col`}
+      >
         {/* Header */}
         <div className="px-5 py-3.5 bg-white border-b border-brand-border flex items-center justify-between">
           <div className="flex items-center space-x-2">

@@ -35,15 +35,18 @@ export default function AdminReturns() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Review & Inspect Modals
-  const [reviewModalRequest, setReviewModalRequest] = useState<ApiReturnRequestWithOrder | null>(null);
-  const [inspectModal, setInspectModal] = useState<ReturnInspectModalData | null>(null);
+  const [reviewModalRequest, setReviewModalRequest] =
+    useState<ApiReturnRequestWithOrder | null>(null);
+  const [inspectModal, setInspectModal] =
+    useState<ReturnInspectModalData | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   // URL-driven search & filter params
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get('search') ?? '';
   const statusFilter = (searchParams.get('status') as ReturnFilterTab) ?? 'ALL';
-  const urlSortBy = (searchParams.get('sortBy') as 'newest' | 'oldest') ?? 'newest';
+  const urlSortBy =
+    (searchParams.get('sortBy') as 'newest' | 'oldest') ?? 'newest';
   const currentPage = parseInt(searchParams.get('page') ?? '1', 10) || 1;
   const pageSize = 10;
 
@@ -90,8 +93,10 @@ export default function AdminReturns() {
     if (e) e.preventDefault();
     const next = new URLSearchParams();
     if (searchInput.trim()) next.set('search', searchInput.trim());
-    if (statusFilter && statusFilter !== 'ALL') next.set('status', statusFilter);
-    if (sortByInput && sortByInput !== 'newest') next.set('sortBy', sortByInput);
+    if (statusFilter && statusFilter !== 'ALL')
+      next.set('status', statusFilter);
+    if (sortByInput && sortByInput !== 'newest')
+      next.set('sortBy', sortByInput);
     next.set('page', '1');
     setSearchParams(next);
   };
@@ -156,7 +161,13 @@ export default function AdminReturns() {
       setInspectModal(null);
       await loadRequests();
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : isTh ? 'เกิดข้อผิดพลาดในการตรวจรับและคืนเงิน' : 'Failed to complete return and refund');
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : isTh
+            ? 'เกิดข้อผิดพลาดในการตรวจรับและคืนเงิน'
+            : 'Failed to complete return and refund',
+      );
     } finally {
       setIsProcessing(false);
     }

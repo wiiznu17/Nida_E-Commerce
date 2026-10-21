@@ -24,14 +24,15 @@ const isAutoApproved = (adminNote?: string | null): boolean => {
   return note.includes('auto-approved') || note.includes('48-hour');
 };
 
-export const OrderCancellationSection: React.FC<OrderCancellationSectionProps> = ({
-  cancellationRequests,
-  onReviewed,
-  onShowToast,
-}) => {
+export const OrderCancellationSection: React.FC<
+  OrderCancellationSectionProps
+> = ({ cancellationRequests, onReviewed, onShowToast }) => {
   const { t, isTh } = useLanguage();
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [activeReview, setActiveReview] = useState<{ id: string; action: 'APPROVE' | 'REJECT' } | null>(null);
+  const [activeReview, setActiveReview] = useState<{
+    id: string;
+    action: 'APPROVE' | 'REJECT';
+  } | null>(null);
   const [adminNote, setAdminNote] = useState('');
   const [restockInventory, setRestockInventory] = useState(true);
 
@@ -178,7 +179,9 @@ export const OrderCancellationSection: React.FC<OrderCancellationSectionProps> =
                         <input
                           type="checkbox"
                           checked={restockInventory}
-                          onChange={(e) => setRestockInventory(e.target.checked)}
+                          onChange={(e) =>
+                            setRestockInventory(e.target.checked)
+                          }
                           className="w-3.5 h-3.5 text-brand-dark-brown border-brand-border rounded-xs focus:ring-brand-dark-brown"
                         />
                         <span className="text-stone-700 font-medium">

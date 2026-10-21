@@ -173,7 +173,11 @@ export function ReturnShipmentModal({
                 type="text"
                 value={customCourier}
                 onChange={(e) => setCustomCourier(e.target.value)}
-                placeholder={isTh ? 'ระบุชื่อผู้ให้บริการขนส่ง' : 'Specify courier company name'}
+                placeholder={
+                  isTh
+                    ? 'ระบุชื่อผู้ให้บริการขนส่ง'
+                    : 'Specify courier company name'
+                }
                 className="w-full mt-2 px-3 py-2 border border-brand-border rounded-xs text-xs text-stone-900 focus:outline-hidden focus:ring-1 focus:ring-brand-dark-brown"
                 required
               />

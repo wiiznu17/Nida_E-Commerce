@@ -81,7 +81,8 @@ export function RevenueAreaChart({
 
   const totalPeriodRev = points.reduce((s, p) => s + p.revenue, 0);
   const avgDailyRev = Math.round(totalPeriodRev / points.length);
-  const activeHover = hoveredIdx !== null ? coords[hoveredIdx] : coords[coords.length - 1];
+  const activeHover =
+    hoveredIdx !== null ? coords[hoveredIdx] : coords[coords.length - 1];
 
   return (
     <div className="bg-white border border-brand-border p-5 shadow-xs flex flex-col justify-between">

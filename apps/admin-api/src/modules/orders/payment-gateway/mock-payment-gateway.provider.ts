@@ -54,9 +54,7 @@ export class MockPaymentGatewayProvider implements IPaymentGatewayProvider {
     };
   }
 
-  async parseWebhook(
-    payload: unknown,
-  ): Promise<ParsedPaymentWebhook | null> {
+  async parseWebhook(payload: unknown): Promise<ParsedPaymentWebhook | null> {
     if (!payload || typeof payload !== 'object') {
       return null;
     }

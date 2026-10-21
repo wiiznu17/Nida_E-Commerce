@@ -41,7 +41,9 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
             href="/profile/orders"
             className="inline-flex items-center space-x-1.5 text-xs font-black uppercase tracking-wider text-brand-amber hover:text-brand-brown transition-colors self-start sm:self-auto cursor-pointer"
           >
-            <span>{t('orderHistory.viewAllOrders')} ({orders.length})</span>
+            <span>
+              {t('orderHistory.viewAllOrders')} ({orders.length})
+            </span>
             <ArrowRight size={14} />
           </Link>
         )}
@@ -85,7 +87,8 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
           {recentOrders.map((order) => {
             const isPendingPromptPay =
               order.status === OrderStatus.PENDING &&
-              (order.payment?.paymentMethod === PaymentMethod.PROMPTPAY || !order.payment);
+              (order.payment?.paymentMethod === PaymentMethod.PROMPTPAY ||
+                !order.payment);
 
             return (
               <div
@@ -171,7 +174,8 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                       </div>
                       <div className="text-right font-mono text-gray-700 shrink-0">
                         <span>
-                          {item.quantity} x ฿{Number(item.unitPrice).toLocaleString()}
+                          {item.quantity} x ฿
+                          {Number(item.unitPrice).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -214,7 +218,10 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                 href="/profile/orders"
                 className="w-full py-3 border-2 border-brand-brown text-brand-brown hover:bg-brand-brown hover:text-white transition-colors text-xs font-black uppercase tracking-wider flex items-center justify-center space-x-2 shadow-2xs"
               >
-                <span>{t('orderHistory.viewAllOrders')} ({orders.length} {t('orderHistory.ordersUnit')})</span>
+                <span>
+                  {t('orderHistory.viewAllOrders')} ({orders.length}{' '}
+                  {t('orderHistory.ordersUnit')})
+                </span>
                 <ArrowRight size={15} />
               </Link>
             </div>

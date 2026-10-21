@@ -74,7 +74,9 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     try {
       await onSave({
         ...formData,
-        addressLine2: formData.addressLine2?.trim() ? formData.addressLine2.trim() : undefined,
+        addressLine2: formData.addressLine2?.trim()
+          ? formData.addressLine2.trim()
+          : undefined,
       });
       onClose();
     } catch (err: unknown) {
@@ -112,11 +114,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
         {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && (
-            <Alert variant="error">
-              {error}
-            </Alert>
-          )}
+          {error && <Alert variant="error">{error}</Alert>}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

@@ -35,7 +35,10 @@ export function CatalogTopBar({
               title
             ) : searchQuery ? (
               <>
-                {t('search.title')}: <span className="font-normal italic normal-case">&ldquo;{searchQuery}&rdquo;</span>
+                {t('search.title')}:{' '}
+                <span className="font-normal italic normal-case">
+                  &ldquo;{searchQuery}&rdquo;
+                </span>
               </>
             ) : (
               t('search.allProducts')
@@ -56,7 +59,9 @@ export function CatalogTopBar({
           >
             <SlidersHorizontal size={14} />
             <span>
-              {isFilterVisible ? t('search.hideFilters') : t('search.showFilters')}
+              {isFilterVisible
+                ? t('search.hideFilters')
+                : t('search.showFilters')}
             </span>
             {activeFilterCount > 0 && (
               <span className="ml-1 w-4 h-4 rounded-full bg-brand-brown text-white text-[9px] flex items-center justify-center font-bold">

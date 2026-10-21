@@ -83,16 +83,25 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-stone-50/75 border-b border-stone-200 text-[10px] font-black uppercase tracking-wider text-stone-500">
-                  <th className="py-3 px-4 w-16 text-center">{t('cms.hero.thOrder')}</th>
+                  <th className="py-3 px-4 w-16 text-center">
+                    {t('cms.hero.thOrder')}
+                  </th>
                   <th className="py-3 px-4 w-28">{t('cms.hero.thPreview')}</th>
                   <th className="py-3 px-4">{t('cms.hero.thHeadline')}</th>
-                  <th className="py-3 px-4 w-24 text-center">{t('cms.hero.thStatus')}</th>
-                  <th className="py-3 px-4 w-24 text-right">{t('cms.hero.thManage')}</th>
+                  <th className="py-3 px-4 w-24 text-center">
+                    {t('cms.hero.thStatus')}
+                  </th>
+                  <th className="py-3 px-4 w-24 text-right">
+                    {t('cms.hero.thManage')}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 text-xs">
                 {heroBanners.map((slide, idx) => (
-                  <tr key={slide.id} className="hover:bg-stone-50/50 transition-colors">
+                  <tr
+                    key={slide.id}
+                    className="hover:bg-stone-50/50 transition-colors"
+                  >
                     <td className="py-3 px-4 text-center font-mono font-bold text-stone-500">
                       {slide.sortOrder ?? idx}
                     </td>
@@ -125,7 +134,9 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
                         </span>
                       </div>
                       {slide.titleTh && (
-                        <p className="text-[11px] text-stone-500">{slide.titleTh}</p>
+                        <p className="text-[11px] text-stone-500">
+                          {slide.titleTh}
+                        </p>
                       )}
                     </td>
 
@@ -142,7 +153,9 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
                             slide.isActive ? 'bg-emerald-500' : 'bg-stone-400'
                           }`}
                         />
-                        {slide.isActive ? t('cms.statusActive') : t('cms.statusHidden')}
+                        {slide.isActive
+                          ? t('cms.statusActive')
+                          : t('cms.statusHidden')}
                       </span>
                     </td>
 

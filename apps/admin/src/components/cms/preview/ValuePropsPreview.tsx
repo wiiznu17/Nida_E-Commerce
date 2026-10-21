@@ -28,7 +28,9 @@ export const ValuePropsPreview: React.FC<ValuePropsPreviewProps> = ({
     {
       icon: RefreshCw,
       title: isTh ? 'เปลี่ยน/คืนสินค้า' : 'EASY RETURNS',
-      subtitle: isTh ? `ภายใน ${returnDays} วันหลังส่งมอบ` : `Within ${returnDays} days`,
+      subtitle: isTh
+        ? `ภายใน ${returnDays} วันหลังส่งมอบ`
+        : `Within ${returnDays} days`,
     },
     {
       icon: ShieldCheck,

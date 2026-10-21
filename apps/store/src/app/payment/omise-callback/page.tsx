@@ -41,7 +41,9 @@ function OmiseCallbackContent() {
               : 'Payment confirmed! Redirecting to receipt...',
           );
           setTimeout(() => {
-            router.replace(`/order-success?orderNumber=${encodeURIComponent(safeNum)}`);
+            router.replace(
+              `/order-success?orderNumber=${encodeURIComponent(safeNum)}`,
+            );
           }, 800);
         } else if (result.chargeStatus === 'failed') {
           const failMsg =
@@ -96,14 +98,18 @@ function OmiseCallbackContent() {
             type="button"
             onClick={() => {
               if (orderNumber) {
-                router.replace(`/profile/orders/${encodeURIComponent(orderNumber)}`);
+                router.replace(
+                  `/profile/orders/${encodeURIComponent(orderNumber)}`,
+                );
               } else {
                 router.replace('/profile/orders');
               }
             }}
             className="w-full py-2.5 bg-brand-brown text-white text-xs font-bold uppercase tracking-wider transition-colors hover:bg-brand-dark-brown cursor-pointer"
           >
-            {isTh ? 'กลับไปยังหน้ารายละเอียดคำสั่งซื้อ' : 'Return to Order Details'}
+            {isTh
+              ? 'กลับไปยังหน้ารายละเอียดคำสั่งซื้อ'
+              : 'Return to Order Details'}
           </button>
         </div>
       ) : (
@@ -133,7 +139,10 @@ export default function OmiseCallbackPage() {
       <Suspense
         fallback={
           <div className="text-center p-8">
-            <Loader2 size={28} className="animate-spin text-brand-brown mx-auto" />
+            <Loader2
+              size={28}
+              className="animate-spin text-brand-brown mx-auto"
+            />
           </div>
         }
       >

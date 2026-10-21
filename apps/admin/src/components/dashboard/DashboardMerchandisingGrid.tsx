@@ -2,7 +2,10 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, Award, Boxes, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatPrice } from '../../utils';
-import type { AnalyticsBestSeller, AnalyticsInventoryVelocity } from '@repo/types';
+import type {
+  AnalyticsBestSeller,
+  AnalyticsInventoryVelocity,
+} from '@repo/types';
 
 interface DashboardMerchandisingGridProps {
   bestSellers: AnalyticsBestSeller[];
@@ -38,7 +41,10 @@ export function DashboardMerchandisingGrid({
 
           <div className="divide-y divide-gray-100">
             {bestSellers.slice(0, 5).map((item, idx) => (
-              <div key={item.productId} className="py-2.5 flex items-center justify-between gap-3">
+              <div
+                key={item.productId}
+                className="py-2.5 flex items-center justify-between gap-3"
+              >
                 <div className="flex items-center space-x-3 min-w-0">
                   <span className="w-5 h-5 rounded-full bg-brand-cream text-brand-brown text-[10px] font-black flex items-center justify-center flex-shrink-0">
                     {idx + 1}
@@ -92,11 +98,17 @@ export function DashboardMerchandisingGrid({
               const isWarning = item.urgency === 'WARNING';
 
               return (
-                <div key={item.skuCode} className="py-2.5 flex items-center justify-between gap-3">
+                <div
+                  key={item.skuCode}
+                  className="py-2.5 flex items-center justify-between gap-3"
+                >
                   <div className="min-w-0">
                     <div className="flex items-center space-x-2">
                       {isCritical && (
-                        <AlertCircle size={13} className="text-rose-600 flex-shrink-0" />
+                        <AlertCircle
+                          size={13}
+                          className="text-rose-600 flex-shrink-0"
+                        />
                       )}
                       <h4 className="text-xs font-bold text-brand-brown truncate">
                         {item.productName}
@@ -106,7 +118,8 @@ export function DashboardMerchandisingGrid({
                       <span className="font-mono">{item.skuCode}</span>
                       <span>•</span>
                       <span>
-                        {t('dashboard.merch.burnRate')}: {item.dailyVelocity}/day
+                        {t('dashboard.merch.burnRate')}: {item.dailyVelocity}
+                        /day
                       </span>
                     </div>
                   </div>
@@ -124,7 +137,8 @@ export function DashboardMerchandisingGrid({
                       {item.daysRemaining} {t('dashboard.merch.daysRemaining')}
                     </span>
                     <span className="text-[10px] text-gray-400 mt-0.5 block">
-                      +{item.suggestedRestock} {t('dashboard.merch.suggestedRestock')}
+                      +{item.suggestedRestock}{' '}
+                      {t('dashboard.merch.suggestedRestock')}
                     </span>
                   </div>
                 </div>

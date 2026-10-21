@@ -109,7 +109,9 @@ export function PromptPayAwaitingPayment({
           )}
           <span className="font-bold text-gray-600 uppercase">DEV:</span>
           <span>
-            {isSimulating ? t('orderSuccess.simulating') : t('orderSuccess.simulatePayment')}
+            {isSimulating
+              ? t('orderSuccess.simulating')
+              : t('orderSuccess.simulatePayment')}
           </span>
         </button>
       </div>

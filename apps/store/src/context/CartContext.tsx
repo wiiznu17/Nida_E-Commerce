@@ -70,7 +70,9 @@ export type CartContextType = {
   finalTotal: number;
   couponError: string | null;
   isApplyingCoupon: boolean;
-  applyCoupon: (code: string) => Promise<{ success: boolean; message?: string }>;
+  applyCoupon: (
+    code: string,
+  ) => Promise<{ success: boolean; message?: string }>;
   removeCoupon: () => void;
 };
 
@@ -82,21 +84,45 @@ export function getCouponErrorMessage(
     case 'NOT_FOUND':
       return t('checkout.couponReasonNotFound', 'ไม่พบโค้ดส่วนลดนี้ในระบบ');
     case 'EXPIRED':
-      return t('checkout.couponReasonExpired', 'โค้ดส่วนลดนี้หมดอายุการใช้งานแล้ว');
+      return t(
+        'checkout.couponReasonExpired',
+        'โค้ดส่วนลดนี้หมดอายุการใช้งานแล้ว',
+      );
     case 'NOT_YET_ACTIVE':
-      return t('checkout.couponReasonNotYetActive', 'โค้ดส่วนลดยังไม่เริ่มเปิดให้ใช้งาน');
+      return t(
+        'checkout.couponReasonNotYetActive',
+        'โค้ดส่วนลดยังไม่เริ่มเปิดให้ใช้งาน',
+      );
     case 'USAGE_LIMIT_REACHED':
-      return t('checkout.couponReasonUsageLimitReached', 'สิทธิ์การใช้งานของโค้ดนี้เต็มแล้ว');
+      return t(
+        'checkout.couponReasonUsageLimitReached',
+        'สิทธิ์การใช้งานของโค้ดนี้เต็มแล้ว',
+      );
     case 'USER_LIMIT_REACHED':
-      return t('checkout.couponReasonUserLimitReached', 'คุณใช้สิทธิ์ของโค้ดนี้ครบกำหนดแล้ว');
+      return t(
+        'checkout.couponReasonUserLimitReached',
+        'คุณใช้สิทธิ์ของโค้ดนี้ครบกำหนดแล้ว',
+      );
     case 'MIN_ORDER_NOT_MET':
-      return t('checkout.couponReasonMinOrderNotMet', 'ยอดสั่งซื้อไม่ถึงเกณฑ์ขั้นต่ำสำหรับโค้ดนี้');
+      return t(
+        'checkout.couponReasonMinOrderNotMet',
+        'ยอดสั่งซื้อไม่ถึงเกณฑ์ขั้นต่ำสำหรับโค้ดนี้',
+      );
     case 'TIER_NOT_ELIGIBLE':
-      return t('checkout.couponReasonTierNotEligible', 'สิทธิ์การใช้งานเฉพาะระดับสมาชิกที่กำหนด');
+      return t(
+        'checkout.couponReasonTierNotEligible',
+        'สิทธิ์การใช้งานเฉพาะระดับสมาชิกที่กำหนด',
+      );
     case 'INACTIVE':
-      return t('checkout.couponReasonInactive', 'โค้ดส่วนลดนี้ถูกปิดใช้งานชั่วคราว');
+      return t(
+        'checkout.couponReasonInactive',
+        'โค้ดส่วนลดนี้ถูกปิดใช้งานชั่วคราว',
+      );
     default:
-      return t('checkout.couponReasonUnknown', 'ไม่สามารถใช้งานโค้ดส่วนลดนี้ได้');
+      return t(
+        'checkout.couponReasonUnknown',
+        'ไม่สามารถใช้งานโค้ดส่วนลดนี้ได้',
+      );
   }
 }
 
@@ -159,10 +185,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (!isHydrated) return;
     try {
       if (appliedCoupon) {
-        localStorage.setItem(
-          COUPON_STORAGE_KEY,
-          JSON.stringify(appliedCoupon),
-        );
+        localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(appliedCoupon));
       } else {
         localStorage.removeItem(COUPON_STORAGE_KEY);
       }
@@ -176,10 +199,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     0,
   );
 
-  const totalQuantity = items.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
+  const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
 
   // Auto-validate active coupon against minimum order amount whenever cart changes
   useEffect(() => {
@@ -230,7 +250,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     Math.round((cartTotal / FREE_SHIPPING_THRESHOLD) * 100),
   );
 
-  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - cartTotal);
+  const freeShippingRemaining = Math.max(
+    0,
+    FREE_SHIPPING_THRESHOLD - cartTotal,
+  );
 
   const finalTotal = Math.max(
     0,
@@ -297,7 +320,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     color?: string,
     explicitVariantId?: string,
   ) => {
-    const rawColors = 'colors' in product && Array.isArray(product.colors) ? product.colors : [];
+    const rawColors =
+      'colors' in product && Array.isArray(product.colors)
+        ? product.colors
+        : [];
     const firstColor =
       rawColors.length > 0
         ? typeof rawColors[0] === 'string'
@@ -337,15 +363,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const chosenColor = color || firstColor;
 
     // Resolve variant matching chosen size & color
-    const matchedVariant = variants?.find((v) => {
-      const matchSize =
-        !chosenSize || v.size.toLowerCase() === chosenSize.toLowerCase();
-      const matchColor =
-        !chosenColor ||
-        v.colorName.toLowerCase() === chosenColor.toLowerCase() ||
-        v.colorHex.toLowerCase() === chosenColor.toLowerCase();
-      return matchSize && matchColor;
-    }) ?? variants?.[0];
+    const matchedVariant =
+      variants?.find((v) => {
+        const matchSize =
+          !chosenSize || v.size.toLowerCase() === chosenSize.toLowerCase();
+        const matchColor =
+          !chosenColor ||
+          v.colorName.toLowerCase() === chosenColor.toLowerCase() ||
+          v.colorHex.toLowerCase() === chosenColor.toLowerCase();
+        return matchSize && matchColor;
+      }) ?? variants?.[0];
 
     const variantId = explicitVariantId ?? matchedVariant?.id ?? product.id;
     const sku = matchedVariant?.sku ?? product.slug;
@@ -361,24 +388,31 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           : '';
 
     const price = matchedVariant?.price ?? product.basePrice;
-    const originalPrice = matchedVariant?.compareAtPrice ?? product.originalPrice;
+    const originalPrice =
+      matchedVariant?.compareAtPrice ?? product.originalPrice;
     const department = String(product.department ?? '').toLowerCase();
     const categorySlug =
       'categorySlug' in product && typeof product.categorySlug === 'string'
         ? product.categorySlug
-        : 'category' in product && typeof product.category === 'object' && product.category !== null
+        : 'category' in product &&
+            typeof product.category === 'object' &&
+            product.category !== null
           ? product.category.slug
           : 'apparel';
     const categoryName =
       'categoryName' in product && typeof product.categoryName === 'string'
         ? product.categoryName
-        : 'category' in product && typeof product.category === 'object' && product.category !== null
+        : 'category' in product &&
+            typeof product.category === 'object' &&
+            product.category !== null
           ? product.category.name
           : undefined;
     const categoryNameTh =
       'categoryNameTh' in product && typeof product.categoryNameTh === 'string'
         ? product.categoryNameTh
-        : 'category' in product && typeof product.category === 'object' && product.category !== null
+        : 'category' in product &&
+            typeof product.category === 'object' &&
+            product.category !== null
           ? product.category.nameTh
           : undefined;
 

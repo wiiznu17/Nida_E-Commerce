@@ -1,4 +1,10 @@
-import { CreditCard, UserCheck, ShoppingCart, RefreshCcw, TrendingUp } from 'lucide-react';
+import {
+  CreditCard,
+  UserCheck,
+  ShoppingCart,
+  RefreshCcw,
+  TrendingUp,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatPrice } from '../../utils';
 import type { AnalyticsOverviewDto } from '@repo/types';
@@ -27,7 +33,9 @@ export function DashboardKpiGrid({ metrics }: DashboardKpiGridProps) {
         </div>
         <div className="flex items-center text-xs font-bold text-emerald-700 mt-1">
           <TrendingUp size={12} className="mr-1" />
-          <span>+{metrics.aovTrendPct}% {t('dashboard.kpi.vsLastPeriod')}</span>
+          <span>
+            +{metrics.aovTrendPct}% {t('dashboard.kpi.vsLastPeriod')}
+          </span>
         </div>
       </div>
 

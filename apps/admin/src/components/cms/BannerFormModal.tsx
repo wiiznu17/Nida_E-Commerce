@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { X, Image as ImageIcon, Link as LinkIcon, Calendar, Tag, Check, AlertCircle } from 'lucide-react';
+import {
+  X,
+  Image as ImageIcon,
+  Link as LinkIcon,
+  Calendar,
+  Tag,
+  Check,
+  AlertCircle,
+} from 'lucide-react';
 import { ImageUploader } from '../media/ImageUploader';
 import { BannerPlacement } from '@repo/types';
 import type { ApiCmsBanner } from '@repo/types';
@@ -66,9 +74,7 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
       setCouponCode(banner.couponCode ?? '');
       setSortOrder(banner.sortOrder ?? 0);
       setIsActive(banner.isActive ?? true);
-      setStartDate(
-        banner.startDate ? banner.startDate.substring(0, 16) : '',
-      );
+      setStartDate(banner.startDate ? banner.startDate.substring(0, 16) : '');
       setEndDate(banner.endDate ? banner.endDate.substring(0, 16) : '');
     } else {
       setPlacement(BannerPlacement.HERO_HOME);
@@ -167,7 +173,10 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-6 space-y-6"
+        >
           {errorMsg && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xs flex items-center space-x-2 text-xs text-red-700">
               <AlertCircle size={16} className="shrink-0" />
@@ -183,13 +192,23 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
               </label>
               <select
                 value={placement}
-                onChange={(e) => setPlacement(e.target.value as BannerPlacement)}
+                onChange={(e) =>
+                  setPlacement(e.target.value as BannerPlacement)
+                }
                 className="w-full h-9 px-3 text-xs border border-stone-300 rounded-xs bg-white text-stone-900 focus:outline-hidden focus:border-[#2B1810]"
               >
-                <option value={BannerPlacement.HERO_HOME}>Hero Billboard (Top)</option>
-                <option value={BannerPlacement.SEASONAL_SPOTLIGHT}>Seasonal Spotlight (Bento Cards)</option>
-                <option value={BannerPlacement.PROMO_RIBBON}>Promo Ribbon (Middle)</option>
-                <option value={BannerPlacement.COLLECTION_TOP}>Collection Header</option>
+                <option value={BannerPlacement.HERO_HOME}>
+                  Hero Billboard (Top)
+                </option>
+                <option value={BannerPlacement.SEASONAL_SPOTLIGHT}>
+                  Seasonal Spotlight (Bento Cards)
+                </option>
+                <option value={BannerPlacement.PROMO_RIBBON}>
+                  Promo Ribbon (Middle)
+                </option>
+                <option value={BannerPlacement.COLLECTION_TOP}>
+                  Collection Header
+                </option>
               </select>
             </div>
 
@@ -218,7 +237,10 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
                   onChange={(e) => setIsActive(e.target.checked)}
                   className="w-4 h-4 text-[#2B1810] border-stone-300 rounded-xs focus:ring-[#2B1810]"
                 />
-                <label htmlFor="isActiveToggle" className="text-xs text-stone-700 font-bold">
+                <label
+                  htmlFor="isActiveToggle"
+                  className="text-xs text-stone-700 font-bold"
+                >
                   {isActive ? 'Published & Active' : 'Draft / Disabled'}
                 </label>
               </div>
@@ -284,7 +306,9 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
                 <label className="text-[10px] font-black uppercase tracking-wider text-stone-600">
                   Campaign Tag (TH)
                 </label>
-                <span className="text-[10px] text-stone-400">{tagTh.length}/30</span>
+                <span className="text-[10px] text-stone-400">
+                  {tagTh.length}/30
+                </span>
               </div>
               <input
                 type="text"
@@ -301,7 +325,9 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
                 <label className="text-[10px] font-black uppercase tracking-wider text-stone-600">
                   Campaign Tag (EN)
                 </label>
-                <span className="text-[10px] text-stone-400">{tagEn.length}/30</span>
+                <span className="text-[10px] text-stone-400">
+                  {tagEn.length}/30
+                </span>
               </div>
               <input
                 type="text"
@@ -321,7 +347,9 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
                 <label className="text-[10px] font-black uppercase tracking-wider text-stone-600">
                   Headline (TH)
                 </label>
-                <span className="text-[10px] text-stone-400">{titleTh.length}/70</span>
+                <span className="text-[10px] text-stone-400">
+                  {titleTh.length}/70
+                </span>
               </div>
               <input
                 type="text"
@@ -338,7 +366,9 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
                 <label className="text-[10px] font-black uppercase tracking-wider text-stone-600">
                   Headline (EN)
                 </label>
-                <span className="text-[10px] text-stone-400">{titleEn.length}/70</span>
+                <span className="text-[10px] text-stone-400">
+                  {titleEn.length}/70
+                </span>
               </div>
               <input
                 type="text"
@@ -358,7 +388,9 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
                 <label className="text-[10px] font-black uppercase tracking-wider text-stone-600">
                   Subtitle / Description (TH)
                 </label>
-                <span className="text-[10px] text-stone-400">{subtitleTh.length}/160</span>
+                <span className="text-[10px] text-stone-400">
+                  {subtitleTh.length}/160
+                </span>
               </div>
               <textarea
                 rows={2}
@@ -375,7 +407,9 @@ export const BannerFormModal: React.FC<BannerFormModalProps> = ({
                 <label className="text-[10px] font-black uppercase tracking-wider text-stone-600">
                   Subtitle / Description (EN)
                 </label>
-                <span className="text-[10px] text-stone-400">{subtitleEn.length}/160</span>
+                <span className="text-[10px] text-stone-400">
+                  {subtitleEn.length}/160
+                </span>
               </div>
               <textarea
                 rows={2}

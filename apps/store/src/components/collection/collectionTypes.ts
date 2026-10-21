@@ -41,7 +41,9 @@ export interface CollectionControlBarProps {
   sortBy: 'featured' | 'newest' | 'price-asc' | 'price-desc';
   gridCols: 3 | 4;
   totalCount?: number;
-  onSortChange: (sort: 'featured' | 'newest' | 'price-asc' | 'price-desc') => void;
+  onSortChange: (
+    sort: 'featured' | 'newest' | 'price-asc' | 'price-desc',
+  ) => void;
   onToggleGridCols: (cols: 3 | 4) => void;
 }
 

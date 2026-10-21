@@ -92,7 +92,11 @@ export function CatalogProductGrid({
                     key={i}
                     className="w-3 h-3 rounded-full border border-gray-300 inline-block shadow-2xs"
                     style={{ backgroundColor: color.hex }}
-                    title={language === 'th' && color.nameTh ? color.nameTh : color.name}
+                    title={
+                      language === 'th' && color.nameTh
+                        ? color.nameTh
+                        : color.name
+                    }
                   />
                 ))}
                 {product.colors.length > 5 && (
@@ -121,11 +125,12 @@ export function CatalogProductGrid({
               <span className="text-xs font-bold text-brand-brown">
                 {formatPrice(product.basePrice)}
               </span>
-              {product.originalPrice && product.originalPrice > product.basePrice && (
-                <span className="text-[11px] text-gray-400 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-              )}
+              {product.originalPrice &&
+                product.originalPrice > product.basePrice && (
+                  <span className="text-[11px] text-gray-400 line-through">
+                    {formatPrice(product.originalPrice)}
+                  </span>
+                )}
             </div>
           </div>
         );

@@ -44,13 +44,23 @@ export const SplitEditorialBento: React.FC = () => {
 
     const title =
       language === 'en'
-        ? (dynamicBanner.titleEn ?? dynamicBanner.titleTh ?? dynamicBanner.title ?? defaultCard.title)
-        : (dynamicBanner.titleTh ?? dynamicBanner.titleEn ?? dynamicBanner.title ?? defaultCard.title);
+        ? (dynamicBanner.titleEn ??
+          dynamicBanner.titleTh ??
+          dynamicBanner.title ??
+          defaultCard.title)
+        : (dynamicBanner.titleTh ??
+          dynamicBanner.titleEn ??
+          dynamicBanner.title ??
+          defaultCard.title);
 
     const desc =
       language === 'en'
-        ? (dynamicBanner.subtitleEn ?? dynamicBanner.subtitleTh ?? defaultCard.desc)
-        : (dynamicBanner.subtitleTh ?? dynamicBanner.subtitleEn ?? defaultCard.desc);
+        ? (dynamicBanner.subtitleEn ??
+          dynamicBanner.subtitleTh ??
+          defaultCard.desc)
+        : (dynamicBanner.subtitleTh ??
+          dynamicBanner.subtitleEn ??
+          defaultCard.desc);
 
     const link =
       dynamicBanner.ctaPrimaryLink ??
@@ -59,8 +69,12 @@ export const SplitEditorialBento: React.FC = () => {
 
     const ctaText =
       language === 'en'
-        ? (dynamicBanner.ctaPrimaryTextEn ?? dynamicBanner.ctaPrimaryTextTh ?? defaultCard.ctaText)
-        : (dynamicBanner.ctaPrimaryTextTh ?? dynamicBanner.ctaPrimaryTextEn ?? defaultCard.ctaText);
+        ? (dynamicBanner.ctaPrimaryTextEn ??
+          dynamicBanner.ctaPrimaryTextTh ??
+          defaultCard.ctaText)
+        : (dynamicBanner.ctaPrimaryTextTh ??
+          dynamicBanner.ctaPrimaryTextEn ??
+          defaultCard.ctaText);
 
     return {
       id: dynamicBanner.id,
@@ -121,4 +135,3 @@ export const SplitEditorialBento: React.FC = () => {
     </section>
   );
 };
-

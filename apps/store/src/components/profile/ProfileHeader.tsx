@@ -11,7 +11,9 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ user, onLogout }: ProfileHeaderProps) {
   const { language, t } = useLanguage();
 
-  const userInitial = user.firstName ? user.firstName.charAt(0).toUpperCase() : 'N';
+  const userInitial = user.firstName
+    ? user.firstName.charAt(0).toUpperCase()
+    : 'N';
 
   return (
     <div className="bg-brand-warm-cream border border-brand-border p-6 sm:p-8 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">

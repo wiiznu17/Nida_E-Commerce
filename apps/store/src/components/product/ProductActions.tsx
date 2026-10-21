@@ -1,5 +1,12 @@
 import React from 'react';
-import { ShoppingBag, Check, Heart, Truck, RefreshCw, ShieldCheck } from 'lucide-react';
+import {
+  ShoppingBag,
+  Check,
+  Heart,
+  Truck,
+  RefreshCw,
+  ShieldCheck,
+} from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface ProductActionsProps {
@@ -91,9 +98,7 @@ export function ProductActions({
                 ? 'เปลี่ยนและคืนสินค้าได้ใน 30 วัน'
                 : 'Free 30-day returns & exchanges'}
             </strong>{' '}
-            {isTh
-              ? 'สะดวกสบายทั้งหน้าร้านและทางพัสดุ'
-              : 'in-store or by mail.'}
+            {isTh ? 'สะดวกสบายทั้งหน้าร้านและทางพัสดุ' : 'in-store or by mail.'}
           </span>
         </div>
         <div className="flex items-center space-x-3">

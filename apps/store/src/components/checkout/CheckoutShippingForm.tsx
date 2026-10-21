@@ -147,7 +147,10 @@ export function CheckoutShippingForm({
                 required
                 value={shippingData.firstName}
                 onChange={(e) =>
-                  onSetShippingData((prev) => ({ ...prev, firstName: e.target.value }))
+                  onSetShippingData((prev) => ({
+                    ...prev,
+                    firstName: e.target.value,
+                  }))
                 }
                 placeholder="Phannida"
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
@@ -162,7 +165,10 @@ export function CheckoutShippingForm({
                 required
                 value={shippingData.lastName}
                 onChange={(e) =>
-                  onSetShippingData((prev) => ({ ...prev, lastName: e.target.value }))
+                  onSetShippingData((prev) => ({
+                    ...prev,
+                    lastName: e.target.value,
+                  }))
                 }
                 placeholder="Wissanu"
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
@@ -180,7 +186,10 @@ export function CheckoutShippingForm({
                 required
                 value={shippingData.email}
                 onChange={(e) =>
-                  onSetShippingData((prev) => ({ ...prev, email: e.target.value }))
+                  onSetShippingData((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
                 }
                 placeholder="customer@nida.com"
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
@@ -195,7 +204,10 @@ export function CheckoutShippingForm({
                 required
                 value={shippingData.phone}
                 onChange={(e) =>
-                  onSetShippingData((prev) => ({ ...prev, phone: e.target.value }))
+                  onSetShippingData((prev) => ({
+                    ...prev,
+                    phone: e.target.value,
+                  }))
                 }
                 placeholder="081-234-5678"
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
@@ -212,7 +224,10 @@ export function CheckoutShippingForm({
               required
               value={shippingData.address}
               onChange={(e) =>
-                onSetShippingData((prev) => ({ ...prev, address: e.target.value }))
+                onSetShippingData((prev) => ({
+                  ...prev,
+                  address: e.target.value,
+                }))
               }
               placeholder="108 Sukhumvit Soi 24"
               className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
@@ -228,7 +243,10 @@ export function CheckoutShippingForm({
                 type="text"
                 value={shippingData.subdistrict}
                 onChange={(e) =>
-                  onSetShippingData((prev) => ({ ...prev, subdistrict: e.target.value }))
+                  onSetShippingData((prev) => ({
+                    ...prev,
+                    subdistrict: e.target.value,
+                  }))
                 }
                 placeholder={t('addressBook.subdistrictPlaceholder')}
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
@@ -264,7 +282,10 @@ export function CheckoutShippingForm({
                 type="text"
                 value={shippingData.province}
                 onChange={(e) =>
-                  onSetShippingData((prev) => ({ ...prev, province: e.target.value }))
+                  onSetShippingData((prev) => ({
+                    ...prev,
+                    province: e.target.value,
+                  }))
                 }
                 placeholder={t('addressBook.provincePlaceholder')}
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"
@@ -279,7 +300,10 @@ export function CheckoutShippingForm({
                 required
                 value={shippingData.postalCode}
                 onChange={(e) =>
-                  onSetShippingData((prev) => ({ ...prev, postalCode: e.target.value }))
+                  onSetShippingData((prev) => ({
+                    ...prev,
+                    postalCode: e.target.value,
+                  }))
                 }
                 placeholder="10110"
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-brown"

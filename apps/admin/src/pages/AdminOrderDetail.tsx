@@ -46,11 +46,11 @@ export default function AdminOrderDetail() {
   const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
 
   // Emergency Payment Override modal state
-  const [isPaymentOverrideModalOpen, setIsPaymentOverrideModalOpen] = useState(false);
+  const [isPaymentOverrideModalOpen, setIsPaymentOverrideModalOpen] =
+    useState(false);
 
   // Refund modal state
   const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
-
 
   const loadOrder = async () => {
     if (!id) return;
@@ -149,9 +149,9 @@ export default function AdminOrderDetail() {
   const totalPaid = Number(order?.totalAmount ?? 0);
   const canRefund = Boolean(
     order?.payment &&
-      order.status !== 'PENDING' &&
-      order.status !== 'CANCELLED' &&
-      alreadyRefunded < totalPaid,
+    order.status !== 'PENDING' &&
+    order.status !== 'CANCELLED' &&
+    alreadyRefunded < totalPaid,
   );
 
   const handleOpenFulfillModal = () => {
@@ -265,7 +265,8 @@ export default function AdminOrderDetail() {
         </div>
 
         {/* Row 3: Cancellation & Return Request Hubs */}
-        {((order.cancellationRequests && order.cancellationRequests.length > 0) ||
+        {((order.cancellationRequests &&
+          order.cancellationRequests.length > 0) ||
           (order.returnRequests && order.returnRequests.length > 0)) && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {order.cancellationRequests &&
@@ -419,4 +420,3 @@ export default function AdminOrderDetail() {
     </AdminLayout>
   );
 }
-

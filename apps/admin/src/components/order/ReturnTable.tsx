@@ -12,7 +12,11 @@ import {
   EmptyState,
 } from '../ui';
 import { useLanguage } from '../../context/LanguageContext';
-import { formatOrderDateTime, formatPrice, formatReturnDeadlineRemaining } from '../../utils';
+import {
+  formatOrderDateTime,
+  formatPrice,
+  formatReturnDeadlineRemaining,
+} from '../../utils';
 import type { ApiReturnRequestWithOrder } from '@repo/types';
 
 interface ReturnTableProps {
@@ -73,17 +77,37 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
   };
 
   return (
-    <TableContainer className={isLoading ? 'opacity-60 transition-opacity pointer-events-none' : 'transition-opacity'}>
+    <TableContainer
+      className={
+        isLoading
+          ? 'opacity-60 transition-opacity pointer-events-none'
+          : 'transition-opacity'
+      }
+    >
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[18%] min-w-[140px]">{t('returnsPage.table.requestNumber')}</TableHead>
-            <TableHead className="w-[14%] min-w-[120px]">{t('returnsPage.table.order')}</TableHead>
-            <TableHead className="w-[18%] min-w-[150px]">{t('returnsPage.table.customer')}</TableHead>
-            <TableHead className="w-[20%] min-w-[160px]">{t('returnsPage.table.items')}</TableHead>
-            <TableHead className="w-[12%] min-w-[110px]">{t('returnsPage.table.shipment')}</TableHead>
-            <TableHead className="w-[10%] min-w-[100px] text-center">{t('returnsPage.table.status')}</TableHead>
-            <TableHead className="w-[16%] min-w-[170px] text-right">{t('returnsPage.table.action')}</TableHead>
+            <TableHead className="w-[18%] min-w-[140px]">
+              {t('returnsPage.table.requestNumber')}
+            </TableHead>
+            <TableHead className="w-[14%] min-w-[120px]">
+              {t('returnsPage.table.order')}
+            </TableHead>
+            <TableHead className="w-[18%] min-w-[150px]">
+              {t('returnsPage.table.customer')}
+            </TableHead>
+            <TableHead className="w-[20%] min-w-[160px]">
+              {t('returnsPage.table.items')}
+            </TableHead>
+            <TableHead className="w-[12%] min-w-[110px]">
+              {t('returnsPage.table.shipment')}
+            </TableHead>
+            <TableHead className="w-[10%] min-w-[100px] text-center">
+              {t('returnsPage.table.status')}
+            </TableHead>
+            <TableHead className="w-[16%] min-w-[170px] text-right">
+              {t('returnsPage.table.action')}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -101,27 +125,49 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
             items.map((req) => (
               <TableRow key={req.id} className="hover:bg-brand-cream/20">
                 <TableCell>
-                  <div className="font-mono text-xs font-black text-brand-dark-brown">{req.requestNumber}</div>
-                  <div className="text-[11px] text-stone-500 font-mono mt-0.5">{formatOrderDateTime(req.createdAt, language)}</div>
+                  <div className="font-mono text-xs font-black text-brand-dark-brown">
+                    {req.requestNumber}
+                  </div>
+                  <div className="text-[11px] text-stone-500 font-mono mt-0.5">
+                    {formatOrderDateTime(req.createdAt, language)}
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Link to={`/admin/orders/${req.order?.orderNumber ?? req.orderId}`} className="font-mono text-xs font-bold text-brand-brown hover:underline block">
+                  <Link
+                    to={`/admin/orders/${req.order?.orderNumber ?? req.orderId}`}
+                    className="font-mono text-xs font-bold text-brand-brown hover:underline block"
+                  >
                     #{req.order?.orderNumber}
                   </Link>
-                  <div className="text-xs font-black text-stone-900 mt-0.5">{formatPrice(req.order?.totalAmount ?? 0)}</div>
+                  <div className="text-xs font-black text-stone-900 mt-0.5">
+                    {formatPrice(req.order?.totalAmount ?? 0)}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="text-xs font-bold text-stone-900">
-                    {req.user ? `${req.user.firstName ?? ''} ${req.user.lastName ?? ''}`.trim() || req.user.email : '-'}
+                    {req.user
+                      ? `${req.user.firstName ?? ''} ${req.user.lastName ?? ''}`.trim() ||
+                        req.user.email
+                      : '-'}
                   </div>
-                  <div className="text-[11px] text-stone-500 font-mono truncate">{req.user?.email}</div>
+                  <div className="text-[11px] text-stone-500 font-mono truncate">
+                    {req.user?.email}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="space-y-1">
                     {req.items.slice(0, 2).map((item) => (
-                      <div key={item.id} className="text-xs text-stone-800 line-clamp-1">
-                        <span className="font-bold">{item.quantity}x</span> {item.productName ?? 'Product'}
-                        {item.variantInfo && <span className="text-[10px] text-stone-500 ml-1">({item.variantInfo})</span>}
+                      <div
+                        key={item.id}
+                        className="text-xs text-stone-800 line-clamp-1"
+                      >
+                        <span className="font-bold">{item.quantity}x</span>{' '}
+                        {item.productName ?? 'Product'}
+                        {item.variantInfo && (
+                          <span className="text-[10px] text-stone-500 ml-1">
+                            ({item.variantInfo})
+                          </span>
+                        )}
                       </div>
                     ))}
                     {req.items.length > 2 && (
@@ -136,24 +182,36 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
                     <div className="space-y-0.5">
                       <div className="inline-flex items-center space-x-1 text-[11px] font-bold text-purple-900 bg-purple-50 px-2 py-0.5 rounded-xs border border-purple-200">
                         <Truck size={11} className="text-purple-700 shrink-0" />
-                        <span className="font-mono">{req.returnCarrier}: {req.returnTrackingNumber}</span>
+                        <span className="font-mono">
+                          {req.returnCarrier}: {req.returnTrackingNumber}
+                        </span>
                       </div>
-                      {req.returnShippingFee !== undefined && req.returnShippingFee > 0 && (
-                        <div className="text-[10px] text-emerald-700 font-bold font-mono">
-                          Claim: {formatPrice(req.returnShippingFee)}
-                        </div>
-                      )}
+                      {req.returnShippingFee !== undefined &&
+                        req.returnShippingFee > 0 && (
+                          <div className="text-[10px] text-emerald-700 font-bold font-mono">
+                            Claim: {formatPrice(req.returnShippingFee)}
+                          </div>
+                        )}
                     </div>
                   ) : req.status === 'APPROVED' && req.reviewedAt ? (
                     <div className="inline-flex items-center space-x-1 text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-xs border border-blue-200">
                       <Clock size={11} />
-                      <span>{formatReturnDeadlineRemaining(req.reviewedAt, language)}</span>
+                      <span>
+                        {formatReturnDeadlineRemaining(
+                          req.reviewedAt,
+                          language,
+                        )}
+                      </span>
                     </div>
                   ) : (
-                    <span className="text-[11px] text-stone-400 font-medium">-</span>
+                    <span className="text-[11px] text-stone-400 font-medium">
+                      -
+                    </span>
                   )}
                 </TableCell>
-                <TableCell className="text-center">{getStatusBadge(req.status)}</TableCell>
+                <TableCell className="text-center">
+                  {getStatusBadge(req.status)}
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end space-x-1.5">
                     <Link
@@ -173,10 +231,13 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
                         {t('returnsPage.reviewBtn')}
                       </button>
                     )}
-                    {(req.status === 'APPROVED' || req.status === 'SHIPPED') && (
+                    {(req.status === 'APPROVED' ||
+                      req.status === 'SHIPPED') && (
                       <button
                         type="button"
-                        disabled={req.status !== 'SHIPPED' || !req.returnTrackingNumber}
+                        disabled={
+                          req.status !== 'SHIPPED' || !req.returnTrackingNumber
+                        }
                         onClick={() => onInspect(req)}
                         title={
                           req.status !== 'SHIPPED' || !req.returnTrackingNumber

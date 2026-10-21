@@ -25,7 +25,9 @@ export const CmsPreviewModal: React.FC<CmsPreviewModalProps> = ({
 }) => {
   const { t } = useLanguage();
 
-  const handleNavigateTab = (tabKey: 'hero' | 'spotlight' | 'promo' | 'settings') => {
+  const handleNavigateTab = (
+    tabKey: 'hero' | 'spotlight' | 'promo' | 'settings',
+  ) => {
     if (onNavigateTab) {
       onNavigateTab(tabKey);
       onClose();

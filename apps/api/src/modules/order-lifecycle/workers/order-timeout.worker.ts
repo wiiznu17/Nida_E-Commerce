@@ -6,11 +6,7 @@ import {
   OrderLifecycleJobName,
   type AutoCancelOrderJobData,
 } from '@repo/types';
-import {
-  OrderStatus,
-  PaymentStatus,
-  StockChangeType,
-} from '@repo/database';
+import { OrderStatus, PaymentStatus, StockChangeType } from '@repo/database';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
 @Processor(OrderLifecycleQueueName.ORDER_TIMEOUT)
@@ -42,7 +38,9 @@ export class OrderTimeoutWorker extends WorkerHost {
       });
 
       if (!order) {
-        this.logger.warn(`Order #${orderNumber} (${orderId}) not found during timeout execution`);
+        this.logger.warn(
+          `Order #${orderNumber} (${orderId}) not found during timeout execution`,
+        );
         return;
       }
 
@@ -92,7 +90,8 @@ export class OrderTimeoutWorker extends WorkerHost {
               changeType: StockChangeType.RESTOCK,
               quantityChange: item.quantity,
               balanceAfter: updatedInv?.quantityAvailable ?? 0,
-              reasonNote: reason ?? `Unpaid order timeout #${order.orderNumber}`,
+              reasonNote:
+                reason ?? `Unpaid order timeout #${order.orderNumber}`,
             },
           });
         }

@@ -13,7 +13,7 @@ export function formatPrice(
   }
 
   const numeric = Number(amount);
-  const showDecimals = options?.showDecimals ?? (numeric % 1 !== 0);
+  const showDecimals = options?.showDecimals ?? numeric % 1 !== 0;
 
   if (showDecimals) {
     return `฿${numeric.toLocaleString('en-US', {

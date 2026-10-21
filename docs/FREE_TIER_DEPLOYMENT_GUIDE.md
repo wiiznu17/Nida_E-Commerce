@@ -5,6 +5,7 @@
 ---
 
 ## สารบัญ
+
 1. [สถาปัตยกรรมระบบสายฟรี (Free-Tier Architecture Map)](#1-สถาปัตยกรรมระบบสายฟรี-free-tier-architecture-map)
 2. [ขั้นตอนที่ 1: ติดตั้งฐานข้อมูล PostgreSQL (Neon / Supabase)](#ขั้นตอนที่-1-ติดตั้งฐานข้อมูล-postgresql-neon--supabase)
 3. [ขั้นตอนที่ 2: ติดตั้ง Redis สำหรับระบบคิว BullMQ (Upstash Redis)](#ขั้นตอนที่-2-ติดตั้ง-redis-สำหรับระบบคิว-bullmq-upstash-redis)
@@ -74,10 +75,10 @@ flowchart TD
    ```bash
    # ตั้งค่าชั่วคราวในเครื่องเพื่อยิง Migration ขึ้น Neon
    export DATABASE_URL="postgresql://user:pass@ep-cool-sample.../neondb?sslmode=require"
-   
+
    # รัน Migration
    npm --prefix packages/database run prisma:migrate:deploy
-   
+
    # รัน Seed ข้อมูลตั้งต้น (หมวดหมู่, สิทธิ์, บัญชีแอดมิน)
    npm --prefix packages/database run prisma:seed
    ```
@@ -108,7 +109,7 @@ flowchart TD
    - `CLOUDINARY_CLOUD_NAME`
    - `CLOUDINARY_API_KEY`
    - `CLOUDINARY_API_SECRET`
-*(หรือใช้ Supabase Storage Bucket ฟรี 1GB โดยเปิด Bucket เป็น Public เพื่อแสดงรูปภาพสินค้า)*
+     _(หรือใช้ Supabase Storage Bucket ฟรี 1GB โดยเปิด Bucket เป็น Public เพื่อแสดงรูปภาพสินค้า)_
 
 ---
 
@@ -117,6 +118,7 @@ flowchart TD
 เราจะใช้ **[Render.com](https://render.com)** (ฟรี 750 ชม./เดือน สำหรับ Web Service) หรือ **[Koyeb.com](https://koyeb.com)** (ฟรี Eco Instance 1 ตัวตลอดชีพ):
 
 ### 4.1 Deploy Customer API (`apps/api` - Port 4001)
+
 1. เข้า Render Dashboard > กด **New +** > เลือก **Web Service**
 2. เชื่อมต่อ Git Repository ของโปรเจกต์ `Nida_Project`
 3. ตั้งค่าการตั้งค่า Service:
@@ -150,6 +152,7 @@ flowchart TD
    ```
 
 ### 4.2 Deploy Admin API (`apps/admin-api` - Port 4000)
+
 1. ทำขั้นตอนแบบเดียวกับด้านบนใน Render อีก 1 Web Service
 2. ตั้งค่า Service:
    - **Name**: `nida-admin-api`
@@ -183,6 +186,7 @@ flowchart TD
 > **ปัญหาของ Render Free Tier**: หากไม่มีคำขอเรียกใช้งาน (HTTP Request) นานเกิน 15 นาที เซิร์ฟเวอร์จะตัดเข้าสู่โหมด "Sleep" (หลับ) และเมื่อมีผู้ใช้เปิดเว็บคนแรกจะต้องรอ Cold Start นาน 30-50 วินาที
 
 ### วิธีแก้ปัญหาให้เซิร์ฟเวอร์ตื่นตัวตลอด 24 ชั่วโมง (ฟรี 100%):
+
 1. สมัครใช้งาน **[UptimeRobot](https://uptimerobot.com)** (ฟรี 50 จอมอนิเตอร์)
 2. กด **"Add New Monitor"**:
    - **Monitor Type**: `HTTP(s)`
@@ -257,12 +261,12 @@ Next.js 16 App Router ทำงานได้เต็มประสิทธ�
 1. นำ Nameservers ของโดเมนไปชี้ที่ **Cloudflare** (ฟรี DNS Management + Free SSL)
 2. กำหนด DNS Records ดังนี้:
 
-| Type | Name (Host) | Target (ชี้ไปที่) | บริการปลายทาง |
-| :--- | :--- | :--- | :--- |
-| **CNAME** | `@` หรือ `www` | `cname.vercel-dns.com` | หน้าร้าน (Vercel) |
-| **CNAME** | `admin` | `nida-admin-portal.pages.dev` | แอดมินพอร์ทัล (Cloudflare Pages) |
-| **CNAME** | `api` | `nida-customer-api.onrender.com` | Customer API (Render) |
-| **CNAME** | `admin-api` | `nida-admin-api.onrender.com` | Admin API (Render) |
+| Type      | Name (Host)    | Target (ชี้ไปที่)                | บริการปลายทาง                    |
+| :-------- | :------------- | :------------------------------- | :------------------------------- |
+| **CNAME** | `@` หรือ `www` | `cname.vercel-dns.com`           | หน้าร้าน (Vercel)                |
+| **CNAME** | `admin`        | `nida-admin-portal.pages.dev`    | แอดมินพอร์ทัล (Cloudflare Pages) |
+| **CNAME** | `api`          | `nida-customer-api.onrender.com` | Customer API (Render)            |
+| **CNAME** | `admin-api`    | `nida-admin-api.onrender.com`    | Admin API (Render)               |
 
 3. เมื่อตั้งค่า DNS แล้ว อย่าลืมอัปเดต **CORS Whitelist** ใน API ทั้งสองตัวให้ยอมรับโดเมนจริงของคุณ
 
@@ -270,11 +274,11 @@ Next.js 16 App Router ทำงานได้เต็มประสิทธ�
 
 ## 10. สรุปตารางขีดจำกัดและข้อควรระวังของสายฟรี
 
-| บริการ | ขีดจำกัด Free Tier | ความเสี่ยงที่ต้องระวัง | วิธีจัดการ |
-| :--- | :--- | :--- | :--- |
-| **Vercel** (Storefront) | 100 GB Bandwidth/เดือน | โควต้า Serverless Function Execution | เปิดใช้งาน Image Optimization แคชอย่างเหมาะสม |
-| **Cloudflare Pages** (Admin) | Unlimited Bandwidth | ไม่มี | เสถียรและเร็วที่สุด เหมาะกับ SPA |
-| **Render** (APIs) | 750 ชั่วโมง/เดือน (Instance หลับใน 15 นาที) | Cold Start นาน 30-50 วินาที | ใช้ UptimeRobot คอยยิง Ping ทุก 5 นาที |
-| **Neon** (Postgres DB) | 0.5 GB Storage | ขีดจำกัด Active Connections ต่ำ | ต้องใช้ Pooled Connection (`pgbouncer`) เสมอ |
-| **Upstash** (Redis) | 10,000 requests/วัน | คิว BullMQ อาจยิงคำสั่งถี่เกินโควต้า | ปรับ Delay ของ Worker ให้เหมาะสม |
-| **Resend** (Email) | 3,000 emails/เดือน (100 ฉบับ/วัน) | เกินโควต้าวันละ 100 ฉบับ | ใช้เฉพาะ Transactional Email สำคัญ (OTP, ใบสั่งซื้อ) |
+| บริการ                       | ขีดจำกัด Free Tier                          | ความเสี่ยงที่ต้องระวัง               | วิธีจัดการ                                           |
+| :--------------------------- | :------------------------------------------ | :----------------------------------- | :--------------------------------------------------- |
+| **Vercel** (Storefront)      | 100 GB Bandwidth/เดือน                      | โควต้า Serverless Function Execution | เปิดใช้งาน Image Optimization แคชอย่างเหมาะสม        |
+| **Cloudflare Pages** (Admin) | Unlimited Bandwidth                         | ไม่มี                                | เสถียรและเร็วที่สุด เหมาะกับ SPA                     |
+| **Render** (APIs)            | 750 ชั่วโมง/เดือน (Instance หลับใน 15 นาที) | Cold Start นาน 30-50 วินาที          | ใช้ UptimeRobot คอยยิง Ping ทุก 5 นาที               |
+| **Neon** (Postgres DB)       | 0.5 GB Storage                              | ขีดจำกัด Active Connections ต่ำ      | ต้องใช้ Pooled Connection (`pgbouncer`) เสมอ         |
+| **Upstash** (Redis)          | 10,000 requests/วัน                         | คิว BullMQ อาจยิงคำสั่งถี่เกินโควต้า | ปรับ Delay ของ Worker ให้เหมาะสม                     |
+| **Resend** (Email)           | 3,000 emails/เดือน (100 ฉบับ/วัน)           | เกินโควต้าวันละ 100 ฉบับ             | ใช้เฉพาะ Transactional Email สำคัญ (OTP, ใบสั่งซื้อ) |

@@ -11,10 +11,7 @@ import {
   CatalogProductGrid,
   CatalogMobileDrawer,
 } from '@/components/catalog';
-import {
-  SearchEmptyState,
-  useSearchFilters,
-} from '@/components/search';
+import { SearchEmptyState, useSearchFilters } from '@/components/search';
 import { LoadingSpinner, Pagination } from '@/components/ui';
 
 export function SearchPageView() {
@@ -61,35 +58,47 @@ export function SearchPageView() {
       minPrice = 2500;
     }
 
-    const sortMap: Record<string, 'featured' | 'newest' | 'price_asc' | 'price_desc'> = {
+    const sortMap: Record<
+      string,
+      'featured' | 'newest' | 'price_asc' | 'price_desc'
+    > = {
       featured: 'featured',
       newest: 'newest',
       'price-asc': 'price_asc',
       'price-desc': 'price_desc',
     };
 
-    catalogRequester.getProductsWithMeta({
-      search: query || undefined,
-      department: filters.departments.length === 1 ? filters.departments[0] : undefined,
-      subCategory: filters.subCategories.length === 1 ? filters.subCategories[0] : undefined,
-      minPrice,
-      maxPrice,
-      tag: filters.tags.length > 0 ? filters.tags.join(',') : undefined,
-      sortBy: sortMap[filters.sortBy] ?? 'featured',
-      page: currentPage,
-      limit: pageSize,
-    })
+    catalogRequester
+      .getProductsWithMeta({
+        search: query || undefined,
+        department:
+          filters.departments.length === 1 ? filters.departments[0] : undefined,
+        subCategory:
+          filters.subCategories.length === 1
+            ? filters.subCategories[0]
+            : undefined,
+        minPrice,
+        maxPrice,
+        tag: filters.tags.length > 0 ? filters.tags.join(',') : undefined,
+        sortBy: sortMap[filters.sortBy] ?? 'featured',
+        page: currentPage,
+        limit: pageSize,
+      })
       .then((res) => {
         if (!isCancelled) {
           let products = res.products;
           if (filters.departments.length > 1) {
             products = products.filter((p) =>
-              filters.departments.some((d) => p.department.toLowerCase().includes(d))
+              filters.departments.some((d) =>
+                p.department.toLowerCase().includes(d),
+              ),
             );
           }
           if (filters.subCategories.length > 1) {
-            products = products.filter((p) =>
-              p.categoryName && filters.subCategories.includes(p.categoryName)
+            products = products.filter(
+              (p) =>
+                p.categoryName &&
+                filters.subCategories.includes(p.categoryName),
             );
           }
 
@@ -110,7 +119,6 @@ export function SearchPageView() {
       isCancelled = true;
     };
   }, [query, filters, currentPage, pageSize]);
-
 
   return (
     <div className="min-h-screen bg-white font-sans">

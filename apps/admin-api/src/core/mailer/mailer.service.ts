@@ -95,7 +95,8 @@ export class MailerService implements OnModuleInit {
     }
 
     // Fallback: development logger
-    this.logger.log(`\n======================================================================
+    this.logger
+      .log(`\n======================================================================
 [MAILER-DEV] INVITATION EMAIL DISPATCHED
 To: ${options.to} (${options.fullName})
 Subject: Welcome to Nida Admin Portal — Setup Your Password
@@ -146,7 +147,8 @@ Setup URL: ${options.setupUrl}
     }
 
     // Fallback: development logger
-    this.logger.log(`\n======================================================================
+    this.logger
+      .log(`\n======================================================================
 [MAILER-DEV] PASSWORD RESET EMAIL DISPATCHED
 To: ${options.to}
 Subject: Reset Your Password — Nida Back-Office

@@ -46,7 +46,12 @@ export function DepartmentDonutChart({ shares }: DepartmentDonutChartProps) {
 
       {/* SVG Donut Ring */}
       <div className="flex items-center justify-center my-4 relative">
-        <svg width="160" height="160" viewBox="0 0 160 160" className="rotate-[-90deg]">
+        <svg
+          width="160"
+          height="160"
+          viewBox="0 0 160 160"
+          className="rotate-[-90deg]"
+        >
           {/* Background circle track */}
           <circle
             cx="80"
@@ -89,7 +94,9 @@ export function DepartmentDonutChart({ shares }: DepartmentDonutChartProps) {
               : t('dashboard.charts.totalSales')}
           </span>
           <span className="text-xs font-mono font-bold text-brand-brown">
-            {activeSlice ? `${activeSlice.percentage}%` : formatPrice(totalRevenue)}
+            {activeSlice
+              ? `${activeSlice.percentage}%`
+              : formatPrice(totalRevenue)}
           </span>
         </div>
       </div>
@@ -117,7 +124,9 @@ export function DepartmentDonutChart({ shares }: DepartmentDonutChartProps) {
                 </span>
               </div>
               <div className="flex items-center space-x-2 font-mono">
-                <span className="text-gray-400 text-[11px]">{formatPrice(item.revenue)}</span>
+                <span className="text-gray-400 text-[11px]">
+                  {formatPrice(item.revenue)}
+                </span>
                 <span className="font-bold text-brand-brown w-9 text-right">
                   {item.percentage}%
                 </span>

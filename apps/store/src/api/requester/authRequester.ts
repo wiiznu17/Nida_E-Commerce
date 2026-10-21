@@ -42,7 +42,9 @@ export const authRequester = {
   /**
    * Terminate active customer session.
    */
-  logout: async (refreshToken?: string | null): Promise<{ success: boolean }> => {
+  logout: async (
+    refreshToken?: string | null,
+  ): Promise<{ success: boolean }> => {
     return apiClient.post<{ success: boolean }>('/auth/logout', {
       refreshToken: refreshToken ?? undefined,
     });

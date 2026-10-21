@@ -8,7 +8,6 @@ export const requestOtpSchema = z.object({
   cfTurnstileToken: z.string().trim().optional(),
 });
 
-
 export type RequestOtpInput = z.infer<typeof requestOtpSchema>;
 
 /**
@@ -56,9 +55,7 @@ export const requestEmailChangeSchema = z.object({
   newEmail: z.string().trim().email('Invalid email address').toLowerCase(),
 });
 
-export type RequestEmailChangeInput = z.infer<
-  typeof requestEmailChangeSchema
->;
+export type RequestEmailChangeInput = z.infer<typeof requestEmailChangeSchema>;
 
 /**
  * Verify Email Change Schema (Sensitive Action Re-Auth)
@@ -72,10 +69,7 @@ export const verifyEmailChangeSchema = z.object({
     .regex(/^\d{6}$/, 'OTP must be numeric digits'),
 });
 
-export type VerifyEmailChangeInput = z.infer<
-  typeof verifyEmailChangeSchema
->;
-
+export type VerifyEmailChangeInput = z.infer<typeof verifyEmailChangeSchema>;
 
 /**
  * Customer Shipping / Billing Address Schema

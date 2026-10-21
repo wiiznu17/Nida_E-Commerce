@@ -255,7 +255,10 @@ describe('CustomerOrdersService', () => {
       taxAmount: 0,
       totalAmount: 3500,
       currency: 'THB',
-      shippingAddressSnapshot: { recipientName: 'Kallaya W.', phone: '0812345678' },
+      shippingAddressSnapshot: {
+        recipientName: 'Kallaya W.',
+        phone: '0812345678',
+      },
       promoCodeUsed: null,
       placedAt: new Date('2026-10-14T10:00:00Z'),
       items: [],
@@ -308,7 +311,10 @@ describe('CustomerOrdersService', () => {
 
       const result = await service.requestCancellation(
         'NIDA-20261014-CANCEL',
-        { reason: 'Ordered by mistake', customerNote: 'Please cancel immediately' },
+        {
+          reason: 'Ordered by mistake',
+          customerNote: 'Please cancel immediately',
+        },
         'user-123',
       );
 
@@ -390,7 +396,10 @@ describe('CustomerOrdersService', () => {
       taxAmount: 0,
       totalAmount: 6000,
       currency: 'THB',
-      shippingAddressSnapshot: { recipientName: 'Kallaya W.', phone: '0812345678' },
+      shippingAddressSnapshot: {
+        recipientName: 'Kallaya W.',
+        phone: '0812345678',
+      },
       promoCodeUsed: null,
       placedAt: new Date('2026-10-14T10:00:00Z'),
       items: [
@@ -548,7 +557,10 @@ describe('CustomerOrdersService', () => {
       taxAmount: 0,
       totalAmount: 3890,
       currency: 'THB',
-      shippingAddressSnapshot: { recipientName: 'Phannida', phone: '0812345678' },
+      shippingAddressSnapshot: {
+        recipientName: 'Phannida',
+        phone: '0812345678',
+      },
       promoCodeUsed: null,
       placedAt: new Date(),
       items: [],
@@ -586,8 +598,8 @@ describe('CustomerOrdersService', () => {
       );
 
       expect(
-        (prismaMock as { payment: { update: ReturnType<typeof vi.fn> } }).payment
-          .update,
+        (prismaMock as { payment: { update: ReturnType<typeof vi.fn> } })
+          .payment.update,
       ).toHaveBeenCalledWith({
         where: { id: 'pay-1' },
         data: expect.objectContaining({
@@ -629,7 +641,10 @@ describe('CustomerOrdersService', () => {
       taxAmount: 0,
       totalAmount: 3890,
       currency: 'THB',
-      shippingAddressSnapshot: { recipientName: 'Phannida', phone: '0812345678' },
+      shippingAddressSnapshot: {
+        recipientName: 'Phannida',
+        phone: '0812345678',
+      },
       promoCodeUsed: null,
       placedAt: new Date(),
       items: [],
@@ -677,16 +692,12 @@ describe('CustomerOrdersService', () => {
         },
       });
 
-      const result = await service.payOrder(
-        'NIDA-20261014-PAY',
-        'user-123',
-        {
-          paymentMethod: PaymentMethod.CREDIT_CARD,
-          omiseToken: 'tokn_test_123',
-          cardLast4: '4242',
-          cardBrand: 'Visa',
-        },
-      );
+      const result = await service.payOrder('NIDA-20261014-PAY', 'user-123', {
+        paymentMethod: PaymentMethod.CREDIT_CARD,
+        omiseToken: 'tokn_test_123',
+        cardLast4: '4242',
+        cardBrand: 'Visa',
+      });
 
       expect(txPaymentUpdate).toHaveBeenCalledWith({
         where: { id: 'pay-1' },
@@ -710,18 +721,12 @@ describe('CustomerOrdersService', () => {
       orderFindUnique.mockResolvedValueOnce(basePendingOrder);
 
       await expect(
-        service.payOrder(
-          'NIDA-20261014-PAY',
-          'user-123',
-          {
-            paymentMethod: PaymentMethod.CREDIT_CARD,
-            cardLast4: '4242',
-            cardBrand: 'Visa',
-          },
-        ),
+        service.payOrder('NIDA-20261014-PAY', 'user-123', {
+          paymentMethod: PaymentMethod.CREDIT_CARD,
+          cardLast4: '4242',
+          cardBrand: 'Visa',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
   });
 });
-
-

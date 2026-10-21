@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OrderLifecycleProducerService } from '../../src/modules/order-lifecycle/order-lifecycle-producer.service.js';
-import {
-  OrderLifecycleJobName,
-  ORDER_TIMEOUT_MS,
-} from '@repo/types';
+import { OrderLifecycleJobName, ORDER_TIMEOUT_MS } from '@repo/types';
 import type { Queue, Job } from 'bullmq';
 
 describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
@@ -57,7 +54,10 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
       const mockJob = { id: 'order-timeout-order-123' };
       orderTimeoutQueueMock.add.mockResolvedValue(mockJob as Job);
 
-      const result = await service.scheduleOrderTimeout('order-123', 'ORD-2026-0001');
+      const result = await service.scheduleOrderTimeout(
+        'order-123',
+        'ORD-2026-0001',
+      );
 
       expect(result).toBe('order-timeout-order-123');
       expect(orderTimeoutQueueMock.add).toHaveBeenCalledWith(
@@ -93,9 +93,14 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
     });
 
     it('should handle queue rejection gracefully without crashing', async () => {
-      orderTimeoutQueueMock.add.mockRejectedValue(new Error('Redis connection refused'));
+      orderTimeoutQueueMock.add.mockRejectedValue(
+        new Error('Redis connection refused'),
+      );
 
-      const result = await service.scheduleOrderTimeout('order-789', 'ORD-2026-0003');
+      const result = await service.scheduleOrderTimeout(
+        'order-789',
+        'ORD-2026-0003',
+      );
 
       expect(result).toBe('order-timeout-order-789');
     });
@@ -110,7 +115,9 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
       const removed = await service.cancelOrderTimeout('order-123');
 
       expect(removed).toBe(true);
-      expect(orderTimeoutQueueMock.getJob).toHaveBeenCalledWith('order-timeout-order-123');
+      expect(orderTimeoutQueueMock.getJob).toHaveBeenCalledWith(
+        'order-timeout-order-123',
+      );
       expect(mockJob.remove).toHaveBeenCalled();
     });
 
@@ -137,7 +144,11 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
       expect(result).toBe('cancel-review-req-101');
       expect(cancellationReviewQueueMock.add).toHaveBeenCalledWith(
         OrderLifecycleJobName.AUTO_APPROVE_CANCELLATION,
-        { orderId: 'order-101', requestId: 'req-101', orderNumber: 'ORD-2026-0101' },
+        {
+          orderId: 'order-101',
+          requestId: 'req-101',
+          orderNumber: 'ORD-2026-0101',
+        },
         {
           jobId: 'cancel-review-req-101',
           delay: ORDER_TIMEOUT_MS.CANCELLATION_REVIEW,
@@ -152,7 +163,9 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
         id: 'cancel-review-req-101',
         remove: vi.fn().mockResolvedValue(undefined),
       };
-      cancellationReviewQueueMock.getJob.mockResolvedValue(mockJob as unknown as Job);
+      cancellationReviewQueueMock.getJob.mockResolvedValue(
+        mockJob as unknown as Job,
+      );
 
       const removed = await service.cancelCancellationReviewTimeout('req-101');
 
@@ -166,7 +179,10 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
       const mockJob = { id: 'delivery-complete-order-202' };
       deliveryCompletionQueueMock.add.mockResolvedValue(mockJob as Job);
 
-      const result = await service.scheduleDeliveryCompletion('order-202', 'ORD-2026-0202');
+      const result = await service.scheduleDeliveryCompletion(
+        'order-202',
+        'ORD-2026-0202',
+      );
 
       expect(result).toBe('delivery-complete-order-202');
       expect(deliveryCompletionQueueMock.add).toHaveBeenCalledWith(
@@ -186,7 +202,9 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
         id: 'delivery-complete-order-202',
         remove: vi.fn().mockResolvedValue(undefined),
       };
-      deliveryCompletionQueueMock.getJob.mockResolvedValue(mockJob as unknown as Job);
+      deliveryCompletionQueueMock.getJob.mockResolvedValue(
+        mockJob as unknown as Job,
+      );
 
       const removed = await service.cancelDeliveryCompletion('order-202');
 
@@ -209,7 +227,11 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
       expect(result).toBe('return-deadline-ret-303');
       expect(returnDeadlineQueueMock.add).toHaveBeenCalledWith(
         OrderLifecycleJobName.VOID_EXPIRED_RETURN,
-        { orderId: 'order-303', returnRequestId: 'ret-303', orderNumber: 'ORD-2026-0303' },
+        {
+          orderId: 'order-303',
+          returnRequestId: 'ret-303',
+          orderNumber: 'ORD-2026-0303',
+        },
         {
           jobId: 'return-deadline-ret-303',
           delay: ORDER_TIMEOUT_MS.RETURN_SHIPMENT_DEADLINE,
@@ -224,7 +246,9 @@ describe('OrderLifecycleProducerService — BullMQ Queue Producer', () => {
         id: 'return-deadline-ret-303',
         remove: vi.fn().mockResolvedValue(undefined),
       };
-      returnDeadlineQueueMock.getJob.mockResolvedValue(mockJob as unknown as Job);
+      returnDeadlineQueueMock.getJob.mockResolvedValue(
+        mockJob as unknown as Job,
+      );
 
       const removed = await service.cancelReturnDeadline('ret-303');
 

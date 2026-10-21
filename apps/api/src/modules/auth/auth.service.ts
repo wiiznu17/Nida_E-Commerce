@@ -653,5 +653,4 @@ export class CustomerAuthService {
     if (/Linux/i.test(userAgent)) return 'Linux';
     return 'Desktop Browser';
   }
-
 }

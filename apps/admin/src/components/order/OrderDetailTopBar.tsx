@@ -1,5 +1,12 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Send, Check, Printer, RotateCcw } from 'lucide-react';
+import {
+  ArrowLeft,
+  ExternalLink,
+  Send,
+  Check,
+  Printer,
+  RotateCcw,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import type { OrderStatus } from '@repo/types';
 
@@ -159,7 +166,12 @@ export function OrderDetailTopBar({
                 : 'text-brand-brown hover:text-brand-dark-brown bg-amber-50 hover:bg-amber-100 border border-amber-300 cursor-pointer'
             }`}
           >
-            <Send size={13} className={isFulfillDisabled ? 'text-stone-400' : 'text-brand-amber'} />
+            <Send
+              size={13}
+              className={
+                isFulfillDisabled ? 'text-stone-400' : 'text-brand-amber'
+              }
+            />
             <span>{t('orders.fulfill.addTracking')}</span>
           </button>
         ) : null}

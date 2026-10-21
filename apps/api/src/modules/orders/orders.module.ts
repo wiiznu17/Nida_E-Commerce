@@ -9,7 +9,12 @@ import { CustomerAuthModule } from '../auth/auth.module.js';
 import { OrderLifecycleModule } from '../order-lifecycle/index.js';
 
 @Module({
-  imports: [PrismaModule, MailerModule, CustomerAuthModule, OrderLifecycleModule],
+  imports: [
+    PrismaModule,
+    MailerModule,
+    CustomerAuthModule,
+    OrderLifecycleModule,
+  ],
   controllers: [CustomerOrdersController],
   providers: [CustomerOrdersService, OmiseService],
   exports: [CustomerOrdersService, OmiseService],

@@ -1,11 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {
-  UploadCloud,
-  X,
-  Loader2,
-  Crop,
-  AlertCircle,
-} from 'lucide-react';
+import { UploadCloud, X, Loader2, Crop, AlertCircle } from 'lucide-react';
 import { uploadApi } from '../../api';
 import type { UploadFolder } from '../../api';
 import { useLanguage } from '../../context/LanguageContext';
@@ -238,7 +232,6 @@ export function ImageUploader({
                 alt="Product preview"
                 className="w-full h-full object-cover object-center transition-transform group-hover:scale-105 duration-300"
               />
-
             </div>
 
             {/* Overlay Actions */}

@@ -123,12 +123,14 @@ export function CustomerOrderCancellationCard({
                     <span>
                       {isAutoApproved
                         ? t('orderDetail.cancellationCard.autoApprovedLabel')
-                        : req.adminNote ?? t('orderDetail.cancellationApprovedNotice')}
+                        : (req.adminNote ??
+                          t('orderDetail.cancellationApprovedNotice'))}
                     </span>
                   </div>
                   {req.reviewedAt && (
                     <p className="text-[10px] text-emerald-700 pl-5">
-                      {t('orderDetail.cancellationCard.reviewedAt')}: {formatOrderDateTime(req.reviewedAt, language)}
+                      {t('orderDetail.cancellationCard.reviewedAt')}:{' '}
+                      {formatOrderDateTime(req.reviewedAt, language)}
                     </p>
                   )}
                 </div>

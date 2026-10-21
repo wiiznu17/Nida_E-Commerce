@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { UploadService, UploadedFileDto } from '../../src/modules/upload/upload.service.js';
+import {
+  UploadService,
+  UploadedFileDto,
+} from '../../src/modules/upload/upload.service.js';
 import { BadRequestException } from '@nestjs/common';
 import * as fs from 'fs';
 
@@ -56,7 +59,10 @@ describe('Admin UploadService', () => {
     ).rejects.toThrow(BadRequestException);
 
     await expect(
-      service.uploadImage({ ...validJpgFile, buffer: null as unknown as Buffer }),
+      service.uploadImage({
+        ...validJpgFile,
+        buffer: null as unknown as Buffer,
+      }),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -91,7 +97,8 @@ describe('Admin UploadService', () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        secure_url: 'https://res.cloudinary.com/test-cloud/image/upload/v1/nida/products/item.jpg',
+        secure_url:
+          'https://res.cloudinary.com/test-cloud/image/upload/v1/nida/products/item.jpg',
       }),
     });
     vi.stubGlobal('fetch', mockFetch);
@@ -118,7 +125,9 @@ describe('Admin UploadService', () => {
     const result = await service.uploadImage(validJpgFile, 'banners');
 
     expect(result.source).toBe('local');
-    expect(result.url).toMatch(/^http:\/\/localhost:4001\/uploads\/banners\/banners-/);
+    expect(result.url).toMatch(
+      /^http:\/\/localhost:4001\/uploads\/banners\/banners-/,
+    );
   });
 
   it('strictly rejects upload and prohibits local storage in production mode when Cloudinary is missing', async () => {
@@ -158,7 +167,8 @@ describe('Admin UploadService', () => {
   });
 
   it('leaves Cloudinary URLs untouched during commitTempImage', async () => {
-    const cloudUrl = 'https://res.cloudinary.com/test-cloud/image/upload/v1/nida/products/item.jpg';
+    const cloudUrl =
+      'https://res.cloudinary.com/test-cloud/image/upload/v1/nida/products/item.jpg';
     const result = await service.commitTempImage(cloudUrl, 'products');
 
     expect(result).toBe(cloudUrl);

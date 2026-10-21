@@ -11,8 +11,16 @@ import {
   extractApiError,
   type CreateCustomerOrderPayload,
 } from '@/api';
-import { PaymentMethod, type ApiAddress, type CreateAddressDto } from '@repo/types';
-import type { ShippingFormData, CheckoutStep, PaymentMethodOption } from './checkoutTypes';
+import {
+  PaymentMethod,
+  type ApiAddress,
+  type CreateAddressDto,
+} from '@repo/types';
+import type {
+  ShippingFormData,
+  CheckoutStep,
+  PaymentMethodOption,
+} from './checkoutTypes';
 
 export function useCheckoutForm() {
   const {
@@ -36,7 +44,8 @@ export function useCheckoutForm() {
 
   const [step, setStep] = useState<CheckoutStep>('shipping');
   const [promoCode, setPromoCode] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodOption>('card');
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethodOption>('card');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderError, setOrderError] = useState('');
 
@@ -55,7 +64,9 @@ export function useCheckoutForm() {
   });
 
   const [savedAddresses, setSavedAddresses] = useState<ApiAddress[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
   const [addressMode, setAddressMode] = useState<'saved' | 'new'>('saved');
   const [saveToAddressBook, setSaveToAddressBook] = useState(true);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
@@ -125,8 +136,12 @@ export function useCheckoutForm() {
     if (user && savedAddresses.length === 0) {
       setShippingData((prev) => ({
         ...prev,
-        firstName: prev.firstName.trim() !== '' ? prev.firstName : (user.firstName ?? ''),
-        lastName: prev.lastName.trim() !== '' ? prev.lastName : (user.lastName ?? ''),
+        firstName:
+          prev.firstName.trim() !== ''
+            ? prev.firstName
+            : (user.firstName ?? ''),
+        lastName:
+          prev.lastName.trim() !== '' ? prev.lastName : (user.lastName ?? ''),
         email: prev.email.trim() !== '' ? prev.email : user.email,
         phone: prev.phone.trim() !== '' ? prev.phone : (user.phone ?? ''),
       }));
@@ -161,7 +176,8 @@ export function useCheckoutForm() {
 
     if (addressMode === 'new' && saveToAddressBook && token) {
       try {
-        const recipientName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
+        const recipientName =
+          `${shippingData.firstName} ${shippingData.lastName}`.trim();
         const created = await addressRequester.createAddress(
           {
             recipientName: recipientName || user?.fullName || 'Customer',
@@ -169,7 +185,8 @@ export function useCheckoutForm() {
             addressLine1: shippingData.address,
             addressLine2: shippingData.addressLine2 || undefined,
             subdistrict: shippingData.subdistrict || 'Khlong Toei',
-            district: shippingData.district || shippingData.city || 'Khlong Toei',
+            district:
+              shippingData.district || shippingData.city || 'Khlong Toei',
             province: shippingData.province || 'Bangkok',
             postalCode: shippingData.postalCode,
             isDefault: savedAddresses.length === 0,
@@ -198,7 +215,8 @@ export function useCheckoutForm() {
           ? PaymentMethod.PROMPTPAY
           : PaymentMethod.CREDIT_CARD;
 
-      const recipientName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
+      const recipientName =
+        `${shippingData.firstName} ${shippingData.lastName}`.trim();
 
       const payload: CreateCustomerOrderPayload = {
         items: items.map((item) => ({
@@ -222,7 +240,9 @@ export function useCheckoutForm() {
       const createdOrder = await orderRequester.createOrder(payload, token);
       clearCart();
 
-      router.push(`/payment?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}`);
+      router.push(
+        `/payment?orderNumber=${encodeURIComponent(createdOrder.orderNumber)}`,
+      );
     } catch (err: unknown) {
       const extracted = extractApiError(
         err,

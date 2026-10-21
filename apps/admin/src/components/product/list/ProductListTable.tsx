@@ -1,6 +1,13 @@
 import { Link } from 'react-router-dom';
-import { Boxes, Edit, Eye, Trash2, ShoppingBag, Loader2, ImageIcon } from 'lucide-react';
-
+import {
+  Boxes,
+  Edit,
+  Eye,
+  Trash2,
+  ShoppingBag,
+  Loader2,
+  ImageIcon,
+} from 'lucide-react';
 
 import { useLanguage } from '../../../context/LanguageContext';
 import { formatPrice } from '../../../utils';
@@ -125,7 +132,6 @@ export function ProductListTable({
                   </div>
                 </TableCell>
 
-
                 {/* Name & Subtitle */}
                 <TableCell>
                   <div className="space-y-0.5">
@@ -240,10 +246,13 @@ export function ProductListTable({
                 {/* Tag */}
                 <TableCell className="text-center">
                   {(() => {
-                    if (!product.tag) return <span className="text-gray-300">-</span>;
+                    if (!product.tag)
+                      return <span className="text-gray-300">-</span>;
                     const tagOption = findMarketingTagByLabel(product.tag);
                     const label = tagOption
-                      ? (language === 'th' ? tagOption.labelTh : tagOption.labelEn)
+                      ? language === 'th'
+                        ? tagOption.labelTh
+                        : tagOption.labelEn
                       : product.tag;
                     return (
                       <span

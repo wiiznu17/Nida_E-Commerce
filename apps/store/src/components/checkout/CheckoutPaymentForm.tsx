@@ -1,5 +1,11 @@
 import React from 'react';
-import { CreditCard, QrCode, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';
+import {
+  CreditCard,
+  QrCode,
+  ShieldCheck,
+  Loader2,
+  ArrowRight,
+} from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import type { PaymentMethodOption } from './checkoutTypes';
 
@@ -49,7 +55,9 @@ export function CheckoutPaymentForm({
           }`}
         >
           <CreditCard size={20} />
-          <span>{language === 'th' ? 'บัตรเครดิต / เดบิต' : 'Credit / Debit Card'}</span>
+          <span>
+            {language === 'th' ? 'บัตรเครดิต / เดบิต' : 'Credit / Debit Card'}
+          </span>
         </button>
         <button
           type="button"
@@ -74,7 +82,9 @@ export function CheckoutPaymentForm({
               </div>
               <div>
                 <h4 className="text-xs font-black uppercase tracking-wider text-brand-brown">
-                  {language === 'th' ? 'ชำระเงินด้วยบัตรเครดิต / เดบิต' : 'Credit / Debit Card Payment'}
+                  {language === 'th'
+                    ? 'ชำระเงินด้วยบัตรเครดิต / เดบิต'
+                    : 'Credit / Debit Card Payment'}
                 </h4>
                 <p className="text-[11px] text-gray-600">
                   {language === 'th'
@@ -113,7 +123,9 @@ export function CheckoutPaymentForm({
               </div>
               <div>
                 <h4 className="text-xs font-black uppercase tracking-wider text-brand-brown">
-                  {language === 'th' ? 'ชำระเงินด้วย พร้อมเพย์ (PromptPay QR)' : 'PromptPay QR Payment'}
+                  {language === 'th'
+                    ? 'ชำระเงินด้วย พร้อมเพย์ (PromptPay QR)'
+                    : 'PromptPay QR Payment'}
                 </h4>
                 <p className="text-[11px] text-gray-600">
                   {language === 'th'

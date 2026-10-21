@@ -26,7 +26,9 @@ export class PaymentGatewayService {
 
     if (providerName.toLowerCase() === 'omise') {
       this.activeProvider = this.omiseProvider;
-      this.logger.log('Payment Gateway Service initialized with OMISE Provider');
+      this.logger.log(
+        'Payment Gateway Service initialized with OMISE Provider',
+      );
     } else {
       this.activeProvider = this.mockProvider;
       this.logger.log('Payment Gateway Service initialized with Mock Provider');
@@ -43,7 +45,9 @@ export class PaymentGatewayService {
     return this.activeProvider.createPaymentIntent(input);
   }
 
-  async checkPaymentStatus(transactionReference: string): Promise<PaymentStatus> {
+  async checkPaymentStatus(
+    transactionReference: string,
+  ): Promise<PaymentStatus> {
     return this.activeProvider.checkPaymentStatus(transactionReference);
   }
 
@@ -57,7 +61,10 @@ export class PaymentGatewayService {
   ): Promise<{ success: boolean; message: string }> {
     const parsed = await this.activeProvider.parseWebhook(payload, headers);
     if (!parsed) {
-      return { success: false, message: 'Invalid or unsupported payment webhook payload' };
+      return {
+        success: false,
+        message: 'Invalid or unsupported payment webhook payload',
+      };
     }
 
     const payment = await this.prisma.payment.findFirst({

@@ -52,10 +52,17 @@ export function Pagination({
       {/* Item Range Counter */}
       <div className="text-xs text-gray-500 font-medium text-center sm:text-left">
         {t('pagination.showingRange')}{' '}
-        <strong className="text-brand-brown font-mono font-bold">{startItem}</strong> -{' '}
-        <strong className="text-brand-brown font-mono font-bold">{endItem}</strong>{' '}
+        <strong className="text-brand-brown font-mono font-bold">
+          {startItem}
+        </strong>{' '}
+        -{' '}
+        <strong className="text-brand-brown font-mono font-bold">
+          {endItem}
+        </strong>{' '}
         {t('pagination.ofTotal')}{' '}
-        <strong className="text-brand-brown font-mono font-bold">{totalItems}</strong>{' '}
+        <strong className="text-brand-brown font-mono font-bold">
+          {totalItems}
+        </strong>{' '}
         {itemUnitLabel ?? t('pagination.items')}
       </div>
 
@@ -89,7 +96,9 @@ export function Pagination({
                 1
               </button>
               {startPage > 2 && (
-                <span className="px-1 text-gray-400 text-xs font-mono select-none">...</span>
+                <span className="px-1 text-gray-400 text-xs font-mono select-none">
+                  ...
+                </span>
               )}
             </>
           )}
@@ -112,7 +121,9 @@ export function Pagination({
           {endPage < totalPages && (
             <>
               {endPage < totalPages - 1 && (
-                <span className="px-1 text-gray-400 text-xs font-mono select-none">...</span>
+                <span className="px-1 text-gray-400 text-xs font-mono select-none">
+                  ...
+                </span>
               )}
               <button
                 type="button"

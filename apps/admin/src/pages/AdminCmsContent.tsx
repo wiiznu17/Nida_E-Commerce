@@ -17,7 +17,10 @@ import {
 } from '../components/cms';
 import { contentRequester } from '../api';
 import type { ApiCmsBanner, ApiStoreSettings } from '@repo/types';
-import type { SaveCmsBannerDto, UpdateStoreSettingsDto } from '@repo/validators';
+import type {
+  SaveCmsBannerDto,
+  UpdateStoreSettingsDto,
+} from '@repo/validators';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { ApiErrorModal } from '../components/ui';
@@ -28,14 +31,18 @@ export const AdminCmsContent: React.FC = () => {
   const [spotlights, setSpotlights] = useState<ApiCmsBanner[]>([]);
   const [allBanners, setAllBanners] = useState<ApiCmsBanner[]>([]);
   const [promoRibbon, setPromoRibbon] = useState<ApiCmsBanner | null>(null);
-  const [storeSettings, setStoreSettings] = useState<ApiStoreSettings | null>(null);
+  const [storeSettings, setStoreSettings] = useState<ApiStoreSettings | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const toast = useToast();
   const [apiError, setApiError] = useState<string | null>(null);
 
   // Dedicated Tab State
-  const [activeTab, setActiveTab] = useState<'hero' | 'spotlight' | 'promo' | 'settings'>('hero');
+  const [activeTab, setActiveTab] = useState<
+    'hero' | 'spotlight' | 'promo' | 'settings'
+  >('hero');
 
   // Preview Modal State (Hidden by default, opened on demand)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -68,7 +75,10 @@ export const AdminCmsContent: React.FC = () => {
     fetchContent();
   }, [fetchContent]);
 
-  const handleSaveBanner = async (bannerId: string | undefined, payload: SaveCmsBannerDto) => {
+  const handleSaveBanner = async (
+    bannerId: string | undefined,
+    payload: SaveCmsBannerDto,
+  ) => {
     setIsSaving(true);
     try {
       if (bannerId) {
@@ -92,7 +102,9 @@ export const AdminCmsContent: React.FC = () => {
       await fetchContent();
       toast.success(t('cms.bannerDeleted') ?? 'Banner deleted successfully');
     } catch (err: unknown) {
-      setApiError(err instanceof Error ? err.message : 'Failed to delete banner');
+      setApiError(
+        err instanceof Error ? err.message : 'Failed to delete banner',
+      );
     } finally {
       setIsSaving(false);
     }
@@ -103,9 +115,13 @@ export const AdminCmsContent: React.FC = () => {
     try {
       const updated = await contentRequester.updateStoreSettings(payload);
       setStoreSettings(updated);
-      toast.success(t('cms.settingsSaved') ?? 'Store settings updated successfully');
+      toast.success(
+        t('cms.settingsSaved') ?? 'Store settings updated successfully',
+      );
     } catch (err: unknown) {
-      setApiError(err instanceof Error ? err.message : 'Failed to save store settings');
+      setApiError(
+        err instanceof Error ? err.message : 'Failed to save store settings',
+      );
     } finally {
       setIsSaving(false);
     }
@@ -144,7 +160,10 @@ export const AdminCmsContent: React.FC = () => {
               className="p-2 border border-stone-300 text-stone-700 rounded-xs hover:bg-stone-50 transition-colors disabled:opacity-50"
               title="Refresh Content"
             >
-              <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+              <RefreshCw
+                size={14}
+                className={isLoading ? 'animate-spin' : ''}
+              />
             </button>
           </div>
         </div>
@@ -216,7 +235,9 @@ export const AdminCmsContent: React.FC = () => {
             banners={allBanners}
             onSave={(payload) => {
               const existing = allBanners.find(
-                (b) => b.placement === 'HERO_HOME' && b.sortOrder === payload.sortOrder,
+                (b) =>
+                  b.placement === 'HERO_HOME' &&
+                  b.sortOrder === payload.sortOrder,
               );
               return handleSaveBanner(existing?.id, payload);
             }}
@@ -231,7 +252,9 @@ export const AdminCmsContent: React.FC = () => {
             banners={allBanners}
             onSave={(payload) => {
               const existing = allBanners.find(
-                (b) => b.placement === 'SEASONAL_SPOTLIGHT' && b.sortOrder === payload.sortOrder,
+                (b) =>
+                  b.placement === 'SEASONAL_SPOTLIGHT' &&
+                  b.sortOrder === payload.sortOrder,
               );
               return handleSaveBanner(existing?.id, payload);
             }}

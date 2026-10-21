@@ -12,12 +12,9 @@ interface SeasonalSpotlightSectionProps {
   isLoading?: boolean;
 }
 
-export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> = ({
-  banners,
-  onSave,
-  onDelete,
-  isLoading = false,
-}) => {
+export const SeasonalSpotlightSection: React.FC<
+  SeasonalSpotlightSectionProps
+> = ({ banners, onSave, onDelete, isLoading = false }) => {
   const { t, language } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<1 | 2>(1);
@@ -29,8 +26,13 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
     (b) => b.placement === 'SEASONAL_SPOTLIGHT',
   );
 
-  const slot1Banner = spotlightBanners.find((b) => b.sortOrder === 0) ?? spotlightBanners[0] ?? null;
-  const slot2Banner = spotlightBanners.find((b) => b.sortOrder === 1) ?? (spotlightBanners[1] ? spotlightBanners[1] : null);
+  const slot1Banner =
+    spotlightBanners.find((b) => b.sortOrder === 0) ??
+    spotlightBanners[0] ??
+    null;
+  const slot2Banner =
+    spotlightBanners.find((b) => b.sortOrder === 1) ??
+    (spotlightBanners[1] ? spotlightBanners[1] : null);
 
   const handleOpenEditSlot = (slot: 1 | 2) => {
     setSelectedSlot(slot);
@@ -77,7 +79,9 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
                     : 'bg-stone-100 text-stone-500'
                 }`}
               >
-                {slot1Banner.isActive ? t('cms.statusConfigured') : t('cms.statusHidden')}
+                {slot1Banner.isActive
+                  ? t('cms.statusConfigured')
+                  : t('cms.statusHidden')}
               </span>
             ) : (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 border border-stone-200">
@@ -100,23 +104,37 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
               <span className="text-[10px] font-black uppercase tracking-widest text-[#EAE3D9] mb-1">
                 {isTh
                   ? slot1Banner?.tagTh || slot1Banner?.tagEn || 'คอลเลกชันสตรี'
-                  : slot1Banner?.tagEn || slot1Banner?.tagTh || "WOMEN'S / NEW SEASON"}
+                  : slot1Banner?.tagEn ||
+                    slot1Banner?.tagTh ||
+                    "WOMEN'S / NEW SEASON"}
               </span>
               <h4 className="text-base font-black uppercase tracking-tight line-clamp-1">
                 {isTh
-                  ? slot1Banner?.titleTh || slot1Banner?.titleEn || 'เสื้อคลุมสไตล์โมเดิร์น'
-                  : slot1Banner?.titleEn || slot1Banner?.titleTh || 'MODERN TAILORED OUTERWEAR'}
+                  ? slot1Banner?.titleTh ||
+                    slot1Banner?.titleEn ||
+                    'เสื้อคลุมสไตล์โมเดิร์น'
+                  : slot1Banner?.titleEn ||
+                    slot1Banner?.titleTh ||
+                    'MODERN TAILORED OUTERWEAR'}
               </h4>
               <p className="text-[11px] text-stone-300 line-clamp-2 mt-1">
                 {isTh
-                  ? slot1Banner?.subtitleTh || slot1Banner?.subtitleEn || 'งานตัดเย็บโครงร่างประณีตจากผ้าขนแกะบริสุทธิ์เพื่อความสง่างามเหนือกาลเวลา'
-                  : slot1Banner?.subtitleEn || slot1Banner?.subtitleTh || 'Sculpted silhouettes handcrafted in virgin wool for timeless cold-weather grace.'}
+                  ? slot1Banner?.subtitleTh ||
+                    slot1Banner?.subtitleEn ||
+                    'งานตัดเย็บโครงร่างประณีตจากผ้าขนแกะบริสุทธิ์เพื่อความสง่างามเหนือกาลเวลา'
+                  : slot1Banner?.subtitleEn ||
+                    slot1Banner?.subtitleTh ||
+                    'Sculpted silhouettes handcrafted in virgin wool for timeless cold-weather grace.'}
               </p>
               <div className="mt-3 flex items-center space-x-1 text-xs font-bold text-white underline underline-offset-4">
                 <span>
                   {isTh
-                    ? slot1Banner?.ctaPrimaryTextTh || slot1Banner?.ctaPrimaryTextEn || 'เลือกดูคอลเลกชันสตรี'
-                    : slot1Banner?.ctaPrimaryTextEn || slot1Banner?.ctaPrimaryTextTh || "Explore Women's"}
+                    ? slot1Banner?.ctaPrimaryTextTh ||
+                      slot1Banner?.ctaPrimaryTextEn ||
+                      'เลือกดูคอลเลกชันสตรี'
+                    : slot1Banner?.ctaPrimaryTextEn ||
+                      slot1Banner?.ctaPrimaryTextTh ||
+                      "Explore Women's"}
                 </span>
                 <ArrowRight size={12} />
               </div>
@@ -127,7 +145,9 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
           <div className="p-4 flex-1 flex flex-col justify-between space-y-3 bg-white">
             <div className="text-xs text-stone-600">
               <div className="flex items-center justify-between">
-                <span className="text-stone-400">{t('cms.spotlight.targetUrlLabel')}</span>
+                <span className="text-stone-400">
+                  {t('cms.spotlight.targetUrlLabel')}
+                </span>
                 <span className="font-mono text-stone-700 font-bold">
                   {slot1Banner?.ctaPrimaryLink ?? '/collections/women'}
                 </span>
@@ -141,7 +161,9 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
                 className="flex-1 py-2 bg-[#2B1810] text-white text-xs font-black uppercase tracking-wider rounded-xs hover:bg-[#3D2317] transition-colors flex items-center justify-center shadow-xs"
               >
                 <Edit2 size={13} className="mr-1.5" />
-                {slot1Banner ? t('cms.spotlight.editSlot1') : t('cms.spotlight.createSlot1')}
+                {slot1Banner
+                  ? t('cms.spotlight.editSlot1')
+                  : t('cms.spotlight.createSlot1')}
               </button>
               {slot1Banner && (
                 <button
@@ -180,7 +202,9 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
                     : 'bg-stone-100 text-stone-500'
                 }`}
               >
-                {slot2Banner.isActive ? t('cms.statusConfigured') : t('cms.statusHidden')}
+                {slot2Banner.isActive
+                  ? t('cms.statusConfigured')
+                  : t('cms.statusHidden')}
               </span>
             ) : (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 border border-stone-200">
@@ -203,23 +227,37 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
               <span className="text-[10px] font-black uppercase tracking-widest text-[#EAE3D9] mb-1">
                 {isTh
                   ? slot2Banner?.tagTh || slot2Banner?.tagEn || 'คอลเลกชันบุรุษ'
-                  : slot2Banner?.tagEn || slot2Banner?.tagTh || "MEN'S / EDITORIAL CAPSULE"}
+                  : slot2Banner?.tagEn ||
+                    slot2Banner?.tagTh ||
+                    "MEN'S / EDITORIAL CAPSULE"}
               </span>
               <h4 className="text-base font-black uppercase tracking-tight line-clamp-1">
                 {isTh
-                  ? slot2Banner?.titleTh || slot2Banner?.titleEn || 'ชุดสูทและงานเทเลอร์ชั้นเลิศ'
-                  : slot2Banner?.titleEn || slot2Banner?.titleTh || 'ELEVATED BESPOKE SUITING'}
+                  ? slot2Banner?.titleTh ||
+                    slot2Banner?.titleEn ||
+                    'ชุดสูทและงานเทเลอร์ชั้นเลิศ'
+                  : slot2Banner?.titleEn ||
+                    slot2Banner?.titleTh ||
+                    'ELEVATED BESPOKE SUITING'}
               </h4>
               <p className="text-[11px] text-stone-300 line-clamp-2 mt-1">
                 {isTh
-                  ? slot2Banner?.subtitleTh || slot2Banner?.subtitleEn || 'โครงสร้างคมชัดด้วยเส้นสายร่วมสมัยผสมผสานความคลาสสิกเหนือกาลเวลา'
-                  : slot2Banner?.subtitleEn || slot2Banner?.subtitleTh || 'Refined structure engineered with fluid modern lines for formal distinction.'}
+                  ? slot2Banner?.subtitleTh ||
+                    slot2Banner?.subtitleEn ||
+                    'โครงสร้างคมชัดด้วยเส้นสายร่วมสมัยผสมผสานความคลาสสิกเหนือกาลเวลา'
+                  : slot2Banner?.subtitleEn ||
+                    slot2Banner?.subtitleTh ||
+                    'Refined structure engineered with fluid modern lines for formal distinction.'}
               </p>
               <div className="mt-3 flex items-center space-x-1 text-xs font-bold text-white underline underline-offset-4">
                 <span>
                   {isTh
-                    ? slot2Banner?.ctaPrimaryTextTh || slot2Banner?.ctaPrimaryTextEn || 'เลือกดูคอลเลกชันบุรุษ'
-                    : slot2Banner?.ctaPrimaryTextEn || slot2Banner?.ctaPrimaryTextTh || "Explore Men's"}
+                    ? slot2Banner?.ctaPrimaryTextTh ||
+                      slot2Banner?.ctaPrimaryTextEn ||
+                      'เลือกดูคอลเลกชันบุรุษ'
+                    : slot2Banner?.ctaPrimaryTextEn ||
+                      slot2Banner?.ctaPrimaryTextTh ||
+                      "Explore Men's"}
                 </span>
                 <ArrowRight size={12} />
               </div>
@@ -230,7 +268,9 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
           <div className="p-4 flex-1 flex flex-col justify-between space-y-3 bg-white">
             <div className="text-xs text-stone-600">
               <div className="flex items-center justify-between">
-                <span className="text-stone-400">{t('cms.spotlight.targetUrlLabel')}</span>
+                <span className="text-stone-400">
+                  {t('cms.spotlight.targetUrlLabel')}
+                </span>
                 <span className="font-mono text-stone-700 font-bold">
                   {slot2Banner?.ctaPrimaryLink ?? '/collections/men'}
                 </span>
@@ -244,7 +284,9 @@ export const SeasonalSpotlightSection: React.FC<SeasonalSpotlightSectionProps> =
                 className="flex-1 py-2 bg-[#2B1810] text-white text-xs font-black uppercase tracking-wider rounded-xs hover:bg-[#3D2317] transition-colors flex items-center justify-center shadow-xs"
               >
                 <Edit2 size={13} className="mr-1.5" />
-                {slot2Banner ? t('cms.spotlight.editSlot2') : t('cms.spotlight.createSlot2')}
+                {slot2Banner
+                  ? t('cms.spotlight.editSlot2')
+                  : t('cms.spotlight.createSlot2')}
               </button>
               {slot2Banner && (
                 <button

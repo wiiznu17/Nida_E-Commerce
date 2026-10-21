@@ -2,7 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Ban, RotateCw, CreditCard, Clock, CheckCircle2, RotateCcw } from 'lucide-react';
+import {
+  Ban,
+  RotateCw,
+  CreditCard,
+  Clock,
+  CheckCircle2,
+  RotateCcw,
+} from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { StatusBadge } from '@/components/ui';
 import type { ApiOrder } from '@repo/types';
@@ -36,8 +43,7 @@ export function CustomerOrderHeaderCard({
     ['PAID', 'PREORDER_AWAITING_STOCK', 'PROCESSING'].includes(order.status) &&
     !hasPendingCancellation;
 
-  const canAcceptDelivery =
-    order.status === 'DELIVERED' && !hasActiveReturn;
+  const canAcceptDelivery = order.status === 'DELIVERED' && !hasActiveReturn;
 
   const referenceDate = new Date(
     order.completedAt ?? order.updatedAt ?? order.placedAt,
@@ -54,8 +60,8 @@ export function CustomerOrderHeaderCard({
 
   const isPaid = Boolean(
     order.payment?.paidAt ||
-      order.payment?.status === 'CAPTURED' ||
-      order.payment?.status === 'REFUNDED',
+    order.payment?.status === 'CAPTURED' ||
+    order.payment?.status === 'REFUNDED',
   );
 
   const isApprovedCancellation = Boolean(

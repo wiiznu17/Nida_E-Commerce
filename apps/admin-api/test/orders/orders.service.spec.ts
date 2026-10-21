@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OrdersService } from '../../src/modules/orders/orders.service.js';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { PaymentMethod, OrderStatus, ShipmentStatus, PaymentStatus } from '@repo/types';
+import {
+  PaymentMethod,
+  OrderStatus,
+  ShipmentStatus,
+  PaymentStatus,
+} from '@repo/types';
 
 import { CarrierMockService } from '../../src/modules/orders/carrier/index.js';
 import {
@@ -637,7 +642,6 @@ describe('OrdersService', () => {
         shipments: [],
       };
 
-
       prismaMock.order.findFirst.mockResolvedValue(pendingOrder);
       prismaMock.payment.update.mockResolvedValue({
         ...pendingOrder.payment,
@@ -751,7 +755,9 @@ describe('OrdersService', () => {
       });
 
       await expect(
-        service.processRefund(mockOrder.id, { reason: 'Customer change of mind' }),
+        service.processRefund(mockOrder.id, {
+          reason: 'Customer change of mind',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -776,7 +782,10 @@ describe('OrdersService', () => {
         id: 'inv-1',
         quantityAvailable: 11,
       });
-      prismaMock.user.findUnique.mockResolvedValue({ id: 'user-1', points: 50 });
+      prismaMock.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        points: 50,
+      });
 
       const result = await service.processRefund(
         mockOrder.id,
@@ -863,7 +872,11 @@ describe('OrdersService', () => {
         id: 'ord-123',
         orderNumber: 'NIDA-20261017-001',
         status: OrderStatus.PAID,
-        payment: { id: 'pay-123', amount: 1050, transactionReference: 'chrg_123' },
+        payment: {
+          id: 'pay-123',
+          amount: 1050,
+          transactionReference: 'chrg_123',
+        },
       },
     };
 
@@ -887,7 +900,9 @@ describe('OrdersService', () => {
     });
 
     it('successfully rejects cancellation request', async () => {
-      prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(mockRequest);
+      prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(
+        mockRequest,
+      );
 
       const res = await service.reviewCancellationRequest(
         mockRequest.id,
@@ -907,8 +922,12 @@ describe('OrdersService', () => {
     });
 
     it('successfully approves cancellation request and triggers refund', async () => {
-      prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(mockRequest);
-      const processRefundSpy = vi.spyOn(service, 'processRefund').mockResolvedValue({} as any);
+      prismaMock.orderCancellationRequest.findUnique.mockResolvedValue(
+        mockRequest,
+      );
+      const processRefundSpy = vi
+        .spyOn(service, 'processRefund')
+        .mockResolvedValue({} as any);
 
       const res = await service.reviewCancellationRequest(
         mockRequest.id,
@@ -1033,7 +1052,9 @@ describe('OrdersService', () => {
         returnTrackingNumber: 'TH123456789',
         returnCarrier: 'Flash Express',
       });
-      const processRefundSpy = vi.spyOn(service, 'processRefund').mockResolvedValue({} as any);
+      const processRefundSpy = vi
+        .spyOn(service, 'processRefund')
+        .mockResolvedValue({} as any);
 
       const res = await service.reviewReturnRequest(
         mockReturn.id,
@@ -1066,4 +1087,3 @@ describe('OrdersService', () => {
     });
   });
 });
-

@@ -61,7 +61,9 @@ export function ReturnItemsSelector({
                   <p className="font-semibold text-stone-800 truncate">
                     {item.productName}
                   </p>
-                  <p className="text-[11px] text-stone-500">{item.variantInfo}</p>
+                  <p className="text-[11px] text-stone-500">
+                    {item.variantInfo}
+                  </p>
                 </div>
               </label>
 

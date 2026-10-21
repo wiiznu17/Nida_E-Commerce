@@ -141,5 +141,7 @@ export function getMarketingTagOption(
   tag?: MarketingTagKey | string | null,
 ): MarketingTagOption | undefined {
   if (!tag) return undefined;
-  return MARKETING_TAGS.find((t) => t.key === tag) ?? findMarketingTagByLabel(tag);
+  return (
+    MARKETING_TAGS.find((t) => t.key === tag) ?? findMarketingTagByLabel(tag)
+  );
 }

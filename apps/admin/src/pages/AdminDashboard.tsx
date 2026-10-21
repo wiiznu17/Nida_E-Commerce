@@ -40,24 +40,40 @@ export default function AdminDashboard() {
   const [isExportOpen, setIsExportOpen] = useState(false);
 
   // Analytics states with resilient fallback datasets
-  const [overview, setOverview] = useState<AnalyticsOverviewDto>(DEFAULT_OVERVIEW_METRICS);
-  const [revenuePoints, setRevenuePoints] = useState<AnalyticsRevenuePoint[]>(DEFAULT_REVENUE_POINTS_7D);
-  const [departmentShares, setDepartmentShares] = useState<AnalyticsDepartmentShare[]>(DEFAULT_DEPARTMENT_SHARES);
-  const [bestSellers, setBestSellers] = useState<AnalyticsBestSeller[]>(DEFAULT_BEST_SELLERS);
-  const [inventoryVelocity, setInventoryVelocity] = useState<AnalyticsInventoryVelocity[]>(DEFAULT_INVENTORY_VELOCITY);
+  const [overview, setOverview] = useState<AnalyticsOverviewDto>(
+    DEFAULT_OVERVIEW_METRICS,
+  );
+  const [revenuePoints, setRevenuePoints] = useState<AnalyticsRevenuePoint[]>(
+    DEFAULT_REVENUE_POINTS_7D,
+  );
+  const [departmentShares, setDepartmentShares] = useState<
+    AnalyticsDepartmentShare[]
+  >(DEFAULT_DEPARTMENT_SHARES);
+  const [bestSellers, setBestSellers] =
+    useState<AnalyticsBestSeller[]>(DEFAULT_BEST_SELLERS);
+  const [inventoryVelocity, setInventoryVelocity] = useState<
+    AnalyticsInventoryVelocity[]
+  >(DEFAULT_INVENTORY_VELOCITY);
 
   const loadData = useCallback(async (selectedTf: AnalyticsTimeframe) => {
     try {
-      const [apiOrdersRes, apiInv, apiOverview, apiPoints, apiDepts, apiSellers, apiVelocity] =
-        await Promise.allSettled([
-          orderRequester.getOrders(),
-          inventoryRequester.getInventory(),
-          analyticsRequester.getOverview(selectedTf),
-          analyticsRequester.getRevenueTrend(selectedTf),
-          analyticsRequester.getDepartmentShare(selectedTf),
-          analyticsRequester.getBestSellers(selectedTf),
-          analyticsRequester.getInventoryVelocity(),
-        ]);
+      const [
+        apiOrdersRes,
+        apiInv,
+        apiOverview,
+        apiPoints,
+        apiDepts,
+        apiSellers,
+        apiVelocity,
+      ] = await Promise.allSettled([
+        orderRequester.getOrders(),
+        inventoryRequester.getInventory(),
+        analyticsRequester.getOverview(selectedTf),
+        analyticsRequester.getRevenueTrend(selectedTf),
+        analyticsRequester.getDepartmentShare(selectedTf),
+        analyticsRequester.getBestSellers(selectedTf),
+        analyticsRequester.getInventoryVelocity(),
+      ]);
 
       if (apiOrdersRes.status === 'fulfilled') {
         setOrdersList(apiOrdersRes.value.items ?? []);

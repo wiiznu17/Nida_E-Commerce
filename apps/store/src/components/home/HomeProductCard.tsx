@@ -32,7 +32,8 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
   const discountPercent =
     product.originalPrice && product.originalPrice > product.basePrice
       ? Math.round(
-          ((product.originalPrice - product.basePrice) / product.originalPrice) *
+          ((product.originalPrice - product.basePrice) /
+            product.originalPrice) *
             100,
         )
       : 0;
@@ -89,7 +90,9 @@ export const HomeProductCard: React.FC<HomeProductCardProps> = ({
               key={cIdx}
               className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block shadow-2xs"
               style={{ backgroundColor: color.hex }}
-              title={language === 'th' && color.nameTh ? color.nameTh : color.name}
+              title={
+                language === 'th' && color.nameTh ? color.nameTh : color.name
+              }
             />
           ))}
           <span className="text-[10px] text-gray-400 font-medium ml-1">

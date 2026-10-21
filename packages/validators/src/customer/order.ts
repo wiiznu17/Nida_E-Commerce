@@ -29,7 +29,6 @@ export const createOrderSchema = z.object({
   cfTurnstileToken: z.string().optional(),
 });
 
-
 export type OrderItemInput = z.infer<typeof orderItemSchema>;
 export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
@@ -38,7 +37,10 @@ export type CreateOrderInput = z.infer<typeof createOrderSchema>;
  * Customer Cancellation Request Schema
  */
 export const createCancellationRequestSchema = z.object({
-  reason: z.string().trim().min(3, { message: 'Cancellation reason is required' }),
+  reason: z
+    .string()
+    .trim()
+    .min(3, { message: 'Cancellation reason is required' }),
   customerNote: z.string().trim().optional(),
 });
 
@@ -95,4 +97,3 @@ export const submitReturnShipmentSchema = z.object({
 export type SubmitReturnShipmentInput = z.infer<
   typeof submitReturnShipmentSchema
 >;
-

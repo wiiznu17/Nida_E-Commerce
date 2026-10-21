@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CustomerAuthService } from '../../src/modules/auth/auth.service.js';
-import { BadRequestException, HttpException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { RedisService } from '../../src/core/redis/redis.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
@@ -97,7 +101,11 @@ describe('CustomerAuthService', () => {
 
       expect(result.success).toBe(true);
       expect(result.expiresInSeconds).toBe(300);
-      expect(redisMock.set).toHaveBeenCalledWith(`otp:cooldown:${email}`, '1', 60);
+      expect(redisMock.set).toHaveBeenCalledWith(
+        `otp:cooldown:${email}`,
+        '1',
+        60,
+      );
       expect(mailerMock.sendOtpEmail).toHaveBeenCalledWith(
         expect.objectContaining({
           to: email,
@@ -274,19 +282,32 @@ describe('CustomerAuthService', () => {
         email: 'user@nida.co',
       });
 
-      const result = await service.refreshTokens({ refreshToken: oldRefreshToken });
+      const result = await service.refreshTokens({
+        refreshToken: oldRefreshToken,
+      });
 
       expect(result.accessToken).toBe('mock-jwt-token');
       expect(result.refreshToken).toBeDefined();
       expect(result.refreshToken).not.toBe(oldRefreshToken);
-      expect(redisMock.deleteCustomerSession).toHaveBeenCalledWith(oldRefreshToken);
-      expect(redisMock.removeCustomerSession).toHaveBeenCalledWith('usr-1', oldRefreshToken);
+      expect(redisMock.deleteCustomerSession).toHaveBeenCalledWith(
+        oldRefreshToken,
+      );
+      expect(redisMock.removeCustomerSession).toHaveBeenCalledWith(
+        'usr-1',
+        oldRefreshToken,
+      );
       expect(redisMock.setCustomerSession).toHaveBeenCalledWith(
         result.refreshToken,
-        expect.objectContaining({ sessionId: result.refreshToken, userId: 'usr-1' }),
+        expect.objectContaining({
+          sessionId: result.refreshToken,
+          userId: 'usr-1',
+        }),
         604800,
       );
-      expect(redisMock.addCustomerSession).toHaveBeenCalledWith('usr-1', result.refreshToken);
+      expect(redisMock.addCustomerSession).toHaveBeenCalledWith(
+        'usr-1',
+        result.refreshToken,
+      );
     });
 
     it('throws UnauthorizedException if refresh token not found in Redis', async () => {
@@ -309,7 +330,10 @@ describe('CustomerAuthService', () => {
       const res = await service.logout(token);
       expect(res.success).toBe(true);
       expect(redisMock.deleteCustomerSession).toHaveBeenCalledWith(token);
-      expect(redisMock.removeCustomerSession).toHaveBeenCalledWith('usr-1', token);
+      expect(redisMock.removeCustomerSession).toHaveBeenCalledWith(
+        'usr-1',
+        token,
+      );
     });
 
     it('revokes all sessions on logoutAll', async () => {

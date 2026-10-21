@@ -7,12 +7,13 @@ import type {
   AnalyticsOverviewDto,
 } from '@repo/types';
 
-export const TIMEFRAME_OPTIONS: { id: AnalyticsTimeframe; labelKey: string }[] = [
-  { id: 'today', labelKey: 'dashboard.timeframe.today' },
-  { id: '7d', labelKey: 'dashboard.timeframe.week' },
-  { id: '30d', labelKey: 'dashboard.timeframe.month' },
-  { id: 'year', labelKey: 'dashboard.timeframe.year' },
-];
+export const TIMEFRAME_OPTIONS: { id: AnalyticsTimeframe; labelKey: string }[] =
+  [
+    { id: 'today', labelKey: 'dashboard.timeframe.today' },
+    { id: '7d', labelKey: 'dashboard.timeframe.week' },
+    { id: '30d', labelKey: 'dashboard.timeframe.month' },
+    { id: 'year', labelKey: 'dashboard.timeframe.year' },
+  ];
 
 export const DEFAULT_OVERVIEW_METRICS: AnalyticsOverviewDto = {
   netRevenue: 1428520,

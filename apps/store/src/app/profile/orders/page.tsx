@@ -65,7 +65,6 @@ export default function ProfileOrdersPage() {
         </p>
       </div>
 
-
       {/* Filter and Search Bar */}
       {allOrdersCount > 0 && (
         <OrdersFilterToolbar

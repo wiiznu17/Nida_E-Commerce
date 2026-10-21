@@ -2,7 +2,10 @@
 
 import { useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import type { FilterState, CatalogFilterOptions } from '../catalog/catalogTypes';
+import type {
+  FilterState,
+  CatalogFilterOptions,
+} from '../catalog/catalogTypes';
 import type { ApiProduct } from '@repo/types';
 
 interface UseSearchFiltersParams {
@@ -15,25 +18,35 @@ interface UseSearchFiltersParams {
   }>;
 }
 
-export function useSearchFilters({ productsList, categories }: UseSearchFiltersParams) {
+export function useSearchFilters({
+  productsList,
+  categories,
+}: UseSearchFiltersParams) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get('q')?.trim() ?? '';
 
   const pageParam = parseInt(searchParams.get('page') ?? '1', 10);
-  const currentPage = Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
+  const currentPage =
+    Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
 
   // Derive filter state from URL search params
   const filters = useMemo<FilterState>(() => {
     const deptParam = searchParams.get('department')?.trim() ?? '';
     const subCatParam = searchParams.get('subCategory')?.trim() ?? '';
-    const priceParam = (searchParams.get('priceRange')?.trim() as FilterState['priceRange']) ?? null;
-    const tagParam = searchParams.get('tag')?.trim() ?? searchParams.get('tags')?.trim() ?? '';
+    const priceParam =
+      (searchParams.get('priceRange')?.trim() as FilterState['priceRange']) ??
+      null;
+    const tagParam =
+      searchParams.get('tag')?.trim() ?? searchParams.get('tags')?.trim() ?? '';
     const onSaleParam = searchParams.get('onSale') === 'true';
     const newArrivalsParam = searchParams.get('newArrivals') === 'true';
-    const sortParam = (searchParams.get('sort')?.trim() as FilterState['sortBy']) ?? 'featured';
+    const sortParam =
+      (searchParams.get('sort')?.trim() as FilterState['sortBy']) ?? 'featured';
 
-    const tagsList: string[] = tagParam ? tagParam.split(',').filter(Boolean) : [];
+    const tagsList: string[] = tagParam
+      ? tagParam.split(',').filter(Boolean)
+      : [];
     if (onSaleParam && !tagsList.some((t) => t.toUpperCase() === 'SALE')) {
       tagsList.push('SALE');
     }
@@ -56,13 +69,18 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
   }, [searchParams]);
 
   // URL sync handler
-  const updateUrlFilters = (updated: Partial<FilterState>, newPage: number = 1) => {
+  const updateUrlFilters = (
+    updated: Partial<FilterState>,
+    newPage: number = 1,
+  ) => {
     const next = { ...filters, ...updated };
     const sp = new URLSearchParams();
 
     if (query) sp.set('q', query);
-    if (next.departments.length > 0) sp.set('department', next.departments.join(','));
-    if (next.subCategories.length > 0) sp.set('subCategory', next.subCategories.join(','));
+    if (next.departments.length > 0)
+      sp.set('department', next.departments.join(','));
+    if (next.subCategories.length > 0)
+      sp.set('subCategory', next.subCategories.join(','));
     if (next.priceRange) sp.set('priceRange', next.priceRange);
     if (next.tags.length > 0) sp.set('tag', next.tags.join(','));
     if (next.sortBy && next.sortBy !== 'featured') sp.set('sort', next.sortBy);
@@ -81,7 +99,10 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
   // Distinct filter options extracted from catalog & categories tree
   const filterOptions = useMemo<CatalogFilterOptions>(() => {
     const deptSet = new Set<string>();
-    const subCatMap = new Map<string, { key: string; labelEn: string; labelTh: string }>();
+    const subCatMap = new Map<
+      string,
+      { key: string; labelEn: string; labelTh: string }
+    >();
 
     categories.forEach((cat) => {
       if (cat.department) deptSet.add(cat.department.toLowerCase());
@@ -145,7 +166,9 @@ export function useSearchFilters({ productsList, categories }: UseSearchFiltersP
   };
 
   const clearAllFilters = () => {
-    router.push(query ? `/search?q=${encodeURIComponent(query)}` : '/search', { scroll: false });
+    router.push(query ? `/search?q=${encodeURIComponent(query)}` : '/search', {
+      scroll: false,
+    });
   };
 
   const activeFilterCount = useMemo(() => {

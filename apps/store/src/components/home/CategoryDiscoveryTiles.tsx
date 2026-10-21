@@ -77,9 +77,10 @@ export const CategoryDiscoveryTiles: React.FC = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4 lg:gap-5">
           {DEPARTMENTS.map((dept) => {
             const dynamicProduct = productsList.find(
-              (p) => p.department.toLowerCase() === dept.id && p.primaryImage
+              (p) => p.department.toLowerCase() === dept.id && p.primaryImage,
             );
-            const coverImage = dynamicProduct?.primaryImage ?? dept.defaultImage;
+            const coverImage =
+              dynamicProduct?.primaryImage ?? dept.defaultImage;
 
             return (
               <Link

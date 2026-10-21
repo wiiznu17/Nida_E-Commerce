@@ -43,7 +43,9 @@ export function CatalogMobileDrawer({
             <h2 className="text-sm font-black tracking-wider uppercase text-brand-brown">
               {t('search.filter')}
             </h2>
-            <span className="text-xs text-gray-400 font-medium">({totalCount})</span>
+            <span className="text-xs text-gray-400 font-medium">
+              ({totalCount})
+            </span>
           </div>
           <button
             type="button"

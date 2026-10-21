@@ -45,16 +45,16 @@ export function EmptyState({
     clean: 'p-8 sm:p-12',
   };
 
-  const resolvedAction: EmptyStateAction | undefined = action ?? (
-    actionLabel
+  const resolvedAction: EmptyStateAction | undefined =
+    action ??
+    (actionLabel
       ? {
           label: actionLabel,
           onClick: onAction,
           href: actionHref,
           icon: ActionIcon,
         }
-      : undefined
-  );
+      : undefined);
 
   const renderIcon = () => {
     if (!Icon) return null;
@@ -83,11 +83,7 @@ export function EmptyState({
     }
 
     return (
-      <button
-        type="button"
-        onClick={act.onClick}
-        className={buttonClasses}
-      >
+      <button type="button" onClick={act.onClick} className={buttonClasses}>
         {IconComp && <IconComp size={13} />}
         <span>{act.label}</span>
       </button>

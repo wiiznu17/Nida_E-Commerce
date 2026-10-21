@@ -34,7 +34,10 @@ export function HeaderSearchBar({
 
   return (
     <div ref={searchContainerRef} className="relative hidden md:block">
-      <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+      <form
+        onSubmit={handleSearchSubmit}
+        className="relative flex items-center"
+      >
         <div
           className={`relative flex items-center transition-all duration-300 rounded-full border ${
             isSearchFocused

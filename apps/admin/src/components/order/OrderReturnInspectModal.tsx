@@ -24,13 +24,9 @@ interface OrderReturnInspectModalProps {
   onConfirm: () => void;
 }
 
-export const OrderReturnInspectModal: React.FC<OrderReturnInspectModalProps> = ({
-  modalData,
-  isProcessing,
-  onClose,
-  onChange,
-  onConfirm,
-}) => {
+export const OrderReturnInspectModal: React.FC<
+  OrderReturnInspectModalProps
+> = ({ modalData, isProcessing, onClose, onChange, onConfirm }) => {
   const { t, isTh } = useLanguage();
 
   if (!modalData) return null;
@@ -63,15 +59,16 @@ export const OrderReturnInspectModal: React.FC<OrderReturnInspectModalProps> = (
                 </span>
               </div>
 
-              {modalData.shippingFee !== undefined && modalData.shippingFee > 0 && (
-                <div className="flex items-center space-x-1 text-[11px] font-bold text-stone-800 bg-white px-2 py-0.5 rounded-xs border border-purple-200">
-                  <Receipt size={12} className="text-emerald-700" />
-                  <span>{t('orders.return.inspectShippingFeeClaim')}:</span>
-                  <span className="font-mono text-emerald-800">
-                    {formatPrice(modalData.shippingFee)}
-                  </span>
-                </div>
-              )}
+              {modalData.shippingFee !== undefined &&
+                modalData.shippingFee > 0 && (
+                  <div className="flex items-center space-x-1 text-[11px] font-bold text-stone-800 bg-white px-2 py-0.5 rounded-xs border border-purple-200">
+                    <Receipt size={12} className="text-emerald-700" />
+                    <span>{t('orders.return.inspectShippingFeeClaim')}:</span>
+                    <span className="font-mono text-emerald-800">
+                      {formatPrice(modalData.shippingFee)}
+                    </span>
+                  </div>
+                )}
             </div>
 
             {modalData.receiptUrl && (
@@ -105,13 +102,14 @@ export const OrderReturnInspectModal: React.FC<OrderReturnInspectModalProps> = (
               }
               className="w-full px-3 py-2 border border-brand-border rounded-xs font-mono font-bold text-sm text-stone-900 focus:outline-hidden focus:ring-1 focus:ring-brand-dark-brown"
             />
-            {modalData.shippingFee !== undefined && modalData.shippingFee > 0 && (
-              <span className="text-[10px] text-stone-500 mt-1 block">
-                {isTh
-                  ? `(ยอดรวมสินค้า + ค่าส่งคืน ${formatPrice(modalData.shippingFee)})`
-                  : `(Includes returned items + shipping reimbursement ${formatPrice(modalData.shippingFee)})`}
-              </span>
-            )}
+            {modalData.shippingFee !== undefined &&
+              modalData.shippingFee > 0 && (
+                <span className="text-[10px] text-stone-500 mt-1 block">
+                  {isTh
+                    ? `(ยอดรวมสินค้า + ค่าส่งคืน ${formatPrice(modalData.shippingFee)})`
+                    : `(Includes returned items + shipping reimbursement ${formatPrice(modalData.shippingFee)})`}
+                </span>
+              )}
           </div>
 
           <div>

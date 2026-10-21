@@ -32,7 +32,12 @@ export function Breadcrumb({
         className={cn('shrink-0', isDark ? 'text-gray-400' : 'text-gray-300')}
       />
     ) : (
-      <span className={cn('select-none', isDark ? 'text-gray-400' : 'text-gray-300')}>
+      <span
+        className={cn(
+          'select-none',
+          isDark ? 'text-gray-400' : 'text-gray-300',
+        )}
+      >
         /
       </span>
     );
@@ -54,7 +59,9 @@ export function Breadcrumb({
               key={index}
               className={cn(
                 'truncate max-w-xs',
-                isDark ? 'text-brand-yellow font-black' : 'text-brand-brown font-black',
+                isDark
+                  ? 'text-brand-yellow font-black'
+                  : 'text-brand-brown font-black',
               )}
               aria-current={isLast ? 'page' : undefined}
             >

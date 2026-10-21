@@ -2,14 +2,21 @@ import { useState } from 'react';
 import { X, Download, FileSpreadsheet, FileCode, Check } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { analyticsRequester } from '../../api/requester/analyticsRequester';
-import type { ExportDataType, ExportFileFormat, AnalyticsTimeframe } from '@repo/types';
+import type {
+  ExportDataType,
+  ExportFileFormat,
+  AnalyticsTimeframe,
+} from '@repo/types';
 
 interface DashboardExportModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function DashboardExportModal({ isOpen, onClose }: DashboardExportModalProps) {
+export function DashboardExportModal({
+  isOpen,
+  onClose,
+}: DashboardExportModalProps) {
   const { t } = useLanguage();
   const [dataType, setDataType] = useState<ExportDataType>('orders');
   const [timeframe, setTimeframe] = useState<AnalyticsTimeframe>('30d');
@@ -34,7 +41,10 @@ export function DashboardExportModal({ isOpen, onClose }: DashboardExportModalPr
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `nida_${dataType}_${timeframe}_${Date.now()}.${format}`);
+      link.setAttribute(
+        'download',
+        `nida_${dataType}_${timeframe}_${Date.now()}.${format}`,
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -92,7 +102,9 @@ export function DashboardExportModal({ isOpen, onClose }: DashboardExportModalPr
                   }`}
                 >
                   <span>{item.label}</span>
-                  {dataType === item.id && <Check size={14} className="text-brand-brown" />}
+                  {dataType === item.id && (
+                    <Check size={14} className="text-brand-brown" />
+                  )}
                 </button>
               ))}
             </div>
@@ -143,8 +155,12 @@ export function DashboardExportModal({ isOpen, onClose }: DashboardExportModalPr
               >
                 <FileSpreadsheet size={20} className="text-emerald-700" />
                 <div className="text-left">
-                  <span className="text-xs font-black text-brand-brown block">CSV (Excel)</span>
-                  <span className="text-[10px] text-gray-400">UTF-8 BOM Thai Compatible</span>
+                  <span className="text-xs font-black text-brand-brown block">
+                    CSV (Excel)
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    UTF-8 BOM Thai Compatible
+                  </span>
                 </div>
               </button>
 
@@ -159,8 +175,12 @@ export function DashboardExportModal({ isOpen, onClose }: DashboardExportModalPr
               >
                 <FileCode size={20} className="text-brand-amber" />
                 <div className="text-left">
-                  <span className="text-xs font-black text-brand-brown block">JSON</span>
-                  <span className="text-[10px] text-gray-400">Structured Data Payload</span>
+                  <span className="text-xs font-black text-brand-brown block">
+                    JSON
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    Structured Data Payload
+                  </span>
                 </div>
               </button>
             </div>
@@ -190,7 +210,11 @@ export function DashboardExportModal({ isOpen, onClose }: DashboardExportModalPr
             className="px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 cursor-pointer shadow-xs disabled:opacity-50"
           >
             <Download size={14} />
-            <span>{isDownloading ? t('common.loading') : t('dashboard.export.downloadButton')}</span>
+            <span>
+              {isDownloading
+                ? t('common.loading')
+                : t('dashboard.export.downloadButton')}
+            </span>
           </button>
         </div>
       </div>

@@ -36,12 +36,15 @@ graph LR
 ## 2. แผนผังสถานะระบบและวงจรการทำงาน (Lifecycle State Machines)
 
 > [!IMPORTANT]
+>
 > ### สถาปัตยกรรมการแยกขอบเขตหน้าที่ (Architectural Separation of Concerns)
+>
 > - **Order Aggregate (`OrderStatus`)**: ดูแลข้อผูกพันทางธุรกิจระหว่างลูกค้ากับร้านค้าในระดับภาพรวม (Macro-Level Contract) ได้แก่ `PENDING`, `PAID`, `PREORDER_AWAITING_STOCK`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `REFUNDED`
 > - **Shipment Domain (`ShipmentStatus` และ `ShipmentLog`)**: ดูแลการเดินทางทางกายภาพของพัสดุในระดับละเอียด (Micro-Level Courier Events) เช่น `LABEL_CREATED`, `PICKED_UP`, `IN_TRANSIT`, `OUT_FOR_DELIVERY`, `DELIVERED`, `FAILED`
 > - **กฎข้อบังคับสำคัญ**: เหตุการณ์การขนส่ง เช่น "พนักงานกำลังนำจ่าย (Out for Delivery)" หรือ "พัสดุถึงศูนย์กระจายสินค้า (Sorting Hub)" จะถูกบันทึกลงใน **`ShipmentLog`** และปรับสถานะของ **`ShipmentStatus`** เท่านั้น โดย **ไม่นำไปปะปนกับ `OrderStatus`** ซึ่งจะยังคงเป็น `SHIPPED` จนกระทั่งขนส่งส่งมอบสำเร็จ (`DELIVERED`) จึงจะปรับ `OrderStatus` เป็น `DELIVERED` ตาม
 
 ระบบจัดการคำสั่งซื้อของ NIDA เชื่อมโยงสถานะของ 4 มิติหลักเข้าด้วยกันแบบบูรณาการ:
+
 1. **`OrderStatus`**: สถานะหลักของคำสั่งซื้อ (Core Domain Aggregate)
 2. **`PaymentStatus`**: สถานะธุรกรรมการชำระเงิน (Financial Gateway Transactions)
 3. **`ShipmentStatus`**: สถานะการจัดส่งพัสดุและการเดินทางของสินค้า (Logistics & Fulfillment)
@@ -150,23 +153,23 @@ flowchart TD
 ```mermaid
 stateDiagram-v2
     [*] --> PENDING: ลูกค้ากดยืนยันสั่งซื้อที่หน้า Checkout (จองสต็อก quantityReserved)
-    
+
     PENDING --> PAID: ชำระเงินสำเร็จ (Payment: CAPTURED)
     PENDING --> CANCELLED: หมดเวลาชำระเงิน (30 นาที) / ลูกค้ายกเลิก / สต็อกไม่พอ
-    
+
     PAID --> PREORDER_AWAITING_STOCK: ในออเดอร์มีสินค้า Pre-Order (hasPreorderItems: true)
     PREORDER_AWAITING_STOCK --> PROCESSING: สินค้าผลิตเสร็จและนำเข้าคลังแล้ว (StockMovement: PREORDER_RECEIVE)
-    
+
     PAID --> PROCESSING: สินค้าพร้อมส่ง คลังสินค้าเริ่มจัดเตรียมและแพ็คกล่อง
-    
+
     PROCESSING --> SHIPPED: แอดมินยืนยันจัดส่ง ออกเลข Tracking (Shipment: PICKED_UP)
-    
+
     SHIPPED --> DELIVERED: บริษัทขนส่งนำจ่ายพัสดุถึงมือลูกค้าสำเร็จ (Shipment: DELIVERED)
-    
+
     PAID --> REFUNDED: ลูกค้าขอยกเลิกและคืนเงิน (ก่อนคลังเริ่มแพ็ค)
     PROCESSING --> REFUNDED: ยกเลิกและคืนเงิน (ระหว่างจัดเตรียมสินค้า)
     DELIVERED --> REFUNDED: มีการคืนสินค้าและคืนเงินสำเร็จ (ผ่านขั้นตอน Return & Quality Inspection)
-    
+
     DELIVERED --> [*]
     CANCELLED --> [*]
     REFUNDED --> [*]
@@ -174,16 +177,16 @@ stateDiagram-v2
 
 #### คำอธิบายสถานะคำสั่งซื้อ (`OrderStatus`)
 
-| สถานะ | ความหมาย | สต็อก (Inventory) | ผู้มีอำนาจเปลี่ยนสถานะ |
-| :--- | :--- | :--- | :--- |
-| `PENDING` | สั่งซื้อแล้ว รอชำระเงิน | จองสต็อกชั่วคราว (`quantityReserved`) | System (Timeout) / Customer |
-| `PAID` | ชำระเงินสำเร็จแล้ว | ตัดสต็อกจริง (`quantityAvailable` ลดลง) | Payment Gateway Webhook / Admin |
-| `PREORDER_AWAITING_STOCK` | ชำระเงินแล้ว อยู่ระหว่างรอสินค้า Pre-Order | บันทึกยอดจองพรีออเดอร์ (`preorderBooked`) | System (ตรวจพบสินค้า `isPreorder: true`) |
-| `PROCESSING` | คลังสินค้ากำลังหยิบของ ตรวจสอบ และแพ็คใส่กล่อง | สต็อกถูกตัดไปแล้ว | Staff / Inventory Manager |
-| `SHIPPED` | บรรจุกล่องและมอบให้บริษัทขนส่งแล้ว (มี Tracking Number) | พัสดุอยู่ระหว่างการขนส่ง | Order Manager / Fulfill Staff |
-| `DELIVERED` | พัสดุนำส่งถึงปลายทางเรียบร้อย | จบกระบวนการจัดส่ง | Courier Webhook / Admin Manual Update |
-| `CANCELLED` | ยกเลิกคำสั่งซื้อ | คืนยอดจองสต็อกกลับสู่ระบบ | Customer / System Auto-Expire / Admin |
-| `REFUNDED` | ดำเนินการคืนเงิน (เต็มจำนวนหรือตามสัดส่วนสินค้า) | ปรับยอดสต็อกตามการรับของคืนเข้าคลัง | Super Admin / Order Manager |
+| สถานะ                     | ความหมาย                                                | สต็อก (Inventory)                         | ผู้มีอำนาจเปลี่ยนสถานะ                   |
+| :------------------------ | :------------------------------------------------------ | :---------------------------------------- | :--------------------------------------- |
+| `PENDING`                 | สั่งซื้อแล้ว รอชำระเงิน                                 | จองสต็อกชั่วคราว (`quantityReserved`)     | System (Timeout) / Customer              |
+| `PAID`                    | ชำระเงินสำเร็จแล้ว                                      | ตัดสต็อกจริง (`quantityAvailable` ลดลง)   | Payment Gateway Webhook / Admin          |
+| `PREORDER_AWAITING_STOCK` | ชำระเงินแล้ว อยู่ระหว่างรอสินค้า Pre-Order              | บันทึกยอดจองพรีออเดอร์ (`preorderBooked`) | System (ตรวจพบสินค้า `isPreorder: true`) |
+| `PROCESSING`              | คลังสินค้ากำลังหยิบของ ตรวจสอบ และแพ็คใส่กล่อง          | สต็อกถูกตัดไปแล้ว                         | Staff / Inventory Manager                |
+| `SHIPPED`                 | บรรจุกล่องและมอบให้บริษัทขนส่งแล้ว (มี Tracking Number) | พัสดุอยู่ระหว่างการขนส่ง                  | Order Manager / Fulfill Staff            |
+| `DELIVERED`               | พัสดุนำส่งถึงปลายทางเรียบร้อย                           | จบกระบวนการจัดส่ง                         | Courier Webhook / Admin Manual Update    |
+| `CANCELLED`               | ยกเลิกคำสั่งซื้อ                                        | คืนยอดจองสต็อกกลับสู่ระบบ                 | Customer / System Auto-Expire / Admin    |
+| `REFUNDED`                | ดำเนินการคืนเงิน (เต็มจำนวนหรือตามสัดส่วนสินค้า)        | ปรับยอดสต็อกตามการรับของคืนเข้าคลัง       | Super Admin / Order Manager              |
 
 ---
 
@@ -194,33 +197,33 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> LABEL_CREATED: คลังออกเลข Tracking Number และพิมพ์ Shipping Label
-    
+
     LABEL_CREATED --> PICKED_UP: รถขนส่งพันธมิตร (Kerry/Flash/EMS/DHL) สแกนรับพัสดุที่คลัง
-    
+
     PICKED_UP --> IN_TRANSIT: พัสดุถูกส่งไปยังศูนย์คัดแยกกลาง (Sorting Hub) และอยู่ระหว่างเดินทาง
-    
+
     IN_TRANSIT --> OUT_FOR_DELIVERY: พนักงานนำพัสดุขึ้นรถจัดส่งปลายทางเตรียมนำจ่าย
-    
+
     OUT_FOR_DELIVERY --> DELIVERED: ลูกค้าลงชื่อรับพัสดุเรียบร้อย (ซิงค์ OrderStatus -> DELIVERED)
-    
+
     OUT_FOR_DELIVERY --> FAILED: นำจ่ายไม่สำเร็จ (ติดต่อผู้รับไม่ได้ / ที่อยู่ไม่ชัดเจน / ขอเลื่อนวัน)
-    
+
     FAILED --> OUT_FOR_DELIVERY: บริษัทขนส่งจัดรอบนำจ่ายซ้ำในวันถัดไป (Re-attempt Delivery)
-    
+
     FAILED --> [*]: พัสดุตีกลับคลังสินค้า (Return to Sender - RTS เมื่อนำจ่ายไม่สำเร็จครบ 3 ครั้ง)
     DELIVERED --> [*]
 ```
 
 #### คำอธิบายสถานะการจัดส่ง (`ShipmentStatus`)
 
-| สถานะ | ความหมายเชิงลอจิสติกส์ | การบันทึก `ShipmentLog` | ผลกระทบต่อ `OrderStatus` |
-| :--- | :--- | :--- | :--- |
-| `LABEL_CREATED` | พิมพ์ใบปะหน้ากล่องและออกเลขพัสดุเรียบร้อย รอนัดรถเข้ารับ | บันทึก "กำลังเตรียมพัสดุ ณ ศูนย์กระจายสินค้า NIDA" | คงสถานะ `PROCESSING` |
-| `PICKED_UP` | บริษัทขนส่งสแกนรับพัสดุขึ้นรถขนส่ง | บันทึก "บริษัทขนส่งเข้ารับพัสดุเรียบร้อยแล้ว" | เปลี่ยนเป็น `SHIPPED` |
-| `IN_TRANSIT` | พัสดุกำลังเดินทางข้ามศูนย์คัดแยกสาขา | บันทึกรหัสสาขาและตำแหน่งปัจจุบันของศูนย์กระจายสินค้า | คงสถานะ `SHIPPED` |
-| `OUT_FOR_DELIVERY` | พนักงานส่งพัสดุกำลังเดินทางไปส่งที่อยู่ปลายทาง | บันทึก "พนักงานกำลังนำจ่ายพัสดุให้แก่ท่าน" | คงสถานะ `SHIPPED` |
-| `DELIVERED` | พัสดุนำจ่ายถึงมือผู้รับสำเร็จ | บันทึก "จัดส่งสำเร็จ ลงชื่อรับโดย [ชื่อผู้รับ]" | เปลี่ยนเป็น `DELIVERED` |
-| `FAILED` | การนำจ่ายมีข้อผิดพลาด หรือพัสดุตีกลับคลัง | บันทึกสาเหตุ (เช่น ติดต่อไม่ได้/ที่อยู่ผิด) | คง `SHIPPED` (ถ้าจัดส่งซ้ำ) หรือแจ้งเตือนแอดมิน |
+| สถานะ              | ความหมายเชิงลอจิสติกส์                                   | การบันทึก `ShipmentLog`                              | ผลกระทบต่อ `OrderStatus`                        |
+| :----------------- | :------------------------------------------------------- | :--------------------------------------------------- | :---------------------------------------------- |
+| `LABEL_CREATED`    | พิมพ์ใบปะหน้ากล่องและออกเลขพัสดุเรียบร้อย รอนัดรถเข้ารับ | บันทึก "กำลังเตรียมพัสดุ ณ ศูนย์กระจายสินค้า NIDA"   | คงสถานะ `PROCESSING`                            |
+| `PICKED_UP`        | บริษัทขนส่งสแกนรับพัสดุขึ้นรถขนส่ง                       | บันทึก "บริษัทขนส่งเข้ารับพัสดุเรียบร้อยแล้ว"        | เปลี่ยนเป็น `SHIPPED`                           |
+| `IN_TRANSIT`       | พัสดุกำลังเดินทางข้ามศูนย์คัดแยกสาขา                     | บันทึกรหัสสาขาและตำแหน่งปัจจุบันของศูนย์กระจายสินค้า | คงสถานะ `SHIPPED`                               |
+| `OUT_FOR_DELIVERY` | พนักงานส่งพัสดุกำลังเดินทางไปส่งที่อยู่ปลายทาง           | บันทึก "พนักงานกำลังนำจ่ายพัสดุให้แก่ท่าน"           | คงสถานะ `SHIPPED`                               |
+| `DELIVERED`        | พัสดุนำจ่ายถึงมือผู้รับสำเร็จ                            | บันทึก "จัดส่งสำเร็จ ลงชื่อรับโดย [ชื่อผู้รับ]"      | เปลี่ยนเป็น `DELIVERED`                         |
+| `FAILED`           | การนำจ่ายมีข้อผิดพลาด หรือพัสดุตีกลับคลัง                | บันทึกสาเหตุ (เช่น ติดต่อไม่ได้/ที่อยู่ผิด)          | คง `SHIPPED` (ถ้าจัดส่งซ้ำ) หรือแจ้งเตือนแอดมิน |
 
 ---
 
@@ -231,30 +234,30 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> PENDING: สร้างคำสั่งซื้อและออก Payment Intent / Dynamic QR
-    
+
     PENDING --> AUTHORIZED: บัตรเครดิตทำการกันวงเงินสำเร็จ (Pre-authorization Hold)
     AUTHORIZED --> CAPTURED: ตัดยอดเงินเข้าบัญชีร้านค้าสำเร็จ (Charge Settled)
-    
+
     PENDING --> CAPTURED: ชำระเงินสำเร็จทันที (PromptPay QR Webhook / บัตรตัดยอดทันที)
-    
+
     PENDING --> FAILED: หมดเวลาชำระเงิน (30 นาที) / วงเงินไม่พอ / ธนาคารปฏิเสธ (Card Declined)
     AUTHORIZED --> FAILED: ยกเลิกการกันวงเงิน / ทำรายการตัดยอดไม่สำเร็จ (Capture Expired)
-    
+
     CAPTURED --> REFUNDED: ดำเนินการคืนเงินผ่าน Payment Gateway สำเร็จ
-    
+
     FAILED --> [*]
     REFUNDED --> [*]
 ```
 
 #### คำอธิบายสถานะการชำระเงิน (`PaymentStatus`)
 
-| สถานะ | ความหมาย | ความปลอดภัย & ข้อมูลเชื่อมโยง | ผลกระทบต่อ `OrderStatus` |
-| :--- | :--- | :--- | :--- |
-| `PENDING` | สร้างรายการชำระแล้ว รอผลจากเกตเวย์ | มี `idempotencyKey` ป้องกันการส่งคำขอซ้ำ | `OrderStatus: PENDING` |
-| `AUTHORIZED` | บัตรเครดิตกันวงเงินสำเร็จ (Hold) | บันทึก `cardLast4`, `cardBrand`, `transactionReference` | เตรียมเปลี่ยนเป็น `PAID` เมื่อ Capture |
-| `CAPTURED` | หักเงินสำเร็จ ยอดเงินเข้าบัญชีแล้ว | บันทึก `paidAt` และ `gatewayEventId` สำหรับ Audit | `OrderStatus: PAID` (หรือ `PREORDER`) |
-| `FAILED` | ลูกค้ายกเลิก หรือธุรกรรมล้มเหลว | บันทึก `rawWebhookPayload` เพื่อตรวจสอบสาเหตุ | `OrderStatus: CANCELLED` |
-| `REFUNDED` | ทำรายการคืนเงินสำเร็จผ่าน Payment Gateway | มีรายการบันทึกในตาราง `Refund` เชื่อมโยง | `OrderStatus: REFUNDED` |
+| สถานะ        | ความหมาย                                  | ความปลอดภัย & ข้อมูลเชื่อมโยง                           | ผลกระทบต่อ `OrderStatus`               |
+| :----------- | :---------------------------------------- | :------------------------------------------------------ | :------------------------------------- |
+| `PENDING`    | สร้างรายการชำระแล้ว รอผลจากเกตเวย์        | มี `idempotencyKey` ป้องกันการส่งคำขอซ้ำ                | `OrderStatus: PENDING`                 |
+| `AUTHORIZED` | บัตรเครดิตกันวงเงินสำเร็จ (Hold)          | บันทึก `cardLast4`, `cardBrand`, `transactionReference` | เตรียมเปลี่ยนเป็น `PAID` เมื่อ Capture |
+| `CAPTURED`   | หักเงินสำเร็จ ยอดเงินเข้าบัญชีแล้ว        | บันทึก `paidAt` และ `gatewayEventId` สำหรับ Audit       | `OrderStatus: PAID` (หรือ `PREORDER`)  |
+| `FAILED`     | ลูกค้ายกเลิก หรือธุรกรรมล้มเหลว           | บันทึก `rawWebhookPayload` เพื่อตรวจสอบสาเหตุ           | `OrderStatus: CANCELLED`               |
+| `REFUNDED`   | ทำรายการคืนเงินสำเร็จผ่าน Payment Gateway | มีรายการบันทึกในตาราง `Refund` เชื่อมโยง                | `OrderStatus: REFUNDED`                |
 
 ---
 
@@ -285,6 +288,7 @@ stateDiagram-v2
 ```
 
 #### การประมวลผลสต็อกและแต้มสะสมเมื่อคืนเงิน/คืนสินค้า:
+
 1. **สต็อกสินค้า (Inventory)**: เมื่อคลังตรวจรับสินค้าคืนเรียบร้อย ระบบจะบันทึก `StockMovement` ชนิด `RETURNED` และเพิ่มสต็อก `quantityAvailable` กลับเข้าระบบโดยอัตโนมัติ
 2. **แต้มสมาชิก (Loyalty Points)**:
    - หักแต้มสะสมที่เคยได้รับจากออเดอร์นี้ออกผ่าน `PointTransaction` ชนิด `REFUND_CANCEL`
@@ -297,25 +301,25 @@ stateDiagram-v2
 
 ตารางสรุปสถานะของทุกระบบในแต่ละขั้นตอนสำคัญของการดำเนินงาน:
 
-| ขั้นตอนทางธุรกิจ (Business Milestone) | `OrderStatus` | `PaymentStatus` | `ShipmentStatus` | `ReturnStatus` | `RefundStatus` | ผลกระทบต่อสต็อกสินค้า | ผู้กระทำ (Actor) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **ลูกค้ากดยืนยันคำสั่งซื้อ** | `PENDING` | `PENDING` | *-* | *-* | *-* | จองชั่วคราว (`quantityReserved` +) | ลูกค้า (Storefront) |
-| **ชำระเงินสำเร็จ (สินค้าพร้อมส่ง)** | `PAID` | `CAPTURED` | *-* | *-* | *-* | ตัดสต็อกจริง (`quantityAvailable` -) | Payment Gateway |
-| **ชำระเงินสำเร็จ (มีสินค้า Pre-Order)** | `PREORDER_AWAITING_STOCK` | `CAPTURED` | *-* | *-* | *-* | บันทึกยอดจอง (`preorderBooked` +) | System Auto-Detect |
-| **สินค้า Pre-Order ผลิตเสร็จเข้าคลัง** | `PROCESSING` | `CAPTURED` | *-* | *-* | *-* | นำเข้าคลัง (`PREORDER_RECEIVE`) | คลังสินค้า |
-| **คลังสินค้าเริ่มหยิบและแพ็คสินค้า** | `PROCESSING` | `CAPTURED` | *-* | *-* | *-* | สต็อกตัดแล้วในขั้นตอนชำระเงิน | เจ้าหน้าที่คลัง |
-| **ออกเลขพัสดุและพิมพ์ใบปะหน้า** | `PROCESSING` | `CAPTURED` | `LABEL_CREATED` | *-* | *-* | เตรียมของพร้อมส่ง | เจ้าหน้าที่คลัง |
-| **รถขนส่งสแกนรับพัสดุที่คลัง** | `SHIPPED` | `CAPTURED` | `PICKED_UP` | *-* | *-* | สินค้าอยู่ระหว่างการขนส่ง | บริษัทขนส่งพันธมิตร |
-| **พัสดุเดินทางข้ามศูนย์กระจายสินค้า** | `SHIPPED` | `CAPTURED` | `IN_TRANSIT` | *-* | *-* | บันทึกตำแหน่งใน `ShipmentLog` | ระบบขนส่ง |
-| **พนักงานนำจ่ายพัสดุปลายทาง** | `SHIPPED` | `CAPTURED` | `OUT_FOR_DELIVERY` | *-* | *-* | กำลังเดินทางส่งผู้รับ | พนักงานนำจ่าย |
-| **ลูกค้าเซ็นรับพัสดุสำเร็จ** | `DELIVERED` | `CAPTURED` | `DELIVERED` | *-* | *-* | ปิดรอบจัดส่งสมบูรณ์ | ลูกค้า / บริษัทขนส่ง |
-| **การนำจ่ายพัสดุล้มเหลวชั่วคราว** | `SHIPPED` | `CAPTURED` | `FAILED` | *-* | *-* | รอนำจ่ายซ้ำวันถัดไป | พนักงานนำจ่าย |
-| **พัสดุตีกลับคลัง (RTS)** | `PROCESSING` | `CAPTURED` | `FAILED` | *-* | *-* | ตรวจสอบสินค้าและประสานงานลูกค้า | เจ้าหน้าที่คลัง |
-| **ยกเลิกก่อนชำระเงิน / หมดเวลา** | `CANCELLED` | `FAILED` | *-* | *-* | *-* | คืนยอดจอง (`quantityReserved` -) | ลูกค้า / System Expire |
-| **ยกเลิกหลังชำระเงิน (ก่อนจัดส่ง)** | `REFUNDED` | `REFUNDED` | *-* | *-* | `SUCCEEDED` | คืนสต็อก (`quantityAvailable` +) | แอดมิน / Gateway |
-| **ลูกค้าส่งคำขอคืนสินค้า (หลังรับของ)**| `DELIVERED` | `CAPTURED` | `DELIVERED` | `REQUESTED` | *-* | สินค้ายังอยู่กับลูกค้า | ลูกค้า (Storefront) |
-| **แอดมินอนุมัติคำขอคืนสินค้า** | `DELIVERED` | `CAPTURED` | `DELIVERED` | `APPROVED` | *-* | ลูกค้าเตรียมส่งของคืนคลัง | แอดมิน Back-Office |
-| **ตรวจรับของคืนและคืนเงินสำเร็จ** | `REFUNDED` | `REFUNDED` | `DELIVERED` | `COMPLETED` | `SUCCEEDED` | รับของคืน (`StockMovement: RETURNED`) | แอดมิน & Gateway |
+| ขั้นตอนทางธุรกิจ (Business Milestone)   | `OrderStatus`             | `PaymentStatus` | `ShipmentStatus`   | `ReturnStatus` | `RefundStatus` | ผลกระทบต่อสต็อกสินค้า                 | ผู้กระทำ (Actor)       |
+| :-------------------------------------- | :------------------------ | :-------------- | :----------------- | :------------- | :------------- | :------------------------------------ | :--------------------- |
+| **ลูกค้ากดยืนยันคำสั่งซื้อ**            | `PENDING`                 | `PENDING`       | _-_                | _-_            | _-_            | จองชั่วคราว (`quantityReserved` +)    | ลูกค้า (Storefront)    |
+| **ชำระเงินสำเร็จ (สินค้าพร้อมส่ง)**     | `PAID`                    | `CAPTURED`      | _-_                | _-_            | _-_            | ตัดสต็อกจริง (`quantityAvailable` -)  | Payment Gateway        |
+| **ชำระเงินสำเร็จ (มีสินค้า Pre-Order)** | `PREORDER_AWAITING_STOCK` | `CAPTURED`      | _-_                | _-_            | _-_            | บันทึกยอดจอง (`preorderBooked` +)     | System Auto-Detect     |
+| **สินค้า Pre-Order ผลิตเสร็จเข้าคลัง**  | `PROCESSING`              | `CAPTURED`      | _-_                | _-_            | _-_            | นำเข้าคลัง (`PREORDER_RECEIVE`)       | คลังสินค้า             |
+| **คลังสินค้าเริ่มหยิบและแพ็คสินค้า**    | `PROCESSING`              | `CAPTURED`      | _-_                | _-_            | _-_            | สต็อกตัดแล้วในขั้นตอนชำระเงิน         | เจ้าหน้าที่คลัง        |
+| **ออกเลขพัสดุและพิมพ์ใบปะหน้า**         | `PROCESSING`              | `CAPTURED`      | `LABEL_CREATED`    | _-_            | _-_            | เตรียมของพร้อมส่ง                     | เจ้าหน้าที่คลัง        |
+| **รถขนส่งสแกนรับพัสดุที่คลัง**          | `SHIPPED`                 | `CAPTURED`      | `PICKED_UP`        | _-_            | _-_            | สินค้าอยู่ระหว่างการขนส่ง             | บริษัทขนส่งพันธมิตร    |
+| **พัสดุเดินทางข้ามศูนย์กระจายสินค้า**   | `SHIPPED`                 | `CAPTURED`      | `IN_TRANSIT`       | _-_            | _-_            | บันทึกตำแหน่งใน `ShipmentLog`         | ระบบขนส่ง              |
+| **พนักงานนำจ่ายพัสดุปลายทาง**           | `SHIPPED`                 | `CAPTURED`      | `OUT_FOR_DELIVERY` | _-_            | _-_            | กำลังเดินทางส่งผู้รับ                 | พนักงานนำจ่าย          |
+| **ลูกค้าเซ็นรับพัสดุสำเร็จ**            | `DELIVERED`               | `CAPTURED`      | `DELIVERED`        | _-_            | _-_            | ปิดรอบจัดส่งสมบูรณ์                   | ลูกค้า / บริษัทขนส่ง   |
+| **การนำจ่ายพัสดุล้มเหลวชั่วคราว**       | `SHIPPED`                 | `CAPTURED`      | `FAILED`           | _-_            | _-_            | รอนำจ่ายซ้ำวันถัดไป                   | พนักงานนำจ่าย          |
+| **พัสดุตีกลับคลัง (RTS)**               | `PROCESSING`              | `CAPTURED`      | `FAILED`           | _-_            | _-_            | ตรวจสอบสินค้าและประสานงานลูกค้า       | เจ้าหน้าที่คลัง        |
+| **ยกเลิกก่อนชำระเงิน / หมดเวลา**        | `CANCELLED`               | `FAILED`        | _-_                | _-_            | _-_            | คืนยอดจอง (`quantityReserved` -)      | ลูกค้า / System Expire |
+| **ยกเลิกหลังชำระเงิน (ก่อนจัดส่ง)**     | `REFUNDED`                | `REFUNDED`      | _-_                | _-_            | `SUCCEEDED`    | คืนสต็อก (`quantityAvailable` +)      | แอดมิน / Gateway       |
+| **ลูกค้าส่งคำขอคืนสินค้า (หลังรับของ)** | `DELIVERED`               | `CAPTURED`      | `DELIVERED`        | `REQUESTED`    | _-_            | สินค้ายังอยู่กับลูกค้า                | ลูกค้า (Storefront)    |
+| **แอดมินอนุมัติคำขอคืนสินค้า**          | `DELIVERED`               | `CAPTURED`      | `DELIVERED`        | `APPROVED`     | _-_            | ลูกค้าเตรียมส่งของคืนคลัง             | แอดมิน Back-Office     |
+| **ตรวจรับของคืนและคืนเงินสำเร็จ**       | `REFUNDED`                | `REFUNDED`      | `DELIVERED`        | `COMPLETED`    | `SUCCEEDED`    | รับของคืน (`StockMovement: RETURNED`) | แอดมิน & Gateway       |
 
 ---
 
@@ -386,7 +390,7 @@ sequenceDiagram
     AdminUI->>AdminAPI: POST /admin/shipments/:shipmentId/update-status
     Note over AdminAPI,DB: อัปเดตสถานะพัสดุ เช่น PICKED_UP -> IN_TRANSIT -> OUT_FOR_DELIVERY -> DELIVERED<br/>หากสถานะเป็น DELIVERED จะเปลี่ยนสถานะ Order เป็น DELIVERED ทันที
     AdminAPI->>DB: บันทึกประวัติไทม์ไลน์ใหม่ลงใน shipment_logs
-    
+
     Customer->>AdminAPI: GET /orders/shipments/track/:trackingNumber
     AdminAPI->>DB: ดึงข้อมูล Shipment พร้อมประวัติ Timeline ทั้งหมด
     AdminAPI-->>Customer: แสดงไทม์ไลน์การเดินทางของพัสดุแบบละเอียด
@@ -471,6 +475,7 @@ sequenceDiagram
 > **Database Readiness Guarantee**: โครงสร้างตารางใน [packages/database/prisma/schema.prisma](file:///packages/database/prisma/schema.prisma) มีโมเดล `Shipment` และ `ShipmentLog` ครบถ้วนตามมาตรฐานสากลแล้ว **ไม่จำเป็นต้องแก้ไข Schema หรือทำการ Database Migration ใดๆ เพิ่มเติม**
 
 ตาราง `shipments` เชื่อมโยงกับ `orders` แบบ $1 : N$ (รองรับกรณีแยกจัดส่งหลายกล่อง):
+
 - **`id`**: รหัส UUID ประจำ Shipment
 - **`orderId`**: รหัส UUID เชื่อมโยงกับคำสั่งซื้อในตาราง `orders`
 - **`courierName`**: ชื่อบริษัทขนส่งพันธมิตร (เช่น `Kerry Express`, `Flash Express`, `Thailand Post EMS`, `DHL Express`)
@@ -482,6 +487,7 @@ sequenceDiagram
 - **`deliveredAt`**: วันเวลาที่ลูกค้าเซ็นรับพัสดุเสร็จสมบูรณ์
 
 ตาราง `shipment_logs` บันทึกประวัติไทม์ไลน์และเหตุการณ์ทุกจุดของการขนส่ง ($1 : N$ กับ `shipments`):
+
 - **`id`**: รหัส UUID ประจำ Log Entry
 - **`shipmentId`**: รหัส UUID ของ `shipments`
 - **`statusTitle`**: หัวข้อสถานะภาษาไทยระดับ Luxury เช่น "สร้างหมายเลขพัสดุเรียบร้อย", "พัสดุถึงศูนย์กระจายสินค้า", "พนักงานกำลังนำจ่ายพัสดุ", "จัดส่งสำเร็จ"
@@ -499,17 +505,17 @@ sequenceDiagram
 
 SHIPPOP มีการส่งสถานะผ่าน 2 ระดับ: **`order_status`** (สถานะหลักของบิล) และ **`state.status`** (รหัสเหตุการณ์ย่อยของขนส่ง):
 
-| ขั้นตอนลอจิสติกส์ | SHIPPOP `order_status` | SHIPPOP `state.status` (Courier Event) | NIDA `ShipmentStatus` | NIDA `OrderStatus` | คำอธิบายและข้อความที่บันทึกลง `ShipmentLog` |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **จองพัสดุสำเร็จ** | `booking` | `000` / `wait_pickup` | `LABEL_CREATED` | `PROCESSING` | "สร้างหมายเลขพัสดุและใบปะหน้ากล่องเรียบร้อย รอนัดรถเข้ารับ" |
-| **ขนส่งเข้ารับพัสดุ** | `shipping` | `010` (Picked Up) | `PICKED_UP` | `SHIPPED` | "บริษัทขนส่งเข้ารับพัสดุจากศูนย์กระจายสินค้า NIDA แล้ว" |
-| **ถึงศูนย์คัดแยก** | `shipping` | `102` (Hub / Transit) | `IN_TRANSIT` | `SHIPPED` | "พัสดุถึงศูนย์คัดแยก [Location] และอยู่ระหว่างส่งต่อ" |
-| **ถึงศูนย์ปลายทาง** | `shipping` | `103` (Destination Station) | `IN_TRANSIT` | `SHIPPED` | "พัสดุถึงศูนย์กระจายสินค้าปลายทาง [Location]" |
-| **กำลังนำจ่าย** | `shipping` | `045` (Out for Delivery) | `OUT_FOR_DELIVERY` | `SHIPPED` | "พนักงานจัดส่งกำลังนำจ่ายพัสดุไปยังที่อยู่ปลายทาง" |
-| **นำจ่ายสำเร็จ** | `complete` | `POD` (Proof of Delivery) | `DELIVERED` | `DELIVERED` | "จัดส่งพัสดุสำเร็จ ลงชื่อรับโดย: [signerTypeText] พร้อมหลักฐานภาพถ่าย" |
-| **มีปัญหาการนำจ่าย** | `problem` | `050` / `contact_fail` / `postpone` | `FAILED` | `SHIPPED` (รอนำจ่ายซ้ำ) | บันทึกสาเหตุจริง (เช่น ติดต่อผู้รับไม่ได้, ลูกค้าขอเลื่อนวัน, ที่อยู่ไม่ชัดเจน) |
-| **พัสดุตีกลับคลัง** | `return` / `return_shipping` | `RTS` (Return to Sender) | `FAILED` | `PROCESSING` | "พัสดุอยู่ระหว่างการส่งตีกลับมายังศูนย์กระจายสินค้า NIDA" |
-| **ยกเลิกพัสดุ** | `cancel` | `999` (Cancelled) | `FAILED` | `PROCESSING` / `REFUNDED` | บันทึก "ยกเลิกหมายเลขพัสดุตามคำขอ" |
+| ขั้นตอนลอจิสติกส์     | SHIPPOP `order_status`       | SHIPPOP `state.status` (Courier Event) | NIDA `ShipmentStatus` | NIDA `OrderStatus`        | คำอธิบายและข้อความที่บันทึกลง `ShipmentLog`                                     |
+| :-------------------- | :--------------------------- | :------------------------------------- | :-------------------- | :------------------------ | :------------------------------------------------------------------------------ |
+| **จองพัสดุสำเร็จ**    | `booking`                    | `000` / `wait_pickup`                  | `LABEL_CREATED`       | `PROCESSING`              | "สร้างหมายเลขพัสดุและใบปะหน้ากล่องเรียบร้อย รอนัดรถเข้ารับ"                     |
+| **ขนส่งเข้ารับพัสดุ** | `shipping`                   | `010` (Picked Up)                      | `PICKED_UP`           | `SHIPPED`                 | "บริษัทขนส่งเข้ารับพัสดุจากศูนย์กระจายสินค้า NIDA แล้ว"                         |
+| **ถึงศูนย์คัดแยก**    | `shipping`                   | `102` (Hub / Transit)                  | `IN_TRANSIT`          | `SHIPPED`                 | "พัสดุถึงศูนย์คัดแยก [Location] และอยู่ระหว่างส่งต่อ"                           |
+| **ถึงศูนย์ปลายทาง**   | `shipping`                   | `103` (Destination Station)            | `IN_TRANSIT`          | `SHIPPED`                 | "พัสดุถึงศูนย์กระจายสินค้าปลายทาง [Location]"                                   |
+| **กำลังนำจ่าย**       | `shipping`                   | `045` (Out for Delivery)               | `OUT_FOR_DELIVERY`    | `SHIPPED`                 | "พนักงานจัดส่งกำลังนำจ่ายพัสดุไปยังที่อยู่ปลายทาง"                              |
+| **นำจ่ายสำเร็จ**      | `complete`                   | `POD` (Proof of Delivery)              | `DELIVERED`           | `DELIVERED`               | "จัดส่งพัสดุสำเร็จ ลงชื่อรับโดย: [signerTypeText] พร้อมหลักฐานภาพถ่าย"          |
+| **มีปัญหาการนำจ่าย**  | `problem`                    | `050` / `contact_fail` / `postpone`    | `FAILED`              | `SHIPPED` (รอนำจ่ายซ้ำ)   | บันทึกสาเหตุจริง (เช่น ติดต่อผู้รับไม่ได้, ลูกค้าขอเลื่อนวัน, ที่อยู่ไม่ชัดเจน) |
+| **พัสดุตีกลับคลัง**   | `return` / `return_shipping` | `RTS` (Return to Sender)               | `FAILED`              | `PROCESSING`              | "พัสดุอยู่ระหว่างการส่งตีกลับมายังศูนย์กระจายสินค้า NIDA"                       |
+| **ยกเลิกพัสดุ**       | `cancel`                     | `999` (Cancelled)                      | `FAILED`              | `PROCESSING` / `REFUNDED` | บันทึก "ยกเลิกหมายเลขพัสดุตามคำขอ"                                              |
 
 ---
 
@@ -526,7 +532,7 @@ sequenceDiagram
 
     Courier->>Shippop: สแกนบาร์โค้ดพัสดุ (เช่น 010 Picked Up, 045 Out for Delivery, POD)
     Shippop->>NidaAPI: POST /api/webhooks/shippop (tracking_code, order_status, states[], pod)
-    
+
     NidaAPI->>DB: ตรวจสอบ Idempotency Key (ป้องกัน Log ซ้ำซ้อน)
     alt เป็น Log ที่เคยบันทึกไปแล้ว (Duplicate Event)
         NidaAPI-->>Shippop: ตอบกลับ 200 OK (Skip Duplicate)
@@ -616,6 +622,7 @@ sequenceDiagram
 ---
 
 ### 6.3 ความปลอดภัยและการจัดการ Webhook Idempotency ของ Omise
+
 - **Webhook Signature Verification**: ตรวจสอบ Header ลายเซ็นดิจิทัลจาก Omise ก่อนอนุญาตให้ Payload เข้าสู่ระบบ
 - **Event Deduplication**: ใช้ฟิลด์ `gateway_event_id` ในตาราง `payments` บันทึกรหัสเหตุการณ์ของ Omise (`evnt_test_...`) เพื่อป้องกันไม่ให้การส่ง Webhook ซ้ำมีผลกระทบต่อยอดเงินหรือสถานะออเดอร์
 - **Graceful Polling Fallback**: หาก Webhook มีการดีเลย์ หน้าร้านสามารถส่งคำขอ `GET /orders/:orderNumber/payment-status` เพื่อให้ระบบไปดึงสถานะล่าสุดจาก Omise API โดยตรงได้
@@ -660,16 +667,16 @@ flowchart TD
 
 ### 7.1 ตารางสรุปการตั้งค่า Environment Variables (`.env`)
 
-| Variable | ค่าที่รองรับ | ค่าเริ่มต้น (Default MVP) | คำอธิบาย |
-| :--- | :--- | :--- | :--- |
-| **`LOGISTICS_PROVIDER`** | `internal` / `shippop` | `internal` | สลับระหว่างระบบจำลองภายใน กับการยิงจองรถจริงผ่าน SHIPPOP |
-| `SHIPPOP_API_KEY` | String | - | API Key สำหรับเรียกใช้งาน SHIPPOP Marketplace API |
-| `SHIPPOP_ENDPOINT_URL` | URL | `https://mkpservice.shippop.com` | Base URL ของ SHIPPOP Production หรือ Sandbox |
-| `SHIPPOP_WEBHOOK_SECRET`| String | - | Secret Key สำหรับตรวจสอบความถูกต้องของ Webhook พัสดุ |
-| **`PAYMENT_GATEWAY_PROVIDER`** | `mock` / `omise` | `mock` | สลับระหว่างระบบจำลองชำระเงิน กับการตัดเงินจริงผ่าน Omise |
-| `OMISE_PUBLIC_KEY` | String (`pkey_...`) | - | Omise Public Key สำหรับ Frontend Tokenization |
-| `OMISE_SECRET_KEY` | String (`skey_...`) | - | Omise Secret Key สำหรับ Backend Charge & Refund API |
-| `OMISE_WEBHOOK_SECRET` | String | - | Secret สำหรับตรวจสอบลายเซ็น Webhook ของ Omise |
+| Variable                       | ค่าที่รองรับ           | ค่าเริ่มต้น (Default MVP)        | คำอธิบาย                                                 |
+| :----------------------------- | :--------------------- | :------------------------------- | :------------------------------------------------------- |
+| **`LOGISTICS_PROVIDER`**       | `internal` / `shippop` | `internal`                       | สลับระหว่างระบบจำลองภายใน กับการยิงจองรถจริงผ่าน SHIPPOP |
+| `SHIPPOP_API_KEY`              | String                 | -                                | API Key สำหรับเรียกใช้งาน SHIPPOP Marketplace API        |
+| `SHIPPOP_ENDPOINT_URL`         | URL                    | `https://mkpservice.shippop.com` | Base URL ของ SHIPPOP Production หรือ Sandbox             |
+| `SHIPPOP_WEBHOOK_SECRET`       | String                 | -                                | Secret Key สำหรับตรวจสอบความถูกต้องของ Webhook พัสดุ     |
+| **`PAYMENT_GATEWAY_PROVIDER`** | `mock` / `omise`       | `mock`                           | สลับระหว่างระบบจำลองชำระเงิน กับการตัดเงินจริงผ่าน Omise |
+| `OMISE_PUBLIC_KEY`             | String (`pkey_...`)    | -                                | Omise Public Key สำหรับ Frontend Tokenization            |
+| `OMISE_SECRET_KEY`             | String (`skey_...`)    | -                                | Omise Secret Key สำหรับ Backend Charge & Refund API      |
+| `OMISE_WEBHOOK_SECRET`         | String                 | -                                | Secret สำหรับตรวจสอบลายเซ็น Webhook ของ Omise            |
 
 ---
 
@@ -738,7 +745,7 @@ export interface ILogisticsProvider {
   getShippingLabelUrl(trackingNumber: string): Promise<string>;
   parseWebhook(
     payload: unknown,
-    headers: Record<string, string | string[] | undefined>
+    headers: Record<string, string | string[] | undefined>,
   ): Promise<ParsedLogisticsWebhook | null>;
 }
 ```
@@ -789,12 +796,14 @@ export interface ParsedPaymentWebhook {
 }
 
 export interface IPaymentGatewayProvider {
-  createPaymentIntent(input: CreatePaymentIntentInput): Promise<CreatePaymentIntentResult>;
+  createPaymentIntent(
+    input: CreatePaymentIntentInput,
+  ): Promise<CreatePaymentIntentResult>;
   checkPaymentStatus(transactionReference: string): Promise<PaymentStatus>;
   createRefund(input: CreateRefundInput): Promise<CreateRefundResult>;
   parseWebhook(
     payload: unknown,
-    headers: Record<string, string | string[] | undefined>
+    headers: Record<string, string | string[] | undefined>,
   ): Promise<ParsedPaymentWebhook | null>;
 }
 ```
@@ -818,17 +827,18 @@ export interface IPaymentGatewayProvider {
 
 ## 8. ความจำเป็นของระบบ Fulfillment & Printing ในคลังสินค้า
 
-| เอกสาร / ฟังก์ชัน | วัตถุประสงค์ในการทำงานจริง | ขนาดมาตรฐาน | ผลกระทบหากไม่มีระบบนี้ |
-| :--- | :--- | :--- | :--- |
-| **ใบปะหน้ากล่อง (Shipping Label)** | แปะหน้ากล่องพัสดุสำหรับเจ้าหน้าที่ขนส่งสแกนรับสินค้า (มีบาร์โค้ด Tracking, ชื่อ-ที่อยู่ผู้ส่ง และผู้รับชัดเจน) | สติกเกอร์ความร้อน $100 \times 150$ มม. (A6) | แอดมินต้องก๊อปปี้ที่อยู่ทีละรายการไปแปะ Word/Excel หรือคีย์มือเข้าเว็บขนส่ง ซึ่งเสียเวลาและเสี่ยงที่อยู่ผิดพลาดสูง |
-| **ใบแจ้งรายการสินค้า (Packing Slip)** | พนักงานคลังใช้หยิบของจากเชลฟ์ (Pick List) และใส่ในกล่องให้ลูกค้าตรวจสอบสินค้าที่ได้รับ | กระดาษ A4 หรือ A5 | พนักงานอาจหยิบสินค้าผิดไซส์/ผิดสี หรือลืมใส่สินค้าให้ครบตามรายการ |
-| **การจัดส่งแบบกลุ่ม (Bulk Fulfill)** | เลือกออเดอร์สถานะ PAID หลายรายการพร้อมกัน แล้วพิมพ์เอกสารและออกเลขอัตโนมัติ | - | หากมี 30-100 ออเดอร์ต่อวัน แอดมินต้องกดเปิดทีละหน้าจอเพื่อใส่เลข Tracking ซึ่งไม่รองรับการเติบโตของธุรกิจ |
+| เอกสาร / ฟังก์ชัน                     | วัตถุประสงค์ในการทำงานจริง                                                                                     | ขนาดมาตรฐาน                                 | ผลกระทบหากไม่มีระบบนี้                                                                                             |
+| :------------------------------------ | :------------------------------------------------------------------------------------------------------------- | :------------------------------------------ | :----------------------------------------------------------------------------------------------------------------- |
+| **ใบปะหน้ากล่อง (Shipping Label)**    | แปะหน้ากล่องพัสดุสำหรับเจ้าหน้าที่ขนส่งสแกนรับสินค้า (มีบาร์โค้ด Tracking, ชื่อ-ที่อยู่ผู้ส่ง และผู้รับชัดเจน) | สติกเกอร์ความร้อน $100 \times 150$ มม. (A6) | แอดมินต้องก๊อปปี้ที่อยู่ทีละรายการไปแปะ Word/Excel หรือคีย์มือเข้าเว็บขนส่ง ซึ่งเสียเวลาและเสี่ยงที่อยู่ผิดพลาดสูง |
+| **ใบแจ้งรายการสินค้า (Packing Slip)** | พนักงานคลังใช้หยิบของจากเชลฟ์ (Pick List) และใส่ในกล่องให้ลูกค้าตรวจสอบสินค้าที่ได้รับ                         | กระดาษ A4 หรือ A5                           | พนักงานอาจหยิบสินค้าผิดไซส์/ผิดสี หรือลืมใส่สินค้าให้ครบตามรายการ                                                  |
+| **การจัดส่งแบบกลุ่ม (Bulk Fulfill)**  | เลือกออเดอร์สถานะ PAID หลายรายการพร้อมกัน แล้วพิมพ์เอกสารและออกเลขอัตโนมัติ                                    | -                                           | หากมี 30-100 ออเดอร์ต่อวัน แอดมินต้องกดเปิดทีละหน้าจอเพื่อใส่เลข Tracking ซึ่งไม่รองรับการเติบโตของธุรกิจ          |
 
 ---
 
 ## 9. ความปลอดภัยและการควบคุมสิทธิ์ (RBAC & Audit Trail)
 
 ตามมาตรฐานความปลอดภัยระดับ Enterprise ของ Nida:
+
 - **สิทธิ์การเข้าถึง**:
   - `ORDERS_READ`: ดูรายการคำสั่งซื้อ รายละเอียด และพิมพ์เอกสาร
   - `ORDERS_FULFILL`: ออกเลขพัสดุ เปลี่ยนสถานะการจัดส่ง และจัดการพัสดุ
@@ -839,23 +849,23 @@ export interface IPaymentGatewayProvider {
 
 ## 10. สรุป Endpoint สำคัญที่เกี่ยวข้องทั้งหมด
 
-| Method | Endpoint | สิทธิ์ที่ต้องใช้ | หน้าที่การทำงาน |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/checkout/calculate` | Public / Customer | คำนวณยอดเงิน ค่าจัดส่ง และส่วนลด |
-| `POST` | `/orders` | Public / Customer | สร้างคำสั่งซื้อใหม่และตัดสต็อก (พร้อมรองรับ Omise Source/Token) |
-| `GET` | `/store/orders/my-orders` | Customer (JWT) | ดึงประวัติคำสั่งซื้อทั้งหมดของลูกค้าที่ล็อกอินอยู่ |
-| `POST` | `/orders/track` | Public | ค้นหาข้อมูลพัสดุและไทม์ไลน์ด้วย Order Number + เบอร์โทรศัพท์ |
-| `GET` | `/orders/shipments/track/:trackingNumber` | Public | ลูกค้าตรวจสอบสถานะพัสดุและไทม์ไลน์ด้วยเลข Tracking |
-| `GET` | `/admin/orders` | `ORDERS_READ` | ดึงรายการคำสั่งซื้อทั้งหมดสำหรับแอดมิน |
-| `GET` | `/admin/orders/:orderNumber` | `ORDERS_READ` | ดูรายละเอียดคำสั่งซื้อเดี่ยว พร้อมรายการสินค้าและที่อยู่ |
-| `POST` | `/admin/orders/:id/fulfill` | `ORDERS_FULFILL` | ยืนยันจัดส่ง สร้าง Shipment และเปลี่ยนสถานะเป็น `SHIPPED` |
-| `POST` | `/admin/shipments/:id/update-status` | `ORDERS_FULFILL` | อัปเดตสถานะพัสดุและไทม์ไลน์การเดินทางแบบแมนนวล |
-| `POST` | `/api/webhooks/shippop` | Public (Token) | รับสถานะ Real-time จากขนส่งผ่าน SHIPPOP และบันทึก Log ไทม์ไลน์ |
-| `POST` | `/api/webhooks/omise` | Public (Signature) | รับแจ้งผลการชำระเงิน (`charge.complete`) จาก Omise Gateway |
-| `POST` | `/orders/:orderNumber/return` | Customer | ลูกค้าส่งคำขอคืนสินค้า (Return Request) พร้อมรูปหลักฐาน |
-| `GET` | `/admin/returns` | `ORDERS_READ` | ดึงรายการคำขอคืนสินค้าทั้งหมดสำหรับแอดมิน |
-| `POST` | `/admin/returns/:id/review` | `ORDERS_FULFILL` | แอดมินอนุมัติหรือปฏิเสธคำขอคืนสินค้า |
-| `POST` | `/admin/orders/:id/refund` | `ORDERS_FULFILL` | ดำเนินการคืนเงินผ่าน Omise Gateway API พร้อมปรับยอดสต็อกและแต้ม |
+| Method | Endpoint                                  | สิทธิ์ที่ต้องใช้   | หน้าที่การทำงาน                                                 |
+| :----- | :---------------------------------------- | :----------------- | :-------------------------------------------------------------- |
+| `POST` | `/checkout/calculate`                     | Public / Customer  | คำนวณยอดเงิน ค่าจัดส่ง และส่วนลด                                |
+| `POST` | `/orders`                                 | Public / Customer  | สร้างคำสั่งซื้อใหม่และตัดสต็อก (พร้อมรองรับ Omise Source/Token) |
+| `GET`  | `/store/orders/my-orders`                 | Customer (JWT)     | ดึงประวัติคำสั่งซื้อทั้งหมดของลูกค้าที่ล็อกอินอยู่              |
+| `POST` | `/orders/track`                           | Public             | ค้นหาข้อมูลพัสดุและไทม์ไลน์ด้วย Order Number + เบอร์โทรศัพท์    |
+| `GET`  | `/orders/shipments/track/:trackingNumber` | Public             | ลูกค้าตรวจสอบสถานะพัสดุและไทม์ไลน์ด้วยเลข Tracking              |
+| `GET`  | `/admin/orders`                           | `ORDERS_READ`      | ดึงรายการคำสั่งซื้อทั้งหมดสำหรับแอดมิน                          |
+| `GET`  | `/admin/orders/:orderNumber`              | `ORDERS_READ`      | ดูรายละเอียดคำสั่งซื้อเดี่ยว พร้อมรายการสินค้าและที่อยู่        |
+| `POST` | `/admin/orders/:id/fulfill`               | `ORDERS_FULFILL`   | ยืนยันจัดส่ง สร้าง Shipment และเปลี่ยนสถานะเป็น `SHIPPED`       |
+| `POST` | `/admin/shipments/:id/update-status`      | `ORDERS_FULFILL`   | อัปเดตสถานะพัสดุและไทม์ไลน์การเดินทางแบบแมนนวล                  |
+| `POST` | `/api/webhooks/shippop`                   | Public (Token)     | รับสถานะ Real-time จากขนส่งผ่าน SHIPPOP และบันทึก Log ไทม์ไลน์  |
+| `POST` | `/api/webhooks/omise`                     | Public (Signature) | รับแจ้งผลการชำระเงิน (`charge.complete`) จาก Omise Gateway      |
+| `POST` | `/orders/:orderNumber/return`             | Customer           | ลูกค้าส่งคำขอคืนสินค้า (Return Request) พร้อมรูปหลักฐาน         |
+| `GET`  | `/admin/returns`                          | `ORDERS_READ`      | ดึงรายการคำขอคืนสินค้าทั้งหมดสำหรับแอดมิน                       |
+| `POST` | `/admin/returns/:id/review`               | `ORDERS_FULFILL`   | แอดมินอนุมัติหรือปฏิเสธคำขอคืนสินค้า                            |
+| `POST` | `/admin/orders/:id/refund`                | `ORDERS_FULFILL`   | ดำเนินการคืนเงินผ่าน Omise Gateway API พร้อมปรับยอดสต็อกและแต้ม |
 
 ---
 
@@ -871,5 +881,3 @@ export interface IPaymentGatewayProvider {
    - แสดงสถานะแบบเรียลไทม์ พร้อมรายการสินค้าแต่ละชิ้น และปุ่มกดเปิดดู Tracking ได้ทันที
 3. **การทำงานร่วมกับ SHIPPOP และ Omise โดยไม่ต้องรอการเชื่อมต่อภายนอก**:
    - หน้าร้านทั้ง 2 หน้ารวมถึงหน้า Checkout สามารถทดสอบการทำงานได้อย่างสมบูรณ์แบบทันทีผ่าน `internal` / `mock` provider และพร้อมสลับไปใช้ Production Gateway ทันทีเพียงเปลี่ยนตัวแปรใน `.env`
-
-

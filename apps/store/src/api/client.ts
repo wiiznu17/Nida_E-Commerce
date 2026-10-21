@@ -31,7 +31,13 @@ async function request<T>(
   endpoint: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { params, headers = {}, token: explicitToken, _isRetry, ...rest } = options;
+  const {
+    params,
+    headers = {},
+    token: explicitToken,
+    _isRetry,
+    ...rest
+  } = options;
 
   let url = endpoint.startsWith('http')
     ? endpoint
@@ -79,7 +85,9 @@ async function request<T>(
       !url.includes('/auth/verify-otp') &&
       typeof window !== 'undefined'
     ) {
-      const storedRefreshToken = localStorage.getItem('nida_customer_refresh_token');
+      const storedRefreshToken = localStorage.getItem(
+        'nida_customer_refresh_token',
+      );
       if (storedRefreshToken) {
         try {
           const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
@@ -92,12 +100,22 @@ async function request<T>(
             const rawJson = await refreshRes.json();
             const unwrap =
               rawJson && typeof rawJson === 'object' && 'data' in rawJson
-                ? (rawJson as { data: { accessToken: string; refreshToken: string } }).data
+                ? (
+                    rawJson as {
+                      data: { accessToken: string; refreshToken: string };
+                    }
+                  ).data
                 : (rawJson as { accessToken: string; refreshToken: string });
 
             if (unwrap?.accessToken && unwrap?.refreshToken) {
-              localStorage.setItem('nida_customer_jwt_token', unwrap.accessToken);
-              localStorage.setItem('nida_customer_refresh_token', unwrap.refreshToken);
+              localStorage.setItem(
+                'nida_customer_jwt_token',
+                unwrap.accessToken,
+              );
+              localStorage.setItem(
+                'nida_customer_refresh_token',
+                unwrap.refreshToken,
+              );
 
               // Retry original request with newly rotated token
               return await request<T>(endpoint, {
@@ -157,7 +175,10 @@ async function request<T>(
       const errorObj = bodyData as Record<string, unknown>;
       if (typeof errorObj.message === 'string') {
         errorMessage = errorObj.message;
-      } else if (Array.isArray(errorObj.message) && errorObj.message.length > 0) {
+      } else if (
+        Array.isArray(errorObj.message) &&
+        errorObj.message.length > 0
+      ) {
         errorMessage = String(errorObj.message[0]);
       }
     }

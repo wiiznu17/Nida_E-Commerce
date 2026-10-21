@@ -36,7 +36,11 @@ describe('CustomerCatalogService', () => {
         department: Department.MEN,
       },
       images: [
-        { imageUrl: 'https://example.com/polo.jpg', isPrimary: true, displayOrder: 0 },
+        {
+          imageUrl: 'https://example.com/polo.jpg',
+          isPrimary: true,
+          displayOrder: 0,
+        },
       ],
       variants: [
         {
@@ -67,7 +71,9 @@ describe('CustomerCatalogService', () => {
       },
     };
 
-    service = new CustomerCatalogService(prismaMock as unknown as PrismaService);
+    service = new CustomerCatalogService(
+      prismaMock as unknown as PrismaService,
+    );
   });
 
   describe('getProducts', () => {
@@ -102,7 +108,12 @@ describe('CustomerCatalogService', () => {
                 { department: Department.MEN },
                 expect.objectContaining({
                   OR: expect.arrayContaining([
-                    { name: { contains: 'Polos & T-Shirts', mode: 'insensitive' } },
+                    {
+                      name: {
+                        contains: 'Polos & T-Shirts',
+                        mode: 'insensitive',
+                      },
+                    },
                   ]),
                 }),
               ]),
@@ -111,7 +122,7 @@ describe('CustomerCatalogService', () => {
           orderBy: { basePrice: 'asc' },
           skip: 0,
           take: 12,
-        })
+        }),
       );
     });
 
@@ -120,7 +131,7 @@ describe('CustomerCatalogService', () => {
       expect(prismaMock.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           orderBy: { createdAt: 'desc' },
-        })
+        }),
       );
     });
   });

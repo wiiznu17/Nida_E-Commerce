@@ -18,7 +18,10 @@ export function isOneSizeProduct(
     const uniqueSizes = Array.from(
       new Set(product.variants.map((v) => v.size).filter(Boolean)),
     );
-    if (uniqueSizes.length === 1 && uniqueSizes[0]?.toLowerCase() === 'one size') {
+    if (
+      uniqueSizes.length === 1 &&
+      uniqueSizes[0]?.toLowerCase() === 'one size'
+    ) {
       return true;
     }
     if (
@@ -30,8 +33,15 @@ export function isOneSizeProduct(
   }
 
   // 2. Explicit sizes array (ApiProduct)
-  if ('sizes' in product && Array.isArray(product.sizes) && product.sizes.length > 0) {
-    if (product.sizes.length === 1 && product.sizes[0]?.toLowerCase() === 'one size') {
+  if (
+    'sizes' in product &&
+    Array.isArray(product.sizes) &&
+    product.sizes.length > 0
+  ) {
+    if (
+      product.sizes.length === 1 &&
+      product.sizes[0]?.toLowerCase() === 'one size'
+    ) {
       return true;
     }
     if (!product.sizes.some((s) => s.toLowerCase() !== 'one size')) {
@@ -106,7 +116,11 @@ export function getProductSizes(
   }
 
   // 2. From sizes array (ApiProduct)
-  if ('sizes' in product && Array.isArray(product.sizes) && product.sizes.length > 0) {
+  if (
+    'sizes' in product &&
+    Array.isArray(product.sizes) &&
+    product.sizes.length > 0
+  ) {
     return product.sizes;
   }
 

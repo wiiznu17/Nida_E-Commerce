@@ -163,7 +163,9 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
                 </span>
                 <div className="space-y-1">
                   {req.items.map((item) => {
-                    const matched = order.items.find((i) => i.id === item.orderItemId);
+                    const matched = order.items.find(
+                      (i) => i.id === item.orderItemId,
+                    );
                     return (
                       <div
                         key={item.id}
@@ -216,16 +218,17 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
                       </span>
                     </div>
                   )}
-                  {req.returnShippingFee !== undefined && req.returnShippingFee > 0 && (
-                    <div>
-                      <span className="block text-[10px] text-stone-400 font-bold uppercase">
-                        {t('orders.return.shippingFeeLabel')}
-                      </span>
-                      <span className="font-mono font-bold text-emerald-700 text-xs">
-                        {formatPrice(req.returnShippingFee)}
-                      </span>
-                    </div>
-                  )}
+                  {req.returnShippingFee !== undefined &&
+                    req.returnShippingFee > 0 && (
+                      <div>
+                        <span className="block text-[10px] text-stone-400 font-bold uppercase">
+                          {t('orders.return.shippingFeeLabel')}
+                        </span>
+                        <span className="font-mono font-bold text-emerald-700 text-xs">
+                          {formatPrice(req.returnShippingFee)}
+                        </span>
+                      </div>
+                    )}
                   {req.returnShippingReceiptUrl && (
                     <div className="col-span-2">
                       <span className="block text-[10px] text-stone-400 font-bold uppercase mb-0.5">
@@ -278,20 +281,26 @@ export const OrderReturnSection: React.FC<OrderReturnSectionProps> = ({
                 ) : (
                   <div className="flex items-center space-x-1.5 text-[11px] text-purple-900 bg-purple-50 px-2.5 py-1.5 rounded-xs border border-purple-200">
                     <Truck className="w-3.5 h-3.5 shrink-0 text-purple-700" />
-                    <span>{t('orders.return.parcelDeliveredForInspection')}</span>
+                    <span>
+                      {t('orders.return.parcelDeliveredForInspection')}
+                    </span>
                   </div>
                 )}
 
                 <button
                   type="button"
-                  disabled={req.status !== 'SHIPPED' || !req.returnTrackingNumber}
+                  disabled={
+                    req.status !== 'SHIPPED' || !req.returnTrackingNumber
+                  }
                   onClick={() =>
                     setInspectModal({
                       id: req.id,
                       maxAmount: order.totalAmount,
                       amount: (
                         order.totalAmount +
-                        (req.returnShippingFee ? Number(req.returnShippingFee) : 0)
+                        (req.returnShippingFee
+                          ? Number(req.returnShippingFee)
+                          : 0)
                       ).toString(),
                       adminNote: '',
                       restock: true,

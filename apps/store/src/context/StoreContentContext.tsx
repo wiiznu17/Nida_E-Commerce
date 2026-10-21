@@ -28,8 +28,7 @@ const defaultStoreSettings: ApiStoreSettings = {
   announcementActive: true,
   announcementTextTh:
     'FALL SALE: รับส่วนลดสูงสุด 50% | ส่งฟรีเมื่อช้อปครบ ฿1,000',
-  announcementTextEn:
-    'FALL SALE: UP TO 50% OFF | FREE SHIPPING OVER ฿1,000',
+  announcementTextEn: 'FALL SALE: UP TO 50% OFF | FREE SHIPPING OVER ฿1,000',
   announcementBadgeTh: 'LIMITED OFFER',
   announcementBadgeEn: 'LIMITED OFFER',
   announcementLink: '/collections',
@@ -44,7 +43,9 @@ const StoreContentContext = createContext<StoreContentContextType | undefined>(
 
 export function StoreContentProvider({ children }: { children: ReactNode }) {
   const [heroBanners, setHeroBanners] = useState<ApiCmsBanner[]>([]);
-  const [seasonalSpotlights, setSeasonalSpotlights] = useState<ApiCmsBanner[]>([]);
+  const [seasonalSpotlights, setSeasonalSpotlights] = useState<ApiCmsBanner[]>(
+    [],
+  );
   const [promoRibbon, setPromoRibbon] = useState<ApiCmsBanner | null>(null);
   const [storeSettings, setStoreSettings] =
     useState<ApiStoreSettings>(defaultStoreSettings);
@@ -64,7 +65,10 @@ export function StoreContentProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (err: unknown) {
-      console.warn('StoreContentProvider: Failed to load dynamic content, using defaults', err);
+      console.warn(
+        'StoreContentProvider: Failed to load dynamic content, using defaults',
+        err,
+      );
     } finally {
       setIsLoading(false);
     }

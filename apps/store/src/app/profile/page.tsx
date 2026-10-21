@@ -57,10 +57,7 @@ export default function ProfilePage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <ProfileNavigation
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
+        <ProfileNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="col-span-1 md:col-span-9 bg-white border border-gray-200 p-6 sm:p-8">
           {activeTab === 'profile' && (
@@ -75,12 +72,8 @@ export default function ProfilePage() {
             />
           )}
 
-
           {activeTab === 'orders' && (
-            <ProfileOrdersTab
-              orders={orders}
-              isLoading={isOrdersLoading}
-            />
+            <ProfileOrdersTab orders={orders} isLoading={isOrdersLoading} />
           )}
 
           {activeTab === 'addresses' && (

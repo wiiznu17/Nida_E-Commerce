@@ -192,7 +192,6 @@ export default function AdminInventoryAudit() {
       }
     >
       <div className="space-y-4">
-
         {/* Filter and Search Bar (Styled like ProductListFilters) */}
         <div className="bg-white border border-brand-border p-4 space-y-3.5 shadow-2xs rounded-xs">
           {/* Top Row: Movement Type Tabs */}

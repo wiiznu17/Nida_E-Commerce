@@ -276,4 +276,3 @@ export class UpdateProductStatusDto {
   @IsBoolean()
   isActive: boolean;
 }
-

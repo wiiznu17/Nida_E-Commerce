@@ -827,20 +827,18 @@ export class OrdersService {
           createdAt: r.createdAt.toISOString(),
         }),
       ),
-      refunds: (order.refunds ?? []).map(
-        (rf): ApiRefundSummary => ({
-          id: rf.id,
-          refundNumber: rf.refundNumber,
-          orderId: rf.orderId,
-          paymentId: rf.paymentId,
-          amount: Number(rf.amount),
-          reason: rf.reason ?? undefined,
-          gatewayRefundId: rf.gatewayRefundId ?? undefined,
-          status: rf.status,
-          createdAdminId: rf.createdAdminId ?? undefined,
-          createdAt: rf.createdAt.toISOString(),
-        }),
-      ),
+      refunds: (order.refunds ?? []).map((rf): ApiRefundSummary => ({
+        id: rf.id,
+        refundNumber: rf.refundNumber,
+        orderId: rf.orderId,
+        paymentId: rf.paymentId,
+        amount: Number(rf.amount),
+        reason: rf.reason ?? undefined,
+        gatewayRefundId: rf.gatewayRefundId ?? undefined,
+        status: rf.status,
+        createdAdminId: rf.createdAdminId ?? undefined,
+        createdAt: rf.createdAt.toISOString(),
+      })),
       placedAt: order.placedAt.toISOString(),
       completedAt: order.completedAt ? order.completedAt.toISOString() : null,
     };
@@ -852,9 +850,13 @@ export class OrdersService {
     adminId?: string,
   ): Promise<ApiOrder> {
     const isUuid =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        id,
+      );
     const order = await this.prisma.order.findFirst({
-      where: isUuid ? { OR: [{ id }, { orderNumber: id }] } : { orderNumber: id },
+      where: isUuid
+        ? { OR: [{ id }, { orderNumber: id }] }
+        : { orderNumber: id },
       include: {
         payment: true,
         items: {
@@ -881,7 +883,9 @@ export class OrdersService {
       order.status === OrderStatus.REFUNDED &&
       order.payment.status === PaymentStatus.REFUNDED
     ) {
-      throw new BadRequestException('คำสั่งซื้อนี้ได้รับการคืนเงินเต็มจำนวนไปแล้ว');
+      throw new BadRequestException(
+        'คำสั่งซื้อนี้ได้รับการคืนเงินเต็มจำนวนไปแล้ว',
+      );
     }
 
     const totalPaid = Number(order.payment.amount);
@@ -916,7 +920,9 @@ export class OrdersService {
     }
 
     await this.prisma.$transaction(async (tx) => {
-      const refundCount = await tx.refund.count({ where: { orderId: order.id } });
+      const refundCount = await tx.refund.count({
+        where: { orderId: order.id },
+      });
       const refundNumber = `REF-${order.orderNumber}-${refundCount + 1}`;
 
       await tx.refund.create({
@@ -990,8 +996,13 @@ export class OrdersService {
         );
 
         if (earnedTx && !alreadyReversed && earnedTx.pointsChange > 0) {
-          const user = await tx.user.findUnique({ where: { id: order.userId } });
-          const newBalance = Math.max(0, (user?.points ?? 0) - earnedTx.pointsChange);
+          const user = await tx.user.findUnique({
+            where: { id: order.userId },
+          });
+          const newBalance = Math.max(
+            0,
+            (user?.points ?? 0) - earnedTx.pointsChange,
+          );
 
           await tx.user.update({
             where: { id: order.userId },
@@ -1155,7 +1166,9 @@ export class OrdersService {
     });
 
     if (!request) {
-      throw new NotFoundException(`Cancellation request "${requestId}" not found`);
+      throw new NotFoundException(
+        `Cancellation request "${requestId}" not found`,
+      );
     }
 
     if (request.status !== 'PENDING') {
@@ -1172,7 +1185,9 @@ export class OrdersService {
           reviewedBy: adminId ?? null,
         },
       });
-      await this.orderLifecycleProducer.cancelCancellationReviewTimeout(requestId);
+      await this.orderLifecycleProducer.cancelCancellationReviewTimeout(
+        requestId,
+      );
       return { success: true, message: 'ปฏิเสธคำขอยกเลิกเรียบร้อย' };
     }
 
@@ -1186,7 +1201,9 @@ export class OrdersService {
       },
     });
 
-    await this.orderLifecycleProducer.cancelCancellationReviewTimeout(requestId);
+    await this.orderLifecycleProducer.cancelCancellationReviewTimeout(
+      requestId,
+    );
 
     await this.processRefund(
       request.orderId,
@@ -1197,7 +1214,10 @@ export class OrdersService {
       adminId,
     );
 
-    return { success: true, message: 'อนุมัติคำขอยกเลิกและดำเนินการคืนเงินสำเร็จ' };
+    return {
+      success: true,
+      message: 'อนุมัติคำขอยกเลิกและดำเนินการคืนเงินสำเร็จ',
+    };
   }
 
   async getReturnRequests(
@@ -1294,7 +1314,9 @@ export class OrdersService {
         status: r.status as ReturnStatus,
         returnCarrier: r.returnCarrier ?? undefined,
         returnTrackingNumber: r.returnTrackingNumber ?? undefined,
-        returnShippingFee: r.returnShippingFee ? Number(r.returnShippingFee) : undefined,
+        returnShippingFee: r.returnShippingFee
+          ? Number(r.returnShippingFee)
+          : undefined,
         returnShippingReceiptUrl: r.returnShippingReceiptUrl ?? undefined,
         shippedAt: r.shippedAt?.toISOString(),
         reviewedAt: r.reviewedAt?.toISOString(),
@@ -1389,7 +1411,10 @@ export class OrdersService {
         request.order.orderNumber,
         ORDER_TIMEOUT_MS.RETURN_SHIPMENT_DEADLINE,
       );
-      return { success: true, message: 'อนุมัติคำขอคืนสินค้า ลูกค้าสามารถส่งสินค้ากลับได้' };
+      return {
+        success: true,
+        message: 'อนุมัติคำขอคืนสินค้า ลูกค้าสามารถส่งสินค้ากลับได้',
+      };
     }
 
     if (!request.returnTrackingNumber || request.status !== 'SHIPPED') {
@@ -1411,13 +1436,14 @@ export class OrdersService {
     await this.orderLifecycleProducer.cancelReturnDeadline(requestId);
 
     const itemsTotal = (request.items ?? []).reduce(
-      (sum, item) => sum + Number(item.orderItem?.unitPrice ?? 0) * item.quantity,
+      (sum, item) =>
+        sum + Number(item.orderItem?.unitPrice ?? 0) * item.quantity,
       0,
     );
     const shippingFee = request.returnShippingFee
       ? Number(request.returnShippingFee)
       : 0;
-    const finalRefundAmount = dto.refundAmount ?? (itemsTotal + shippingFee);
+    const finalRefundAmount = dto.refundAmount ?? itemsTotal + shippingFee;
 
     await this.processRefund(
       request.orderId,
@@ -1429,7 +1455,10 @@ export class OrdersService {
       adminId,
     );
 
-    return { success: true, message: 'ตรวจรับสินค้าคืนและดำเนินการคืนเงินสำเร็จ' };
+    return {
+      success: true,
+      message: 'ตรวจรับสินค้าคืนและดำเนินการคืนเงินสำเร็จ',
+    };
   }
 
   private mapShipment(shipment: ShipmentWithLogs): ApiShipment {

@@ -15,5 +15,3 @@ export * from './CustomerAcceptDeliveryModal';
 export * from './CustomerOrderCancellationCard';
 export * from './CustomerOrderReturnCard';
 export * from './ReturnShipmentModal';
-
-

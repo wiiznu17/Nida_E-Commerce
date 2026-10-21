@@ -68,7 +68,9 @@ export function ApiErrorModal({
 
           {/* Primary Error Message Card */}
           <div className="mt-5 p-3.5 bg-rose-50/80 border border-rose-200 rounded-lg text-xs text-rose-900 leading-relaxed">
-            <div className="font-semibold">{errorMessage ?? t('common.apiErrorDesc')}</div>
+            <div className="font-semibold">
+              {errorMessage ?? t('common.apiErrorDesc')}
+            </div>
           </div>
 
           {/* Granular Validation Details (if available) */}

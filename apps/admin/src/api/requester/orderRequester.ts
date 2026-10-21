@@ -44,7 +44,9 @@ export const orderRequester = {
     if (params?.page) sp.set('page', params.page.toString());
     if (params?.pageSize) sp.set('pageSize', params.pageSize.toString());
     const query = sp.toString() ? `?${sp.toString()}` : '';
-    const data = await apiClient.get<PaginatedOrdersResponse>(`/orders${query}`);
+    const data = await apiClient.get<PaginatedOrdersResponse>(
+      `/orders${query}`,
+    );
     return data;
   },
 
@@ -172,5 +174,3 @@ export const orderRequester = {
 };
 
 export const ordersApi = orderRequester;
-
-

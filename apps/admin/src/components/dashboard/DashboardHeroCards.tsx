@@ -1,5 +1,12 @@
 import { Link } from 'react-router-dom';
-import { DollarSign, ShoppingBag, ArrowUpRight, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import {
+  DollarSign,
+  ShoppingBag,
+  ArrowUpRight,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatPrice } from '../../utils';
 import type { AnalyticsOverviewDto } from '@repo/types';
@@ -17,7 +24,11 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
       <div className="bg-brand-brown text-white p-5 sm:p-6 shadow-sm relative overflow-hidden flex flex-col justify-between">
         {/* Subtle decorative vector mesh line */}
         <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 pointer-events-none">
-          <svg viewBox="0 0 200 100" className="w-full h-full preserve-3d" fill="none">
+          <svg
+            viewBox="0 0 200 100"
+            className="w-full h-full preserve-3d"
+            fill="none"
+          >
             <path
               d="M0 80 Q 50 20, 100 60 T 200 10"
               stroke="white"

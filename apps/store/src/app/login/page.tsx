@@ -166,9 +166,7 @@ function LoginFormContent() {
 export default function LoginPage() {
   return (
     <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-brand-warm-cream font-sans">
-      <Suspense
-        fallback={<LoadingSpinner className="p-12" />}
-      >
+      <Suspense fallback={<LoadingSpinner className="p-12" />}>
         <LoginFormContent />
       </Suspense>
     </div>

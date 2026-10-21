@@ -27,7 +27,8 @@ export function ChangePaymentMethodModal({
   error,
 }: ChangePaymentMethodModalProps) {
   const { language } = useLanguage();
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(currentMethod);
+  const [selectedMethod, setSelectedMethod] =
+    useState<PaymentMethod>(currentMethod);
 
   if (!isOpen) return null;
 
@@ -68,7 +69,9 @@ export function ChangePaymentMethodModal({
         <div className="flex items-center justify-between p-5 border-b border-stone-200 bg-stone-50/70">
           <div>
             <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
-              {language === 'th' ? 'เปลี่ยนช่องทางการชำระเงิน' : 'Change Payment Method'}
+              {language === 'th'
+                ? 'เปลี่ยนช่องทางการชำระเงิน'
+                : 'Change Payment Method'}
             </h3>
             <p className="text-[11px] text-stone-500 font-mono mt-0.5">
               #{orderNumber} • ฿{Number(totalAmount).toLocaleString()}

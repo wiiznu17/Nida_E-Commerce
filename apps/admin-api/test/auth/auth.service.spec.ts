@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuthService } from '../../src/modules/auth/auth.service.js';
-import {
-  UnauthorizedException,
-  HttpException,
-} from '@nestjs/common';
+import { UnauthorizedException, HttpException } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { RedisService } from '../../src/core/redis/redis.service.js';

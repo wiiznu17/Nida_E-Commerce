@@ -3,7 +3,11 @@ import { ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { MARKETING_TAGS } from '@repo/types';
 import { useLanguage } from '@/context/LanguageContext';
 import type { CatalogFilterSidebarProps } from './catalogTypes';
-import { STANDARD_DEPARTMENTS, DEPARTMENT_LABELS, PRICE_OPTIONS } from './catalogConstants';
+import {
+  STANDARD_DEPARTMENTS,
+  DEPARTMENT_LABELS,
+  PRICE_OPTIONS,
+} from './catalogConstants';
 
 export function CatalogFilterSidebar({
   filters,
@@ -42,7 +46,8 @@ export function CatalogFilterSidebar({
       {activeFilterCount > 0 && (
         <div className="pb-4 border-b border-brand-border flex items-center justify-between">
           <span className="text-xs font-bold text-brand-brown">
-            {activeFilterCount} {language === 'th' ? 'ตัวกรองที่เลือก' : 'Filters Active'}
+            {activeFilterCount}{' '}
+            {language === 'th' ? 'ตัวกรองที่เลือก' : 'Filters Active'}
           </span>
           <button
             type="button"
@@ -63,19 +68,22 @@ export function CatalogFilterSidebar({
           className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-brand-brown py-1 text-left cursor-pointer"
         >
           <span>{t('search.gender')}</span>
-          {openSections.gender ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {openSections.gender ? (
+            <ChevronUp size={16} />
+          ) : (
+            <ChevronDown size={16} />
+          )}
         </button>
         {openSections.gender && (
           <div className="mt-3 space-y-2">
             {departmentsToRender.map((dept) => {
               const normalized = dept.toLowerCase();
               const isChecked = filters.departments.includes(normalized);
-              const label =
-                DEPARTMENT_LABELS[normalized]
-                  ? language === 'th'
-                    ? DEPARTMENT_LABELS[normalized].th
-                    : DEPARTMENT_LABELS[normalized].en
-                  : dept;
+              const label = DEPARTMENT_LABELS[normalized]
+                ? language === 'th'
+                  ? DEPARTMENT_LABELS[normalized].th
+                  : DEPARTMENT_LABELS[normalized].en
+                : dept;
 
               return (
                 <label
@@ -105,7 +113,11 @@ export function CatalogFilterSidebar({
             className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-brand-brown py-1 text-left cursor-pointer"
           >
             <span>{t('search.category')}</span>
-            {openSections.category ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {openSections.category ? (
+              <ChevronUp size={16} />
+            ) : (
+              <ChevronDown size={16} />
+            )}
           </button>
           {openSections.category && (
             <div className="mt-3 space-y-2 max-h-56 overflow-y-auto pr-1">
@@ -140,7 +152,11 @@ export function CatalogFilterSidebar({
           className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-brand-brown py-1 text-left cursor-pointer"
         >
           <span>{t('search.price')}</span>
-          {openSections.price ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {openSections.price ? (
+            <ChevronUp size={16} />
+          ) : (
+            <ChevronDown size={16} />
+          )}
         </button>
         {openSections.price && (
           <div className="mt-3 space-y-2">
@@ -183,7 +199,11 @@ export function CatalogFilterSidebar({
             {t('search.productBadges') ??
               (language === 'th' ? 'ป้ายสินค้า' : 'Product Badges')}
           </span>
-          {openSections.badges ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {openSections.badges ? (
+            <ChevronUp size={16} />
+          ) : (
+            <ChevronDown size={16} />
+          )}
         </button>
         {openSections.badges && (
           <div className="mt-3 space-y-2">

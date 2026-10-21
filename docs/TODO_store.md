@@ -6,19 +6,19 @@
 
 ## 📊 สถานะปัจจุบันของหน้าร้าน (Current Storefront Status)
 
-| ระบบ / ฟังก์ชันหน้าร้าน | สถานะหน้า UI (`apps/store`) | การเชื่อมต่อ Backend Database | สถานะภาพรวม |
-| :--- | :---: | :---: | :--- |
-| **หมวดหมู่สินค้า & เมนู (Category Navigation)** | ✅ Mega Menu สวยงาม / ตัวกรอง 2 ภาษา | ✅ เชื่อมต่อ API หมวดหมู่สดจาก DB (`GET /api/v1/catalog/categories`) | **เสร็จสมบูรณ์ (Production Ready)** |
-| **แคตตาล็อกสินค้า (Product Browsing)** | ✅ หน้ารวม & แยกตามแผนก | ✅ เชื่อมต่อ API สินค้าจริง (`GET /api/v1/catalog/products`) | **เสร็จสมบูรณ์ (Production Ready)** |
-| **หน้ารายละเอียดสินค้า (PDP)** | ✅ เลือกสี / ไซส์ / แกลเลอรีรูปภาพ | ✅ เชื่อมต่อ SKU Matrix & รูปภาพจริง (`GET /api/v1/catalog/products/:slugOrId`) | **เสร็จสมบูรณ์ (Production Ready)** |
-| **ตะกร้าสินค้า (Cart Drawer)** | ✅ ป๊อปอัปตะกร้า / เพิ่ม-ลดจำนวน | ❌ เก็บเฉพาะ React State ในแรม | **เป้าหมายเฟส 3 (Persistent & Stock Check)** |
-| **ระบบสมาชิก & ยืนยัน OTP (Customer Auth)** | ✅ หน้า Login / Register / OTP | ⚠️ มี Mock Auth / รอเชื่อม API สมบูรณ์ | **เป้าหมายเฟส 3 (OTP & JWT Cookie)** |
-| **ระบบสั่งซื้อ & เช็คเอาต์ (Checkout)** | ✅ กรอกที่อยู่ / เลือกวิธีชำระเงิน | ❌ ยังไม่ได้ยิง API สร้าง Order จริง | **เป้าหมายเฟส 3 (Real Order & ตัดสต็อก)** |
-| **ติดตามพัสดุ (Track Order)** | ✅ หน้าค้นหาเลขพัสดุ & Timeline | ✅ เชื่อมต่อ API พัสดุจริง (`GET /api/v1/orders/:number/tracking`) | **เสร็จสมบูรณ์ (Production Ready)** |
-| **รายละเอียดออเดอร์ & ยกเลิกเอง (Order Detail & Self-Cancel)** | ✅ หน้าจอ Editorial Luxury Grid (`/profile/orders/[orderNumber]`) | ✅ เชื่อมต่อ API ยกเลิกออเดอร์และ Audit Trail | **เสร็จสมบูรณ์ (Production Ready)** |
-| **การคืนสินค้าและคืนเงิน (Return & Refund)** | ✅ รองรับครบ 3 เคสทางธุรกิจ พร้อมโมดอลขอคืนสินค้า | ✅ เชื่อม Omise Refund API, คืนสต็อก และระบบพิจารณา | **เสร็จสมบูรณ์ (Production Ready)** |
-| **วงจรชีวิตคำสั่งซื้อและคิวงาน (Order Lifecycle & Jobs)** | ⏳ หน้ารองรับสถานะ CANCELLED / EXPIRED | ⏳ มี Redis พร้อมรองรับ / รอติดตั้ง BullMQ | **เป้าหมายเฟส 8 (ดูคู่มือ [ORDER_LIFECYCLE_BUSINESS_LOGIC.md](file:///docs/ORDER_LIFECYCLE_BUSINESS_LOGIC.md))** |
-| **ความปลอดภัย, สต็อก และโปรโมชัน (Security, Auth & Marketing)** | ⏳ มี Mock Rate Limit บางส่วน | ⏳ วางสถาปัตยกรรม Redis Token Bucket & Quota | **เป้าหมายเฟส 9 (Security & Marketing Safeguards)** |
+| ระบบ / ฟังก์ชันหน้าร้าน                                         |                    สถานะหน้า UI (`apps/store`)                    |                          การเชื่อมต่อ Backend Database                          | สถานะภาพรวม                                                                                                      |
+| :-------------------------------------------------------------- | :---------------------------------------------------------------: | :-----------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------- |
+| **หมวดหมู่สินค้า & เมนู (Category Navigation)**                 |               ✅ Mega Menu สวยงาม / ตัวกรอง 2 ภาษา                |      ✅ เชื่อมต่อ API หมวดหมู่สดจาก DB (`GET /api/v1/catalog/categories`)       | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **แคตตาล็อกสินค้า (Product Browsing)**                          |                      ✅ หน้ารวม & แยกตามแผนก                      |          ✅ เชื่อมต่อ API สินค้าจริง (`GET /api/v1/catalog/products`)           | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **หน้ารายละเอียดสินค้า (PDP)**                                  |                ✅ เลือกสี / ไซส์ / แกลเลอรีรูปภาพ                 | ✅ เชื่อมต่อ SKU Matrix & รูปภาพจริง (`GET /api/v1/catalog/products/:slugOrId`) | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **ตะกร้าสินค้า (Cart Drawer)**                                  |                 ✅ ป๊อปอัปตะกร้า / เพิ่ม-ลดจำนวน                  |                         ❌ เก็บเฉพาะ React State ในแรม                          | **เป้าหมายเฟส 3 (Persistent & Stock Check)**                                                                     |
+| **ระบบสมาชิก & ยืนยัน OTP (Customer Auth)**                     |                  ✅ หน้า Login / Register / OTP                   |                     ⚠️ มี Mock Auth / รอเชื่อม API สมบูรณ์                      | **เป้าหมายเฟส 3 (OTP & JWT Cookie)**                                                                             |
+| **ระบบสั่งซื้อ & เช็คเอาต์ (Checkout)**                         |                ✅ กรอกที่อยู่ / เลือกวิธีชำระเงิน                 |                      ❌ ยังไม่ได้ยิง API สร้าง Order จริง                       | **เป้าหมายเฟส 3 (Real Order & ตัดสต็อก)**                                                                        |
+| **ติดตามพัสดุ (Track Order)**                                   |                  ✅ หน้าค้นหาเลขพัสดุ & Timeline                  |       ✅ เชื่อมต่อ API พัสดุจริง (`GET /api/v1/orders/:number/tracking`)        | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **รายละเอียดออเดอร์ & ยกเลิกเอง (Order Detail & Self-Cancel)**  | ✅ หน้าจอ Editorial Luxury Grid (`/profile/orders/[orderNumber]`) |                  ✅ เชื่อมต่อ API ยกเลิกออเดอร์และ Audit Trail                  | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **การคืนสินค้าและคืนเงิน (Return & Refund)**                    |         ✅ รองรับครบ 3 เคสทางธุรกิจ พร้อมโมดอลขอคืนสินค้า         |               ✅ เชื่อม Omise Refund API, คืนสต็อก และระบบพิจารณา               | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **วงจรชีวิตคำสั่งซื้อและคิวงาน (Order Lifecycle & Jobs)**       |              ⏳ หน้ารองรับสถานะ CANCELLED / EXPIRED               |                   ⏳ มี Redis พร้อมรองรับ / รอติดตั้ง BullMQ                    | **เป้าหมายเฟส 8 (ดูคู่มือ [ORDER_LIFECYCLE_BUSINESS_LOGIC.md](file:///docs/ORDER_LIFECYCLE_BUSINESS_LOGIC.md))** |
+| **ความปลอดภัย, สต็อก และโปรโมชัน (Security, Auth & Marketing)** |                   ⏳ มี Mock Rate Limit บางส่วน                   |                  ⏳ วางสถาปัตยกรรม Redis Token Bucket & Quota                   | **เป้าหมายเฟส 9 (Security & Marketing Safeguards)**                                                              |
 
 ---
 
@@ -40,9 +40,11 @@ graph TD
 ---
 
 ## 📂 เฟส 1: เชื่อมโยงหมวดหมู่สินค้าแบบไดนามิกจากฐานข้อมูล (Dynamic Categories & Mega Menu)
+
 > **เป้าหมาย**: หน้าร้านค้าสะท้อนหมวดหมู่ที่แอดมินจัดการในระบบหลังบ้าน (Admin Categories) ได้ทันที เมื่อแอดมินเพิ่ม, แก้ไขชื่อ, หรือปิดใช้งาน (`isActive: false`) หน้าร้านจะอัปเดตแบบเรียลไทม์
 
 ### 1.1 เชื่อมต่อ API หมวดหมู่หน้าร้าน (Storefront Category API)
+
 - [x] **Backend Integration (`apps/api` หรือ Public Catalog Endpoint)**:
   - [x] ตรวจสอบว่า Endpoint `GET /api/v1/catalog/categories` ส่งคืนเฉพาะหมวดหมู่ที่ `isActive: true` (ซ่อนหมวดหมู่ที่ปิดใช้งาน)
   - [x] ส่งข้อมูลโครงสร้างแบบ Tree (Parent Category + Children Sub-categories) พร้อมจำนวนสินค้า `productCount`
@@ -51,6 +53,7 @@ graph TD
   - [x] มีระบบ Cache / ISR หรือ Revalidate เพื่อให้การโหลดหน้าเว็บรวดเร็วระดับพรีเมียม
 
 ### 1.2 ปรับปรุงเมนูหลักและตัวกรอง (Dynamic Mega Menu & Collection Filters)
+
 - [x] **Mega Menu ใน [Layout.tsx](file:///apps/store/src/components/Layout.tsx)**:
   - [x] แทนที่ข้อมูล Hardcoded ในฟังก์ชัน `getMegaMenuData()` ด้วยหมวดหมู่สดจากฐานข้อมูล
   - [x] แยกหมวดหมู่ตามแผนก (`WOMEN`, `MEN`, `KIDS`, `BAGS`, `SHOES`, `HOME`) ตามฟิลด์ `department` ใน DB
@@ -62,9 +65,11 @@ graph TD
 ---
 
 ## 🛍️ เฟส 2: นำสินค้าจริงจากฐานข้อมูลมาแสดงผล (Real Products & Live Catalog)
+
 > **เป้าหมายหลัก**: ดึงข้อมูลสินค้าจริงจากฐานข้อมูลผ่าน Customer API มาแสดงผลทั่วทั้งหน้าร้านค้า ทั้งหน้าแคตตาล็อก (Collection), หน้ารายละเอียดสินค้า (PDP), สินค้าแนะนำบนหน้าแรก (Homepage), และระบบค้นหา (Header Search) โดยรองรับสินค้าหลายสี หลายไซส์ (Variant Matrix) สต็อกคงเหลือจริง และการแสดงผล 2 ภาษา
 
 ### 2.1 เชื่อมต่อ API แคตตาล็อกสินค้าสด (Storefront Products API Integration)
+
 - [x] **Backend Public Catalog Endpoints (`apps/api`)**:
   - [x] ตรวจสอบว่า `GET /api/v1/catalog/products` กรองเฉพาะสินค้าที่สถานะ `status: 'PUBLISHED'` และ `isActive: true`
   - [x] รองรับ Filter Parameters ครบถ้วน:
@@ -84,6 +89,7 @@ graph TD
   - [x] จัดการสถานะการโหลด (`loading`, `error`, `emptyState`) อย่างสวยงามระดับ Editorial Luxury
 
 ### 2.2 หน้าแคตตาล็อกและคอลเลกชันสินค้า (`/collections/[[...category]]`)
+
 - [x] **Dynamic Department & Category Routing**:
   - [x] รองรับ URL Path ตามโครงสร้างแผนกและหมวดหมู่ เช่น `/collections/men`, `/collections/women`
 - [x] **Interactive Filters & Sorting**:
@@ -93,6 +99,7 @@ graph TD
   - [x] แสดงจำนวนสินค้าที่พบ พร้อม Empty State เมื่อไม่พบสินค้า
 
 ### 2.3 หน้ารายละเอียดสินค้าจริง (Real Product Detail Page — PDP `/product/[id]`)
+
 - [x] **แกลเลอรีรูปภาพสินค้าจริง (Luxury Product Gallery)**:
   - [x] แสดงรูปภาพจริงจาก Cloud Storage / CDN
   - [x] สลับภาพหลักผ่าน Thumbnails ด้านข้าง
@@ -103,12 +110,14 @@ graph TD
   - [x] แสดงรายละเอียดส่วนประกอบเนื้อผ้า, คำแนะนำในการดูแลรักษา, และ Accordion 2 ภาษา
 
 ### 2.4 การแสดงสินค้าสดบนหน้าแรก (Homepage Live Showcase)
+
 - [x] **ส่วนสินค้ามาใหม่และ Trending (Trending Showcase)**:
   - [x] ดึงสินค้าจริงจาก API ผ่าน [CatalogContext.tsx](file:///apps/store/src/context/CatalogContext.tsx) มาแสดงผลแทน Mock Data
 - [x] **Quick View / Quick Add to Cart**:
   - [x] ผู้ใช้สามารถกดเพิ่มสินค้าลงตะกร้าได้ทันทีจากหน้าแรก
 
 ### 2.5 ระบบค้นหาสินค้าแบบ Live Search บน Header
+
 - [x] **Instant Search Dropdown**:
   - [x] ค้นหาสินค้าแบบเรียลไทม์รองรับทั้งภาษาไทยและอังกฤษ
   - [x] แสดงผลลัพธ์เป็นรูปภาพขนาดย่อ, ชื่อสินค้า 2 ภาษา, แผนก/หมวดหมู่ และราคา
@@ -116,15 +125,18 @@ graph TD
 ---
 
 ## 🚀 เฟส 3: MVP Core — ระบบสมาชิก OTP, สั่งซื้อผูกบัญชี และตัดสต็อกจริง
+
 > **เป้าหมายหลัก**: ลูกค้าเลือกสินค้าลงตะกร้า ➔ ยืนยันตัวตนด้วยอีเมล OTP (สร้างบัญชีให้อัตโนมัติหากเป็นผู้ใช้ใหม่) ➔ สั่งซื้อโดยออเดอร์ผูกกับ `userId` ในฐานข้อมูล พร้อมตัดสต็อกจริงทันที
 
 ### 3.1 ระบบตะกร้าสินค้าที่ปลอดภัย (Cart Integrity & Storage)
+
 - [x] **Frontend (`apps/store`)**:
   - [x] อัปเดต [CartContext.tsx](file:///apps/store/src/context/CartContext.tsx) ให้บันทึกข้อมูลลง `localStorage` (เพื่อไม่ให้สินค้าในตะกร้าหายเมื่อ Refresh หรือปิดแท็บ)
   - [x] เก็บ `variantId` / `sku` ควบคู่กับ `productId` เพื่อส่งเข้า API สร้างคำสั่งซื้อได้แม่นยำ
   - [x] ตรวจสอบสต็อกคงเหลือล่าสุดก่อนอนุญาตให้เพิ่มจำนวนในตะกร้า
 
 ### 3.2 ระบบสมาชิกลูกค้าและการยืนยันตัวตน (Customer Auth & OTP Auto-Register)
+
 - [x] **Backend Customer Auth API (`apps/api`)**:
   - [x] Endpoint `POST /api/v1/auth/request-otp`:
     - รับอีเมลลูกค้า ➔ สุ่ม OTP 6 หลัก บันทึกลงตาราง `OtpVerification` (หรือ Redis) อายุ 5 นาที
@@ -141,6 +153,7 @@ graph TD
   - [x] ปรับปรุง [AuthContext.tsx](file:///apps/store/src/context/AuthContext.tsx) ให้เก็บ Token จริง และอ่านข้อมูล Profile จาก JWT/API (เลิกใช้ Mock)
 
 ### 3.3 ระบบสร้างคำสั่งซื้อจริงผูกบัญชี (Real Order Creation Flow)
+
 - [x] **Backend Public Order API**:
   - [x] สร้าง Endpoint `POST /api/v1/orders`:
     - รับข้อมูล: ข้อมูลผู้ซื้อ, ที่อยู่จัดส่ง (`shippingAddress`), รายการสินค้า (`items: { variantId, quantity, price }[]`), วิธีชำระเงิน (`paymentMethod`), โค้ดส่วนลด (`couponCode`)
@@ -158,6 +171,7 @@ graph TD
     - ส่งลูกค้าไปยัง `/order-success?orderNumber=ORD-XXXX` พร้อมแสดงเลขออเดอร์จริง
 
 ### 3.4 การชำระเงินเบื้องต้น (Payment Methods MVP)
+
 - [x] **PromptPay QR Code**:
   - [x] แสดง QR Code มาตรฐานพร้อมยอดเงินจริงในหน้าเช็คเอาต์
 - [x] **โอนเงินผ่านธนาคาร (Bank Transfer)**:
@@ -168,6 +182,7 @@ graph TD
 ---
 
 ## 🏷️ เฟส 4: ระบบคูปองส่วนลดและคำนวณค่าจัดส่งอัตโนมัติ (Coupons & Shipping Engine)
+
 > **เป้าหมาย**: ใช้งานโค้ดส่วนลดที่แอดมินสร้างจากระบบหลังบ้านได้จริง และคำนวณค่าส่งตามเงื่อนไข
 
 - [x] **เชื่อมโยงโค้ดโปรโมชันจริง (Dynamic Coupons)**:
@@ -184,6 +199,7 @@ graph TD
 ---
 
 ## 🏡 เฟส 5: สมุดที่อยู่จัดส่งและสั่งซื้อสะดวกรวดเร็ว (Address Book & 1-Click Checkout)
+
 > **เป้าหมาย**: ลูกค้าที่มีบัญชีแล้วสามารถบันทึกที่อยู่จัดส่งได้หลายที่ และไม่ต้องกรอกที่อยู่ซ้ำในครั้งต่อไป
 
 - [x] **สมุดที่อยู่จัดส่ง (Saved Addresses)**:
@@ -193,18 +209,20 @@ graph TD
 - [x] **หน้าจัดการที่อยู่ในโปรไฟล์ (`/profile/addresses`)**:
   - [x] ลูกค้าสามารถเข้ามาแก้ไขหรือลบที่อยู่ของตนเองได้ตลอดเวลา
 
-
 ---
 
 ## 📦 เฟส 6: ประวัติคำสั่งซื้อ หน้ารายละเอียด และการติดตามพัสดุ (Order History, Customer Order Detail & Live Tracking)
+
 > **เป้าหมาย**: ลูกค้าสามารถดูประวัติคำสั่งซื้อ เข้าดูรายละเอียดคำสั่งซื้อแบบเต็มรูปแบบ (`/profile/orders/[orderNumber]`) ติดตามสถานะสินค้าได้ตลอด 24 ชั่วโมง และสามารถกดยกเลิกคำสั่งซื้อด้วยตนเองได้ตามเงื่อนไขที่ปลอดภัย
 
 ### 6.1 ประวัติการสั่งซื้อในหน้าโปรไฟล์ (`/profile/orders`)
+
 - [x] **ภาพรวมรายการคำสั่งซื้อ**:
   - [x] สรุปรายการออเดอร์ทั้งหมดของลูกค้า พร้อมตัวกรองสถานะ, ค้นหา, และแบ่งหน้า
   - [x] ปุ่ม "ชำระเงินทันที", "ติดตามพัสดุ", และ "สั่งซื้อซ้ำ"
 
 ### 6.2 หน้ารายละเอียดคำสั่งซื้อสำหรับลูกค้า (Customer Order Detail Page — `/profile/orders/[orderNumber]`)
+
 - [x] **Frontend Page (`apps/store/src/app/profile/orders/[orderNumber]/page.tsx`)**:
   - [x] ออกแบบหน้าจอแบบ Responsive 12-Column Grid ตามมาตรฐาน Editorial Luxury
   - [x] **หัวข้อคำสั่งซื้อ (Order Header)**: หมายเลขคำสั่งซื้อ, วันที่สั่งซื้อ, Status Badge และ Payment Badge
@@ -228,6 +246,7 @@ graph TD
     - ปุ่ม **"ขอคืนสินค้า (Request Return)"**: แสดงเมื่อสถานะเป็น `DELIVERED` ภายในระยะเวลากำหนด (เชื่อมต่อเฟส 6.5)
 
 ### 6.3 ระบบคำขอยกเลิกคำสั่งซื้อสำหรับลูกค้า (Customer Order Cancellation Request & Admin Approval)
+
 > ออกแบบโดยใช้ตารางคำขอแยก `OrderCancellationRequest` (สไตล์เดียวกับ `ReturnRequest`) เพื่อเก็บบันทึกประวัติ (Audit Trail) ป้องกันปัญหา Race Condition กับคลังสินค้า และป้องกันความเสียหายจากค่าธรรมเนียม Gateway
 
 - [x] **การออกแบบโครงสร้างฐานข้อมูล (Database Schema — `@repo/database`)**:
@@ -285,6 +304,7 @@ graph TD
   - [x] Admin: `POST /api/v1/orders/cancellation-requests/:id/review` (อนุมัติยกเลิก + ยิง Omise คืนเงิน หรือปฏิเสธพร้อมระบุเหตุผล)
 
 ### 6.4 หน้าติดตามพัสดุแบบเรียลไทม์ (`/track-order`)
+
 - [x] **หน้าติดตามพัสดุ (`/track-order`)**:
   - [x] ค้นหาด้วยเลขออเดอร์ + อีเมล/เบอร์โทรศัพท์ (สำหรับลูกค้าที่ไม่ได้ล็อกอิน / Guest Checkout)
   - [x] แสดง Timeline สถานะ: `ชำระเงินแล้ว` ➔ `กำลังจัดเตรียมสินค้า` ➔ `กำลังจัดส่ง (พร้อม Tracking Number & ลิงก์เช็คพัสดุ)` ➔ `จัดส่งสำเร็จ`
@@ -292,19 +312,21 @@ graph TD
 ---
 
 ## 🔄 เฟส 6.5: ระบบการคืนสินค้าและการคืนเงินเต็มรูปแบบ (Full Return & Refund Lifecycle)
+
 > **เป้าหมายหลัก**: รองรับกระบวนการคืนเงิน (Refund) และการขอคืนสินค้า (Return Request) ครอบคลุมทั้ง 3 กรณีทางธุรกิจจริง: ยกเลิกหลังจ่ายเงินก่อนจัดส่ง, ขอคืนสินค้าหลังจัดส่งสำเร็จ, และพัสดุตีกลับ (RTS) โดยเชื่อมต่อกับ Omise Payment Gateway (`POST /charges/{id}/refunds`), จัดการสต็อกสินค้าคงคลัง และบันทึกบัญชีอย่างถูกต้อง
 
 ### 6.5.1 จำแนก 3 เคสทางธุรกิจ (Refund & Return Business Scenarios)
 
-| เคส | สถานการณ์ทางธุรกิจ | สถานะออเดอร์ | ตำแหน่งสินค้า | ต้องมี Return Request? | การดำเนินการหลัก |
-| :--- | :--- | :--- | :--- | :---: | :--- |
-| **เคส 1** | **ยกเลิกหลังจ่ายเงิน (ก่อนส่งของ)** | `PAID` / `PROCESSING` | อยู่ที่คลัง | ❌ ไม่ต้อง | แอดมินกด Cancel & Refund → คืนเงินผ่าน Omise + ดึงสต็อกกลับ (`RESTOCK_CANCEL`) |
-| **เคส 2** | **ขอคืนสินค้าหลังจัดส่งแล้ว** | `DELIVERED` | อยู่ที่ลูกค้า | ✅ **ต้องมี** | ลูกค้ายื่น Return Request ผ่านหน้าร้าน → แอดมิน Approve → ลูกค้าส่งของคืน → คลังตรวจสภาพ → กด Refund คืนเงิน |
-| **เคส 3** | **พัสดุตีกลับคลัง (RTS)** | `Shipment: FAILED` | ตีกลับมาที่คลัง | ❌ ไม่ต้อง | ขนส่งส่งไม่สำเร็จ ของเด้งกลับมาคลัง → คลังตรวจพัสดุ → แอดมินกด Refund + คืนสต็อก |
+| เคส       | สถานการณ์ทางธุรกิจ                  | สถานะออเดอร์          | ตำแหน่งสินค้า   | ต้องมี Return Request? | การดำเนินการหลัก                                                                                             |
+| :-------- | :---------------------------------- | :-------------------- | :-------------- | :--------------------: | :----------------------------------------------------------------------------------------------------------- |
+| **เคส 1** | **ยกเลิกหลังจ่ายเงิน (ก่อนส่งของ)** | `PAID` / `PROCESSING` | อยู่ที่คลัง     |       ❌ ไม่ต้อง       | แอดมินกด Cancel & Refund → คืนเงินผ่าน Omise + ดึงสต็อกกลับ (`RESTOCK_CANCEL`)                               |
+| **เคส 2** | **ขอคืนสินค้าหลังจัดส่งแล้ว**       | `DELIVERED`           | อยู่ที่ลูกค้า   |     ✅ **ต้องมี**      | ลูกค้ายื่น Return Request ผ่านหน้าร้าน → แอดมิน Approve → ลูกค้าส่งของคืน → คลังตรวจสภาพ → กด Refund คืนเงิน |
+| **เคส 3** | **พัสดุตีกลับคลัง (RTS)**           | `Shipment: FAILED`    | ตีกลับมาที่คลัง |       ❌ ไม่ต้อง       | ขนส่งส่งไม่สำเร็จ ของเด้งกลับมาคลัง → คลังตรวจพัสดุ → แอดมินกด Refund + คืนสต็อก                             |
 
 ---
 
 ### 6.5.2 โมดูลที่ 1: Core Refund Engine (เครื่องมือคืนเงินกลาง)
+
 > ใช้งานร่วมกันสำหรับ เคส 1 (ยกเลิกก่อนส่ง), เคส 3 (พัสดุตีกลับ), และสเต็ปสุดท้ายของ เคส 2 (ตรวจรับของคืนแล้ว)
 
 - [x] **Backend API & Payment Gateway (`apps/admin-api`)**:
@@ -329,6 +351,7 @@ graph TD
 ---
 
 ### 6.5.3 โมดูลที่ 2: Return Request Engine (ระบบคำขอคืนสินค้าฝั่งลูกค้าร่วมกับหลังบ้าน)
+
 > สำหรับ เคส 2 (ลูกค้าได้รับของแล้ว แต่ต้องการคืนสินค้า เช่น ผิดไซส์, เปลี่ยนใจ หรือมีตำหนิ)
 
 - [x] **Storefront Customer Self-Service (`apps/store`)**:
@@ -392,14 +415,17 @@ flowchart TD
     Core_Refund --> Model_Refund
 
 ```
+
 ---
 
 ## 💎 เฟส 7: ระบบจัดการเนื้อหาหน้าร้านและการตลาด (Storefront CMS, Home Customization & Loyalty)
+
 > **เป้าหมายหลัก**: ปลดล็อคให้แอดมินสามารถปรับแต่งรูปภาพ แคมเปญ และข้อความบนหน้าแรก (Homepage) ได้เองแบบ 100% Dynamic โดยไม่ต้องแก้โค้ดหรือ Build เว็บใหม่ พร้อมระบบคำนวณสินค้า Trending ตามยอดขายจริง
 
 ### 7.1 ระบบจัดการเนื้อหาหน้าแรกแบบไดนามิก (Home Page CMS & Banner Management)
 
 #### ① มาตรฐานข้อมูลและข้อกำหนดรูปภาพ/ข้อความ (Strict Data & Copy Specifications)
+
 - [x] **Hero Billboard / Carousel Banners**:
   - สัดส่วนภาพ (Aspect Ratio): Desktop `21:9` หรือ `16:9` (2560×1080px หรือ 1920×820px), Mobile `4:5` (1080×1350px)
   - ขนาดไฟล์สูงสุด: 3 MB ต่อภาพ (แนะนำ WebP / JPG 85%+)
@@ -419,6 +445,7 @@ flowchart TD
   - กำหนดกรอบวันคืนสินค้า (`returnWindowDays` เช่น 7 วัน หรือ 14 วัน)
 
 #### ② นโยบายการตรวจสอบความถูกต้องด้วย Zod ข้ามระบบ (Mandatory Centralized Zod Validation)
+
 - [x] สร้าง Zod Schema กลางใน `packages/validators/src/admin/content.ts`:
   - `saveCmsBannerSchema`: ตรวจสอบความยาวตัวอักษร, URL format, placement, วันที่แคมเปญ
   - `updateStoreSettingsSchema`: ตรวจสอบ Announcement Bar และเกณฑ์ตัวเลขนโยบายร้านค้า
@@ -427,6 +454,7 @@ flowchart TD
 - [x] **Frontend Integration**: ฟอร์มใน `apps/admin` ต้องใช้ Zod Schema เดียวกันนี้ตรวจความถูกต้องก่อนส่ง Request
 
 #### ③ ระบบ Live Interactive Preview Mode ฝั่ง Admin Portal
+
 - [x] สร้าง Mirror Preview Components ใน `apps/admin/src/components/cms/preview/`:
   - `HeroBillboardPreview.tsx`, `TopAnnouncementPreview.tsx`, `PromoRibbonPreview.tsx`, `ValuePropsPreview.tsx`
   - เรนเดอร์ด้วย CSS และ Typography เดียวกับหน้าร้าน Storefront แบบ 1:1 Editorial Luxury
@@ -436,6 +464,7 @@ flowchart TD
   - Carousel Slider Simulator: เลื่อนดูแบนเนอร์แต่ละสไลด์ได้แบบสดๆ
 
 #### ④ สถาปัตยกรรมฐานข้อมูลและ API (CMS Architecture)
+
 - [x] เพิ่มโมเดล `CmsBanner` และ `StoreSettings` ใน `packages/database/prisma/schema.prisma`
 - [x] สร้างโมดูล Content ใน `apps/admin-api`: `GET /api/v1/content/home`, `POST /api/v1/content/banners`, `PUT /api/v1/content/banners/:id`, `DELETE /api/v1/content/banners/:id`, `PATCH /api/v1/content/banners/reorder`, `PUT /api/v1/content/settings`
 - [x] สร้างโมดูล Content ใน `apps/api`: `GET /api/v1/content/home` (แคชความเร็วสูง)
@@ -468,11 +497,13 @@ flowchart TD
 ---
 
 ## ⏱️ เฟส 8: ระบบควบคุมวงจรชีวิตคำสั่งซื้อ สถานะ COMPLETED และคิวงานเบื้องหลัง (Order Lifecycle, COMPLETED Status & Background Jobs)
+
 > **เป้าหมาย**: ป้องกันการกั๊กสต็อกสินค้า คืนสต็อกเข้าคลังอัตโนมัติเมื่อไม่ชำระเงิน ยกระดับวงจรสถานะออเดอร์ให้สมบูรณ์ด้วยสถานะ `COMPLETED` จัดการคำร้องขอยกเลิกและคืนสินค้าตามกรอบเวลา (SLA) และป้องกันการสแปมระบบด้วยสถาปัตยกรรมคิวงานระดับ Enterprise (`@nestjs/bullmq` + Redis 7)
-> 
+>
 > 📖 **อ่านข้อกำหนดทางธุรกิจและสถาปัตยกรรมแบบละเอียดฉบับเต็มได้ที่**: [docs/ORDER_LIFECYCLE_BUSINESS_LOGIC.md](file:///docs/ORDER_LIFECYCLE_BUSINESS_LOGIC.md)
 
 ### 8.1 การขยายโครงสร้างสถานะคำสั่งซื้อ (Approach 1: Add COMPLETED to OrderStatus)
+
 - [x] **Database Schema & Types Migration**:
   - [x] เพิ่มค่า `COMPLETED` ลงใน `enum OrderStatus` ใน [schema.prisma](file:///packages/database/prisma/schema.prisma):
     ```prisma
@@ -514,6 +545,7 @@ flowchart TD
     - Build ผ่านฉลุย 0 errors ทุก Workspace (`@repo/types`, `@repo/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`)
 
 ### 8.2 การติดตั้งและสถาปัตยกรรมระบบคิว (BullMQ Infrastructure & Modules)
+
 - [x] ติดตั้งแพ็กเกจ `@nestjs/bullmq` และ `bullmq` ใน `apps/api` และ `apps/admin-api`
 - [x] สร้างโมดูล `OrderLifecycleModule` เชื่อมต่อ Redis Instance เดิม (`ecommerce_redis`)
 - [x] จัดโครงสร้าง Queue แยกตามหน้าที่:
@@ -525,6 +557,7 @@ flowchart TD
 - [x] สร้าง Unit Tests ครอบคลุม Producer Service ทั้งฝั่ง `apps/api` (65/65 passing) และ `apps/admin-api` (177/177 passing)
 
 ### 8.3 กฎและเงื่อนไขการทำงานอัตโนมัติ (Automated Business Logic Workers)
+
 - [x] **1. ตัดออเดอร์ค้างชำระอัตโนมัติ (Unpaid Order Auto-Cancel & Restock)**:
   - [x] หน่วงเวลา (Delay) 15 นาทีสำหรับ PromptPay และ 30 นาทีสำหรับบัตรเครดิต
   - [x] เมื่อหมดเวลา: ปรับสถานะเป็น `CANCELLED`, คืนสต็อกสินค้ากลับเข้า Inventory อัตโนมัติ (`StockMovementType: RESTOCK`)
@@ -546,6 +579,7 @@ flowchart TD
   - [x] ใช้ Redis Sliding Window จำกัด Cooldown 2 วินาที ป้องกันการกดย้ำปุ่มสร้าง QR ซ้ำซ้อน
 
 ### 8.4 การทดสอบและการตรวจสอบความถูกต้อง (Testing & Verification)
+
 - [x] Unit Tests จำลองการนับเวลาถอยหลัง (Timer Simulation) และการคืนสต็อกเมื่อออเดอร์หมดอายุ
 - [x] Test ป้องกัน Race Condition เมื่อเกิดการชำระเงินในเสี้ยววินาทีเดียวกับที่ Worker ทำงาน (Payment Success Wins)
 - [x] Test ตรวจสอบสิทธิ์ขอคืนสินค้าในวันที่ 7 (ผ่าน) และวันที่ 8 (ถูกปฏิเสธ)
@@ -555,9 +589,11 @@ flowchart TD
 ---
 
 ## 🛡️ เฟส 9: ความปลอดภัย สิทธิ์การยืนยันตัวตน สต็อก และโปรโมชัน (Security, Auth & Inventory/Marketing Safeguards)
+
 > **เป้าหมาย**: ป้องกันการทุจริต การสแปมระบบ บอทกวาดซื้อ การแย่งชิงสต็อก (Flash Sale Race Conditions) และการใช้คูปองซ้ำซ้อน ด้วยสถาปัตยกรรมความปลอดภัยระดับสูง (High Concurrency & Fraud Prevention)
 
 ### 9.1 หมวดความปลอดภัยและการยืนยันตัวตน (Security & Authentication Safeguards)
+
 - [x] **1. ควบคุมอัตราการขอ OTP และล็อกอิน (OTP Request & Login Rate Limiting)**:
   - [x] ใช้ Redis Sliding Window / Token Bucket จำกัดการขอ OTP สูงสุด 3 ครั้งต่อ 5 นาทีต่ออีเมล และ 10 ครั้งต่อ 15 นาทีต่อ IP Address
   - [x] บังคับ Cooldown 60 วินาที ทั้งระดับ Backend Redis Key (`otp:cooldown:${email}`) และ Frontend Timer ป้องกันการกดยิง API ซ้ำซ้อน
@@ -573,6 +609,7 @@ flowchart TD
   - [x] ติดตั้ง Invisible Bot Protection (Cloudflare Turnstile Guard) พร้อม API Endpoint Verification และ Development Bypass Mode
 
 ### 9.2 หมวดสต็อกสินค้าและโปรโมชั่น (Inventory & Marketing Safeguards)
+
 - [x] **1. การจัดการสต็อกออเดอร์และการคืนสต็อกอัตโนมัติ (Order Stock Deduction & Auto-Restock Timeout)**:
   - [x] ตัดสต็อกจริงเมื่อสร้างออเดอร์ (`createOrder`) พร้อม Atomic Conditional Update ป้องกัน Overselling 100%
   - [x] ระบบจับเวลาชำระเงิน 15 นาทีผ่าน BullMQ Worker (`order-timeout.worker.ts`): หากไม่ชำระเงินตามเวลา ระบบจะยกเลิกออเดอร์และคืนสต็อก (`RESTOCK`) สู่คลังอัตโนมัติ (ปลอดภัยจากการเปิดหน้าเว็บกั๊กของ / Cart Hoarding)
@@ -600,4 +637,3 @@ flowchart TD
    - รองรับ 2 ภาษา (ภาษาไทย และ English) สลับได้อย่างราบรื่น
 4. **ความปลอดภัย**:
    - มีระบบ Rate Limit ป้องกันการสแปมยิง OTP และสแปมยิง Checkout
-

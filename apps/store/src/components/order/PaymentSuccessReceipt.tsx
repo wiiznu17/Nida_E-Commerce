@@ -52,9 +52,14 @@ export function PaymentSuccessReceipt({
           </p>
           <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
             {order.items.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-center text-xs">
+              <div
+                key={idx}
+                className="flex justify-between items-center text-xs"
+              >
                 <div className="truncate mr-2">
-                  <p className="font-bold text-brand-brown truncate">{item.productName}</p>
+                  <p className="font-bold text-brand-brown truncate">
+                    {item.productName}
+                  </p>
                   <p className="text-[10px] text-gray-500">
                     {item.variantInfo} • จำนวน: {item.quantity}
                   </p>

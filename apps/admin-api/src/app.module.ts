@@ -36,8 +36,12 @@ import { AppService } from './app.service.js';
               connection: {
                 host: parsed.hostname,
                 port: Number(parsed.port || (isTls ? 6380 : 6379)),
-                username: parsed.username ? decodeURIComponent(parsed.username) : undefined,
-                password: parsed.password ? decodeURIComponent(parsed.password) : undefined,
+                username: parsed.username
+                  ? decodeURIComponent(parsed.username)
+                  : undefined,
+                password: parsed.password
+                  ? decodeURIComponent(parsed.password)
+                  : undefined,
                 tls: isTls ? { rejectUnauthorized: false } : undefined,
                 maxRetriesPerRequest: null,
               },

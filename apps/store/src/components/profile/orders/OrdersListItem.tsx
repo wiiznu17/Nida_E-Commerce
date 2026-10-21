@@ -61,7 +61,9 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
             {trackingNumber && (
               <span className="inline-flex items-center space-x-1">
                 <span>(</span>
-                <span className="font-mono text-brand-brown">{trackingNumber}</span>
+                <span className="font-mono text-brand-brown">
+                  {trackingNumber}
+                </span>
                 <button
                   type="button"
                   onClick={() => handleCopyTracking(trackingNumber)}
@@ -121,7 +123,8 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
                   {item.variantInfo}
                 </p>
                 <p className="text-[10px] text-gray-400 font-mono sm:hidden mt-0.5">
-                  จำนวน: {item.quantity} x ฿{Number(item.unitPrice).toLocaleString()}
+                  จำนวน: {item.quantity} x ฿
+                  {Number(item.unitPrice).toLocaleString()}
                 </p>
               </div>
             </div>

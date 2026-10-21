@@ -27,7 +27,6 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly memorySets = new Map<string, Set<string>>();
   private cleanupInterval: NodeJS.Timeout | null = null;
 
-
   async onModuleInit() {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
     const password = process.env.REDIS_PASSWORD;
@@ -366,5 +365,3 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 }
-
-

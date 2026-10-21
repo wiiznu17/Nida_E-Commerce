@@ -49,16 +49,30 @@ export const SplitEditorialPreview: React.FC<SplitEditorialPreviewProps> = ({
       : (dynamicBanner.tagEn ?? dynamicBanner.tagTh ?? defaultCard.tag);
 
     const title = isTh
-      ? (dynamicBanner.titleTh ?? dynamicBanner.titleEn ?? dynamicBanner.title ?? defaultCard.title)
-      : (dynamicBanner.titleEn ?? dynamicBanner.titleTh ?? dynamicBanner.title ?? defaultCard.title);
+      ? (dynamicBanner.titleTh ??
+        dynamicBanner.titleEn ??
+        dynamicBanner.title ??
+        defaultCard.title)
+      : (dynamicBanner.titleEn ??
+        dynamicBanner.titleTh ??
+        dynamicBanner.title ??
+        defaultCard.title);
 
     const desc = isTh
-      ? (dynamicBanner.subtitleTh ?? dynamicBanner.subtitleEn ?? defaultCard.desc)
-      : (dynamicBanner.subtitleEn ?? dynamicBanner.subtitleTh ?? defaultCard.desc);
+      ? (dynamicBanner.subtitleTh ??
+        dynamicBanner.subtitleEn ??
+        defaultCard.desc)
+      : (dynamicBanner.subtitleEn ??
+        dynamicBanner.subtitleTh ??
+        defaultCard.desc);
 
     const ctaText = isTh
-      ? (dynamicBanner.ctaPrimaryTextTh ?? dynamicBanner.ctaPrimaryTextEn ?? defaultCard.ctaText)
-      : (dynamicBanner.ctaPrimaryTextEn ?? dynamicBanner.ctaPrimaryTextTh ?? defaultCard.ctaText);
+      ? (dynamicBanner.ctaPrimaryTextTh ??
+        dynamicBanner.ctaPrimaryTextEn ??
+        defaultCard.ctaText)
+      : (dynamicBanner.ctaPrimaryTextEn ??
+        dynamicBanner.ctaPrimaryTextTh ??
+        defaultCard.ctaText);
 
     return {
       id: dynamicBanner.id ?? defaultCard.id,
@@ -81,7 +95,9 @@ export const SplitEditorialPreview: React.FC<SplitEditorialPreviewProps> = ({
         </h4>
       </div>
 
-      <div className={`grid gap-3 ${isMobileView ? 'grid-cols-1' : 'grid-cols-2'}`}>
+      <div
+        className={`grid gap-3 ${isMobileView ? 'grid-cols-1' : 'grid-cols-2'}`}
+      >
         {cards.map((card) => (
           <div
             key={card.id}

@@ -3,7 +3,9 @@
 import 'dotenv/config';
 import { defineConfig, env } from 'prisma/config';
 
-const dbUrl = process.env.DATABASE_URL || 'postgresql://build_placeholder:build_placeholder@localhost:5432/build_placeholder';
+const dbUrl =
+  process.env.DATABASE_URL ||
+  'postgresql://build_placeholder:build_placeholder@localhost:5432/build_placeholder';
 const directUrl = process.env.DIRECT_URL || dbUrl;
 
 export default defineConfig({

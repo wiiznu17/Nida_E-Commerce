@@ -25,7 +25,9 @@ export function ProductInfo({
   const hasDiscount =
     displayOriginalPrice !== undefined && displayOriginalPrice > displayPrice;
   const savePercent = hasDiscount
-    ? Math.round(((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100)
+    ? Math.round(
+        ((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100,
+      )
     : 0;
 
   return (

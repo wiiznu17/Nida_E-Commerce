@@ -42,7 +42,8 @@ export class InternalLogisticsProvider implements ILogisticsProvider {
   async getTrackingTimeline(
     trackingNumber: string,
   ): Promise<TrackingTimelineResult> {
-    const isDelivered = trackingNumber.endsWith('9') || trackingNumber.endsWith('D');
+    const isDelivered =
+      trackingNumber.endsWith('9') || trackingNumber.endsWith('D');
     const now = new Date();
     const createdTime = new Date(now.getTime() - 86400000 * 2);
     const pickedTime = new Date(now.getTime() - 86400000);
@@ -50,7 +51,8 @@ export class InternalLogisticsProvider implements ILogisticsProvider {
     const events = [
       {
         statusTitle: 'สร้างหมายเลขพัสดุและเตรียมการจัดส่ง',
-        statusDescription: 'ศูนย์กระจายสินค้า NIDA บรรจุพัสดุเรียบร้อย รอนัดรถเข้ารับ',
+        statusDescription:
+          'ศูนย์กระจายสินค้า NIDA บรรจุพัสดุเรียบร้อย รอนัดรถเข้ารับ',
         location: 'ศูนย์กระจายสินค้า NIDA (กรุงเทพมหานคร)',
         timestamp: createdTime,
       },
@@ -65,14 +67,16 @@ export class InternalLogisticsProvider implements ILogisticsProvider {
     if (isDelivered) {
       events.push({
         statusTitle: 'จัดส่งพัสดุสำเร็จ',
-        statusDescription: 'พัสดุนำจ่ายถึงมือผู้รับเรียบร้อย ลงชื่อรับโดยผู้รับปลายทาง',
+        statusDescription:
+          'พัสดุนำจ่ายถึงมือผู้รับเรียบร้อย ลงชื่อรับโดยผู้รับปลายทาง',
         location: 'ที่อยู่ปลายทางของผู้รับ',
         timestamp: now,
       });
     } else {
       events.push({
         statusTitle: 'พัสดุถึงศูนย์คัดแยกกลาง',
-        statusDescription: 'พัสดุอยู่ระหว่างการส่งต่อไปยังศูนย์กระจายสินค้าปลายทาง',
+        statusDescription:
+          'พัสดุอยู่ระหว่างการส่งต่อไปยังศูนย์กระจายสินค้าปลายทาง',
         location: 'ศูนย์คัดแยกหลัก',
         timestamp: now,
       });
@@ -81,7 +85,9 @@ export class InternalLogisticsProvider implements ILogisticsProvider {
     return {
       trackingNumber,
       courierName: 'Internal Carrier Mock',
-      status: isDelivered ? ShipmentStatus.DELIVERED : ShipmentStatus.IN_TRANSIT,
+      status: isDelivered
+        ? ShipmentStatus.DELIVERED
+        : ShipmentStatus.IN_TRANSIT,
       events,
     };
   }
@@ -90,9 +96,7 @@ export class InternalLogisticsProvider implements ILogisticsProvider {
     return `https://shipping.nida-apparel.internal/labels/${trackingNumber}.pdf`;
   }
 
-  async parseWebhook(
-    payload: unknown,
-  ): Promise<ParsedLogisticsWebhook | null> {
+  async parseWebhook(payload: unknown): Promise<ParsedLogisticsWebhook | null> {
     if (!payload || typeof payload !== 'object') {
       return null;
     }
@@ -127,7 +131,9 @@ export class InternalLogisticsProvider implements ILogisticsProvider {
       statusDescription:
         typeof body.description === 'string' ? body.description : undefined,
       location: typeof body.location === 'string' ? body.location : undefined,
-      eventTimestamp: body.timestamp ? new Date(String(body.timestamp)) : new Date(),
+      eventTimestamp: body.timestamp
+        ? new Date(String(body.timestamp))
+        : new Date(),
       isDelivered,
     };
   }

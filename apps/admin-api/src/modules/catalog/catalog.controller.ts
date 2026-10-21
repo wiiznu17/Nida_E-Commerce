@@ -53,7 +53,8 @@ export class CatalogController {
   @ApiQuery({
     name: 'department',
     required: false,
-    description: 'Filter categories by department code (WOMEN, MEN, KIDS, BAGS, SHOES, HOME)',
+    description:
+      'Filter categories by department code (WOMEN, MEN, KIDS, BAGS, SHOES, HOME)',
     example: 'WOMEN',
   })
   @ApiQuery({
@@ -208,7 +209,8 @@ export class CatalogController {
   })
   @ApiBody({
     type: UpdateProductDto,
-    description: 'Product fields to update (supports partial updates, image changes, and SKU additions)',
+    description:
+      'Product fields to update (supports partial updates, image changes, and SKU additions)',
   })
   @ApiResponse({
     status: 200,
@@ -218,10 +220,7 @@ export class CatalogController {
     status: 404,
     description: 'Product not found',
   })
-  updateProduct(
-    @Param('id') id: string,
-    @Body() dto: UpdateProductDto,
-  ) {
+  updateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.catalogService.updateProduct(id, dto);
   }
 

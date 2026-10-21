@@ -893,7 +893,8 @@ export class CatalogService {
             dto.preorderDepositAmount !== undefined
               ? dto.preorderDepositAmount
               : existing.preorderDepositAmount,
-          isActive: dto.isActive !== undefined ? dto.isActive : existing.isActive,
+          isActive:
+            dto.isActive !== undefined ? dto.isActive : existing.isActive,
         },
       });
 

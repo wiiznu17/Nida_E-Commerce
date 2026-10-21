@@ -22,8 +22,12 @@ export const TopAnnouncementPreview: React.FC<TopAnnouncementPreviewProps> = ({
 
   const isTh = lang === 'th';
   const badge = isTh
-    ? settings.announcementBadgeTh || settings.announcementBadgeEn || 'ข้อเสนอพิเศษ'
-    : settings.announcementBadgeEn || settings.announcementBadgeTh || 'LIMITED OFFER';
+    ? settings.announcementBadgeTh ||
+      settings.announcementBadgeEn ||
+      'ข้อเสนอพิเศษ'
+    : settings.announcementBadgeEn ||
+      settings.announcementBadgeTh ||
+      'LIMITED OFFER';
 
   const text = isTh
     ? settings.announcementTextTh ||

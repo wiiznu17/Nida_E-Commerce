@@ -44,7 +44,9 @@ export const HeroBillboardPreview: React.FC<HeroBillboardPreviewProps> = ({
 
   const secondaryCta = isTh
     ? banner?.ctaSecondaryTextTh || banner?.ctaSecondaryTextEn || 'ดูลุคบุ๊ก'
-    : banner?.ctaSecondaryTextEn || banner?.ctaSecondaryTextTh || 'EXPLORE LOOKBOOK';
+    : banner?.ctaSecondaryTextEn ||
+      banner?.ctaSecondaryTextTh ||
+      'EXPLORE LOOKBOOK';
 
   return (
     <div

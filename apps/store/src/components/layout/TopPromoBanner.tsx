@@ -25,12 +25,20 @@ export function TopPromoBanner({
 
   const isTh = language === 'th';
   const badge = isTh
-    ? storeSettings?.announcementBadgeTh || storeSettings?.announcementBadgeEn || t('promo.limited')
-    : storeSettings?.announcementBadgeEn || storeSettings?.announcementBadgeTh || t('promo.limited');
+    ? storeSettings?.announcementBadgeTh ||
+      storeSettings?.announcementBadgeEn ||
+      t('promo.limited')
+    : storeSettings?.announcementBadgeEn ||
+      storeSettings?.announcementBadgeTh ||
+      t('promo.limited');
 
   const text = isTh
-    ? storeSettings?.announcementTextTh || storeSettings?.announcementTextEn || t('promo.saleTitle')
-    : storeSettings?.announcementTextEn || storeSettings?.announcementTextTh || t('promo.saleTitle');
+    ? storeSettings?.announcementTextTh ||
+      storeSettings?.announcementTextEn ||
+      t('promo.saleTitle')
+    : storeSettings?.announcementTextEn ||
+      storeSettings?.announcementTextTh ||
+      t('promo.saleTitle');
 
   const link = storeSettings?.announcementLink || '/collections';
 
@@ -53,7 +61,10 @@ export function TopPromoBanner({
           <span className="shrink-0 bg-brand-yellow text-brand-brown text-[10px] px-2 py-0.5 font-black uppercase rounded-xs">
             {badge}
           </span>
-          <Link href={link} className="truncate hover:text-brand-yellow transition-colors">
+          <Link
+            href={link}
+            className="truncate hover:text-brand-yellow transition-colors"
+          >
             {text}
           </Link>
         </div>

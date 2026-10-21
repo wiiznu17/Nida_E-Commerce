@@ -18,8 +18,14 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
   let service: CustomerOrdersService;
   let prismaMock: {
     productVariant: { findMany: ReturnType<typeof vi.fn> };
-    promotionCoupon: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
-    couponRedemption: { count: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
+    promotionCoupon: {
+      findUnique: ReturnType<typeof vi.fn>;
+      update: ReturnType<typeof vi.fn>;
+    };
+    couponRedemption: {
+      count: ReturnType<typeof vi.fn>;
+      create: ReturnType<typeof vi.fn>;
+    };
     order: {
       findUnique: ReturnType<typeof vi.fn>;
       findMany: ReturnType<typeof vi.fn>;
@@ -39,9 +45,18 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       update: ReturnType<typeof vi.fn>;
       findFirst: ReturnType<typeof vi.fn>;
     };
-    payment: { create: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
-    user: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
-    pointTransaction: { findFirst: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
+    payment: {
+      create: ReturnType<typeof vi.fn>;
+      update: ReturnType<typeof vi.fn>;
+    };
+    user: {
+      findUnique: ReturnType<typeof vi.fn>;
+      update: ReturnType<typeof vi.fn>;
+    };
+    pointTransaction: {
+      findFirst: ReturnType<typeof vi.fn>;
+      create: ReturnType<typeof vi.fn>;
+    };
     $transaction: ReturnType<typeof vi.fn>;
   };
   let mailerMock: { sendOrderConfirmation: ReturnType<typeof vi.fn> };
@@ -77,7 +92,10 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
     taxAmount: 0,
     totalAmount: 2500,
     currency: 'THB',
-    shippingAddressSnapshot: { recipientName: 'Customer Test', phone: '0812345678' },
+    shippingAddressSnapshot: {
+      recipientName: 'Customer Test',
+      phone: '0812345678',
+    },
     promoCodeUsed: null,
     placedAt: new Date(),
     items: [],
@@ -116,7 +134,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       },
       stockMovement: { create: vi.fn() },
       orderCancellationRequest: {
-        create: vi.fn().mockResolvedValue({ id: 'can-req-1', status: 'PENDING' }),
+        create: vi
+          .fn()
+          .mockResolvedValue({ id: 'can-req-1', status: 'PENDING' }),
       },
       returnRequest: {
         create: vi.fn(),
@@ -135,8 +155,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
         findFirst: vi.fn().mockResolvedValue(null),
         create: vi.fn().mockResolvedValue({ id: 'pt-1' }),
       },
-      $transaction: vi.fn(async (callback: (tx: typeof prismaMock) => Promise<unknown>) =>
-        callback(prismaMock),
+      $transaction: vi.fn(
+        async (callback: (tx: typeof prismaMock) => Promise<unknown>) =>
+          callback(prismaMock),
       ),
     };
 
@@ -207,14 +228,23 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           id: 'var-instock-1',
           skuCode: 'SKU-INSTOCK-1',
           price: 2500,
-          inventoryItem: { id: 'inv-1', quantityAvailable: 10, preorderBooked: 0 },
+          inventoryItem: {
+            id: 'inv-1',
+            quantityAvailable: 10,
+            preorderBooked: 0,
+          },
           product: { name: 'Cashmere Cardigan', isPreorder: false, images: [] },
           color: { nameTh: 'Espresso' },
           size: { name: 'M' },
         },
       ]);
-      prismaMock.inventoryItem.update.mockResolvedValue({ id: 'inv-1', count: 1 });
-      prismaMock.inventoryItem.findUnique.mockResolvedValue({ quantityAvailable: 9 });
+      prismaMock.inventoryItem.update.mockResolvedValue({
+        id: 'inv-1',
+        count: 1,
+      });
+      prismaMock.inventoryItem.findUnique.mockResolvedValue({
+        quantityAvailable: 9,
+      });
       prismaMock.order.create.mockResolvedValue(createMockOrderRecord());
       prismaMock.order.findUnique.mockResolvedValue(createMockOrderRecord());
 
@@ -252,13 +282,20 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           id: 'var-preorder-1',
           skuCode: 'SKU-PREORDER-1',
           price: 4900,
-          inventoryItem: { id: 'inv-pre-1', quantityAvailable: 0, preorderBooked: 2 },
+          inventoryItem: {
+            id: 'inv-pre-1',
+            quantityAvailable: 0,
+            preorderBooked: 2,
+          },
           product: { name: 'Wool Coat Runway', isPreorder: true, images: [] },
           color: { nameTh: 'Camel' },
           size: { name: 'L' },
         },
       ]);
-      prismaMock.inventoryItem.update.mockResolvedValue({ id: 'inv-pre-1', count: 1 });
+      prismaMock.inventoryItem.update.mockResolvedValue({
+        id: 'inv-pre-1',
+        count: 1,
+      });
       prismaMock.order.create.mockResolvedValue(
         createMockOrderRecord({ hasPreorderItems: true, totalAmount: 4900 }),
       );
@@ -316,16 +353,12 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
         .mockResolvedValueOnce(mockPendingOrder)
         .mockResolvedValueOnce(mockPaidOrder);
 
-      const result = await service.payOrder(
-        'NIDA-20261017-PAID',
-        'usr-1',
-        {
-          paymentMethod: PaymentMethod.CREDIT_CARD,
-          omiseToken: 'tokn_test_123',
-          cardLast4: '4242',
-          cardBrand: 'Visa',
-        },
-      );
+      const result = await service.payOrder('NIDA-20261017-PAID', 'usr-1', {
+        paymentMethod: PaymentMethod.CREDIT_CARD,
+        omiseToken: 'tokn_test_123',
+        cardLast4: '4242',
+        cardBrand: 'Visa',
+      });
 
       expect(prismaMock.payment.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -364,16 +397,12 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
         .mockResolvedValueOnce(mockPendingPreorder)
         .mockResolvedValueOnce(mockAwaitingOrder);
 
-      const result = await service.payOrder(
-        'NIDA-20261017-PREAWAIT',
-        'usr-1',
-        {
-          paymentMethod: PaymentMethod.CREDIT_CARD,
-          omiseToken: 'tokn_test_pre',
-          cardLast4: '1111',
-          cardBrand: 'MasterCard',
-        },
-      );
+      const result = await service.payOrder('NIDA-20261017-PREAWAIT', 'usr-1', {
+        paymentMethod: PaymentMethod.CREDIT_CARD,
+        omiseToken: 'tokn_test_pre',
+        cardLast4: '1111',
+        cardBrand: 'MasterCard',
+      });
 
       expect(prismaMock.order.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -393,11 +422,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
         .mockResolvedValueOnce(mockAlreadyPaidOrder)
         .mockResolvedValueOnce(mockAlreadyPaidOrder);
 
-      const result = await service.payOrder(
-        'NIDA-20261017-SETTLED',
-        'usr-1',
-        { paymentMethod: PaymentMethod.PROMPTPAY },
-      );
+      const result = await service.payOrder('NIDA-20261017-SETTLED', 'usr-1', {
+        paymentMethod: PaymentMethod.PROMPTPAY,
+      });
 
       expect(result.order.status).toBe(OrderStatus.PAID);
       expect(prismaMock.order.update).not.toHaveBeenCalled();
@@ -413,11 +440,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       prismaMock.order.findUnique.mockResolvedValue(mockForeignOrder);
 
       await expect(
-        service.payOrder(
-          'NIDA-20261017-FOREIGN',
-          'usr-1',
-          { paymentMethod: PaymentMethod.PROMPTPAY },
-        ),
+        service.payOrder('NIDA-20261017-FOREIGN', 'usr-1', {
+          paymentMethod: PaymentMethod.PROMPTPAY,
+        }),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -439,7 +464,10 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           id: 'pay-switch',
           paymentMethod: PaymentMethod.CREDIT_CARD,
           status: PaymentStatus.PENDING,
-          rawWebhookPayload: { switchCount: 1, lastSwitchedAt: new Date().toISOString() },
+          rawWebhookPayload: {
+            switchCount: 1,
+            lastSwitchedAt: new Date().toISOString(),
+          },
         },
       });
 
@@ -499,7 +527,11 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       );
 
       await expect(
-        service.updatePaymentMethod('NIDA-20261017-LIMIT', PaymentMethod.CREDIT_CARD, 'usr-1'),
+        service.updatePaymentMethod(
+          'NIDA-20261017-LIMIT',
+          PaymentMethod.CREDIT_CARD,
+          'usr-1',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -517,7 +549,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           PaymentMethod.CREDIT_CARD,
           'usr-1',
         ),
-      ).rejects.toThrow('สามารถเปลี่ยนวิธีชำระเงินได้เฉพาะคำสั่งซื้อที่ยังไม่ได้ชำระเงินเท่านั้น');
+      ).rejects.toThrow(
+        'สามารถเปลี่ยนวิธีชำระเงินได้เฉพาะคำสั่งซื้อที่ยังไม่ได้ชำระเงินเท่านั้น',
+      );
     });
 
     it('rejects payment method switch when remaining time before order timeout is 1 minute or less', async () => {
@@ -542,7 +576,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           PaymentMethod.CREDIT_CARD,
           'usr-1',
         ),
-      ).rejects.toThrow('คำสั่งซื้อนี้ใกล้หมดเวลาชำระเงินแล้ว ไม่สามารถสลับช่องทางได้ กรุณาสั่งซื้อใหม่อีกครั้ง');
+      ).rejects.toThrow(
+        'คำสั่งซื้อนี้ใกล้หมดเวลาชำระเงินแล้ว ไม่สามารถสลับช่องทางได้ กรุณาสั่งซื้อใหม่อีกครั้ง',
+      );
     });
 
     it('synchronizes PromptPay QR expires_at with original placedAt + 15m and preserves queue timer without resetting', async () => {
@@ -578,7 +614,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
       );
 
       // Verify that orderLifecycleProducer.scheduleOrderTimeout was NOT called (no timer reset)
-      expect(orderLifecycleProducerMock.scheduleOrderTimeout).not.toHaveBeenCalled();
+      expect(
+        orderLifecycleProducerMock.scheduleOrderTimeout,
+      ).not.toHaveBeenCalled();
     });
   });
 
@@ -633,7 +671,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           { reason: 'Cancel parcel in transit' },
           'usr-1',
         ),
-      ).rejects.toThrow('คำสั่งซื้ออยู่ในขั้นตอนจัดส่งหรือสำเร็จแล้ว ไม่สามารถขอยกเลิกได้');
+      ).rejects.toThrow(
+        'คำสั่งซื้ออยู่ในขั้นตอนจัดส่งหรือสำเร็จแล้ว ไม่สามารถขอยกเลิกได้',
+      );
     });
 
     it('submits return request only when order is DELIVERED and quantity does not exceed purchased', async () => {
@@ -697,7 +737,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           },
           'usr-1',
         ),
-      ).rejects.toThrow('สามารถขอคืนสินค้าได้เฉพาะคำสั่งซื้อที่จัดส่งสำเร็จแล้วเท่านั้น');
+      ).rejects.toThrow(
+        'สามารถขอคืนสินค้าได้เฉพาะคำสั่งซื้อที่จัดส่งสำเร็จแล้วเท่านั้น',
+      );
     });
   });
 
@@ -849,7 +891,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
 
       await expect(
         service.acceptOrder('NIDA-20261017-HAS-RETURN', 'usr-1'),
-      ).rejects.toThrow('ไม่สามารถกดยอมรับสินค้าได้เนื่องจากมีคำขอคืนสินค้าอยู่ระหว่างดำเนินการ');
+      ).rejects.toThrow(
+        'ไม่สามารถกดยอมรับสินค้าได้เนื่องจากมีคำขอคืนสินค้าอยู่ระหว่างดำเนินการ',
+      );
     });
 
     it('idempotently returns completed order if already COMPLETED without duplicate point awards', async () => {
@@ -862,7 +906,10 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
 
       prismaMock.order.findUnique.mockResolvedValue(mockCompletedOrder);
 
-      const result = await service.acceptOrder('NIDA-20261017-ALREADY-DONE', 'usr-1');
+      const result = await service.acceptOrder(
+        'NIDA-20261017-ALREADY-DONE',
+        'usr-1',
+      );
 
       expect(prismaMock.order.update).not.toHaveBeenCalled();
       expect(prismaMock.pointTransaction.create).not.toHaveBeenCalled();
@@ -876,8 +923,23 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
         userId: 'usr-1',
         status: OrderStatus.COMPLETED,
         updatedAt: recentDelivery,
-        items: [{ id: 'item-1', orderId: 'ord-uuid-1', productName: 'Item 1', quantity: 1, unitPrice: 500 }],
-        shipments: [{ id: 'ship-1', status: 'DELIVERED', updatedAt: recentDelivery, logs: [] }],
+        items: [
+          {
+            id: 'item-1',
+            orderId: 'ord-uuid-1',
+            productName: 'Item 1',
+            quantity: 1,
+            unitPrice: 500,
+          },
+        ],
+        shipments: [
+          {
+            id: 'ship-1',
+            status: 'DELIVERED',
+            updatedAt: recentDelivery,
+            logs: [],
+          },
+        ],
         returnRequests: [],
       });
 
@@ -907,8 +969,23 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
         userId: 'usr-1',
         status: OrderStatus.COMPLETED,
         updatedAt: oldDelivery,
-        items: [{ id: 'item-1', orderId: 'ord-uuid-1', productName: 'Item 1', quantity: 1, unitPrice: 500 }],
-        shipments: [{ id: 'ship-1', status: 'DELIVERED', updatedAt: oldDelivery, logs: [] }],
+        items: [
+          {
+            id: 'item-1',
+            orderId: 'ord-uuid-1',
+            productName: 'Item 1',
+            quantity: 1,
+            unitPrice: 500,
+          },
+        ],
+        shipments: [
+          {
+            id: 'ship-1',
+            status: 'DELIVERED',
+            updatedAt: oldDelivery,
+            logs: [],
+          },
+        ],
         returnRequests: [],
       });
 

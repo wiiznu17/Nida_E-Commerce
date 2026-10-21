@@ -156,8 +156,19 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         isPreorder: false,
         variant: {
           id: 'v-1',
-          inventoryItem: { id: 'inv-1', quantityAvailable: 10, preorderBooked: 0 },
-          product: { images: [{ imageUrl: 'https://cdn.example.com/item1.jpg', isPrimary: true }] },
+          inventoryItem: {
+            id: 'inv-1',
+            quantityAvailable: 10,
+            preorderBooked: 0,
+          },
+          product: {
+            images: [
+              {
+                imageUrl: 'https://cdn.example.com/item1.jpg',
+                isPrimary: true,
+              },
+            ],
+          },
         },
       },
     ],
@@ -178,7 +189,10 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
 
   describe('Scenario 1 & 2: Forward Status Transitions & Shipment Guardrails', () => {
     it('transitions PENDING to PAID and synchronizes payment to CAPTURED with timestamp', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+        update: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce(baseOrderFixture);
       orderFind.update.mockResolvedValueOnce({
         ...baseOrderFixture,
@@ -190,7 +204,9 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         },
       });
 
-      const paymentUpdate = prismaMock.payment as { update: ReturnType<typeof vi.fn> };
+      const paymentUpdate = prismaMock.payment as {
+        update: ReturnType<typeof vi.fn>;
+      };
 
       const result = await service.updateOrderStatus(
         baseOrderFixture.orderNumber,
@@ -213,7 +229,10 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('transitions PAID to PROCESSING successfully for in-stock fulfillment prep', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+        update: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.PAID,
@@ -232,7 +251,10 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('transitions PREORDER_AWAITING_STOCK to PROCESSING upon factory stock arrival', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+        update: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.PREORDER_AWAITING_STOCK,
@@ -252,7 +274,9 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('requires tracking number when transitioning to SHIPPED', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.PROCESSING,
@@ -268,14 +292,19 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('creates or updates shipment record when valid tracking number and courier are provided', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+        update: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.PROCESSING,
         shipments: [],
       });
 
-      const shipmentCreate = prismaMock.shipment as { create: ReturnType<typeof vi.fn> };
+      const shipmentCreate = prismaMock.shipment as {
+        create: ReturnType<typeof vi.fn>;
+      };
       orderFind.update.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.SHIPPED,
@@ -308,7 +337,10 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('transitions SHIPPED to DELIVERED when package arrives at customer destination', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+        update: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.SHIPPED,
@@ -334,7 +366,9 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('strictly forbids skipping forward status steps (e.g. PENDING directly to SHIPPED)', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.PENDING,
@@ -418,7 +452,9 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('strictly forbids transitioning to COMPLETED unless order is DELIVERED', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.SHIPPED,
@@ -444,8 +480,12 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         findUnique: ReturnType<typeof vi.fn>;
         update: ReturnType<typeof vi.fn>;
       };
-      const invUpdate = prismaMock.inventoryItem as { update: ReturnType<typeof vi.fn> };
-      const stockMove = prismaMock.stockMovement as { create: ReturnType<typeof vi.fn> };
+      const invUpdate = prismaMock.inventoryItem as {
+        update: ReturnType<typeof vi.fn>;
+      };
+      const stockMove = prismaMock.stockMovement as {
+        create: ReturnType<typeof vi.fn>;
+      };
 
       cancelFind.findUnique.mockResolvedValueOnce({
         id: 'cr-1',
@@ -455,14 +495,20 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         order: {
           ...baseOrderFixture,
           status: OrderStatus.PAID,
-          payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED },
+          payment: {
+            ...baseOrderFixture.payment,
+            status: PaymentStatus.CAPTURED,
+          },
         },
       });
 
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.PAID,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.CAPTURED,
+        },
         refunds: [],
         pointTransactions: [],
       });
@@ -470,14 +516,24 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
       orderFind.findUnique.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.REFUNDED,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.REFUNDED },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.REFUNDED,
+        },
       });
 
-      invUpdate.update.mockResolvedValueOnce({ id: 'inv-1', quantityAvailable: 11 });
+      invUpdate.update.mockResolvedValueOnce({
+        id: 'inv-1',
+        quantityAvailable: 11,
+      });
 
       const reviewResult = await service.reviewCancellationRequest(
         'cr-1',
-        { action: 'APPROVE', adminNote: 'Cancellation approved by supervisor', restockInventory: true },
+        {
+          action: 'APPROVE',
+          adminNote: 'Cancellation approved by supervisor',
+          restockInventory: true,
+        },
         'admin-user-01',
       );
 
@@ -517,15 +573,23 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         order: {
           ...baseOrderFixture,
           status: OrderStatus.PROCESSING,
-          payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED },
+          payment: {
+            ...baseOrderFixture.payment,
+            status: PaymentStatus.CAPTURED,
+          },
         },
       });
 
-      const invUpdate = prismaMock.inventoryItem as { update: ReturnType<typeof vi.fn> };
+      const invUpdate = prismaMock.inventoryItem as {
+        update: ReturnType<typeof vi.fn>;
+      };
 
       const reviewResult = await service.reviewCancellationRequest(
         'cr-2',
-        { action: 'REJECT', adminNote: 'Order is packed and waiting carrier courier' },
+        {
+          action: 'REJECT',
+          adminNote: 'Order is packed and waiting carrier courier',
+        },
         'admin-user-01',
       );
 
@@ -541,14 +605,18 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('forbids re-evaluating an already reviewed cancellation request', async () => {
-      const cancelFind = prismaMock.orderCancellationRequest as { findUnique: ReturnType<typeof vi.fn> };
+      const cancelFind = prismaMock.orderCancellationRequest as {
+        findUnique: ReturnType<typeof vi.fn>;
+      };
       cancelFind.findUnique.mockResolvedValueOnce({
         id: 'cr-already-settled',
         status: 'APPROVED',
       });
 
       await expect(
-        service.reviewCancellationRequest('cr-already-settled', { action: 'APPROVE' }),
+        service.reviewCancellationRequest('cr-already-settled', {
+          action: 'APPROVE',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -572,7 +640,10 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
 
       const result = await service.reviewReturnRequest(
         'ret-1',
-        { action: 'APPROVE', adminNote: 'Return authorized. Please ship back within 7 days.' },
+        {
+          action: 'APPROVE',
+          adminNote: 'Return authorized. Please ship back within 7 days.',
+        },
         'admin-01',
       );
 
@@ -594,7 +665,9 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         findFirst: ReturnType<typeof vi.fn>;
         findUnique: ReturnType<typeof vi.fn>;
       };
-      const invUpdate = prismaMock.inventoryItem as { update: ReturnType<typeof vi.fn> };
+      const invUpdate = prismaMock.inventoryItem as {
+        update: ReturnType<typeof vi.fn>;
+      };
 
       returnFind.findUnique.mockResolvedValueOnce({
         id: 'ret-pass',
@@ -606,14 +679,20 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         order: {
           ...baseOrderFixture,
           status: OrderStatus.DELIVERED,
-          payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED },
+          payment: {
+            ...baseOrderFixture.payment,
+            status: PaymentStatus.CAPTURED,
+          },
         },
       });
 
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.DELIVERED,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.CAPTURED,
+        },
         refunds: [],
         pointTransactions: [],
       });
@@ -621,10 +700,16 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
       orderFind.findUnique.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.REFUNDED,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.REFUNDED },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.REFUNDED,
+        },
       });
 
-      invUpdate.update.mockResolvedValueOnce({ id: 'inv-1', quantityAvailable: 11 });
+      invUpdate.update.mockResolvedValueOnce({
+        id: 'inv-1',
+        quantityAvailable: 11,
+      });
 
       const result = await service.reviewReturnRequest(
         'ret-pass',
@@ -663,11 +748,16 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         status: 'APPROVED',
       });
 
-      const invUpdate = prismaMock.inventoryItem as { update: ReturnType<typeof vi.fn> };
+      const invUpdate = prismaMock.inventoryItem as {
+        update: ReturnType<typeof vi.fn>;
+      };
 
       const result = await service.reviewReturnRequest(
         'ret-fail',
-        { action: 'REJECT', adminNote: 'Item shows signs of heavy wear and missing tags' },
+        {
+          action: 'REJECT',
+          adminNote: 'Item shows signs of heavy wear and missing tags',
+        },
         'admin-qc-01',
       );
 
@@ -685,10 +775,16 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
 
   describe('Scenario 5: Refund Invariants & Quota Guardrails', () => {
     it('throws BadRequestException if attempting to refund an order with zero or negative amount', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED, amount: 1550 },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.CAPTURED,
+          amount: 1550,
+        },
         refunds: [],
       });
 
@@ -701,13 +797,17 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
     });
 
     it('throws BadRequestException if refund exceeds maximum refundable balance', async () => {
-      const orderFind = prismaMock.order as { findFirst: ReturnType<typeof vi.fn> };
+      const orderFind = prismaMock.order as {
+        findFirst: ReturnType<typeof vi.fn>;
+      };
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED, amount: 1550 },
-        refunds: [
-          { id: 'rf-prev', amount: 1000, status: 'SUCCEEDED' },
-        ],
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.CAPTURED,
+          amount: 1550,
+        },
+        refunds: [{ id: 'rf-prev', amount: 1000, status: 'SUCCEEDED' }],
       });
 
       await expect(
@@ -724,12 +824,18 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         findUnique: ReturnType<typeof vi.fn>;
         update: ReturnType<typeof vi.fn>;
       };
-      const refundCreate = prismaMock.refund as { create: ReturnType<typeof vi.fn> };
+      const refundCreate = prismaMock.refund as {
+        create: ReturnType<typeof vi.fn>;
+      };
 
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.DELIVERED,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED, amount: 1550 },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.CAPTURED,
+          amount: 1550,
+        },
         refunds: [],
         pointTransactions: [],
       });
@@ -737,7 +843,10 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
       orderFind.findUnique.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.DELIVERED,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.CAPTURED,
+        },
         refunds: [
           {
             id: 'rf-1',
@@ -777,16 +886,20 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         findUnique: ReturnType<typeof vi.fn>;
         update: ReturnType<typeof vi.fn>;
       };
-      const pointTxMock = prismaMock.pointTransaction as { create: ReturnType<typeof vi.fn> };
+      const pointTxMock = prismaMock.pointTransaction as {
+        create: ReturnType<typeof vi.fn>;
+      };
 
       orderFind.findFirst.mockResolvedValueOnce({
         ...baseOrderFixture,
         userId: 'user-vip-01',
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.CAPTURED, amount: 1550 },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.CAPTURED,
+          amount: 1550,
+        },
         refunds: [],
-        pointTransactions: [
-          { changeType: 'EARNED_ORDER', pointsChange: 155 },
-        ],
+        pointTransactions: [{ changeType: 'EARNED_ORDER', pointsChange: 155 }],
       });
 
       userMock.findUnique.mockResolvedValueOnce({
@@ -797,7 +910,10 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
       orderFind.findUnique.mockResolvedValueOnce({
         ...baseOrderFixture,
         status: OrderStatus.REFUNDED,
-        payment: { ...baseOrderFixture.payment, status: PaymentStatus.REFUNDED },
+        payment: {
+          ...baseOrderFixture.payment,
+          status: PaymentStatus.REFUNDED,
+        },
       });
 
       await service.processRefund(baseOrderFixture.orderNumber, {

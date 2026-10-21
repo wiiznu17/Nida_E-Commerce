@@ -20,7 +20,11 @@ describe('Admin MailerService', () => {
     delete process.env.SMTP_HOST;
     delete process.env.MAIL_HOST;
 
-    const loggerSpy = vi.spyOn((service as unknown as { logger: { log: ReturnType<typeof vi.fn> } }).logger, 'log');
+    const loggerSpy = vi.spyOn(
+      (service as unknown as { logger: { log: ReturnType<typeof vi.fn> } })
+        .logger,
+      'log',
+    );
     service.onModuleInit();
 
     await service.sendAdminInvitation({
@@ -37,10 +41,14 @@ describe('Admin MailerService', () => {
     process.env.SMTP_HOST = 'smtp.example.com';
     process.env.SMTP_PORT = '465';
 
-    const sendMailMock = vi.fn().mockResolvedValue({ messageId: 'msg-admin-1' });
-    const createTransportSpy = vi.spyOn(nodemailer, 'createTransport').mockReturnValue({
-      sendMail: sendMailMock,
-    } as unknown as ReturnType<typeof nodemailer.createTransport>);
+    const sendMailMock = vi
+      .fn()
+      .mockResolvedValue({ messageId: 'msg-admin-1' });
+    const createTransportSpy = vi
+      .spyOn(nodemailer, 'createTransport')
+      .mockReturnValue({
+        sendMail: sendMailMock,
+      } as unknown as ReturnType<typeof nodemailer.createTransport>);
 
     service.onModuleInit();
     expect(createTransportSpy).toHaveBeenCalledWith(
@@ -67,7 +75,9 @@ describe('Admin MailerService', () => {
 
   it('sends password reset via SMTP when transporter is active', async () => {
     process.env.SMTP_HOST = 'smtp.example.com';
-    const sendMailMock = vi.fn().mockResolvedValue({ messageId: 'msg-reset-1' });
+    const sendMailMock = vi
+      .fn()
+      .mockResolvedValue({ messageId: 'msg-reset-1' });
     vi.spyOn(nodemailer, 'createTransport').mockReturnValue({
       sendMail: sendMailMock,
     } as unknown as ReturnType<typeof nodemailer.createTransport>);

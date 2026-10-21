@@ -28,7 +28,9 @@ export class LogisticsService {
       this.logger.log('Logistics Service initialized with SHIPPOP Provider');
     } else {
       this.activeProvider = this.internalProvider;
-      this.logger.log('Logistics Service initialized with Internal Mock Provider');
+      this.logger.log(
+        'Logistics Service initialized with Internal Mock Provider',
+      );
     }
   }
 
@@ -58,7 +60,10 @@ export class LogisticsService {
   ): Promise<{ success: boolean; message: string }> {
     const parsed = await this.activeProvider.parseWebhook(payload, headers);
     if (!parsed) {
-      return { success: false, message: 'Invalid or unsupported webhook payload' };
+      return {
+        success: false,
+        message: 'Invalid or unsupported webhook payload',
+      };
     }
 
     const shipment = await this.prisma.shipment.findFirst({
@@ -115,7 +120,10 @@ export class LogisticsService {
         data: updateData,
       });
 
-      if (parsed.isDelivered && shipment.order.status !== OrderStatus.DELIVERED) {
+      if (
+        parsed.isDelivered &&
+        shipment.order.status !== OrderStatus.DELIVERED
+      ) {
         await tx.order.update({
           where: { id: shipment.orderId },
           data: { status: OrderStatus.DELIVERED },

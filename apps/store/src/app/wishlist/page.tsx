@@ -13,10 +13,7 @@ import {
   CatalogProductGrid,
   CatalogMobileDrawer,
 } from '@/components/catalog';
-import {
-  WishlistEmptyState,
-  useWishlistFilters,
-} from '@/components/wishlist';
+import { WishlistEmptyState, useWishlistFilters } from '@/components/wishlist';
 import { LoadingSpinner } from '@/components/ui';
 
 export default function WishlistPage() {
@@ -48,8 +45,9 @@ export default function WishlistPage() {
     clearAllFilters,
   } = useWishlistFilters(rawWishlistProducts);
 
-
-  const isPageLoading = isAuthLoading || (isAuthenticated && (isWishlistLoading || isCatalogLoading));
+  const isPageLoading =
+    isAuthLoading ||
+    (isAuthenticated && (isWishlistLoading || isCatalogLoading));
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -69,22 +67,24 @@ export default function WishlistPage() {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6">
         <div className="flex gap-8">
           {/* Collapsible Left Filter Sidebar (Shared Catalog Component) */}
-          {isAuthenticated && isFilterVisible && rawWishlistProducts.length > 0 && (
-            <aside className="hidden lg:block w-64 shrink-0">
-              <div className="sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto pr-2 pb-12">
-                <CatalogFilterSidebar
-                  filters={filters}
-                  filterOptions={filterOptions}
-                  activeFilterCount={activeFilterCount}
-                  onToggleDepartment={toggleDepartment}
-                  onToggleSubCategory={toggleSubCategory}
-                  onPriceRangeChange={handlePriceRangeChange}
-                  onToggleTag={handleToggleTag}
-                  onClearAll={clearAllFilters}
-                />
-              </div>
-            </aside>
-          )}
+          {isAuthenticated &&
+            isFilterVisible &&
+            rawWishlistProducts.length > 0 && (
+              <aside className="hidden lg:block w-64 shrink-0">
+                <div className="sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto pr-2 pb-12">
+                  <CatalogFilterSidebar
+                    filters={filters}
+                    filterOptions={filterOptions}
+                    activeFilterCount={activeFilterCount}
+                    onToggleDepartment={toggleDepartment}
+                    onToggleSubCategory={toggleSubCategory}
+                    onPriceRangeChange={handlePriceRangeChange}
+                    onToggleTag={handleToggleTag}
+                    onClearAll={clearAllFilters}
+                  />
+                </div>
+              </aside>
+            )}
 
           {/* Product Grid Area */}
           <main className="flex-1 min-w-0">

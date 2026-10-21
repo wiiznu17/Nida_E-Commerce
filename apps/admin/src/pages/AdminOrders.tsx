@@ -79,10 +79,7 @@ export default function AdminOrders() {
   const urlPayment = searchParams.get('paymentMethod') ?? 'ALL';
   const urlSortBy =
     (searchParams.get('sortBy') as
-      | 'newest'
-      | 'oldest'
-      | 'amount_desc'
-      | 'amount_asc') ?? 'newest';
+      'newest' | 'oldest' | 'amount_desc' | 'amount_asc') ?? 'newest';
   const currentPage = parseInt(searchParams.get('page') ?? '1', 10) || 1;
   const pageSize = parseInt(searchParams.get('pageSize') ?? '10', 10) || 10;
 
@@ -104,8 +101,10 @@ export default function AdminOrders() {
   const [orderToFulfill, setOrderToFulfill] = useState<ApiOrder | null>(null);
   const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
   const [orderToSimulate, setOrderToSimulate] = useState<ApiOrder | null>(null);
-  const [isPaymentOverrideModalOpen, setIsPaymentOverrideModalOpen] = useState(false);
-  const [orderToOverridePayment, setOrderToOverridePayment] = useState<ApiOrder | null>(null);
+  const [isPaymentOverrideModalOpen, setIsPaymentOverrideModalOpen] =
+    useState(false);
+  const [orderToOverridePayment, setOrderToOverridePayment] =
+    useState<ApiOrder | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
 
   const toast = useToast();
@@ -150,10 +149,12 @@ export default function AdminOrders() {
     if (e) e.preventDefault();
     const next = new URLSearchParams();
     if (searchInput.trim()) next.set('search', searchInput.trim());
-    if (statusFilter && statusFilter !== 'ALL') next.set('status', statusFilter);
+    if (statusFilter && statusFilter !== 'ALL')
+      next.set('status', statusFilter);
     if (paymentFilterInput && paymentFilterInput !== 'ALL')
       next.set('paymentMethod', paymentFilterInput);
-    if (sortByInput && sortByInput !== 'newest') next.set('sortBy', sortByInput);
+    if (sortByInput && sortByInput !== 'newest')
+      next.set('sortBy', sortByInput);
     if (pageSize !== 10) next.set('pageSize', pageSize.toString());
     next.set('page', '1');
     setSearchParams(next);
@@ -568,7 +569,8 @@ export default function AdminOrders() {
                           ) : null}
                           {order.returnRequests?.some(
                             (r) =>
-                              r.status === 'REQUESTED' || r.status === 'APPROVED',
+                              r.status === 'REQUESTED' ||
+                              r.status === 'APPROVED',
                           ) ? (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-xs text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
                               {t('orders.table.pendingReturnChip')}
@@ -763,7 +765,6 @@ export default function AdminOrders() {
                           </Link>
                         </div>
                       </TableCell>
-
                     </TableRow>
                   ))
                 )}

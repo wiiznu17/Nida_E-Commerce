@@ -35,13 +35,11 @@ export function useCollectionDepartment() {
   const selectedSubCategory = searchParams.get('subCategory')?.trim() ?? null;
   const sortBy =
     (searchParams.get('sort')?.trim() as
-      | 'featured'
-      | 'newest'
-      | 'price-asc'
-      | 'price-desc') ?? 'featured';
+      'featured' | 'newest' | 'price-asc' | 'price-desc') ?? 'featured';
 
   const pageParam = parseInt(searchParams.get('page') ?? '1', 10);
-  const currentPage = Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
+  const currentPage =
+    Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
   const pageSize = 24;
 
   const { addToCart } = useCart();
@@ -88,7 +86,8 @@ export function useCollectionDepartment() {
             seen.add(child.slug);
             list.push({
               slug: child.slug,
-              label: language === 'th' && child.nameTh ? child.nameTh : child.name,
+              label:
+                language === 'th' && child.nameTh ? child.nameTh : child.name,
             });
           }
         }
@@ -148,15 +147,16 @@ export function useCollectionDepartment() {
       'price-desc': 'price_desc',
     };
 
-    catalogRequester.getProductsWithMeta({
-      department: department !== 'sale' ? department : undefined,
-      category: selectedCategory ?? undefined,
-      subCategory: selectedSubCategory ?? undefined,
-      tag: department === 'sale' ? 'SALE' : undefined,
-      sortBy: sortMap[sortBy] ?? 'featured',
-      page: currentPage,
-      limit: pageSize,
-    })
+    catalogRequester
+      .getProductsWithMeta({
+        department: department !== 'sale' ? department : undefined,
+        category: selectedCategory ?? undefined,
+        subCategory: selectedSubCategory ?? undefined,
+        tag: department === 'sale' ? 'SALE' : undefined,
+        sortBy: sortMap[sortBy] ?? 'featured',
+        page: currentPage,
+        limit: pageSize,
+      })
       .then((res) => {
         if (!isCancelled) {
           setServerProducts(res.products);
@@ -167,7 +167,10 @@ export function useCollectionDepartment() {
       })
       .catch((err: unknown) => {
         if (!isCancelled) {
-          console.warn('[CollectionDepartmentContent] Server fetch error:', err);
+          console.warn(
+            '[CollectionDepartmentContent] Server fetch error:',
+            err,
+          );
           setIsLoading(false);
         }
       });
@@ -175,7 +178,14 @@ export function useCollectionDepartment() {
     return () => {
       isCancelled = true;
     };
-  }, [department, selectedCategory, selectedSubCategory, sortBy, currentPage, pageSize]);
+  }, [
+    department,
+    selectedCategory,
+    selectedSubCategory,
+    sortBy,
+    currentPage,
+    pageSize,
+  ]);
 
   const deptData = DEPARTMENT_INFO[department];
   const matchedCategory = categories.find((c) => c.slug === selectedCategory);

@@ -156,7 +156,9 @@ export function CheckoutOrderSummary({
         {discountAmount > 0 && (
           <div className="flex justify-between text-emerald-700 font-bold">
             <span>{t('checkout.discount')}</span>
-            <span className="font-mono">-฿{discountAmount.toLocaleString()}</span>
+            <span className="font-mono">
+              -฿{discountAmount.toLocaleString()}
+            </span>
           </div>
         )}
         <div className="flex justify-between">

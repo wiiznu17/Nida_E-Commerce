@@ -26,7 +26,9 @@ function getStepProgressIndex(
   return 0;
 }
 
-export function TrackingMilestonesCard({ trackingData }: TrackingMilestonesCardProps) {
+export function TrackingMilestonesCard({
+  trackingData,
+}: TrackingMilestonesCardProps) {
   const { language, t } = useLanguage();
 
   const currentStep = getStepProgressIndex(
@@ -137,11 +139,15 @@ export function TrackingMilestonesCard({ trackingData }: TrackingMilestonesCardP
                     }`}
                   />
                   <div className="space-y-1 pr-4">
-                    <p className={`font-black text-sm ${isFirst ? 'text-brand-brown' : 'text-stone-800'}`}>
+                    <p
+                      className={`font-black text-sm ${isFirst ? 'text-brand-brown' : 'text-stone-800'}`}
+                    >
                       {entry.statusTitle}
                     </p>
                     {entry.statusDescription && (
-                      <p className="text-stone-600 text-xs leading-relaxed">{entry.statusDescription}</p>
+                      <p className="text-stone-600 text-xs leading-relaxed">
+                        {entry.statusDescription}
+                      </p>
                     )}
                     {entry.location && (
                       <p className="text-[11px] text-stone-500 font-medium inline-flex items-center gap-1 mt-0.5">

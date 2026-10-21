@@ -59,10 +59,15 @@ export default function CustomerOrderDetailPage() {
 
     const interval = setInterval(async () => {
       try {
-        const syncResult = await orderRequester.syncOmiseStatus(orderNumber, token);
+        const syncResult = await orderRequester.syncOmiseStatus(
+          orderNumber,
+          token,
+        );
         if (syncResult.order.status !== OrderStatus.PENDING) {
           setOrder(syncResult.order);
-          setToastMessage(isTh ? 'การชำระเงินสำเร็จแล้ว!' : 'Payment completed successfully!');
+          setToastMessage(
+            isTh ? 'การชำระเงินสำเร็จแล้ว!' : 'Payment completed successfully!',
+          );
         }
       } catch {
         // Silently continue polling
@@ -124,9 +129,7 @@ export default function CustomerOrderDetailPage() {
             <p className="text-xs font-black uppercase tracking-wider text-rose-800">
               {isTh ? 'การชำระเงินไม่สำเร็จ' : 'Payment Failed'}
             </p>
-            <p className="text-xs text-rose-700 mt-0.5">
-              {paymentError}
-            </p>
+            <p className="text-xs text-rose-700 mt-0.5">{paymentError}</p>
           </div>
           <Link
             href={`/payment?orderNumber=${encodeURIComponent(order.orderNumber)}`}
@@ -150,11 +153,12 @@ export default function CustomerOrderDetailPage() {
         {/* Left 8 Cols: Tracking Progress, Requests & Items */}
         <div className="lg:col-span-8 space-y-6">
           <CustomerOrderTrackingCard order={order} />
-          {order.cancellationRequests && order.cancellationRequests.length > 0 && (
-            <CustomerOrderCancellationCard
-              cancellationRequests={order.cancellationRequests}
-            />
-          )}
+          {order.cancellationRequests &&
+            order.cancellationRequests.length > 0 && (
+              <CustomerOrderCancellationCard
+                cancellationRequests={order.cancellationRequests}
+              />
+            )}
           {order.returnRequests && order.returnRequests.length > 0 && (
             <CustomerOrderReturnCard
               order={order}

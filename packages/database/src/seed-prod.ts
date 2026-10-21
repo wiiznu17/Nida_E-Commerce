@@ -1,8 +1,5 @@
 import 'dotenv/config';
-import {
-  PrismaClient,
-  Department,
-} from './generated/prisma/index.js';
+import { PrismaClient, Department } from './generated/prisma/index.js';
 import { CATEGORIES_SEED_DATA } from './catalog-seed.data.js';
 import { syncRbac } from './seed-rbac.js';
 
@@ -24,7 +21,8 @@ async function main() {
   });
 
   if (!existingSuperAdmin) {
-    const adminEmail = process.env.INITIAL_ADMIN_EMAIL ?? 'admin@nida-apparel.com';
+    const adminEmail =
+      process.env.INITIAL_ADMIN_EMAIL ?? 'admin@nida-apparel.com';
     const adminUsername = process.env.INITIAL_ADMIN_USERNAME ?? 'superadmin';
     // Default fallback hash is bcrypt for "admin123" if not provided via environment
     const passwordHash =
@@ -41,9 +39,13 @@ async function main() {
         roleId: superAdminRole.id,
       },
     });
-    console.log(`✅ Created initial Super Admin: ${createdAdmin.email} (${createdAdmin.username})`);
+    console.log(
+      `✅ Created initial Super Admin: ${createdAdmin.email} (${createdAdmin.username})`,
+    );
   } else {
-    console.log(`ℹ️ Super Admin already exists: ${existingSuperAdmin.email}. Skipping creation.`);
+    console.log(
+      `ℹ️ Super Admin already exists: ${existingSuperAdmin.email}. Skipping creation.`,
+    );
   }
 
   // 3. Upsert Core Taxonomy / Categories (without altering existing products)
@@ -96,9 +98,13 @@ async function main() {
     });
     categoriesMap[cat.slug] = upserted.id;
   }
-  console.log(`✅ Upserted ${CATEGORIES_SEED_DATA.length} core categories successfully.`);
+  console.log(
+    `✅ Upserted ${CATEGORIES_SEED_DATA.length} core categories successfully.`,
+  );
 
-  console.log('✨ Production database seeding finished successfully without data loss.');
+  console.log(
+    '✨ Production database seeding finished successfully without data loss.',
+  );
 }
 
 main()

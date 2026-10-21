@@ -4,11 +4,7 @@ import {
   OrderLifecycleJobName,
   type AutoCompleteDeliveryJobData,
 } from '@repo/types';
-import {
-  OrderStatus,
-  PointChangeType,
-  AuditActionType,
-} from '@repo/database';
+import { OrderStatus, PointChangeType, AuditActionType } from '@repo/database';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { Job } from 'bullmq';
 
@@ -39,7 +35,7 @@ describe('DeliveryCompleteWorker — BullMQ 5-Day Delivery Auto-Completion & Loy
     ({
       name,
       data,
-    } as unknown as Job<AutoCompleteDeliveryJobData>);
+    }) as unknown as Job<AutoCompleteDeliveryJobData>;
 
   beforeEach(() => {
     prismaMock = {
@@ -64,7 +60,10 @@ describe('DeliveryCompleteWorker — BullMQ 5-Day Delivery Auto-Completion & Loy
   });
 
   it('ignores jobs with unhandled job names', async () => {
-    const job = createMockJob({ orderId: 'ord-1', orderNumber: 'NIDA-001' }, 'other-job' as any);
+    const job = createMockJob(
+      { orderId: 'ord-1', orderNumber: 'NIDA-001' },
+      'other-job' as any,
+    );
 
     await worker.process(job);
 
@@ -86,7 +85,10 @@ describe('DeliveryCompleteWorker — BullMQ 5-Day Delivery Auto-Completion & Loy
       status: OrderStatus.COMPLETED,
     });
 
-    const job = createMockJob({ orderId: 'ord-already-completed', orderNumber: 'NIDA-001' });
+    const job = createMockJob({
+      orderId: 'ord-already-completed',
+      orderNumber: 'NIDA-001',
+    });
 
     await worker.process(job);
 
@@ -158,7 +160,9 @@ describe('DeliveryCompleteWorker — BullMQ 5-Day Delivery Auto-Completion & Loy
     };
 
     prismaMock.order.findUnique.mockResolvedValue(mockOrder);
-    prismaMock.pointTransaction.findFirst.mockResolvedValue({ id: 'existing-pt' });
+    prismaMock.pointTransaction.findFirst.mockResolvedValue({
+      id: 'existing-pt',
+    });
 
     const job = createMockJob({
       orderId: 'ord-delivered-dup',

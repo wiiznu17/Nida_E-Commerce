@@ -5,6 +5,7 @@
 ---
 
 ## สารบัญ
+
 1. [ความปลอดภัยและการจัดการ Secret Keys](#1-ความปลอดภัยและการจัดการ-secret-keys)
 2. [ระบบฐานข้อมูลและการจัดการ Schema (Database & Migrations)](#2-ระบบฐานข้อมูลและการจัดการ-schema-database--migrations)
 3. [ระบบจัดเก็บไฟล์รูปภาพ (Cloud Storage & Assets)](#3-ระบบจัดเก็บไฟล์รูปภาพ-cloud-storage--assets)
@@ -126,7 +127,11 @@
     ```ts
     const isProd = process.env.NODE_ENV === 'production';
     app.enableCors({
-      origin: isProd ? allowedOrigins : (origin, callback) => { /* dev allowed */ },
+      origin: isProd
+        ? allowedOrigins
+        : (origin, callback) => {
+            /* dev allowed */
+          },
       credentials: true,
     });
     ```
@@ -134,7 +139,11 @@
     ```ts
     const isProd = process.env.NODE_ENV === 'production';
     app.enableCors({
-      origin: isProd ? allowedOrigins : (origin, callback) => { /* dev allowed */ },
+      origin: isProd
+        ? allowedOrigins
+        : (origin, callback) => {
+            /* dev allowed */
+          },
       credentials: true,
     });
     ```
@@ -166,6 +175,7 @@ npm --prefix apps/store run build
 ## 9. รายการ Environment Variables รวมทุก Service
 
 ### 🛍️ Storefront Web (`apps/store` - Next.js)
+
 ```env
 NEXT_PUBLIC_API_URL="https://api.yourdomain.com/api/v1"
 NEXT_PUBLIC_OMISE_PUBLIC_KEY="pkey_live_..."
@@ -173,11 +183,13 @@ NEXT_PUBLIC_SITE_URL="https://yourdomain.com"
 ```
 
 ### 🛡️ Admin Portal Web (`apps/admin` - Vite React)
+
 ```env
 VITE_API_URL="https://admin-api.yourdomain.com/api/v1"
 ```
 
 ### ⚡ Customer API (`apps/api` - NestJS)
+
 ```env
 PORT=4001
 NODE_ENV=production
@@ -192,6 +204,7 @@ STORE_FRONTEND_URL="https://yourdomain.com"
 ```
 
 ### ⚙️ Admin API (`apps/admin-api` - NestJS)
+
 ```env
 PORT=4000
 NODE_ENV=production

@@ -37,7 +37,12 @@ export function FulfillmentGaugeChart({
 
       {/* Semi-Circle Gauge SVG */}
       <div className="flex flex-col items-center justify-center my-3 relative">
-        <svg width="180" height="100" viewBox="0 0 180 100" className="overflow-visible">
+        <svg
+          width="180"
+          height="100"
+          viewBox="0 0 180 100"
+          className="overflow-visible"
+        >
           {/* Background Track Arc */}
           <path
             d="M 20 90 A 64 64 0 0 1 160 90"

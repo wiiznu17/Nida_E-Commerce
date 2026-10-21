@@ -25,15 +25,20 @@ export function useProductDetail() {
   const { language, t } = useLanguage();
   const isTh = language === 'th';
 
-  const [fetchedProduct, setFetchedProduct] = useState<ApiProductDetail | null>(null);
+  const [fetchedProduct, setFetchedProduct] = useState<ApiProductDetail | null>(
+    null,
+  );
   const [isFetching, setIsFetching] = useState(false);
 
   const catalogProduct = productsList.find((p) => p.id === id || p.slug === id);
-  const product: ApiProductDetail | ApiProduct | undefined = fetchedProduct ?? catalogProduct;
+  const product: ApiProductDetail | ApiProduct | undefined =
+    fetchedProduct ?? catalogProduct;
 
   useEffect(() => {
     if (
-      (!fetchedProduct || !fetchedProduct.variants || fetchedProduct.variants.length === 0) &&
+      (!fetchedProduct ||
+        !fetchedProduct.variants ||
+        fetchedProduct.variants.length === 0) &&
       id
     ) {
       let isMounted = true;
@@ -55,7 +60,8 @@ export function useProductDetail() {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [mainImage, setMainImage] = useState('');
-  const [openAccordion, setOpenAccordion] = useState<ProductAccordionKey | null>('details');
+  const [openAccordion, setOpenAccordion] =
+    useState<ProductAccordionKey | null>('details');
   const [isAdded, setIsAdded] = useState(false);
 
   const availableColors: ProductColor[] = useMemo(() => {
@@ -107,7 +113,9 @@ export function useProductDetail() {
             : '';
       if (defaultImg) setMainImage(defaultImg);
       if (availableColors.length > 0) {
-        setSelectedColor(availableColors[0]?.name ?? (isTh ? 'มาตรฐาน' : 'Standard'));
+        setSelectedColor(
+          availableColors[0]?.name ?? (isTh ? 'มาตรฐาน' : 'Standard'),
+        );
       }
     }
   }, [product?.id, availableColors, isTh]);
@@ -121,7 +129,10 @@ export function useProductDetail() {
     if (sizes.length === 1) {
       setSelectedSize(sizes[0] ?? '');
     } else if (sizes.length > 1) {
-      if (selectedSize && !sizes.some((s) => s.toLowerCase() === selectedSize.toLowerCase())) {
+      if (
+        selectedSize &&
+        !sizes.some((s) => s.toLowerCase() === selectedSize.toLowerCase())
+      ) {
         setSelectedSize('');
       }
     } else {
@@ -159,7 +170,8 @@ export function useProductDetail() {
   }, [product]);
 
   const currentVariant = useMemo(() => {
-    if (!product || !('variants' in product) || !product.variants) return undefined;
+    if (!product || !('variants' in product) || !product.variants)
+      return undefined;
     return (
       product.variants.find((v) => {
         const matchSize = v.size.toLowerCase() === selectedSize.toLowerCase();
@@ -179,12 +191,16 @@ export function useProductDetail() {
   const categorySlug =
     product && 'categorySlug' in product
       ? product.categorySlug
-      : product && 'category' in product && typeof product.category === 'object' && product.category !== null
+      : product &&
+          'category' in product &&
+          typeof product.category === 'object' &&
+          product.category !== null
         ? product.category.slug
         : 'all';
 
   const displayPrice = currentVariant?.price ?? product?.basePrice ?? 0;
-  const displayOriginalPrice = currentVariant?.compareAtPrice ?? product?.originalPrice;
+  const displayOriginalPrice =
+    currentVariant?.compareAtPrice ?? product?.originalPrice;
 
   const materialsText =
     isTh && product && 'materialsCareTh' in product && product.materialsCareTh
@@ -218,7 +234,8 @@ export function useProductDetail() {
         .filter(
           (p) =>
             p.id !== product.id &&
-            (p.department === product.department || p.categorySlug === categorySlug),
+            (p.department === product.department ||
+              p.categorySlug === categorySlug),
         )
         .slice(0, 4)
     : [];

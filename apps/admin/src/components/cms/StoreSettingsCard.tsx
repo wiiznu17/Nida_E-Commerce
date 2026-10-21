@@ -131,7 +131,9 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
             />
             <div className="w-9 h-5 bg-stone-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#2B1810]"></div>
             <span className="ml-2 text-xs font-bold text-stone-700">
-              {announcementActive ? t('cms.statusActive') : t('cms.statusInactive')}
+              {announcementActive
+                ? t('cms.statusActive')
+                : t('cms.statusInactive')}
             </span>
           </label>
         </div>
@@ -143,7 +145,9 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+              <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                {t('cms.heroModal.th')}
+              </span>
               <input
                 type="text"
                 maxLength={25}
@@ -154,7 +158,9 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
               />
             </div>
             <div>
-              <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+              <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                {t('cms.heroModal.en')}
+              </span>
               <input
                 type="text"
                 maxLength={25}
@@ -174,7 +180,9 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+              <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                {t('cms.heroModal.th')}
+              </span>
               <textarea
                 rows={2}
                 maxLength={120}
@@ -185,7 +193,9 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
               />
             </div>
             <div>
-              <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+              <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                {t('cms.heroModal.en')}
+              </span>
               <textarea
                 rows={2}
                 maxLength={120}
@@ -233,7 +243,9 @@ export const StoreSettingsCard: React.FC<StoreSettingsCardProps> = ({
                 min={0}
                 step={50}
                 value={freeShippingThreshold}
-                onChange={(e) => setFreeShippingThreshold(Number(e.target.value))}
+                onChange={(e) =>
+                  setFreeShippingThreshold(Number(e.target.value))
+                }
                 className="w-full h-9 pl-7 pr-3 text-xs border border-stone-300 rounded-xs font-mono font-bold focus:outline-hidden focus:border-[#2B1810]"
               />
             </div>

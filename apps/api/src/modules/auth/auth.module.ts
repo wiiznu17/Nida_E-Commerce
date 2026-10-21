@@ -10,7 +10,6 @@ import {
 } from './guards/customer-jwt.guard.js';
 import { TurnstileService } from '../../core/security/turnstile.service.js';
 
-
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'customer-jwt' }),
@@ -38,5 +37,4 @@ import { TurnstileService } from '../../core/security/turnstile.service.js';
     JwtModule,
   ],
 })
-
 export class CustomerAuthModule {}

@@ -36,9 +36,7 @@ interface AuthenticatedCustomerRequest {
 @UseGuards(CustomerJwtGuard)
 @ApiBearerAuth()
 export class CustomerAddressesController {
-  constructor(
-    private readonly addressesService: CustomerAddressesService,
-  ) {}
+  constructor(private readonly addressesService: CustomerAddressesService) {}
 
   @Get()
   @ApiOperation({

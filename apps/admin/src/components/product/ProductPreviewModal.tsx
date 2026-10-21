@@ -122,7 +122,6 @@ export function ProductPreviewModal({
                     alt={name || 'Preview'}
                     className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                   />
-
                 ) : (
                   <div className="text-center p-4">
                     <ImageIcon
@@ -263,7 +262,8 @@ export function ProductPreviewModal({
                         {t('product.saveDiscount')} {discountPercent}%
                       </span>
                       <span className="text-emerald-700 font-bold">
-                        {t('product.youSave')} {formatPrice(numericOriginal - numericPrice)}
+                        {t('product.youSave')}{' '}
+                        {formatPrice(numericOriginal - numericPrice)}
                       </span>
                     </div>
                   )}

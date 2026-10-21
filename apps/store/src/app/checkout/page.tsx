@@ -79,7 +79,9 @@ export default function CheckoutPage() {
       {orderError && (
         <Alert
           variant="error"
-          title={language === 'th' ? 'เกิดข้อผิดพลาดในการสั่งซื้อ' : 'Order Error'}
+          title={
+            language === 'th' ? 'เกิดข้อผิดพลาดในการสั่งซื้อ' : 'Order Error'
+          }
           className="mb-8"
         >
           {orderError}

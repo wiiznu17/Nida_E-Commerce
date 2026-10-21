@@ -29,9 +29,7 @@ export function ProductVariantSelector({
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
             {t('product.selectColor')}:{' '}
-            <span className="font-semibold text-gray-600">
-              {selectedColor}
-            </span>
+            <span className="font-semibold text-gray-600">{selectedColor}</span>
           </span>
         </div>
         <div className="flex items-center space-x-3">
@@ -81,7 +79,8 @@ export function ProductVariantSelector({
           </div>
           <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
             {sizes.map((size) => {
-              const isSelected = selectedSize.toLowerCase() === size.toLowerCase();
+              const isSelected =
+                selectedSize.toLowerCase() === size.toLowerCase();
               return (
                 <button
                   key={size}

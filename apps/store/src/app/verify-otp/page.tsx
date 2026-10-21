@@ -3,7 +3,11 @@
 import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { KeyRound, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
-import { OtpInputGrid, DevOtpHintBanner, useVerifyOtp } from '@/components/auth';
+import {
+  OtpInputGrid,
+  DevOtpHintBanner,
+  useVerifyOtp,
+} from '@/components/auth';
 import { Alert, LoadingSpinner } from '@/components/ui';
 
 function VerifyOTPContent() {
@@ -41,10 +45,7 @@ function VerifyOTPContent() {
         <strong className="text-brand-brown font-mono">{email}</strong>
       </p>
 
-      <DevOtpHintBanner
-        devOtpHint={devOtpHint}
-        onAutoFill={handleAutoFill}
-      />
+      <DevOtpHintBanner devOtpHint={devOtpHint} onAutoFill={handleAutoFill} />
 
       {errorMessage && (
         <Alert variant="error" className="mb-6">
@@ -132,9 +133,7 @@ function VerifyOTPContent() {
 export default function VerifyOTPPage() {
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 bg-brand-warm-cream">
-      <Suspense
-        fallback={<LoadingSpinner className="p-12" />}
-      >
+      <Suspense fallback={<LoadingSpinner className="p-12" />}>
         <VerifyOTPContent />
       </Suspense>
     </div>

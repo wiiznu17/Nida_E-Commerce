@@ -79,10 +79,7 @@ export class CustomerCatalogService {
 
       if (category && category !== 'all') {
         conditions.push({
-          OR: [
-            { slug: category },
-            { parent: { slug: category } },
-          ],
+          OR: [{ slug: category }, { parent: { slug: category } }],
         });
       }
 

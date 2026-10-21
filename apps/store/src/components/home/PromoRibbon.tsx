@@ -19,12 +19,24 @@ export const PromoRibbon: React.FC = () => {
     : promoRibbon?.tagEn || promoRibbon?.tagTh || t('home.promoRibbonTag');
 
   const title = isTh
-    ? promoRibbon?.titleTh || promoRibbon?.titleEn || promoRibbon?.title || t('home.promoRibbonTitle')
-    : promoRibbon?.titleEn || promoRibbon?.titleTh || promoRibbon?.title || t('home.promoRibbonTitle');
+    ? promoRibbon?.titleTh ||
+      promoRibbon?.titleEn ||
+      promoRibbon?.title ||
+      t('home.promoRibbonTitle')
+    : promoRibbon?.titleEn ||
+      promoRibbon?.titleTh ||
+      promoRibbon?.title ||
+      t('home.promoRibbonTitle');
 
   const subtitle = isTh
-    ? promoRibbon?.subtitleTh || promoRibbon?.subtitleEn || promoRibbon?.subtitle || t('home.promoRibbonDesc')
-    : promoRibbon?.subtitleEn || promoRibbon?.subtitleTh || promoRibbon?.subtitle || t('home.promoRibbonDesc');
+    ? promoRibbon?.subtitleTh ||
+      promoRibbon?.subtitleEn ||
+      promoRibbon?.subtitle ||
+      t('home.promoRibbonDesc')
+    : promoRibbon?.subtitleEn ||
+      promoRibbon?.subtitleTh ||
+      promoRibbon?.subtitle ||
+      t('home.promoRibbonDesc');
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(couponCode);

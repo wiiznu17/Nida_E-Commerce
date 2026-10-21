@@ -10,9 +10,18 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { OrdersService } from './orders.service.js';
-import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto.js';
+import {
+  CreateOrderDto,
+  UpdateOrderStatusDto,
+} from './dto/create-order.dto.js';
 import { CarrierBookingDto } from './dto/carrier-booking.dto.js';
 import { TrackOrderQueryDto } from './dto/track-order.dto.js';
 import {
@@ -27,7 +36,11 @@ import {
   ReturnStatus,
   type ApiAdminUser,
 } from '@repo/types';
-import { RequirePermissions, Public, CurrentAdmin } from '../auth/decorators/index.js';
+import {
+  RequirePermissions,
+  Public,
+  CurrentAdmin,
+} from '../auth/decorators/index.js';
 
 import { LogisticsService } from './logistics/index.js';
 import { PaymentGatewayService } from './payment-gateway/index.js';
@@ -71,9 +84,13 @@ export class OrdersController {
   @RequirePermissions(AdminPermission.ORDERS_READ)
   @ApiOperation({
     summary: 'ดูรายการคำสั่งซื้อทั้งหมด (Get All Orders)',
-    description: 'ดึงรายการคำสั่งซื้อทั้งหมดสำหรับแอดมินพร้อมรองรับการค้นหา กรองสถานะ และแบ่งหน้า',
+    description:
+      'ดึงรายการคำสั่งซื้อทั้งหมดสำหรับแอดมินพร้อมรองรับการค้นหา กรองสถานะ และแบ่งหน้า',
   })
-  @ApiResponse({ status: 200, description: 'รายการคำสั่งซื้อและข้อมูลการแบ่งหน้า' })
+  @ApiResponse({
+    status: 200,
+    description: 'รายการคำสั่งซื้อและข้อมูลการแบ่งหน้า',
+  })
   async getOrders(
     @Query(new ZodValidationPipe(adminOrderQuerySchema))
     query: AdminOrderQueryInput,
@@ -121,7 +138,6 @@ export class OrdersController {
       body.overrideReason,
     );
   }
-
 
   @Post('orders/:id/carrier-booking')
   @RequirePermissions(AdminPermission.ORDERS_FULFILL)
@@ -251,7 +267,6 @@ export class OrdersController {
     return this.ordersService.reviewReturnRequest(id, dto, admin?.id);
   }
 
-
   @Public()
   @Post('webhooks/shippop')
   @HttpCode(HttpStatus.OK)
@@ -282,4 +297,3 @@ export class OrdersController {
     return this.paymentGatewayService.handleWebhook(payload, headers);
   }
 }
-

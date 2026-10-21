@@ -23,9 +23,10 @@ export const catalogRequester = {
     params?: StoreQueryProductsParams,
   ): Promise<CatalogProductsResult> => {
     try {
-      const queryParams: Record<string, string | number | boolean | undefined> = {
-        limit: params?.limit ?? 50,
-      };
+      const queryParams: Record<string, string | number | boolean | undefined> =
+        {
+          limit: params?.limit ?? 50,
+        };
 
       if (params?.department && params.department !== 'all') {
         queryParams.department = params.department.toUpperCase();
@@ -64,7 +65,12 @@ export const catalogRequester = {
       const body = await apiClient.get<
         | PaginatedResponse<ApiProduct>
         | { data: ApiProduct[]; pagination?: PaginationMeta }
-        | { items: ApiProduct[]; total?: number; page?: number; totalPages?: number }
+        | {
+            items: ApiProduct[];
+            total?: number;
+            page?: number;
+            totalPages?: number;
+          }
         | ApiProduct[]
       >('/catalog/products', queryParams);
 

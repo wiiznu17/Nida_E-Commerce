@@ -39,7 +39,9 @@ function PaymentPageContent() {
   const [isSimulatingPromptPay, setIsSimulatingPromptPay] = useState(false);
   const [isChangeModalOpen, setIsChangeModalOpen] = useState(false);
   const [isUpdatingMethod, setIsUpdatingMethod] = useState(false);
-  const [changeMethodError, setChangeMethodError] = useState<string | null>(null);
+  const [changeMethodError, setChangeMethodError] = useState<string | null>(
+    null,
+  );
   const [countdown, setCountdown] = useState<number>(15 * 60);
   const [errorMessage, setErrorMessage] = useState<string | null>(initialError);
 
@@ -50,7 +52,9 @@ function PaymentPageContent() {
       setOrder(data);
 
       if (data.status !== OrderStatus.PENDING) {
-        router.replace(`/order-success?orderNumber=${encodeURIComponent(rawOrderNumber)}`);
+        router.replace(
+          `/order-success?orderNumber=${encodeURIComponent(rawOrderNumber)}`,
+        );
       }
     } catch (err: unknown) {
       const extracted = extractApiError(
@@ -104,14 +108,20 @@ function PaymentPageContent() {
 
   // Real-time Webhook Polling: poll every 3 seconds while order is PENDING
   useEffect(() => {
-    if (!order || order.status !== OrderStatus.PENDING || !rawOrderNumber) return;
+    if (!order || order.status !== OrderStatus.PENDING || !rawOrderNumber)
+      return;
 
     const pollInterval = setInterval(async () => {
       try {
-        const statusResult = await orderRequester.syncOmiseStatus(rawOrderNumber, token);
+        const statusResult = await orderRequester.syncOmiseStatus(
+          rawOrderNumber,
+          token,
+        );
         if (statusResult.order.status !== OrderStatus.PENDING) {
           setOrder(statusResult.order);
-          router.replace(`/order-success?orderNumber=${encodeURIComponent(rawOrderNumber)}`);
+          router.replace(
+            `/order-success?orderNumber=${encodeURIComponent(rawOrderNumber)}`,
+          );
         }
       } catch {
         // Continue polling silently
@@ -156,9 +166,14 @@ function PaymentPageContent() {
     setIsSimulatingPromptPay(true);
     setErrorMessage(null);
     try {
-      const updated = await orderRequester.simulateOmisePay(order.orderNumber, token);
+      const updated = await orderRequester.simulateOmisePay(
+        order.orderNumber,
+        token,
+      );
       setOrder(updated);
-      router.replace(`/order-success?orderNumber=${encodeURIComponent(order.orderNumber)}`);
+      router.replace(
+        `/order-success?orderNumber=${encodeURIComponent(order.orderNumber)}`,
+      );
     } catch (err: unknown) {
       const extracted = extractApiError(
         err,
@@ -202,7 +217,9 @@ function PaymentPageContent() {
         return;
       }
 
-      router.replace(`/order-success?orderNumber=${encodeURIComponent(order.orderNumber)}`);
+      router.replace(
+        `/order-success?orderNumber=${encodeURIComponent(order.orderNumber)}`,
+      );
     } catch (err: unknown) {
       const extracted = extractApiError(
         err,
@@ -219,7 +236,11 @@ function PaymentPageContent() {
     return (
       <div className="w-full bg-white border border-brand-border p-16 text-center shadow-xs">
         <LoadingSpinner
-          text={language === 'th' ? 'กำลังโหลดข้อมูลการชำระเงิน...' : 'Loading payment details...'}
+          text={
+            language === 'th'
+              ? 'กำลังโหลดข้อมูลการชำระเงิน...'
+              : 'Loading payment details...'
+          }
         />
       </div>
     );
@@ -235,13 +256,18 @@ function PaymentPageContent() {
           {language === 'th' ? 'ไม่พบคำสั่งซื้อ' : 'Order Not Found'}
         </h2>
         <p className="text-xs text-rose-700">
-          {errorMessage ?? (language === 'th' ? 'หมายเลขคำสั่งซื้อไม่ถูกต้อง' : 'Invalid order number')}
+          {errorMessage ??
+            (language === 'th'
+              ? 'หมายเลขคำสั่งซื้อไม่ถูกต้อง'
+              : 'Invalid order number')}
         </p>
         <Link
           href="/profile/orders"
           className="inline-block py-2.5 px-6 bg-brand-brown text-white text-xs font-bold uppercase tracking-wider transition-colors hover:bg-brand-dark-brown"
         >
-          {language === 'th' ? 'กลับไปยังประวัติคำสั่งซื้อ' : 'Back to My Orders'}
+          {language === 'th'
+            ? 'กลับไปยังประวัติคำสั่งซื้อ'
+            : 'Back to My Orders'}
         </Link>
       </div>
     );
@@ -256,7 +282,9 @@ function PaymentPageContent() {
           className="inline-flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-stone-500 hover:text-brand-brown transition-colors"
         >
           <ChevronLeft size={16} />
-          <span>{language === 'th' ? 'กลับไปยังคำสั่งซื้อ' : 'Back to Order'}</span>
+          <span>
+            {language === 'th' ? 'กลับไปยังคำสั่งซื้อ' : 'Back to Order'}
+          </span>
         </Link>
 
         {/* Center Brand Wordmark */}
@@ -291,7 +319,9 @@ function PaymentPageContent() {
             {/* Total Amount to Pay Banner */}
             <div>
               <p className="text-[11px] font-black uppercase tracking-widest text-stone-400 mb-1">
-                {language === 'th' ? 'ยอดเงินที่ต้องชำระ' : 'Total Amount to Pay'}
+                {language === 'th'
+                  ? 'ยอดเงินที่ต้องชำระ'
+                  : 'Total Amount to Pay'}
               </p>
               <p className="font-mono text-3xl sm:text-4xl font-black text-brand-dark-brown tracking-tight">
                 ฿{Number(order.totalAmount).toLocaleString()}
@@ -399,7 +429,8 @@ export default function PaymentPage() {
       {/* Minimal Enclosed Footer Note */}
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-12 pb-4 text-center">
         <p className="text-[11px] text-stone-400 font-medium">
-          © {new Date().getFullYear()} NIDA. All rights reserved. • Secured by Omise Payment Gateway (PCI-DSS Level 1)
+          © {new Date().getFullYear()} NIDA. All rights reserved. • Secured by
+          Omise Payment Gateway (PCI-DSS Level 1)
         </p>
       </div>
     </div>

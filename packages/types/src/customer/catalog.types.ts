@@ -115,7 +115,13 @@ export interface StoreQueryProductsParams {
   minPrice?: number;
   maxPrice?: number;
   colors?: string[];
-  sortBy?: 'featured' | 'newest' | 'price_asc' | 'price-asc' | 'price_desc' | 'price-desc';
+  sortBy?:
+    | 'featured'
+    | 'newest'
+    | 'price_asc'
+    | 'price-asc'
+    | 'price_desc'
+    | 'price-desc';
   page?: number;
   limit?: number;
 }

@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Package, AlertTriangle, Activity, Users, ArrowUpRight } from 'lucide-react';
+import {
+  Package,
+  AlertTriangle,
+  Activity,
+  Users,
+  ArrowUpRight,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import type { DashboardHealthData } from './dashboardTypes';
 
@@ -58,7 +64,9 @@ export function DashboardHealthStrip({ data }: DashboardHealthStripProps) {
         <div className="flex items-center space-x-2">
           <AlertTriangle
             size={14}
-            className={data.lowStockCount > 0 ? 'text-rose-600' : 'text-gray-400'}
+            className={
+              data.lowStockCount > 0 ? 'text-rose-600' : 'text-gray-400'
+            }
           />
           <span className="text-[11px] font-black uppercase tracking-wider text-brand-brown">
             {t('dashboard.health.lowStockSkus')}

@@ -7,7 +7,9 @@ interface TrackingHeaderBannerProps {
   trackingData: TrackingResult;
 }
 
-export function TrackingHeaderBanner({ trackingData }: TrackingHeaderBannerProps) {
+export function TrackingHeaderBanner({
+  trackingData,
+}: TrackingHeaderBannerProps) {
   const { language, t } = useLanguage();
   const [copiedTracking, setCopiedTracking] = useState(false);
 
@@ -37,7 +39,9 @@ export function TrackingHeaderBanner({ trackingData }: TrackingHeaderBannerProps
           <div className="flex flex-wrap items-center gap-x-3 text-xs text-gray-600 mt-2">
             <span>
               {t('trackOrder.courier')}{' '}
-              <strong>{trackingData.shipment?.courierName || 'Kerry Express'}</strong>
+              <strong>
+                {trackingData.shipment?.courierName || 'Kerry Express'}
+              </strong>
             </span>
             <span>•</span>
             <span className="inline-flex items-center space-x-1.5">
@@ -72,7 +76,9 @@ export function TrackingHeaderBanner({ trackingData }: TrackingHeaderBannerProps
               {trackingData.shipment?.status === 'DELIVERED'
                 ? t('trackOrder.stepDelivered')
                 : trackingData.shipment?.status === 'OUT_FOR_DELIVERY'
-                  ? (language === 'th' ? 'กำลังนำจ่าย' : 'Out for Delivery')
+                  ? language === 'th'
+                    ? 'กำลังนำจ่าย'
+                    : 'Out for Delivery'
                   : trackingData.orderStatus === 'SHIPPED'
                     ? t('trackOrder.inTransit')
                     : t('trackOrder.stepProcessing')}

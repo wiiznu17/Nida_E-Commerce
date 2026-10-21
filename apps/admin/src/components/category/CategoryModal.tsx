@@ -212,7 +212,10 @@ export function CategoryModal({
                 onChange={(e) => {
                   setName(e.target.value);
                   if (fieldErrors.name) {
-                    setFieldErrors((prev: { name?: string }) => ({ ...prev, name: undefined }));
+                    setFieldErrors((prev: { name?: string }) => ({
+                      ...prev,
+                      name: undefined,
+                    }));
                   }
                 }}
                 placeholder={t('category.modal.nameEnPlaceholder')}

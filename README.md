@@ -27,9 +27,9 @@ Nida_Project/
 
 ### 1. Prerequisites
 
-* **Node.js**: v20 or higher
+- **Node.js**: v20 or higher
 
-* **Docker Desktop**: For running PostgreSQL and pgAdmin containers
+- **Docker Desktop**: For running PostgreSQL and pgAdmin containers
 
 ### 2. Install Dependencies
 
@@ -47,7 +47,7 @@ cp .env.example .env
 
 ```
 
-*(Default values are pre-configured for local development.)*
+_(Default values are pre-configured for local development.)_
 
 ## 🗄️ Database & Docker Setup
 
@@ -60,13 +60,13 @@ docker compose up -d
 
 ```
 
-* **PostgreSQL**: Runs on port `5432` (`localhost:5432/ecommerce_db`)
+- **PostgreSQL**: Runs on port `5432` (`localhost:5432/ecommerce_db`)
 
-* **pgAdmin 4**: Access via web browser at `http://localhost:5050`
+- **pgAdmin 4**: Access via web browser at `http://localhost:5050`
 
-  * **Email**: `admin@admin.com`
+  - **Email**: `admin@admin.com`
 
-  * **Password**: `admin`
+  - **Password**: `admin`
 
 ### 2. Push Schema to Database
 
@@ -86,21 +86,21 @@ npm run db:seed -w @repo/database
 
 #### 🔑 Seed Credentials & Sample Coupons:
 
-* **Super Admin Credentials**:
+- **Super Admin Credentials**:
 
-  * **Email**: `admin@nida-apparel.com`
+  - **Email**: `admin@nida-apparel.com`
 
-  * **Username**: `superadmin`
+  - **Username**: `superadmin`
 
-  * **Password**: `admin123`
+  - **Password**: `admin123`
 
-* **Sample Coupon Codes**:
+- **Sample Coupon Codes**:
 
-  * `NIDA20`: 20% off (Min. spend \$100, max discount $50)
+  - `NIDA20`: 20% off (Min. spend \$100, max discount $50)
 
-  * `FREESHIP`: Free shipping (Min. spend \$50)
+  - `FREESHIP`: Free shipping (Min. spend \$50)
 
-  * `WELCOME50`: Flat \$50 off (Min. spend $200)
+  - `WELCOME50`: Flat \$50 off (Min. spend $200)
 
 ### 4. Database GUI (Prisma Studio)
 

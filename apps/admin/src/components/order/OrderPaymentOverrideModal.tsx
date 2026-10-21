@@ -14,7 +14,9 @@ export interface OrderPaymentOverrideModalProps {
   onSuccess: () => void;
 }
 
-export const OrderPaymentOverrideModal: React.FC<OrderPaymentOverrideModalProps> = ({
+export const OrderPaymentOverrideModal: React.FC<
+  OrderPaymentOverrideModalProps
+> = ({
   isOpen,
   onClose,
   orderId,
@@ -67,7 +69,8 @@ export const OrderPaymentOverrideModal: React.FC<OrderPaymentOverrideModalProps>
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to update order status';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to update order status';
       setError(msg);
     } finally {
       setIsSubmitting(false);
@@ -116,21 +119,35 @@ export const OrderPaymentOverrideModal: React.FC<OrderPaymentOverrideModalProps>
           {/* Order Details Strip */}
           <div className="bg-stone-50 rounded-xl p-3.5 border border-stone-200/60 text-xs space-y-1.5">
             <div className="flex justify-between items-center text-stone-600">
-              <span className="font-medium text-stone-500">{t('orders.paymentOverride.orderPrefix')}</span>
-              <span className="font-mono font-bold text-stone-900">{orderNumber}</span>
+              <span className="font-medium text-stone-500">
+                {t('orders.paymentOverride.orderPrefix')}
+              </span>
+              <span className="font-mono font-bold text-stone-900">
+                {orderNumber}
+              </span>
             </div>
             {totalAmount !== undefined && (
               <div className="flex justify-between items-center text-stone-600">
-                <span className="font-medium text-stone-500">{t('orders.paymentOverride.amount')}</span>
-                <span className="font-bold text-stone-900">{formatCurrency(totalAmount)}</span>
+                <span className="font-medium text-stone-500">
+                  {t('orders.paymentOverride.amount')}
+                </span>
+                <span className="font-bold text-stone-900">
+                  {formatCurrency(totalAmount)}
+                </span>
               </div>
             )}
             <div className="flex justify-between items-center text-stone-600">
-              <span className="font-medium text-stone-500">{t('orders.paymentOverride.paymentMethod')}</span>
-              <span className="font-mono text-stone-700 text-[11px] uppercase tracking-wider">{paymentMethod}</span>
+              <span className="font-medium text-stone-500">
+                {t('orders.paymentOverride.paymentMethod')}
+              </span>
+              <span className="font-mono text-stone-700 text-[11px] uppercase tracking-wider">
+                {paymentMethod}
+              </span>
             </div>
             <div className="flex justify-between items-center text-stone-600">
-              <span className="font-medium text-stone-500">{t('orders.paymentOverride.currentStatus')}</span>
+              <span className="font-medium text-stone-500">
+                {t('orders.paymentOverride.currentStatus')}
+              </span>
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                 PENDING

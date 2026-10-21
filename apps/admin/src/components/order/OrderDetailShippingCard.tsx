@@ -23,7 +23,6 @@ export function OrderDetailShippingCard({
   onOpenFulfill,
   onOpenWebhookModal,
 }: OrderDetailShippingCardProps) {
-
   const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 

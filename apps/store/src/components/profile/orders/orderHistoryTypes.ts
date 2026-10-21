@@ -9,10 +9,7 @@ export type OrderHistoryStatusFilter =
   | 'CANCELLED';
 
 export type OrderHistorySortOption =
-  | 'newest'
-  | 'oldest'
-  | 'amount_desc'
-  | 'amount_asc';
+  'newest' | 'oldest' | 'amount_desc' | 'amount_asc';
 
 export interface OrderHistoryMetrics {
   totalOrders: number;

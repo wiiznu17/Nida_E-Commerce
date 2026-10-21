@@ -52,7 +52,9 @@ describe('CustomerAddressesService', () => {
       }),
     };
 
-    service = new CustomerAddressesService(prismaMock as unknown as PrismaService);
+    service = new CustomerAddressesService(
+      prismaMock as unknown as PrismaService,
+    );
   });
 
   describe('getAddresses', () => {
@@ -123,7 +125,9 @@ describe('CustomerAddressesService', () => {
       prismaMock.userAddress.findUnique.mockResolvedValueOnce(null);
 
       await expect(
-        service.updateAddress('user-1', 'nonexistent', { recipientName: 'Test' }),
+        service.updateAddress('user-1', 'nonexistent', {
+          recipientName: 'Test',
+        }),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -163,9 +167,9 @@ describe('CustomerAddressesService', () => {
     it('throws NotFoundException if address does not exist', async () => {
       prismaMock.userAddress.findUnique.mockResolvedValueOnce(null);
 
-      await expect(service.deleteAddress('user-1', 'nonexistent')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.deleteAddress('user-1', 'nonexistent'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('reassigns default address to next available address when deleting default', async () => {

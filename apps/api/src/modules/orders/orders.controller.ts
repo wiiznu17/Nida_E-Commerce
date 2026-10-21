@@ -126,7 +126,11 @@ export class CustomerOrdersController {
   async getOmiseStatus(
     @Param('orderNumber') orderNumber: string,
     @Request() req: AuthenticatedCustomerRequest,
-  ): Promise<{ order: ApiOrder; chargeStatus?: string; failureMessage?: string }> {
+  ): Promise<{
+    order: ApiOrder;
+    chargeStatus?: string;
+    failureMessage?: string;
+  }> {
     const userId = req.user?.id;
     return this.ordersService.syncOmiseChargeStatus(orderNumber, userId);
   }
@@ -190,7 +194,10 @@ export class CustomerOrdersController {
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Submit pre-fulfillment cancellation request' })
   @ApiResponse({ status: 201, description: 'Cancellation request submitted' })
-  @ApiResponse({ status: 400, description: 'Order not eligible or pending request exists' })
+  @ApiResponse({
+    status: 400,
+    description: 'Order not eligible or pending request exists',
+  })
   async requestCancellation(
     @Param('orderNumber') orderNumber: string,
     @Body() dto: CustomerCreateCancellationDto,
@@ -204,7 +211,10 @@ export class CustomerOrdersController {
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Submit post-delivery return request' })
   @ApiResponse({ status: 201, description: 'Return request submitted' })
-  @ApiResponse({ status: 400, description: 'Order not eligible or active return exists' })
+  @ApiResponse({
+    status: 400,
+    description: 'Order not eligible or active return exists',
+  })
   async requestReturn(
     @Param('orderNumber') orderNumber: string,
     @Body() dto: CustomerCreateReturnDto,
@@ -216,9 +226,17 @@ export class CustomerOrdersController {
 
   @Post(':orderNumber/returns/:returnRequestId/shipment')
   @UseGuards(OptionalCustomerJwtGuard)
-  @ApiOperation({ summary: 'Customer submits return shipment tracking & courier info' })
-  @ApiResponse({ status: 200, description: 'Return shipment tracking recorded' })
-  @ApiResponse({ status: 400, description: 'Return request not approved or invalid tracking' })
+  @ApiOperation({
+    summary: 'Customer submits return shipment tracking & courier info',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return shipment tracking recorded',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Return request not approved or invalid tracking',
+  })
   async submitReturnShipment(
     @Param('orderNumber') orderNumber: string,
     @Param('returnRequestId') returnRequestId: string,
@@ -236,9 +254,14 @@ export class CustomerOrdersController {
 
   @Post(':orderNumber/accept')
   @UseGuards(OptionalCustomerJwtGuard)
-  @ApiOperation({ summary: 'Customer confirms delivery and accepts order (COMPLETED)' })
+  @ApiOperation({
+    summary: 'Customer confirms delivery and accepts order (COMPLETED)',
+  })
   @ApiResponse({ status: 200, description: 'Order completed successfully' })
-  @ApiResponse({ status: 400, description: 'Order not eligible for acceptance' })
+  @ApiResponse({
+    status: 400,
+    description: 'Order not eligible for acceptance',
+  })
   async acceptOrder(
     @Param('orderNumber') orderNumber: string,
     @Request() req: AuthenticatedCustomerRequest,
@@ -247,4 +270,3 @@ export class CustomerOrdersController {
     return this.ordersService.acceptOrder(orderNumber, userId);
   }
 }
-

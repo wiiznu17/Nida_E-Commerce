@@ -14,7 +14,9 @@ interface PreviewSectionHighlightProps {
   isMobileView?: boolean;
 }
 
-export const PreviewSectionHighlight: React.FC<PreviewSectionHighlightProps> = ({
+export const PreviewSectionHighlight: React.FC<
+  PreviewSectionHighlightProps
+> = ({
   titleTh,
   titleEn,
   tabKey,
@@ -75,7 +77,8 @@ export const PreviewSectionHighlight: React.FC<PreviewSectionHighlightProps> = (
                 <>
                   <span className="text-stone-500">•</span>
                   <span className="flex items-center text-amber-200 hover:underline">
-                    {t('cms.preview.clickToEdit')} <ExternalLink size={9} className="ml-0.5 inline" />
+                    {t('cms.preview.clickToEdit')}{' '}
+                    <ExternalLink size={9} className="ml-0.5 inline" />
                   </span>
                 </>
               )}

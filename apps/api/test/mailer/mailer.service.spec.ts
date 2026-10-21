@@ -20,7 +20,11 @@ describe('Customer MailerService', () => {
     delete process.env.SMTP_HOST;
     delete process.env.MAIL_HOST;
 
-    const loggerSpy = vi.spyOn((service as unknown as { logger: { log: ReturnType<typeof vi.fn> } }).logger, 'log');
+    const loggerSpy = vi.spyOn(
+      (service as unknown as { logger: { log: ReturnType<typeof vi.fn> } })
+        .logger,
+      'log',
+    );
     service.onModuleInit();
 
     await service.sendOtpEmail({ to: 'customer@nida.co', otpCode: '123456' });
@@ -36,9 +40,11 @@ describe('Customer MailerService', () => {
     process.env.SMTP_PASSWORD = 'password123';
 
     const sendMailMock = vi.fn().mockResolvedValue({ messageId: 'msg-123' });
-    const createTransportSpy = vi.spyOn(nodemailer, 'createTransport').mockReturnValue({
-      sendMail: sendMailMock,
-    } as unknown as ReturnType<typeof nodemailer.createTransport>);
+    const createTransportSpy = vi
+      .spyOn(nodemailer, 'createTransport')
+      .mockReturnValue({
+        sendMail: sendMailMock,
+      } as unknown as ReturnType<typeof nodemailer.createTransport>);
 
     service.onModuleInit();
     expect(createTransportSpy).toHaveBeenCalledWith(

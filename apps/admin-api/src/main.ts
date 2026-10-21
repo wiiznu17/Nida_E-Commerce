@@ -10,7 +10,9 @@ import { HttpExceptionFilter } from './core/filters/http-exception.filter.js';
 import { TransformInterceptor } from './core/interceptors/transform.interceptor.js';
 
 // Automatically load .env file for Node.js process
-const nodeProcess = process as unknown as { loadEnvFile?: (path: string) => void };
+const nodeProcess = process as unknown as {
+  loadEnvFile?: (path: string) => void;
+};
 if (typeof nodeProcess.loadEnvFile === 'function') {
   const envCandidates = [
     path.resolve(process.cwd(), '.env'),
@@ -40,7 +42,8 @@ async function bootstrap() {
 
   // Production Security Verification
   if (isProd) {
-    const defaultSecret = 'nida_admin_access_jwt_secret_key_2026_luxury_apparel';
+    const defaultSecret =
+      'nida_admin_access_jwt_secret_key_2026_luxury_apparel';
     const secret = process.env.JWT_ACCESS_SECRET;
     if (!secret || secret === defaultSecret || secret.length < 32) {
       logger.error(
@@ -53,7 +56,9 @@ async function bootstrap() {
   }
 
   const rawOrigins = [
-    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []),
+    ...(process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(',')
+      : []),
     process.env.ADMIN_FRONTEND_URL,
     process.env.STORE_FRONTEND_URL,
     'http://localhost:5173',

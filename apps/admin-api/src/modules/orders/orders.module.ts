@@ -37,4 +37,3 @@ import { OrderLifecycleModule } from '../order-lifecycle/index.js';
   ],
 })
 export class OrdersModule {}
-

@@ -31,7 +31,9 @@ describe('LogisticsService', () => {
       order: {
         update: vi.fn(),
       },
-      $transaction: vi.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(prismaMock)),
+      $transaction: vi.fn(async (cb: (tx: unknown) => Promise<unknown>) =>
+        cb(prismaMock),
+      ),
     };
 
     service = new LogisticsService(

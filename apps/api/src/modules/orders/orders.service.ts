@@ -352,7 +352,11 @@ export class CustomerOrdersService {
       if (couponId) {
         const couponDef = await tx.promotionCoupon.findUnique({
           where: { id: couponId },
-          select: { userUsageLimit: true, totalUsageLimit: true, isActive: true },
+          select: {
+            userUsageLimit: true,
+            totalUsageLimit: true,
+            isActive: true,
+          },
         });
 
         if (!couponDef || !couponDef.isActive) {
@@ -412,7 +416,9 @@ export class CustomerOrdersService {
           omiseQrUri = qrResult.qrDownloadUri;
           omiseQrExpiresAt = qrResult.expiresAt;
         } catch (err: unknown) {
-          this.logger.warn(`Failed to generate initial Omise PromptPay QR for #${orderNumber}: ${err}`);
+          this.logger.warn(
+            `Failed to generate initial Omise PromptPay QR for #${orderNumber}: ${err}`,
+          );
         }
       }
 
@@ -574,10 +580,7 @@ export class CustomerOrdersService {
     return this.getOrderByNumber(orderNumber, userId);
   }
 
-  async acceptOrder(
-    orderNumber: string,
-    userId?: string,
-  ): Promise<ApiOrder> {
+  async acceptOrder(orderNumber: string, userId?: string): Promise<ApiOrder> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: {
@@ -804,7 +807,9 @@ export class CustomerOrdersService {
       throw new NotFoundException(`Order #${orderNumber} not found`);
     }
 
-    const returnReq = order.returnRequests.find((r) => r.id === returnRequestId);
+    const returnReq = order.returnRequests.find(
+      (r) => r.id === returnRequestId,
+    );
     if (!returnReq) {
       throw new NotFoundException(
         `Return request ${returnRequestId} not found for this order`,
@@ -908,7 +913,9 @@ export class CustomerOrdersService {
         newExpiresAt = qrResult.expiresAt;
         newChargeId = qrResult.chargeId;
       } catch (err: unknown) {
-        this.logger.warn(`Failed to create Omise PromptPay QR on method switch: ${err}`);
+        this.logger.warn(
+          `Failed to create Omise PromptPay QR on method switch: ${err}`,
+        );
       }
     }
 
@@ -917,7 +924,8 @@ export class CustomerOrdersService {
         where: { id: order.payment.id },
         data: {
           paymentMethod,
-          transactionReference: newChargeId ?? order.payment.transactionReference,
+          transactionReference:
+            newChargeId ?? order.payment.transactionReference,
           rawWebhookPayload: {
             ...rawMeta,
             lastSwitchedAt: new Date().toISOString(),
@@ -987,7 +995,10 @@ export class CustomerOrdersService {
       if (charge.status === 'failed') {
         if (order.payment) {
           const rawMeta =
-            (order.payment.rawWebhookPayload as Record<string, unknown> | null) ?? {};
+            (order.payment.rawWebhookPayload as Record<
+              string,
+              unknown
+            > | null) ?? {};
           await this.prisma.payment.update({
             where: { id: order.payment.id },
             data: {
@@ -999,7 +1010,8 @@ export class CustomerOrdersService {
           });
         }
         throw new BadRequestException(
-          charge.failureMessage || 'การชำระเงินผ่านบัตรไม่สำเร็จ กรุณาตรวจสอบข้อมูลบัตรหรือลองใหม่อีกครั้ง',
+          charge.failureMessage ||
+            'การชำระเงินผ่านบัตรไม่สำเร็จ กรุณาตรวจสอบข้อมูลบัตรหรือลองใหม่อีกครั้ง',
         );
       }
 
@@ -1077,7 +1089,10 @@ export class CustomerOrdersService {
 
         if (order.payment) {
           const rawMeta =
-            (order.payment.rawWebhookPayload as Record<string, unknown> | null) ?? {};
+            (order.payment.rawWebhookPayload as Record<
+              string,
+              unknown
+            > | null) ?? {};
           await this.prisma.payment.update({
             where: { id: order.payment.id },
             data: {
@@ -1093,7 +1108,9 @@ export class CustomerOrdersService {
           });
         }
       } catch (err: unknown) {
-        this.logger.warn(`Failed to generate Omise PromptPay QR for #${orderNumber}: ${err}`);
+        this.logger.warn(
+          `Failed to generate Omise PromptPay QR for #${orderNumber}: ${err}`,
+        );
       }
 
       const updatedOrder = await this.getOrderByNumber(orderNumber, userId);
@@ -1108,7 +1125,11 @@ export class CustomerOrdersService {
   async syncOmiseChargeStatus(
     orderNumber: string,
     userId?: string,
-  ): Promise<{ order: ApiOrder; chargeStatus?: string; failureMessage?: string }> {
+  ): Promise<{
+    order: ApiOrder;
+    chargeStatus?: string;
+    failureMessage?: string;
+  }> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: { payment: true },
@@ -1131,7 +1152,8 @@ export class CustomerOrdersService {
     try {
       const charge = await this.omiseService.getCharge(chargeId);
       const rawMeta =
-        (order.payment?.rawWebhookPayload as Record<string, unknown> | null) ?? {};
+        (order.payment?.rawWebhookPayload as Record<string, unknown> | null) ??
+        {};
 
       if (charge.paid || charge.status === 'successful') {
         const nextStatus = order.hasPreorderItems
@@ -1192,7 +1214,8 @@ export class CustomerOrdersService {
     userId?: string,
   ): Promise<ApiOrder> {
     const isTestKey = process.env.OMISE_SECRET_KEY?.startsWith('skey_test_');
-    const allowSimulation = process.env.ALLOW_PAYMENT_SIMULATION === 'true' || isTestKey;
+    const allowSimulation =
+      process.env.ALLOW_PAYMENT_SIMULATION === 'true' || isTestKey;
 
     if (process.env.NODE_ENV === 'production' && !allowSimulation) {
       throw new ForbiddenException(
@@ -1248,7 +1271,9 @@ export class CustomerOrdersService {
     return this.getOrderByNumber(orderNumber, userId);
   }
 
-  async handleOmiseWebhook(event: Record<string, unknown>): Promise<{ received: boolean }> {
+  async handleOmiseWebhook(
+    event: Record<string, unknown>,
+  ): Promise<{ received: boolean }> {
     const eventKey = event.key as string;
     const data = event.data as Record<string, unknown> | undefined;
 
@@ -1258,7 +1283,9 @@ export class CustomerOrdersService {
       const metadata = data.metadata as Record<string, unknown> | undefined;
       const orderNumber = metadata?.orderNumber as string | undefined;
 
-      this.logger.log(`Received Omise charge.complete for charge ${chargeId}, status: ${status}, orderNumber: ${orderNumber}`);
+      this.logger.log(
+        `Received Omise charge.complete for charge ${chargeId}, status: ${status}, orderNumber: ${orderNumber}`,
+      );
 
       if (orderNumber) {
         const order = await this.prisma.order.findUnique({
@@ -1292,13 +1319,19 @@ export class CustomerOrdersService {
             await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
           } else if (status === 'failed' && order.payment) {
             const rawMeta =
-              (order.payment.rawWebhookPayload as Record<string, unknown> | null) ?? {};
+              (order.payment.rawWebhookPayload as Record<
+                string,
+                unknown
+              > | null) ?? {};
             await this.prisma.payment.update({
               where: { id: order.payment.id },
               data: {
                 rawWebhookPayload: {
                   ...rawMeta,
-                  failureMessage: typeof data.failure_message === 'string' ? data.failure_message : null,
+                  failureMessage:
+                    typeof data.failure_message === 'string'
+                      ? data.failure_message
+                      : null,
                 },
               },
             });
@@ -1330,7 +1363,8 @@ export class CustomerOrdersService {
     }
 
     if (phone && phone.trim()) {
-      const snap = (order.shippingAddressSnapshot as Record<string, unknown>) ?? {};
+      const snap =
+        (order.shippingAddressSnapshot as Record<string, unknown>) ?? {};
       const snapPhone = String(snap.phone ?? '').replace(/\D/g, '');
       const queryPhone = phone.trim().replace(/\D/g, '');
       if (
@@ -1572,31 +1606,33 @@ export class CustomerOrdersService {
       createdAt: c.createdAt.toISOString(),
     }));
 
-    const returnRequests: ApiReturnRequest[] = (
-      order.returnRequests ?? []
-    ).map((r) => ({
-      id: r.id,
-      requestNumber: r.requestNumber,
-      orderId: r.orderId,
-      userId: r.userId,
-      reason: r.reason,
-      customerNote: r.customerNote ?? undefined,
-      adminNote: r.adminNote ?? undefined,
-      status: r.status as ReturnStatus,
-      returnCarrier: r.returnCarrier ?? undefined,
-      returnTrackingNumber: r.returnTrackingNumber ?? undefined,
-      returnShippingFee: r.returnShippingFee ? Number(r.returnShippingFee) : undefined,
-      returnShippingReceiptUrl: r.returnShippingReceiptUrl ?? undefined,
-      shippedAt: r.shippedAt?.toISOString() ?? undefined,
-      items: (r.items ?? []).map((i) => ({
-        id: i.id,
-        orderItemId: i.orderItemId,
-        quantity: i.quantity,
-      })),
-      reviewedAt: r.reviewedAt?.toISOString() ?? undefined,
-      reviewedBy: r.reviewedBy ?? undefined,
-      createdAt: r.createdAt.toISOString(),
-    }));
+    const returnRequests: ApiReturnRequest[] = (order.returnRequests ?? []).map(
+      (r) => ({
+        id: r.id,
+        requestNumber: r.requestNumber,
+        orderId: r.orderId,
+        userId: r.userId,
+        reason: r.reason,
+        customerNote: r.customerNote ?? undefined,
+        adminNote: r.adminNote ?? undefined,
+        status: r.status as ReturnStatus,
+        returnCarrier: r.returnCarrier ?? undefined,
+        returnTrackingNumber: r.returnTrackingNumber ?? undefined,
+        returnShippingFee: r.returnShippingFee
+          ? Number(r.returnShippingFee)
+          : undefined,
+        returnShippingReceiptUrl: r.returnShippingReceiptUrl ?? undefined,
+        shippedAt: r.shippedAt?.toISOString() ?? undefined,
+        items: (r.items ?? []).map((i) => ({
+          id: i.id,
+          orderItemId: i.orderItemId,
+          quantity: i.quantity,
+        })),
+        reviewedAt: r.reviewedAt?.toISOString() ?? undefined,
+        reviewedBy: r.reviewedBy ?? undefined,
+        createdAt: r.createdAt.toISOString(),
+      }),
+    );
 
     const refunds: ApiRefundSummary[] = (order.refunds ?? []).map((rf) => ({
       id: rf.id,
@@ -1639,22 +1675,31 @@ export class CustomerOrdersService {
               order.payment.rawWebhookPayload &&
               typeof order.payment.rawWebhookPayload === 'object' &&
               !Array.isArray(order.payment.rawWebhookPayload) &&
-              typeof (order.payment.rawWebhookPayload as Record<string, unknown>).qrDownloadUri === 'string'
-                ? ((order.payment.rawWebhookPayload as Record<string, unknown>).qrDownloadUri as string)
+              typeof (
+                order.payment.rawWebhookPayload as Record<string, unknown>
+              ).qrDownloadUri === 'string'
+                ? ((order.payment.rawWebhookPayload as Record<string, unknown>)
+                    .qrDownloadUri as string)
                 : undefined,
             qrExpiresAt:
               order.payment.rawWebhookPayload &&
               typeof order.payment.rawWebhookPayload === 'object' &&
               !Array.isArray(order.payment.rawWebhookPayload) &&
-              typeof (order.payment.rawWebhookPayload as Record<string, unknown>).qrExpiresAt === 'string'
-                ? ((order.payment.rawWebhookPayload as Record<string, unknown>).qrExpiresAt as string)
+              typeof (
+                order.payment.rawWebhookPayload as Record<string, unknown>
+              ).qrExpiresAt === 'string'
+                ? ((order.payment.rawWebhookPayload as Record<string, unknown>)
+                    .qrExpiresAt as string)
                 : undefined,
             failureMessage:
               order.payment.rawWebhookPayload &&
               typeof order.payment.rawWebhookPayload === 'object' &&
               !Array.isArray(order.payment.rawWebhookPayload) &&
-              typeof (order.payment.rawWebhookPayload as Record<string, unknown>).failureMessage === 'string'
-                ? ((order.payment.rawWebhookPayload as Record<string, unknown>).failureMessage as string)
+              typeof (
+                order.payment.rawWebhookPayload as Record<string, unknown>
+              ).failureMessage === 'string'
+                ? ((order.payment.rawWebhookPayload as Record<string, unknown>)
+                    .failureMessage as string)
                 : undefined,
           }
         : undefined,

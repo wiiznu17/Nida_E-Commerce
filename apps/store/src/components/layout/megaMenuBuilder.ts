@@ -59,10 +59,22 @@ export function buildDynamicMegaMenu(
           {
             title: t('mega.featuredTrends', 'Featured & Trends'),
             links: [
-              { label: t('nav.allProducts', 'All Products'), href: '/collections/sale' },
-              { label: t('nav.women', 'Women'), href: '/collections/women?sale=true' },
-              { label: t('nav.men', 'Men'), href: '/collections/men?sale=true' },
-              { label: t('nav.bags', 'Bags'), href: '/collections/bags?sale=true' },
+              {
+                label: t('nav.allProducts', 'All Products'),
+                href: '/collections/sale',
+              },
+              {
+                label: t('nav.women', 'Women'),
+                href: '/collections/women?sale=true',
+              },
+              {
+                label: t('nav.men', 'Men'),
+                href: '/collections/men?sale=true',
+              },
+              {
+                label: t('nav.bags', 'Bags'),
+                href: '/collections/bags?sale=true',
+              },
             ],
           },
         ],
@@ -103,8 +115,14 @@ export function buildDynamicMegaMenu(
       categoryGroups.push({
         title: t('mega.featuredTrends', 'Featured & Trends'),
         links: [
-          { label: t('nav.allProducts', 'All Products'), href: `/collections/${dept}` },
-          { label: parentTitle, href: `/collections/${dept}?category=${parent.slug}` },
+          {
+            label: t('nav.allProducts', 'All Products'),
+            href: `/collections/${dept}`,
+          },
+          {
+            label: parentTitle,
+            href: `/collections/${dept}?category=${parent.slug}`,
+          },
         ],
       });
 
@@ -135,7 +153,10 @@ export function buildDynamicMegaMenu(
       categoryGroups.push({
         title: t('mega.featuredTrends', 'Featured & Trends'),
         links: [
-          { label: t('nav.allProducts', 'All Products'), href: `/collections/${dept}` },
+          {
+            label: t('nav.allProducts', 'All Products'),
+            href: `/collections/${dept}`,
+          },
         ],
       });
     }

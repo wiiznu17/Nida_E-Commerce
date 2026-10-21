@@ -56,8 +56,12 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
       setIsActive(banner.isActive ?? true);
     } else {
       const isSlot1 = targetSlot === 1;
-      setTitleTh(isSlot1 ? 'เสื้อคลุมสไตล์โมเดิร์น' : 'ชุดสูทและงานเทเลอร์ชั้นเลิศ');
-      setTitleEn(isSlot1 ? 'MODERN TAILORED OUTERWEAR' : 'ELEVATED BESPOKE SUITING');
+      setTitleTh(
+        isSlot1 ? 'เสื้อคลุมสไตล์โมเดิร์น' : 'ชุดสูทและงานเทเลอร์ชั้นเลิศ',
+      );
+      setTitleEn(
+        isSlot1 ? 'MODERN TAILORED OUTERWEAR' : 'ELEVATED BESPOKE SUITING',
+      );
       setSubtitleTh(
         isSlot1
           ? 'งานตัดเย็บโครงร่างประณีตจากผ้าขนแกะบริสุทธิ์เพื่อความสง่างามเหนือกาลเวลา'
@@ -75,7 +79,9 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
           ? 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=1200&q=85'
           : 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=85',
       );
-      setCtaPrimaryTextTh(isSlot1 ? 'เลือกดูคอลเลกชันสตรี' : 'เลือกดูคอลเลกชันบุรุษ');
+      setCtaPrimaryTextTh(
+        isSlot1 ? 'เลือกดูคอลเลกชันสตรี' : 'เลือกดูคอลเลกชันบุรุษ',
+      );
       setCtaPrimaryTextEn(isSlot1 ? "Explore Women's" : "Explore Men's");
       setCtaPrimaryLink(isSlot1 ? '/collections/women' : '/collections/men');
       setIsActive(true);
@@ -130,7 +136,8 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
       await onSave(payload);
       onClose();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to save spotlight story';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to save spotlight story';
       setApiError(msg);
     }
   };
@@ -145,8 +152,14 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
           <div>
             <h3 className="text-sm font-black uppercase tracking-wider text-[#2B1810]">
               {banner
-                ? t('cms.spotlightModal.editTitle').replace('{slot}', String(slot))
-                : t('cms.spotlightModal.createTitle').replace('{slot}', String(slot))}
+                ? t('cms.spotlightModal.editTitle').replace(
+                    '{slot}',
+                    String(slot),
+                  )
+                : t('cms.spotlightModal.createTitle').replace(
+                    '{slot}',
+                    String(slot),
+                  )}
             </h3>
             <p className="text-[11px] text-stone-500">
               {slot === 1
@@ -164,8 +177,10 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-6 space-y-5"
+        >
           {/* Slot Selector */}
           <div className="flex items-center space-x-3 p-3 bg-stone-50 border border-stone-200 rounded-xs">
             <span className="text-[11px] font-black uppercase tracking-wider text-stone-700">
@@ -228,24 +243,31 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
               {/* Title */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.title')} <span className="text-rose-600">*</span>
+                  {t('cms.heroModal.title')}{' '}
+                  <span className="text-rose-600">*</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.th')}
+                    </span>
                     <input
                       type="text"
                       value={titleTh}
                       onChange={(e) => setTitleTh(e.target.value)}
                       placeholder={t('cms.spotlightModal.titleThPlaceholder')}
                       className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
-                        fieldErrors.titleTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                        fieldErrors.titleTh
+                          ? 'border-rose-400 focus:border-rose-600'
+                          : 'border-stone-300 focus:border-[#2B1810]'
                       }`}
                     />
                     <InlineError message={fieldErrors.titleTh} />
                   </div>
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')} *</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.en')} *
+                    </span>
                     <input
                       type="text"
                       required
@@ -253,7 +275,9 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
                       onChange={(e) => setTitleEn(e.target.value)}
                       placeholder={t('cms.spotlightModal.titleEnPlaceholder')}
                       className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
-                        fieldErrors.titleEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                        fieldErrors.titleEn
+                          ? 'border-rose-400 focus:border-rose-600'
+                          : 'border-stone-300 focus:border-[#2B1810]'
                       }`}
                     />
                     <InlineError message={fieldErrors.titleEn} />
@@ -268,27 +292,35 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.th')}
+                    </span>
                     <textarea
                       rows={2}
                       value={subtitleTh}
                       onChange={(e) => setSubtitleTh(e.target.value)}
                       placeholder={t('cms.spotlightModal.descThPlaceholder')}
                       className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden resize-none ${
-                        fieldErrors.subtitleTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                        fieldErrors.subtitleTh
+                          ? 'border-rose-400 focus:border-rose-600'
+                          : 'border-stone-300 focus:border-[#2B1810]'
                       }`}
                     />
                     <InlineError message={fieldErrors.subtitleTh} />
                   </div>
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.en')}
+                    </span>
                     <textarea
                       rows={2}
                       value={subtitleEn}
                       onChange={(e) => setSubtitleEn(e.target.value)}
                       placeholder={t('cms.spotlightModal.descEnPlaceholder')}
                       className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden resize-none ${
-                        fieldErrors.subtitleEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                        fieldErrors.subtitleEn
+                          ? 'border-rose-400 focus:border-rose-600'
+                          : 'border-stone-300 focus:border-[#2B1810]'
                       }`}
                     />
                     <InlineError message={fieldErrors.subtitleEn} />
@@ -299,24 +331,31 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
               {/* Micro Tag */}
               <div>
                 <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                  {t('cms.heroModal.tag')} <span className="text-rose-600">*</span>
+                  {t('cms.heroModal.tag')}{' '}
+                  <span className="text-rose-600">*</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.th')}
+                    </span>
                     <input
                       type="text"
                       value={tagTh}
                       onChange={(e) => setTagTh(e.target.value)}
                       placeholder={t('cms.spotlightModal.tagThPlaceholder')}
                       className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
-                        fieldErrors.tagTh ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                        fieldErrors.tagTh
+                          ? 'border-rose-400 focus:border-rose-600'
+                          : 'border-stone-300 focus:border-[#2B1810]'
                       }`}
                     />
                     <InlineError message={fieldErrors.tagTh} />
                   </div>
                   <div>
-                    <span className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')} *</span>
+                    <span className="block text-[10px] font-bold text-stone-500 mb-1">
+                      {t('cms.heroModal.en')} *
+                    </span>
                     <input
                       type="text"
                       required
@@ -324,7 +363,9 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
                       onChange={(e) => setTagEn(e.target.value)}
                       placeholder={t('cms.spotlightModal.tagEnPlaceholder')}
                       className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden ${
-                        fieldErrors.tagEn ? 'border-rose-400 focus:border-rose-600' : 'border-stone-300 focus:border-[#2B1810]'
+                        fieldErrors.tagEn
+                          ? 'border-rose-400 focus:border-rose-600'
+                          : 'border-stone-300 focus:border-[#2B1810]'
                       }`}
                     />
                     <InlineError message={fieldErrors.tagEn} />
@@ -345,40 +386,52 @@ export const SpotlightModal: React.FC<SpotlightModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.th')}</label>
+                <label className="block text-[10px] font-bold text-stone-500 mb-1">
+                  {t('cms.heroModal.th')}
+                </label>
                 <input
                   type="text"
                   value={ctaPrimaryTextTh}
                   onChange={(e) => setCtaPrimaryTextTh(e.target.value)}
                   placeholder={t('cms.spotlightModal.btnTextThPlaceholder')}
                   className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
-                    fieldErrors.ctaPrimaryTextTh ? 'border-rose-400' : 'border-stone-300'
+                    fieldErrors.ctaPrimaryTextTh
+                      ? 'border-rose-400'
+                      : 'border-stone-300'
                   }`}
                 />
                 <InlineError message={fieldErrors.ctaPrimaryTextTh} />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.en')}</label>
+                <label className="block text-[10px] font-bold text-stone-500 mb-1">
+                  {t('cms.heroModal.en')}
+                </label>
                 <input
                   type="text"
                   value={ctaPrimaryTextEn}
                   onChange={(e) => setCtaPrimaryTextEn(e.target.value)}
                   placeholder={t('cms.spotlightModal.btnTextEnPlaceholder')}
                   className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
-                    fieldErrors.ctaPrimaryTextEn ? 'border-rose-400' : 'border-stone-300'
+                    fieldErrors.ctaPrimaryTextEn
+                      ? 'border-rose-400'
+                      : 'border-stone-300'
                   }`}
                 />
                 <InlineError message={fieldErrors.ctaPrimaryTextEn} />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-stone-500 mb-1">{t('cms.heroModal.link')}</label>
+                <label className="block text-[10px] font-bold text-stone-500 mb-1">
+                  {t('cms.heroModal.link')}
+                </label>
                 <input
                   type="text"
                   value={ctaPrimaryLink}
                   onChange={(e) => setCtaPrimaryLink(e.target.value)}
                   placeholder="e.g. /collections/women"
                   className={`w-full text-xs px-2.5 py-1.5 border rounded-xs ${
-                    fieldErrors.ctaPrimaryLink ? 'border-rose-400' : 'border-stone-300'
+                    fieldErrors.ctaPrimaryLink
+                      ? 'border-rose-400'
+                      : 'border-stone-300'
                   }`}
                 />
                 <InlineError message={fieldErrors.ctaPrimaryLink} />

@@ -9,12 +9,14 @@
 ในการดำเนินธุรกิจพาณิชย์อิเล็กทรอนิกส์ระดับพรีเมียม (Luxury E-Commerce) การจัดการวงจรชีวิตคำสั่งซื้อ (Order Lifecycle) มีผลโดยตรงต่อ **ความพึงพอใจของลูกค้า (Customer Experience)**, **ความแม่นยำของสต็อกสินค้า (Inventory Integrity)**, และ **กระแสเงินสดของกิจการ (Cash Flow & Financial Security)**
 
 ### ปัญหาที่ต้องแก้ไข:
+
 1. **การกั๊กสต็อกสินค้า (Stock Hoarding & Unpaid Orders)**: ลูกค้ากดสั่งซื้อสินค้า (โดยเฉพาะสินค้ายอดนิยมหรือมีจำนวนจำกัด) แต่ไม่ยอมชำระเงิน หากระบบไม่ตัดคำสั่งซื้อออก สต็อกสินค้าจะค้างอยู่ในสถานะตัดจำหน่าย ทำให้ลูกค้าคนอื่นเสียโอกาสในการซื้อ และร้านค้าสูญเสียยอดขาย
 2. **คำขอยกเลิกค้างเติ่ง (Unprocessed Cancellation Requests)**: ลูกค้ากดยกเลิกสินค้าก่อนการจัดส่ง หากแอดมินหรือคลังสินค้าไม่กดตรวจสอบภายในระยะเวลาที่เหมาะสม ลูกค้าจะเกิดความกังวลและร้องเรียน
 3. **การขอคืนสินค้าย้อนหลังเกินสมควร (Return Abuse)**: ลูกค้ารับสินค้าไปแล้วหลายสัปดาห์หรือนำไปสวมใส่ใช้งานแล้ว ส่งคำร้องขอคืนสินค้าย้อนหลัง ทำให้สินค้าเสื่อมสภาพและเกิดข้อพิพาท
 4. **การยิงสแปมช่องทางชำระเงิน (Payment Switch Flooding)**: การกดสลับวิธีชำระเงินรัวๆ ก่อให้เกิดขยะ Transaction และ Rate Limit Error บน Payment Gateway (เช่น Omise)
 
 ### ปรัชญาสถาปัตยกรรม (Architectural Principles):
+
 - **Deterministic & Automated**: อาศัยระบบ Automation และ Job Queue ในการตัดสินใจตามเงื่อนไขเวลา ไม่พึ่งพากำลังคนในการไล่กวาดงานรูทีน
 - **Decoupled from HTTP Cycle**: งานที่ต้องหน่วงเวลา (Delayed Jobs) ต้องทำงานแบบ Asynchronous ผ่านระบบคิว ไม่บล็อกการตอบสนองของ API
 - **Crash-Resilient & Persistent**: งานทุกชิ้นต้องถูกบันทึกลง Persistent Storage (Redis) หากเซิร์ฟเวอร์เกิดการรีสตาร์ทหรือดับกลางคัน คิวงานต้องกลับมาทำงานต่อได้ถูกต้อง 100%
@@ -54,7 +56,7 @@ flowchart TD
     Store -- "1. Place Order" --> OrderService
     OrderService -- "2. Add Delayed Job" --> QueueProducer
     QueueProducer -- "3. Enqueue Delayed Task" --> RedisQueue
-    
+
     Omise -- "Webhook: Charge Complete" --> OrderService
     OrderService -- "Remove Job if Paid" --> RedisQueue
 
@@ -74,6 +76,7 @@ flowchart TD
 ## 3. รายละเอียดกฎทางธุรกิจทั้ง 6 ประการ (Detailed Business Rules)
 
 ### กฎข้อที่ 1: การยกเลิกออเดอร์ค้างชำระอัตโนมัติ (Unpaid Order Auto-Cancel & Restock)
+
 > **เป้าหมาย**: ป้องกันการกั๊กสต็อกสินค้า คืนสินค้ากลับสู่หน้าร้านให้ลูกค้าท่านอื่นอย่างรวดเร็ว
 
 ```mermaid
@@ -109,11 +112,13 @@ sequenceDiagram
 ```
 
 #### กำหนดระยะเวลา Timeout:
+
 - **PromptPay QR Code**: หมดอายุภายใน **15 นาที** (900 วินาที) นับจากเวลาที่สร้างคำสั่งซื้อ (ตรงกับอายุ QR Code ของระบบธนาคาร)
 - **Credit / Debit Card**: หมดอายุภายใน **30 นาที** นับจากเวลาที่สร้างคำสั่งซื้อ
 - **กรณีแอดมินสร้างคำสั่งซื้อแบบกำหนดเอง (Admin Manual Draft)**: ให้เวลาสูงสุด **24 ชั่วโมง**
 
 #### เงื่อนไขด้านความปลอดภัย (Concurrency & Race Condition Guard):
+
 - ก่อน Worker จะปรับสถานะเป็น `CANCELLED` **ต้องครอบ Transaction และตรวจสอบสถานะล่าสุดใน Database อีกครั้งเสมอ**:
   ```ts
   if (order.status !== OrderStatus.PENDING) {
@@ -126,6 +131,7 @@ sequenceDiagram
 ---
 
 ### กฎข้อที่ 2: การอนุมัติคำขอยกเลิกสินค้าอัตโนมัติ (Pre-Fulfillment Cancel Auto-Approve)
+
 > **เป้าหมาย**: ปกป้องสิทธิผู้บริโภค หากลูกค้าเปลี่ยนใจขอยกเลิกก่อนพัสดุถูกแพ็ค และแอดมินไม่ตอบรับภายในระยะเวลาที่กำหนด ระบบจะคืนเงินและยกเลิกให้อัตโนมัติ
 
 - **ขอบเขตการใช้งาน**: ใช้ได้เฉพาะคำสั่งซื้อที่อยู่ในสถานะ `PAID` (จ่ายเงินแล้ว) แต่ยังไม่ถูกจัดส่ง (ยังไม่เป็น `SHIPPED`)
@@ -141,10 +147,12 @@ sequenceDiagram
 ---
 
 ### กฎข้อที่ 3: การยอมรับสินค้าและปิดออเดอร์สมบูรณ์ (Delivery Acceptance & COMPLETED Transition)
+
 > **เป้าหมาย**: ปิดวงจรคำสั่งซื้ออย่างสมบูรณ์ตามมาตรฐานสากล E-commerce เพื่อบันทึกรายได้ทางบัญชี (Realized Revenue), มอบคะแนนสะสม (Loyalty Points), และปลดล็อกสิทธิ์การรีวิวสินค้า
 >
 > ⚠️ **การปรับโครงสร้างฐานข้อมูล (Database Schema Upgrade)**:
 > ในเฟส 8 ระบบจะเพิ่มสถานะ `COMPLETED` ลงใน `enum OrderStatus` ใน [schema.prisma](file:///packages/database/prisma/schema.prisma) และ `@repo/types`:
+>
 > ```prisma
 > enum OrderStatus {
 >   PENDING
@@ -158,6 +166,7 @@ sequenceDiagram
 >   REFUNDED
 > }
 > ```
+>
 > **ลำดับการเลื่อนสถานะ (State Machine)**: `PENDING ➔ PAID ➔ PROCESSING ➔ SHIPPED ➔ DELIVERED ➔ COMPLETED`
 
 - **จุดเริ่มต้น (Trigger Point)**: เมื่อสถานะพัสดุอัปเดตเป็น `DELIVERED` (ส่งมอบสำเร็จ)
@@ -176,6 +185,7 @@ sequenceDiagram
 ---
 
 ### กฎข้อที่ 4: การปิดหน้าต่างสิทธิ์ขอคืนสินค้า (Return Window Strict Expiration)
+
 > **เป้าหมาย**: ป้องกันการทุจริตและการนำเสื้อผ้า/สินค้าไปใช้งานแล้วส่งคืนย้อนหลัง
 
 - **กรอบเวลาที่อนุญาต (Return Window)**: **7 วัน** (168 ชั่วโมง) นับจากเวลาที่สินค้าขึ้นสถานะ `DELIVERED`
@@ -183,21 +193,29 @@ sequenceDiagram
   - หาก `currentTime <= deliveredAt + 7 days`: ปุ่ม **"ยื่นคำร้องขอคืนสินค้า (Request Return)"** จะแสดงและกดได้ตามปกติ
   - หาก `currentTime > deliveredAt + 7 days`:
     - ปุ่มขอคืนสินค้าจะ **ถูกซ่อนหรือปิดการใช้งาน (Disabled)** อย่างถาวร
-    - แสดงข้อความกำกับ: *"ระยะเวลาการขอคืนสินค้าสิ้นสุดลงแล้ว (รับประกันภายใน 7 วันหลังได้รับพัสดุ)"*
+    - แสดงข้อความกำกับ: _"ระยะเวลาการขอคืนสินค้าสิ้นสุดลงแล้ว (รับประกันภายใน 7 วันหลังได้รับพัสดุ)"_
 - **การควบคุมที่ระดับ Backend API (Backend Guard)**:
   - ในฟังก์ชัน `createReturnRequest` ที่ `CustomerOrdersService`:
     ```ts
     const RETURN_WINDOW_DAYS = 7;
-    const deliveryDate = order.shipments.find(s => s.status === ShipmentStatus.DELIVERED)?.updatedAt;
-    
-    if (!deliveryDate || (Date.now() - deliveryDate.getTime()) > RETURN_WINDOW_DAYS * 86400 * 1000) {
-      throw new BadRequestException('คำสั่งซื้อนี้หมดระยะเวลาการยื่นคำร้องขอคืนสินค้าแล้ว (เกิน 7 วันหลังส่งมอบ)');
+    const deliveryDate = order.shipments.find(
+      (s) => s.status === ShipmentStatus.DELIVERED,
+    )?.updatedAt;
+
+    if (
+      !deliveryDate ||
+      Date.now() - deliveryDate.getTime() > RETURN_WINDOW_DAYS * 86400 * 1000
+    ) {
+      throw new BadRequestException(
+        'คำสั่งซื้อนี้หมดระยะเวลาการยื่นคำร้องขอคืนสินค้าแล้ว (เกิน 7 วันหลังส่งมอบ)',
+      );
     }
     ```
 
 ---
 
 ### กฎข้อที่ 5: กำหนดเวลาส่งพัสดุคืนหลังคำร้องได้รับอนุมัติ (Return Shipment Deadline)
+
 > **เป้าหมาย**: ป้องกันคำร้องขอคืนสินค้าค้างสถานะตลอดกาลโดยที่ลูกค้าไม่เคยส่งของกลับมาจริง
 
 - **จุดเริ่มต้น (Trigger Point)**: เมื่อแอดมินตรวจสอบเหตุผลและกด **Approve** คำร้องขอคืนสินค้า (สถานะเปลี่ยนเป็น `APPROVED`)
@@ -212,6 +230,7 @@ sequenceDiagram
 ---
 
 ### กฎข้อที่ 6: การป้องกันการกดสลับช่องทางชำระเงินรัว (Payment Switch Rate Limit)
+
 > **เป้าหมาย**: ป้องกันบอทและผู้ใช้กดย้ำปุ่มสลับช่องทางถี่ๆ ซึ่งจะยิงไปสร้าง QR Code ซ้ำซ้อนบน Omise Gateway
 
 - **ระยะเวลาคูลดาวน์ (Cooldown Duration)**: **2 วินาที** (Sliding Window per Order)
@@ -224,27 +243,29 @@ sequenceDiagram
 
 ## 4. สรุปตารางสถานะและเงื่อนไขเวลา (Order Timeout Matrix)
 
-| กฎ / ฟีเจอร์ | สภาพแวดล้อมที่ตรวจสอบ | ระยะเวลา (Timeout) | การกระทำเมื่อหมดเวลา (Automated Action) | ผลกระทบต่อสต็อกสินค้า |
-| :--- | :---: | :---: | :--- | :---: |
-| **Unpaid PromptPay** | Order `PENDING` | **15 นาที** | ปรับ Order เป็น `CANCELLED`, ปิด QR | **คืนสต็อก (Restock)** |
-| **Unpaid Credit Card** | Order `PENDING` | **30 นาที** | ปรับ Order เป็น `CANCELLED` | **คืนสต็อก (Restock)** |
-| **Cancel Request Review** | CancelReq `PENDING` | **48 ชั่วโมง** | Auto-Approve, ปรับเป็น `CANCELLED`, คืนเงิน | **คืนสต็อก (Restock)** |
-| **Delivery Acceptance** | Order `DELIVERED` | **5 วัน** | ปรับ Order เป็น `COMPLETED`, ให้คะแนนสะสม | ไม่กระทบ |
-| **Return Request Window** | Order `DELIVERED` | **7 วัน** | ปิดสิทธิ์ยื่นคำร้องขอคืนสินค้า (Disabled UI & API) | ไม่กระทบ |
-| **Return Shipment Return** | ReturnReq `APPROVED` | **7 วัน** | คำร้องหมดอายุ (`VOID`), ปิดเคส | ไม่รับคืนสต็อก |
-| **Payment Switch Anti-Spam** | หน้าจอ `/payment` | **2 วินาที** | ปฏิเสธ Request ที่ยิงซ้ำเร็วเกินกำหนด | ไม่กระทบ |
+| กฎ / ฟีเจอร์                 | สภาพแวดล้อมที่ตรวจสอบ | ระยะเวลา (Timeout) | การกระทำเมื่อหมดเวลา (Automated Action)            | ผลกระทบต่อสต็อกสินค้า  |
+| :--------------------------- | :-------------------: | :----------------: | :------------------------------------------------- | :--------------------: |
+| **Unpaid PromptPay**         |    Order `PENDING`    |    **15 นาที**     | ปรับ Order เป็น `CANCELLED`, ปิด QR                | **คืนสต็อก (Restock)** |
+| **Unpaid Credit Card**       |    Order `PENDING`    |    **30 นาที**     | ปรับ Order เป็น `CANCELLED`                        | **คืนสต็อก (Restock)** |
+| **Cancel Request Review**    |  CancelReq `PENDING`  |   **48 ชั่วโมง**   | Auto-Approve, ปรับเป็น `CANCELLED`, คืนเงิน        | **คืนสต็อก (Restock)** |
+| **Delivery Acceptance**      |   Order `DELIVERED`   |     **5 วัน**      | ปรับ Order เป็น `COMPLETED`, ให้คะแนนสะสม          |        ไม่กระทบ        |
+| **Return Request Window**    |   Order `DELIVERED`   |     **7 วัน**      | ปิดสิทธิ์ยื่นคำร้องขอคืนสินค้า (Disabled UI & API) |        ไม่กระทบ        |
+| **Return Shipment Return**   | ReturnReq `APPROVED`  |     **7 วัน**      | คำร้องหมดอายุ (`VOID`), ปิดเคส                     |     ไม่รับคืนสต็อก     |
+| **Payment Switch Anti-Spam** |   หน้าจอ `/payment`   |    **2 วินาที**    | ปฏิเสธ Request ที่ยิงซ้ำเร็วเกินกำหนด              |        ไม่กระทบ        |
 
 ---
 
 ## 5. การติดตั้งและการใช้งานเชิงเทคนิค (Technical Implementation Plan)
 
 ### 5.1 แพ็กเกจที่ต้องติดตั้ง (`apps/api` และ `apps/admin-api`)
+
 ```bash
 npm --prefix apps/api install @nestjs/bullmq bullmq
 npm --prefix apps/admin-api install @nestjs/bullmq bullmq
 ```
 
 ### 5.2 การลงทะเบียนโมดูล (`order-lifecycle.module.ts`)
+
 ```ts
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
@@ -271,6 +292,7 @@ export class OrderLifecycleModule {}
 ```
 
 ### 5.3 ตัวอย่าง Producer หน่วงเวลา 15 นาที
+
 ```ts
 @Injectable()
 export class OrderLifecycleProducer {
@@ -278,7 +300,10 @@ export class OrderLifecycleProducer {
     @InjectQueue('order-lifecycle-queue') private readonly orderQueue: Queue,
   ) {}
 
-  async scheduleUnpaidOrderTimeout(orderNumber: string, delayMs: number = 15 * 60 * 1000) {
+  async scheduleUnpaidOrderTimeout(
+    orderNumber: string,
+    delayMs: number = 15 * 60 * 1000,
+  ) {
     await this.orderQueue.add(
       'unpaid-timeout',
       { orderNumber },
@@ -301,6 +326,7 @@ export class OrderLifecycleProducer {
 ```
 
 ### 5.4 ตัวอย่าง Processor ปลดล็อกและคืนสต็อก
+
 ```ts
 @Processor('order-lifecycle-queue')
 export class OrderTimeoutProcessor extends WorkerHost {
@@ -312,7 +338,9 @@ export class OrderTimeoutProcessor extends WorkerHost {
 
   async process(job: Job<{ orderNumber: string }>): Promise<void> {
     const { orderNumber } = job.data;
-    this.logger.log(`Processing unpaid timeout check for order #${orderNumber}`);
+    this.logger.log(
+      `Processing unpaid timeout check for order #${orderNumber}`,
+    );
 
     await this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({
@@ -364,6 +392,7 @@ export class OrderTimeoutProcessor extends WorkerHost {
 ## 6. แผนการตรวจสอบและทดสอบระบบ (Testing & Verification Strategy)
 
 เพื่อให้มั่นใจว่าระบบไม่มีข้อผิดพลาดตามแนวทาง `AGENTS.md` ต้องจัดทำ Unit Tests และ Integration Tests ครอบคลุม:
+
 1. **Happy Path Tests**:
    - Order หมดเวลา 15 นาที $\rightarrow$ สถานะเปลี่ยนเป็น `CANCELLED`, สต็อกถูกคืนเข้าคลังถูกต้อง
    - ลูกค้าชำระเงินก่อนครบ 15 นาที $\rightarrow$ Job ถูกดึงออกจาก Queue ออเดอร์ไม่ถูกยกเลิก

@@ -9,7 +9,9 @@ interface ProductRecommendationsProps {
   products: ApiProduct[];
 }
 
-export function ProductRecommendations({ products }: ProductRecommendationsProps) {
+export function ProductRecommendations({
+  products,
+}: ProductRecommendationsProps) {
   const { language, t } = useLanguage();
   const isTh = language === 'th';
 

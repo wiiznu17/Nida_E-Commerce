@@ -1,8 +1,5 @@
 import { apiClient } from '../client';
-import type {
-  CouponValidationResult,
-  CheckoutCalculation,
-} from '@repo/types';
+import type { CouponValidationResult, CheckoutCalculation } from '@repo/types';
 
 export interface CalculateCheckoutPayload {
   items: Array<{

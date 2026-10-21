@@ -90,9 +90,12 @@ export class OmiseService {
       const errBody = (await sourceRes.json().catch(() => ({}))) as {
         message?: string;
       };
-      this.logger.error(`Failed to create Omise PromptPay source: ${errBody.message}`);
+      this.logger.error(
+        `Failed to create Omise PromptPay source: ${errBody.message}`,
+      );
       throw new BadRequestException(
-        errBody.message || 'ไม่สามารถสร้างรายการ PromptPay ได้ กรุณาลองใหม่อีกครั้ง',
+        errBody.message ||
+          'ไม่สามารถสร้างรายการ PromptPay ได้ กรุณาลองใหม่อีกครั้ง',
       );
     }
 
@@ -142,8 +145,7 @@ export class OmiseService {
       };
     };
 
-    const qrUri =
-      chargeData.source?.scannable_code?.image?.download_uri ?? '';
+    const qrUri = chargeData.source?.scannable_code?.image?.download_uri ?? '';
 
     return {
       chargeId: chargeData.id,
@@ -272,8 +274,12 @@ export class OmiseService {
 
     if (!res.ok) {
       const err = (await res.json().catch(() => ({}))) as { message?: string };
-      this.logger.error(`Omise refund error: ${err.message ?? 'Unknown error'}`);
-      throw new BadRequestException(err.message ?? 'Cannot process refund via Omise');
+      this.logger.error(
+        `Omise refund error: ${err.message ?? 'Unknown error'}`,
+      );
+      throw new BadRequestException(
+        err.message ?? 'Cannot process refund via Omise',
+      );
     }
 
     return (await res.json()) as { id: string };

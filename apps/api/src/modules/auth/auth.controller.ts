@@ -139,7 +139,8 @@ export class CustomerAuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Sign out customer from all devices',
-    description: 'Revokes all active sessions and refresh tokens for this customer.',
+    description:
+      'Revokes all active sessions and refresh tokens for this customer.',
   })
   @ApiResponse({ status: 200, description: 'All sessions revoked' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -189,7 +190,10 @@ export class CustomerAuthController {
       'Dispatches a verification OTP to the proposed new email address.',
   })
   @ApiResponse({ status: 200, description: 'OTP dispatched' })
-  @ApiResponse({ status: 400, description: 'Email already in use or identical' })
+  @ApiResponse({
+    status: 400,
+    description: 'Email already in use or identical',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async requestEmailChange(
     @Req() req: AuthenticatedRequest,

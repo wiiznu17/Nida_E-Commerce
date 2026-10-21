@@ -29,7 +29,8 @@ export class AuditLogQueryDto {
   limit?: number = 20;
 
   @ApiPropertyOptional({
-    description: 'Filter by affected database table (e.g. products, orders, categories)',
+    description:
+      'Filter by affected database table (e.g. products, orders, categories)',
     example: 'products',
   })
   @IsOptional()

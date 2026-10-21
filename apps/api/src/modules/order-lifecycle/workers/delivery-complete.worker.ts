@@ -6,11 +6,7 @@ import {
   OrderLifecycleJobName,
   type AutoCompleteDeliveryJobData,
 } from '@repo/types';
-import {
-  OrderStatus,
-  PointChangeType,
-  AuditActionType,
-} from '@repo/database';
+import { OrderStatus, PointChangeType, AuditActionType } from '@repo/database';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
 @Processor(OrderLifecycleQueueName.DELIVERY_COMPLETION)
@@ -38,7 +34,9 @@ export class DeliveryCompleteWorker extends WorkerHost {
     });
 
     if (!order) {
-      this.logger.warn(`Order #${orderNumber} (${orderId}) not found during delivery auto-completion`);
+      this.logger.warn(
+        `Order #${orderNumber} (${orderId}) not found during delivery auto-completion`,
+      );
       return;
     }
 

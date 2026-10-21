@@ -27,7 +27,14 @@ export class CustomerCatalogController {
   @ApiQuery({
     name: 'sortBy',
     required: false,
-    enum: ['featured', 'newest', 'price_asc', 'price-asc', 'price_desc', 'price-desc'],
+    enum: [
+      'featured',
+      'newest',
+      'price_asc',
+      'price-asc',
+      'price_desc',
+      'price-desc',
+    ],
   })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -41,13 +48,27 @@ export class CustomerCatalogController {
     @Query('maxPrice') maxPrice?: string,
     @Query('colors') colors?: string,
     @Query('isPreorder') isPreorder?: string,
-    @Query('sortBy') sortBy?: 'featured' | 'newest' | 'price_asc' | 'price-asc' | 'price_desc' | 'price-desc',
+    @Query('sortBy')
+    sortBy?:
+      | 'featured'
+      | 'newest'
+      | 'price_asc'
+      | 'price-asc'
+      | 'price_desc'
+      | 'price-desc',
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ): Promise<PaginatedResponse<ApiProduct>> {
-    const parsedColors = colors ? colors.split(',').map((c) => c.trim()).filter(Boolean) : undefined;
-    const parsedMinPrice = minPrice !== undefined && minPrice !== '' ? Number(minPrice) : undefined;
-    const parsedMaxPrice = maxPrice !== undefined && maxPrice !== '' ? Number(maxPrice) : undefined;
+    const parsedColors = colors
+      ? colors
+          .split(',')
+          .map((c) => c.trim())
+          .filter(Boolean)
+      : undefined;
+    const parsedMinPrice =
+      minPrice !== undefined && minPrice !== '' ? Number(minPrice) : undefined;
+    const parsedMaxPrice =
+      maxPrice !== undefined && maxPrice !== '' ? Number(maxPrice) : undefined;
 
     return this.catalogService.getProducts({
       department,

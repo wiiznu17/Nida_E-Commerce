@@ -92,7 +92,11 @@ export function CollectionProductGrid({
                     key={i}
                     className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block shadow-2xs"
                     style={{ backgroundColor: color.hex }}
-                    title={language === 'th' && color.nameTh ? color.nameTh : color.name}
+                    title={
+                      language === 'th' && color.nameTh
+                        ? color.nameTh
+                        : color.name
+                    }
                   />
                 ))}
                 {product.colors.length > 5 && (
@@ -121,11 +125,12 @@ export function CollectionProductGrid({
               <span className="text-sm font-bold text-brand-brown">
                 {formatPrice(product.basePrice)}
               </span>
-              {product.originalPrice && product.originalPrice > product.basePrice && (
-                <span className="text-xs text-gray-400 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-              )}
+              {product.originalPrice &&
+                product.originalPrice > product.basePrice && (
+                  <span className="text-xs text-gray-400 line-through">
+                    {formatPrice(product.originalPrice)}
+                  </span>
+                )}
             </div>
           </div>
         );

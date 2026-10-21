@@ -33,7 +33,12 @@ export const PRICE_OPTIONS: Array<{
   max?: number;
 }> = [
   { id: 'under1000', i18nKey: 'search.under1000', min: 0, max: 1000 },
-  { id: '1000-2500', i18nKey: 'search.between1000And2500', min: 1000, max: 2500 },
+  {
+    id: '1000-2500',
+    i18nKey: 'search.between1000And2500',
+    min: 1000,
+    max: 2500,
+  },
   { id: 'over2500', i18nKey: 'search.over2500', min: 2500 },
 ];
 

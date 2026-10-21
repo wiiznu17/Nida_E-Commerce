@@ -21,7 +21,10 @@ describe('Orders Server Search & Pagination (Admin API)', () => {
             taxAmount: 0,
             totalAmount: 1050,
             currency: 'THB',
-            shippingAddressSnapshot: { recipientName: 'John Doe', phone: '0812345678' },
+            shippingAddressSnapshot: {
+              recipientName: 'John Doe',
+              phone: '0812345678',
+            },
             placedAt: new Date('2026-10-19T10:00:00Z'),
             items: [],
             payment: { paymentMethod: 'CREDIT_CARD', status: 'SUCCESS' },
@@ -63,9 +66,9 @@ describe('Orders Server Search & Pagination (Admin API)', () => {
           },
         ]),
         count: vi.fn().mockResolvedValue(1),
-        groupBy: vi.fn().mockResolvedValue([
-          { status: 'PENDING', _count: { id: 1 } },
-        ]),
+        groupBy: vi
+          .fn()
+          .mockResolvedValue([{ status: 'PENDING', _count: { id: 1 } }]),
       },
       returnRequest: {
         findMany: vi.fn().mockResolvedValue([
@@ -105,9 +108,9 @@ describe('Orders Server Search & Pagination (Admin API)', () => {
           },
         ]),
         count: vi.fn().mockResolvedValue(1),
-        groupBy: vi.fn().mockResolvedValue([
-          { status: 'REQUESTED', _count: { id: 1 } },
-        ]),
+        groupBy: vi
+          .fn()
+          .mockResolvedValue([{ status: 'REQUESTED', _count: { id: 1 } }]),
       },
     };
 

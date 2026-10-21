@@ -4,7 +4,8 @@ import { SearchInput, DropdownSelect } from '../ui';
 import { useLanguage } from '../../context/LanguageContext';
 import type { AdminReturnStatusCounts } from '@repo/types';
 
-export type ReturnFilterTab = 'ALL' | 'REQUESTED' | 'APPROVED' | 'SHIPPED' | 'COMPLETED' | 'REJECTED';
+export type ReturnFilterTab =
+  'ALL' | 'REQUESTED' | 'APPROVED' | 'SHIPPED' | 'COMPLETED' | 'REJECTED';
 
 interface ReturnFilterCardProps {
   statusFilter: ReturnFilterTab;
@@ -36,12 +37,48 @@ export const ReturnFilterCard: React.FC<ReturnFilterCardProps> = ({
   const { t, language } = useLanguage();
 
   const tabs = [
-    { id: 'ALL' as const, label: t('returnsPage.filterAll'), count: statusCounts.all, activeBg: 'bg-[#2B1810]', dotBg: '' },
-    { id: 'REQUESTED' as const, label: t('returnsPage.filterRequested'), count: statusCounts.requested, activeBg: 'bg-amber-600', dotBg: 'bg-amber-500' },
-    { id: 'APPROVED' as const, label: t('returnsPage.filterApproved'), count: statusCounts.approved, activeBg: 'bg-blue-600', dotBg: 'bg-blue-500' },
-    { id: 'SHIPPED' as const, label: t('returnsPage.filterShipped'), count: statusCounts.shipped, activeBg: 'bg-purple-700', dotBg: 'bg-purple-500' },
-    { id: 'COMPLETED' as const, label: t('returnsPage.filterCompleted'), count: statusCounts.completed, activeBg: 'bg-emerald-700', dotBg: 'bg-emerald-500' },
-    { id: 'REJECTED' as const, label: t('returnsPage.filterRejected'), count: statusCounts.rejected, activeBg: 'bg-stone-700', dotBg: 'bg-stone-400' },
+    {
+      id: 'ALL' as const,
+      label: t('returnsPage.filterAll'),
+      count: statusCounts.all,
+      activeBg: 'bg-[#2B1810]',
+      dotBg: '',
+    },
+    {
+      id: 'REQUESTED' as const,
+      label: t('returnsPage.filterRequested'),
+      count: statusCounts.requested,
+      activeBg: 'bg-amber-600',
+      dotBg: 'bg-amber-500',
+    },
+    {
+      id: 'APPROVED' as const,
+      label: t('returnsPage.filterApproved'),
+      count: statusCounts.approved,
+      activeBg: 'bg-blue-600',
+      dotBg: 'bg-blue-500',
+    },
+    {
+      id: 'SHIPPED' as const,
+      label: t('returnsPage.filterShipped'),
+      count: statusCounts.shipped,
+      activeBg: 'bg-purple-700',
+      dotBg: 'bg-purple-500',
+    },
+    {
+      id: 'COMPLETED' as const,
+      label: t('returnsPage.filterCompleted'),
+      count: statusCounts.completed,
+      activeBg: 'bg-emerald-700',
+      dotBg: 'bg-emerald-500',
+    },
+    {
+      id: 'REJECTED' as const,
+      label: t('returnsPage.filterRejected'),
+      count: statusCounts.rejected,
+      activeBg: 'bg-stone-700',
+      dotBg: 'bg-stone-400',
+    },
   ];
 
   return (
@@ -56,26 +93,38 @@ export const ReturnFilterCard: React.FC<ReturnFilterCardProps> = ({
                 type="button"
                 onClick={() => onStatusChange(tab.id)}
                 className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xs whitespace-nowrap transition-all cursor-pointer ${
-                  isActive ? `${tab.activeBg} text-white shadow-2xs font-black` : 'text-stone-700 hover:bg-stone-100'
+                  isActive
+                    ? `${tab.activeBg} text-white shadow-2xs font-black`
+                    : 'text-stone-700 hover:bg-stone-100'
                 }`}
               >
                 {tab.dotBg && (
-                  <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : tab.dotBg}`} />
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : tab.dotBg}`}
+                  />
                 )}
-                <span>{tab.label} ({tab.count})</span>
+                <span>
+                  {tab.label} ({tab.count})
+                </span>
               </button>
             );
           })}
         </div>
         <div className="text-[11px] font-bold text-gray-500">
-          {language === 'th' ? `แสดง ${itemsCount} จากทั้งหมด ${totalItems} คำขอ` : `Showing ${itemsCount} of ${totalItems} requests`}
+          {language === 'th'
+            ? `แสดง ${itemsCount} จากทั้งหมด ${totalItems} คำขอ`
+            : `Showing ${itemsCount} of ${totalItems} requests`}
         </div>
       </div>
 
       <form onSubmit={onSubmit}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
           <div className="lg:col-span-7">
-            <SearchInput value={searchInput} onChange={onSearchInputChange} placeholder={t('returnsPage.searchPlaceholder')} />
+            <SearchInput
+              value={searchInput}
+              onChange={onSearchInputChange}
+              placeholder={t('returnsPage.searchPlaceholder')}
+            />
           </div>
           <div className="lg:col-span-3">
             <DropdownSelect
