@@ -42,6 +42,7 @@
     "inventoryAudit": "Stock Audit Log",
     "auditLogs": "System Audit Log",
     "orders": "Orders & Shipping",
+    "analytics": "Analytics & Reports",
     "cancellations": "Cancellations",
     "returns": "Return Requests",
     "promotions": "Coupons & Promos",
@@ -1268,5 +1269,106 @@
       "downloadButton": "Start Export Download",
       "downloadFailed": "Failed to download export report. Please try again."
     }
+  },
+  "analytics": {
+    "title": "Analytics & Data Export Center",
+    "subtitle": "Real-time revenue metrics, product velocity, coupon ROI and raw CSV data exports",
+    "tabs": {
+      "overview": "Overview",
+      "department": "Departments",
+      "topProducts": "Top Products",
+      "slowMoving": "Slow Moving",
+      "couponRoi": "Coupon ROI",
+      "export": "Data Export"
+    },
+    "timeframe": {
+      "today": "Today",
+      "week": "Last 7 Days",
+      "month": "Last 30 Days",
+      "quarter": "Current Quarter",
+      "year": "This Year",
+      "custom": "Custom Range"
+    },
+    "cards": {
+      "netRevenue": "Net Revenue",
+      "grossRevenue": "Gross Revenue",
+      "totalOrders": "Total Orders",
+      "aov": "Average Order Value",
+      "totalDiscounts": "Total Discounts",
+      "totalRefunds": "Total Refunds",
+      "fulfillmentRate": "Fulfillment Rate",
+      "avgFulfillmentTime": "Avg Fulfillment Time",
+      "returningCustomers": "Returning Customers",
+      "newCustomers": "New Customers",
+      "returnRate": "Return Rate",
+      "pendingShipment": "Pending Shipment"
+    },
+    "departments": {
+      "title": "Sales Share by Department",
+      "colDept": "Department",
+      "colRevenue": "Revenue",
+      "colUnits": "Units Sold",
+      "colShare": "Share",
+      "empty": "No department sales recorded for this timeframe"
+    },
+    "products": {
+      "title": "Top Selling Products",
+      "rank": "Rank",
+      "product": "Product",
+      "sku": "SKU Code",
+      "unitsSold": "Units Sold",
+      "revenue": "Total Revenue",
+      "stockAvailable": "Stock Available",
+      "empty": "No best-selling product data found for this period"
+    },
+    "slowMoving": {
+      "title": "Slow-Moving Inventory",
+      "filterDays": "No Sales Older Than (Days)",
+      "days": "Days",
+      "daysSinceLastSale": "Days Inactive",
+      "lastSaleDate": "Last Sold At",
+      "neverSold": "No Sales Recorded",
+      "currentStock": "Available Stock",
+      "empty": "No slow-moving inventory found for selected criteria"
+    },
+    "coupons": {
+      "title": "Promotion & Coupon Performance ROI",
+      "totalUsage": "Total Redemptions",
+      "totalDiscount": "Total Discount Value",
+      "netRevenueGenerated": "Net Revenue Generated",
+      "avgRoi": "Average Coupon ROI",
+      "couponCode": "Coupon Code",
+      "usageCount": "Redemptions",
+      "discountGiven": "Total Discount",
+      "salesGenerated": "Net Sales",
+      "roi": "ROI",
+      "empty": "No coupon redemptions recorded for this timeframe"
+    },
+    "export": {
+      "title": "Data Export Center (Raw CSV Files)",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "status": "Status",
+      "allStatuses": "All Statuses",
+      "ordersTitle": "Orders Dataset Export",
+      "ordersDesc": "Download historical order records, customer snapshot, payments and couriers",
+      "productsTitle": "Products Catalog Export",
+      "productsDesc": "Download SKU listings, department taxonomy, pricing and stock levels",
+      "inventoryTitle": "Inventory Stock Report",
+      "inventoryDesc": "Download inventory balances, reserved stock allocations and low-stock alerts",
+      "auditLogsTitle": "Administrative Audit Trail",
+      "auditLogsDesc": "Download security audit logs of administrative actions and permissions",
+      "departmentFilter": "Department",
+      "allDepartments": "All Departments",
+      "inventoryStatus": "Stock Status",
+      "invAll": "All Stock Levels",
+      "invLow": "Low Stock Alert",
+      "invOut": "Out of Stock",
+      "download": "Export CSV",
+      "downloading": "Generating...",
+      "success": "Export completed successfully",
+      "fail": "Failed to generate CSV export. Please try again."
+    }
   }
 }
+

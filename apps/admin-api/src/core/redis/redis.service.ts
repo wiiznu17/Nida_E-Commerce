@@ -474,4 +474,92 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
     this.memoryStore.delete(redisKey);
   }
+
+  // GENERIC CACHE METHODS
+
+  async cacheGet<T>(key: string): Promise<T | null> {
+    if (this.isConnected && this.client) {
+      try {
+        const raw = await this.client.get(key);
+        if (raw !== null) {
+          return JSON.parse(raw) as T;
+        }
+        return null;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis cacheGet failed for ${key}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    const item = this.memoryStore.get(key);
+    if (!item) {
+      return null;
+    }
+
+    if (Date.now() >= item.expiresAt) {
+      this.memoryStore.delete(key);
+      return null;
+    }
+
+    try {
+      return JSON.parse(item.value) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  async cacheSet<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
+    const serialized = JSON.stringify(value);
+
+    if (this.isConnected && this.client) {
+      try {
+        await this.client.set(key, serialized, 'EX', ttlSeconds);
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis cacheSet failed for ${key}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    this.memoryStore.set(key, {
+      value: serialized,
+      expiresAt: Date.now() + ttlSeconds * 1000,
+    });
+  }
+
+  async cacheDelByPattern(pattern: string): Promise<void> {
+    if (this.isConnected && this.client) {
+      try {
+        let cursor = '0';
+        do {
+          const [nextCursor, keys] = await this.client.scan(
+            cursor,
+            'MATCH',
+            pattern,
+            'COUNT',
+            100,
+          );
+          cursor = nextCursor;
+          if (keys.length > 0) {
+            await this.client.del(...keys);
+          }
+        } while (cursor !== '0');
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis cacheDelByPattern failed for ${pattern}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    const regex = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`);
+    for (const key of this.memoryStore.keys()) {
+      if (regex.test(key)) {
+        this.memoryStore.delete(key);
+      }
+    }
+  }
 }
+

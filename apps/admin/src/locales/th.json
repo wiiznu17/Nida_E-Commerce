@@ -42,6 +42,7 @@
     "inventoryAudit": "ประวัติสต็อก (Audit Log)",
     "auditLogs": "ประวัติการทำงานระบบ (Audit Log)",
     "orders": "คำสั่งซื้อ & จัดส่ง",
+    "analytics": "รายงาน & วิเคราะห์",
     "cancellations": "คำขอยกเลิกคำสั่งซื้อ",
     "returns": "คำขอคืนสินค้า",
     "promotions": "โค้ดโปรโมชัน & คูปอง",
@@ -1268,5 +1269,106 @@
       "downloadButton": "เริ่มส่งออกไฟล์",
       "downloadFailed": "ไม่สามารถส่งออกข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง"
     }
+  },
+  "analytics": {
+    "title": "รายงานเชิงลึกและส่งออกข้อมูล",
+    "subtitle": "วิเคราะห์ยอดขาย ผลตอบแทนคูปอง สินค้าค้างสต็อก และส่งออกรายงานดิบ",
+    "tabs": {
+      "overview": "ภาพรวมสถิติ",
+      "department": "สัดส่วนตามแผนก",
+      "topProducts": "สินค้าขายดี",
+      "slowMoving": "สินค้าค้างสต็อก",
+      "couponRoi": "ผลตอบแทนคูปอง",
+      "export": "ส่งออกข้อมูล CSV"
+    },
+    "timeframe": {
+      "today": "วันนี้",
+      "week": "7 วันล่าสุด",
+      "month": "30 วันล่าสุด",
+      "quarter": "ไตรมาสนี้",
+      "year": "ปีนี้",
+      "custom": "กำหนดช่วงวันที่"
+    },
+    "cards": {
+      "netRevenue": "รายได้สุทธิ",
+      "grossRevenue": "ยอดขายรวมก่อนหัก",
+      "totalOrders": "คำสั่งซื้อทั้งหมด",
+      "aov": "ยอดสั่งซื้อเฉลี่ย (AOV)",
+      "totalDiscounts": "ส่วนลดรวม",
+      "totalRefunds": "ยอดคืนเงิน",
+      "fulfillmentRate": "อัตราจัดส่งสำเร็จ",
+      "avgFulfillmentTime": "ระยะเวลาจัดส่งเฉลี่ย",
+      "returningCustomers": "ลูกค้าเก่าซื้อซ้ำ",
+      "newCustomers": "ลูกค้าใหม่",
+      "returnRate": "อัตราการขอคืนสินค้า",
+      "pendingShipment": "รอการจัดส่ง"
+    },
+    "departments": {
+      "title": "สัดส่วนยอดขายตามแผนกสินค้า",
+      "colDept": "แผนก",
+      "colRevenue": "ยอดขาย",
+      "colUnits": "จำนวนชิ้น",
+      "colShare": "สัดส่วน",
+      "empty": "ไม่มีข้อมูลยอดขายในแผนกสำหรับช่วงเวลานี้"
+    },
+    "products": {
+      "title": "อันดับสินค้าขายดีที่สุด",
+      "rank": "อันดับ",
+      "product": "สินค้า",
+      "sku": "รหัส SKU",
+      "unitsSold": "ยอดขาย (ชิ้น)",
+      "revenue": "รายได้รวม",
+      "stockAvailable": "สต็อกคงเหลือ",
+      "empty": "ไม่พบข้อมูลสินค้าขายดีในช่วงเวลานี้"
+    },
+    "slowMoving": {
+      "title": "สินค้าค้างสต็อก ยอดขายช้า",
+      "filterDays": "ไม่มีการขายเกิน (วัน)",
+      "days": "วัน",
+      "daysSinceLastSale": "วันที่ไม่มีการขาย",
+      "lastSaleDate": "ขายล่าสุดเมื่อ",
+      "neverSold": "ยังไม่มียอดขาย",
+      "currentStock": "สต็อกคงเหลือ",
+      "empty": "ไม่พบสินค้าค้างสต็อกตามเงื่อนไขที่เลือก"
+    },
+    "coupons": {
+      "title": "ประสิทธิภาพและผลตอบแทนคูปองส่วนลด",
+      "totalUsage": "จำนวนครั้งที่ใช้คูปอง",
+      "totalDiscount": "มูลค่าส่วนลดที่มอบให้",
+      "netRevenueGenerated": "ยอดขายสุทธิที่สร้างได้",
+      "avgRoi": "ผลตอบแทนเฉลี่ย (ROI)",
+      "couponCode": "รหัสคูปอง",
+      "usageCount": "การใช้งาน",
+      "discountGiven": "ส่วนลดรวม",
+      "salesGenerated": "ยอดขายสุทธิ",
+      "roi": "ROI",
+      "empty": "ไม่มีประวัติการใช้คูปองในช่วงเวลานี้"
+    },
+    "export": {
+      "title": "ศูนย์ส่งออกข้อมูลระบบ (Raw CSV Export)",
+      "startDate": "วันที่เริ่มต้น",
+      "endDate": "วันที่สิ้นสุด",
+      "status": "สถานะ",
+      "allStatuses": "ทุกสถานะ",
+      "ordersTitle": "ส่งออกข้อมูลคำสั่งซื้อ (Orders)",
+      "ordersDesc": "ดาวน์โหลดประวัติออเดอร์ ข้อมูลลูกค้า ยอดชำระ และเลขพัสดุ",
+      "productsTitle": "ส่งออกข้อมูลรายการสินค้า (Products)",
+      "productsDesc": "ดาวน์โหลดรายชื่อสินค้า หมวดหมู่ ราคา และจำนวนสต็อก",
+      "inventoryTitle": "ส่งออกรายงานสต็อกคงคลัง (Inventory)",
+      "inventoryDesc": "ดาวน์โหลดรายงานระดับสต็อก สต็อกจอง และสินค้าใกล้หมด",
+      "auditLogsTitle": "ส่งออกบันทึกการทำงานระบบ (Audit Logs)",
+      "auditLogsDesc": "ดาวน์โหลด Security Audit Trail การทำงานของแอดมิน",
+      "departmentFilter": "แผนกสินค้า",
+      "allDepartments": "ทุกแผนก",
+      "inventoryStatus": "สถานะสต็อก",
+      "invAll": "สต็อกทั้งหมด",
+      "invLow": "สต็อกใกล้หมด (Low Stock)",
+      "invOut": "สินค้าหมด (Out of Stock)",
+      "download": "ดาวน์โหลด CSV",
+      "downloading": "กำลังสร้างไฟล์...",
+      "success": "ส่งออกข้อมูลสำเร็จ",
+      "fail": "ไม่สามารถส่งออกข้อมูลได้ กรุณาลองใหม่อีกครั้ง"
+    }
   }
 }
+

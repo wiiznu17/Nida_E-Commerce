@@ -16,6 +16,7 @@ import {
   LogOut,
   Ban,
   RotateCw,
+  BarChart3,
 } from 'lucide-react';
 import { NidaLogo } from '../common/NidaLogo';
 import { useLanguage } from '../../context/LanguageContext';
@@ -88,6 +89,14 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           altPath: '/orders',
           label: t('nav.orders'),
           icon: Package,
+          permission: AdminPermission.ORDERS_READ,
+        },
+        {
+          id: 'analytics',
+          path: '/admin/analytics',
+          altPath: '/analytics',
+          label: t('nav.analytics'),
+          icon: BarChart3,
           permission: AdminPermission.ORDERS_READ,
         },
         {

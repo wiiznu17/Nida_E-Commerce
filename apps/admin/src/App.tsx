@@ -23,6 +23,7 @@ import AdminProductCreate from './pages/AdminProductCreate';
 import AdminProductEdit from './pages/AdminProductEdit';
 import AdminOrders from './pages/AdminOrders';
 import AdminOrderDetail from './pages/AdminOrderDetail';
+import AdminAnalytics from './pages/AdminAnalytics';
 import AdminCancellations from './pages/AdminCancellations';
 import AdminReturns from './pages/AdminReturns';
 import AdminInventory from './pages/AdminInventory';
@@ -93,6 +94,8 @@ const router = createBrowserRouter([
         children: [
           { path: '/orders', element: <AdminOrders /> },
           { path: '/admin/orders', element: <AdminOrders /> },
+          { path: '/analytics', element: <AdminAnalytics /> },
+          { path: '/admin/analytics', element: <AdminAnalytics /> },
           { path: '/orders/:id', element: <AdminOrderDetail /> },
           { path: '/admin/orders/:id', element: <AdminOrderDetail /> },
           { path: '/cancellations', element: <AdminCancellations /> },
