@@ -11,6 +11,7 @@ import { HealthModule } from './modules/health/health.module.js';
 import { StoreContentModule } from './modules/content/content.module.js';
 import { OrderLifecycleModule } from './modules/order-lifecycle/index.js';
 import { WishlistModule } from './modules/wishlist/wishlist.module.js';
+import { CouponsModule } from './modules/coupons/coupons.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -62,6 +63,7 @@ import { AppService } from './app.service.js';
     StoreContentModule,
     OrderLifecycleModule,
     WishlistModule,
+    CouponsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
