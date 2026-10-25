@@ -251,6 +251,8 @@
     "home": "HOME",
     "selectSize": "Select Size",
     "selectColor": "Select Color",
+    "copyCode": "Copy",
+    "copied": "Copied",
     "addToBag": "ADD TO BAG",
     "added": "ADDED TO YOUR BAG!",
     "saveWishlist": "Save to wishlist",
