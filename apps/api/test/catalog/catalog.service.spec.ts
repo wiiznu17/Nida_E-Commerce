@@ -7,6 +7,9 @@ describe('CustomerCatalogService', () => {
   let service: CustomerCatalogService;
   let prismaMock: {
     product: {
+      fields: {
+        basePrice: unknown;
+      };
       findMany: ReturnType<typeof vi.fn>;
       count: ReturnType<typeof vi.fn>;
       findUnique: ReturnType<typeof vi.fn>;
