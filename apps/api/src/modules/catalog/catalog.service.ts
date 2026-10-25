@@ -98,6 +98,8 @@ export class CustomerCatalogService {
       }
     }
 
+    const isSaleDept = department?.toLowerCase() === 'sale';
+
     if (tag) {
       const tagList = tag
         .split(',')
@@ -116,11 +118,42 @@ export class CustomerCatalogService {
         }
       }
 
-      if (matchedEnums.length === 1) {
+      if (matchedEnums.includes(MarketingTag.SALE)) {
+        const otherTags = matchedEnums.filter((m) => m !== MarketingTag.SALE);
+        const saleOrConditions: Prisma.ProductWhereInput[] = [
+          { tag: MarketingTag.SALE },
+          { originalPrice: { gt: this.prisma.product.fields.basePrice } },
+        ];
+        if (otherTags.length > 0) {
+          saleOrConditions.push({ tag: { in: otherTags } });
+        }
+        where.AND = [
+          ...(Array.isArray(where.AND)
+            ? where.AND
+            : where.AND
+              ? [where.AND]
+              : []),
+          { OR: saleOrConditions },
+        ];
+      } else if (matchedEnums.length === 1) {
         where.tag = matchedEnums[0];
       } else if (matchedEnums.length > 1) {
         where.tag = { in: matchedEnums };
       }
+    } else if (isSaleDept) {
+      where.AND = [
+        ...(Array.isArray(where.AND)
+          ? where.AND
+          : where.AND
+            ? [where.AND]
+            : []),
+        {
+          OR: [
+            { tag: MarketingTag.SALE },
+            { originalPrice: { gt: this.prisma.product.fields.basePrice } },
+          ],
+        },
+      ];
     }
 
     if (minPrice !== undefined || maxPrice !== undefined) {

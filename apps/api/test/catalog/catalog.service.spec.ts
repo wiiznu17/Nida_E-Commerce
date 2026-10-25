@@ -62,6 +62,9 @@ describe('CustomerCatalogService', () => {
   beforeEach(() => {
     prismaMock = {
       product: {
+        fields: {
+          basePrice: 'basePrice',
+        },
         findMany: vi.fn().mockResolvedValue(sampleProducts),
         count: vi.fn().mockResolvedValue(1),
         findUnique: vi.fn(),
@@ -131,6 +134,25 @@ describe('CustomerCatalogService', () => {
       expect(prismaMock.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           orderBy: { createdAt: 'desc' },
+        }),
+      );
+    });
+
+    it('applies sale query to include products with tag SALE or originalPrice > basePrice', async () => {
+      await service.getProducts({ tag: 'SALE' });
+      expect(prismaMock.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            isActive: true,
+            AND: expect.arrayContaining([
+              expect.objectContaining({
+                OR: expect.arrayContaining([
+                  { tag: 'SALE' },
+                  { originalPrice: { gt: 'basePrice' } },
+                ]),
+              }),
+            ]),
+          }),
         }),
       );
     });
