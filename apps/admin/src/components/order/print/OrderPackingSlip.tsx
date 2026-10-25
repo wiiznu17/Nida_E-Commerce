@@ -138,7 +138,7 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({
                       {item.productName}
                     </div>
                     <div className="text-[10px] font-mono text-black/50">
-                      SKU: {item.id.slice(0, 8).toUpperCase()}
+                      SKU: {item.skuCodeSnapshot ?? item.skuCode ?? item.id.slice(0, 8).toUpperCase()}
                     </div>
                   </td>
                   <td className="py-3 text-center font-mono font-bold text-black/80">
@@ -148,10 +148,10 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({
                     {item.quantity}
                   </td>
                   <td className="py-3 text-right font-mono">
-                    ${(item.unitPrice ?? 0).toLocaleString()}
+                    ฿{(item.unitPrice ?? 0).toLocaleString()}
                   </td>
                   <td className="py-3 text-right font-mono font-bold">
-                    ${itemTotal.toLocaleString()}
+                    ฿{itemTotal.toLocaleString()}
                   </td>
                 </tr>
               );

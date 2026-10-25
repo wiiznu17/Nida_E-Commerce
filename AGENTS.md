@@ -148,3 +148,23 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
   - Once a service or gateway has been integrated (e.g. Omise Payment Gateway, mailers, or cloud storage), **NEVER** leave behind fake fallback simulations, dummy auto-success shortcuts, or mock branches in application code (e.g. automatically updating order status to `PAID` without gateway verification).
   - If required gateway tokens or payloads are missing (such as missing `omiseToken` for credit card checkout), the backend **MUST strictly reject the request with an explicit exception** (`BadRequestException`), instead of quietly swallowing the error or executing a fake simulation.
   - Mocks are strictly reserved for isolated unit tests (`*.spec.ts`) or services where real third-party contracts have not yet been established (such as logistics carriers). Real integrated services must always execute authentic validation and authorization.
+
+---
+
+## 7. Database Schema & Migration Standards (มาตรฐานการแก้ไข Database และ Migration)
+
+- **Mandatory Migration File Policy (ห้ามแก้แค่ `schema.prisma` แล้วปล่อยทิ้งไว้เด็ดขาด — ถ้าแก้ DB ต้องสร้าง Migration File เสมอ)**:
+  - Whenever creating or modifying models, fields, enums, indexes, or foreign key relations in `packages/database/prisma/schema.prisma`, you **MUST** simultaneously create the corresponding SQL migration file under:
+    `packages/database/prisma/migrations/<YYYYMMDDHHMMSS>_<descriptive_name>/migration.sql`
+  - Production and CI/CD pipelines run `prisma migrate deploy`, which strictly reads the `migrations/` directory. If a migration file is missing, deployments will fail or database columns will be missing in production.
+- **SQL Accuracy & Canonical Dialect**:
+  - Migration SQL must match PostgreSQL & Prisma conventions:
+    - Use proper types (`JSONB` for `Json`, `VARCHAR(n)` for `@db.VarChar(n)`, `UUID` for `@db.Uuid`).
+    - Use Prisma's canonical naming convention for indexes: `<table>_<column>_idx`.
+    - You can use `npx prisma migrate diff` to generate the exact diff SQL when needed.
+- **Mandatory Client Generation**:
+  - After modifying `schema.prisma` and adding the migration, always regenerate the Prisma Client:
+    ```bash
+    npm --prefix packages/database run db:generate
+    ```
+

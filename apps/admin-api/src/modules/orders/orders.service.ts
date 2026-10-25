@@ -13,6 +13,7 @@ import type {
 import type {
   ApiOrder,
   ApiOrderItem,
+  ApiProductSnapshot,
   ApiOrderAddress,
   ApiShipment,
   ShipmentTimelineEntry,
@@ -109,7 +110,12 @@ export class OrdersService {
     const variants = await this.prisma.productVariant.findMany({
       where: { id: { in: variantIds } },
       include: {
-        product: { include: { images: { take: 1 } } },
+        product: {
+          include: {
+            category: true,
+            images: true,
+          },
+        },
         inventoryItem: true,
       },
     });
@@ -169,12 +175,40 @@ export class OrdersService {
         const v = variantMap.get(calcItem.variantId)!;
         const isPreorder = v.product.isPreorder;
 
+        const primaryImage =
+          v.product.images?.find((img) => img.isPrimary)?.imageUrl ??
+          v.product.images?.[0]?.imageUrl ??
+          null;
+        const productSnapshot: ApiProductSnapshot = {
+          productId: v.product.id,
+          name: v.product.name,
+          nameTh: v.product.nameTh,
+          slug: v.product.slug,
+          department: v.product.category?.department,
+          categoryName: v.product.category?.name,
+          colorName: v.colorName,
+          colorNameTh: v.colorNameTh,
+          colorHex: v.colorHex,
+          size: v.size,
+          basePrice: Number(v.product.basePrice),
+          originalPrice: v.product.originalPrice
+            ? Number(v.product.originalPrice)
+            : null,
+          materialsCare: v.product.materialsCare,
+          materialsCareTh: v.product.materialsCareTh,
+          description: v.product.description,
+          descriptionTh: v.product.descriptionTh,
+        };
+
         await tx.orderItem.create({
           data: {
             orderId: order.id,
             variantId: v.id,
             productNameSnapshot: calcItem.productName,
             variantInfoSnapshot: calcItem.variantInfo,
+            imageUrlSnapshot: primaryImage,
+            skuCodeSnapshot: v.skuCode,
+            productSnapshot: JSON.parse(JSON.stringify(productSnapshot)),
             unitPrice: calcItem.unitPrice,
             quantity: calcItem.quantity,
             subtotal: calcItem.subtotal,
@@ -752,19 +786,33 @@ export class OrdersService {
       totalAmount: Number(order.totalAmount),
       currency: order.currency,
       promoCodeUsed: order.promoCodeUsed ?? undefined,
-      items: order.items.map((item): ApiOrderItem => ({
-        id: item.id,
-        productName: item.productNameSnapshot,
-        variantInfo: item.variantInfoSnapshot,
-        imageUrl: item.variant?.product?.images?.[0]?.imageUrl ?? undefined,
-        unitPrice: Number(item.unitPrice),
-        quantity: item.quantity,
-        subtotal: Number(item.subtotal),
-        discountShare: Number(item.discountShare),
-        netPrice: Number(item.netPrice),
-        isPreorder: item.isPreorder,
-        expectedShipDate: item.expectedShipDate?.toISOString() ?? undefined,
-      })),
+      items: order.items.map((item): ApiOrderItem => {
+        const fallbackImage = item.variant?.product?.images?.[0]?.imageUrl;
+        const imageUrl = item.imageUrlSnapshot ?? fallbackImage;
+        const skuCode = item.skuCodeSnapshot ?? item.variant?.skuCode;
+        const productSnapshot =
+          item.productSnapshot && typeof item.productSnapshot === 'object'
+            ? (item.productSnapshot as unknown as ApiProductSnapshot)
+            : null;
+
+        return {
+          id: item.id,
+          productName: item.productNameSnapshot,
+          variantInfo: item.variantInfoSnapshot,
+          imageUrl: imageUrl ?? undefined,
+          skuCode: skuCode ?? undefined,
+          imageUrlSnapshot: item.imageUrlSnapshot ?? null,
+          skuCodeSnapshot: item.skuCodeSnapshot ?? null,
+          productSnapshot,
+          unitPrice: Number(item.unitPrice),
+          quantity: item.quantity,
+          subtotal: Number(item.subtotal),
+          discountShare: Number(item.discountShare),
+          netPrice: Number(item.netPrice),
+          isPreorder: item.isPreorder,
+          expectedShipDate: item.expectedShipDate?.toISOString() ?? undefined,
+        };
+      }),
       shippingAddress: {
         recipientName: address.recipientName ?? '',
         phone: address.phone ?? '',

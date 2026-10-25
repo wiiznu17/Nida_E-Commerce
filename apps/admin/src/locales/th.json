@@ -513,7 +513,21 @@
       "specifyTrackingRequired": "กรุณาระบุเลขพัสดุ (Tracking Number) เพื่อจัดส่งสินค้า",
       "statusTransitionFailed": "ไม่สามารถเปลี่ยนสถานะได้",
       "statusUpdatedToast": "อัปเดตสถานะออเดอร์ #{orderNumber} เป็น {status} เรียบร้อยแล้ว",
-      "dispatchSuccessToast": "บันทึกการจัดส่งพัสดุสำหรับออเดอร์ #{orderNumber} สำเร็จ"
+      "dispatchSuccessToast": "บันทึกการจัดส่งพัสดุสำหรับออเดอร์ #{orderNumber} สำเร็จ",
+      "viewSnapshot": "ดูประวัติสินค้า (Snapshot)",
+      "snapshotModalTitle": "ประวัติข้อมูลสินค้า ณ วันที่สั่งซื้อ",
+      "snapshotModalSubtitle": "บันทึกคุณลักษณะสินค้าถาวร (Immutable Purchase Snapshot)",
+      "snapshotNotice": "ข้อมูลนี้ถูกบันทึกประวัติแบบถาวร (Snapshot) ณ เวลาที่สร้างคำสั่งซื้อ เพื่อความถูกต้องทางบัญชีและการรับประกันสินค้า แม้สินค้าในคลังจะถูกแก้ไขหรือลบออกในภายหลัง",
+      "materialsCareLabel": "วัสดุและการดูแลรักษา",
+      "descriptionLabel": "รายละเอียดสินค้า",
+      "skuLabel": "รหัส SKU",
+      "colorLabel": "สี",
+      "sizeLabel": "ขนาด",
+      "categoryLabel": "หมวดหมู่",
+      "departmentLabel": "แผนก",
+      "basePriceLabel": "ราคาตั้งต้น",
+      "originalPriceLabel": "ราคาป้ายเดิม",
+      "close": "ปิดหน้าต่าง"
     },
     "bulk": {
       "selectedCount": "เลือก {count} คำสั่งซื้อ",

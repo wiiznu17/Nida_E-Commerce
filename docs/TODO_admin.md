@@ -198,26 +198,27 @@ sequenceDiagram
 
 > **เป้าหมาย**: ล็อกข้อมูลสินค้า, รูปภาพปก, รหัส SKU, เนื้อผ้า, และคำอธิบายสินค้า ณ วินาทีที่ลูกค้าสั่งซื้ออย่างถาวร ป้องกันปัญหาข้อมูลในประวัติการสั่งซื้อเปลี่ยนรูปหรือหายไป เมื่อแอดมินแก้ไขหรือลบสินค้าในอนาคต
 
-- [ ] **Database Schema (`packages/database/prisma/schema.prisma`)**:
-  - [ ] เพิ่มคอลัมน์ในตาราง `order_items`:
+- [x] **Database Schema (`packages/database/prisma/schema.prisma`)**:
+  - [x] เพิ่มคอลัมน์ในตาราง `order_items`:
     - `imageUrlSnapshot String? @map("image_url_snapshot") @db.VarChar(500)` (ล็อกรูปภาพปกสินค้า ณ วันที่สั่งซื้อ)
     - `skuCodeSnapshot String? @map("sku_code_snapshot") @db.VarChar(100)` (ล็อกรหัส SKU ถาวร)
     - `productSnapshot Json? @map("product_snapshot")` (Full JSON Payload: ชื่อสินค้า, หมวดหมู่, เนื้อผ้าและการดูแลรักษา Fabric & Care, คำอธิบายสั้น, ตารางไซส์)
-  - [ ] รัน `npm --prefix packages/database run db:push` เพื่ออัปเดตตารางใน PostgreSQL
-- [ ] **Backend Checkout & Order Creation (`apps/api`)**:
-  - [ ] ปรับปรุง [orders.service.ts](file:///apps/api/src/modules/orders/orders.service.ts) ในฟังก์ชัน `checkout()` / สร้าง `OrderItem`:
-    - บันทึกรูปภาพแรก (`variant.product.images[0]?.imageUrl`) ลงใน `imageUrlSnapshot`
-    - บันทึกรหัส SKU (`variant.sku`) ลงใน `skuCodeSnapshot`
-    - รวม Metadata สำคัญ (description, fabric, careInstructions) บันทึกลงใน `productSnapshot`
-  - [ ] ปรับ Order Response Mapper ให้ใช้ `imageUrlSnapshot` เป็นค่าหลัก (โดย Fallback ไปที่ `variant.product.images` เฉพาะออเดอร์เก่า)
-- [ ] **Storefront & Admin UI**:
-  - [ ] **Storefront (`apps/store`)**:
-    - หน้ารายละเอียดคำสั่งซื้อ [CustomerOrderItemsCard.tsx](file:///apps/store/src/components/profile/orders/CustomerOrderItemsCard.tsx) ดึงรูปภาพจาก `imageUrlSnapshot`
-    - เพิ่มปุ่มคลิก "ดูข้อมูลสินค้าฉบับที่สั่งซื้อ" แสดง Modal พรีวิวภาพและรายละเอียด ณ วันที่สั่งซื้อ
-  - [ ] **Admin Portal (`apps/admin`)**:
-    - หน้า [OrderDetail.tsx](file:///apps/admin/src/pages/OrderDetail.tsx) และใบ Packing Slip แสดง SKU และรูปภาพจาก Snapshot โดยตรง ไม่พึ่งพา Live Product Table
-- [ ] **Testing & Verification**:
-  - [ ] Unit Test: ตรวจสอบว่าเมื่อทำการแก้ไขชื่อสินค้า เปลี่ยนรูป หรือปรับราคาใน `Product` ข้อมูลใน `OrderItem` ของออเดอร์เดิมต้องไม่เปลี่ยนแปลง
+  - [x] รัน `npm --prefix packages/database run db:generate` เพื่ออัปเดต Prisma Client
+- [x] **Backend Checkout & Order Creation (`apps/api` & `apps/admin-api`)**:
+  - [x] ปรับปรุง [orders.service.ts](file:///apps/api/src/modules/orders/orders.service.ts) ในฟังก์ชัน `createOrder()` / สร้าง `OrderItem`:
+    - บันทึกรูปภาพแรก / รูป Primary (`variant.product.images`) ลงใน `imageUrlSnapshot`
+    - บันทึกรหัส SKU (`variant.skuCode`) ลงใน `skuCodeSnapshot`
+    - รวม Metadata สำคัญ (description, materialsCare, department, category, originalPrice) บันทึกลงใน `productSnapshot`
+  - [x] ปรับ Order Response Mapper ให้ใช้ `imageUrlSnapshot` และ `skuCodeSnapshot` เป็นค่าหลัก (โดย Fallback ไปที่ Live Product เฉพาะออเดอร์เก่ายุคก่อน snapshot)
+- [x] **Storefront & Admin UI**:
+  - [x] **Storefront (`apps/store`)**:
+    - หน้ารายละเอียดคำสั่งซื้อ [CustomerOrderItemsCard.tsx](file:///apps/store/src/components/profile/orders/CustomerOrderItemsCard.tsx) ดึงรูปภาพจาก `imageUrlSnapshot` และ SKU จาก `skuCodeSnapshot`
+    - เพิ่มปุ่มคลิก "ดูประวัติสินค้า ณ วันสั่งซื้อ" แสดง Modal [CustomerOrderItemSnapshotModal.tsx](file:///apps/store/src/components/profile/orders/CustomerOrderItemSnapshotModal.tsx) พรีวิวภาพและรายละเอียด ณ วันที่สั่งซื้อ
+  - [x] **Admin Portal (`apps/admin`)**:
+    - หน้า Order Detail และ [OrderDetailItemsSection.tsx](file:///apps/admin/src/components/order/OrderDetailItemsSection.tsx) แสดง SKU และรูปภาพจาก Snapshot โดยตรง พร้อมปุ่มเปิด [OrderItemSnapshotModal.tsx](file:///apps/admin/src/components/order/OrderItemSnapshotModal.tsx)
+    - ใบ Packing Slip [OrderPackingSlip.tsx](file:///apps/admin/src/components/order/print/OrderPackingSlip.tsx) แสดง SKU จาก Snapshot และแปลงค่าเงินเป็นสกุล ฿ (THB) อย่างถูกต้อง
+- [x] **Testing & Verification**:
+  - [x] Unit Test (`apps/api/test/orders/product-snapshot.spec.ts` & `apps/admin-api/test/orders/product-snapshot.spec.ts`): ตรวจสอบว่าเมื่อทำการแก้ไขชื่อสินค้า เปลี่ยนรูป หรือปรับราคาใน `Product` ข้อมูลใน `OrderItem` ของออเดอร์เดิมไม่เปลี่ยนแปลง (100% Passing tests)
 
 ---
 

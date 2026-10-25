@@ -15,4 +15,5 @@ export * from './ReturnReviewModal';
 export * from './CancellationTable';
 export * from './ReturnTable';
 export * from './ReturnFilterCard';
+export * from './OrderItemSnapshotModal';
 export * from './print';

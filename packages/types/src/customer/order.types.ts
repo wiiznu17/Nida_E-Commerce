@@ -38,6 +38,26 @@ export interface ApiOrder {
   updatedAt?: string;
 }
 
+export interface ApiProductSnapshot {
+  productId?: string;
+  name: string;
+  nameTh?: string | null;
+  slug?: string;
+  department?: string;
+  categoryName?: string;
+  subCategoryName?: string | null;
+  colorName?: string;
+  colorNameTh?: string | null;
+  colorHex?: string;
+  size?: string;
+  basePrice?: number;
+  originalPrice?: number | null;
+  materialsCare?: string | null;
+  materialsCareTh?: string | null;
+  description?: string | null;
+  descriptionTh?: string | null;
+}
+
 export interface ApiOrderItem {
   id: string;
   productName: string;
@@ -50,6 +70,12 @@ export interface ApiOrderItem {
   netPrice: number;
   isPreorder: boolean;
   expectedShipDate?: string;
+
+  // --- Historical Product & Sku Snapshots ---
+  skuCode?: string;
+  skuCodeSnapshot?: string | null;
+  imageUrlSnapshot?: string | null;
+  productSnapshot?: ApiProductSnapshot | null;
 }
 
 export interface ApiOrderAddress {

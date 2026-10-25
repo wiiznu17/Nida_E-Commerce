@@ -365,6 +365,23 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
 - **Unit Testing Validation Guardrails**:
   - Whenever creating or modifying a Zod schema and its controller/service, write comprehensive unit tests asserting that invalid payloads (e.g. exceeding max character limits, missing required fields, negative values) are rejected with `BadRequestException`.
 
+### 4.6 Database Schema & Migration Standards (มาตรฐานการแก้ไข Database และสร้าง Migration File เสมอ)
+
+- **Mandatory Migration File Policy (ห้ามแก้แค่ `schema.prisma` แล้วปล่อยทิ้งไว้เด็ดขาด — ถ้าแก้ DB ต้องสร้าง Migration File เสมอ)**:
+  - Whenever creating or modifying models, fields, enums, indexes, or foreign key relations in `packages/database/prisma/schema.prisma`, you **MUST** simultaneously create the corresponding SQL migration file under:
+    `packages/database/prisma/migrations/<YYYYMMDDHHMMSS>_<descriptive_name>/migration.sql`
+  - Production and CI/CD pipelines run `prisma migrate deploy`, which strictly reads the `migrations/` directory. If a migration file is missing, deployments will fail or database columns will be missing in production.
+- **SQL Accuracy & Canonical Dialect**:
+  - Migration SQL must match PostgreSQL & Prisma conventions:
+    - Use proper types (`JSONB` for `Json`, `VARCHAR(n)` for `@db.VarChar(n)`, `UUID` for `@db.Uuid`).
+    - Use Prisma's canonical naming convention for indexes: `<table>_<column>_idx`.
+    - You can use `npx prisma migrate diff` to generate the exact diff SQL when needed.
+- **Mandatory Client Generation**:
+  - After modifying `schema.prisma` and adding the migration, always regenerate the Prisma Client:
+    ```bash
+    npm --prefix packages/database run db:generate
+    ```
+
 ---
 
 ## 5. Code Quality & Verification Workflow
@@ -474,4 +491,5 @@ When implementing any feature or refactoring:
 - [ ] **Are all fake mock simulations and dev shortcuts completely removed for integrated services (no fake auto-paid orders, strict BadRequestException on missing tokens)?**
 - [ ] **Did you write or update unit tests in a dedicated feature folder (e.g. `apps/admin-api/test/<feature>/` or `apps/api/test/<feature>/`) covering the new feature, guard rails, and state transitions?**
 - [ ] **Did you run unit tests on both APIs (`npm --prefix apps/api run test` and `npm --prefix apps/admin-api run test`) and pass 100% with 0 failures?**
+- [ ] **If the database schema was modified (`schema.prisma`), did you create a timestamped SQL migration file under `packages/database/prisma/migrations/` and run `db:generate`?**
 - [ ] Did you run builds across all packages (`packages/types`, `packages/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`) and pass with 0 errors?

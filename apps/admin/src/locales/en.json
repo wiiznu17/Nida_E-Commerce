@@ -513,7 +513,21 @@
       "specifyTrackingRequired": "Please specify carrier tracking number to dispatch this order",
       "statusTransitionFailed": "Invalid status transition",
       "statusUpdatedToast": "Order #{orderNumber} status updated to {status}",
-      "dispatchSuccessToast": "Order #{orderNumber} dispatched with tracking {tracking}"
+      "dispatchSuccessToast": "Order #{orderNumber} dispatched with tracking {tracking}",
+      "viewSnapshot": "View Product Snapshot",
+      "snapshotModalTitle": "Purchased Product Snapshot",
+      "snapshotModalSubtitle": "Permanent product specification recorded at checkout",
+      "snapshotNotice": "This snapshot was permanently recorded when the order was placed to ensure historical and accounting integrity, even if the active product catalog is modified or deleted later.",
+      "materialsCareLabel": "Materials & Care",
+      "descriptionLabel": "Product Description",
+      "skuLabel": "SKU Code",
+      "colorLabel": "Color",
+      "sizeLabel": "Size",
+      "categoryLabel": "Category",
+      "departmentLabel": "Department",
+      "basePriceLabel": "Base Price",
+      "originalPriceLabel": "Original Price",
+      "close": "Close"
     },
     "bulk": {
       "selectedCount": "{count} orders selected",

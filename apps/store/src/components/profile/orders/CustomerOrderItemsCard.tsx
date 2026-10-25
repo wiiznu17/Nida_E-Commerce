@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { Package, RotateCcw } from 'lucide-react';
+import { Package, RotateCcw, FileText } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import type { ApiOrder } from '@repo/types';
+import { CustomerOrderItemSnapshotModal } from './CustomerOrderItemSnapshotModal';
+import type { ApiOrderItem, ApiOrder } from '@repo/types';
 
 interface CustomerOrderItemsCardProps {
   order: ApiOrder;
@@ -12,6 +13,8 @@ interface CustomerOrderItemsCardProps {
 
 export function CustomerOrderItemsCard({ order }: CustomerOrderItemsCardProps) {
   const { t } = useLanguage();
+  const [selectedSnapshotItem, setSelectedSnapshotItem] =
+    useState<ApiOrderItem | null>(null);
 
   return (
     <div className="space-y-6 font-sans">
@@ -22,47 +25,69 @@ export function CustomerOrderItemsCard({ order }: CustomerOrderItemsCardProps) {
         </h2>
 
         <div className="divide-y divide-stone-100">
-          {order.items.map((item) => (
-            <div
-              key={item.id}
-              className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4"
-            >
-              <div className="flex items-center space-x-3.5 min-w-0">
-                {item.imageUrl ? (
-                  <div className="w-16 h-20 bg-stone-100 border border-brand-border shrink-0 relative overflow-hidden rounded-xs">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.productName}
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
+          {order.items.map((item) => {
+            const itemImageUrl = item.imageUrlSnapshot ?? item.imageUrl;
+            const skuCode = item.skuCodeSnapshot ?? item.skuCode;
+
+            return (
+              <div
+                key={item.id}
+                className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4"
+              >
+                <div className="flex items-center space-x-3.5 min-w-0">
+                  {itemImageUrl ? (
+                    <div className="w-16 h-20 bg-stone-100 border border-brand-border shrink-0 relative overflow-hidden rounded-xs">
+                      <Image
+                        src={itemImageUrl}
+                        alt={item.productName}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-20 bg-stone-100 border border-stone-200 shrink-0 flex items-center justify-center text-stone-400 rounded-xs">
+                      <Package size={20} />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-sm text-stone-900 truncate">
+                      {item.productName}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                      <span className="text-xs text-stone-500">
+                        {item.variantInfo}
+                      </span>
+                      {skuCode && (
+                        <span className="text-[10px] font-mono text-stone-400 bg-stone-50 px-1 py-0.5 rounded-xs border border-stone-200">
+                          {skuCode}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <p className="text-[11px] font-mono text-stone-500">
+                        ฿{Number(item.unitPrice).toLocaleString()} x {item.quantity}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSnapshotItem(item)}
+                        className="inline-flex items-center space-x-1 text-[11px] font-bold text-brand-brown hover:text-brand-brown/80 underline underline-offset-2 transition-colors cursor-pointer"
+                      >
+                        <FileText size={11} className="text-brand-brown" />
+                        <span>{t('orderDetail.viewSnapshotBtn')}</span>
+                      </button>
+                    </div>
                   </div>
-                ) : (
-                  <div className="w-16 h-20 bg-stone-100 border border-stone-200 shrink-0 flex items-center justify-center text-stone-400 rounded-xs">
-                    <Package size={20} />
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <h3 className="font-bold text-sm text-stone-900 truncate">
-                    {item.productName}
-                  </h3>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    {item.variantInfo}
-                  </p>
-                  <p className="text-[11px] font-mono text-stone-400 mt-1">
-                    ฿{Number(item.unitPrice).toLocaleString()} x {item.quantity}
-                  </p>
+                </div>
+
+                <div className="text-right shrink-0">
+                  <span className="font-mono font-bold text-sm text-stone-900">
+                    ฿{Number(item.subtotal).toLocaleString()}
+                  </span>
                 </div>
               </div>
-
-              <div className="text-right shrink-0">
-                <span className="font-mono font-bold text-sm text-stone-900">
-                  ฿{Number(item.subtotal).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -105,6 +130,14 @@ export function CustomerOrderItemsCard({ order }: CustomerOrderItemsCardProps) {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Product Snapshot Details Modal */}
+      {selectedSnapshotItem && (
+        <CustomerOrderItemSnapshotModal
+          item={selectedSnapshotItem}
+          onClose={() => setSelectedSnapshotItem(null)}
+        />
       )}
     </div>
   );

@@ -15,6 +15,7 @@ import {
   ORDER_TIMEOUT_MS,
   type ApiOrder,
   ApiOrderItem,
+  ApiProductSnapshot,
   ApiOrderAddress,
   ApiShipment,
   TrackingResult,
@@ -106,10 +107,8 @@ export class CustomerOrdersService {
       include: {
         product: {
           include: {
-            images: {
-              where: { isPrimary: true },
-              take: 1,
-            },
+            category: true,
+            images: true,
           },
         },
         inventoryItem: true,
@@ -132,10 +131,8 @@ export class CustomerOrdersService {
           include: {
             product: {
               include: {
-                images: {
-                  where: { isPrimary: true },
-                  take: 1,
-                },
+                category: true,
+                images: true,
               },
             },
             inventoryItem: true,
@@ -169,12 +166,40 @@ export class CustomerOrdersService {
       const unitPrice = Number(v.product.basePrice) + Number(v.priceAdjustment);
       const itemSubtotal = unitPrice * item.quantity;
       subtotal += itemSubtotal;
+      const primaryImage =
+        v.product.images?.find((img) => img.isPrimary)?.imageUrl ??
+        v.product.images?.[0]?.imageUrl ??
+        null;
+      const productSnapshot: ApiProductSnapshot = {
+        productId: v.product.id,
+        name: v.product.name,
+        nameTh: v.product.nameTh,
+        slug: v.product.slug,
+        department: v.product.category?.department,
+        categoryName: v.product.category?.name,
+        colorName: v.colorName,
+        colorNameTh: v.colorNameTh,
+        colorHex: v.colorHex,
+        size: v.size,
+        basePrice: Number(v.product.basePrice),
+        originalPrice: v.product.originalPrice
+          ? Number(v.product.originalPrice)
+          : null,
+        materialsCare: v.product.materialsCare,
+        materialsCareTh: v.product.materialsCareTh,
+        description: v.product.description,
+        descriptionTh: v.product.descriptionTh,
+      };
+
       return {
         variant: v,
         quantity: item.quantity,
         unitPrice,
         subtotal: itemSubtotal,
         isPreorder: v.product.isPreorder,
+        imageUrl: primaryImage,
+        skuCode: v.skuCode,
+        productSnapshot,
       };
     });
 
@@ -282,6 +307,9 @@ export class CustomerOrdersService {
             variantId: ci.variant.id,
             productNameSnapshot: ci.variant.product.name,
             variantInfoSnapshot: `${ci.variant.colorName} / ${ci.variant.size}`,
+            imageUrlSnapshot: ci.imageUrl,
+            skuCodeSnapshot: ci.skuCode,
+            productSnapshot: JSON.parse(JSON.stringify(ci.productSnapshot)),
             unitPrice: ci.unitPrice,
             quantity: ci.quantity,
             subtotal: ci.subtotal,
@@ -1448,6 +1476,9 @@ export class CustomerOrdersService {
       variantId: string;
       productNameSnapshot: string;
       variantInfoSnapshot: string;
+      imageUrlSnapshot?: string | null;
+      skuCodeSnapshot?: string | null;
+      productSnapshot?: unknown;
       unitPrice: { toNumber(): number } | number;
       quantity: number;
       subtotal: { toNumber(): number } | number;
@@ -1552,12 +1583,23 @@ export class CustomerOrdersService {
     };
 
     const items: ApiOrderItem[] = order.items.map((i) => {
-      const firstImage = i.variant?.product?.images?.[0]?.imageUrl;
+      const fallbackImage = i.variant?.product?.images?.[0]?.imageUrl;
+      const imageUrl = i.imageUrlSnapshot ?? fallbackImage;
+      const skuCode = i.skuCodeSnapshot ?? i.variant?.skuCode;
+      const productSnapshot =
+        i.productSnapshot && typeof i.productSnapshot === 'object'
+          ? (i.productSnapshot as ApiProductSnapshot)
+          : null;
+
       return {
         id: i.id,
         productName: i.productNameSnapshot,
         variantInfo: i.variantInfoSnapshot,
-        imageUrl: firstImage,
+        imageUrl: imageUrl ?? undefined,
+        skuCode: skuCode ?? undefined,
+        imageUrlSnapshot: i.imageUrlSnapshot ?? null,
+        skuCodeSnapshot: i.skuCodeSnapshot ?? null,
+        productSnapshot,
         unitPrice: Number(i.unitPrice),
         quantity: i.quantity,
         subtotal: Number(i.subtotal),
