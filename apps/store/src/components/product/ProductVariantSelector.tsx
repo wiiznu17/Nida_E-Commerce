@@ -66,16 +66,10 @@ export function ProductVariantSelector({
       {/* Size Selection */}
       {sizes.length > 0 && (
         <div>
-          <div className="flex justify-between items-center mb-2">
+          <div className="mb-2">
             <span className="text-xs font-black uppercase tracking-wider text-brand-brown">
               {t('product.selectSize')}
             </span>
-            <button
-              type="button"
-              className="text-xs font-bold text-brand-brown hover:text-brand-amber underline tracking-wider cursor-pointer"
-            >
-              {t('product.sizeGuide')}
-            </button>
           </div>
           <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
             {sizes.map((size) => {
