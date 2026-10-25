@@ -60,8 +60,9 @@ export function useProductDetail() {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [mainImage, setMainImage] = useState('');
-  const [openAccordion, setOpenAccordion] =
-    useState<ProductAccordionKey | null>('details');
+  const [openAccordions, setOpenAccordions] = useState<ProductAccordionKey[]>([
+    'details',
+  ]);
   const [isAdded, setIsAdded] = useState(false);
 
   const availableColors: ProductColor[] = useMemo(() => {
@@ -226,7 +227,9 @@ export function useProductDetail() {
   };
 
   const handleToggleAccordion = (key: ProductAccordionKey) => {
-    setOpenAccordion((prev) => (prev === key ? null : key));
+    setOpenAccordions((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
   };
 
   const relatedProducts = product
@@ -262,7 +265,7 @@ export function useProductDetail() {
     sizes,
     selectedSize,
     setSelectedSize,
-    openAccordion,
+    openAccordions,
     handleToggleAccordion,
     setMainImage,
     handleAddToCart,

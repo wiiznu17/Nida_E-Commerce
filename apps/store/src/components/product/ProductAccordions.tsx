@@ -6,18 +6,22 @@ import type { ProductAccordionKey } from './productTypes';
 interface ProductAccordionsProps {
   description?: string;
   materialsText?: string;
-  openAccordion: ProductAccordionKey | null;
+  openAccordions: ProductAccordionKey[];
   onToggleAccordion: (key: ProductAccordionKey) => void;
 }
 
 export function ProductAccordions({
   description,
   materialsText,
-  openAccordion,
+  openAccordions,
   onToggleAccordion,
 }: ProductAccordionsProps) {
   const { language, t } = useLanguage();
   const isTh = language === 'th';
+
+  const isDetailsOpen = openAccordions.includes('details');
+  const isMaterialsOpen = openAccordions.includes('materials');
+  const isDeliveryOpen = openAccordions.includes('delivery');
 
   return (
     <div className="border-t border-gray-200 pt-2">
@@ -32,11 +36,11 @@ export function ProductAccordions({
           <ChevronDown
             size={16}
             className={`transition-transform duration-200 ${
-              openAccordion === 'details' ? 'rotate-180' : ''
+              isDetailsOpen ? 'rotate-180' : ''
             }`}
           />
         </button>
-        {openAccordion === 'details' && (
+        {isDetailsOpen && (
           <div className="pb-4 text-xs text-gray-600 leading-relaxed space-y-2">
             <p>{description}</p>
             <ul className="list-disc pl-4 space-y-1">
@@ -76,11 +80,11 @@ export function ProductAccordions({
           <ChevronDown
             size={16}
             className={`transition-transform duration-200 ${
-              openAccordion === 'materials' ? 'rotate-180' : ''
+              isMaterialsOpen ? 'rotate-180' : ''
             }`}
           />
         </button>
-        {openAccordion === 'materials' && (
+        {isMaterialsOpen && (
           <div className="pb-4 text-xs text-gray-600 leading-relaxed">
             {materialsText}
           </div>
@@ -98,11 +102,11 @@ export function ProductAccordions({
           <ChevronDown
             size={16}
             className={`transition-transform duration-200 ${
-              openAccordion === 'delivery' ? 'rotate-180' : ''
+              isDeliveryOpen ? 'rotate-180' : ''
             }`}
           />
         </button>
-        {openAccordion === 'delivery' && (
+        {isDeliveryOpen && (
           <div className="pb-4 text-xs text-gray-600 leading-relaxed space-y-1">
             <p>
               {isTh

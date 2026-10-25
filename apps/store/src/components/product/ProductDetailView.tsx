@@ -33,7 +33,7 @@ export function ProductDetailView() {
     sizes,
     selectedSize,
     setSelectedSize,
-    openAccordion,
+    openAccordions,
     handleToggleAccordion,
     setMainImage,
     handleAddToCart,
@@ -128,7 +128,7 @@ export function ProductDetailView() {
           <ProductAccordions
             description={description}
             materialsText={materialsText}
-            openAccordion={openAccordion}
+            openAccordions={openAccordions}
             onToggleAccordion={handleToggleAccordion}
           />
         </div>
