@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  ShoppingBag,
-  Check,
-  Heart,
-  Truck,
-  RefreshCw,
-  ShieldCheck,
-} from 'lucide-react';
+import { ShoppingBag, Check, Heart } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface ProductActionsProps {
@@ -75,45 +68,6 @@ export function ProductActions({
                 : 'ADD TO WISHLIST'}
           </span>
         </button>
-      </div>
-
-      {/* Delivery & Guarantees */}
-      <div className="border-t border-gray-200 pt-6 space-y-3 text-xs text-gray-600">
-        <div className="flex items-center space-x-3">
-          <Truck size={18} className="text-brand-amber shrink-0" />
-          <span>
-            <strong>
-              {isTh ? 'จัดส่งมาตรฐานฟรี' : 'Free standard shipping'}
-            </strong>{' '}
-            {isTh
-              ? 'เมื่อสั่งซื้อครบ ฿1,500 ขึ้นไป พัสดุถึงภายใน 2-4 วันทำการ'
-              : 'on orders over ฿1,500. Arrives in 2-4 business days.'}
-          </span>
-        </div>
-        <div className="flex items-center space-x-3">
-          <RefreshCw size={18} className="text-brand-amber shrink-0" />
-          <span>
-            <strong>
-              {isTh
-                ? 'เปลี่ยนและคืนสินค้าได้ใน 30 วัน'
-                : 'Free 30-day returns & exchanges'}
-            </strong>{' '}
-            {isTh ? 'สะดวกสบายทั้งหน้าร้านและทางพัสดุ' : 'in-store or by mail.'}
-          </span>
-        </div>
-        <div className="flex items-center space-x-3">
-          <ShieldCheck size={18} className="text-brand-amber shrink-0" />
-          <span>
-            <strong>
-              {isTh
-                ? 'การันตีคุณภาพของแท้ 100%'
-                : '100% Guaranteed Authentic Nida Craft'}
-            </strong>{' '}
-            {isTh
-              ? 'ตัดเย็บประณีตด้วยเส้นใยธรรมชาติอย่างยั่งยืน'
-              : 'with sustainable materials.'}
-          </span>
-        </div>
       </div>
     </div>
   );
