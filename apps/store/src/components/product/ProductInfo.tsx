@@ -1,7 +1,5 @@
-'use client';
-
-import React, { useState } from 'react';
-import { Star, Tag, Copy, Check } from 'lucide-react';
+import React from 'react';
+import { Star } from 'lucide-react';
 import { ProductBadge } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import type { ApiProduct, ApiProductDetail } from '@repo/types';
@@ -21,15 +19,8 @@ export function ProductInfo({
   displayPrice,
   displayOriginalPrice,
 }: ProductInfoProps) {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const isTh = language === 'th';
-  const [copied, setCopied] = useState(false);
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText('NIDA20');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const hasDiscount =
     displayOriginalPrice !== undefined && displayOriginalPrice > displayPrice;
@@ -101,41 +92,6 @@ export function ProductInfo({
             </span>
           </>
         )}
-      </div>
-
-      {/* Special Promo Callout Box */}
-      <div className="bg-brand-warm-cream border border-brand-border p-3.5 rounded-xs flex items-center justify-between gap-3 text-xs">
-        <div className="flex items-center space-x-2 min-w-0">
-          <Tag size={15} className="text-brand-amber shrink-0" />
-          <span className="text-brand-brown font-bold truncate">
-            {isTh
-              ? 'ลดเพิ่ม 20% ด้วยโค้ดส่วนลด: '
-              : 'Extra 20% off with promo code: '}
-            <strong className="text-brand-amber font-mono font-black ml-1">NIDA20</strong>
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={handleCopyCode}
-          className={`shrink-0 inline-flex items-center space-x-1.5 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-xs transition-colors cursor-pointer border ${
-            copied
-              ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-              : 'bg-white border-brand-border text-brand-brown hover:bg-stone-50 hover:border-brand-brown'
-          }`}
-          title={copied ? t('product.copied') : t('product.copyCode')}
-        >
-          {copied ? (
-            <>
-              <Check size={12} className="text-emerald-600" />
-              <span>{t('product.copied')}</span>
-            </>
-          ) : (
-            <>
-              <Copy size={12} className="text-stone-500" />
-              <span>{t('product.copyCode')}</span>
-            </>
-          )}
-        </button>
       </div>
     </div>
   );
