@@ -11,6 +11,7 @@
     "db:seed": "tsx src/seed.ts",
     "db:seed:prod": "tsx src/seed-prod.ts",
     "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:reset": "prisma migrate reset",
     "db:migrate:status": "prisma migrate status"
   },
   "dependencies": {

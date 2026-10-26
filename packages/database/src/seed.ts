@@ -15,6 +15,7 @@ const prisma = new PrismaClient();
 async function main() {
   // Production Safeguard Guard Rails
   const isProdEnv = process.env.NODE_ENV === 'production';
+  const forceDevSeed = process.env.FORCE_DEV_SEED === 'true';
   const dbUrl = (process.env.DATABASE_URL ?? '').toLowerCase();
   const isProdDb =
     dbUrl.includes('-prod') ||
@@ -22,14 +23,22 @@ async function main() {
     dbUrl.includes('prod-db') ||
     (isProdEnv && !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1'));
 
-  if (isProdEnv || isProdDb) {
+  if ((isProdEnv || isProdDb) && !forceDevSeed) {
     console.error(
       '\n🚨 [FATAL ERROR] Destructive development seed script aborted!\n' +
-        'Attempted to run dev seed (which wipes data) on a production environment or database.\n' +
+        'Attempted to run dev seed (which wipes data) on a production environment or remote database.\n' +
         'To initialize or sync a production database safely without data destruction, run:\n' +
-        '  npm run db:seed:prod\n',
+        '  npm run db:seed:prod\n' +
+        '\nIf this is an intentional remote test/staging database reset, run with:\n' +
+        '  FORCE_DEV_SEED=true npm run db:seed\n',
     );
     process.exit(1);
+  }
+
+  if (forceDevSeed) {
+    console.warn(
+      '\n⚠️  [FORCE OVERRIDE ACTIVE] FORCE_DEV_SEED=true detected. Proceeding to wipe and re-seed remote database...\n',
+    );
   }
 
   console.log(
