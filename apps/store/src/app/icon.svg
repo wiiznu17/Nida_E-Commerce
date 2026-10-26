@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <rect width="256" height="256" rx="56" fill="#2B1810" />
+  <!-- Peak 1: Champagne Gold (Left) -->
+  <path d="M 12 128 L 50.67 84 L 89.33 128 L 89.33 172 L 50.67 128 L 12 172 Z" fill="#E6C687" />
+  <!-- Peak 2: Crisp White (Center) -->
+  <path d="M 89.33 128 L 128 84 L 166.67 128 L 166.67 172 L 128 128 L 89.33 172 Z" fill="#FFFFFF" />
+  <!-- Peak 3: Amber Yellow (Right) -->
+  <path d="M 166.67 128 L 205.33 84 L 244 128 L 244 172 L 205.33 128 L 166.67 172 Z" fill="#EB9617" />
+</svg>

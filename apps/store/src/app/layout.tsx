@@ -38,6 +38,9 @@ export const metadata: Metadata = {
   title: 'NIDA — Modern Heritage Apparel & Lifestyle',
   description:
     "Discover Nida's iconic prep-inspired apparel, leather bags, footwear, and home lifestyle. Founded by Phannida — intentional design, uncomprised spirit.",
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
