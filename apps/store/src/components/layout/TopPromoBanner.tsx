@@ -8,6 +8,7 @@ interface TopPromoBannerProps {
   language: Language;
   onSelectLanguage: (lang: Language) => void;
   isAuthenticated: boolean;
+  onOpenAuth?: (tab?: 'signin' | 'signup') => void;
   t: (key: string, fallback?: string) => string;
 }
 
@@ -15,6 +16,7 @@ export function TopPromoBanner({
   language,
   onSelectLanguage,
   isAuthenticated,
+  onOpenAuth,
   t,
 }: TopPromoBannerProps) {
   const { storeSettings } = useStoreContent();
@@ -101,15 +103,24 @@ export function TopPromoBanner({
 
           <span className="text-white/30 hidden lg:inline">|</span>
 
-          <Link
-            href={isAuthenticated ? '/profile' : '/login'}
-            className="hover:text-white transition-colors flex items-center text-xs"
-          >
-            <User size={12} className="mr-1" />
-            <span className="hidden lg:inline">
-              {isAuthenticated ? t('nav.account') : t('nav.signIn')}
-            </span>
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href="/profile"
+              className="hover:text-white transition-colors flex items-center text-xs"
+            >
+              <User size={12} className="mr-1" />
+              <span className="hidden lg:inline">{t('nav.account')}</span>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onOpenAuth?.('signin')}
+              className="hover:text-white transition-colors flex items-center text-xs cursor-pointer"
+            >
+              <User size={12} className="mr-1" />
+              <span className="hidden lg:inline">{t('nav.signIn')}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

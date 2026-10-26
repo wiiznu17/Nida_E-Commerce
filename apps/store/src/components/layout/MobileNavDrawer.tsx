@@ -16,6 +16,7 @@ interface MobileNavDrawerProps {
   onSelectLanguage: (lang: Language) => void;
   isAuthenticated: boolean;
   wishlistCount: number;
+  onOpenAuth?: (tab?: 'signin' | 'signup') => void;
   t: (key: string, fallback?: string) => string;
 }
 
@@ -28,6 +29,7 @@ export function MobileNavDrawer({
   onSelectLanguage,
   isAuthenticated,
   wishlistCount,
+  onOpenAuth,
   t,
 }: MobileNavDrawerProps) {
   const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
@@ -159,13 +161,26 @@ export function MobileNavDrawer({
           >
             {t('nav.about')}
           </Link>
-          <Link
-            href={isAuthenticated ? '/profile' : '/login'}
-            onClick={onClose}
-            className="block py-1 hover:text-brand-amber transition-colors"
-          >
-            {isAuthenticated ? t('nav.account') : t('nav.signIn')}
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href="/profile"
+              onClick={onClose}
+              className="block py-1 hover:text-brand-amber transition-colors"
+            >
+              {t('nav.account')}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenAuth?.('signin');
+              }}
+              className="block py-1 hover:text-brand-amber transition-colors text-left w-full cursor-pointer"
+            >
+              {t('nav.signIn')}
+            </button>
+          )}
           <div className="pt-2 text-[11px] text-gray-400">
             {t('footer.copyright')}
           </div>

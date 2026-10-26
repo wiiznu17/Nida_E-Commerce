@@ -1,171 +1,32 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { LogIn, ShieldCheck, Mail, Loader2 } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
-import { authRequester, extractApiError } from '@/api';
-import { Alert, LoadingSpinner } from '@/components/ui';
-import { NidaLogo } from '@/components/layout/NidaLogo';
+import { useAuth } from '@/context/AuthContext';
+import { LoadingSpinner } from '@/components/ui';
 
-function LoginFormContent() {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+function LoginRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect');
-  const { language, t } = useLanguage();
+  const { openAuthDrawer } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
+  useEffect(() => {
+    openAuthDrawer('signin');
+    const redirectParam = searchParams.get('redirect');
+    const targetUrl = redirectParam
+      ? `/?auth=signin&redirect=${encodeURIComponent(redirectParam)}`
+      : '/?auth=signin';
+    router.replace(targetUrl);
+  }, [router, searchParams, openAuthDrawer]);
 
-    setIsLoading(true);
-    setErrorMessage('');
-
-    try {
-      const res = await authRequester.requestOtp(email.trim());
-      if (res.devOtpCode && typeof window !== 'undefined') {
-        sessionStorage.setItem('nida_dev_otp', res.devOtpCode);
-      }
-      const redirectParam = redirect
-        ? `&redirect=${encodeURIComponent(redirect)}`
-        : '';
-      router.push(
-        `/verify-otp?email=${encodeURIComponent(email.trim())}${redirectParam}`,
-      );
-    } catch (err: unknown) {
-      const extracted = extractApiError(
-        err,
-        language === 'th'
-          ? 'เกิดข้อผิดพลาดในการขอรหัส OTP กรุณาลองใหม่อีกครั้ง'
-          : 'Failed to request OTP code. Please try again.',
-      );
-      setErrorMessage(extracted.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickDemo = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setErrorMessage('');
-  };
-
-  return (
-    <div className="w-full max-w-md bg-white border border-brand-border p-8 sm:p-10 shadow-sm relative">
-      <div className="flex justify-center mb-6">
-        <NidaLogo size="lg" />
-      </div>
-
-      <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-brand-brown mb-2">
-        {t('auth.signInTitle')}
-      </h1>
-      <p className="text-center text-gray-500 font-medium text-xs mb-8">
-        {t('auth.signInSubtitle')}
-      </p>
-
-      {errorMessage && (
-        <Alert variant="error" className="mb-6">
-          {errorMessage}
-        </Alert>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1"
-          >
-            {t('auth.emailLabel')}
-          </label>
-          <div className="relative">
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-              placeholder="customer@nida.com"
-              className="w-full border border-gray-300 px-3 py-2.5 pl-10 text-sm focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown disabled:bg-gray-50"
-            />
-            <Mail
-              size={18}
-              className="absolute left-3 top-3 text-gray-400 pointer-events-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2 text-xs text-gray-500">
-          <ShieldCheck size={16} className="text-emerald-600 flex-shrink-0" />
-          <span>{t('auth.otpNotice')}</span>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading || !email}
-          className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-300 text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              <span>กำลังส่งรหัส OTP...</span>
-            </>
-          ) : (
-            <>
-              <LogIn size={16} />
-              <span>{t('auth.signInBtn')}</span>
-            </>
-          )}
-        </button>
-      </form>
-
-      {/* Demo Fast Fill */}
-      <div className="mt-6 pt-5 border-t border-dashed border-gray-200">
-        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-          {t('auth.quickDemo')}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => handleQuickDemo('phannida@nida.com')}
-            className="text-xs bg-gray-100 hover:bg-gray-200 text-brand-brown font-semibold px-2.5 py-1 rounded-xs transition-colors"
-          >
-            phannida@nida.com
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickDemo('customer@example.com')}
-            className="text-xs bg-gray-100 hover:bg-gray-200 text-brand-brown font-semibold px-2.5 py-1 rounded-xs transition-colors"
-          >
-            customer@example.com
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-8 text-center pt-6 border-t border-gray-200">
-        <p className="text-xs text-gray-600">
-          {t('auth.noAccount')}{' '}
-          <Link
-            href="/register"
-            className="font-bold text-brand-brown hover:text-brand-amber underline ml-1"
-          >
-            {t('auth.joinClub')}
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
+  return <LoadingSpinner className="p-16" />;
 }
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-brand-warm-cream font-sans">
-      <Suspense fallback={<LoadingSpinner className="p-12" />}>
-        <LoginFormContent />
+    <div className="min-h-[50vh] flex items-center justify-center">
+      <Suspense fallback={<LoadingSpinner className="p-16" />}>
+        <LoginRedirect />
       </Suspense>
     </div>
   );

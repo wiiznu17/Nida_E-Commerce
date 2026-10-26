@@ -10,4 +10,5 @@ export * from './HeaderActions';
 export * from './Header';
 export * from './Footer';
 export * from './CartDrawer';
+export * from './AuthDrawer';
 export * from './StoreLayout';

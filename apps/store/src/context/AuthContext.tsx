@@ -32,6 +32,10 @@ type AuthContextType = {
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   updateProfile: (data: UpdateCustomerProfileInput) => Promise<ApiUser | null>;
+  isAuthDrawerOpen: boolean;
+  authDrawerTab: 'signin' | 'signup';
+  openAuthDrawer: (tab?: 'signin' | 'signup') => void;
+  closeAuthDrawer: () => void;
 };
 
 const ACCESS_TOKEN_KEY = 'nida_customer_jwt_token';
@@ -45,6 +49,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
+  const [authDrawerTab, setAuthDrawerTab] = useState<'signin' | 'signup'>('signin');
+
+  const openAuthDrawer = useCallback((tab: 'signin' | 'signup' = 'signin') => {
+    setAuthDrawerTab(tab);
+    setIsAuthDrawerOpen(true);
+  }, []);
+
+  const closeAuthDrawer = useCallback(() => {
+    setIsAuthDrawerOpen(false);
+  }, []);
 
   const clearSession = useCallback(() => {
     setToken(null);
@@ -136,6 +151,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch {
       // Ignore storage errors
     }
+
+    closeAuthDrawer();
   };
 
   const logout = async () => {
@@ -187,6 +204,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         logoutAll,
         updateProfile,
+        isAuthDrawerOpen,
+        authDrawerTab,
+        openAuthDrawer,
+        closeAuthDrawer,
       }}
     >
       {children}

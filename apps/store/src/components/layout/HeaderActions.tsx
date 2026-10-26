@@ -7,6 +7,7 @@ interface HeaderActionsProps {
   wishlistCount: number;
   cartItemCount: number;
   onOpenCart: () => void;
+  onOpenAuth?: (tab?: 'signin' | 'signup') => void;
   t: (key: string, fallback?: string) => string;
 }
 
@@ -15,6 +16,7 @@ export function HeaderActions({
   wishlistCount,
   cartItemCount,
   onOpenCart,
+  onOpenAuth,
   t,
 }: HeaderActionsProps) {
   return (
@@ -34,14 +36,26 @@ export function HeaderActions({
       </Link>
 
       {/* Profile / Account */}
-      <Link
-        href={isAuthenticated ? '/profile' : '/login'}
-        className="text-brand-brown hover:text-brand-amber p-1.5 transition-colors"
-        aria-label={t('nav.account')}
-        title={isAuthenticated ? t('nav.account') : t('nav.signIn')}
-      >
-        <User size={20} strokeWidth={2} />
-      </Link>
+      {isAuthenticated ? (
+        <Link
+          href="/profile"
+          className="text-brand-brown hover:text-brand-amber p-1.5 transition-colors"
+          aria-label={t('nav.account')}
+          title={t('nav.account')}
+        >
+          <User size={20} strokeWidth={2} />
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onOpenAuth?.('signin')}
+          className="text-brand-brown hover:text-brand-amber p-1.5 transition-colors cursor-pointer"
+          aria-label={t('nav.signIn')}
+          title={t('nav.signIn')}
+        >
+          <User size={20} strokeWidth={2} />
+        </button>
+      )}
 
       {/* Shopping Bag Button */}
       <button

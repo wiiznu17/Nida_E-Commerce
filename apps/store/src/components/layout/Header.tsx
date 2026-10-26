@@ -23,7 +23,7 @@ import type { NavDepartment } from './types';
 export function Header() {
   const { setIsCartOpen, items } = useCart();
   const { wishlistCount } = useWishlist();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, openAuthDrawer } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const { categoriesByDept, productsList } = useCatalog();
   const pathname = usePathname();
@@ -143,6 +143,7 @@ export function Header() {
         language={language}
         onSelectLanguage={setLanguage}
         isAuthenticated={isAuthenticated}
+        onOpenAuth={openAuthDrawer}
         t={t}
       />
 
@@ -204,6 +205,7 @@ export function Header() {
               wishlistCount={wishlistCount}
               cartItemCount={items.length}
               onOpenCart={() => setIsCartOpen(true)}
+              onOpenAuth={openAuthDrawer}
               t={t}
             />
           </div>
@@ -241,6 +243,7 @@ export function Header() {
         onSelectLanguage={setLanguage}
         isAuthenticated={isAuthenticated}
         wishlistCount={wishlistCount}
+        onOpenAuth={openAuthDrawer}
         t={t}
       />
     </header>

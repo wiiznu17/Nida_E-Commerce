@@ -77,9 +77,7 @@ function VerifyOTPContent() {
           {isLoading ? (
             <>
               <Loader2 size={16} className="animate-spin" />
-              <span>
-                {language === 'th' ? 'กำลังตรวจสอบรหัส...' : 'Verifying...'}
-              </span>
+              <span>{t('auth.verifying')}</span>
             </>
           ) : (
             <>
@@ -92,12 +90,10 @@ function VerifyOTPContent() {
 
       <div className="mt-8 text-center space-y-3 pt-6 border-t border-gray-200">
         <p className="text-xs text-gray-500 font-medium">
-          {language === 'th' ? 'ไม่ได้รับรหัส OTP? ' : "Didn't receive code? "}
+          {t('auth.didNotReceive')}{' '}
           {resendTimer > 0 ? (
             <span className="text-gray-400 font-semibold">
-              {language === 'th'
-                ? `ส่งใหม่ได้ใน ${resendTimer} วินาที`
-                : `Resend in ${resendTimer}s`}
+              {t('auth.resendCountdown').replace('{seconds}', String(resendTimer))}
             </span>
           ) : (
             <button
@@ -108,7 +104,7 @@ function VerifyOTPContent() {
               {isResending ? (
                 <span className="inline-flex items-center">
                   <RefreshCw size={12} className="animate-spin mr-1" />
-                  {language === 'th' ? 'กำลังส่ง...' : 'Sending...'}
+                  {t('auth.sending')}
                 </span>
               ) : (
                 t('auth.resendOtp')
@@ -132,7 +128,7 @@ function VerifyOTPContent() {
 
 export default function VerifyOTPPage() {
   return (
-    <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 bg-brand-warm-cream">
+    <div className="w-full flex items-center justify-center font-sans">
       <Suspense fallback={<LoadingSpinner className="p-12" />}>
         <VerifyOTPContent />
       </Suspense>
