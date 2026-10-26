@@ -177,10 +177,6 @@ export default function AdminReturns() {
     <AdminLayout
       title={t('returnsPage.title')}
       subtitle={t('returnsPage.subtitle')}
-      breadcrumbs={[
-        { label: t('nav.salesOrders') },
-        { label: t('returnsPage.title') },
-      ]}
     >
       <div className="space-y-6">
         <ReturnFilterCard

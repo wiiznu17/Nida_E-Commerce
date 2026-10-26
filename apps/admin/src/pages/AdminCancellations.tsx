@@ -121,10 +121,6 @@ export default function AdminCancellations() {
     <AdminLayout
       title={t('cancellationsPage.title')}
       subtitle={t('cancellationsPage.subtitle')}
-      breadcrumbs={[
-        { label: t('nav.salesOrders') },
-        { label: t('cancellationsPage.title') },
-      ]}
     >
       <div className="space-y-6">
         {/* Filter Card */}
