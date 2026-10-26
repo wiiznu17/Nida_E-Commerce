@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info';
@@ -29,9 +29,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const showToast = useCallback(
     (message: string, type: ToastType = 'success', duration = 3500) => {
       const id = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      const newToast: ToastItem = { id, message, type, duration };
 
-      setToasts((prev) => [...prev, newToast]);
+      setToasts((prev) => {
+        // Prevent duplicate toast if already showing the exact same message
+        if (prev.some((t) => t.message === message)) {
+          return prev;
+        }
+        // Limit to max 4 visible toasts
+        return [...prev.slice(-3), { id, message, type, duration }];
+      });
 
       if (duration > 0) {
         setTimeout(() => {
@@ -60,8 +66,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     [showToast],
   );
 
+  const contextValue = useMemo<ToastContextValue>(
+    () => ({ showToast, success, error, info }),
+    [showToast, success, error, info],
+  );
+
   return (
-    <ToastContext.Provider value={{ showToast, success, error, info }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
 
       {/* Global Toast Container */}

@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import { ApiErrorModal } from '../components/ui';
@@ -26,6 +26,8 @@ import type { QueryProductsInput } from '@repo/validators';
 export default function AdminProducts() {
   const { t, language, isTh } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
+  const toastShownRef = useRef<string | null>(null);
 
   const [activeFilters, setActiveFilters] =
     useState<ProductFilterState>(DEFAULT_FILTERS);
@@ -109,11 +111,12 @@ export default function AdminProducts() {
 
   useEffect(() => {
     const navState = location.state as { toast?: string } | null;
-    if (navState?.toast) {
+    if (navState?.toast && toastShownRef.current !== navState.toast) {
+      toastShownRef.current = navState.toast;
       toast.success(navState.toast);
-      window.history.replaceState({}, document.title);
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state, toast]);
+  }, [location.pathname, location.state, navigate, toast]);
 
   const handleDelete = async (id: string, name: string) => {
     const confirmText = t('productList.confirmDelete').replace('{name}', name);
