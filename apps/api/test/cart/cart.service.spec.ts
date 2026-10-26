@@ -18,6 +18,8 @@ describe('CustomerCartService', () => {
     };
     productVariant: {
       findUnique: ReturnType<typeof vi.fn>;
+      findFirst: ReturnType<typeof vi.fn>;
+      findMany: ReturnType<typeof vi.fn>;
     };
   };
 
@@ -65,6 +67,8 @@ describe('CustomerCartService', () => {
       },
       productVariant: {
         findUnique: vi.fn(),
+        findFirst: vi.fn(),
+        findMany: vi.fn().mockResolvedValue([]),
       },
     };
 
@@ -151,6 +155,10 @@ describe('CustomerCartService', () => {
       prismaMock.cart.findUnique
         .mockResolvedValueOnce({ id: 'cart-1', userId: 'user-1' })
         .mockResolvedValueOnce({ id: 'cart-1', userId: 'user-1', items: [] });
+      prismaMock.productVariant.findUnique.mockResolvedValue({
+        id: 'var-1',
+        inventoryItem: { quantityAvailable: 10 },
+      });
 
       await service.updateItem('user-1', { variantId: 'var-1', quantity: 0 });
 
@@ -193,7 +201,7 @@ describe('CustomerCartService', () => {
       expect(prismaMock.cartItem.deleteMany).toHaveBeenCalledWith({
         where: {
           cartId: 'cart-1',
-          variantId: 'var-1',
+          variantId: { in: ['var-1'] },
         },
       });
     });

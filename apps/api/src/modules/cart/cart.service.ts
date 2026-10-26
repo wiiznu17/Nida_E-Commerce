@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@repo/database';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import type {
   ServerCartItem,
@@ -6,6 +7,10 @@ import type {
   MergeCartPayload,
   UpdateCartItemPayload,
 } from '@repo/types';
+
+type VariantWithInventory = Prisma.ProductVariantGetPayload<{
+  include: { inventoryItem: true };
+}>;
 
 @Injectable()
 export class CustomerCartService {
@@ -85,23 +90,43 @@ export class CustomerCartService {
     const cartId = cart.id;
 
     for (const item of guestItems) {
-      const variant = await this.prisma.productVariant.findUnique({
+      let variant = await this.prisma.productVariant.findUnique({
         where: { id: item.variantId },
         include: {
           inventoryItem: true,
+          product: {
+            select: { isPreorder: true },
+          },
         },
       });
 
+      if (!variant) {
+        variant = await this.prisma.productVariant.findFirst({
+          where: { productId: item.variantId },
+          include: {
+            inventoryItem: true,
+            product: {
+              select: { isPreorder: true },
+            },
+          },
+          orderBy: { skuCode: 'asc' },
+        });
+      }
+
       if (!variant) continue;
 
-      const maxStock = variant.inventoryItem?.quantityAvailable ?? 0;
-      if (maxStock <= 0) continue;
+      const resolvedVariantId = variant.id;
+      const isPreorder = Boolean(
+        variant.isPreorder ?? variant.product?.isPreorder,
+      );
+      const stockAvailable = variant.inventoryItem?.quantityAvailable ?? 0;
+      const maxStock = isPreorder ? 99 : Math.max(stockAvailable, 1);
 
       const existing = await this.prisma.cartItem.findUnique({
         where: {
           cartId_variantId: {
             cartId,
-            variantId: item.variantId,
+            variantId: resolvedVariantId,
           },
         },
       });
@@ -117,7 +142,7 @@ export class CustomerCartService {
         await this.prisma.cartItem.create({
           data: {
             cartId,
-            variantId: item.variantId,
+            variantId: resolvedVariantId,
             quantity: initialQty,
           },
         });
@@ -147,23 +172,34 @@ export class CustomerCartService {
 
     const cartId = cart.id;
 
-    if (quantity <= 0) {
-      await this.prisma.cartItem.deleteMany({
-        where: {
-          cartId,
-          variantId,
-        },
-      });
-    } else {
-      const variant = await this.prisma.productVariant.findUnique({
+    let variant: VariantWithInventory | null =
+      await this.prisma.productVariant.findUnique({
         where: { id: variantId },
         include: { inventoryItem: true },
       });
 
-      if (!variant) {
-        throw new NotFoundException(`Product variant ${variantId} not found`);
-      }
+    if (!variant) {
+      variant = await this.prisma.productVariant.findFirst({
+        where: { productId: variantId },
+        include: { inventoryItem: true },
+        orderBy: { skuCode: 'asc' },
+      });
+    }
 
+    if (!variant) {
+      throw new NotFoundException(`Product variant ${variantId} not found`);
+    }
+
+    const resolvedVariantId = variant.id;
+
+    if (quantity <= 0) {
+      await this.prisma.cartItem.deleteMany({
+        where: {
+          cartId,
+          variantId: resolvedVariantId,
+        },
+      });
+    } else {
       const maxStock = variant.inventoryItem?.quantityAvailable ?? 0;
       const safeQty = Math.min(quantity, Math.max(maxStock, 1), 99);
 
@@ -171,13 +207,13 @@ export class CustomerCartService {
         where: {
           cartId_variantId: {
             cartId,
-            variantId,
+            variantId: resolvedVariantId,
           },
         },
         update: { quantity: safeQty },
         create: {
           cartId,
-          variantId,
+          variantId: resolvedVariantId,
           quantity: safeQty,
         },
       });
@@ -196,10 +232,19 @@ export class CustomerCartService {
     });
 
     if (cart) {
+      const relatedVariants = await this.prisma.productVariant.findMany({
+        where: { OR: [{ id: variantId }, { productId: variantId }] },
+        select: { id: true },
+      });
+      const idsToDelete = [
+        variantId,
+        ...relatedVariants.map((v) => v.id),
+      ];
+
       await this.prisma.cartItem.deleteMany({
         where: {
           cartId: cart.id,
-          variantId,
+          variantId: { in: idsToDelete },
         },
       });
     }

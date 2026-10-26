@@ -258,13 +258,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Save guest cart to localStorage (only when user is not logged in)
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || user) return;
     try {
-      if (!user) {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-      } else {
-        localStorage.removeItem(CART_STORAGE_KEY);
-      }
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
     } catch {
       // Ignore quota errors
     }
@@ -297,34 +293,88 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         try {
           setIsSyncingCart(true);
 
-          // If there are guest items stored locally, merge them to backend
-          const storedGuestCart = localStorage.getItem(CART_STORAGE_KEY);
+          // Retrieve guest items from either localStorage or current state
           let guestItems: CartItem[] = [];
-          if (storedGuestCart) {
-            try {
-              const parsed = JSON.parse(storedGuestCart);
+          try {
+            const stored = localStorage.getItem(CART_STORAGE_KEY);
+            if (stored) {
+              const parsed = JSON.parse(stored);
               if (Array.isArray(parsed) && parsed.length > 0) {
                 guestItems = parsed;
               }
-            } catch {
-              // Ignore
+            }
+          } catch {
+            // Ignore
+          }
+
+          if (guestItems.length === 0 && items.length > 0) {
+            guestItems = items;
+          }
+
+          const UUID_REGEX =
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+          const validPayloadItems = guestItems
+            .map((i) => {
+              let resolvedId: string | null = null;
+              if (i.variantId && UUID_REGEX.test(i.variantId)) {
+                resolvedId = i.variantId;
+              } else if (i.productId && UUID_REGEX.test(i.productId)) {
+                resolvedId = i.productId;
+              } else if (i.id && UUID_REGEX.test(i.id.slice(0, 36))) {
+                resolvedId = i.id.slice(0, 36);
+              }
+              return resolvedId
+                ? { variantId: resolvedId, quantity: Math.max(i.quantity, 1) }
+                : null;
+            })
+            .filter(
+              (item): item is { variantId: string; quantity: number } =>
+                Boolean(item),
+            );
+
+          if (validPayloadItems.length > 0) {
+            const mergedRes = await cartRequester.mergeCart(
+              validPayloadItems,
+              token,
+            );
+
+            if (mergedRes.items && mergedRes.items.length > 0) {
+              try {
+                localStorage.removeItem(CART_STORAGE_KEY);
+              } catch {
+                // Ignore
+              }
+
+              const mapped: CartItem[] = mergedRes.items.map((serverItem) => ({
+                id: serverItem.id,
+                productId: serverItem.productId,
+                slug: serverItem.slug,
+                name: serverItem.name,
+                nameTh: serverItem.nameTh ?? undefined,
+                price: serverItem.price,
+                basePrice: serverItem.basePrice,
+                originalPrice: serverItem.originalPrice ?? undefined,
+                image: serverItem.image,
+                primaryImage: serverItem.image,
+                department: 'apparel',
+                categorySlug: 'apparel',
+                variantId: serverItem.variantId,
+                sku: serverItem.sku,
+                quantity: serverItem.quantity,
+                selectedSize: serverItem.size,
+                selectedColor: serverItem.colorName,
+                maxStock: serverItem.maxStock,
+                isPreorder: serverItem.isPreorder,
+              }));
+              setItems(mapped);
+              return;
             }
           }
 
-          if (guestItems.length > 0) {
-            await cartRequester.mergeCart(
-              guestItems.map((i) => ({
-                variantId: i.variantId || i.id,
-                quantity: i.quantity,
-              })),
-              token,
-            );
-            localStorage.removeItem(CART_STORAGE_KEY);
-          }
-
-          // Fetch user cart from DB
+          // Fetch user cart from DB if no guest items were merged
           const serverCart = await cartRequester.getCart(token);
-          if (serverCart.items) {
+          if (serverCart.items && serverCart.items.length > 0) {
             const mapped: CartItem[] = serverCart.items.map((serverItem) => ({
               id: serverItem.id,
               productId: serverItem.productId,
@@ -347,6 +397,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               isPreorder: serverItem.isPreorder,
             }));
             setItems(mapped);
+          } else if (guestItems.length > 0) {
+            // Retain guest items if server had no items
+            setItems(guestItems);
           }
         } catch (err) {
           console.warn('[CartContext] Failed to sync customer cart on login:', err);

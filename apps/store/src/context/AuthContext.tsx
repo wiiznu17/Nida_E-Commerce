@@ -54,8 +54,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
       localStorage.removeItem(USER_CACHE_KEY);
-      localStorage.removeItem('nida_store_cart_v1');
-      localStorage.removeItem('nida_store_coupon_v1');
     } catch {
       // Storage unavailable
     }
