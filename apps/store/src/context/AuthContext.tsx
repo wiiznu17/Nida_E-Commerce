@@ -50,16 +50,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
-  const [authDrawerTab, setAuthDrawerTab] = useState<'signin' | 'signup'>('signin');
+  const [authDrawerTab, setAuthDrawerTab] = useState<'signin' | 'signup'>(
+    'signin',
+  );
 
-  const openAuthDrawer = useCallback((tab: 'signin' | 'signup' = 'signin') => {
-    setAuthDrawerTab(tab);
-    setIsAuthDrawerOpen(true);
-  }, []);
+  const openAuthDrawer = useCallback(
+    (tab: 'signin' | 'signup' = 'signin') => {
+      // Guard: do not open auth drawer if user is already authenticated
+      if (token && user) {
+        return;
+      }
+      setAuthDrawerTab(tab);
+      setIsAuthDrawerOpen(true);
+    },
+    [token, user],
+  );
 
   const closeAuthDrawer = useCallback(() => {
     setIsAuthDrawerOpen(false);
   }, []);
+
+  // Guard: auto-close auth drawer if user becomes authenticated
+  useEffect(() => {
+    if (token && user && isAuthDrawerOpen) {
+      setIsAuthDrawerOpen(false);
+    }
+  }, [token, user, isAuthDrawerOpen]);
 
   const clearSession = useCallback(() => {
     setToken(null);

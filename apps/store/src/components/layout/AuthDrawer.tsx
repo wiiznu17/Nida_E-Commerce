@@ -25,6 +25,7 @@ import { Alert } from '@/components/ui';
 
 function AuthDrawerContent() {
   const {
+    isAuthenticated,
     isAuthDrawerOpen,
     authDrawerTab,
     closeAuthDrawer,
@@ -34,17 +35,27 @@ function AuthDrawerContent() {
   const { language, t } = useLanguage();
   const searchParams = useSearchParams();
 
-  // Auto-open if URL has ?auth=signin or ?auth=signup
+  // Auto-open if URL has ?auth=signin or ?auth=signup (only when unauthenticated)
   useEffect(() => {
+    if (isAuthenticated) return;
     const authQuery = searchParams?.get('auth');
     if (authQuery === 'signin' || authQuery === 'signup') {
       openAuthDrawer(authQuery);
     }
-  }, [searchParams, openAuthDrawer]);
+  }, [searchParams, openAuthDrawer, isAuthenticated]);
+
+  // Guard: auto-close drawer if customer is already authenticated
+  useEffect(() => {
+    if (isAuthenticated && isAuthDrawerOpen) {
+      closeAuthDrawer();
+    }
+  }, [isAuthenticated, isAuthDrawerOpen, closeAuthDrawer]);
 
   // Mode: 'form' | 'otp' | 'forgot' | 'reset'
   const [step, setStep] = useState<'form' | 'otp' | 'forgot' | 'reset'>('form');
-  const [otpFlow, setOtpFlow] = useState<'login' | 'register' | 'reset'>('login');
+  const [otpFlow, setOtpFlow] = useState<'login' | 'register' | 'reset'>(
+    'login',
+  );
 
   // Form states
   const [loginEmail, setLoginEmail] = useState('');
@@ -444,7 +455,7 @@ function AuthDrawerContent() {
     }
   };
 
-  if (!isAuthDrawerOpen) return null;
+  if (!isAuthDrawerOpen || isAuthenticated) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end font-sans">
@@ -653,9 +664,17 @@ function AuthDrawerContent() {
                     type="button"
                     onClick={() => setShowLoginPassword(!showLoginPassword)}
                     className="absolute right-3 top-2.5 text-gray-400 hover:text-brand-brown cursor-pointer p-0.5"
-                    aria-label={showLoginPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                    aria-label={
+                      showLoginPassword
+                        ? t('auth.hidePassword')
+                        : t('auth.showPassword')
+                    }
                   >
-                    {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showLoginPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
                   </button>
                 </div>
                 <div className="flex justify-end pt-1">
@@ -851,11 +870,21 @@ function AuthDrawerContent() {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                    onClick={() =>
+                      setShowRegisterPassword(!showRegisterPassword)
+                    }
                     className="absolute right-3 top-2.5 text-gray-400 hover:text-brand-brown cursor-pointer p-0.5"
-                    aria-label={showRegisterPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                    aria-label={
+                      showRegisterPassword
+                        ? t('auth.hidePassword')
+                        : t('auth.showPassword')
+                    }
                   >
-                    {showRegisterPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showRegisterPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
                   </button>
                 </div>
               </div>
@@ -863,7 +892,9 @@ function AuthDrawerContent() {
               {/* Perk Callout */}
               <div className="bg-brand-warm-cream border border-brand-border p-3 rounded-xs flex items-center space-x-2.5 text-xs text-brand-brown">
                 <Tag size={15} className="text-brand-brown/70 shrink-0" />
-                <span className="font-semibold text-[11px]">{t('auth.registerPerk')}</span>
+                <span className="font-semibold text-[11px]">
+                  {t('auth.registerPerk')}
+                </span>
               </div>
 
               {/* Agreement checkbox */}
@@ -886,7 +917,12 @@ function AuthDrawerContent() {
 
               <button
                 type="submit"
-                disabled={isLoading || !registerEmail.trim() || !registerPassword || !agreeTerms}
+                disabled={
+                  isLoading ||
+                  !registerEmail.trim() ||
+                  !registerPassword ||
+                  !agreeTerms
+                }
                 className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-300 text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-md flex items-center justify-center space-x-2 cursor-pointer disabled:cursor-not-allowed mt-2"
               >
                 {isLoading ? (
@@ -930,7 +966,10 @@ function AuthDrawerContent() {
                 </p>
               </div>
 
-              <form onSubmit={handleForgotPasswordSubmit} className="space-y-4 pt-2">
+              <form
+                onSubmit={handleForgotPasswordSubmit}
+                className="space-y-4 pt-2"
+              >
                 <div>
                   <label
                     htmlFor="drawer-forgot-email"
@@ -987,7 +1026,9 @@ function AuthDrawerContent() {
                 </h3>
                 <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                   {t('auth.enterOtpDesc')} <br />
-                  <strong className="text-brand-brown font-mono text-[13px]">{activeEmail}</strong>
+                  <strong className="text-brand-brown font-mono text-[13px]">
+                    {activeEmail}
+                  </strong>
                 </p>
                 <button
                   type="button"
@@ -1008,7 +1049,10 @@ function AuthDrawerContent() {
                 onAutoFill={handleAutoFillOtp}
               />
 
-              <form onSubmit={handleResetPasswordSubmit} className="space-y-4 text-left">
+              <form
+                onSubmit={handleResetPasswordSubmit}
+                className="space-y-4 text-left"
+              >
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-2 text-center">
                     {t('auth.verifyOtpTitle')}
@@ -1049,16 +1093,26 @@ function AuthDrawerContent() {
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
                       className="absolute right-3 top-2.5 text-gray-400 hover:text-brand-brown cursor-pointer p-0.5"
-                      aria-label={showNewPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                      aria-label={
+                        showNewPassword
+                          ? t('auth.hidePassword')
+                          : t('auth.showPassword')
+                      }
                     >
-                      {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showNewPassword ? (
+                        <EyeOff size={16} />
+                      ) : (
+                        <Eye size={16} />
+                      )}
                     </button>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={otp.join('').length !== 6 || !newPassword || isLoading}
+                  disabled={
+                    otp.join('').length !== 6 || !newPassword || isLoading
+                  }
                   className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-2xs flex items-center justify-center space-x-2 cursor-pointer mt-4"
                 >
                   {isLoading ? (
@@ -1074,10 +1128,13 @@ function AuthDrawerContent() {
 
               {/* Resend OTP */}
               <div className="pt-3 border-t border-gray-100 text-xs text-gray-500">
-                <span>{t('auth.didNotReceive')}{' '}</span>
+                <span>{t('auth.didNotReceive')} </span>
                 {resendTimer > 0 ? (
                   <span className="text-gray-400 font-semibold">
-                    {t('auth.resendCountdown').replace('{seconds}', String(resendTimer))}
+                    {t('auth.resendCountdown').replace(
+                      '{seconds}',
+                      String(resendTimer),
+                    )}
                   </span>
                 ) : (
                   <button
@@ -1113,7 +1170,9 @@ function AuthDrawerContent() {
                 </h3>
                 <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                   {t('auth.enterOtpDesc')} <br />
-                  <strong className="text-brand-brown font-mono text-[13px]">{activeEmail}</strong>
+                  <strong className="text-brand-brown font-mono text-[13px]">
+                    {activeEmail}
+                  </strong>
                 </p>
                 <button
                   type="button"
@@ -1165,10 +1224,13 @@ function AuthDrawerContent() {
 
               {/* Resend OTP */}
               <div className="pt-3 border-t border-gray-100 text-xs text-gray-500">
-                <span>{t('auth.didNotReceive')}{' '}</span>
+                <span>{t('auth.didNotReceive')} </span>
                 {resendTimer > 0 ? (
                   <span className="text-gray-400 font-semibold">
-                    {t('auth.resendCountdown').replace('{seconds}', String(resendTimer))}
+                    {t('auth.resendCountdown').replace(
+                      '{seconds}',
+                      String(resendTimer),
+                    )}
                   </span>
                 ) : (
                   <button

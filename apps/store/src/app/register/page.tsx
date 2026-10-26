@@ -8,16 +8,21 @@ import { LoadingSpinner } from '@/components/ui';
 function RegisterRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { openAuthDrawer } = useAuth();
+  const { isAuthenticated, openAuthDrawer } = useAuth();
 
   useEffect(() => {
-    openAuthDrawer('signup');
     const redirectParam = searchParams.get('redirect');
+    if (isAuthenticated) {
+      router.replace(redirectParam || '/profile');
+      return;
+    }
+
+    openAuthDrawer('signup');
     const targetUrl = redirectParam
       ? `/?auth=signup&redirect=${encodeURIComponent(redirectParam)}`
       : '/?auth=signup';
     router.replace(targetUrl);
-  }, [router, searchParams, openAuthDrawer]);
+  }, [router, searchParams, openAuthDrawer, isAuthenticated]);
 
   return <LoadingSpinner className="p-16" />;
 }
