@@ -9,3 +9,4 @@ export * from './table';
 export * from './pagination';
 export * from './ApiErrorModal';
 export * from './InlineError';
+export * from './StatCard';

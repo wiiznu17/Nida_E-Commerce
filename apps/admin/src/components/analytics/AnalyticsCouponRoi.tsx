@@ -1,6 +1,7 @@
 import type { AnalyticsCouponRoiSummary } from '@repo/types';
 import { Award, DollarSign, Percent, Tag } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { StatCard } from '../ui';
 
 interface AnalyticsCouponRoiProps {
   summary: AnalyticsCouponRoiSummary;
@@ -30,67 +31,37 @@ export function AnalyticsCouponRoi({
     <div className="space-y-6">
       {/* Summary Stat Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-brand-border rounded-xs p-4 shadow-2xs">
-          <div className="flex items-center justify-between mb-2">
-            <span className="tracking-wider text-[10px] font-black uppercase text-stone-400">
-              {t('analytics.coupons.totalUsage')}
-            </span>
-            <div className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center text-brand-brown">
-              <Tag size={13} />
-            </div>
-          </div>
-          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
-            {summary.totalUsage.toLocaleString('th-TH')}
-          </div>
-          <div className="mt-1 text-[11px] text-stone-400">Redeemed coupons</div>
-        </div>
+        <StatCard
+          title={t('analytics.coupons.totalUsage')}
+          value={summary.totalUsage.toLocaleString('th-TH')}
+          icon={<Tag size={13} className="text-brand-brown" />}
+          subtitle="Redeemed coupons"
+        />
 
-        <div className="bg-white border border-brand-border rounded-xs p-4 shadow-2xs">
-          <div className="flex items-center justify-between mb-2">
-            <span className="tracking-wider text-[10px] font-black uppercase text-stone-400">
-              {t('analytics.coupons.totalDiscount')}
-            </span>
-            <div className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center text-brand-brown">
-              <DollarSign size={13} />
-            </div>
-          </div>
-          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
-            ฿{summary.totalDiscount.toLocaleString('th-TH')}
-          </div>
-          <div className="mt-1 text-[11px] text-stone-400">Total savings granted</div>
-        </div>
+        <StatCard
+          title={t('analytics.coupons.totalDiscount')}
+          value={`฿${summary.totalDiscount.toLocaleString('th-TH')}`}
+          icon={<DollarSign size={13} className="text-brand-brown" />}
+          subtitle="Total savings granted"
+        />
 
-        <div className="bg-white border border-brand-border rounded-xs p-4 shadow-2xs">
-          <div className="flex items-center justify-between mb-2">
-            <span className="tracking-wider text-[10px] font-black uppercase text-stone-400">
-              {t('analytics.coupons.netRevenueGenerated')}
-            </span>
-            <div className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center text-brand-brown">
-              <Award size={13} />
-            </div>
-          </div>
-          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
-            ฿{summary.netRevenueGenerated.toLocaleString('th-TH')}
-          </div>
-          <div className="mt-1 text-[11px] text-stone-400">Paid order revenue</div>
-        </div>
+        <StatCard
+          title={t('analytics.coupons.netRevenueGenerated')}
+          value={`฿${summary.netRevenueGenerated.toLocaleString('th-TH')}`}
+          icon={<Award size={13} className="text-brand-brown" />}
+          subtitle="Paid order revenue"
+        />
 
-        <div className="bg-white border border-brand-border rounded-xs p-4 shadow-2xs">
-          <div className="flex items-center justify-between mb-2">
-            <span className="tracking-wider text-[10px] font-black uppercase text-stone-400">
-              {t('analytics.coupons.avgRoi')}
+        <StatCard
+          title={t('analytics.coupons.avgRoi')}
+          value={`${summary.avgRoiPercent}%`}
+          icon={<Percent size={13} className="text-brand-brown" />}
+          subtitle={
+            <span className="text-emerald-700 font-medium">
+              Positive promo return
             </span>
-            <div className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center text-brand-brown">
-              <Percent size={13} />
-            </div>
-          </div>
-          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
-            {summary.avgRoiPercent}%
-          </div>
-          <div className="mt-1 text-[11px] text-emerald-700 font-medium">
-            Positive promo return
-          </div>
-        </div>
+          }
+        />
       </div>
 
       {/* Coupon Detail Table */}

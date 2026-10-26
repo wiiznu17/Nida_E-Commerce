@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { StatCard } from '../ui';
 
 interface AnalyticsOverviewPanelProps {
   overview: AnalyticsOverviewDto;
@@ -54,87 +55,63 @@ export function AnalyticsOverviewPanel({
       {/* Primary KPI Grid (4 Columns) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Net Revenue */}
-        <div className="bg-white border border-brand-border rounded-xs p-4.5 shadow-2xs hover:border-brand-brown/30 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="tracking-wider text-[10px] font-black uppercase text-stone-400">
-              {t('analytics.cards.netRevenue')}
-            </span>
-            <div className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center text-brand-brown">
-              <DollarSign size={14} />
+        <StatCard
+          title={t('analytics.cards.netRevenue')}
+          value={`฿${overview.netRevenue.toLocaleString('th-TH')}`}
+          icon={<DollarSign size={14} className="text-brand-brown" />}
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <span>{renderTrend(overview.revenueTrendPct)}</span>
+              <span className="text-[11px] text-stone-400 font-mono">
+                {t('analytics.cards.grossRevenue')}: ฿
+                {overview.grossRevenue.toLocaleString('th-TH')}
+              </span>
             </div>
-          </div>
-          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
-            ฿{overview.netRevenue.toLocaleString('th-TH')}
-          </div>
-          <div className="mt-2 flex items-center justify-between text-xs text-stone-500">
-            <span>{renderTrend(overview.revenueTrendPct)}</span>
-            <span className="text-[11px] text-stone-400 font-mono">
-              {t('analytics.cards.grossRevenue')}: ฿
-              {overview.grossRevenue.toLocaleString('th-TH')}
-            </span>
-          </div>
-        </div>
+          }
+        />
 
         {/* Total Orders */}
-        <div className="bg-white border border-brand-border rounded-xs p-4.5 shadow-2xs hover:border-brand-brown/30 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="tracking-wider text-[10px] font-black uppercase text-stone-400">
-              {t('analytics.cards.totalOrders')}
-            </span>
-            <div className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center text-brand-brown">
-              <ShoppingBag size={14} />
+        <StatCard
+          title={t('analytics.cards.totalOrders')}
+          value={overview.totalOrders.toLocaleString('th-TH')}
+          icon={<ShoppingBag size={14} className="text-brand-brown" />}
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <span>{renderTrend(overview.ordersTrendPct)}</span>
+              <span className="text-[11px] text-stone-400 font-mono">
+                {overview.completedOrders} completed
+              </span>
             </div>
-          </div>
-          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
-            {overview.totalOrders.toLocaleString('th-TH')}
-          </div>
-          <div className="mt-2 flex items-center justify-between text-xs text-stone-500">
-            <span>{renderTrend(overview.ordersTrendPct)}</span>
-            <span className="text-[11px] text-stone-400 font-mono">
-              {overview.completedOrders} completed
-            </span>
-          </div>
-        </div>
+          }
+        />
 
         {/* Average Order Value (AOV) */}
-        <div className="bg-white border border-brand-border rounded-xs p-4.5 shadow-2xs hover:border-brand-brown/30 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="tracking-wider text-[10px] font-black uppercase text-stone-400">
-              {t('analytics.cards.aov')}
-            </span>
-            <div className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center text-brand-brown">
-              <DollarSign size={14} />
+        <StatCard
+          title={t('analytics.cards.aov')}
+          value={`฿${overview.aov.toLocaleString('th-TH')}`}
+          icon={<DollarSign size={14} className="text-brand-brown" />}
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <span>{renderTrend(overview.aovTrendPct)}</span>
+              <span className="text-[11px] text-stone-400">Per transaction</span>
             </div>
-          </div>
-          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
-            ฿{overview.aov.toLocaleString('th-TH')}
-          </div>
-          <div className="mt-2 flex items-center justify-between text-xs text-stone-500">
-            <span>{renderTrend(overview.aovTrendPct)}</span>
-            <span className="text-[11px] text-stone-400">Per transaction</span>
-          </div>
-        </div>
+          }
+        />
 
         {/* Fulfillment Rate */}
-        <div className="bg-white border border-brand-border rounded-xs p-4.5 shadow-2xs hover:border-brand-brown/30 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="tracking-wider text-[10px] font-black uppercase text-stone-400">
-              {t('analytics.cards.fulfillmentRate')}
-            </span>
-            <div className="w-7 h-7 rounded-full bg-stone-50 flex items-center justify-center text-brand-brown">
-              <PackageCheck size={14} />
+        <StatCard
+          title={t('analytics.cards.fulfillmentRate')}
+          value={`${overview.fulfillmentRate}%`}
+          icon={<PackageCheck size={14} className="text-brand-brown" />}
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <span className="text-emerald-700 text-[11px]">Healthy SLA</span>
+              <span className="text-[11px] text-stone-400 font-mono">
+                {overview.pendingShipmentCount} pending
+              </span>
             </div>
-          </div>
-          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
-            {overview.fulfillmentRate}%
-          </div>
-          <div className="mt-2 flex items-center justify-between text-xs text-stone-500">
-            <span className="text-emerald-700 text-[11px]">Healthy SLA</span>
-            <span className="text-[11px] text-stone-400 font-mono">
-              {overview.pendingShipmentCount} pending
-            </span>
-          </div>
-        </div>
+          }
+        />
       </div>
 
       {/* Secondary Metrics (Horizontal Balance 8 + 4) */}

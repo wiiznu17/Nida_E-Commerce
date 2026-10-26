@@ -8,7 +8,7 @@ import type {
 import { useLanguage } from '../context/LanguageContext';
 import { apiClient } from '../api';
 import { AdminLayout } from '../components/layout';
-import { Pagination } from '../components/ui/pagination';
+import { Pagination, StatCard } from '../components/ui';
 import {
   AuditFilterBar,
   AuditTable,
@@ -112,45 +112,33 @@ export default function AdminAuditLogs() {
       <div className="space-y-6">
         {/* Metric Cards Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-xl border border-stone-200/80 shadow-2xs">
-            <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold uppercase tracking-wider mb-1">
-              <ShieldCheck className="w-4 h-4 text-brand-dark-brown" />
-              <span>{t('audit.statTotalLogs')}</span>
-            </div>
-            <div className="text-2xl font-mono font-bold text-stone-900">
-              {stats?.totalLogs ?? totalCount}
-            </div>
-          </div>
+          <StatCard
+            title={t('audit.statTotalLogs')}
+            value={stats?.totalLogs ?? totalCount}
+            icon={<ShieldCheck className="w-4 h-4 text-brand-dark-brown" />}
+            valueClassName="text-stone-900"
+          />
 
-          <div className="bg-white p-4 rounded-xl border border-stone-200/80 shadow-2xs">
-            <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold uppercase tracking-wider mb-1">
-              <Calendar className="w-4 h-4 text-emerald-600" />
-              <span>{t('audit.statTodayLogs')}</span>
-            </div>
-            <div className="text-2xl font-mono font-bold text-stone-900">
-              {stats?.todayLogs ?? 0}
-            </div>
-          </div>
+          <StatCard
+            title={t('audit.statTodayLogs')}
+            value={stats?.todayLogs ?? 0}
+            icon={<Calendar className="w-4 h-4 text-emerald-600" />}
+            valueClassName="text-stone-900"
+          />
 
-          <div className="bg-white p-4 rounded-xl border border-stone-200/80 shadow-2xs">
-            <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold uppercase tracking-wider mb-1">
-              <Layers className="w-4 h-4 text-blue-600" />
-              <span>{t('audit.statTopModule')}</span>
-            </div>
-            <div className="text-base font-medium text-stone-900 truncate">
-              {t(topTableKey)}
-            </div>
-          </div>
+          <StatCard
+            title={t('audit.statTopModule')}
+            value={t(topTableKey)}
+            icon={<Layers className="w-4 h-4 text-blue-600" />}
+            valueClassName="text-base font-sans font-medium text-stone-900"
+          />
 
-          <div className="bg-white p-4 rounded-xl border border-stone-200/80 shadow-2xs">
-            <div className="flex items-center gap-2 text-stone-500 text-xs font-semibold uppercase tracking-wider mb-1">
-              <Activity className="w-4 h-4 text-amber-600" />
-              <span>{t('audit.statTopAction')}</span>
-            </div>
-            <div className="text-base font-medium text-stone-900 truncate">
-              {stats?.topActionType ?? '-'}
-            </div>
-          </div>
+          <StatCard
+            title={t('audit.statTopAction')}
+            value={stats?.topActionType ?? '-'}
+            icon={<Activity className="w-4 h-4 text-amber-600" />}
+            valueClassName="text-base font-sans font-medium text-stone-900"
+          />
         </div>
 
         {/* Filter Controls */}
