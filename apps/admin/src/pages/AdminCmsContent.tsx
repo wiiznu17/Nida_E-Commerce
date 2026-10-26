@@ -169,11 +169,11 @@ export const AdminCmsContent: React.FC = () => {
         </div>
 
         {/* Modular Navigation Tabs (Separated Per Feature) */}
-        <div className="flex flex-wrap border-b border-stone-200 bg-white rounded-t-xs">
+        <div className="flex border-b border-stone-200 bg-white rounded-t-xs overflow-x-auto no-scrollbar scroll-smooth">
           <button
             type="button"
             onClick={() => setActiveTab('hero')}
-            className={`py-3.5 px-5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center space-x-2 ${
+            className={`py-3.5 px-4 sm:px-5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center space-x-2 shrink-0 whitespace-nowrap ${
               activeTab === 'hero'
                 ? 'border-[#2B1810] text-[#2B1810]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
@@ -189,7 +189,7 @@ export const AdminCmsContent: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('spotlight')}
-            className={`py-3.5 px-5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center space-x-2 ${
+            className={`py-3.5 px-4 sm:px-5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center space-x-2 shrink-0 whitespace-nowrap ${
               activeTab === 'spotlight'
                 ? 'border-[#2B1810] text-[#2B1810]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
@@ -205,7 +205,7 @@ export const AdminCmsContent: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('promo')}
-            className={`py-3.5 px-5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center space-x-2 ${
+            className={`py-3.5 px-4 sm:px-5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center space-x-2 shrink-0 whitespace-nowrap ${
               activeTab === 'promo'
                 ? 'border-[#2B1810] text-[#2B1810]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'
@@ -218,7 +218,7 @@ export const AdminCmsContent: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('settings')}
-            className={`py-3.5 px-5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center space-x-2 ${
+            className={`py-3.5 px-4 sm:px-5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center space-x-2 shrink-0 whitespace-nowrap ${
               activeTab === 'settings'
                 ? 'border-[#2B1810] text-[#2B1810]'
                 : 'border-transparent text-stone-400 hover:text-stone-700'

@@ -20,7 +20,7 @@
 
 @layer base {
   body {
-    @apply bg-white text-brand-brown font-sans antialiased selection:bg-brand-brown selection:text-brand-yellow;
+    @apply bg-brand-cream text-brand-brown font-sans antialiased selection:bg-brand-brown selection:text-brand-yellow overflow-x-hidden;
     margin: 0;
   }
 }

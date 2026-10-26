@@ -28,9 +28,14 @@ import { AdminPermission } from '@repo/types';
 export interface AdminSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  isDesktopOpen?: boolean;
 }
 
-export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
+export function AdminSidebar({
+  isOpen,
+  onClose,
+  isDesktopOpen = true,
+}: AdminSidebarProps) {
   const { language, setLanguage, t } = useLanguage();
   const { admin, hasPermission } = useAuth();
   const location = useLocation();
@@ -334,8 +339,12 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
   return (
     <>
-      {/* Desktop Fixed Sidebar */}
-      <aside className="hidden lg:block w-60 fixed inset-y-0 left-0 z-40">
+      {/* Desktop Fixed/Collapsible Sidebar */}
+      <aside
+        className={`hidden lg:block w-60 fixed inset-y-0 left-0 z-40 transition-transform duration-300 ease-in-out shadow-lg ${
+          isDesktopOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         {renderContent()}
       </aside>
 
