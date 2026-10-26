@@ -103,10 +103,10 @@ export function AnalyticsDeptBreakdown({
                       </span>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-right font-medium text-stone-800">
+                  <td className="py-3 px-4 text-right font-medium text-stone-800 font-mono">
                     ฿{dept.revenue.toLocaleString('th-TH')}
                   </td>
-                  <td className="py-3 px-4 text-right text-stone-600">
+                  <td className="py-3 px-4 text-right text-stone-600 font-mono">
                     {dept.unitsSold.toLocaleString('th-TH')}
                   </td>
                   <td className="py-3 px-4">
@@ -120,7 +120,7 @@ export function AnalyticsDeptBreakdown({
                           }}
                         />
                       </div>
-                      <span className="w-12 text-right font-semibold text-stone-700 text-[11px]">
+                      <span className="w-12 text-right font-semibold text-stone-700 text-[11px] font-mono">
                         {dept.percentage}%
                       </span>
                     </div>
@@ -133,13 +133,13 @@ export function AnalyticsDeptBreakdown({
             <tfoot>
               <tr className="bg-stone-50/80 font-bold border-t border-brand-border text-stone-800">
                 <td className="py-3 px-4 uppercase tracking-wider text-[10px]">Total</td>
-                <td className="py-3 px-4 text-right">
+                <td className="py-3 px-4 text-right font-mono">
                   ฿{totalRevenue.toLocaleString('th-TH')}
                 </td>
-                <td className="py-3 px-4 text-right">
+                <td className="py-3 px-4 text-right font-mono">
                   {totalUnits.toLocaleString('th-TH')}
                 </td>
-                <td className="py-3 px-4 text-right text-stone-500 font-normal">
+                <td className="py-3 px-4 text-right text-stone-500 font-normal font-mono">
                   100%
                 </td>
               </tr>

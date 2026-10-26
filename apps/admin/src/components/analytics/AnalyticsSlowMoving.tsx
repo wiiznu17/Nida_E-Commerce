@@ -88,13 +88,13 @@ export function AnalyticsSlowMoving({
                         {p.department}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[11px] font-semibold bg-stone-100 text-stone-800">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[11px] font-semibold bg-stone-100 text-stone-800 font-mono">
                           {p.currentStock} units
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xs text-[11px] font-medium ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xs text-[11px] font-medium font-mono ${
                             isHighUrgency
                               ? 'bg-rose-50 text-rose-800 border border-rose-200'
                               : 'bg-amber-50 text-amber-800 border border-amber-200'

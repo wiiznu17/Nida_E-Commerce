@@ -42,7 +42,7 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <AuditActionBadge actionType={log.actionType} />
-              <DialogTitle className="text-lg font-serif text-stone-900 font-bold">
+              <DialogTitle className="text-lg text-stone-900 font-bold">
                 {t('audit.diffModalTitle')}
               </DialogTitle>
             </div>

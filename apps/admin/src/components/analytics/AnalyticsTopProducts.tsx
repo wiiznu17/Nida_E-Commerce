@@ -96,10 +96,10 @@ export function AnalyticsTopProducts({
                     <td className="py-3 px-4 font-mono text-stone-600 text-[11px]">
                       {p.skuCode}
                     </td>
-                    <td className="py-3 px-4 text-right font-medium text-stone-800">
+                    <td className="py-3 px-4 text-right font-medium text-stone-800 font-mono">
                       {p.unitsSold.toLocaleString('th-TH')}
                     </td>
-                    <td className="py-3 px-4 text-right font-semibold text-brand-brown">
+                    <td className="py-3 px-4 text-right font-semibold text-brand-brown font-mono">
                       ฿{p.revenue.toLocaleString('th-TH')}
                     </td>
                     <td className="py-3 px-4 text-center">

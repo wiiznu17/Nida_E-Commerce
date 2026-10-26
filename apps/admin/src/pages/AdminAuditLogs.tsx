@@ -117,7 +117,7 @@ export default function AdminAuditLogs() {
               <ShieldCheck className="w-4 h-4 text-brand-dark-brown" />
               <span>{t('audit.statTotalLogs')}</span>
             </div>
-            <div className="text-2xl font-serif font-bold text-stone-900">
+            <div className="text-2xl font-mono font-bold text-stone-900">
               {stats?.totalLogs ?? totalCount}
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function AdminAuditLogs() {
               <Calendar className="w-4 h-4 text-emerald-600" />
               <span>{t('audit.statTodayLogs')}</span>
             </div>
-            <div className="text-2xl font-serif font-bold text-stone-900">
+            <div className="text-2xl font-mono font-bold text-stone-900">
               {stats?.todayLogs ?? 0}
             </div>
           </div>

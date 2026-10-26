@@ -39,7 +39,7 @@ export function AnalyticsCouponRoi({
               <Tag size={13} />
             </div>
           </div>
-          <div className="text-2xl font-serif font-bold text-brand-brown tracking-tight">
+          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
             {summary.totalUsage.toLocaleString('th-TH')}
           </div>
           <div className="mt-1 text-[11px] text-stone-400">Redeemed coupons</div>
@@ -54,7 +54,7 @@ export function AnalyticsCouponRoi({
               <DollarSign size={13} />
             </div>
           </div>
-          <div className="text-2xl font-serif font-bold text-brand-brown tracking-tight">
+          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
             ฿{summary.totalDiscount.toLocaleString('th-TH')}
           </div>
           <div className="mt-1 text-[11px] text-stone-400">Total savings granted</div>
@@ -69,7 +69,7 @@ export function AnalyticsCouponRoi({
               <Award size={13} />
             </div>
           </div>
-          <div className="text-2xl font-serif font-bold text-brand-brown tracking-tight">
+          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
             ฿{summary.netRevenueGenerated.toLocaleString('th-TH')}
           </div>
           <div className="mt-1 text-[11px] text-stone-400">Paid order revenue</div>
@@ -84,7 +84,7 @@ export function AnalyticsCouponRoi({
               <Percent size={13} />
             </div>
           </div>
-          <div className="text-2xl font-serif font-bold text-brand-brown tracking-tight">
+          <div className="text-2xl font-mono font-bold text-brand-brown tracking-tight">
             {summary.avgRoiPercent}%
           </div>
           <div className="mt-1 text-[11px] text-emerald-700 font-medium">
@@ -127,17 +127,17 @@ export function AnalyticsCouponRoi({
                         {item.couponCode}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-center font-medium text-stone-800">
+                    <td className="py-3 px-4 text-center font-medium text-stone-800 font-mono">
                       {item.usageCount.toLocaleString('th-TH')}
                     </td>
-                    <td className="py-3 px-4 text-right text-stone-600">
+                    <td className="py-3 px-4 text-right text-stone-600 font-mono">
                       ฿{item.totalDiscount.toLocaleString('th-TH')}
                     </td>
-                    <td className="py-3 px-4 text-right font-semibold text-brand-brown">
+                    <td className="py-3 px-4 text-right font-semibold text-brand-brown font-mono">
                       ฿{item.netRevenue.toLocaleString('th-TH')}
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
                         +{item.roiPercent}%
                       </span>
                     </td>
