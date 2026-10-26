@@ -13,7 +13,6 @@ export function ProductRecommendations({
   products,
 }: ProductRecommendationsProps) {
   const { language, t } = useLanguage();
-  const isTh = language === 'th';
 
   if (products.length === 0) return null;
 
@@ -22,7 +21,7 @@ export function ProductRecommendations({
       <div className="flex justify-between items-end mb-8">
         <div>
           <span className="text-xs font-black uppercase tracking-widest text-brand-amber">
-            {isTh ? 'สินค้าคู่ควร' : 'CURATED PAIRINGS'}
+            {t('product.curatedPairings')}
           </span>
           <h2 className="text-2xl font-black uppercase text-brand-brown tracking-tight">
             {t('product.youMayAlsoLike')}

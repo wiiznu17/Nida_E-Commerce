@@ -232,6 +232,9 @@
     "catFootwear": "รองเท้าและสนีกเกอร์",
     "colorsCount": "สี"
   },
+  "bento": {
+    "viewAll": "ดูสินค้าทั้งหมด"
+  },
   "collection": {
     "categoryLabel": "หมวดหมู่หลัก",
     "subCategoryLabel": "หมวดหมู่ย่อย",
@@ -265,6 +268,7 @@
     "materials": "วัสดุและการดูแลรักษา",
     "deliveryReturns": "การจัดส่งและการคืนสินค้าใน 30 วัน",
     "youMayAlsoLike": "สินค้าที่คุณอาจชอบ",
+    "curatedPairings": "สินค้าคู่ควร",
     "customerReviews": "รีวิวจากลูกค้า",
     "writeReview": "เขียนรีวิวสินค้า"
   },

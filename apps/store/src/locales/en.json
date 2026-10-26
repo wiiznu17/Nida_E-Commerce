@@ -232,6 +232,9 @@
     "catFootwear": "FOOTWEAR & SNEAKERS",
     "colorsCount": "colors"
   },
+  "bento": {
+    "viewAll": "View All Products"
+  },
   "collection": {
     "categoryLabel": "CATEGORY",
     "subCategoryLabel": "SUB CATEGORY",
@@ -265,6 +268,7 @@
     "materials": "Materials & Care",
     "deliveryReturns": "Shipping & 30-Day Returns",
     "youMayAlsoLike": "YOU MAY ALSO LIKE",
+    "curatedPairings": "CURATED PAIRINGS",
     "customerReviews": "Customer Reviews",
     "writeReview": "Write a Review"
   },
