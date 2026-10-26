@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
+import { ShieldCheck, Tag, UserPlus } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { NidaLogo } from '@/components/layout/NidaLogo';
 
@@ -48,8 +48,8 @@ export default function RegisterPage() {
         </p>
 
         {/* Perk Callout */}
-        <div className="bg-brand-warm-cream border border-brand-border p-3 rounded-xs flex items-center space-x-2 text-xs text-brand-brown mb-6">
-          <Sparkles size={16} className="text-brand-amber flex-shrink-0" />
+        <div className="bg-brand-warm-cream border border-brand-border p-3 rounded-xs flex items-center space-x-2.5 text-xs text-brand-brown mb-6">
+          <Tag size={15} className="text-brand-brown/70 shrink-0" />
           <span className="font-semibold">{t('auth.registerPerk')}</span>
         </div>
 
