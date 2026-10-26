@@ -387,7 +387,7 @@ export function CartDrawer() {
 
             <p className="text-[10px] text-gray-400">{t('cart.disclaimer')}</p>
 
-            <div className="space-y-2 pt-1">
+            <div className="pt-1">
               {hasUnavailableItems ? (
                 <div
                   className="w-full py-3.5 bg-stone-300 text-stone-500 font-black uppercase tracking-[0.2em] text-xs text-center block cursor-not-allowed select-none"
@@ -406,16 +406,6 @@ export function CartDrawer() {
                   {t('cart.checkoutBtn')}
                 </Link>
               )}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCartOpen(false);
-                  router.push('/search');
-                }}
-                className="w-full py-2 text-center text-xs font-bold text-gray-500 hover:text-brand-brown transition-colors uppercase tracking-wider cursor-pointer"
-              >
-                {t('cart.continueShopping')}
-              </button>
             </div>
           </div>
         )}

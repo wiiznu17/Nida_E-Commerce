@@ -108,16 +108,8 @@ export function ProductAccordions({
         </button>
         {isDeliveryOpen && (
           <div className="pb-4 text-xs text-gray-600 leading-relaxed space-y-1">
-            <p>
-              {isTh
-                ? '• จัดส่งภายใน 1-3 วันทำการสำหรับกรุงเทพฯ และ 2-4 วันสำหรับต่างจังหวัด'
-                : '• Standard delivery in 2-4 business days.'}
-            </p>
-            <p>
-              {isTh
-                ? '• สามารถเปลี่ยนหรือคืนสินค้าได้ภายใน 30 วันนับจากวันที่ได้รับสินค้า โดยสินค้าต้องอยู่ในสภาพสมบูรณ์พร้อมป้ายราคา'
-                : '• 30-day exchange and return policy provided items are unworn and tags intact.'}
-            </p>
+            <p>• {t('product.deliveryTerms')}</p>
+            <p>• {t('product.returnTerms')}</p>
           </div>
         )}
       </div>
