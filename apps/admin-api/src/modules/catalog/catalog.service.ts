@@ -23,7 +23,7 @@ import type {
   ApiColorSwatch,
   PaginatedResponse,
 } from '@repo/types';
-import { AuditActionType, findMarketingTagByLabel } from '@repo/types';
+import { AuditActionType, AdminPermission, findMarketingTagByLabel } from '@repo/types';
 import { Prisma, Department, MarketingTag } from '@repo/database';
 import { UploadService } from '../upload/upload.service.js';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
@@ -118,6 +118,7 @@ export class CatalogService {
       actionType: AuditActionType.CREATE,
       targetTable: 'categories',
       targetId: created.id,
+      permission: AdminPermission.CATALOG_WRITE,
       newValuesJson: {
         name: created.name,
         nameTh: created.nameTh,
@@ -222,6 +223,7 @@ export class CatalogService {
       actionType: AuditActionType.UPDATE,
       targetTable: 'categories',
       targetId: updated.id,
+      permission: AdminPermission.CATALOG_WRITE,
       oldValuesJson: {
         name: existing.name,
         nameTh: existing.nameTh,
@@ -277,6 +279,7 @@ export class CatalogService {
       actionType: AuditActionType.DELETE,
       targetTable: 'categories',
       targetId: id,
+      permission: AdminPermission.CATALOG_WRITE,
       oldValuesJson: {
         name: existing.name,
         nameTh: existing.nameTh,
@@ -582,6 +585,7 @@ export class CatalogService {
       actionType: AuditActionType.CREATE,
       targetTable: 'products',
       targetId: newProduct.id,
+      permission: AdminPermission.CATALOG_WRITE,
       newValuesJson: {
         name: result.name,
         nameTh: result.nameTh,
@@ -861,6 +865,7 @@ export class CatalogService {
       actionType: AuditActionType.STATUS_CHANGE,
       targetTable: 'products',
       targetId: id,
+      permission: AdminPermission.CATALOG_WRITE,
       oldValuesJson: {
         isActive: !isActive,
       },
@@ -903,6 +908,7 @@ export class CatalogService {
         actionType: AuditActionType.STATUS_CHANGE,
         targetTable: 'products',
         targetId: id,
+        permission: AdminPermission.CATALOG_WRITE,
         oldValuesJson: {
           isActive: product.isActive,
           name: product.name,
@@ -927,6 +933,7 @@ export class CatalogService {
       actionType: AuditActionType.DELETE,
       targetTable: 'products',
       targetId: id,
+      permission: AdminPermission.CATALOG_WRITE,
       oldValuesJson: { name: product.name, slug: product.slug },
       newValuesJson: null,
     });
@@ -945,6 +952,9 @@ export class CatalogService {
       );
     const existing = await this.prisma.product.findFirst({
       where: isUuid ? { OR: [{ id }, { slug: id }] } : { slug: id },
+      include: {
+        variants: true,
+      },
     });
 
     if (!existing) {
@@ -1112,6 +1122,7 @@ export class CatalogService {
       actionType: AuditActionType.UPDATE,
       targetTable: 'products',
       targetId: existing.id,
+      permission: AdminPermission.CATALOG_WRITE,
       oldValuesJson: {
         name: existing.name,
         nameTh: existing.nameTh,
@@ -1123,6 +1134,7 @@ export class CatalogService {
         isActive: existing.isActive,
         isPreorder: existing.isPreorder,
         tag: existing.tag,
+        variantsCount: existing.variants.length,
       },
       newValuesJson: {
         name: result.name,

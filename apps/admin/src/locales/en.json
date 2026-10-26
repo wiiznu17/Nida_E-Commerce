@@ -896,6 +896,12 @@
     "noPreviousState": "Initial record creation (no prior state)",
     "recordPurged": "Record permanently deleted from system",
     "fieldsBreakdown": "Modified Field Breakdown",
+    "showOnlyChanged": "Show changed only",
+    "showAllFields": "Show all fields",
+    "colField": "Field",
+    "colBefore": "Original",
+    "colAfter": "Updated",
+    "noChangesDetected": "No values modified",
     "emptyTitle": "No Audit Logs Found",
     "emptyDescription": "There are no audit log entries matching your active filter criteria."
   },

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
-import { AuditActionType, BannerPlacement } from '@repo/types';
+import { AuditActionType, AdminPermission, BannerPlacement } from '@repo/types';
 import type {
   ApiCmsBanner,
   ApiStoreSettings,
@@ -114,6 +114,7 @@ export class ContentService {
       actionType: AuditActionType.CREATE,
       targetTable: 'cms_banners',
       targetId: banner.id,
+      permission: AdminPermission.COUPONS_MANAGE,
       newValuesJson: banner as unknown as Record<string, unknown>,
     });
 
@@ -166,6 +167,7 @@ export class ContentService {
       actionType: AuditActionType.UPDATE,
       targetTable: 'cms_banners',
       targetId: id,
+      permission: AdminPermission.COUPONS_MANAGE,
       oldValuesJson: existing as unknown as Record<string, unknown>,
       newValuesJson: updated as unknown as Record<string, unknown>,
     });
@@ -190,6 +192,7 @@ export class ContentService {
       actionType: AuditActionType.DELETE,
       targetTable: 'cms_banners',
       targetId: id,
+      permission: AdminPermission.COUPONS_MANAGE,
       oldValuesJson: existing as unknown as Record<string, unknown>,
     });
 
@@ -214,6 +217,7 @@ export class ContentService {
       actionType: AuditActionType.UPDATE,
       targetTable: 'cms_banners',
       targetId: 'batch-reorder',
+      permission: AdminPermission.COUPONS_MANAGE,
       newValuesJson: { items: dto.items },
     });
 
