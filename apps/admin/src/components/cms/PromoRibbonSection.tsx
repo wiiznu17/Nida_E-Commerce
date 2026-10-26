@@ -194,7 +194,7 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-[64fr_27fr] gap-5 items-start">
               <div>
                 <ImageUploader
                   label={t('cms.promo.desktopImage')}
@@ -210,8 +210,8 @@ export const PromoRibbonSection: React.FC<PromoRibbonSectionProps> = ({
                   label={t('cms.promo.mobileImage')}
                   value={imageMobileUrl}
                   onChange={setImageMobileUrl}
-                  description="800x600 px"
-                  aspectRatio="landscape"
+                  description={t('cms.promo.mobileImageHint')}
+                  aspectRatio="portrait"
                   folder={UploadFolder.BANNERS}
                 />
               </div>

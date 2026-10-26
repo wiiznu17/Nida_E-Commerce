@@ -174,7 +174,7 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-[9fr_4fr] gap-5 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-[64fr_27fr] gap-5 items-start">
               <div>
                 <ImageUploader
                   label={t('cms.heroModal.desktopImage')}

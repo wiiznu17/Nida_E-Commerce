@@ -31,16 +31,27 @@ export const PromoRibbonPreview: React.FC<PromoRibbonPreviewProps> = ({
       'When shopping new arrivals over ฿2,500';
 
   const couponCode = banner?.couponCode || 'NIDA20';
+  const bgImage =
+    isMobileView && banner?.imageMobileUrl
+      ? banner.imageMobileUrl
+      : banner?.imageDesktopUrl || '';
 
   return (
     <div
-      className={`bg-[#2B1810] text-white py-5 px-6 border-y-2 border-[#E6C687] flex ${
+      className={`relative overflow-hidden bg-[#2B1810] text-white py-5 px-6 border-y-2 border-[#E6C687] flex ${
         isMobileView
           ? 'flex-col items-center text-center space-y-3'
           : 'flex-row items-center justify-between'
       }`}
     >
-      <div>
+      {bgImage && (
+        <img
+          src={bgImage}
+          alt={title}
+          className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+        />
+      )}
+      <div className="relative z-10">
         <div className="inline-block bg-[#E6C687] text-[#2B1810] text-[9px] font-black uppercase tracking-widest px-2 py-0.5 mb-1.5">
           {tag}
         </div>
@@ -50,7 +61,7 @@ export const PromoRibbonPreview: React.FC<PromoRibbonPreviewProps> = ({
         <p className="text-[11px] text-gray-300">{subtitle}</p>
       </div>
 
-      <div className="flex items-center space-x-2 bg-white/10 p-1.5 rounded-xs border border-white/20">
+      <div className="relative z-10 flex items-center space-x-2 bg-white/10 p-1.5 rounded-xs border border-white/20">
         <span className="font-mono text-xs font-black tracking-widest px-2 text-white">
           {couponCode}
         </span>
