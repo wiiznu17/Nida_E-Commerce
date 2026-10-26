@@ -1,5 +1,4 @@
-import React from 'react';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import type { ApiCmsBanner } from '@repo/types';
 
 interface HeroBillboardPreviewProps {
@@ -67,8 +66,7 @@ export const HeroBillboardPreview: React.FC<HeroBillboardPreviewProps> = ({
       {/* Content */}
       <div className="relative z-10 max-w-xl w-full">
         {/* Campaign Tag */}
-        <div className="inline-flex items-center space-x-1.5 bg-[#E6C687] text-[#2B1810] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-          <Sparkles size={11} className="text-[#2B1810]" />
+        <div className="inline-block bg-[#E6C687] text-[#2B1810] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
           <span>{tag}</span>
         </div>
 

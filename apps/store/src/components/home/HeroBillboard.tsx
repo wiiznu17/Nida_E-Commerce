@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useStoreContent } from '@/context/StoreContentContext';
 
@@ -88,8 +88,7 @@ export const HeroBillboard: React.FC = () => {
       <div className="relative z-10 max-w-8xl mx-auto px-6 sm:px-8 lg:px-12 py-20 w-full">
         <div className="max-w-2xl text-white">
           {/* Campaign Tag */}
-          <div className="inline-flex items-center space-x-2 bg-brand-yellow text-brand-brown px-3 py-1 text-xs font-black uppercase tracking-[0.2em] mb-6">
-            <Sparkles size={13} className="text-brand-brown" />
+          <div className="inline-block bg-brand-yellow text-brand-brown px-3 py-1 text-xs font-black uppercase tracking-[0.2em] mb-6">
             <span>{tag}</span>
           </div>
 
