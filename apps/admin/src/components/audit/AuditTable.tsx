@@ -37,13 +37,13 @@ export const AuditTable: React.FC<AuditTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow className="bg-stone-50/70 border-b border-stone-200">
-            <TableHead className="w-52 py-3.5 pl-4 text-xs font-bold text-stone-700 uppercase tracking-wider">
+            <TableHead className="w-44 py-3.5 pl-4 text-xs font-bold text-stone-700 uppercase tracking-wider">
               {t('audit.colOperator')}
             </TableHead>
-            <TableHead className="w-32 py-3.5 text-center text-xs font-bold text-stone-700 uppercase tracking-wider">
+            <TableHead className="w-44 py-3.5 text-center text-xs font-bold text-stone-700 uppercase tracking-wider">
               {t('audit.colAction')}
             </TableHead>
-            <TableHead className="w-44 py-3.5 text-xs font-bold text-stone-700 uppercase tracking-wider">
+            <TableHead className="w-36 py-3.5 text-xs font-bold text-stone-700 uppercase tracking-wider">
               {t('audit.colTarget')}
             </TableHead>
             <TableHead className="w-44 py-3.5 text-center text-xs font-bold text-stone-700 uppercase tracking-wider">
@@ -88,7 +88,7 @@ export const AuditTable: React.FC<AuditTableProps> = ({
                 className="hover:bg-stone-50/60 transition-colors border-b border-stone-100"
               >
                 {/* Operator Admin */}
-                <TableCell className="w-52 py-3 pl-4">
+                <TableCell className="w-44 py-3 pl-4">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-full bg-brand-dark-brown text-white flex items-center justify-center font-bold text-[11px] shrink-0 shadow-2xs">
                       {adminInitial}
@@ -105,20 +105,18 @@ export const AuditTable: React.FC<AuditTableProps> = ({
                 </TableCell>
 
                 {/* Action Badge */}
-                <TableCell className="w-32 py-3 text-center">
+                <TableCell className="w-44 py-3 text-center">
                   <AuditActionBadge actionType={log.actionType} />
                 </TableCell>
 
                 {/* Target Entity */}
-                <TableCell className="w-44 py-3">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium text-stone-900 truncate">
-                      {t(tableKey)}
-                    </span>
-                    <span className="text-[10px] font-mono text-stone-500 truncate max-w-[150px]">
-                      {log.targetId}
-                    </span>
-                  </div>
+                <TableCell className="w-36 py-3">
+                  <span
+                    className="text-xs font-medium text-stone-900 truncate block"
+                    title={log.targetId}
+                  >
+                    {t(tableKey)}
+                  </span>
                 </TableCell>
 
                 {/* Permission Context */}
