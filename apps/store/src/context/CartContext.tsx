@@ -42,6 +42,8 @@ export interface CartItem {
   selectedColor: string;
   maxStock: number;
   isPreorder?: boolean;
+  isActive?: boolean;
+  isAvailable?: boolean;
 }
 
 export type CartContextType = {
@@ -62,6 +64,10 @@ export type CartContextType = {
   setIsCartOpen: (isOpen: boolean) => void;
   cartTotal: number;
   totalQuantity: number;
+  // Availability Helpers
+  hasUnavailableItems: boolean;
+  unavailableItemsCount: number;
+  removeUnavailableItems: () => void;
   // Coupon & Shipping Engine
   appliedCoupon: ApiCoupon | null;
   couponCode: string;
@@ -186,16 +192,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           const updated = prevItems.map((item) => {
             const vId = item.variantId || item.id;
             const serverItem = serverMap.get(vId);
-            if (!serverItem) return item;
+            if (!serverItem) {
+              if (item.isAvailable !== false) {
+                hasDiff = true;
+                return { ...item, isAvailable: false };
+              }
+              return item;
+            }
 
             const isPriceDiff = Math.abs(item.price - serverItem.price) > 0.01;
             const isStockDiff = item.maxStock !== serverItem.stock;
+            const isAvailDiff = item.isAvailable !== serverItem.isAvailable;
 
             if (isPriceDiff) {
               hasPriceChanges = true;
             }
 
-            if (isPriceDiff || isStockDiff || item.name !== serverItem.productName) {
+            if (
+              isPriceDiff ||
+              isStockDiff ||
+              isAvailDiff ||
+              item.name !== serverItem.productName
+            ) {
               hasDiff = true;
               return {
                 ...item,
@@ -205,6 +223,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 maxStock: serverItem.stock,
                 name: serverItem.productName,
                 nameTh: serverItem.productNameTh ?? item.nameTh,
+                isAvailable: serverItem.isAvailable,
               };
             }
             return item;
@@ -366,6 +385,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 selectedColor: serverItem.colorName,
                 maxStock: serverItem.maxStock,
                 isPreorder: serverItem.isPreorder,
+                isActive: serverItem.isActive,
+                isAvailable: serverItem.isAvailable ?? (serverItem.isActive !== false),
               }));
               setItems(mapped);
               return;
@@ -395,6 +416,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               selectedColor: serverItem.colorName,
               maxStock: serverItem.maxStock,
               isPreorder: serverItem.isPreorder,
+              isActive: serverItem.isActive,
+              isAvailable: serverItem.isAvailable ?? (serverItem.isActive !== false),
             }));
             setItems(mapped);
           } else if (guestItems.length > 0) {
@@ -495,6 +518,30 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     0,
     FREE_SHIPPING_THRESHOLD - cartTotal,
   );
+
+  const isItemUnavailable = (item: CartItem): boolean =>
+    item.isAvailable === false ||
+    item.isActive === false ||
+    (item.maxStock <= 0 && !item.isPreorder);
+
+  const unavailableItems = items.filter(isItemUnavailable);
+  const hasUnavailableItems = unavailableItems.length > 0;
+  const unavailableItemsCount = unavailableItems.length;
+
+  const removeUnavailableItems = useCallback(() => {
+    setItems((prev) => {
+      const remaining = prev.filter((item) => !isItemUnavailable(item));
+      const removed = prev.filter(isItemUnavailable);
+      if (token && removed.length > 0) {
+        removed.forEach((item) => {
+          if (item.variantId) {
+            cartRequester.removeItem(item.variantId, token);
+          }
+        });
+      }
+      return remaining;
+    });
+  }, [token]);
 
   const finalTotal = Math.max(
     0,
@@ -657,6 +704,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           ? product.category.nameTh
           : undefined;
 
+    const isVariantActive =
+      matchedVariant?.isActive !== false && product.isActive !== false;
+
     setItems((prev) => {
       let finalQty = 1;
       const existing = prev.find(
@@ -698,6 +748,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             selectedColor: chosenColor,
             maxStock,
             isPreorder: product.isPreorder,
+            isActive: isVariantActive,
+            isAvailable: isVariantActive,
           },
         ];
       }
@@ -796,6 +848,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setIsCartOpen,
         cartTotal,
         totalQuantity,
+        hasUnavailableItems,
+        unavailableItemsCount,
+        removeUnavailableItems,
         appliedCoupon,
         couponCode,
         discountAmount,

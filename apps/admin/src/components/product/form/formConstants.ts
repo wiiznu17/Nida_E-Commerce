@@ -103,6 +103,7 @@ export function buildSkuMatrix(
           stock: 0,
           lowStockThreshold: 5,
           priceAdjustment: 0,
+          isActive: true,
         });
       }
     }

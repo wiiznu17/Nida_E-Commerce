@@ -27,6 +27,9 @@ export function useCheckoutForm() {
   const {
     items,
     cartTotal,
+    hasUnavailableItems,
+    unavailableItemsCount,
+    removeUnavailableItems,
     setIsCartOpen,
     clearCart,
     updateItemPrices,
@@ -181,6 +184,15 @@ export function useCheckoutForm() {
   const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (hasUnavailableItems) {
+      setOrderError(
+        language === 'th'
+          ? 'มีสินค้าที่ไม่พร้อมจำหน่ายอยู่ในตะกร้า กรุณานำออกก่อนดำเนินการต่อ'
+          : 'Some items in your cart are currently unavailable. Please remove them to proceed.',
+      );
+      return;
+    }
+
     if (addressMode === 'new' && saveToAddressBook && token) {
       try {
         const recipientName =
@@ -218,6 +230,15 @@ export function useCheckoutForm() {
       expectedPrice?: number;
     }>,
   ) => {
+    if (hasUnavailableItems) {
+      setOrderError(
+        language === 'th'
+          ? 'มีสินค้าที่ไม่พร้อมจำหน่ายอยู่ในตะกร้า กรุณานำออกก่อนดำเนินการต่อ'
+          : 'Some items in your cart are currently unavailable. Please remove them to proceed.',
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     setOrderError('');
 
@@ -321,6 +342,9 @@ export function useCheckoutForm() {
   return {
     items,
     cartTotal,
+    hasUnavailableItems,
+    unavailableItemsCount,
+    removeUnavailableItems,
     appliedCoupon,
     discountAmount,
     shippingFee,

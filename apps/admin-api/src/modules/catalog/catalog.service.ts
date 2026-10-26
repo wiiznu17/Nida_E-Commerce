@@ -483,6 +483,7 @@ export class CatalogService {
         lengthCm: v.lengthCm ? Number(v.lengthCm) : undefined,
         widthCm: v.widthCm ? Number(v.widthCm) : undefined,
         heightCm: v.heightCm ? Number(v.heightCm) : undefined,
+        isActive: v.isActive,
       })),
       rating: avgRating ? Math.round(avgRating * 10) / 10 : undefined,
       reviewsCount: product._count.reviews,
@@ -561,6 +562,7 @@ export class CatalogService {
             priceAdjustment: skuItem.priceAdjustment ?? 0,
             barcode: skuItem.barcode ?? null,
             weightGrams: skuItem.weightGrams ?? 300,
+            isActive: skuItem.isActive ?? true,
           },
         });
 
@@ -1075,6 +1077,10 @@ export class CatalogService {
                 colorHex: skuItem.colorHex,
                 priceAdjustment: skuItem.priceAdjustment ?? 0,
                 barcode: skuItem.barcode ?? null,
+                isActive:
+                  skuItem.isActive !== undefined
+                    ? skuItem.isActive
+                    : existingVariant.isActive,
               },
             });
 
@@ -1098,6 +1104,7 @@ export class CatalogService {
                 priceAdjustment: skuItem.priceAdjustment ?? 0,
                 barcode: skuItem.barcode ?? null,
                 weightGrams: skuItem.weightGrams ?? 300,
+                isActive: skuItem.isActive ?? true,
               },
             });
 

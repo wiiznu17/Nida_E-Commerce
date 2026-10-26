@@ -19,6 +19,9 @@ export default function CheckoutPage() {
   const {
     items,
     cartTotal,
+    hasUnavailableItems,
+    unavailableItemsCount,
+    removeUnavailableItems,
     appliedCoupon,
     discountAmount,
     shippingFee,
@@ -80,6 +83,31 @@ export default function CheckoutPage() {
         isAuthenticated={isAuthenticated}
         isLoading={isAuthLoading}
       />
+
+      {hasUnavailableItems && (
+        <Alert
+          variant="warning"
+          title={
+            language === 'th'
+              ? 'มีสินค้าที่ไม่พร้อมจำหน่ายในถุงช้อปปิ้ง'
+              : 'Unavailable Items in Bag'
+          }
+          className="mb-8"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
+            <p className="text-xs">
+              {t('cart.hasUnavailableNotice')}
+            </p>
+            <button
+              type="button"
+              onClick={removeUnavailableItems}
+              className="px-3 py-1.5 bg-brand-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs hover:bg-brand-amber transition-colors shrink-0 cursor-pointer"
+            >
+              {t('cart.removeUnavailable')} ({unavailableItemsCount})
+            </button>
+          </div>
+        </Alert>
+      )}
 
       {orderError && (
         <Alert

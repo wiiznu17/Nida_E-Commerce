@@ -27,6 +27,8 @@ export function ProductDetailView() {
     isWish,
     isAdded,
     hasSelectedSize,
+    isUnavailable,
+    isOutOfStock,
     availableColors,
     selectedColor,
     setSelectedColor,
@@ -121,6 +123,8 @@ export function ProductDetailView() {
             isAdded={isAdded}
             isWish={isWish}
             hasSelectedSize={hasSelectedSize}
+            isUnavailable={isUnavailable}
+            isOutOfStock={isOutOfStock}
             onAddToCart={handleAddToCart}
             onToggleWishlist={handleToggleWishlist}
           />

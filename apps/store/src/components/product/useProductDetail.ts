@@ -212,8 +212,14 @@ export function useProductDetail() {
           ? 'ผลิตจากเส้นใยธรรมชาติคุณภาพสูง ผ่านการคัดสรรอย่างประณีตตามมาตรฐานความยั่งยืน ซักเครื่องด้วยน้ำเย็นในโหมดถนอมผ้า ตากในที่ร่ม ห้ามใช้น้ำยาฟอกขาว'
           : '100% Certified Organic Cotton & Fine European Wool. Machine wash cold with like colors, gentle cycle. Tumble dry low or lay flat to dry. Do not bleach.';
 
+  const isVariantActive =
+    product?.isActive !== false && currentVariant?.isActive !== false;
+  const isOutOfStock =
+    (currentVariant?.quantityAvailable ?? 0) <= 0 && !product?.isPreorder;
+  const isUnavailable = !isVariantActive || isOutOfStock;
+
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || isUnavailable) return;
     if (sizes.length > 0 && !selectedSize) return;
     addToCart(product, selectedSize, selectedColor, currentVariant?.id);
     setIsAdded(true);
@@ -259,6 +265,9 @@ export function useProductDetail() {
     isWish,
     isAdded,
     hasSelectedSize,
+    isVariantActive,
+    isOutOfStock,
+    isUnavailable,
     availableColors,
     selectedColor,
     setSelectedColor,

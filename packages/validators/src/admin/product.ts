@@ -20,6 +20,7 @@ export const createSkuVariantSchema = z.object({
     (v) => (v === 0 || v === '' ? null : v),
     z.coerce.number().positive('Weight must be positive').optional().nullable(),
   ),
+  isActive: z.boolean().default(true).optional(),
 });
 
 export type CreateSkuVariantInput = z.infer<typeof createSkuVariantSchema>;

@@ -6,6 +6,8 @@ interface ProductActionsProps {
   isAdded: boolean;
   isWish: boolean;
   hasSelectedSize?: boolean;
+  isUnavailable?: boolean;
+  isOutOfStock?: boolean;
   onAddToCart: () => void;
   onToggleWishlist: () => void;
 }
@@ -14,6 +16,8 @@ export function ProductActions({
   isAdded,
   isWish,
   hasSelectedSize = true,
+  isUnavailable = false,
+  isOutOfStock = false,
   onAddToCart,
   onToggleWishlist,
 }: ProductActionsProps) {
@@ -27,13 +31,17 @@ export function ProductActions({
         <button
           type="button"
           onClick={onAddToCart}
-          disabled={!hasSelectedSize || isAdded}
+          disabled={!hasSelectedSize || isAdded || isUnavailable}
           className={`w-full py-4 text-xs uppercase tracking-[0.2em] font-black transition-all flex justify-center items-center space-x-2 shadow-md ${
             isAdded
               ? 'bg-emerald-600 text-white cursor-default'
               : !hasSelectedSize
                 ? 'bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300 shadow-none'
-                : 'bg-brand-brown hover:bg-brand-amber text-white hover:shadow-lg cursor-pointer'
+                : isOutOfStock
+                  ? 'bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300 shadow-none'
+                  : isUnavailable
+                    ? 'bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300 shadow-none'
+                    : 'bg-brand-brown hover:bg-brand-amber text-white hover:shadow-lg cursor-pointer'
           }`}
         >
           {isAdded ? (
@@ -42,6 +50,10 @@ export function ProductActions({
             </>
           ) : !hasSelectedSize ? (
             <span>{isTh ? 'กรุณาเลือกขนาดไซส์' : 'SELECT A SIZE'}</span>
+          ) : isOutOfStock ? (
+            <span>{isTh ? 'สินค้าหมด' : 'OUT OF STOCK'}</span>
+          ) : isUnavailable ? (
+            <span>{isTh ? 'ปิดการขายชั่วคราว' : 'CURRENTLY UNAVAILABLE'}</span>
           ) : (
             <>
               <ShoppingBag size={18} /> <span>{t('product.addToBag')}</span>

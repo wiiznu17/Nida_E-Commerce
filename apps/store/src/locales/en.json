@@ -142,7 +142,12 @@
     "freeShipping": "FREE",
     "total": "Estimated Total",
     "pricesSynced": "Item prices in your bag have been updated to the latest catalog prices.",
-    "syncing": "Checking latest prices and stock..."
+    "syncing": "Checking latest prices and stock...",
+    "itemUnavailable": "Unavailable",
+    "outOfStock": "Out of Stock",
+    "hasUnavailableNotice": "Some items in your bag are currently unavailable. Please remove them to proceed.",
+    "removeUnavailable": "Remove unavailable items",
+    "removeUnavailableCount": "Remove unavailable items ({count})"
   },
   "footer": {
     "joinClub": "JOIN THE NIDA REWARDS CLUB",

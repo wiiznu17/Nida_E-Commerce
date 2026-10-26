@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingBag, X, Check, Minus, Plus, Tag, Loader2 } from 'lucide-react';
+import { ShoppingBag, X, Check, Minus, Plus, Tag, Loader2, AlertTriangle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
@@ -17,6 +17,9 @@ export function CartDrawer() {
     cartTotal,
     removeFromCart,
     updateQuantity,
+    hasUnavailableItems,
+    unavailableItemsCount,
+    removeUnavailableItems,
     appliedCoupon,
     discountAmount,
     shippingFee,
@@ -148,78 +151,107 @@ export function CartDrawer() {
               </button>
             </div>
           ) : (
-            items.map((item) => (
-              <div
-                key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
-                className="flex space-x-4 border-b border-gray-100 pb-6"
-              >
-                <div className="w-20 h-24 bg-gray-100 relative shrink-0 overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-bold text-xs uppercase text-brand-brown line-clamp-1">
-                      {getProductTitle(item, language)}
-                    </h3>
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      {t('cart.size')}: {item.selectedSize || 'Standard'} •{' '}
-                      {item.selectedColor || 'Classic'}
-                    </p>
-                  </div>
+            items.map((item) => {
+              const isOutOfStock = item.maxStock <= 0 && !item.isPreorder;
+              const isUnavailable =
+                item.isAvailable === false ||
+                item.isActive === false ||
+                isOutOfStock;
 
-                  <div className="flex justify-between items-center mt-3">
-                    {/* Quantity Stepper */}
-                    <div className="flex items-center border border-gray-300 rounded-xs">
-                      <button
-                        onClick={() =>
-                          updateQuantity(
-                            item.variantId || item.id,
-                            item.quantity - 1,
-                          )
-                        }
-                        className="px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
-                        aria-label={t('cart.decreaseQty')}
-                      >
-                        <Minus size={12} />
-                      </button>
-                      <span className="px-2.5 py-1 text-xs font-bold font-mono">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(
-                            item.variantId || item.id,
-                            item.quantity + 1,
-                          )
-                        }
-                        className="px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
-                        aria-label={t('cart.increaseQty')}
-                      >
-                        <Plus size={12} />
-                      </button>
+              return (
+                <div
+                  key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
+                  className={`flex space-x-4 border-b border-gray-100 pb-6 transition-all ${
+                    isUnavailable
+                      ? 'bg-stone-50/80 p-3 rounded-xs border-stone-200 opacity-80'
+                      : ''
+                  }`}
+                >
+                  <div className="w-20 h-24 bg-gray-100 relative shrink-0 overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-bold text-xs uppercase text-brand-brown line-clamp-1">
+                        {getProductTitle(item, language)}
+                      </h3>
+                      <p className="text-[11px] text-gray-500 mt-1">
+                        {t('cart.size')}: {item.selectedSize || 'Standard'} •{' '}
+                        {item.selectedColor || 'Classic'}
+                      </p>
+                      {isOutOfStock ? (
+                        <div className="inline-flex items-center gap-1.5 mt-1.5 px-2 py-0.5 rounded-xs text-[10px] font-bold tracking-wider uppercase bg-rose-50 text-rose-700 border border-rose-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                          <span>{t('cart.outOfStock')}</span>
+                        </div>
+                      ) : isUnavailable ? (
+                        <div className="inline-flex items-center gap-1.5 mt-1.5 px-2 py-0.5 rounded-xs text-[10px] font-bold tracking-wider uppercase bg-stone-100 text-stone-600 border border-stone-300">
+                          <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
+                          <span>{t('cart.itemUnavailable')}</span>
+                        </div>
+                      ) : null}
                     </div>
 
-                    <div className="flex items-center space-x-3">
-                      <span className="font-black text-sm text-brand-brown">
-                        {formatPrice(item.price * item.quantity)}
-                      </span>
-                      <button
-                        onClick={() =>
-                          removeFromCart(item.variantId || item.id)
-                        }
-                        className="text-xs uppercase font-bold text-gray-400 hover:text-brand-amber transition-colors underline cursor-pointer"
+                    <div className="flex justify-between items-center mt-3">
+                      {/* Quantity Stepper */}
+                      <div
+                        className={`flex items-center border border-gray-300 rounded-xs ${
+                          isUnavailable
+                            ? 'opacity-40 pointer-events-none select-none'
+                            : ''
+                        }`}
                       >
-                        {t('cart.remove')}
-                      </button>
+                        <button
+                          onClick={() =>
+                            updateQuantity(
+                              item.variantId || item.id,
+                              item.quantity - 1,
+                            )
+                          }
+                          className="px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+                          aria-label={t('cart.decreaseQty')}
+                        >
+                          <Minus size={12} />
+                        </button>
+                        <span className="px-2.5 py-1 text-xs font-bold font-mono">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateQuantity(
+                              item.variantId || item.id,
+                              item.quantity + 1,
+                            )
+                          }
+                          className="px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+                          aria-label={t('cart.increaseQty')}
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <span className="font-black text-sm text-brand-brown">
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                        <button
+                          onClick={() =>
+                            removeFromCart(item.variantId || item.id)
+                          }
+                          className="text-xs uppercase font-bold text-gray-400 hover:text-brand-amber transition-colors underline cursor-pointer"
+                        >
+                          {t('cart.remove')}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
@@ -329,18 +361,51 @@ export function CartDrawer() {
               </div>
             </div>
 
+            {hasUnavailableItems && (
+              <div className="p-3 bg-amber-50/90 border border-amber-200 rounded-xs space-y-2">
+                <div className="flex items-start space-x-2">
+                  <AlertTriangle
+                    size={15}
+                    className="text-amber-700 shrink-0 mt-0.5"
+                  />
+                  <p className="text-[11px] text-amber-900 leading-snug font-medium">
+                    {t('cart.hasUnavailableNotice')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeUnavailableItems}
+                  className="w-full py-1.5 bg-white border border-amber-300 hover:bg-amber-100/50 text-amber-900 text-[11px] font-bold rounded-xs transition-colors cursor-pointer"
+                >
+                  {t(
+                    'cart.removeUnavailableCount',
+                    `Remove unavailable items (${unavailableItemsCount})`,
+                  ).replace('{count}', String(unavailableItemsCount))}
+                </button>
+              </div>
+            )}
+
             <p className="text-[10px] text-gray-400">{t('cart.disclaimer')}</p>
 
             <div className="space-y-2 pt-1">
-              <Link
-                href={
-                  isAuthenticated ? '/checkout' : '/login?redirect=/checkout'
-                }
-                onClick={() => setIsCartOpen(false)}
-                className="w-full py-3.5 bg-brand-brown hover:bg-brand-amber text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md cursor-pointer"
-              >
-                {t('cart.checkoutBtn')}
-              </Link>
+              {hasUnavailableItems ? (
+                <div
+                  className="w-full py-3.5 bg-stone-300 text-stone-500 font-black uppercase tracking-[0.2em] text-xs text-center block cursor-not-allowed select-none"
+                  title={t('cart.hasUnavailableNotice')}
+                >
+                  {t('cart.checkoutBtn')}
+                </div>
+              ) : (
+                <Link
+                  href={
+                    isAuthenticated ? '/checkout' : '/login?redirect=/checkout'
+                  }
+                  onClick={() => setIsCartOpen(false)}
+                  className="w-full py-3.5 bg-brand-brown hover:bg-brand-amber text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md cursor-pointer"
+                >
+                  {t('cart.checkoutBtn')}
+                </Link>
+              )}
               <button
                 type="button"
                 onClick={() => {

@@ -190,6 +190,11 @@
     "currentStockReadOnly": "Stock (Read-only)",
     "lowStockAlert": "Low Stock Alert",
     "priceAdj": "Price Adj. (+/-)",
+    "variantStatus": "Status",
+    "variantActive": "Active",
+    "variantInactive": "Inactive",
+    "variantActiveHint": "Click to deactivate this variant",
+    "variantInactiveHint": "Click to activate this variant",
     "outOfStock": "Out",
     "lowStock": "Low",
     "restockAfter": "Restock after",
@@ -243,6 +248,16 @@
     "publishing": "Publishing...",
     "confirmPublish": "Confirm & Publish",
     "confirmCreateAndPublish": "Confirm & Publish"
+  },
+  "variantStatusModal": {
+    "deactivateTitle": "Confirm Deactivate SKU Variant",
+    "activateTitle": "Confirm Activate SKU Variant",
+    "deactivateDesc": "Customers will not be able to purchase this size/color on the storefront. Items in existing carts will be flagged as unavailable.",
+    "activateDesc": "This variant will immediately become available for customer purchase on the storefront.",
+    "stockSafeNotice": "Physical inventory counts will remain intact without needing stock adjustments.",
+    "confirmDeactivate": "Confirm Deactivation",
+    "confirmActivate": "Confirm Activation",
+    "targetVariant": "Variant Details"
   },
   "unsaved": {
     "title": "Unsaved Changes Detected",

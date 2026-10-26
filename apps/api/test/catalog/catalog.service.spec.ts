@@ -102,6 +102,7 @@ describe('CustomerCatalogService', () => {
           size: 'S',
           colorName: 'Espresso',
           priceAdjustment: 10,
+          isActive: true,
           product: {
             id: 'prod-1',
             name: 'Polo Shirt',

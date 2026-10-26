@@ -36,6 +36,7 @@ describe('CustomerCartService', () => {
           size: 'S',
           colorName: 'Espresso',
           priceAdjustment: 20,
+          isActive: true,
           product: {
             id: 'prod-1',
             name: 'Polo Shirt',
@@ -44,6 +45,7 @@ describe('CustomerCartService', () => {
             basePrice: 100,
             originalPrice: 150,
             isPreorder: false,
+            isActive: true,
             images: [{ imageUrl: 'https://example.com/polo.jpg', isPrimary: true }],
           },
           inventoryItem: { quantityAvailable: 10 },
@@ -71,7 +73,6 @@ describe('CustomerCartService', () => {
         findMany: vi.fn().mockResolvedValue([]),
       },
     };
-
     service = new CustomerCartService(prismaMock as unknown as PrismaService);
   });
 
@@ -98,6 +99,8 @@ describe('CustomerCartService', () => {
         quantity: 2,
         maxStock: 10,
         isPreorder: false,
+        isActive: true,
+        isAvailable: true,
       });
     });
 

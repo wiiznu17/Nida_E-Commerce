@@ -152,9 +152,9 @@ export class CustomerOrdersService {
         );
       }
 
-      if (v.product.isActive === false) {
+      if (v.product.isActive === false || v.isActive === false) {
         throw new BadRequestException(
-          `Product "${v.product.name}" is no longer available for purchase`,
+          `Product "${v.product.name} (${v.colorName}/${v.size})" is no longer available for purchase`,
         );
       }
 

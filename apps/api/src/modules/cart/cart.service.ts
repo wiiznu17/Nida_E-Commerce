@@ -277,6 +277,7 @@ export class CustomerCartService {
         size: string;
         colorName: string;
         priceAdjustment: unknown;
+        isActive?: boolean;
         product: {
           id: string;
           name: string;
@@ -285,6 +286,7 @@ export class CustomerCartService {
           basePrice: unknown;
           originalPrice: unknown | null;
           isPreorder: boolean;
+          isActive?: boolean;
           images?: Array<{
             imageUrl: string;
             isPrimary: boolean;
@@ -307,6 +309,9 @@ export class CustomerCartService {
           p.images?.[0]?.imageUrl ??
           '';
         const stock = v.inventoryItem?.quantityAvailable ?? 0;
+        const isAvailable = Boolean(
+          p.isActive !== false && v.isActive !== false,
+        );
 
         return {
           id: ci.id,
@@ -325,6 +330,8 @@ export class CustomerCartService {
           quantity: ci.quantity,
           maxStock: stock,
           isPreorder: p.isPreorder,
+          isActive: isAvailable,
+          isAvailable,
         };
       });
 

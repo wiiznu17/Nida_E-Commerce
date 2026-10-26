@@ -71,6 +71,15 @@ export class CreateSkuVariantDto {
   @IsOptional()
   @IsNumber()
   weightGrams?: number;
+
+  @ApiPropertyOptional({
+    description: 'Variant active status',
+    example: true,
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 }
 
 export class CreateProductDto {

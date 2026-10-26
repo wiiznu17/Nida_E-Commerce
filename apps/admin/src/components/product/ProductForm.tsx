@@ -603,6 +603,7 @@ export function ProductForm({
           stock: Math.max(0, Number(initialSkus?.[0]?.stock) || 0),
           lowStockThreshold: Math.max(1, Number(singleLowStock) || 5),
           priceAdjustment: 0,
+          isActive: initialSkus?.[0]?.isActive ?? true,
         },
       ];
     }

@@ -103,6 +103,7 @@ export interface ApiProductVariant {
   lengthCm?: number;
   widthCm?: number;
   heightCm?: number;
+  isActive?: boolean;
 }
 
 export interface StoreQueryProductsParams {

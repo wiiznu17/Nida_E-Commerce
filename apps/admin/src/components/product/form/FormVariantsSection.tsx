@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Boxes,
@@ -18,6 +19,10 @@ import {
   TableHead,
   TableCell,
 } from '../../ui';
+import {
+  VariantStatusConfirmModal,
+  type VariantStatusTarget,
+} from '../VariantStatusConfirmModal';
 import type { FormVariantsSectionProps } from './formTypes';
 
 export function FormVariantsSection({
@@ -45,6 +50,8 @@ export function FormVariantsSection({
   onSingleLowStockChange,
 }: FormVariantsSectionProps) {
   const { t } = useLanguage();
+  const [statusModalTarget, setStatusModalTarget] =
+    useState<VariantStatusTarget | null>(null);
 
   return (
     <div
@@ -286,13 +293,16 @@ export function FormVariantsSection({
                   <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-brand-brown w-28 text-center">
                     {t('product.priceAdj')}
                   </TableHead>
+                  <TableHead className="py-2.5 px-3.5 text-[10px] font-black uppercase tracking-wider text-brand-brown w-28 text-center">
+                    {t('product.variantStatus')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-gray-100">
                 {skuList.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       className="py-8 text-center text-gray-400 text-xs"
                     >
                       {t('product.noVariantsDefined')}
@@ -402,6 +412,45 @@ export function FormVariantsSection({
                             className="w-18 text-center text-[11px] p-1 font-mono border border-gray-300 rounded-xs bg-white outline-hidden mx-auto block"
                           />
                         </TableCell>
+                        <TableCell className="py-2 px-3.5 text-center">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setStatusModalTarget({
+                                index,
+                                sku: sku.sku,
+                                colorName: sku.colorName,
+                                colorHex: sku.colorHex,
+                                size: sku.size,
+                                currentStock: stockNum,
+                                isActive: sku.isActive !== false,
+                              })
+                            }
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xs text-[10px] font-bold tracking-wider transition-colors cursor-pointer border ${
+                              sku.isActive !== false
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                                : 'bg-stone-100 text-stone-500 border-stone-200 hover:bg-stone-200'
+                            }`}
+                            title={
+                              sku.isActive !== false
+                                ? t('product.variantActiveHint')
+                                : t('product.variantInactiveHint')
+                            }
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                sku.isActive !== false
+                                  ? 'bg-emerald-500'
+                                  : 'bg-stone-400'
+                              }`}
+                            />
+                            <span>
+                              {sku.isActive !== false
+                                ? t('product.variantActive')
+                                : t('product.variantInactive')}
+                            </span>
+                          </button>
+                        </TableCell>
                       </TableRow>
                     );
                   })
@@ -479,6 +528,21 @@ export function FormVariantsSection({
           </div>
         </div>
       )}
+
+      <VariantStatusConfirmModal
+        isOpen={Boolean(statusModalTarget)}
+        onClose={() => setStatusModalTarget(null)}
+        onConfirm={() => {
+          if (statusModalTarget) {
+            onUpdateSkuRow(
+              statusModalTarget.index,
+              'isActive',
+              !statusModalTarget.isActive,
+            );
+          }
+        }}
+        target={statusModalTarget}
+      />
     </div>
   );
 }

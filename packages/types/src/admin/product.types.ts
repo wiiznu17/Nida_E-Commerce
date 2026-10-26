@@ -10,4 +10,5 @@ export interface ProductSkuVariant {
   priceAdjustment: number;
   barcode?: string | null;
   weightGrams?: number | null;
+  isActive?: boolean;
 }

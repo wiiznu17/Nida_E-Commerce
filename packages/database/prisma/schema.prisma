@@ -325,6 +325,7 @@ model ProductVariant {
   colorHex        String          @map("color_hex") @db.VarChar(20)
   priceAdjustment Decimal         @default(0) @map("price_adjustment") @db.Decimal(10, 2)
   barcode         String?         @unique @db.VarChar(100)
+  isActive        Boolean         @default(true) @map("is_active")
 
   // --- Shipping Weight & Dimensions (ข้อมูลพัสดุสำหรับคำนวณค่าส่ง) ---
   weightGrams     Int             @default(300) @map("weight_grams")

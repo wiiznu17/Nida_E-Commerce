@@ -340,6 +340,7 @@ export class CustomerCatalogService {
           lengthCm: v.lengthCm ? Number(v.lengthCm) : undefined,
           widthCm: v.widthCm ? Number(v.widthCm) : undefined,
           heightCm: v.heightCm ? Number(v.heightCm) : undefined,
+          isActive: v.isActive,
         };
       }),
       reviewsCount: product._count.reviews,
@@ -430,7 +431,7 @@ export class CustomerCatalogService {
 
     const items: SyncCartItem[] = variants.map((v) => {
       const unitPrice = Number(v.product.basePrice) + Number(v.priceAdjustment);
-      const isAvailable = v.product.isActive;
+      const isAvailable = Boolean(v.product.isActive !== false && v.isActive !== false);
       const stock = v.inventoryItem?.quantityAvailable ?? 0;
 
       return {

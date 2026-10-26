@@ -35,6 +35,7 @@ export default function AdminProductEdit() {
           stock: v.quantityAvailable ?? (v.inStock ? 20 : 0),
           lowStockThreshold: 5,
           priceAdjustment: Math.max(0, v.price - detail.basePrice),
+          isActive: v.isActive ?? true,
         }));
         setExistingSkus(skus);
 

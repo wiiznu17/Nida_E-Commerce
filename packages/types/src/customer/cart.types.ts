@@ -95,6 +95,8 @@ export interface ServerCartItem {
   quantity: number;
   maxStock: number;
   isPreorder: boolean;
+  isActive?: boolean;
+  isAvailable?: boolean;
 }
 
 export interface ServerCartResponse {

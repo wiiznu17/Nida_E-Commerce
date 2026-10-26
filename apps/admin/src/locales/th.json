@@ -190,6 +190,11 @@
     "currentStockReadOnly": "สต็อกปัจจุบัน (ดูอย่างเดียว)",
     "lowStockAlert": "เตือนสต็อกต่ำ",
     "priceAdj": "ปรับราคา (+/-)",
+    "variantStatus": "สถานะการขาย",
+    "variantActive": "เปิดขาย",
+    "variantInactive": "ปิดขาย",
+    "variantActiveHint": "คลิกเพื่อปิดการขายไซส์นี้",
+    "variantInactiveHint": "คลิกเพื่อเปิดการขายไซส์นี้",
     "outOfStock": "หมด",
     "lowStock": "ใกล้หมด",
     "restockAfter": "เติมหลังบันทึก",
@@ -243,6 +248,16 @@
     "publishing": "กำลังเผยแพร่...",
     "confirmPublish": "ยืนยันและเผยแพร่",
     "confirmCreateAndPublish": "ยืนยันสร้างและเผยแพร่"
+  },
+  "variantStatusModal": {
+    "deactivateTitle": "ยืนยันปิดการขายตัวเลือกสินค้า",
+    "activateTitle": "ยืนยันเปิดการขายตัวเลือกสินค้า",
+    "deactivateDesc": "ลูกค้าจะไม่สามารถเลือกสั่งซื้อไซส์หรือสีนี้บนหน้าร้านได้ และหากมีค้างอยู่ในตะกร้าจะถูกระบุว่าปิดการขาย",
+    "activateDesc": "ตัวเลือกสินค้านี้จะกลับมาพร้อมให้ลูกค้าสั่งซื้อบนหน้าร้านได้ทันทีตามปกติ",
+    "stockSafeNotice": "จำนวนสต็อกจริงในคลังจะไม่ถูกปรับเปลี่ยนหรือนับใหม่",
+    "confirmDeactivate": "ยืนยันปิดการขาย",
+    "confirmActivate": "ยืนยันเปิดการขาย",
+    "targetVariant": "ข้อมูลตัวเลือกสินค้า"
   },
   "unsaved": {
     "title": "การเปลี่ยนแปลงยังไม่ได้รับการบันทึก",
