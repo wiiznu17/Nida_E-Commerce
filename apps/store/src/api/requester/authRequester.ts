@@ -9,10 +9,23 @@ import type { UpdateCustomerProfileInput } from '@repo/validators';
 
 export const authRequester = {
   /**
-   * Request 6-digit OTP code sent to customer email.
+   * Check if a customer email already exists in the system.
    */
-  requestOtp: async (email: string): Promise<RequestOtpResponse> => {
-    return apiClient.post<RequestOtpResponse>('/auth/request-otp', { email });
+  checkEmail: async (email: string): Promise<{ exists: boolean }> => {
+    return apiClient.get<{ exists: boolean }>('/auth/check-email', { email });
+  },
+
+  /**
+   * Request 6-digit OTP code sent to customer email with optional intent guard.
+   */
+  requestOtp: async (
+    email: string,
+    intent?: 'signin' | 'signup',
+  ): Promise<RequestOtpResponse> => {
+    return apiClient.post<RequestOtpResponse>('/auth/request-otp', {
+      email,
+      intent,
+    });
   },
 
   /**
@@ -21,10 +34,12 @@ export const authRequester = {
   verifyOtp: async (
     email: string,
     otpCode: string,
+    intent?: 'signin' | 'signup',
   ): Promise<VerifyOtpResponse> => {
     return apiClient.post<VerifyOtpResponse>('/auth/verify-otp', {
       email,
       otpCode,
+      intent,
     });
   },
 

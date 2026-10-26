@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
@@ -48,11 +49,49 @@ export class CustomerAuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async checkEmail(email: string): Promise<{ exists: boolean }> {
+    if (!email || typeof email !== 'string') {
+      return { exists: false };
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail.includes('@')) {
+      return { exists: false };
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { email: cleanEmail },
+      select: { id: true },
+    });
+    return { exists: Boolean(user) };
+  }
+
   async requestOtp(
     dto: RequestOtpInput,
     clientIp?: string,
   ): Promise<RequestOtpResponse> {
     const email = dto.email.trim().toLowerCase();
+
+    // Verify account existence based on authentication intent
+    if (dto.intent === 'signin') {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email },
+        select: { id: true },
+      });
+      if (!existingUser) {
+        throw new NotFoundException(
+          'ไม่พบบัญชีผู้ใช้นี้ในระบบ กรุณาสมัครสมาชิกก่อนเข้าสู่ระบบ (Account not found. Please sign up.)',
+        );
+      }
+    } else if (dto.intent === 'signup') {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email },
+        select: { id: true },
+      });
+      if (existingUser) {
+        throw new ConflictException(
+          'อีเมลนี้มีบัญชีผู้ใช้อยู่แล้ว กรุณาเข้าสู่ระบบ (This email is already registered. Please sign in.)',
+        );
+      }
+    }
 
     // Check account lockout
     const isLocked = await this.redis.get(`otp:lockout:${email}`);
@@ -223,7 +262,18 @@ export class CustomerAuthService {
     });
 
     let isNewUser = false;
-    if (!user) {
+    if (dto.intent === 'signin') {
+      if (!user) {
+        throw new NotFoundException(
+          'ไม่พบบัญชีผู้ใช้นี้ในระบบ กรุณาสมัครสมาชิกก่อนเข้าสู่ระบบ (Account not found. Please sign up.)',
+        );
+      }
+    } else if (dto.intent === 'signup') {
+      if (user) {
+        throw new BadRequestException(
+          'อีเมลนี้มีบัญชีผู้ใช้อยู่แล้ว กรุณาเข้าสู่ระบบ (This email is already registered. Please sign in.)',
+        );
+      }
       user = await this.prisma.user.create({
         data: {
           email,
@@ -234,11 +284,30 @@ export class CustomerAuthService {
       });
       isNewUser = true;
       this.logger.log(`Created new customer account: ${user.id} (${email})`);
-    } else if (!user.isVerified) {
-      user = await this.prisma.user.update({
+    } else {
+      // Fallback for legacy calls without explicit intent
+      if (!user) {
+        user = await this.prisma.user.create({
+          data: {
+            email,
+            isVerified: true,
+            tier: 'REGULAR',
+            points: 0,
+          },
+        });
+        isNewUser = true;
+        this.logger.log(`Created new customer account: ${user.id} (${email})`);
+      }
+    }
+
+    if (user && user.isVerified === false) {
+      const updatedUser = await this.prisma.user.update({
         where: { id: user.id },
         data: { isVerified: true },
       });
+      if (updatedUser) {
+        user = updatedUser;
+      }
     }
 
     const payload: CustomerJwtPayload = {

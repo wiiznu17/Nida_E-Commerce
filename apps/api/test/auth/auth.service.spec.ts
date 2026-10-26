@@ -4,6 +4,8 @@ import {
   BadRequestException,
   HttpException,
   UnauthorizedException,
+  NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { RedisService } from '../../src/core/redis/redis.service.js';
@@ -94,7 +96,66 @@ describe('CustomerAuthService', () => {
     );
   });
 
+  describe('checkEmail', () => {
+    it('returns exists: true when customer user exists', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'usr-1' });
+      const res = await service.checkEmail('found@nida.co');
+      expect(res.exists).toBe(true);
+      expect(prismaMock.user.findUnique).toHaveBeenCalledWith({
+        where: { email: 'found@nida.co' },
+        select: { id: true },
+      });
+    });
+
+    it('returns exists: false when customer user does not exist', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+      const res = await service.checkEmail('notfound@nida.co');
+      expect(res.exists).toBe(false);
+    });
+
+    it('returns exists: false for invalid or blank email', async () => {
+      const res = await service.checkEmail('invalid-email');
+      expect(res.exists).toBe(false);
+      expect(prismaMock.user.findUnique).not.toHaveBeenCalled();
+    });
+  });
+
   describe('requestOtp', () => {
+    it('rejects with NotFoundException when signin intent and user does not exist', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.requestOtp({ email: 'ghost@nida.co', intent: 'signin' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('allows OTP request when signin intent and user exists', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'usr-1' });
+
+      const res = await service.requestOtp({
+        email: 'member@nida.co',
+        intent: 'signin',
+      });
+      expect(res.success).toBe(true);
+    });
+
+    it('rejects with ConflictException when signup intent and user already exists', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'usr-1' });
+
+      await expect(
+        service.requestOtp({ email: 'taken@nida.co', intent: 'signup' }),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('allows OTP request when signup intent and user does not exist', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+
+      const res = await service.requestOtp({
+        email: 'newuser@nida.co',
+        intent: 'signup',
+      });
+      expect(res.success).toBe(true);
+    });
     it('generates a 6-digit OTP, sets 60s cooldown, and sends email when allowed', async () => {
       const email = 'customer@nida.co';
       const result = await service.requestOtp({ email }, '192.168.1.1');
@@ -195,6 +256,7 @@ describe('CustomerAuthService', () => {
         phone: null,
         tier: 'REGULAR',
         points: 0,
+        isVerified: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -261,6 +323,53 @@ describe('CustomerAuthService', () => {
 
       await expect(
         service.verifyOtp({ email: 'wrong@nida.co', otpCode: '999999' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects verification with NotFoundException if signin intent and user does not exist', async () => {
+      const validRecord = {
+        id: 'otp-uuid-2',
+        email: 'ghost@nida.co',
+        otpCode: '123456',
+        attemptsCount: 0,
+        isUsed: false,
+        expiresAt: new Date(Date.now() + 180_000),
+      };
+
+      prismaMock.otpVerification.findFirst.mockResolvedValueOnce(validRecord);
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.verifyOtp({
+          email: 'ghost@nida.co',
+          otpCode: '123456',
+          intent: 'signin',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('rejects verification with BadRequestException if signup intent and user already exists', async () => {
+      const validRecord = {
+        id: 'otp-uuid-3',
+        email: 'taken@nida.co',
+        otpCode: '123456',
+        attemptsCount: 0,
+        isUsed: false,
+        expiresAt: new Date(Date.now() + 180_000),
+      };
+
+      prismaMock.otpVerification.findFirst.mockResolvedValueOnce(validRecord);
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-existing',
+        email: 'taken@nida.co',
+      });
+
+      await expect(
+        service.verifyOtp({
+          email: 'taken@nida.co',
+          otpCode: '123456',
+          intent: 'signup',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
   });

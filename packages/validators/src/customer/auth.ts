@@ -5,6 +5,7 @@ import { z } from 'zod';
  */
 export const requestOtpSchema = z.object({
   email: z.string().trim().email('Invalid email address').toLowerCase(),
+  intent: z.enum(['signin', 'signup']).optional(),
   cfTurnstileToken: z.string().trim().optional(),
 });
 
@@ -20,9 +21,19 @@ export const verifyOtpSchema = z.object({
     .trim()
     .length(6, 'OTP must be exactly 6 digits')
     .regex(/^\d{6}$/, 'OTP must be numeric digits'),
+  intent: z.enum(['signin', 'signup']).optional(),
 });
 
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
+
+/**
+ * Customer Email Existence Check Schema
+ */
+export const checkEmailSchema = z.object({
+  email: z.string().trim().email('Invalid email address').toLowerCase(),
+});
+
+export type CheckEmailInput = z.infer<typeof checkEmailSchema>;
 
 /**
  * Update Customer Profile Schema

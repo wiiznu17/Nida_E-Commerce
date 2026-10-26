@@ -1,5 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+  Matches,
+} from 'class-validator';
 import type { VerifyOtpInput } from '@repo/validators';
 
 export class VerifyOtpDto implements VerifyOtpInput {
@@ -18,4 +25,13 @@ export class VerifyOtpDto implements VerifyOtpInput {
   @Length(6, 6, { message: 'OTP must be exactly 6 digits' })
   @Matches(/^\d{6}$/, { message: 'OTP must consist of digits only' })
   otpCode!: string;
+
+  @ApiPropertyOptional({
+    example: 'signin',
+    enum: ['signin', 'signup'],
+    description: 'Authentication intent mode',
+  })
+  @IsOptional()
+  @IsIn(['signin', 'signup'], { message: 'Intent must be signin or signup' })
+  intent?: 'signin' | 'signup';
 }

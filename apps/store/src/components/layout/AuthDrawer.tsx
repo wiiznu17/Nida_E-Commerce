@@ -63,6 +63,13 @@ function AuthDrawerContent() {
   const [errorMessage, setErrorMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorAction, setErrorAction] = useState<
+    'switchToSignUp' | 'switchToSignIn' | null
+  >(null);
+  const [loginEmailHint, setLoginEmailHint] = useState<string | null>(null);
+  const [registerEmailHint, setRegisterEmailHint] = useState<string | null>(
+    null,
+  );
 
   // Countdown timer for OTP
   useEffect(() => {
@@ -91,6 +98,9 @@ function AuthDrawerContent() {
       setStep('form');
       setErrorMessage('');
       setInfoMessage('');
+      setErrorAction(null);
+      setLoginEmailHint(null);
+      setRegisterEmailHint(null);
       setIsSuccess(false);
       setOtp(['', '', '', '', '', '']);
     }, 300);
@@ -101,18 +111,59 @@ function AuthDrawerContent() {
     setStep('form');
     setErrorMessage('');
     setInfoMessage('');
+    setErrorAction(null);
+    setLoginEmailHint(null);
+    setRegisterEmailHint(null);
   };
 
-  // 1. Submit Sign In Form (Request OTP)
+  // Real-time email validation on blur
+  const handleLoginEmailBlur = async () => {
+    const email = loginEmail.trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      setLoginEmailHint(null);
+      return;
+    }
+    try {
+      const res = await authRequester.checkEmail(email);
+      if (!res.exists) {
+        setLoginEmailHint('notRegistered');
+      } else {
+        setLoginEmailHint(null);
+      }
+    } catch {
+      // Ignore background check failure
+    }
+  };
+
+  const handleRegisterEmailBlur = async () => {
+    const email = registerEmail.trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      setRegisterEmailHint(null);
+      return;
+    }
+    try {
+      const res = await authRequester.checkEmail(email);
+      if (res.exists) {
+        setRegisterEmailHint('alreadyRegistered');
+      } else {
+        setRegisterEmailHint(null);
+      }
+    } catch {
+      // Ignore background check failure
+    }
+  };
+
+  // 1. Submit Sign In Form (Request OTP with intent guard)
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail.trim()) return;
 
     setIsLoading(true);
     setErrorMessage('');
+    setErrorAction(null);
     try {
       const cleanEmail = loginEmail.trim().toLowerCase();
-      const res = await authRequester.requestOtp(cleanEmail);
+      const res = await authRequester.requestOtp(cleanEmail, 'signin');
       setActiveEmail(cleanEmail);
       if (res.devOtpCode) {
         setDevOtpHint(res.devOtpCode);
@@ -128,21 +179,29 @@ function AuthDrawerContent() {
           : 'Failed to request OTP code. Please try again.',
       );
       setErrorMessage(extracted.message);
+      if (
+        extracted.status === 404 ||
+        extracted.message.includes('ไม่พบบัญชี') ||
+        extracted.message.toLowerCase().includes('not found')
+      ) {
+        setErrorAction('switchToSignUp');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 2. Submit Sign Up Form (Request OTP with pre-filled profile info)
+  // 2. Submit Sign Up Form (Request OTP with intent guard)
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!registerEmail.trim() || !agreeTerms) return;
 
     setIsLoading(true);
     setErrorMessage('');
+    setErrorAction(null);
     try {
       const cleanEmail = registerEmail.trim().toLowerCase();
-      const res = await authRequester.requestOtp(cleanEmail);
+      const res = await authRequester.requestOtp(cleanEmail, 'signup');
       setActiveEmail(cleanEmail);
       if (res.devOtpCode) {
         setDevOtpHint(res.devOtpCode);
@@ -158,6 +217,14 @@ function AuthDrawerContent() {
           : 'Failed to request OTP code. Please try again.',
       );
       setErrorMessage(extracted.message);
+      if (
+        extracted.status === 409 ||
+        extracted.status === 400 ||
+        extracted.message.includes('มีบัญชีผู้ใช้') ||
+        extracted.message.toLowerCase().includes('already registered')
+      ) {
+        setErrorAction('switchToSignIn');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -173,7 +240,11 @@ function AuthDrawerContent() {
     setErrorMessage('');
     setInfoMessage('');
     try {
-      const res = await authRequester.verifyOtp(activeEmail, code);
+      const res = await authRequester.verifyOtp(
+        activeEmail,
+        code,
+        authDrawerTab,
+      );
       sessionStorage.removeItem('nida_dev_otp');
 
       // If registered with names, update profile immediately
@@ -215,7 +286,7 @@ function AuthDrawerContent() {
     setErrorMessage('');
     setInfoMessage('');
     try {
-      const res = await authRequester.requestOtp(activeEmail);
+      const res = await authRequester.requestOtp(activeEmail, authDrawerTab);
       setResendTimer(60);
       setInfoMessage(
         language === 'th'
@@ -357,9 +428,35 @@ function AuthDrawerContent() {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {errorMessage && (
-            <Alert variant="error" className="mb-2">
-              {errorMessage}
-            </Alert>
+            <div className="mb-2">
+              <Alert variant="error">
+                <p>{errorMessage}</p>
+                {errorAction === 'switchToSignUp' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRegisterEmail(loginEmail);
+                      switchTab('signup');
+                    }}
+                    className="mt-2 text-xs font-bold underline text-brand-brown hover:text-brand-amber cursor-pointer block"
+                  >
+                    {t('auth.switchToSignUp')} &rarr;
+                  </button>
+                )}
+                {errorAction === 'switchToSignIn' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginEmail(registerEmail);
+                      switchTab('signin');
+                    }}
+                    className="mt-2 text-xs font-bold underline text-brand-brown hover:text-brand-amber cursor-pointer block"
+                  >
+                    {t('auth.switchToSignIn')} &rarr;
+                  </button>
+                )}
+              </Alert>
+            </div>
           )}
 
           {infoMessage && (
@@ -394,7 +491,11 @@ function AuthDrawerContent() {
                     type="email"
                     id="drawer-login-email"
                     value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
+                    onChange={(e) => {
+                      setLoginEmail(e.target.value);
+                      if (loginEmailHint) setLoginEmailHint(null);
+                    }}
+                    onBlur={handleLoginEmailBlur}
                     required
                     disabled={isLoading}
                     placeholder="customer@nida.com"
@@ -405,6 +506,21 @@ function AuthDrawerContent() {
                     className="absolute left-3 top-3 text-gray-400 pointer-events-none"
                   />
                 </div>
+                {loginEmailHint === 'notRegistered' && (
+                  <div className="mt-1.5 p-2 bg-amber-50 border border-amber-200 rounded-xs flex items-center justify-between text-[11px] text-amber-900">
+                    <span>{t('auth.emailNotRegistered')}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRegisterEmail(loginEmail);
+                        switchTab('signup');
+                      }}
+                      className="font-bold underline text-brand-brown hover:text-brand-amber ml-2 shrink-0 cursor-pointer"
+                    >
+                      {t('auth.switchToSignUp')}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center space-x-2 text-[11px] text-gray-500">
@@ -504,11 +620,30 @@ function AuthDrawerContent() {
                   type="email"
                   id="drawer-register-email"
                   value={registerEmail}
-                  onChange={(e) => setRegisterEmail(e.target.value)}
+                  onChange={(e) => {
+                    setRegisterEmail(e.target.value);
+                    if (registerEmailHint) setRegisterEmailHint(null);
+                  }}
+                  onBlur={handleRegisterEmailBlur}
                   required
                   placeholder="name@example.com"
                   className="w-full border border-gray-300 px-3 py-2 text-xs focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown"
                 />
+                {registerEmailHint === 'alreadyRegistered' && (
+                  <div className="mt-1.5 p-2 bg-amber-50 border border-amber-200 rounded-xs flex items-center justify-between text-[11px] text-amber-900">
+                    <span>{t('auth.emailAlreadyRegistered')}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLoginEmail(registerEmail);
+                        switchTab('signin');
+                      }}
+                      className="font-bold underline text-brand-brown hover:text-brand-amber ml-2 shrink-0 cursor-pointer"
+                    >
+                      {t('auth.switchToSignIn')}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>

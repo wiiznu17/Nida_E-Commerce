@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -67,6 +68,19 @@ export class CustomerAuthController {
       typeof rawUserAgent === 'string' ? rawUserAgent : undefined;
 
     return { ip, userAgent };
+  }
+
+  @Get('check-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Check if customer email already exists',
+    description: 'Returns { exists: true/false } for frontend validation.',
+  })
+  @ApiResponse({ status: 200, description: 'Email existence status' })
+  async checkEmail(
+    @Query('email') email: string,
+  ): Promise<{ exists: boolean }> {
+    return this.authService.checkEmail(email);
   }
 
   @Post('request-otp')

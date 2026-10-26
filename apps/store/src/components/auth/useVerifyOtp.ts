@@ -23,6 +23,9 @@ export function useVerifyOtp() {
 
   const email = searchParams.get('email') || '';
   const redirect = searchParams.get('redirect') || '';
+  const rawIntent = searchParams.get('intent');
+  const intent: 'signin' | 'signup' | undefined =
+    rawIntent === 'signin' || rawIntent === 'signup' ? rawIntent : undefined;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -88,7 +91,7 @@ export function useVerifyOtp() {
     setInfoMessage('');
 
     try {
-      const res = await authRequester.requestOtp(email);
+      const res = await authRequester.requestOtp(email, intent);
       setResendTimer(60);
       setInfoMessage(
         language === 'th'
@@ -117,7 +120,7 @@ export function useVerifyOtp() {
     setInfoMessage('');
 
     try {
-      const res = await authRequester.verifyOtp(email, otpCode);
+      const res = await authRequester.verifyOtp(email, otpCode, intent);
       sessionStorage.removeItem('nida_dev_otp');
       setSession(res.accessToken, res.refreshToken, res.user);
 
