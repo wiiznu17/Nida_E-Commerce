@@ -571,4 +571,267 @@ describe('CustomerAuthService', () => {
       });
     });
   });
+
+  describe('register & verifyRegisterOtp', () => {
+    it('rejects registration with ConflictException if user already exists and is verified', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-existing',
+        email: 'taken@nida.co',
+        isVerified: true,
+      });
+
+      await expect(
+        service.register({
+          email: 'taken@nida.co',
+          password: 'Password123!',
+          firstName: 'Somchai',
+          lastName: 'Dee',
+        }),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('creates unverified user and sends OTP when registration input is valid', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+      prismaMock.user.create.mockResolvedValueOnce({
+        id: 'usr-new-1',
+        email: 'newuser@nida.co',
+        firstName: 'Somchai',
+        lastName: 'Dee',
+      });
+
+      const res = await service.register({
+        email: 'newuser@nida.co',
+        password: 'Password123!',
+        firstName: 'Somchai',
+        lastName: 'Dee',
+      });
+
+      expect(res.success).toBe(true);
+      expect(res.requireOtp).toBe(true);
+      expect(res.email).toBe('newuser@nida.co');
+      expect(prismaMock.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            email: 'newuser@nida.co',
+            firstName: 'Somchai',
+            lastName: 'Dee',
+            isVerified: false,
+          }),
+        }),
+      );
+      expect(mailerMock.sendOtpEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'newuser@nida.co' }),
+      );
+    });
+
+    it('rejects verifyRegisterOtp if customer record is not found', async () => {
+      prismaMock.otpVerification.findFirst.mockResolvedValueOnce({
+        id: 'otp-reg-1',
+        email: 'ghost@nida.co',
+        otpCode: '123456',
+        attemptsCount: 0,
+        isUsed: false,
+        expiresAt: new Date(Date.now() + 180_000),
+      });
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.verifyRegisterOtp(
+          { email: 'ghost@nida.co', otpCode: '123456' },
+          { ip: '127.0.0.1', userAgent: 'test' },
+        ),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('verifies OTP, marks customer as verified, and returns tokens', async () => {
+      prismaMock.otpVerification.findFirst.mockResolvedValueOnce({
+        id: 'otp-reg-1',
+        email: 'newuser@nida.co',
+        otpCode: '123456',
+        attemptsCount: 0,
+        isUsed: false,
+        expiresAt: new Date(Date.now() + 180_000),
+      });
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-new-1',
+        email: 'newuser@nida.co',
+        firstName: 'Somchai',
+        lastName: 'Dee',
+        isVerified: false,
+      });
+      prismaMock.user.update.mockResolvedValueOnce({
+        id: 'usr-new-1',
+        email: 'newuser@nida.co',
+        firstName: 'Somchai',
+        lastName: 'Dee',
+        tier: 'REGULAR',
+        points: 0,
+        isVerified: true,
+        createdAt: new Date(),
+      });
+
+      const res = await service.verifyRegisterOtp(
+        { email: 'newuser@nida.co', otpCode: '123456' },
+        { ip: '127.0.0.1', userAgent: 'test' },
+      );
+
+      expect(res.success).toBe(true);
+      expect(res.accessToken).toBe('mock-jwt-token');
+      expect(res.user.email).toBe('newuser@nida.co');
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { id: 'usr-new-1' },
+        data: { isVerified: true },
+      });
+      expect(redisMock.setCustomerSession).toHaveBeenCalled();
+    });
+  });
+
+  describe('login & verifyLoginOtp', () => {
+    it('rejects login with NotFoundException if user does not exist', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.login({ email: 'ghost@nida.co', password: 'Password123!' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('rejects login with UnauthorizedException if user has no passwordHash', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-1',
+        email: 'user@nida.co',
+        passwordHash: null,
+      });
+
+      await expect(
+        service.login({ email: 'user@nida.co', password: 'Password123!' }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('rejects login with UnauthorizedException if password does not match', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-1',
+        email: 'user@nida.co',
+        passwordHash: '$2a$10$someotherhash',
+      });
+
+      await expect(
+        service.login({ email: 'user@nida.co', password: 'WrongPassword!' }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('issues OTP challenge when login credentials are valid', async () => {
+      const bcrypt = await import('bcryptjs');
+      const hash = await bcrypt.default.hash('Password123!', 10);
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-1',
+        email: 'user@nida.co',
+        passwordHash: hash,
+      });
+
+      const res = await service.login({
+        email: 'user@nida.co',
+        password: 'Password123!',
+      });
+
+      expect(res.success).toBe(true);
+      expect(res.requireOtp).toBe(true);
+      expect(res.email).toBe('user@nida.co');
+      expect(mailerMock.sendOtpEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'user@nida.co' }),
+      );
+    });
+
+    it('verifies login OTP and issues authentication session and tokens', async () => {
+      prismaMock.otpVerification.findFirst.mockResolvedValueOnce({
+        id: 'otp-log-1',
+        email: 'user@nida.co',
+        otpCode: '112233',
+        attemptsCount: 0,
+        isUsed: false,
+        expiresAt: new Date(Date.now() + 180_000),
+      });
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-1',
+        email: 'user@nida.co',
+        firstName: 'Somchai',
+        lastName: 'Dee',
+        tier: 'REGULAR',
+        points: 100,
+        isVerified: true,
+        createdAt: new Date(),
+      });
+
+      const res = await service.verifyLoginOtp(
+        { email: 'user@nida.co', otpCode: '112233' },
+        { ip: '127.0.0.1', userAgent: 'Chrome' },
+      );
+
+      expect(res.success).toBe(true);
+      expect(res.accessToken).toBe('mock-jwt-token');
+      expect(res.user.id).toBe('usr-1');
+      expect(redisMock.setCustomerSession).toHaveBeenCalled();
+    });
+  });
+
+  describe('resendOtp', () => {
+    it('dispatches a new OTP code', async () => {
+      const res = await service.resendOtp({ email: 'user@nida.co' });
+      expect(res.success).toBe(true);
+      expect(res.requireOtp).toBe(true);
+      expect(mailerMock.sendOtpEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'user@nida.co' }),
+      );
+    });
+  });
+
+  describe('forgotPassword & resetPassword', () => {
+    it('rejects forgotPassword with NotFoundException if email does not exist', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.forgotPassword({ email: 'unknown@nida.co' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('sends password reset OTP when email exists', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'usr-1', email: 'user@nida.co' });
+
+      const res = await service.forgotPassword({ email: 'user@nida.co' });
+      expect(res.success).toBe(true);
+      expect(res.requireOtp).toBe(true);
+      expect(mailerMock.sendOtpEmail).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'user@nida.co' }),
+      );
+    });
+
+    it('resets password, updates user passwordHash in DB, and revokes active sessions', async () => {
+      prismaMock.otpVerification.findFirst.mockResolvedValueOnce({
+        id: 'otp-rst-1',
+        email: 'user@nida.co',
+        otpCode: '998877',
+        attemptsCount: 0,
+        isUsed: false,
+        expiresAt: new Date(Date.now() + 180_000),
+      });
+      prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'usr-1', email: 'user@nida.co' });
+      prismaMock.user.update.mockResolvedValueOnce({ id: 'usr-1' });
+
+      const res = await service.resetPassword({
+        email: 'user@nida.co',
+        otpCode: '998877',
+        newPassword: 'BrandNewPassword123!',
+      });
+
+      expect(res.success).toBe(true);
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'usr-1' },
+          data: expect.objectContaining({
+            passwordHash: expect.any(String),
+          }),
+        }),
+      );
+      expect(redisMock.revokeAllCustomerSessions).toHaveBeenCalledWith('usr-1');
+    });
+  });
 });

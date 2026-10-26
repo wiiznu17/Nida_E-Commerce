@@ -216,6 +216,41 @@ async function main() {
     ],
   });
 
+  // Seed Demo Customer Users
+  console.log('👤 Creating Demo Customer Users...');
+  const demoCustomerPasswordHash =
+    '$2b$10$8HQhIcyxqjsoBIBq8yfWEuQlnnYBd/234ySY8Ak5AnbIqhmUNNWVO'; // Password123!
+
+  await prisma.user.upsert({
+    where: { email: 'phannida@nida.com' },
+    update: { passwordHash: demoCustomerPasswordHash, isVerified: true },
+    create: {
+      email: 'phannida@nida.com',
+      firstName: 'Phannida',
+      lastName: 'Wissanu',
+      phone: '0812345678',
+      passwordHash: demoCustomerPasswordHash,
+      isVerified: true,
+      tier: 'VIP_GOLD',
+      points: 1250,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'customer@example.com' },
+    update: { passwordHash: demoCustomerPasswordHash, isVerified: true },
+    create: {
+      email: 'customer@example.com',
+      firstName: 'Demo',
+      lastName: 'Customer',
+      phone: '0899999999',
+      passwordHash: demoCustomerPasswordHash,
+      isVerified: true,
+      tier: 'REGULAR',
+      points: 200,
+    },
+  });
+
   await seedOrders(prisma);
   await seedCms(prisma);
 
@@ -225,6 +260,9 @@ async function main() {
   console.log('   Username: superadmin');
   console.log('   Email:    admin@nida-apparel.com');
   console.log('   Password: admin123');
+  console.log('👤 Demo Customers (Storefront):');
+  console.log('   Email:    phannida@nida.com / customer@example.com');
+  console.log('   Password: Password123!');
   console.log('🎟️ Sample Coupons: NIDA20, FREESHIP, WELCOME200');
   console.log('--------------------------------------------------');
 }

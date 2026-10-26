@@ -9,6 +9,15 @@ export interface RequestOtpResponse {
   devOtpCode?: string;
 }
 
+export interface CustomerOtpChallengeResponse {
+  success: boolean;
+  requireOtp: boolean;
+  message: string;
+  email: string;
+  expiresInSeconds: number;
+  devOtpCode?: string;
+}
+
 export interface VerifyOtpResponse {
   success: boolean;
   accessToken: string;

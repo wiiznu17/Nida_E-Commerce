@@ -2,10 +2,19 @@ import { apiClient } from '../client';
 import type {
   ApiUser,
   RequestOtpResponse,
+  CustomerOtpChallengeResponse,
   VerifyOtpResponse,
   CustomerRefreshResponse,
 } from '@repo/types';
-import type { UpdateCustomerProfileInput } from '@repo/validators';
+import type {
+  CustomerLoginInput,
+  CustomerRegisterInput,
+  CustomerVerifyOtpInput,
+  CustomerResendOtpInput,
+  CustomerForgotPasswordInput,
+  CustomerResetPasswordInput,
+  UpdateCustomerProfileInput,
+} from '@repo/validators';
 
 export const authRequester = {
   /**
@@ -16,7 +25,76 @@ export const authRequester = {
   },
 
   /**
-   * Request 6-digit OTP code sent to customer email with optional intent guard.
+   * Step 1: Customer sign in with email and password -> returns OTP challenge.
+   */
+  login: async (
+    data: CustomerLoginInput,
+  ): Promise<CustomerOtpChallengeResponse> => {
+    return apiClient.post<CustomerOtpChallengeResponse>('/auth/login', data);
+  },
+
+  /**
+   * Step 2: Verify login OTP -> returns dual tokens and user profile.
+   */
+  verifyLoginOtp: async (
+    data: CustomerVerifyOtpInput,
+  ): Promise<VerifyOtpResponse> => {
+    return apiClient.post<VerifyOtpResponse>('/auth/login/verify-otp', data);
+  },
+
+  /**
+   * Step 1: Customer registration with details & password -> returns OTP challenge.
+   */
+  register: async (
+    data: CustomerRegisterInput,
+  ): Promise<CustomerOtpChallengeResponse> => {
+    return apiClient.post<CustomerOtpChallengeResponse>('/auth/register', data);
+  },
+
+  /**
+   * Step 2: Verify register OTP -> creates user and returns dual tokens.
+   */
+  verifyRegisterOtp: async (
+    data: CustomerVerifyOtpInput,
+  ): Promise<VerifyOtpResponse> => {
+    return apiClient.post<VerifyOtpResponse>('/auth/register/verify-otp', data);
+  },
+
+  /**
+   * Resend OTP code for any pending flow (login, register, forgot-password).
+   */
+  resendOtp: async (
+    data: CustomerResendOtpInput,
+  ): Promise<CustomerOtpChallengeResponse> => {
+    return apiClient.post<CustomerOtpChallengeResponse>('/auth/resend-otp', data);
+  },
+
+  /**
+   * Forgot password: Sends OTP verification to reset password.
+   */
+  forgotPassword: async (
+    data: CustomerForgotPasswordInput,
+  ): Promise<CustomerOtpChallengeResponse> => {
+    return apiClient.post<CustomerOtpChallengeResponse>(
+      '/auth/forgot-password',
+      data,
+    );
+  },
+
+  /**
+   * Reset password: Submit OTP and new password.
+   */
+  resetPassword: async (
+    data: CustomerResetPasswordInput,
+  ): Promise<{ success: boolean; message: string }> => {
+    return apiClient.post<{ success: boolean; message: string }>(
+      '/auth/reset-password',
+      data,
+    );
+  },
+
+  /**
+   * Request 6-digit OTP code sent to customer email with optional intent guard (legacy).
    */
   requestOtp: async (
     email: string,
@@ -29,7 +107,7 @@ export const authRequester = {
   },
 
   /**
-   * Verify OTP code and retrieve dual tokens with customer profile.
+   * Verify OTP code and retrieve dual tokens with customer profile (legacy).
    */
   verifyOtp: async (
     email: string,

@@ -16,8 +16,12 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { CustomerAuthService } from './auth.service.js';
 import {
+  CustomerLoginDto,
+  CustomerRegisterDto,
+  CustomerForgotPasswordDto,
+  CustomerResetPasswordDto,
+  CustomerResendOtpDto,
   RequestOtpDto,
   VerifyOtpDto,
   CustomerRefreshTokenDto,
@@ -26,8 +30,10 @@ import {
   VerifyEmailChangeDto,
 } from './dto/index.js';
 import { CustomerJwtGuard } from './guards/customer-jwt.guard.js';
+import { CustomerAuthService } from './auth.service.js';
 import type {
   RequestOtpResponse,
+  CustomerOtpChallengeResponse,
   VerifyOtpResponse,
   CustomerRefreshResponse,
   ApiUser,
@@ -81,6 +87,117 @@ export class CustomerAuthController {
     @Query('email') email: string,
   ): Promise<{ exists: boolean }> {
     return this.authService.checkEmail(email);
+  }
+
+  @Post('register')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Step 1: Register customer with password and send OTP challenge',
+    description:
+      'Checks duplicate email, hashes password, saves pending customer, and dispatches 6-digit verification OTP.',
+  })
+  @ApiResponse({ status: 200, description: 'OTP challenge sent successfully' })
+  @ApiResponse({ status: 409, description: 'Email already registered' })
+  async register(
+    @Body() dto: CustomerRegisterDto,
+    @Req() req: RawRequest,
+  ): Promise<CustomerOtpChallengeResponse> {
+    const { ip } = this.extractClientMeta(req);
+    return this.authService.register(dto, ip);
+  }
+
+  @Post('register/verify-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Step 2: Verify registration OTP and issue session tokens',
+    description:
+      'Validates 6-digit OTP, marks customer account verified, and returns JWT access and refresh tokens.',
+  })
+  @ApiResponse({ status: 200, description: 'Registration completed and logged in' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async verifyRegisterOtp(
+    @Body() dto: VerifyOtpDto,
+    @Req() req: RawRequest,
+  ): Promise<VerifyOtpResponse> {
+    const meta = this.extractClientMeta(req);
+    return this.authService.verifyRegisterOtp(dto, meta);
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Step 1: Authenticate email and password, then send OTP challenge',
+    description:
+      'Verifies customer password with bcrypt, then dispatches 6-digit OTP code to email.',
+  })
+  @ApiResponse({ status: 200, description: 'Credentials verified, OTP dispatched' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials or password' })
+  @ApiResponse({ status: 404, description: 'Account not found' })
+  async login(
+    @Body() dto: CustomerLoginDto,
+    @Req() req: RawRequest,
+  ): Promise<CustomerOtpChallengeResponse> {
+    const { ip } = this.extractClientMeta(req);
+    return this.authService.login(dto, ip);
+  }
+
+  @Post('login/verify-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Step 2: Verify login OTP code and issue session tokens',
+    description:
+      'Validates 6-digit OTP and returns authenticated JWT access and refresh tokens.',
+  })
+  @ApiResponse({ status: 200, description: 'Successfully authenticated' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async verifyLoginOtp(
+    @Body() dto: VerifyOtpDto,
+    @Req() req: RawRequest,
+  ): Promise<VerifyOtpResponse> {
+    const meta = this.extractClientMeta(req);
+    return this.authService.verifyLoginOtp(dto, meta);
+  }
+
+  @Post('resend-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Resend OTP code for active login or register flow',
+  })
+  @ApiResponse({ status: 200, description: 'New OTP dispatched' })
+  async resendOtp(
+    @Body() dto: CustomerResendOtpDto,
+    @Req() req: RawRequest,
+  ): Promise<CustomerOtpChallengeResponse> {
+    const { ip } = this.extractClientMeta(req);
+    return this.authService.resendOtp(dto, ip);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Request password reset OTP code',
+  })
+  @ApiResponse({ status: 200, description: 'Reset OTP dispatched' })
+  @ApiResponse({ status: 404, description: 'Account not found' })
+  async forgotPassword(
+    @Body() dto: CustomerForgotPasswordDto,
+    @Req() req: RawRequest,
+  ): Promise<CustomerOtpChallengeResponse> {
+    const { ip } = this.extractClientMeta(req);
+    return this.authService.forgotPassword(dto, ip);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Verify OTP code and reset customer password',
+  })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+  async resetPassword(
+    @Body() dto: CustomerResetPasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.authService.resetPassword(dto);
   }
 
   @Post('request-otp')
