@@ -187,7 +187,7 @@ export function ImageUploader({
             : 'min-h-[140px]';
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5 h-full flex flex-col">
       {/* Label */}
       {label && (
         <label className="text-[11px] font-bold text-gray-700 block">
@@ -204,7 +204,7 @@ export function ImageUploader({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-md overflow-hidden transition-all ${
+        className={`relative border-2 border-dashed rounded-md overflow-hidden transition-all flex-1 flex flex-col justify-center ${
           isDragging
             ? 'border-brand-amber bg-amber-50/50 scale-[1.01]'
             : value

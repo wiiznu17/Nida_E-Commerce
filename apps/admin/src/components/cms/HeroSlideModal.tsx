@@ -174,8 +174,8 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
               </h4>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-[64fr_27fr] gap-5 items-start">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-[9fr_4fr] gap-5 items-stretch">
+              <div className="h-full">
                 <ImageUploader
                   label={t('cms.heroModal.desktopImage')}
                   value={imageDesktopUrl}
@@ -186,7 +186,7 @@ export const HeroSlideModal: React.FC<HeroSlideModalProps> = ({
                 />
                 <InlineError message={fieldErrors.imageDesktopUrl} />
               </div>
-              <div>
+              <div className="h-full">
                 <ImageUploader
                   label={t('cms.heroModal.mobileImage')}
                   value={imageMobileUrl}
