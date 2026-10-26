@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
-import { Montserrat, Inter, Playfair_Display } from 'next/font/google';
+import {
+  Montserrat,
+  Inter,
+  Playfair_Display,
+  IBM_Plex_Sans_Thai,
+} from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
 import { Layout } from '@/components/layout';
@@ -22,6 +27,13 @@ const playfair = Playfair_Display({
   weight: ['400', '700', '900'],
 });
 
+const ibmPlexSansThai = IBM_Plex_Sans_Thai({
+  variable: '--font-thai',
+  subsets: ['thai'],
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: 'NIDA — Modern Heritage Apparel & Lifestyle',
   description:
@@ -36,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="th"
-      className={`${montserrat.variable} ${inter.variable} ${playfair.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${inter.variable} ${playfair.variable} ${ibmPlexSansThai.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Providers>
