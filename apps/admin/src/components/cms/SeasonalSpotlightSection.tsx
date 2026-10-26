@@ -3,6 +3,7 @@ import { Edit2, RotateCcw, ArrowRight } from 'lucide-react';
 import type { ApiCmsBanner } from '@repo/types';
 import type { SaveCmsBannerDto } from '@repo/validators';
 import { SpotlightModal } from './SpotlightModal';
+import { AlertModal } from '../ui';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface SeasonalSpotlightSectionProps {
@@ -19,6 +20,7 @@ export const SeasonalSpotlightSection: React.FC<
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<1 | 2>(1);
   const [editingBanner, setEditingBanner] = useState<ApiCmsBanner | null>(null);
+  const [resetTargetId, setResetTargetId] = useState<string | null>(null);
 
   const isTh = language === 'th';
 
@@ -168,12 +170,8 @@ export const SeasonalSpotlightSection: React.FC<
               {slot1Banner && (
                 <button
                   type="button"
-                  onClick={() => {
-                    if (window.confirm(t('cms.spotlight.resetConfirm'))) {
-                      onDelete(slot1Banner.id);
-                    }
-                  }}
-                  className="p-2 border border-stone-300 text-stone-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 rounded-xs transition-colors"
+                  onClick={() => setResetTargetId(slot1Banner.id)}
+                  className="p-2 border border-stone-300 text-stone-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 rounded-xs transition-colors cursor-pointer"
                   title={t('cms.spotlight.resetDefault')}
                 >
                   <RotateCcw size={14} />
@@ -291,12 +289,8 @@ export const SeasonalSpotlightSection: React.FC<
               {slot2Banner && (
                 <button
                   type="button"
-                  onClick={() => {
-                    if (window.confirm(t('cms.spotlight.resetConfirm'))) {
-                      onDelete(slot2Banner.id);
-                    }
-                  }}
-                  className="p-2 border border-stone-300 text-stone-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 rounded-xs transition-colors"
+                  onClick={() => setResetTargetId(slot2Banner.id)}
+                  className="p-2 border border-stone-300 text-stone-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 rounded-xs transition-colors cursor-pointer"
                   title={t('cms.spotlight.resetDefault')}
                 >
                   <RotateCcw size={14} />
@@ -315,6 +309,24 @@ export const SeasonalSpotlightSection: React.FC<
         targetSlot={selectedSlot}
         onSave={handleSave}
         isLoading={isLoading}
+      />
+
+      {/* Reset Confirmation Alert Modal */}
+      <AlertModal
+        isOpen={Boolean(resetTargetId)}
+        onClose={() => setResetTargetId(null)}
+        onConfirm={async () => {
+          if (resetTargetId) {
+            await onDelete(resetTargetId);
+            setResetTargetId(null);
+          }
+        }}
+        title={t('cms.spotlight.resetDefault')}
+        description={t('cms.spotlight.resetConfirm')}
+        variant="warning"
+        icon={RotateCcw}
+        confirmText={t('common.confirm')}
+        cancelText={t('common.cancel')}
       />
     </div>
   );

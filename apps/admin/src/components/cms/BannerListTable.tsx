@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Edit2, Trash2, Plus } from 'lucide-react';
 import { BannerPlacement } from '@repo/types';
 import type { ApiCmsBanner } from '@repo/types';
+import { AlertModal } from '../ui';
 
 interface BannerListTableProps {
   banners: ApiCmsBanner[];
@@ -18,6 +19,7 @@ export const BannerListTable: React.FC<BannerListTableProps> = ({
   onAddNew,
   onSelectPreviewBanner,
 }) => {
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   return (
     <div className="bg-white rounded-xs border border-stone-200 shadow-sm overflow-hidden flex flex-col">
       {/* Table Header Action Bar */}
@@ -169,12 +171,8 @@ export const BannerListTable: React.FC<BannerListTableProps> = ({
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            if (window.confirm('Delete this banner slide?')) {
-                              onDelete(item.id);
-                            }
-                          }}
-                          className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xs transition-colors"
+                          onClick={() => setDeleteTargetId(item.id)}
+                          className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xs transition-colors cursor-pointer"
                           title="Delete Banner"
                         >
                           <Trash2 size={13} />
@@ -188,6 +186,23 @@ export const BannerListTable: React.FC<BannerListTableProps> = ({
           </table>
         </div>
       )}
+
+      <AlertModal
+        isOpen={Boolean(deleteTargetId)}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={() => {
+          if (deleteTargetId) {
+            onDelete(deleteTargetId);
+            setDeleteTargetId(null);
+          }
+        }}
+        title="Delete Banner"
+        description="Are you sure you want to delete this banner slide? This action cannot be undone."
+        variant="danger"
+        icon={Trash2}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

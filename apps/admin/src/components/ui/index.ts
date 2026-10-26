@@ -8,5 +8,6 @@ export * from './dialog';
 export * from './table';
 export * from './pagination';
 export * from './ApiErrorModal';
+export * from './AlertModal';
 export * from './InlineError';
 export * from './StatCard';

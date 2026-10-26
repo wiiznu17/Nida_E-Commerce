@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
-import { ApiErrorModal } from '../components/ui';
+import { ApiErrorModal, AlertModal } from '../components/ui';
 import { useToast } from '../context/ToastContext';
 import {
   ProductListFilters,
@@ -34,6 +34,11 @@ export default function AdminProducts() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [availableCategories, setAvailableCategories] = useState<
     Array<{ id: string; label: string }>
@@ -118,20 +123,25 @@ export default function AdminProducts() {
     }
   }, [location.pathname, location.state, navigate, toast]);
 
-  const handleDelete = async (id: string, name: string) => {
-    const confirmText = t('productList.confirmDelete').replace('{name}', name);
+  const handleDelete = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
 
-    if (window.confirm(confirmText)) {
-      try {
-        await productRequester.delete(id);
-        toast.success(t('productList.deleteSuccess'));
-        refetch();
-        fetchStatusCounts();
-      } catch (err: unknown) {
-        setApiError(
-          err instanceof Error ? err.message : t('productList.deleteError'),
-        );
-      }
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      await productRequester.delete(deleteTarget.id);
+      toast.success(t('productList.deleteSuccess'));
+      setDeleteTarget(null);
+      refetch();
+      fetchStatusCounts();
+    } catch (err: unknown) {
+      setApiError(
+        err instanceof Error ? err.message : t('productList.deleteError'),
+      );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -220,6 +230,23 @@ export default function AdminProducts() {
         isOpen={Boolean(apiError)}
         onClose={() => setApiError(null)}
         errorMessage={apiError}
+      />
+
+      <AlertModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title={t('productList.deleteTitle')}
+        description={
+          deleteTarget
+            ? t('productList.confirmDelete').replace('{name}', deleteTarget.name)
+            : ''
+        }
+        variant="danger"
+        icon={Trash2}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        isLoading={isDeleting}
       />
     </AdminLayout>
   );

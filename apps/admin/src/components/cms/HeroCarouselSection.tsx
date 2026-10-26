@@ -3,7 +3,7 @@ import { Plus, Edit2, Trash2, Image as ImageIcon } from 'lucide-react';
 import type { ApiCmsBanner } from '@repo/types';
 import type { SaveCmsBannerDto } from '@repo/validators';
 import { HeroSlideModal } from './HeroSlideModal';
-import { EmptyState } from '../ui';
+import { EmptyState, AlertModal } from '../ui';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface HeroCarouselSectionProps {
@@ -22,6 +22,7 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
   const { t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<ApiCmsBanner | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const heroBanners = banners.filter((b) => b.placement === 'HERO_HOME');
 
@@ -171,12 +172,8 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            if (window.confirm(t('cms.hero.deleteConfirm'))) {
-                              onDelete(slide.id);
-                            }
-                          }}
-                          className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xs transition-colors"
+                          onClick={() => setDeleteTargetId(slide.id)}
+                          className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-xs transition-colors cursor-pointer"
                           title={t('cms.hero.delete')}
                         >
                           <Trash2 size={13} />
@@ -198,6 +195,24 @@ export const HeroCarouselSection: React.FC<HeroCarouselSectionProps> = ({
         banner={editingBanner}
         onSave={handleSaveSlide}
         isLoading={isLoading}
+      />
+
+      {/* Delete Confirmation Alert Modal */}
+      <AlertModal
+        isOpen={Boolean(deleteTargetId)}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={async () => {
+          if (deleteTargetId) {
+            await onDelete(deleteTargetId);
+            setDeleteTargetId(null);
+          }
+        }}
+        title={t('cms.hero.delete')}
+        description={t('cms.hero.deleteConfirm')}
+        variant="danger"
+        icon={Trash2}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
       />
     </div>
   );

@@ -296,6 +296,7 @@
     "page": "Page",
     "noProductsFound": "No products matched your search criteria",
     "noProductsHint": "Try adjusting your search keywords or click reset to view all products",
+    "deleteTitle": "Confirm Product Deletion",
     "confirmDelete": "Are you sure you want to delete \"{name}\" from the catalog?",
     "deleteSuccess": "Product removed successfully",
     "statusToggleSuccess": "Product marked as {status}",

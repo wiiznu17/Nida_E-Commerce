@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { AdminLayout } from '../components/layout';
-import { ApiErrorModal, InlineError } from '../components/ui';
+import { ApiErrorModal, AlertModal, InlineError } from '../components/ui';
 import type { ApiAdminUser, ApiAdminRole } from '@repo/types';
 
 export const AdminUsers: React.FC = () => {
@@ -300,9 +300,9 @@ export const AdminUsers: React.FC = () => {
 
         {/* Invite Admin Modal */}
         {isInviteOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white border border-[#EAE3D9] rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
-              <h2 className="text-lg font-serif font-bold text-[#2B1810] mb-1">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="bg-white border border-brand-border rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+              <h2 className="text-base font-black text-brand-brown tracking-tight mb-1">
                 {t('users.invite_modal_title')}
               </h2>
               <p className="text-xs text-stone-500 mb-5 leading-relaxed">
@@ -405,21 +405,21 @@ export const AdminUsers: React.FC = () => {
           </div>
         )}
 
-        {/* Dev Mode Link Pop-up */}
-        {createdInviteLink && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white border border-[#EAE3D9] rounded-2xl shadow-2xl max-w-lg w-full p-6 relative">
-              <div className="flex items-center space-x-2 text-emerald-700 mb-2">
-                <Check className="w-5 h-5 bg-emerald-100 rounded-full p-0.5" />
-                <h3 className="font-serif font-bold text-sm text-[#2B1810]">
-                  {t('users.invite_success_title')}
-                </h3>
-              </div>
-              <p className="text-xs text-stone-600 mb-4 leading-relaxed">
-                {t('users.invite_success_desc')}
-              </p>
-
-              <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+        {/* Dev Mode Link Alert Modal */}
+        <AlertModal
+          isOpen={Boolean(createdInviteLink)}
+          onClose={() => setCreatedInviteLink(null)}
+          onConfirm={() => setCreatedInviteLink(null)}
+          title={t('users.invite_success_title')}
+          description={t('users.invite_success_desc')}
+          variant="success"
+          confirmText={t('users.btn_close')}
+          showCancel={false}
+          maxWidth="md"
+        >
+          {createdInviteLink && (
+            <div className="space-y-3 pt-1">
+              <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 flex items-center justify-between">
                 <span className="text-[11px] font-mono text-stone-700 truncate pr-3 select-all">
                   {createdInviteLink}
                 </span>
@@ -444,28 +444,20 @@ export const AdminUsers: React.FC = () => {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex justify-center">
                 <a
                   href={createdInviteLink}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center space-x-1.5 text-xs text-[#2B1810] font-bold hover:underline"
+                  className="inline-flex items-center space-x-1.5 text-xs text-brand-brown font-bold hover:underline"
                 >
                   <span>{t('users.open_in_new_tab')}</span>
-                  <ExternalLink className="w-3 h-3" />
+                  <ExternalLink className="w-3 h-3 text-brand-amber" />
                 </a>
-
-                <button
-                  type="button"
-                  onClick={() => setCreatedInviteLink(null)}
-                  className="px-4 py-2 bg-[#2B1810] text-white text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer"
-                >
-                  {t('users.btn_close')}
-                </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </AlertModal>
       </div>
 
       {/* API Error Modal */}
