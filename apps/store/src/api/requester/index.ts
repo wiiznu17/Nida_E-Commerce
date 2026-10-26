@@ -5,3 +5,4 @@ export * from './couponRequester';
 export * from './addressRequester';
 export * from './contentRequester';
 export * from './wishlistRequester';
+export * from './cartRequester';

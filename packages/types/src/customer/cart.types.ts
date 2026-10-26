@@ -77,3 +77,38 @@ export interface SyncCartItem {
 export interface SyncCartResponse {
   items: SyncCartItem[];
 }
+
+export interface ServerCartItem {
+  id: string;
+  variantId: string;
+  productId: string;
+  name: string;
+  nameTh?: string | null;
+  slug: string;
+  sku: string;
+  size: string;
+  colorName: string;
+  price: number;
+  basePrice: number;
+  originalPrice: number | null;
+  image: string;
+  quantity: number;
+  maxStock: number;
+  isPreorder: boolean;
+}
+
+export interface ServerCartResponse {
+  items: ServerCartItem[];
+}
+
+export interface MergeCartPayload {
+  items: Array<{
+    variantId: string;
+    quantity: number;
+  }>;
+}
+
+export interface UpdateCartItemPayload {
+  variantId: string;
+  quantity: number;
+}

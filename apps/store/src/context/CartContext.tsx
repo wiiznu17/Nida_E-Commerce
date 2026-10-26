@@ -6,6 +6,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
   type ReactNode,
 } from 'react';
 import type {
@@ -14,7 +15,7 @@ import type {
   ApiCoupon,
   DiscountType,
 } from '@repo/types';
-import { couponRequester, catalogRequester } from '@/api';
+import { couponRequester, catalogRequester, cartRequester } from '@/api';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { isOneSizeProduct, getProductSizes } from '@/utils';
@@ -143,8 +144,9 @@ const STANDARD_SHIPPING_FEE = 50;
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useAuth();
+  const { user, token, isLoading: isAuthLoading } = useAuth();
   const { t } = useLanguage();
+  const prevUserIdRef = useRef<string | null>(null);
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -254,15 +256,110 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Save cart to localStorage whenever items change
+  // Save guest cart to localStorage (only when user is not logged in)
   useEffect(() => {
     if (!isHydrated) return;
     try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      if (!user) {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      } else {
+        localStorage.removeItem(CART_STORAGE_KEY);
+      }
     } catch {
       // Ignore quota errors
     }
-  }, [items, isHydrated]);
+  }, [items, isHydrated, user]);
+
+  // Synchronize cart with backend database when user logs in or logs out
+  useEffect(() => {
+    if (isAuthLoading) return;
+
+    const currentUserId = user?.id ?? null;
+    const prevUserId = prevUserIdRef.current;
+
+    // Detect logout or account switch
+    if (prevUserId && (!currentUserId || currentUserId !== prevUserId)) {
+      setItems([]);
+      setAppliedCoupon(null);
+      setCouponCode('');
+      setCouponError(null);
+      try {
+        localStorage.removeItem(CART_STORAGE_KEY);
+        localStorage.removeItem(COUPON_STORAGE_KEY);
+      } catch {
+        // Ignore
+      }
+    }
+
+    // Detect login
+    if (currentUserId && token && currentUserId !== prevUserId) {
+      const syncUserCart = async () => {
+        try {
+          setIsSyncingCart(true);
+
+          // If there are guest items stored locally, merge them to backend
+          const storedGuestCart = localStorage.getItem(CART_STORAGE_KEY);
+          let guestItems: CartItem[] = [];
+          if (storedGuestCart) {
+            try {
+              const parsed = JSON.parse(storedGuestCart);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                guestItems = parsed;
+              }
+            } catch {
+              // Ignore
+            }
+          }
+
+          if (guestItems.length > 0) {
+            await cartRequester.mergeCart(
+              guestItems.map((i) => ({
+                variantId: i.variantId || i.id,
+                quantity: i.quantity,
+              })),
+              token,
+            );
+            localStorage.removeItem(CART_STORAGE_KEY);
+          }
+
+          // Fetch user cart from DB
+          const serverCart = await cartRequester.getCart(token);
+          if (serverCart.items) {
+            const mapped: CartItem[] = serverCart.items.map((serverItem) => ({
+              id: serverItem.id,
+              productId: serverItem.productId,
+              slug: serverItem.slug,
+              name: serverItem.name,
+              nameTh: serverItem.nameTh ?? undefined,
+              price: serverItem.price,
+              basePrice: serverItem.basePrice,
+              originalPrice: serverItem.originalPrice ?? undefined,
+              image: serverItem.image,
+              primaryImage: serverItem.image,
+              department: 'apparel',
+              categorySlug: 'apparel',
+              variantId: serverItem.variantId,
+              sku: serverItem.sku,
+              quantity: serverItem.quantity,
+              selectedSize: serverItem.size,
+              selectedColor: serverItem.colorName,
+              maxStock: serverItem.maxStock,
+              isPreorder: serverItem.isPreorder,
+            }));
+            setItems(mapped);
+          }
+        } catch (err) {
+          console.warn('[CartContext] Failed to sync customer cart on login:', err);
+        } finally {
+          setIsSyncingCart(false);
+        }
+      };
+
+      syncUserCart();
+    }
+
+    prevUserIdRef.current = currentUserId;
+  }, [user?.id, token, isAuthLoading]);
 
   // Save coupon to localStorage whenever coupon changes
   useEffect(() => {
@@ -508,6 +605,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           : undefined;
 
     setItems((prev) => {
+      let finalQty = 1;
       const existing = prev.find(
         (item) =>
           item.variantId === variantId ||
@@ -516,50 +614,63 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             item.selectedColor === chosenColor),
       );
 
+      let nextItems: CartItem[];
       if (existing) {
-        const newQty = Math.min(existing.quantity + 1, existing.maxStock || 99);
-        return prev.map((item) =>
-          item === existing ? { ...item, quantity: newQty } : item,
+        finalQty = Math.min(existing.quantity + 1, existing.maxStock || 99);
+        nextItems = prev.map((item) =>
+          item === existing ? { ...item, quantity: finalQty } : item,
         );
+      } else {
+        nextItems = [
+          ...prev,
+          {
+            id: `${product.id}-${chosenSize}-${chosenColor}`,
+            productId: product.id,
+            slug: product.slug,
+            name: product.name,
+            nameTh: product.nameTh,
+            price,
+            basePrice: product.basePrice,
+            originalPrice,
+            image: primaryImage,
+            primaryImage,
+            department,
+            categorySlug,
+            categoryName,
+            categoryNameTh,
+            variantId,
+            sku,
+            quantity: 1,
+            selectedSize: chosenSize,
+            selectedColor: chosenColor,
+            maxStock,
+            isPreorder: product.isPreorder,
+          },
+        ];
       }
 
-      return [
-        ...prev,
-        {
-          id: `${product.id}-${chosenSize}-${chosenColor}`,
-          productId: product.id,
-          slug: product.slug,
-          name: product.name,
-          nameTh: product.nameTh,
-          price,
-          basePrice: product.basePrice,
-          originalPrice,
-          image: primaryImage,
-          primaryImage,
-          department,
-          categorySlug,
-          categoryName,
-          categoryNameTh,
-          variantId,
-          sku,
-          quantity: 1,
-          selectedSize: chosenSize,
-          selectedColor: chosenColor,
-          maxStock,
-          isPreorder: product.isPreorder,
-        },
-      ];
+      if (token) {
+        cartRequester.updateItem(variantId, finalQty, token);
+      }
+
+      return nextItems;
     });
 
     setIsCartOpen(true);
   };
 
   const removeFromCart = (identifier: string) => {
-    setItems((prev) =>
-      prev.filter(
+    setItems((prev) => {
+      const target = prev.find(
+        (item) => item.variantId === identifier || item.id === identifier,
+      );
+      if (token && target?.variantId) {
+        cartRequester.removeItem(target.variantId, token);
+      }
+      return prev.filter(
         (item) => item.variantId !== identifier && item.id !== identifier,
-      ),
-    );
+      );
+    });
   };
 
   const updateQuantity = (identifier: string, quantity: number) => {
@@ -568,18 +679,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    setItems((prev) =>
-      prev.map((item) => {
+    setItems((prev) => {
+      const target = prev.find(
+        (item) => item.variantId === identifier || item.id === identifier,
+      );
+      const validQty = Math.min(quantity, target?.maxStock || 99);
+
+      if (token && target?.variantId) {
+        cartRequester.updateItem(target.variantId, validQty, token);
+      }
+
+      return prev.map((item) => {
         if (item.variantId === identifier || item.id === identifier) {
-          const validQty = Math.min(quantity, item.maxStock || 99);
           return { ...item, quantity: validQty };
         }
         return item;
-      }),
-    );
+      });
+    });
   };
 
   const clearCart = () => {
+    if (token) {
+      cartRequester.clearCart(token);
+    }
     setItems([]);
     setAppliedCoupon(null);
     setCouponCode('');
