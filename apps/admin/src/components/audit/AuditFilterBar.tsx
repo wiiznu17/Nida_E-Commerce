@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, RotateCcw, Search } from 'lucide-react';
+import { RotateCcw, Search } from 'lucide-react';
 import { AuditActionType } from '@repo/types';
 import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect, SearchInput, Button } from '../ui';
@@ -9,7 +9,6 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
   filters,
   onSearch,
   onReset,
-  onRefresh,
   isLoading,
 }) => {
   const { t } = useLanguage();
@@ -109,20 +108,6 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
             className="px-2.5 text-stone-600 hover:text-stone-900 border-stone-200"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            disabled={isLoading}
-            title={t('common.refresh') ?? 'Refresh'}
-            className="px-2.5 text-stone-600 hover:text-stone-900 border-stone-200"
-          >
-            <RefreshCw
-              className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`}
-            />
           </Button>
 
           <Button

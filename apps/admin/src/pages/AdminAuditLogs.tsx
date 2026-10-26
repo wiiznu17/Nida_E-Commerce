@@ -174,7 +174,6 @@ export default function AdminAuditLogs() {
           filters={activeFilters}
           onSearch={handleApplyFilters}
           onReset={handleResetFilters}
-          onRefresh={fetchLogs}
           isLoading={isLoading}
         />
 

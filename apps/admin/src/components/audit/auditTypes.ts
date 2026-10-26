@@ -22,6 +22,5 @@ export interface AuditFilterBarProps {
   filters: AuditFilterState;
   onSearch: (appliedFilters: AuditFilterState) => void;
   onReset: () => void;
-  onRefresh: () => void;
   isLoading: boolean;
 }
