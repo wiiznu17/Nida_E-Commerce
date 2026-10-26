@@ -4,16 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import { Truck, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { FooterNewsletter } from './FooterNewsletter';
 import { NidaLogo } from './NidaLogo';
 
 export function Footer() {
   const { t } = useLanguage();
 
   return (
-    <footer className="bg-brand-brown text-white pt-16 pb-12 mt-20 border-t-4 border-brand-yellow font-sans">
-      {/* Newsletter Signup Banner */}
-      <FooterNewsletter t={t} />
+    <footer className="bg-brand-brown text-white pb-12 mt-20 border-t-4 border-brand-yellow font-sans">
 
       {/* Main 4-Column Footer Links */}
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">

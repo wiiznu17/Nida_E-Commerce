@@ -8,7 +8,6 @@ export * from './TopPromoBanner';
 export * from './HeaderNav';
 export * from './HeaderActions';
 export * from './Header';
-export * from './FooterNewsletter';
 export * from './Footer';
 export * from './CartDrawer';
 export * from './StoreLayout';
