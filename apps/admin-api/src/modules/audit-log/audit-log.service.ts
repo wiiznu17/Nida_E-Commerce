@@ -113,6 +113,15 @@ export class AuditLogService {
       where.adminId = query.adminId.trim();
     }
 
+    if (query.username) {
+      const usernameTerm = query.username.trim();
+      where.admin = {
+        is: {
+          username: { equals: usernameTerm, mode: 'insensitive' },
+        },
+      };
+    }
+
     if (query.startDate || query.endDate) {
       where.createdAt = {};
       if (query.startDate) {

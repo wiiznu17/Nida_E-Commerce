@@ -3,7 +3,7 @@ import type { ApiAuditLog, AuditActionType } from '@repo/types';
 export interface AuditFilterState {
   targetTable: string;
   actionType: AuditActionType | '';
-  search: string;
+  username: string;
 }
 
 export interface AuditTableProps {
@@ -20,10 +20,7 @@ export interface AuditDiffModalProps {
 
 export interface AuditFilterBarProps {
   filters: AuditFilterState;
-  onFilterChange: <K extends keyof AuditFilterState>(
-    key: K,
-    value: AuditFilterState[K],
-  ) => void;
+  onSearch: (appliedFilters: AuditFilterState) => void;
   onReset: () => void;
   onRefresh: () => void;
   isLoading: boolean;

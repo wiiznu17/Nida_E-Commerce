@@ -63,6 +63,14 @@ export class AuditLogQueryDto {
   adminId?: string;
 
   @ApiPropertyOptional({
+    description: 'Filter by actor admin username',
+    example: 'thanakorn',
+  })
+  @IsOptional()
+  @IsString()
+  username?: string;
+
+  @ApiPropertyOptional({
     description: 'Search string across action summary and details',
     example: 'Product updated',
   })

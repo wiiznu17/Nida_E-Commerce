@@ -1,5 +1,5 @@
-import React from 'react';
-import { RefreshCw, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { RefreshCw, RotateCcw, Search } from 'lucide-react';
 import { AuditActionType } from '@repo/types';
 import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect, SearchInput, Button } from '../ui';
@@ -7,12 +7,22 @@ import type { AuditFilterBarProps } from './auditTypes';
 
 export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
   filters,
-  onFilterChange,
+  onSearch,
   onReset,
   onRefresh,
   isLoading,
 }) => {
   const { t } = useLanguage();
+
+  const [draftUsername, setDraftUsername] = useState(filters.username);
+  const [draftTargetTable, setDraftTargetTable] = useState(filters.targetTable);
+  const [draftActionType, setDraftActionType] = useState(filters.actionType);
+
+  useEffect(() => {
+    setDraftUsername(filters.username);
+    setDraftTargetTable(filters.targetTable);
+    setDraftActionType(filters.actionType);
+  }, [filters.username, filters.targetTable, filters.actionType]);
 
   const tableOptions = [
     { value: '', label: t('audit.filterAllModules') },
@@ -39,22 +49,40 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
     { value: AuditActionType.REFUND, label: t('audit.actionRefund') },
   ];
 
+  const handleUsernameChange = (val: string) => {
+    const sanitized = val.replace(/[^a-zA-Z0-9_.-]/g, '');
+    setDraftUsername(sanitized);
+  };
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    onSearch({
+      username: draftUsername.trim(),
+      targetTable: draftTargetTable,
+      actionType: draftActionType,
+    });
+  };
+
   return (
-    <div className="bg-white rounded-xl border border-stone-200/80 p-4 shadow-xs mb-6">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-xl border border-stone-200/80 p-4 shadow-xs mb-6"
+    >
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-        <div className="md:col-span-5">
+        <div className="md:col-span-4">
           <SearchInput
-            value={filters.search}
-            onChange={(val) => onFilterChange('search', val)}
-            placeholder={t('audit.searchPlaceholder')}
+            value={draftUsername}
+            onChange={handleUsernameChange}
+            placeholder={t('audit.searchUsernamePlaceholder')}
+            title={t('audit.searchUsernameHint')}
             className="w-full"
           />
         </div>
 
         <div className="md:col-span-3">
           <DropdownSelect
-            value={filters.targetTable}
-            onChange={(val) => onFilterChange('targetTable', val)}
+            value={draftTargetTable}
+            onChange={(val) => setDraftTargetTable(val)}
             options={tableOptions}
             className="w-full bg-stone-50/50"
           />
@@ -62,17 +90,18 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
 
         <div className="md:col-span-2">
           <DropdownSelect
-            value={filters.actionType}
+            value={draftActionType}
             onChange={(val) =>
-              onFilterChange('actionType', val as AuditActionType | '')
+              setDraftActionType(val as AuditActionType | '')
             }
             options={actionOptions}
             className="w-full bg-stone-50/50"
           />
         </div>
 
-        <div className="md:col-span-2 flex items-center justify-end gap-2">
+        <div className="md:col-span-3 flex items-center justify-end gap-2">
           <Button
+            type="button"
             variant="outline"
             size="sm"
             onClick={onReset}
@@ -83,19 +112,31 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
           </Button>
 
           <Button
-            variant="default"
+            type="button"
+            variant="outline"
             size="sm"
             onClick={onRefresh}
             disabled={isLoading}
-            className="flex-1 flex items-center justify-center gap-1.5"
+            title={t('common.refresh') ?? 'Refresh'}
+            className="px-2.5 text-stone-600 hover:text-stone-900 border-stone-200"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`}
             />
-            <span className="text-xs font-semibold">{t('common.refresh')}</span>
+          </Button>
+
+          <Button
+            type="submit"
+            variant="default"
+            size="sm"
+            disabled={isLoading}
+            className="flex-1 flex items-center justify-center gap-1.5"
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span className="text-xs font-semibold">{t('audit.searchBtn')}</span>
           </Button>
         </div>
       </div>
-    </div>
+    </form>
   );
 };

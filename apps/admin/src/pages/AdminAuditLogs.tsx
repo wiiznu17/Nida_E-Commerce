@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ShieldCheck, Activity, Layers, Calendar } from 'lucide-react';
 import type {
   ApiAuditLog,
+  AuditActionType,
   AuditLogStats,
   PaginatedResponse,
 } from '@repo/types';
@@ -17,22 +19,29 @@ import {
   type AuditFilterState,
 } from '../components/audit';
 
-const initialFilters: AuditFilterState = {
-  targetTable: '',
-  actionType: '',
-  search: '',
-};
-
 export default function AdminAuditLogs() {
   const { t } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const urlUsername = searchParams.get('username') ?? '';
+  const urlTargetTable = searchParams.get('targetTable') ?? '';
+  const urlActionType = (searchParams.get('actionType') as AuditActionType | '') ?? '';
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10) || 1);
+  const pageSize = Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10) || 20);
+
+  const activeFilters: AuditFilterState = useMemo(
+    () => ({
+      username: urlUsername,
+      targetTable: urlTargetTable,
+      actionType: urlActionType,
+    }),
+    [urlUsername, urlTargetTable, urlActionType],
+  );
 
   const [logs, setLogs] = useState<ApiAuditLog[]>([]);
   const [stats, setStats] = useState<AuditLogStats | null>(null);
-  const [filters, setFilters] = useState<AuditFilterState>(initialFilters);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [pageSize, setPageSize] = useState(20);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLogForDiff, setSelectedLogForDiff] =
     useState<ApiAuditLog | null>(null);
@@ -45,9 +54,9 @@ export default function AdminAuditLogs() {
         limit: pageSize,
       };
 
-      if (filters.targetTable) params.targetTable = filters.targetTable;
-      if (filters.actionType) params.actionType = filters.actionType;
-      if (filters.search.trim()) params.search = filters.search.trim();
+      if (urlTargetTable) params.targetTable = urlTargetTable;
+      if (urlActionType) params.actionType = urlActionType;
+      if (urlUsername.trim()) params.username = urlUsername.trim();
 
       const response = await apiClient.get<PaginatedResponse<ApiAuditLog>>(
         '/admin/audit-logs',
@@ -63,10 +72,12 @@ export default function AdminAuditLogs() {
       }
     } catch {
       setLogs([]);
+      setTotalPages(1);
+      setTotalCount(0);
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, pageSize, filters]);
+  }, [currentPage, pageSize, urlTargetTable, urlActionType, urlUsername]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -87,17 +98,34 @@ export default function AdminAuditLogs() {
     fetchStats();
   }, [fetchStats]);
 
-  const handleFilterChange = <K extends keyof AuditFilterState>(
-    key: K,
-    value: AuditFilterState[K],
-  ) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-    setCurrentPage(1);
+  const handleApplyFilters = (newFilters: AuditFilterState) => {
+    const next = new URLSearchParams();
+    if (newFilters.username.trim()) next.set('username', newFilters.username.trim());
+    if (newFilters.targetTable) next.set('targetTable', newFilters.targetTable);
+    if (newFilters.actionType) next.set('actionType', newFilters.actionType);
+    next.set('page', '1');
+    if (pageSize !== 20) next.set('limit', String(pageSize));
+    setSearchParams(next);
   };
 
   const handleResetFilters = () => {
-    setFilters(initialFilters);
-    setCurrentPage(1);
+    const next = new URLSearchParams();
+    next.set('page', '1');
+    if (pageSize !== 20) next.set('limit', String(pageSize));
+    setSearchParams(next);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('page', String(newPage));
+    setSearchParams(next);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('limit', String(newSize));
+    next.set('page', '1');
+    setSearchParams(next);
   };
 
   const topTableKey = stats?.topTargetTable
@@ -143,8 +171,8 @@ export default function AdminAuditLogs() {
 
         {/* Filter Controls */}
         <AuditFilterBar
-          filters={filters}
-          onFilterChange={handleFilterChange}
+          filters={activeFilters}
+          onSearch={handleApplyFilters}
           onReset={handleResetFilters}
           onRefresh={fetchLogs}
           isLoading={isLoading}
@@ -165,11 +193,8 @@ export default function AdminAuditLogs() {
               totalPages={totalPages}
               totalItems={totalCount}
               pageSize={pageSize}
-              onPageChange={setCurrentPage}
-              onPageSizeChange={(newSize) => {
-                setPageSize(newSize);
-                setCurrentPage(1);
-              }}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
             />
           </div>
         )}

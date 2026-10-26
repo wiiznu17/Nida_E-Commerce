@@ -127,6 +127,11 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
                   {log.admin?.fullName ??
                     log.admin?.username ??
                     t('common.system')}
+                  {log.admin?.username && log.admin.fullName && (
+                    <span className="text-[11px] font-mono text-stone-500 font-normal ml-1.5">
+                      (@{log.admin.username})
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

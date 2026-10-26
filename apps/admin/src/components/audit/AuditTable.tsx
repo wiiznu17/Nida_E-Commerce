@@ -64,9 +64,16 @@ export const AuditTable: React.FC<AuditTableProps> = ({
           {logs.map((log) => {
             const tableKey =
               TARGET_TABLE_KEYS[log.targetTable] ?? log.targetTable;
+            const adminFullName = log.admin?.fullName?.trim();
+            const adminUsername = log.admin?.username?.trim();
             const adminName =
-              log.admin?.fullName ?? log.admin?.username ?? t('common.system');
+              adminFullName && adminFullName.length > 0
+                ? adminFullName
+                : (adminUsername ?? t('common.system'));
             const adminInitial = adminName.charAt(0).toUpperCase();
+            const usernameDisplay = adminUsername
+              ? `@${adminUsername}`
+              : (log.performedRole ?? '-');
 
             const dateStr = new Date(log.createdAt).toLocaleString(undefined, {
               month: 'short',
@@ -91,7 +98,7 @@ export const AuditTable: React.FC<AuditTableProps> = ({
                         {adminName}
                       </div>
                       <div className="text-[10px] text-stone-500 truncate font-mono">
-                        {log.admin?.email ?? log.performedRole ?? '-'}
+                        {usernameDisplay}
                       </div>
                     </div>
                   </div>

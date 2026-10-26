@@ -136,6 +136,30 @@ describe('AuditLogService', () => {
         }),
       );
     });
+
+    it('filters specifically by admin username when username is provided', async () => {
+      mockPrisma.adminAuditLog.count.mockResolvedValue(0);
+      mockPrisma.adminAuditLog.findMany.mockResolvedValue([]);
+
+      await service.getAuditLogs({
+        username: 'thanakorn',
+      });
+
+      expect(mockPrisma.adminAuditLog.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            admin: {
+              is: {
+                username: {
+                  equals: 'thanakorn',
+                  mode: 'insensitive',
+                },
+              },
+            },
+          }),
+        }),
+      );
+    });
   });
 
   describe('getAuditLogById', () => {
