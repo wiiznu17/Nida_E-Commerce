@@ -1,26 +1,41 @@
 import 'dotenv/config';
-import {
-  PrismaClient,
-  Department,
-  DiscountType,
-  StockChangeType,
-} from './generated/prisma/index.js';
-
-import {
-  CATEGORIES_SEED_DATA,
-  PRODUCTS_SEED_DATA,
-} from './catalog-seed.data.js';
-import { syncRbac } from './seed-rbac.js';
-import { seedOrders } from './seed-orders.js';
-import { seedCms } from './seed-cms.js';
+import { PrismaClient } from './generated/prisma/index.js';
+import { syncRbac } from './seeds/common/seed-rbac.js';
+import { seedCategories } from './seeds/common/seed-categories.js';
+import { seedStoreSettings } from './seeds/common/seed-settings.js';
+import { seedSuperAdmin } from './seeds/prod/seed-superadmin.js';
+import { seedDemoUsers } from './seeds/dev/seed-demo-users.js';
+import { seedCatalog } from './seeds/dev/seed-catalog.js';
+import { seedCoupons } from './seeds/dev/seed-coupons.js';
+import { seedOrders } from './seeds/dev/seed-orders.js';
+import { seedCms } from './seeds/dev/seed-cms.js';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seeding for Nida E-Commerce...');
+  // Production Safeguard Guard Rails
+  const isProdEnv = process.env.NODE_ENV === 'production';
+  const dbUrl = (process.env.DATABASE_URL ?? '').toLowerCase();
+  const isProdDb =
+    dbUrl.includes('-prod') ||
+    dbUrl.includes('/production') ||
+    dbUrl.includes('prod-db') ||
+    (isProdEnv && !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1'));
+
+  if (isProdEnv || isProdDb) {
+    console.error(
+      '\n🚨 [FATAL ERROR] Destructive development seed script aborted!\n' +
+        'Attempted to run dev seed (which wipes data) on a production environment or database.\n' +
+        'To initialize or sync a production database safely without data destruction, run:\n' +
+        '  npm run db:seed:prod\n',
+    );
+    process.exit(1);
+  }
+
+  console.log('🌱 Starting database seeding for Nida E-Commerce (Dev Environment)...');
 
   // 1. Clean existing records (in reverse dependency order)
-  console.log('🧹 Cleaning existing data...');
+  console.log('🧹 Cleaning existing data for fresh development cycle...');
   await prisma.couponRedemption.deleteMany({});
   await prisma.refund.deleteMany({});
   await prisma.returnItem.deleteMany({});
@@ -52,205 +67,16 @@ async function main() {
   await prisma.otpVerification.deleteMany({});
   await prisma.user.deleteMany({});
 
-  // 2. Create Roles, Permissions, and Admins
+  // 2. Common Master Data
   await syncRbac(prisma);
+  const admin = await seedSuperAdmin(prisma);
+  const categoriesMap = await seedCategories(prisma);
+  await seedStoreSettings(prisma);
 
-  const superAdminRole = await prisma.role.findUniqueOrThrow({
-    where: { roleCode: 'SUPER_ADMIN' },
-  });
-
-  const admin = await prisma.adminUser.upsert({
-    where: { email: 'admin@nida-apparel.com' },
-    update: { roleId: superAdminRole.id },
-    create: {
-      username: 'superadmin',
-      email: 'admin@nida-apparel.com',
-      passwordHash:
-        '$2b$10$/45cqjrkP0Gy4P0tjZeBJe5XyQ0u1vpEhkTI1A14DnM2Y9Kxa6dL.', // bcrypt hash for "admin123"
-      fullName: 'Nida Super Admin',
-      department: 'Headquarters',
-      roleId: superAdminRole.id,
-    },
-  });
-
-  // 3. Create Categories (Parent Categories first, then Subcategories)
-  console.log(
-    `📂 Creating Product Categories (${CATEGORIES_SEED_DATA.length} categories)...`,
-  );
-  const categoriesMap: Record<string, string> = {};
-
-  // First pass: parent categories
-  const parentCategories = CATEGORIES_SEED_DATA.filter((c) => !c.parentSlug);
-  for (const cat of parentCategories) {
-    const created = await prisma.category.create({
-      data: {
-        name: cat.name,
-        nameTh: cat.nameTh,
-        slug: cat.slug,
-        department: cat.department as Department,
-        displayOrder: cat.displayOrder,
-      },
-    });
-    categoriesMap[cat.slug] = created.id;
-  }
-
-  // Second pass: sub-categories with parentId relation
-  const subCategories = CATEGORIES_SEED_DATA.filter((c) => c.parentSlug);
-  for (const cat of subCategories) {
-    const parentId = categoriesMap[cat.parentSlug!];
-    const created = await prisma.category.create({
-      data: {
-        name: cat.name,
-        nameTh: cat.nameTh,
-        slug: cat.slug,
-        department: cat.department as Department,
-        parentId: parentId ?? null,
-        displayOrder: cat.displayOrder,
-      },
-    });
-    categoriesMap[cat.slug] = created.id;
-  }
-
-  // 4. Create Products, Variants, Images & Inventory
-  console.log(
-    `👗 Creating Products (${PRODUCTS_SEED_DATA.length} products with complete SKU matrix)...`,
-  );
-
-  for (let idx = 0; idx < PRODUCTS_SEED_DATA.length; idx++) {
-    const item = PRODUCTS_SEED_DATA[idx]!;
-    const categoryId =
-      categoriesMap[item.categorySlug] ||
-      categoriesMap['women-apparel'] ||
-      Object.values(categoriesMap)[0]!;
-
-    await prisma.product.create({
-      data: {
-        name: item.name,
-        nameTh: item.nameTh,
-        slug: item.slug,
-        description: item.description,
-        descriptionTh: item.descriptionTh,
-        materialsCare: item.materialsCare,
-        materialsCareTh: item.materialsCareTh,
-        basePrice: item.basePrice,
-        originalPrice: item.originalPrice ?? null,
-        tag: item.tag ?? null,
-        tagTh: item.tagTh ?? null,
-        categoryId,
-        isPreorder: item.isPreorder ?? false,
-        preorderReleaseDate: item.preorderReleaseDate
-          ? new Date(item.preorderReleaseDate)
-          : null,
-        preorderLimit: item.preorderLimit ?? null,
-        preorderDepositAmount: item.preorderDepositAmount ?? null,
-        createdByAdminId: admin.id,
-        images: {
-          create: item.images.map((img, i) => ({
-            imageUrl: img,
-            displayOrder: i,
-            isPrimary: i === 0,
-          })),
-        },
-        variants: {
-          create: item.variants.map((v) => ({
-            skuCode: v.sku,
-            size: v.size,
-            colorName: v.color,
-            colorHex: v.hex,
-            weightGrams: v.weight,
-            inventoryItem: {
-              create: {
-                quantityAvailable: v.stock,
-                quantityReserved: 0,
-                preorderBooked: 0,
-              },
-            },
-          })),
-        },
-      },
-    });
-
-    console.log(
-      `  • [${idx + 1}/${PRODUCTS_SEED_DATA.length}] ${item.name} (${item.variants.length} SKUs)`,
-    );
-  }
-
-  // 5. Create Sample Promotion Coupons
-  console.log('🎟️ Creating Promotion Coupons...');
-  await prisma.promotionCoupon.createMany({
-    data: [
-      {
-        code: 'NIDA20',
-        discountType: DiscountType.PERCENTAGE,
-        discountValue: 20,
-        minOrderAmount: 1000,
-        maxDiscountAmount: 500,
-        totalUsageLimit: 500,
-        userUsageLimit: 1,
-        startsAt: new Date(),
-        expiresAt: new Date('2026-12-31T23:59:59Z'),
-        isActive: true,
-      },
-      {
-        code: 'FREESHIP',
-        discountType: DiscountType.FREE_SHIPPING,
-        discountValue: 0,
-        minOrderAmount: 1000,
-        totalUsageLimit: 1000,
-        userUsageLimit: 2,
-        startsAt: new Date(),
-        expiresAt: new Date('2026-12-31T23:59:59Z'),
-        isActive: true,
-      },
-      {
-        code: 'WELCOME200',
-        discountType: DiscountType.FIXED_AMOUNT,
-        discountValue: 200,
-        minOrderAmount: 1500,
-        totalUsageLimit: 200,
-        userUsageLimit: 1,
-        startsAt: new Date(),
-        expiresAt: new Date('2026-12-31T23:59:59Z'),
-        isActive: true,
-      },
-    ],
-  });
-
-  // Seed Demo Customer Users
-  console.log('👤 Creating Demo Customer Users...');
-  const demoCustomerPasswordHash =
-    '$2b$10$8HQhIcyxqjsoBIBq8yfWEuQlnnYBd/234ySY8Ak5AnbIqhmUNNWVO'; // Password123!
-
-  await prisma.user.upsert({
-    where: { email: 'phannida@nida.com' },
-    update: { passwordHash: demoCustomerPasswordHash, isVerified: true },
-    create: {
-      email: 'phannida@nida.com',
-      firstName: 'Phannida',
-      lastName: 'Wissanu',
-      phone: '0812345678',
-      passwordHash: demoCustomerPasswordHash,
-      isVerified: true,
-      tier: 'VIP_GOLD',
-      points: 1250,
-    },
-  });
-
-  await prisma.user.upsert({
-    where: { email: 'customer@example.com' },
-    update: { passwordHash: demoCustomerPasswordHash, isVerified: true },
-    create: {
-      email: 'customer@example.com',
-      firstName: 'Demo',
-      lastName: 'Customer',
-      phone: '0899999999',
-      passwordHash: demoCustomerPasswordHash,
-      isVerified: true,
-      tier: 'REGULAR',
-      points: 200,
-    },
-  });
-
+  // 3. Dev Mock Data
+  await seedDemoUsers(prisma);
+  await seedCatalog(prisma, admin.id, categoriesMap);
+  await seedCoupons(prisma);
   await seedOrders(prisma);
   await seedCms(prisma);
 
@@ -260,6 +86,10 @@ async function main() {
   console.log('   Username: superadmin');
   console.log('   Email:    admin@nida-apparel.com');
   console.log('   Password: admin123');
+  console.log('👥 Demo Staff Accounts:');
+  console.log('   inventory@nida-apparel.com (password: admin123)');
+  console.log('   fulfillment@nida-apparel.com (password: admin123)');
+  console.log('   marketing@nida-apparel.com (password: admin123)');
   console.log('👤 Demo Customers (Storefront):');
   console.log('   Email:    phannida@nida.com / customer@example.com');
   console.log('   Password: Password123!');

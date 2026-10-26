@@ -1,13 +1,12 @@
-import 'dotenv/config';
-import { PrismaClient, BannerPlacement } from './generated/prisma/index.js';
+import { PrismaClient, BannerPlacement } from '../../generated/prisma/index.js';
 
 export async function seedCms(prisma: PrismaClient) {
-  console.log('🖼️  Seeding Storefront CMS Banners & Store Settings...');
+  console.log('🖼️  Seeding Storefront CMS Banners (Dev only)...');
 
-  // 1. Clean existing CMS banners
+  // Clean existing CMS banners
   await prisma.cmsBanner.deleteMany({});
 
-  // 2. Seed Hero Carousel Banners (3 rich editorial slides)
+  // Hero Carousel Banners (3 rich editorial slides)
   const heroBanners = [
     {
       placement: BannerPlacement.HERO_HOME,
@@ -93,7 +92,7 @@ export async function seedCms(prisma: PrismaClient) {
     await prisma.cmsBanner.create({ data: banner });
   }
 
-  // 3. Seed Seasonal Spotlight Bento (2 cards)
+  // Seasonal Spotlight Bento (2 cards)
   const seasonalSpotlights = [
     {
       placement: BannerPlacement.SEASONAL_SPOTLIGHT,
@@ -143,7 +142,7 @@ export async function seedCms(prisma: PrismaClient) {
     await prisma.cmsBanner.create({ data: spotlight });
   }
 
-  // 4. Seed Promo Ribbon Strip
+  // Promo Ribbon Strip
   await prisma.cmsBanner.create({
     data: {
       placement: BannerPlacement.PROMO_RIBBON,
@@ -169,48 +168,5 @@ export async function seedCms(prisma: PrismaClient) {
     },
   });
 
-  // 5. Seed or Update StoreSettings
-  await prisma.storeSettings.upsert({
-    where: { id: 'default-store-settings' },
-    update: {
-      announcementActive: true,
-      announcementBadgeTh: 'NEW SEASON',
-      announcementBadgeEn: 'NEW SEASON',
-      announcementTextTh:
-        'AUTUMN/WINTER 2026: รับส่วนลดพิเศษ 20% ด้วยโค้ด NIDA20 | บริการจัดส่งฟรีเมื่อช้อปครบ ฿1,000',
-      announcementTextEn:
-        'AUTUMN/WINTER 2026: ENJOY 20% OFF WITH CODE NIDA20 | COMPLIMENTARY SHIPPING OVER ฿1,000',
-      announcementLink: '/collections',
-      freeShippingThreshold: 1000,
-      returnWindowDays: 7,
-    },
-    create: {
-      id: 'default-store-settings',
-      announcementActive: true,
-      announcementBadgeTh: 'NEW SEASON',
-      announcementBadgeEn: 'NEW SEASON',
-      announcementTextTh:
-        'AUTUMN/WINTER 2026: รับส่วนลดพิเศษ 20% ด้วยโค้ด NIDA20 | บริการจัดส่งฟรีเมื่อช้อปครบ ฿1,000',
-      announcementTextEn:
-        'AUTUMN/WINTER 2026: ENJOY 20% OFF WITH CODE NIDA20 | COMPLIMENTARY SHIPPING OVER ฿1,000',
-      announcementLink: '/collections',
-      freeShippingThreshold: 1000,
-      returnWindowDays: 7,
-    },
-  });
-
-  console.log('✅ CMS Banners and Store Settings seeded successfully!');
-}
-
-// Allow direct execution
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const prisma = new PrismaClient();
-  seedCms(prisma)
-    .catch((err) => {
-      console.error('❌ Failed to seed CMS data:', err);
-      process.exit(1);
-    })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
+  console.log('✅ CMS Banners seeded successfully.');
 }

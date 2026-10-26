@@ -1,13 +1,10 @@
-import 'dotenv/config';
 import {
   PrismaClient,
   OrderStatus,
   PaymentMethod,
   PaymentStatus,
   ShipmentStatus,
-} from './generated/prisma/index.js';
-
-const prisma = new PrismaClient();
+} from '../../generated/prisma/index.js';
 
 const SEED_ORDERS_DATA = [
   {
@@ -142,31 +139,30 @@ const SEED_ORDERS_DATA = [
   },
 ];
 
-export async function seedOrders(client?: PrismaClient) {
-  const p = client ?? prisma;
-  console.log('📦 Seeding orders into database...');
-  const variants = await p.productVariant.findMany({
+export async function seedOrders(prisma: PrismaClient) {
+  console.log('📦 Seeding demo orders (Dev only)...');
+  const variants = await prisma.productVariant.findMany({
     take: 5,
     include: { product: true },
   });
 
   if (variants.length === 0) {
-    console.warn('⚠️ No product variants found to attach order items.');
+    console.warn('⚠️  No product variants found to attach order items.');
     return;
   }
 
   for (const item of SEED_ORDERS_DATA) {
-    const existing = await p.order.findUnique({
+    const existing = await prisma.order.findUnique({
       where: { orderNumber: item.orderNumber },
     });
 
     if (existing) {
-      console.log(`Order ${item.orderNumber} already exists, skipping.`);
+      console.log(`  • Order ${item.orderNumber} already exists, skipping.`);
       continue;
     }
 
-    const primaryVariant = variants[0];
-    const order = await p.order.create({
+    const primaryVariant = variants[0]!;
+    const order = await prisma.order.create({
       data: {
         orderNumber: item.orderNumber,
         status: item.status,
@@ -204,7 +200,7 @@ export async function seedOrders(client?: PrismaClient) {
     });
 
     if (item.trackingNumber && item.courierName) {
-      const shipment = await p.shipment.create({
+      const shipment = await prisma.shipment.create({
         data: {
           orderId: order.id,
           courierName: item.courierName,
@@ -219,7 +215,7 @@ export async function seedOrders(client?: PrismaClient) {
         },
       });
 
-      await p.shipmentLog.create({
+      await prisma.shipmentLog.create({
         data: {
           shipmentId: shipment.id,
           statusTitle: 'Label Created',
@@ -230,17 +226,6 @@ export async function seedOrders(client?: PrismaClient) {
       });
     }
 
-    console.log(`✅ Seeded order: ${item.orderNumber} (${item.status})`);
+    console.log(`  • Seeded order: ${item.orderNumber} (${item.status})`);
   }
-}
-
-// Allow direct execution
-if (import.meta.url === `file://${process.argv[1]}`) {
-  seedOrders()
-    .catch((err) => {
-      console.error('Error seeding orders:', err);
-    })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
 }

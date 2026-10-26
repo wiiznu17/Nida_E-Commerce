@@ -1,15 +1,14 @@
-import { PrismaClient } from './generated/prisma/index.js';
+import { PrismaClient } from '../../generated/prisma/index.js';
 import {
-  AdminPermission,
   AdminRoleCode,
   ROLE_DEFAULT_PERMISSIONS,
   PERMISSION_DEFINITIONS,
 } from '@repo/types';
 
 export async function syncRbac(prisma: PrismaClient) {
-  console.log('🛡️  Syncing RBAC Permissions and Roles...');
+  console.log('🛡️  Syncing RBAC Permissions and Roles (Pure Master Data)...');
 
-  // 1. Upsert all permissions
+  // Upsert all system permissions
   const permissionMap: Record<string, string> = {};
   for (const def of PERMISSION_DEFINITIONS) {
     const perm = await prisma.permission.upsert({
@@ -28,7 +27,7 @@ export async function syncRbac(prisma: PrismaClient) {
   }
   console.log(`✅ Upserted ${PERMISSION_DEFINITIONS.length} permissions.`);
 
-  // 2. Roles metadata
+  // Roles metadata
   const roleMetadata: Record<
     AdminRoleCode,
     { name: string; description: string }
@@ -53,7 +52,7 @@ export async function syncRbac(prisma: PrismaClient) {
     },
   };
 
-  // 3. Upsert Roles & RolePermissions
+  // Upsert Roles & RolePermissions
   for (const [roleCodeKey, permissions] of Object.entries(
     ROLE_DEFAULT_PERMISSIONS,
   )) {
@@ -73,7 +72,7 @@ export async function syncRbac(prisma: PrismaClient) {
       },
     });
 
-    // Clean existing role permissions and re-link
+    // Clean existing role permissions and re-link with defined permissions
     await prisma.rolePermission.deleteMany({
       where: { roleId: role.id },
     });
@@ -93,67 +92,5 @@ export async function syncRbac(prisma: PrismaClient) {
     );
   }
 
-  // 4. Ensure demo staff users exist for testing
-  const demoUsers = [
-    {
-      username: 'inventory_mgr',
-      email: 'inventory@nida-apparel.com',
-      fullName: 'Somchai Inventory',
-      department: 'Warehouse & Logistics',
-      roleCode: AdminRoleCode.INVENTORY_MANAGER,
-    },
-    {
-      username: 'order_officer',
-      email: 'fulfillment@nida-apparel.com',
-      fullName: 'Areeya Fulfillment',
-      department: 'Order Processing',
-      roleCode: AdminRoleCode.ORDER_MANAGER,
-    },
-    {
-      username: 'marketing_mgr',
-      email: 'marketing@nida-apparel.com',
-      fullName: 'Panida Marketing',
-      department: 'Brand Marketing',
-      roleCode: AdminRoleCode.MARKETING_ADMIN,
-    },
-  ];
-
-  for (const user of demoUsers) {
-    const role = await prisma.role.findUnique({
-      where: { roleCode: user.roleCode },
-    });
-    if (role) {
-      await prisma.adminUser.upsert({
-        where: { email: user.email },
-        update: {
-          fullName: user.fullName,
-          department: user.department,
-          roleId: role.id,
-        },
-        create: {
-          username: user.username,
-          email: user.email,
-          passwordHash:
-            '$2b$10$/45cqjrkP0Gy4P0tjZeBJe5XyQ0u1vpEhkTI1A14DnM2Y9Kxa6dL.', // admin123
-          fullName: user.fullName,
-          department: user.department,
-          roleId: role.id,
-        },
-      });
-    }
-  }
-
-  console.log('✨ RBAC synchronization completed successfully.');
-}
-
-if (process.argv[1]?.endsWith('seed-rbac.ts')) {
-  const prisma = new PrismaClient();
-  syncRbac(prisma)
-    .catch((err) => {
-      console.error('Failed to sync RBAC:', err);
-      process.exit(1);
-    })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
+  console.log('✨ RBAC synchronization completed successfully (no demo users injected).');
 }
