@@ -150,6 +150,12 @@ export class CustomerOrdersService {
         );
       }
 
+      if (v.product.isActive === false) {
+        throw new BadRequestException(
+          `Product "${v.product.name}" is no longer available for purchase`,
+        );
+      }
+
       if (!v.product.isPreorder) {
         const available = v.inventoryItem?.quantityAvailable ?? 0;
         if (available < item.quantity) {
