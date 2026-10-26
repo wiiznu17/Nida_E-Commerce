@@ -87,7 +87,10 @@ export class AdminUsersService {
     }));
   }
 
-  async inviteAdmin(dto: InviteAdminUserDto): Promise<InviteAdminResponse> {
+  async inviteAdmin(
+    dto: InviteAdminUserDto,
+    inviterAdminId?: string,
+  ): Promise<InviteAdminResponse> {
     const normalizedEmail = dto.email.trim().toLowerCase();
 
     const existingUser = await this.prisma.adminUser.findUnique({
@@ -176,6 +179,7 @@ export class AdminUsersService {
     };
 
     void this.auditLog.recordLog({
+      adminId: inviterAdminId ?? null,
       actionType: AuditActionType.CREATE,
       targetTable: 'admin_users',
       targetId: newAdmin.id,

@@ -241,7 +241,11 @@ export class AdminService {
     }));
   }
 
-  async fulfillOrder(identifier: string, dto: FulfillOrderDto) {
+  async fulfillOrder(
+    identifier: string,
+    dto: FulfillOrderDto,
+    adminId?: string,
+  ) {
     const isUuid = UUID_REGEX.test(identifier);
     const order = await this.prisma.order.findFirst({
       where: isUuid
@@ -296,6 +300,7 @@ export class AdminService {
     });
 
     void this.auditLog?.recordLog({
+      adminId: adminId ?? null,
       actionType: AuditActionType.STATUS_CHANGE,
       targetTable: 'orders',
       targetId: order.id,
@@ -322,6 +327,7 @@ export class AdminService {
   async updateShipmentStatus(
     shipmentId: string,
     dto: UpdateShipmentStatusDto,
+    adminId?: string,
   ): Promise<ApiShipment> {
     const shipment = await this.prisma.shipment.findUnique({
       where: { id: shipmentId },
@@ -366,6 +372,7 @@ export class AdminService {
     });
 
     void this.auditLog?.recordLog({
+      adminId: adminId ?? null,
       actionType: AuditActionType.STATUS_CHANGE,
       targetTable: 'shipments',
       targetId: updated.id,

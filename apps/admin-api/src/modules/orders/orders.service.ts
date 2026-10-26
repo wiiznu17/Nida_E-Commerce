@@ -27,6 +27,11 @@ import type {
   AdminReturnStatusCounts,
 } from '@repo/types';
 import {
+  AuditActionType,
+  AdminPermission,
+} from '@repo/types';
+import { AuditLogService } from '../audit-log/audit-log.service.js';
+import {
   OrderStatus,
   StockChangeType,
   PaymentStatus,
@@ -95,9 +100,13 @@ export class OrdersService {
     private readonly logisticsService: LogisticsService,
     private readonly paymentGatewayService: PaymentGatewayService,
     private readonly orderLifecycleProducer: OrderLifecycleProducerService,
+    private readonly auditLog?: AuditLogService,
   ) {}
 
-  async createOrder(dto: CreateOrderDto): Promise<ApiOrder> {
+  async createOrder(
+    dto: CreateOrderDto,
+    adminId?: string,
+  ): Promise<ApiOrder> {
     const { items, shippingAddress, paymentMethod, couponCode, userId } = dto;
 
     const calc = await this.couponsService.calculateCheckout({
@@ -289,6 +298,20 @@ export class OrdersService {
       return order;
     });
 
+    void this.auditLog?.recordLog({
+      adminId: adminId ?? null,
+      actionType: AuditActionType.CREATE,
+      targetTable: 'orders',
+      targetId: createdOrder.id,
+      permission: AdminPermission.ORDERS_FULFILL,
+      newValuesJson: {
+        orderNumber: createdOrder.orderNumber,
+        status: createdOrder.status,
+        totalAmount: Number(createdOrder.totalAmount),
+        currency: createdOrder.currency,
+      },
+    });
+
     return this.getOrderByNumber(createdOrder.orderNumber);
   }
 
@@ -307,14 +330,6 @@ export class OrdersService {
 
     if (!order) {
       throw new NotFoundException(`Order #${orderNumber} not found`);
-    }
-
-    if (order.status === OrderStatus.PENDING) {
-      await this.orderLifecycleProducer.scheduleOrderTimeout(
-        order.id,
-        order.orderNumber,
-        ORDER_TIMEOUT_MS.ADMIN_MANUAL_DRAFT,
-      );
     }
 
     return this.mapOrder(order as unknown as OrderDetailPayload);
@@ -439,6 +454,7 @@ export class OrdersService {
     trackingNumber?: string,
     transactionReference?: string,
     overrideReason?: string,
+    adminId?: string,
   ): Promise<ApiOrder> {
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -642,12 +658,32 @@ export class OrdersService {
       await this.orderLifecycleProducer.cancelOrderTimeout(existing.id);
     }
 
+    void this.auditLog?.recordLog({
+      adminId: adminId ?? null,
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'orders',
+      targetId: existing.id,
+      permission: AdminPermission.ORDERS_FULFILL,
+      oldValuesJson: {
+        orderNumber: existing.orderNumber,
+        status: existing.status,
+      },
+      newValuesJson: {
+        orderNumber: existing.orderNumber,
+        status: updated.status,
+        courierName,
+        trackingNumber,
+        overrideReason,
+      },
+    });
+
     return this.mapOrder(updated as unknown as OrderDetailPayload);
   }
 
   async fulfillWithCarrier(
     id: string,
     carrierCode: CarrierCode,
+    adminId?: string,
   ): Promise<ApiOrder> {
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -741,6 +777,24 @@ export class OrdersService {
       },
     });
 
+    void this.auditLog?.recordLog({
+      adminId: adminId ?? null,
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'orders',
+      targetId: existing.id,
+      permission: AdminPermission.ORDERS_FULFILL,
+      oldValuesJson: {
+        orderNumber: existing.orderNumber,
+        status: existing.status,
+      },
+      newValuesJson: {
+        orderNumber: existing.orderNumber,
+        status: OrderStatus.SHIPPED,
+        carrierCode,
+        trackingNumber: booking.trackingNumber,
+      },
+    });
+
     return this.mapOrder(updated as unknown as OrderDetailPayload);
   }
 
@@ -772,7 +826,9 @@ export class OrdersService {
   }
 
   private mapOrder(order: OrderDetailPayload): ApiOrder {
-    const address = order.shippingAddressSnapshot as unknown as ApiOrderAddress;
+    const address =
+      (order.shippingAddressSnapshot as unknown as ApiOrderAddress) ??
+      ({} as ApiOrderAddress);
 
     return {
       id: order.id,
@@ -887,7 +943,9 @@ export class OrdersService {
         createdAdminId: rf.createdAdminId ?? undefined,
         createdAt: rf.createdAt.toISOString(),
       })),
-      placedAt: order.placedAt.toISOString(),
+      placedAt: order.placedAt
+        ? order.placedAt.toISOString()
+        : new Date().toISOString(),
       completedAt: order.completedAt ? order.completedAt.toISOString() : null,
     };
   }
@@ -967,6 +1025,7 @@ export class OrdersService {
       gatewayRefundId = `rfnd_manual_${Date.now()}`;
     }
 
+    let isFullRefund = false;
     await this.prisma.$transaction(async (tx) => {
       const refundCount = await tx.refund.count({
         where: { orderId: order.id },
@@ -986,7 +1045,7 @@ export class OrdersService {
         },
       });
 
-      const isFullRefund = alreadyRefunded + refundAmount >= totalPaid;
+      isFullRefund = alreadyRefunded + refundAmount >= totalPaid;
       if (isFullRefund) {
         await tx.payment.update({
           where: { id: order.payment!.id },
@@ -1080,6 +1139,29 @@ export class OrdersService {
           data: { currentUsageCount: { decrement: 1 } },
         });
       }
+    });
+
+    void this.auditLog?.recordLog({
+      adminId: adminId ?? null,
+      actionType: AuditActionType.REFUND,
+      targetTable: 'orders',
+      targetId: order.id,
+      permission: AdminPermission.ORDERS_FULFILL,
+      oldValuesJson: {
+        orderNumber: order.orderNumber,
+        status: order.status,
+        paymentStatus: order.payment.status,
+      },
+      newValuesJson: {
+        orderNumber: order.orderNumber,
+        refundAmount,
+        reason: dto.reason,
+        isFullRefund,
+        status: isFullRefund ? OrderStatus.REFUNDED : order.status,
+        paymentStatus: isFullRefund
+          ? PaymentStatus.REFUNDED
+          : order.payment.status,
+      },
     });
 
     return this.getOrderByNumber(order.orderNumber);
@@ -1236,6 +1318,22 @@ export class OrdersService {
       await this.orderLifecycleProducer.cancelCancellationReviewTimeout(
         requestId,
       );
+      void this.auditLog?.recordLog({
+        adminId: adminId ?? null,
+        actionType: AuditActionType.STATUS_CHANGE,
+        targetTable: 'orders',
+        targetId: request.orderId,
+        permission: AdminPermission.ORDERS_FULFILL,
+        oldValuesJson: {
+          orderNumber: request.order.orderNumber,
+          cancellationStatus: 'PENDING',
+        },
+        newValuesJson: {
+          orderNumber: request.order.orderNumber,
+          cancellationStatus: 'REJECTED',
+          adminNote: dto.adminNote,
+        },
+      });
       return { success: true, message: 'ปฏิเสธคำขอยกเลิกเรียบร้อย' };
     }
 
@@ -1440,6 +1538,22 @@ export class OrdersService {
         },
       });
       await this.orderLifecycleProducer.cancelReturnDeadline(requestId);
+      void this.auditLog?.recordLog({
+        adminId: adminId ?? null,
+        actionType: AuditActionType.STATUS_CHANGE,
+        targetTable: 'orders',
+        targetId: request.orderId,
+        permission: AdminPermission.ORDERS_FULFILL,
+        oldValuesJson: {
+          orderNumber: request.order.orderNumber,
+          returnStatus: request.status,
+        },
+        newValuesJson: {
+          orderNumber: request.order.orderNumber,
+          returnStatus: 'REJECTED',
+          adminNote: dto.adminNote,
+        },
+      });
       return { success: true, message: 'ปฏิเสธคำขอคืนสินค้าเรียบร้อย' };
     }
 
@@ -1459,6 +1573,22 @@ export class OrdersService {
         request.order.orderNumber,
         ORDER_TIMEOUT_MS.RETURN_SHIPMENT_DEADLINE,
       );
+      void this.auditLog?.recordLog({
+        adminId: adminId ?? null,
+        actionType: AuditActionType.STATUS_CHANGE,
+        targetTable: 'orders',
+        targetId: request.orderId,
+        permission: AdminPermission.ORDERS_FULFILL,
+        oldValuesJson: {
+          orderNumber: request.order.orderNumber,
+          returnStatus: request.status,
+        },
+        newValuesJson: {
+          orderNumber: request.order.orderNumber,
+          returnStatus: 'APPROVED',
+          adminNote: dto.adminNote,
+        },
+      });
       return {
         success: true,
         message: 'อนุมัติคำขอคืนสินค้า ลูกค้าสามารถส่งสินค้ากลับได้',

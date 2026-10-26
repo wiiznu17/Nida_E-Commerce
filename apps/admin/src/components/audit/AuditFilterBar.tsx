@@ -24,6 +24,7 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
     { value: 'cms_banners', label: t('audit.tableBanners') },
     { value: 'admin_users', label: t('audit.tableStaff') },
     { value: 'shipments', label: t('audit.tableShipments') },
+    { value: 'store_settings', label: t('audit.tableSettings') },
   ];
 
   const actionOptions = [

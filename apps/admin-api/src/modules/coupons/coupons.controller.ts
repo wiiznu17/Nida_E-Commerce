@@ -14,8 +14,8 @@ import { CouponsService } from './coupons.service.js';
 import { ValidateCouponDto } from './dto/validate-coupon.dto.js';
 import { CalculateCheckoutDto } from './dto/calculate-checkout.dto.js';
 import { CreateCouponDto } from './dto/create-coupon.dto.js';
-import { RequirePermissions } from '../auth/decorators/index.js';
-import { AdminPermission } from '@repo/types';
+import { CurrentAdmin, RequirePermissions } from '../auth/decorators/index.js';
+import { AdminPermission, type ApiAdminUser } from '@repo/types';
 
 @ApiTags('Coupons & Checkout')
 @Controller()
@@ -43,8 +43,11 @@ export class CouponsController {
   })
   @ApiResponse({ status: 201, description: 'สร้างคูปองสำเร็จ' })
   @ApiResponse({ status: 409, description: 'รหัสคูปองซ้ำในระบบ' })
-  async createCoupon(@Body() dto: CreateCouponDto) {
-    return this.couponsService.createCoupon(dto);
+  async createCoupon(
+    @Body() dto: CreateCouponDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
+  ) {
+    return this.couponsService.createCoupon(dto, admin?.id);
   }
 
   @Patch('coupons/:identifier/toggle')
@@ -56,8 +59,11 @@ export class CouponsController {
   @ApiParam({ name: 'identifier', description: 'Coupon ID หรือ Coupon Code' })
   @ApiResponse({ status: 200, description: 'อัปเดตสถานะคูปองสำเร็จ' })
   @ApiResponse({ status: 404, description: 'ไม่พบคูปองที่ระบุ' })
-  async toggleCoupon(@Param('identifier') identifier: string) {
-    return this.couponsService.toggleCoupon(identifier);
+  async toggleCoupon(
+    @Param('identifier') identifier: string,
+    @CurrentAdmin() admin: ApiAdminUser | null,
+  ) {
+    return this.couponsService.toggleCoupon(identifier, admin?.id);
   }
 
   @Delete('coupons/:identifier')
@@ -69,8 +75,11 @@ export class CouponsController {
   @ApiParam({ name: 'identifier', description: 'Coupon ID หรือ Coupon Code' })
   @ApiResponse({ status: 200, description: 'ลบคูปองสำเร็จ' })
   @ApiResponse({ status: 404, description: 'ไม่พบคูปองที่ระบุ' })
-  async deleteCoupon(@Param('identifier') identifier: string) {
-    return this.couponsService.deleteCoupon(identifier);
+  async deleteCoupon(
+    @Param('identifier') identifier: string,
+    @CurrentAdmin() admin: ApiAdminUser | null,
+  ) {
+    return this.couponsService.deleteCoupon(identifier, admin?.id);
   }
 
   @Post('coupons/validate')

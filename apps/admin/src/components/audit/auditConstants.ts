@@ -43,4 +43,5 @@ export const TARGET_TABLE_KEYS: Record<string, string> = {
   cms_banners: 'audit.tableBanners',
   admin_users: 'audit.tableStaff',
   shipments: 'audit.tableShipments',
+  store_settings: 'audit.tableSettings',
 };

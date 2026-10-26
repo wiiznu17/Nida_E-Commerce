@@ -132,8 +132,9 @@ export class AdminController {
   async fulfillOrder(
     @Param('identifier') identifier: string,
     @Body() dto: FulfillOrderDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
   ) {
-    return this.adminService.fulfillOrder(identifier, dto);
+    return this.adminService.fulfillOrder(identifier, dto, admin?.id);
   }
 
   @Post('shipments/:shipmentId/update-status')
@@ -150,7 +151,8 @@ export class AdminController {
   async updateShipmentStatus(
     @Param('shipmentId') shipmentId: string,
     @Body() dto: UpdateShipmentStatusDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
   ) {
-    return this.adminService.updateShipmentStatus(shipmentId, dto);
+    return this.adminService.updateShipmentStatus(shipmentId, dto, admin?.id);
   }
 }

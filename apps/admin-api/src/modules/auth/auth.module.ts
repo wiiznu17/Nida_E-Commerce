@@ -8,8 +8,11 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { RolesGuard } from './guards/roles.guard.js';
 import { PermissionsGuard } from './guards/permissions.guard.js';
 
+import { AuditLogModule } from '../audit-log/audit-log.module.js';
+
 @Module({
   imports: [
+    AuditLogModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret:

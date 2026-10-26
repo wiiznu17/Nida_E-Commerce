@@ -12,6 +12,8 @@ import bcrypt from 'bcryptjs';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RedisService } from '../../core/redis/redis.service.js';
 import { MailerService } from '../../core/mailer/mailer.service.js';
+import { AuditLogService } from '../audit-log/audit-log.service.js';
+import { AuditActionType, AdminPermission } from '@repo/types';
 import {
   AdminLoginDto,
   RefreshTokenDto,
@@ -49,6 +51,7 @@ export class AuthService {
     private readonly redis: RedisService,
     private readonly jwt: JwtService,
     private readonly mailer: MailerService,
+    private readonly auditLog?: AuditLogService,
   ) {}
 
   async login(
@@ -303,6 +306,20 @@ export class AuthService {
 
     await this.redis.deleteInviteToken(dto.token);
 
+    void this.auditLog?.recordLog({
+      adminId: invite.adminId,
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'admin_users',
+      targetId: invite.adminId,
+      permission: AdminPermission.ADMIN_USERS_MANAGE,
+      newValuesJson: {
+        email: invite.email,
+        fullName: invite.fullName,
+        isActive: true,
+        action: 'INVITATION_ACTIVATED',
+      },
+    });
+
     return {
       success: true,
       message: 'ตั้งรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่',
@@ -362,6 +379,18 @@ export class AuthService {
 
     await this.redis.revokeAllUserSessions(reset.adminId);
     await this.redis.deleteResetToken(dto.token);
+
+    void this.auditLog?.recordLog({
+      adminId: reset.adminId,
+      actionType: AuditActionType.UPDATE,
+      targetTable: 'admin_users',
+      targetId: reset.adminId,
+      permission: AdminPermission.ADMIN_USERS_MANAGE,
+      newValuesJson: {
+        email: reset.email,
+        action: 'PASSWORD_RESET',
+      },
+    });
 
     return {
       success: true,

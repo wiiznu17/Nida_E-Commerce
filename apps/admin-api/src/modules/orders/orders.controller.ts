@@ -76,8 +76,11 @@ export class OrdersController {
     description: 'ข้อมูลไม่ถูกต้อง หรือสินค้าในสต็อกไม่เพียงพอ',
   })
   @ApiResponse({ status: 404, description: 'ไม่พบสินค้าบางรายการ' })
-  async createOrder(@Body() dto: CreateOrderDto) {
-    return this.ordersService.createOrder(dto);
+  async createOrder(
+    @Body() dto: CreateOrderDto,
+    @CurrentAdmin() admin?: ApiAdminUser,
+  ) {
+    return this.ordersService.createOrder(dto, admin?.id);
   }
 
   @Get('orders')
@@ -128,6 +131,7 @@ export class OrdersController {
   async updateOrderStatus(
     @Param('id') id: string,
     @Body() body: UpdateOrderStatusDto,
+    @CurrentAdmin() admin?: ApiAdminUser,
   ) {
     return this.ordersService.updateOrderStatus(
       id,
@@ -136,6 +140,7 @@ export class OrdersController {
       body.trackingNumber,
       body.transactionReference,
       body.overrideReason,
+      admin?.id,
     );
   }
 
@@ -154,8 +159,13 @@ export class OrdersController {
   async bookCarrierShipment(
     @Param('id') id: string,
     @Body() dto: CarrierBookingDto,
+    @CurrentAdmin() admin?: ApiAdminUser,
   ) {
-    return this.ordersService.fulfillWithCarrier(id, dto.carrierCode);
+    return this.ordersService.fulfillWithCarrier(
+      id,
+      dto.carrierCode,
+      admin?.id,
+    );
   }
 
   @Public()

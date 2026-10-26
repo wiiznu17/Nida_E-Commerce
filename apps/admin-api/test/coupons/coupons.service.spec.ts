@@ -402,4 +402,90 @@ describe('CouponsService', () => {
       expect(calculation.totalAmount).toBe(450);
     });
   });
+
+  describe('Audit Logging', () => {
+    it('records audit log when coupon is created', async () => {
+      const auditLogMock = { recordLog: vi.fn().mockResolvedValue(null) };
+      const serviceWithAudit = new CouponsService(
+        prismaMock as unknown as PrismaService,
+        auditLogMock as any,
+      );
+
+      prismaMock.promotionCoupon.findUnique.mockResolvedValue(null);
+      prismaMock.promotionCoupon.create.mockResolvedValue({
+        id: 'cp-new-1',
+        code: 'SAVE10',
+        discountType: DiscountType.PERCENTAGE,
+        discountValue: 10,
+        minOrderAmount: 100,
+        maxDiscountAmount: 50,
+        totalUsageLimit: 100,
+        userUsageLimit: 1,
+        startsAt: new Date(),
+        expiresAt: new Date(Date.now() + 86400000),
+        isActive: true,
+      });
+
+      await serviceWithAudit.createCoupon(
+        {
+          code: 'SAVE10',
+          discountType: DiscountType.PERCENTAGE,
+          discountValue: 10,
+          minOrderAmount: 100,
+          maxDiscountAmount: 50,
+          expiresAt: new Date(Date.now() + 86400000).toISOString(),
+        },
+        'admin-audit-id',
+      );
+
+      expect(auditLogMock.recordLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          adminId: 'admin-audit-id',
+          actionType: 'CREATE',
+          targetTable: 'coupons',
+          targetId: 'cp-new-1',
+        }),
+      );
+    });
+
+    it('records audit log when coupon is toggled', async () => {
+      const auditLogMock = { recordLog: vi.fn().mockResolvedValue(null) };
+      const serviceWithAudit = new CouponsService(
+        prismaMock as unknown as PrismaService,
+        auditLogMock as any,
+      );
+
+      prismaMock.promotionCoupon.findFirst.mockResolvedValue({
+        id: 'cp-toggle-1',
+        code: 'SAVE10',
+        isActive: true,
+      });
+      prismaMock.promotionCoupon.update.mockResolvedValue({
+        id: 'cp-toggle-1',
+        code: 'SAVE10',
+        discountType: DiscountType.FIXED_AMOUNT,
+        discountValue: 50,
+        minOrderAmount: 0,
+        maxDiscountAmount: null,
+        totalUsageLimit: 10,
+        userUsageLimit: 1,
+        startsAt: new Date(),
+        expiresAt: new Date(),
+        isActive: false,
+      });
+
+      await serviceWithAudit.toggleCoupon('cp-toggle-1', 'admin-audit-id');
+
+      expect(auditLogMock.recordLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          adminId: 'admin-audit-id',
+          actionType: 'STATUS_CHANGE',
+          targetTable: 'coupons',
+          targetId: 'cp-toggle-1',
+          oldValuesJson: { code: 'SAVE10', isActive: true },
+          newValuesJson: { code: 'SAVE10', isActive: false },
+        }),
+      );
+    });
+  });
 });

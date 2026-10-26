@@ -22,6 +22,8 @@ describe('OrdersService', () => {
   let couponsServiceMock: any;
   let carrierMockService: CarrierMockService;
   let paymentGatewayServiceMock: any;
+  let logisticsService: LogisticsService;
+  let orderLifecycleProducerMock: any;
 
   beforeEach(() => {
     prismaMock = {
@@ -57,10 +59,10 @@ describe('OrdersService', () => {
         create: vi.fn(),
         update: vi.fn(),
       },
-
       shipment: {
         findFirst: vi.fn(),
         create: vi.fn(),
+        update: vi.fn(),
       },
       refund: {
         create: vi.fn(),
@@ -93,7 +95,7 @@ describe('OrdersService', () => {
     carrierMockService = new CarrierMockService();
     const internalProvider = new InternalLogisticsProvider(carrierMockService);
     const shippopProvider = new ShippopLogisticsProvider();
-    const logisticsService = new LogisticsService(
+    logisticsService = new LogisticsService(
       internalProvider,
       shippopProvider,
       prismaMock,
@@ -106,7 +108,7 @@ describe('OrdersService', () => {
       }),
     };
 
-    const orderLifecycleProducerMock = {
+    orderLifecycleProducerMock = {
       scheduleOrderTimeout: vi.fn().mockResolvedValue('job-123'),
       cancelOrderTimeout: vi.fn().mockResolvedValue(true),
       scheduleCancellationReviewTimeout: vi.fn().mockResolvedValue('job-456'),
@@ -1084,6 +1086,71 @@ describe('OrdersService', () => {
         'admin-001',
       );
       expect(res.success).toBe(true);
+    });
+  });
+
+  describe('Audit Logging', () => {
+    it('records audit log when order status is updated', async () => {
+      const auditLogMock = { recordLog: vi.fn().mockResolvedValue(null) };
+      const serviceWithAudit = new OrdersService(
+        prismaMock,
+        couponsServiceMock,
+        carrierMockService,
+        logisticsService,
+        paymentGatewayServiceMock,
+        orderLifecycleProducerMock as unknown as OrderLifecycleProducerService,
+        auditLogMock as any,
+      );
+
+      const existingOrder = {
+        id: 'ord-audit-1',
+        orderNumber: 'NIDA-2026-0001',
+        status: OrderStatus.PROCESSING,
+        totalAmount: 1500,
+        currency: 'THB',
+        items: [],
+        shipments: [{ trackingNumber: 'TRACK123' }],
+        shippingAddressSnapshot: {
+          recipientName: 'Somchai Jaidee',
+          phone: '0812345678',
+          addressLine1: '123 Sukhumvit Road',
+        },
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(existingOrder);
+      prismaMock.order.update.mockResolvedValue({
+        ...existingOrder,
+        status: OrderStatus.SHIPPED,
+      });
+
+      await serviceWithAudit.updateOrderStatus(
+        'ord-audit-1',
+        OrderStatus.SHIPPED,
+        'Kerry Express',
+        'TRACK123',
+        undefined,
+        'Shipped by warehouse',
+        'admin-audit-id',
+      );
+
+      expect(auditLogMock.recordLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          adminId: 'admin-audit-id',
+          actionType: 'STATUS_CHANGE',
+          targetTable: 'orders',
+          targetId: 'ord-audit-1',
+          oldValuesJson: {
+            orderNumber: 'NIDA-2026-0001',
+            status: OrderStatus.PROCESSING,
+          },
+          newValuesJson: expect.objectContaining({
+            orderNumber: 'NIDA-2026-0001',
+            status: OrderStatus.SHIPPED,
+            courierName: 'Kerry Express',
+            trackingNumber: 'TRACK123',
+          }),
+        }),
+      );
     });
   });
 });

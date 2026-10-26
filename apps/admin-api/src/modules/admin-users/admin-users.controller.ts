@@ -79,8 +79,12 @@ export class AdminUsersController {
   @ApiResponse({ status: 409, description: 'Email already registered' })
   async inviteAdmin(
     @Body() dto: InviteAdminUserDto,
+    @CurrentAdmin() currentAdmin: ApiAdminUser | null,
   ): Promise<ApiGenericResponse<InviteAdminResponse>> {
-    const data = await this.adminUsersService.inviteAdmin(dto);
+    const data = await this.adminUsersService.inviteAdmin(
+      dto,
+      currentAdmin?.id,
+    );
     return {
       success: true,
       data,

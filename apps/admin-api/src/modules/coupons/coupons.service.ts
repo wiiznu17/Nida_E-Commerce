@@ -15,15 +15,23 @@ import type {
   CheckoutLineItem,
   CheckoutCouponSummary,
 } from '@repo/types';
-import { DiscountType } from '@repo/types';
+import {
+  DiscountType,
+  AuditActionType,
+  AdminPermission,
+} from '@repo/types';
 import type { PromotionCoupon } from '@repo/database';
+import { AuditLogService } from '../audit-log/audit-log.service.js';
 
 const FREE_SHIPPING_THRESHOLD = 1000;
 const STANDARD_SHIPPING_FEE = 50;
 
 @Injectable()
 export class CouponsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLog?: AuditLogService,
+  ) {}
 
   async getAllCoupons(): Promise<ApiCoupon[]> {
     const coupons = await this.prisma.promotionCoupon.findMany({
@@ -32,7 +40,10 @@ export class CouponsService {
     return coupons.map((c) => this.mapCoupon(c));
   }
 
-  async createCoupon(dto: CreateCouponDto): Promise<ApiCoupon> {
+  async createCoupon(
+    dto: CreateCouponDto,
+    adminId?: string,
+  ): Promise<ApiCoupon> {
     const normalizedCode = dto.code.toUpperCase().trim();
     const existing = await this.prisma.promotionCoupon.findUnique({
       where: { code: normalizedCode },
@@ -58,10 +69,35 @@ export class CouponsService {
       },
     });
 
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.CREATE,
+      targetTable: 'coupons',
+      targetId: coupon.id,
+      permission: AdminPermission.COUPONS_MANAGE,
+      newValuesJson: {
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: Number(coupon.discountValue),
+        minOrderAmount: Number(coupon.minOrderAmount),
+        maxDiscountAmount: coupon.maxDiscountAmount
+          ? Number(coupon.maxDiscountAmount)
+          : null,
+        totalUsageLimit: coupon.totalUsageLimit,
+        userUsageLimit: coupon.userUsageLimit,
+        startsAt: coupon.startsAt.toISOString(),
+        expiresAt: coupon.expiresAt.toISOString(),
+        isActive: coupon.isActive,
+      },
+    });
+
     return this.mapCoupon(coupon);
   }
 
-  async toggleCoupon(identifier: string): Promise<ApiCoupon> {
+  async toggleCoupon(
+    identifier: string,
+    adminId?: string,
+  ): Promise<ApiCoupon> {
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
         identifier,
@@ -81,11 +117,28 @@ export class CouponsService {
       data: { isActive: !coupon.isActive },
     });
 
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'coupons',
+      targetId: updated.id,
+      permission: AdminPermission.COUPONS_MANAGE,
+      oldValuesJson: {
+        code: coupon.code,
+        isActive: coupon.isActive,
+      },
+      newValuesJson: {
+        code: updated.code,
+        isActive: updated.isActive,
+      },
+    });
+
     return this.mapCoupon(updated);
   }
 
   async deleteCoupon(
     identifier: string,
+    adminId?: string,
   ): Promise<{ success: boolean; id: string }> {
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -103,6 +156,20 @@ export class CouponsService {
 
     await this.prisma.promotionCoupon.delete({
       where: { id: coupon.id },
+    });
+
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.DELETE,
+      targetTable: 'coupons',
+      targetId: coupon.id,
+      permission: AdminPermission.COUPONS_MANAGE,
+      oldValuesJson: {
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: Number(coupon.discountValue),
+      },
+      newValuesJson: null,
     });
 
     return { success: true, id: coupon.id };
