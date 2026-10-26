@@ -90,6 +90,7 @@ export class AdminUsersService {
   async inviteAdmin(
     dto: InviteAdminUserDto,
     inviterAdminId?: string,
+    inviterRoleCode?: string | null,
   ): Promise<InviteAdminResponse> {
     const normalizedEmail = dto.email.trim().toLowerCase();
 
@@ -184,7 +185,7 @@ export class AdminUsersService {
       targetTable: 'admin_users',
       targetId: newAdmin.id,
       permission: AdminPermission.ADMIN_USERS_MANAGE,
-      performedRole: role.roleCode,
+      performedRole: inviterRoleCode ?? null,
       newValuesJson: {
         email: newAdmin.email,
         fullName: newAdmin.fullName,
@@ -203,6 +204,7 @@ export class AdminUsersService {
   async toggleActiveStatus(
     targetId: string,
     currentAdminId: string,
+    currentAdminRoleCode?: string | null,
   ): Promise<ApiAdminUser> {
     if (targetId === currentAdminId) {
       throw new BadRequestException('ไม่สามารถปิดการใช้งานบัญชีของตนเองได้');
@@ -253,7 +255,7 @@ export class AdminUsersService {
       targetTable: 'admin_users',
       targetId: updated.id,
       permission: AdminPermission.ADMIN_USERS_MANAGE,
-      performedRole: updated.role.roleCode,
+      performedRole: currentAdminRoleCode ?? null,
       oldValuesJson: {
         isActive: target.isActive,
         email: target.email,

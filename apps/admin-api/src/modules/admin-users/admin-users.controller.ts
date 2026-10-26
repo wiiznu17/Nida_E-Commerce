@@ -84,6 +84,7 @@ export class AdminUsersController {
     const data = await this.adminUsersService.inviteAdmin(
       dto,
       currentAdmin?.id,
+      currentAdmin?.role?.roleCode,
     );
     return {
       success: true,
@@ -108,6 +109,7 @@ export class AdminUsersController {
     const data = await this.adminUsersService.toggleActiveStatus(
       targetId,
       currentAdmin.id,
+      currentAdmin.role?.roleCode,
     );
     return {
       success: true,
