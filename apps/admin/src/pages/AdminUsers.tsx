@@ -7,13 +7,19 @@ import {
   ToggleLeft,
   ToggleRight,
   ExternalLink,
+  X,
 } from 'lucide-react';
 import { authRequester } from '../api/requester/authRequester';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { AdminLayout } from '../components/layout';
-import { ApiErrorModal, AlertModal, InlineError } from '../components/ui';
+import {
+  ApiErrorModal,
+  AlertModal,
+  InlineError,
+  DropdownSelect,
+} from '../components/ui';
 import type { ApiAdminUser, ApiAdminRole } from '@repo/types';
 
 export const AdminUsers: React.FC = () => {
@@ -302,16 +308,35 @@ export const AdminUsers: React.FC = () => {
         {isInviteOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/60 backdrop-blur-xs animate-in fade-in duration-200">
             <div className="bg-white border border-brand-border rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
-              <h2 className="text-base font-black text-brand-brown tracking-tight mb-1">
-                {t('users.invite_modal_title')}
-              </h2>
-              <p className="text-xs text-stone-500 mb-5 leading-relaxed">
-                {t('users.invite_modal_desc')}
-              </p>
+              {/* Dismiss X button */}
+              <button
+                type="button"
+                onClick={() => setIsInviteOpen(false)}
+                disabled={isSubmittingInvite}
+                className="absolute top-4 right-4 text-stone-400 hover:text-stone-600 p-1.5 rounded-lg hover:bg-stone-100 transition-colors cursor-pointer disabled:opacity-40"
+                aria-label={t('common.close')}
+              >
+                <X size={16} />
+              </button>
+
+              {/* Modal Header */}
+              <div className="flex items-start space-x-3.5 mb-5 pr-6">
+                <div className="w-10 h-10 rounded-full bg-brand-cream border border-brand-border text-brand-brown flex items-center justify-center shrink-0 shadow-2xs">
+                  <UserPlus size={18} />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-brand-brown tracking-tight leading-snug">
+                    {t('users.invite_modal_title')}
+                  </h2>
+                  <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">
+                    {t('users.invite_modal_desc')}
+                  </p>
+                </div>
+              </div>
 
               <form onSubmit={handleInviteSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
+                  <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1.5">
                     {t('users.form_full_name')} *
                   </label>
                   <input
@@ -320,17 +345,17 @@ export const AdminUsers: React.FC = () => {
                     value={inviteName}
                     onChange={(e) => setInviteName(e.target.value)}
                     placeholder="Kanya Somchai"
-                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-[#2B1810] focus:outline-none ${
+                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-brand-brown placeholder:text-stone-400 focus:outline-none transition-colors ${
                       fieldErrors.name
-                        ? 'border-rose-400 focus:ring-2 focus:ring-rose-500'
-                        : 'border-stone-200 focus:ring-2 focus:ring-[#2B1810]'
+                        ? 'border-rose-400 focus:ring-1 focus:ring-rose-500'
+                        : 'border-brand-border focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20'
                     }`}
                   />
                   <InlineError message={fieldErrors.name} />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
+                  <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1.5">
                     {t('users.form_email')} *
                   </label>
                   <input
@@ -339,10 +364,10 @@ export const AdminUsers: React.FC = () => {
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="kanya@nida-apparel.com"
-                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-[#2B1810] focus:outline-none ${
+                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-brand-brown placeholder:text-stone-400 focus:outline-none transition-colors ${
                       fieldErrors.email
-                        ? 'border-rose-400 focus:ring-2 focus:ring-rose-500'
-                        : 'border-stone-200 focus:ring-2 focus:ring-[#2B1810]'
+                        ? 'border-rose-400 focus:ring-1 focus:ring-rose-500'
+                        : 'border-brand-border focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20'
                     }`}
                   />
                   <InlineError message={fieldErrors.email} />
@@ -350,24 +375,22 @@ export const AdminUsers: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1.5">
                       {t('users.form_role')} *
                     </label>
-                    <select
+                    <DropdownSelect
                       value={inviteRoleId}
-                      onChange={(e) => setInviteRoleId(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-stone-200 rounded-xl text-xs text-[#2B1810] bg-white focus:outline-none focus:ring-2 focus:ring-[#2B1810]"
-                    >
-                      {roles.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.roleName}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setInviteRoleId(val)}
+                      options={roles.map((r) => ({
+                        value: r.id,
+                        label: r.roleName,
+                      }))}
+                      className="h-[38px] rounded-xl border-brand-border text-xs text-brand-brown shadow-none"
+                    />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1">
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1.5">
                       {t('users.form_department')}
                     </label>
                     <input
@@ -375,26 +398,30 @@ export const AdminUsers: React.FC = () => {
                       value={inviteDept}
                       onChange={(e) => setInviteDept(e.target.value)}
                       placeholder="Logistics"
-                      className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs text-[#2B1810] focus:outline-none focus:ring-2 focus:ring-[#2B1810]"
+                      className="w-full px-3.5 py-2.5 border border-brand-border rounded-xl text-xs text-brand-brown placeholder:text-stone-400 focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20 transition-colors"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end space-x-3 pt-4 border-t border-stone-100">
+                <div className="flex items-center justify-end space-x-2.5 pt-4 border-t border-brand-cream">
                   <button
                     type="button"
                     onClick={() => setIsInviteOpen(false)}
-                    className="px-4 py-2 border border-stone-200 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-50 transition-colors cursor-pointer"
+                    disabled={isSubmittingInvite}
+                    className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-bold text-stone-700 hover:bg-stone-50 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {t('users.btn_cancel')}
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmittingInvite || !inviteName || !inviteEmail}
-                    className="px-5 py-2 bg-[#2B1810] hover:bg-[#1f110b] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
+                    className="px-5 py-2.5 bg-brand-dark-brown hover:bg-brand-brown text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
                   >
                     {isSubmittingInvite ? (
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>{t('users.btn_send_invite')}</span>
+                      </>
                     ) : (
                       <span>{t('users.btn_send_invite')}</span>
                     )}
