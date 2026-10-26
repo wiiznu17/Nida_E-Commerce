@@ -1,11 +1,23 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { CustomerCatalogService } from './catalog.service.js';
+import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
+import { syncCartSchema, type SyncCartInput } from '@repo/validators';
 import type {
   ApiProduct,
   ApiProductDetail,
   ApiCategory,
   PaginatedResponse,
+  SyncCartResponse,
 } from '@repo/types';
 
 @ApiTags('Storefront Catalog')
@@ -106,5 +118,18 @@ export class CustomerCatalogController {
     @Query('department') department?: string,
   ): Promise<ApiCategory[]> {
     return this.catalogService.getCategories(department);
+  }
+
+  @Post('sync-cart')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Batch sync latest prices and stock for cart items' })
+  @ApiResponse({
+    status: 200,
+    description: 'Latest variant prices, status, and stock availability',
+  })
+  async syncCart(
+    @Body(new ZodValidationPipe(syncCartSchema)) dto: SyncCartInput,
+  ): Promise<SyncCartResponse> {
+    return this.catalogService.syncCart(dto);
   }
 }

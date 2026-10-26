@@ -15,6 +15,7 @@ import {
   PaymentMethod,
   type ApiAddress,
   type CreateAddressDto,
+  type PriceMismatchItem,
 } from '@repo/types';
 import type {
   ShippingFormData,
@@ -28,6 +29,7 @@ export function useCheckoutForm() {
     cartTotal,
     setIsCartOpen,
     clearCart,
+    updateItemPrices,
     appliedCoupon,
     discountAmount,
     shippingFee,
@@ -48,6 +50,11 @@ export function useCheckoutForm() {
     useState<PaymentMethodOption>('card');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderError, setOrderError] = useState('');
+  const [priceMismatches, setPriceMismatches] = useState<PriceMismatchItem[]>(
+    [],
+  );
+  const [isPriceMismatchModalOpen, setIsPriceMismatchModalOpen] =
+    useState(false);
 
   const [shippingData, setShippingData] = useState<ShippingFormData>({
     firstName: '',
@@ -204,8 +211,13 @@ export function useCheckoutForm() {
     window.scrollTo(0, 0);
   };
 
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitOrder = async (
+    overrideItems?: Array<{
+      variantId: string;
+      quantity: number;
+      expectedPrice?: number;
+    }>,
+  ) => {
     setIsSubmitting(true);
     setOrderError('');
 
@@ -218,11 +230,16 @@ export function useCheckoutForm() {
       const recipientName =
         `${shippingData.firstName} ${shippingData.lastName}`.trim();
 
-      const payload: CreateCustomerOrderPayload = {
-        items: items.map((item) => ({
+      const orderItems =
+        overrideItems ??
+        items.map((item) => ({
           variantId: item.variantId || item.id,
           quantity: item.quantity,
-        })),
+          expectedPrice: item.price,
+        }));
+
+      const payload: CreateCustomerOrderPayload = {
+        items: orderItems,
         shippingAddress: {
           recipientName: recipientName || user?.fullName || 'Customer',
           phone: shippingData.phone || '0812345678',
@@ -250,10 +267,55 @@ export function useCheckoutForm() {
           ? 'เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ กรุณาลองใหม่อีกครั้ง'
           : 'Failed to create order. Please try again.',
       );
-      setOrderError(extracted.message);
+
+      const isPriceMismatch =
+        (extracted.code === 'PRICE_MISMATCH' || extracted.status === 409) &&
+        Array.isArray(extracted.mismatches) &&
+        extracted.mismatches.length > 0;
+
+      if (isPriceMismatch && extracted.mismatches) {
+        setOrderError('');
+        setPriceMismatches(extracted.mismatches);
+        setIsPriceMismatchModalOpen(true);
+      } else {
+        setOrderError(extracted.message);
+      }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await submitOrder();
+  };
+
+  const handleAcceptNewPrices = async () => {
+    if (priceMismatches.length === 0) return;
+
+    updateItemPrices(
+      priceMismatches.map((m) => ({
+        variantId: m.variantId,
+        newPrice: m.currentPrice,
+      })),
+    );
+
+    setIsPriceMismatchModalOpen(false);
+
+    const priceMap = new Map(
+      priceMismatches.map((m) => [m.variantId, m.currentPrice]),
+    );
+    const updatedItems = items.map((item) => {
+      const vId = item.variantId || item.id;
+      const newPrice = priceMap.get(vId) ?? item.price;
+      return {
+        variantId: vId,
+        quantity: item.quantity,
+        expectedPrice: newPrice,
+      };
+    });
+
+    await submitOrder(updatedItems);
   };
 
   return {
@@ -295,6 +357,10 @@ export function useCheckoutForm() {
     handleSaveModalAddress,
     handleShippingSubmit,
     handlePaymentSubmit,
+    priceMismatches,
+    isPriceMismatchModalOpen,
+    setIsPriceMismatchModalOpen,
+    handleAcceptNewPrices,
     router,
   };
 }

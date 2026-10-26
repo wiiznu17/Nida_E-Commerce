@@ -6,6 +6,7 @@ import type {
   PaginatedResponse,
   PaginationMeta,
   StoreQueryProductsParams,
+  SyncCartResponse,
 } from '@repo/types';
 
 export interface CatalogProductsResult {
@@ -170,6 +171,21 @@ export const catalogRequester = {
     } catch (err) {
       console.warn('[catalogRequester] getCategories error:', err);
       return [];
+    }
+  },
+
+  /**
+   * Sync latest prices and stock availability for cart items.
+   */
+  syncCart: async (variantIds: string[]): Promise<SyncCartResponse> => {
+    try {
+      const data = await apiClient.post<SyncCartResponse>('/catalog/sync-cart', {
+        variantIds,
+      });
+      return data ?? { items: [] };
+    } catch (err) {
+      console.warn('[catalogRequester] syncCart error:', err);
+      return { items: [] };
     }
   },
 };

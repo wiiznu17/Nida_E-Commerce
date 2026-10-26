@@ -10,6 +10,7 @@ import {
   CheckoutShippingForm,
   CheckoutPaymentForm,
   CheckoutOrderSummary,
+  PriceMismatchModal,
   useCheckoutForm,
 } from '@/components/checkout';
 
@@ -52,6 +53,10 @@ export default function CheckoutPage() {
     handleSaveModalAddress,
     handleShippingSubmit,
     handlePaymentSubmit,
+    priceMismatches,
+    isPriceMismatchModalOpen,
+    setIsPriceMismatchModalOpen,
+    handleAcceptNewPrices,
     router,
   } = useCheckoutForm();
 
@@ -141,6 +146,14 @@ export default function CheckoutPage() {
         isOpen={isAddressModalOpen}
         onClose={() => setIsAddressModalOpen(false)}
         onSave={handleSaveModalAddress}
+      />
+
+      <PriceMismatchModal
+        isOpen={isPriceMismatchModalOpen}
+        onClose={() => setIsPriceMismatchModalOpen(false)}
+        mismatches={priceMismatches}
+        onAcceptAndProceed={handleAcceptNewPrices}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

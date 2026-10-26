@@ -76,6 +76,7 @@ export interface ApiOrderItem {
   skuCodeSnapshot?: string | null;
   imageUrlSnapshot?: string | null;
   productSnapshot?: ApiProductSnapshot | null;
+  expectedPrice?: number | null;
 }
 
 export interface ApiOrderAddress {
@@ -322,4 +323,18 @@ export interface PaginatedReturnsResponse {
   pageSize: number;
   totalPages: number;
   statusCounts: AdminReturnStatusCounts;
+}
+
+export interface PriceMismatchItem {
+  variantId: string;
+  productName: string;
+  expectedPrice: number;
+  currentPrice: number;
+}
+
+export interface PriceMismatchResponse {
+  statusCode: 409;
+  code: 'PRICE_MISMATCH';
+  message: string;
+  mismatches: PriceMismatchItem[];
 }

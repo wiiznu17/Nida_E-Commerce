@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const orderItemSchema = z.object({
   variantId: z.string().uuid({ message: 'Invalid variant ID format' }),
   quantity: z.number().int().min(1, { message: 'Quantity must be at least 1' }),
+  expectedPrice: z.number().min(0).optional(),
 });
 
 export const shippingAddressSchema = z.object({

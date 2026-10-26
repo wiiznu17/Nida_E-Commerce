@@ -28,6 +28,9 @@ export function CartDrawer() {
     isApplyingCoupon,
     applyCoupon,
     removeCoupon,
+    isSyncingCart,
+    cartSyncNotice,
+    clearCartSyncNotice,
   } = useCart();
   const { isAuthenticated } = useAuth();
   const { language, t } = useLanguage();
@@ -71,6 +74,24 @@ export function CartDrawer() {
             <X size={22} />
           </button>
         </div>
+
+        {/* Live Catalog Price Sync Notice */}
+        {cartSyncNotice && (
+          <div className="bg-amber-50/95 border-b border-amber-200/80 px-4 py-2.5 flex items-center justify-between text-xs text-amber-900 transition-all">
+            <div className="flex items-center gap-2 pr-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+              <span className="text-[11px] font-medium leading-tight">{cartSyncNotice}</span>
+            </div>
+            <button
+              type="button"
+              onClick={clearCartSyncNotice}
+              className="text-amber-700 hover:text-amber-950 p-1 rounded-sm hover:bg-amber-100/60 transition-colors cursor-pointer shrink-0"
+              aria-label="Dismiss notice"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        )}
 
         {/* Free Shipping Progress Meter */}
         <div className="bg-brand-warm-cream p-4 border-b border-brand-border text-xs">

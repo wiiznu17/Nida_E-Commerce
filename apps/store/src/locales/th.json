@@ -140,7 +140,9 @@
     "discountLabel": "ส่วนลดโปรโมชัน",
     "shippingEst": "ค่าจัดส่งโดยประมาณ",
     "freeShipping": "ฟรี",
-    "total": "ยอดรวมทั้งสิ้น"
+    "total": "ยอดรวมทั้งสิ้น",
+    "pricesSynced": "ราคาสินค้าในถุงช้อปปิ้งได้รับการอัปเดตเป็นราคาล่าสุดแล้ว",
+    "syncing": "กำลังตรวจสอบราคาและสต็อกล่าสุด..."
   },
   "footer": {
     "joinClub": "สมัครสมาชิกร่วม NIDA REWARDS CLUB",
@@ -306,7 +308,14 @@
     "useSavedAddress": "เลือกจากสมุดที่อยู่",
     "orEnterNewAddress": "หรือกรอกที่อยู่ใหม่",
     "saveToAddressBook": "บันทึกที่อยู่นี้ลงในสมุดที่อยู่ของฉัน",
-    "manageAddresses": "จัดการสมุดที่อยู่"
+    "manageAddresses": "จัดการสมุดที่อยู่",
+    "priceMismatchTitle": "ราคาสินค้าในตะกร้ามีการเปลี่ยนแปลง",
+    "priceMismatchDesc": "ราคาสินค้าบางรายการได้รับการอัปเดตจากระบบ กรุณาตรวจสอบยอดรวมใหม่ก่อนดำเนินการต่อ",
+    "colProduct": "สินค้า",
+    "colPreviousPrice": "ราคาเดิม",
+    "colCurrentPrice": "ราคาใหม่",
+    "acceptNewPrices": "ยอมรับราคาใหม่และสั่งซื้อต่อ",
+    "returnToCart": "กลับไปตรวจสอบตะกร้า"
   },
   "orderSuccess": {
     "title": "ยืนยันคำสั่งซื้อสำเร็จ!",

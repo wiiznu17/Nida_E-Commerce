@@ -37,3 +37,15 @@ export const queryProductsSchema = z.object({
 });
 
 export type QueryProductsInput = z.infer<typeof queryProductsSchema>;
+
+/**
+ * Cart Item Synchronization Schema
+ */
+export const syncCartSchema = z.object({
+  variantIds: z
+    .array(z.string().min(1, 'variantId cannot be empty'))
+    .min(1, 'variantIds must contain at least 1 item')
+    .max(100, 'variantIds cannot exceed 100 items'),
+});
+
+export type SyncCartInput = z.infer<typeof syncCartSchema>;

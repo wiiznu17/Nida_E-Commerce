@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CustomerOrdersService } from '../../src/modules/orders/orders.service.js';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { OrderStatus, ReturnStatus, PaymentMethod } from '@repo/database';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
@@ -196,6 +200,150 @@ describe('CustomerOrdersService', () => {
           paymentMethod: 'PROMPTPAY',
         }),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects order with ConflictException and PRICE_MISMATCH code when expectedPrice differs from DB unitPrice', async () => {
+      (
+        prismaMock as { productVariant: { findMany: ReturnType<typeof vi.fn> } }
+      ).productVariant.findMany.mockResolvedValueOnce([
+        {
+          id: 'var-1',
+          skuCode: 'NIDA-DRS-BLK-S',
+          colorName: 'Black',
+          size: 'S',
+          priceAdjustment: 0,
+          product: {
+            name: 'Silk Evening Dress',
+            basePrice: 1500, // DB price updated to 1500
+            isActive: true,
+            isPreorder: false,
+            images: [],
+          },
+          inventoryItem: {
+            id: 'inv-1',
+            quantityAvailable: 10,
+          },
+        },
+      ]);
+
+      try {
+        await service.createOrder({
+          items: [
+            {
+              variantId: 'var-1',
+              quantity: 1,
+              expectedPrice: 1200, // Customer cart still thought it was 1200
+            },
+          ],
+          shippingAddress: defaultShipping,
+          paymentMethod: 'PROMPTPAY',
+        });
+        expect.unreachable('Should have thrown ConflictException');
+      } catch (err: unknown) {
+        expect(err).toBeInstanceOf(ConflictException);
+        const resp = (err as ConflictException).getResponse() as Record<string, unknown>;
+        expect(resp.code).toBe('PRICE_MISMATCH');
+        expect(Array.isArray(resp.mismatches)).toBe(true);
+        expect(resp.mismatches).toHaveLength(1);
+        expect((resp.mismatches as Array<Record<string, unknown>>)[0]).toMatchObject({
+          variantId: 'var-1',
+          expectedPrice: 1200,
+          currentPrice: 1500,
+        });
+      }
+    });
+
+    it('allows checkout when expectedPrice matches DB unitPrice exactly', async () => {
+      (
+        prismaMock as { productVariant: { findMany: ReturnType<typeof vi.fn> } }
+      ).productVariant.findMany.mockResolvedValueOnce([
+        {
+          id: 'var-1',
+          skuCode: 'NIDA-DRS-BLK-S',
+          colorName: 'Black',
+          size: 'S',
+          priceAdjustment: 0,
+          product: {
+            name: 'Silk Evening Dress',
+            basePrice: 1500,
+            isActive: true,
+            isPreorder: false,
+            images: [],
+          },
+          inventoryItem: {
+            id: 'inv-1',
+            quantityAvailable: 10,
+          },
+        },
+      ]);
+
+      const txMock = {
+        order: {
+          create: vi.fn().mockResolvedValue({
+            id: 'ord-1',
+            orderNumber: 'NIDA-20261014-MATCH',
+            totalAmount: 1500,
+          }),
+        },
+        orderItem: {
+          create: vi.fn().mockResolvedValue({ id: 'item-1' }),
+        },
+        inventoryItem: {
+          updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+          findUnique: vi.fn().mockResolvedValue({ quantityAvailable: 9 }),
+        },
+        stockMovement: {
+          create: vi.fn().mockResolvedValue({ id: 'sm-1' }),
+        },
+        payment: {
+          create: vi.fn().mockResolvedValue({ id: 'pay-1' }),
+        },
+      };
+
+      (
+        prismaMock as { $transaction: ReturnType<typeof vi.fn>; order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).$transaction.mockImplementation(
+        async (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
+      );
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique = vi.fn().mockResolvedValue({
+        id: 'ord-1',
+        orderNumber: 'NIDA-20261014-MATCH',
+        status: 'PENDING',
+        totalAmount: 1500,
+        subtotal: 1500,
+        discountTotal: 0,
+        shippingFee: 0,
+        taxAmount: 0,
+        shippingAddressSnapshot: defaultShipping,
+        placedAt: new Date(),
+        items: [],
+        shipments: [],
+        payment: { paymentMethod: 'PROMPTPAY', status: 'PENDING' },
+      });
+
+      const order = await service.createOrder({
+        items: [
+          {
+            variantId: 'var-1',
+            quantity: 1,
+            expectedPrice: 1500,
+          },
+        ],
+        shippingAddress: defaultShipping,
+        paymentMethod: 'PROMPTPAY',
+      });
+
+      expect(order.orderNumber).toBe('NIDA-20261014-MATCH');
+      expect(txMock.orderItem.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            unitPrice: 1500,
+            expectedPrice: 1500,
+          }),
+        }),
+      );
     });
   });
 

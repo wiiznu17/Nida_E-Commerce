@@ -17,6 +17,9 @@ describe('CustomerCatalogService', () => {
     category: {
       findMany: ReturnType<typeof vi.fn>;
     };
+    productVariant: {
+      findMany: ReturnType<typeof vi.fn>;
+    };
   };
 
   const sampleProducts = [
@@ -75,11 +78,65 @@ describe('CustomerCatalogService', () => {
       category: {
         findMany: vi.fn().mockResolvedValue([]),
       },
+      productVariant: {
+        findMany: vi.fn(),
+      },
     };
 
     service = new CustomerCatalogService(
       prismaMock as unknown as PrismaService,
     );
+  });
+
+  describe('syncCart', () => {
+    it('returns empty array when variantIds is empty', async () => {
+      const res = await service.syncCart({ variantIds: [] });
+      expect(res.items).toEqual([]);
+    });
+
+    it('returns synced items with live unitPrice and stock', async () => {
+      prismaMock.productVariant.findMany.mockResolvedValue([
+        {
+          id: 'var-1',
+          skuCode: 'NIDA-M1-S',
+          size: 'S',
+          colorName: 'Espresso',
+          priceAdjustment: 10,
+          product: {
+            id: 'prod-1',
+            name: 'Polo Shirt',
+            nameTh: 'เสื้อโปโล',
+            slug: 'polo-shirt',
+            basePrice: 100,
+            originalPrice: 150,
+            isActive: true,
+            isPreorder: false,
+          },
+          inventoryItem: {
+            quantityAvailable: 15,
+          },
+        },
+      ]);
+
+      const res = await service.syncCart({ variantIds: ['var-1'] });
+      expect(res.items).toHaveLength(1);
+      expect(res.items[0]).toEqual({
+        variantId: 'var-1',
+        productId: 'prod-1',
+        productName: 'Polo Shirt',
+        productNameTh: 'เสื้อโปโล',
+        productSlug: 'polo-shirt',
+        sku: 'NIDA-M1-S',
+        size: 'S',
+        colorName: 'Espresso',
+        price: 110, // 100 + 10
+        basePrice: 100,
+        originalPrice: 150,
+        stock: 15,
+        isAvailable: true,
+        isPreorder: false,
+      });
+    });
   });
 
   describe('getProducts', () => {

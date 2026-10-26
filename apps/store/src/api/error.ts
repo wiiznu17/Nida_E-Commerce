@@ -1,10 +1,15 @@
-import type { ApiError as ApiErrorResponse } from '@repo/types';
+import type {
+  ApiError as ApiErrorResponse,
+  PriceMismatchItem,
+} from '@repo/types';
 import { ApiError } from './client';
 
 export interface ExtractedApiError {
   message: string;
   issues: string[];
   status?: number;
+  code?: string;
+  mismatches?: PriceMismatchItem[];
 }
 
 /**
@@ -22,6 +27,8 @@ export function extractApiError(
   let message = defaultFallback;
   let issues: string[] = [];
   let status: number | undefined;
+  let code: string | undefined;
+  let mismatches: PriceMismatchItem[] | undefined;
 
   if (err instanceof ApiError) {
     status = err.status;
@@ -31,7 +38,18 @@ export function extractApiError(
     }
 
     if (typeof err.data === 'object' && err.data !== null) {
-      const payload = err.data as Partial<ApiErrorResponse>;
+      const payload = err.data as Partial<ApiErrorResponse> & {
+        code?: string;
+        mismatches?: PriceMismatchItem[];
+      };
+
+      if (typeof payload.code === 'string') {
+        code = payload.code;
+      }
+
+      if (Array.isArray(payload.mismatches)) {
+        mismatches = payload.mismatches;
+      }
 
       if (Array.isArray(payload.issues)) {
         issues = payload.issues;
@@ -56,5 +74,7 @@ export function extractApiError(
     message,
     issues,
     status,
+    code,
+    mismatches,
   };
 }

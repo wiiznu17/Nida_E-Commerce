@@ -52,3 +52,28 @@ export interface CheckoutCouponSummary {
   discountValue: number;
   discountAmount: number;
 }
+
+export interface SyncCartPayload {
+  variantIds: string[];
+}
+
+export interface SyncCartItem {
+  variantId: string;
+  productId: string;
+  productName: string;
+  productNameTh?: string | null;
+  productSlug: string;
+  sku: string;
+  size: string;
+  colorName: string;
+  price: number;
+  basePrice: number;
+  originalPrice: number | null;
+  stock: number;
+  isAvailable: boolean;
+  isPreorder: boolean;
+}
+
+export interface SyncCartResponse {
+  items: SyncCartItem[];
+}

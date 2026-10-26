@@ -32,6 +32,13 @@ export interface ApiError {
   statusCode: number;
   error: string;
   message: string;
+  code?: string;
   issues?: string[];
   details?: Record<string, unknown>;
+  mismatches?: Array<{
+    variantId: string;
+    productName: string;
+    expectedPrice: number;
+    currentPrice: number;
+  }>;
 }

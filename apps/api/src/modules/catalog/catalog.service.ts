@@ -11,6 +11,9 @@ import {
   type ApiColorSwatch,
   type PaginatedResponse,
   type StoreQueryProductsParams,
+  type SyncCartPayload,
+  type SyncCartResponse,
+  type SyncCartItem,
 } from '@repo/types';
 
 type CategoryWithRelations = Prisma.CategoryGetPayload<
@@ -392,5 +395,64 @@ export class CustomerCatalogService {
       productCount: cat._count?.products,
       isActive: cat.isActive,
     };
+  }
+
+  async syncCart(dto: SyncCartPayload): Promise<SyncCartResponse> {
+    const { variantIds } = dto;
+    if (!variantIds || variantIds.length === 0) {
+      return { items: [] };
+    }
+
+    const variants = await this.prisma.productVariant.findMany({
+      where: {
+        id: { in: variantIds },
+      },
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            nameTh: true,
+            slug: true,
+            basePrice: true,
+            originalPrice: true,
+            isActive: true,
+            isPreorder: true,
+          },
+        },
+        inventoryItem: {
+          select: {
+            quantityAvailable: true,
+          },
+        },
+      },
+    });
+
+    const items: SyncCartItem[] = variants.map((v) => {
+      const unitPrice = Number(v.product.basePrice) + Number(v.priceAdjustment);
+      const isAvailable = v.product.isActive;
+      const stock = v.inventoryItem?.quantityAvailable ?? 0;
+
+      return {
+        variantId: v.id,
+        productId: v.product.id,
+        productName: v.product.name,
+        productNameTh: v.product.nameTh ?? null,
+        productSlug: v.product.slug,
+        sku: v.skuCode,
+        size: v.size,
+        colorName: v.colorName,
+        price: unitPrice,
+        basePrice: Number(v.product.basePrice),
+        originalPrice: v.product.originalPrice
+          ? Number(v.product.originalPrice)
+          : null,
+        stock,
+        isAvailable,
+        isPreorder: v.product.isPreorder,
+      };
+    });
+
+    return { items };
   }
 }

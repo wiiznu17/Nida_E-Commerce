@@ -5,6 +5,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   type ReactNode,
 } from 'react';
 import type {
@@ -13,7 +14,7 @@ import type {
   ApiCoupon,
   DiscountType,
 } from '@repo/types';
-import { couponRequester } from '@/api';
+import { couponRequester, catalogRequester } from '@/api';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { isOneSizeProduct, getProductSizes } from '@/utils';
@@ -52,6 +53,9 @@ export type CartContextType = {
   ) => void;
   removeFromCart: (identifier: string) => void;
   updateQuantity: (identifier: string, quantity: number) => void;
+  updateItemPrices: (
+    updates: Array<{ variantId: string; newPrice: number }>,
+  ) => void;
   clearCart: () => void;
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
@@ -74,6 +78,11 @@ export type CartContextType = {
     code: string,
   ) => Promise<{ success: boolean; message?: string }>;
   removeCoupon: () => void;
+  // Cart Server Auto-Sync
+  isSyncingCart: boolean;
+  cartSyncNotice: string | null;
+  clearCartSyncNotice: () => void;
+  syncCart: () => Promise<void>;
 };
 
 export function getCouponErrorMessage(
@@ -143,6 +152,80 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState<string | null>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [isSyncingCart, setIsSyncingCart] = useState(false);
+  const [cartSyncNotice, setCartSyncNotice] = useState<string | null>(null);
+
+  const clearCartSyncNotice = useCallback(() => {
+    setCartSyncNotice(null);
+  }, []);
+
+  const syncCartWithServer = useCallback(
+    async (itemsToSync: CartItem[]) => {
+      if (itemsToSync.length === 0) return;
+      const variantIds = itemsToSync
+        .map((item) => item.variantId || item.id)
+        .filter((id): id is string => typeof id === 'string' && id.length > 0);
+
+      if (variantIds.length === 0) return;
+
+      try {
+        setIsSyncingCart(true);
+        const res = await catalogRequester.syncCart(variantIds);
+        if (!res.items || res.items.length === 0) return;
+
+        const serverMap = new Map(
+          res.items.map((item) => [item.variantId, item]),
+        );
+
+        let hasPriceChanges = false;
+
+        setItems((prevItems) => {
+          let hasDiff = false;
+          const updated = prevItems.map((item) => {
+            const vId = item.variantId || item.id;
+            const serverItem = serverMap.get(vId);
+            if (!serverItem) return item;
+
+            const isPriceDiff = Math.abs(item.price - serverItem.price) > 0.01;
+            const isStockDiff = item.maxStock !== serverItem.stock;
+
+            if (isPriceDiff) {
+              hasPriceChanges = true;
+            }
+
+            if (isPriceDiff || isStockDiff || item.name !== serverItem.productName) {
+              hasDiff = true;
+              return {
+                ...item,
+                price: serverItem.price,
+                basePrice: serverItem.basePrice,
+                originalPrice: serverItem.originalPrice ?? undefined,
+                maxStock: serverItem.stock,
+                name: serverItem.productName,
+                nameTh: serverItem.productNameTh ?? item.nameTh,
+              };
+            }
+            return item;
+          });
+
+          return hasDiff ? updated : prevItems;
+        });
+
+        if (hasPriceChanges) {
+          setCartSyncNotice(t('cart.pricesSynced'));
+        }
+      } catch (err) {
+        console.warn('[CartContext] Auto-sync cart items failed:', err);
+      } finally {
+        setIsSyncingCart(false);
+      }
+    },
+    [t],
+  );
+
+  const syncCart = useCallback(async () => {
+    await syncCartWithServer(items);
+  }, [items, syncCartWithServer]);
 
   // Restore cart and coupon from localStorage on mount
   useEffect(() => {
@@ -150,8 +233,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const storedCart = localStorage.getItem(CART_STORAGE_KEY);
       if (storedCart) {
         const parsed = JSON.parse(storedCart);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           setItems(parsed);
+          syncCartWithServer(parsed);
         }
       }
 
@@ -193,6 +277,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       // Ignore quota errors
     }
   }, [appliedCoupon, isHydrated]);
+
+  // Auto-sync cart with server whenever the cart drawer opens
+  useEffect(() => {
+    if (isCartOpen && items.length > 0) {
+      syncCartWithServer(items);
+    }
+  }, [isCartOpen, syncCartWithServer]);
 
   const cartTotal = items.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -501,6 +592,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateItemPrices = useCallback(
+    (updates: Array<{ variantId: string; newPrice: number }>) => {
+      const priceMap = new Map(updates.map((u) => [u.variantId, u.newPrice]));
+      setItems((prev) =>
+        prev.map((item) => {
+          const newPrice = priceMap.get(item.variantId || item.id);
+          if (newPrice !== undefined) {
+            return { ...item, price: newPrice };
+          }
+          return item;
+        }),
+      );
+    },
+    [],
+  );
+
   return (
     <CartContext.Provider
       value={{
@@ -508,6 +615,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateItemPrices,
         clearCart,
         isCartOpen,
         setIsCartOpen,
@@ -527,6 +635,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         isApplyingCoupon,
         applyCoupon,
         removeCoupon,
+        isSyncingCart,
+        cartSyncNotice,
+        clearCartSyncNotice,
+        syncCart,
       }}
     >
       {children}

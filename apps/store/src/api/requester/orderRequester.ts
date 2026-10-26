@@ -12,6 +12,7 @@ export interface CreateCustomerOrderPayload {
   items: Array<{
     variantId: string;
     quantity: number;
+    expectedPrice?: number;
   }>;
   shippingAddress: {
     recipientName: string;

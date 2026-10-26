@@ -219,6 +219,7 @@ export class OrdersService {
             skuCodeSnapshot: v.skuCode,
             productSnapshot: JSON.parse(JSON.stringify(productSnapshot)),
             unitPrice: calcItem.unitPrice,
+            expectedPrice: calcItem.unitPrice,
             quantity: calcItem.quantity,
             subtotal: calcItem.subtotal,
             discountShare: calcItem.discountShare,

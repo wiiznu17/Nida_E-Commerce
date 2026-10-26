@@ -5,3 +5,4 @@ export * from './CheckoutShippingForm';
 export * from './CheckoutPaymentForm';
 export * from './CheckoutOrderSummary';
 export * from './useCheckoutForm';
+export * from './PriceMismatchModal';

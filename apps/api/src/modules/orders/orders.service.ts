@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  ConflictException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
@@ -16,6 +17,7 @@ import {
   type ApiOrder,
   ApiOrderItem,
   ApiProductSnapshot,
+  type PriceMismatchItem,
   ApiOrderAddress,
   ApiShipment,
   TrackingResult,
@@ -166,10 +168,25 @@ export class CustomerOrdersService {
       }
     }
 
+    const priceMismatches: PriceMismatchItem[] = [];
     let subtotal = 0;
     const computedItems = items.map((item) => {
       const v = variantMap.get(item.variantId)!;
       const unitPrice = Number(v.product.basePrice) + Number(v.priceAdjustment);
+
+      if (
+        item.expectedPrice !== undefined &&
+        item.expectedPrice !== null &&
+        Math.abs(Number(item.expectedPrice) - unitPrice) > 0.01
+      ) {
+        priceMismatches.push({
+          variantId: v.id,
+          productName: `${v.product.name} (${v.colorName}/${v.size})`,
+          expectedPrice: Number(item.expectedPrice),
+          currentPrice: unitPrice,
+        });
+      }
+
       const itemSubtotal = unitPrice * item.quantity;
       subtotal += itemSubtotal;
       const primaryImage =
@@ -201,6 +218,10 @@ export class CustomerOrdersService {
         variant: v,
         quantity: item.quantity,
         unitPrice,
+        expectedPrice:
+          item.expectedPrice !== undefined && item.expectedPrice !== null
+            ? Number(item.expectedPrice)
+            : null,
         subtotal: itemSubtotal,
         isPreorder: v.product.isPreorder,
         imageUrl: primaryImage,
@@ -208,6 +229,16 @@ export class CustomerOrdersService {
         productSnapshot,
       };
     });
+
+    if (priceMismatches.length > 0) {
+      throw new ConflictException({
+        statusCode: 409,
+        code: 'PRICE_MISMATCH',
+        message:
+          'Some item prices have changed. Please review the updated prices before proceeding.',
+        mismatches: priceMismatches,
+      });
+    }
 
     let discountTotal = 0;
     let couponId: string | null = null;
@@ -317,6 +348,7 @@ export class CustomerOrdersService {
             skuCodeSnapshot: ci.skuCode,
             productSnapshot: JSON.parse(JSON.stringify(ci.productSnapshot)),
             unitPrice: ci.unitPrice,
+            expectedPrice: ci.expectedPrice ?? ci.unitPrice,
             quantity: ci.quantity,
             subtotal: ci.subtotal,
             discountShare: itemDiscountShare,

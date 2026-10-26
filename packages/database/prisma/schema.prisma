@@ -424,6 +424,7 @@ model OrderItem {
   productNameSnapshot String         @map("product_name_snapshot") @db.VarChar(200)
   variantInfoSnapshot String         @map("variant_info_snapshot") @db.VarChar(100)
   unitPrice           Decimal        @map("unit_price") @db.Decimal(10, 2)
+  expectedPrice       Decimal?       @map("expected_price") @db.Decimal(10, 2)
   quantity            Int            @default(1)
   subtotal            Decimal        @db.Decimal(10, 2)
 

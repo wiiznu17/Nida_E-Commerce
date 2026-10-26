@@ -4,6 +4,7 @@ import {
   ValidateNested,
   IsUUID,
   IsInt,
+  IsNumber,
   Min,
   IsOptional,
   IsString,
@@ -31,6 +32,16 @@ export class CustomerOrderItemDto {
   @Min(1)
   @Type(() => Number)
   quantity!: number;
+
+  @ApiPropertyOptional({
+    description: 'ราคาต่อหน่วยที่ลูกค้าเห็นในตะกร้า (ใช้ตรวจสอบ Price Drift)',
+    example: 1200,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  expectedPrice?: number;
 }
 
 export class CustomerShippingAddressDto {

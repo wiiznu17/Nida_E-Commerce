@@ -140,7 +140,9 @@
     "discountLabel": "Promo Discount",
     "shippingEst": "Estimated Shipping",
     "freeShipping": "FREE",
-    "total": "Estimated Total"
+    "total": "Estimated Total",
+    "pricesSynced": "Item prices in your bag have been updated to the latest catalog prices.",
+    "syncing": "Checking latest prices and stock..."
   },
   "footer": {
     "joinClub": "JOIN THE NIDA REWARDS CLUB",
@@ -306,7 +308,14 @@
     "useSavedAddress": "Use Saved Address",
     "orEnterNewAddress": "Or Enter New Address",
     "saveToAddressBook": "Save this address to my address book",
-    "manageAddresses": "Manage Address Book"
+    "manageAddresses": "Manage Address Book",
+    "priceMismatchTitle": "Item Prices Have Changed",
+    "priceMismatchDesc": "Some item prices in your bag have been updated by the store. Please review the updated amounts before continuing.",
+    "colProduct": "Product",
+    "colPreviousPrice": "Previous Price",
+    "colCurrentPrice": "New Price",
+    "acceptNewPrices": "Accept New Prices & Proceed",
+    "returnToCart": "Return to Shopping Bag"
   },
   "orderSuccess": {
     "title": "ORDER CONFIRMED!",
