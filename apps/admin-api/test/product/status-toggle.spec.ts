@@ -69,4 +69,37 @@ describe('CatalogService - toggleProductStatus', () => {
       service.toggleProductStatus('non-existent-id', true),
     ).rejects.toThrow('Record to update not found');
   });
+
+  it('records audit log when toggling product status with adminId', async () => {
+    const auditLogMock = {
+      recordLog: vi.fn().mockResolvedValue(null),
+    };
+    const serviceWithAudit = new CatalogService(
+      prismaMock,
+      uploadServiceMock,
+      auditLogMock as any,
+    );
+
+    prismaMock.product.update.mockResolvedValue({
+      id: 'prod-123',
+      isActive: true,
+    });
+
+    await serviceWithAudit.toggleProductStatus(
+      'prod-123',
+      true,
+      'admin-uuid-123',
+    );
+
+    expect(auditLogMock.recordLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        adminId: 'admin-uuid-123',
+        actionType: 'STATUS_CHANGE',
+        targetTable: 'products',
+        targetId: 'prod-123',
+        oldValuesJson: { isActive: false },
+        newValuesJson: { isActive: true },
+      }),
+    );
+  });
 });

@@ -23,15 +23,17 @@ import type {
   ApiColorSwatch,
   PaginatedResponse,
 } from '@repo/types';
-import { findMarketingTagByLabel } from '@repo/types';
+import { AuditActionType, findMarketingTagByLabel } from '@repo/types';
 import { Prisma, Department, MarketingTag } from '@repo/database';
 import { UploadService } from '../upload/upload.service.js';
+import { AuditLogService } from '../audit-log/audit-log.service.js';
 
 @Injectable()
 export class CatalogService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly uploadService: UploadService,
+    private readonly auditLog?: AuditLogService,
   ) {}
 
   async getCategories(
@@ -63,7 +65,10 @@ export class CatalogService {
     return categories.map((cat) => this.mapCategory(cat));
   }
 
-  async createCategory(dto: CreateCategoryDto): Promise<ApiCategory> {
+  async createCategory(
+    dto: CreateCategoryDto,
+    adminId?: string,
+  ): Promise<ApiCategory> {
     const baseSlug = (dto.slug?.trim() || dto.name)
       .toLowerCase()
       .trim()
@@ -108,12 +113,28 @@ export class CatalogService {
       },
     });
 
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.CREATE,
+      targetTable: 'categories',
+      targetId: created.id,
+      newValuesJson: {
+        name: created.name,
+        nameTh: created.nameTh,
+        slug: created.slug,
+        department: created.department,
+        parentId: created.parentId,
+        isActive: created.isActive,
+      },
+    });
+
     return this.mapCategory(created);
   }
 
   async updateCategory(
     id: string,
     dto: UpdateCategoryDto,
+    adminId?: string,
   ): Promise<ApiCategory> {
     const existing = await this.prisma.category.findUnique({ where: { id } });
     if (!existing) {
@@ -196,11 +217,35 @@ export class CatalogService {
       },
     });
 
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.UPDATE,
+      targetTable: 'categories',
+      targetId: updated.id,
+      oldValuesJson: {
+        name: existing.name,
+        nameTh: existing.nameTh,
+        slug: existing.slug,
+        department: existing.department,
+        parentId: existing.parentId,
+        isActive: existing.isActive,
+      },
+      newValuesJson: {
+        name: updated.name,
+        nameTh: updated.nameTh,
+        slug: updated.slug,
+        department: updated.department,
+        parentId: updated.parentId,
+        isActive: updated.isActive,
+      },
+    });
+
     return this.mapCategory(updated);
   }
 
   async deleteCategory(
     id: string,
+    adminId?: string,
   ): Promise<{ success: boolean; message: string }> {
     const existing = await this.prisma.category.findUnique({
       where: { id },
@@ -226,6 +271,20 @@ export class CatalogService {
     }
 
     await this.prisma.category.delete({ where: { id } });
+
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.DELETE,
+      targetTable: 'categories',
+      targetId: id,
+      oldValuesJson: {
+        name: existing.name,
+        nameTh: existing.nameTh,
+        slug: existing.slug,
+        department: existing.department,
+      },
+      newValuesJson: null,
+    });
 
     return {
       success: true,
@@ -435,7 +494,10 @@ export class CatalogService {
     };
   }
 
-  async createProduct(dto: CreateProductDto): Promise<ApiProductDetail> {
+  async createProduct(
+    dto: CreateProductDto,
+    adminId?: string,
+  ): Promise<ApiProductDetail> {
     const basePrice = dto.basePrice ?? dto.price ?? 0;
     const originalPrice = dto.originalPrice ?? null;
 
@@ -513,7 +575,29 @@ export class CatalogService {
       return created;
     });
 
-    return this.getProductBySlug(newProduct.slug);
+    const result = await this.getProductBySlug(newProduct.slug);
+
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.CREATE,
+      targetTable: 'products',
+      targetId: newProduct.id,
+      newValuesJson: {
+        name: result.name,
+        nameTh: result.nameTh,
+        slug: result.slug,
+        basePrice: result.basePrice,
+        originalPrice: result.originalPrice,
+        category: result.category,
+        department: result.department,
+        isActive: result.isActive,
+        isPreorder: result.isPreorder,
+        tag: result.tag,
+        variantsCount: result.variants.length,
+      },
+    });
+
+    return result;
   }
 
   private async generateUniqueSlug(name: string): Promise<string> {
@@ -764,16 +848,34 @@ export class CatalogService {
   async toggleProductStatus(
     id: string,
     isActive: boolean,
+    adminId?: string,
   ): Promise<{ success: boolean; id: string; isActive: boolean }> {
     const updated = await this.prisma.product.update({
       where: { id },
       data: { isActive },
       select: { id: true, isActive: true },
     });
+
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'products',
+      targetId: id,
+      oldValuesJson: {
+        isActive: !isActive,
+      },
+      newValuesJson: {
+        isActive: updated.isActive,
+      },
+    });
+
     return { success: true, id: updated.id, isActive: updated.isActive };
   }
 
-  async deleteProduct(id: string): Promise<{ success: boolean; id: string }> {
+  async deleteProduct(
+    id: string,
+    adminId?: string,
+  ): Promise<{ success: boolean; id: string }> {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
@@ -795,18 +897,47 @@ export class CatalogService {
         where: { id },
         data: { isActive: false },
       });
+
+      void this.auditLog?.recordLog({
+        adminId,
+        actionType: AuditActionType.STATUS_CHANGE,
+        targetTable: 'products',
+        targetId: id,
+        oldValuesJson: {
+          isActive: product.isActive,
+          name: product.name,
+          archived: false,
+        },
+        newValuesJson: {
+          isActive: false,
+          name: product.name,
+          archived: true,
+        },
+      });
+
       return { success: true, id };
     }
 
     await this.prisma.product.delete({
       where: { id },
     });
+
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.DELETE,
+      targetTable: 'products',
+      targetId: id,
+      oldValuesJson: { name: product.name, slug: product.slug },
+      newValuesJson: null,
+    });
+
     return { success: true, id };
   }
 
   async updateProduct(
     id: string,
     dto: Partial<CreateProductDto>,
+    adminId?: string,
   ): Promise<ApiProductDetail> {
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -974,7 +1105,39 @@ export class CatalogService {
       }
     });
 
-    return this.getProductBySlug(existing.slug);
+    const result = await this.getProductBySlug(existing.slug);
+
+    void this.auditLog?.recordLog({
+      adminId,
+      actionType: AuditActionType.UPDATE,
+      targetTable: 'products',
+      targetId: existing.id,
+      oldValuesJson: {
+        name: existing.name,
+        nameTh: existing.nameTh,
+        basePrice: Number(existing.basePrice),
+        originalPrice: existing.originalPrice
+          ? Number(existing.originalPrice)
+          : null,
+        categoryId: existing.categoryId,
+        isActive: existing.isActive,
+        isPreorder: existing.isPreorder,
+        tag: existing.tag,
+      },
+      newValuesJson: {
+        name: result.name,
+        nameTh: result.nameTh,
+        basePrice: result.basePrice,
+        originalPrice: result.originalPrice,
+        categoryId,
+        isActive: result.isActive,
+        isPreorder: result.isPreorder,
+        tag: result.tag,
+        variantsCount: result.variants.length,
+      },
+    });
+
+    return result;
   }
 
   private buildOrderBy(

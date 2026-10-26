@@ -36,9 +36,11 @@ export const AUDIT_ACTION_CONFIG: Record<AuditActionType, ActionBadgeConfig> = {
 
 export const TARGET_TABLE_KEYS: Record<string, string> = {
   products: 'audit.tableProducts',
+  categories: 'audit.tableCategories',
   orders: 'audit.tableOrders',
   inventory_items: 'audit.tableInventory',
   coupons: 'audit.tableCoupons',
+  cms_banners: 'audit.tableBanners',
   admin_users: 'audit.tableStaff',
   shipments: 'audit.tableShipments',
 };

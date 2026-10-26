@@ -242,4 +242,65 @@ describe('CatalogService - createProduct', () => {
       }),
     );
   });
+
+  it('records audit log when auditLogService is provided and product is created', async () => {
+    const auditLogMock = {
+      recordLog: vi.fn().mockResolvedValue(null),
+    };
+    const serviceWithAudit = new CatalogService(
+      prismaMock,
+      uploadServiceMock,
+      auditLogMock as any,
+    );
+
+    prismaMock.product.findUnique.mockResolvedValue(null);
+    prismaMock.category.findFirst.mockResolvedValue({
+      id: 'cat-1',
+      name: 'Apparel',
+      slug: 'apparel',
+      department: Department.WOMEN,
+    });
+    prismaMock.product.create.mockResolvedValue({
+      id: 'prod-audit-1',
+      slug: 'audit-product',
+    });
+
+    vi.spyOn(serviceWithAudit, 'getProductBySlug').mockResolvedValue({
+      id: 'prod-audit-1',
+      name: 'Audit Product',
+      nameTh: 'สินค้าตรวจสอบ',
+      slug: 'audit-product',
+      basePrice: 500,
+      department: Department.WOMEN,
+      category: {
+        id: 'cat-1',
+        name: 'Apparel',
+        slug: 'apparel',
+        department: Department.WOMEN,
+        displayOrder: 1,
+      },
+      images: [],
+      variants: [],
+      isActive: true,
+      isPreorder: false,
+    });
+
+    await serviceWithAudit.createProduct(
+      {
+        name: 'Audit Product',
+        price: 500,
+        category: 'apparel',
+      },
+      'admin-uuid-123',
+    );
+
+    expect(auditLogMock.recordLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        adminId: 'admin-uuid-123',
+        actionType: 'CREATE',
+        targetTable: 'products',
+        targetId: 'prod-audit-1',
+      }),
+    );
+  });
 });

@@ -17,9 +17,11 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
   const tableOptions = [
     { value: '', label: t('audit.filterAllModules') },
     { value: 'products', label: t('audit.tableProducts') },
+    { value: 'categories', label: t('audit.tableCategories') },
     { value: 'orders', label: t('audit.tableOrders') },
     { value: 'inventory_items', label: t('audit.tableInventory') },
     { value: 'coupons', label: t('audit.tableCoupons') },
+    { value: 'cms_banners', label: t('audit.tableBanners') },
     { value: 'admin_users', label: t('audit.tableStaff') },
     { value: 'shipments', label: t('audit.tableShipments') },
   ];

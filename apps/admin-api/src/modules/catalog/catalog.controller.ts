@@ -35,8 +35,8 @@ import {
   createCategorySchema,
   updateCategorySchema,
 } from '@repo/validators';
-import { AdminPermission } from '@repo/types';
-import { RequirePermissions } from '../auth/decorators/index.js';
+import { AdminPermission, type ApiAdminUser } from '@repo/types';
+import { CurrentAdmin, RequirePermissions } from '../auth/decorators/index.js';
 
 @ApiTags('Catalog')
 @Controller('catalog')
@@ -87,8 +87,9 @@ export class CatalogController {
   createCategory(
     @Body(new ZodValidationPipe(createCategorySchema))
     dto: CreateCategoryDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
   ) {
-    return this.catalogService.createCategory(dto);
+    return this.catalogService.createCategory(dto, admin?.id);
   }
 
   @Patch('categories/:id')
@@ -103,8 +104,9 @@ export class CatalogController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateCategorySchema))
     dto: UpdateCategoryDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
   ) {
-    return this.catalogService.updateCategory(id, dto);
+    return this.catalogService.updateCategory(id, dto, admin?.id);
   }
 
   @Delete('categories/:id')
@@ -115,8 +117,11 @@ export class CatalogController {
     status: 200,
     description: 'Category deleted successfully',
   })
-  deleteCategory(@Param('id') id: string) {
-    return this.catalogService.deleteCategory(id);
+  deleteCategory(
+    @Param('id') id: string,
+    @CurrentAdmin() admin: ApiAdminUser | null,
+  ) {
+    return this.catalogService.deleteCategory(id, admin?.id);
   }
 
   @Get('products')
@@ -191,8 +196,9 @@ export class CatalogController {
   createProduct(
     @Body(new ZodValidationPipe(createProductSchema))
     createProductDto: CreateProductDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
   ) {
-    return this.catalogService.createProduct(createProductDto);
+    return this.catalogService.createProduct(createProductDto, admin?.id);
   }
 
   @Put('products/:id')
@@ -220,8 +226,12 @@ export class CatalogController {
     status: 404,
     description: 'Product not found',
   })
-  updateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-    return this.catalogService.updateProduct(id, dto);
+  updateProduct(
+    @Param('id') id: string,
+    @Body() dto: UpdateProductDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
+  ) {
+    return this.catalogService.updateProduct(id, dto, admin?.id);
   }
 
   @Patch('products/:id/status')
@@ -252,8 +262,13 @@ export class CatalogController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateProductStatusSchema))
     body: UpdateProductStatusDto,
+    @CurrentAdmin() admin: ApiAdminUser | null,
   ) {
-    return this.catalogService.toggleProductStatus(id, Boolean(body.isActive));
+    return this.catalogService.toggleProductStatus(
+      id,
+      Boolean(body.isActive),
+      admin?.id,
+    );
   }
 
   @Delete('products/:id')
@@ -273,7 +288,10 @@ export class CatalogController {
     status: 404,
     description: 'Product not found',
   })
-  deleteProduct(@Param('id') id: string) {
-    return this.catalogService.deleteProduct(id);
+  deleteProduct(
+    @Param('id') id: string,
+    @CurrentAdmin() admin: ApiAdminUser | null,
+  ) {
+    return this.catalogService.deleteProduct(id, admin?.id);
   }
 }
