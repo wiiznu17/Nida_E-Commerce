@@ -10,7 +10,7 @@ import {
   ProductRecommendations,
   useProductDetail,
 } from '@/components/product';
-import { Breadcrumb, EmptyState, LoadingSpinner } from '@/components/ui';
+import { EmptyState, LoadingSpinner } from '@/components/ui';
 
 export function ProductDetailView() {
   const {
@@ -75,21 +75,8 @@ export function ProductDetailView() {
     );
   }
 
-  const deptSlug = product.department?.toLowerCase();
-  const breadcrumbItems = [
-    { label: t('product.home'), href: '/' },
-    {
-      label: subCategory.toUpperCase(),
-      href: deptSlug ? `/collections/${deptSlug}` : '/search',
-    },
-    { label: title },
-  ];
-
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-8 font-sans">
-      {/* Breadcrumbs */}
-      <Breadcrumb items={breadcrumbItems} className="mb-8" />
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10">
         <ProductGallery
           product={product}
