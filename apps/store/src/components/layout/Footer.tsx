@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Truck, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { FooterNewsletter } from './FooterNewsletter';
+import { NidaLogo } from './NidaLogo';
 
 export function Footer() {
   const { t } = useLanguage();
@@ -19,14 +20,7 @@ export function Footer() {
         {/* Col 1: Brand & Heritage */}
         <div>
           <div className="mb-6">
-            <span className="font-black text-2xl tracking-[0.2em] text-white uppercase block">
-              NIDA
-            </span>
-            <div className="flex w-14 h-1.5 mt-1">
-              <div className="w-1/3 bg-brand-brown"></div>
-              <div className="w-1/3 bg-white"></div>
-              <div className="w-1/3 bg-brand-yellow"></div>
-            </div>
+            <NidaLogo size="lg" dark className="-ml-1" />
           </div>
           <p className="text-xs text-gray-300 leading-relaxed mb-6 font-normal">
             {t('footer.brandStory')}

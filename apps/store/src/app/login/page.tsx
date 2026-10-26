@@ -7,6 +7,7 @@ import { LogIn, ShieldCheck, Mail, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { authRequester, extractApiError } from '@/api';
 import { Alert, LoadingSpinner } from '@/components/ui';
+import { NidaLogo } from '@/components/layout/NidaLogo';
 
 function LoginFormContent() {
   const [email, setEmail] = useState('');
@@ -55,11 +56,8 @@ function LoginFormContent() {
 
   return (
     <div className="w-full max-w-md bg-white border border-brand-border p-8 sm:p-10 shadow-sm relative">
-      {/* Nida Flag Ribbon */}
-      <div className="flex w-16 h-2 mx-auto mb-6">
-        <div className="w-1/3 bg-brand-brown"></div>
-        <div className="w-1/3 bg-white border-y border-gray-200"></div>
-        <div className="w-1/3 bg-brand-yellow"></div>
+      <div className="flex justify-center mb-6">
+        <NidaLogo size="lg" />
       </div>
 
       <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-brand-brown mb-2">

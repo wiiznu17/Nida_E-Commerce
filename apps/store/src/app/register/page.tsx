@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { NidaLogo } from '@/components/layout/NidaLogo';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -35,11 +36,8 @@ export default function RegisterPage() {
   return (
     <div className="min-h-[75vh] flex flex-col justify-center items-center px-4 py-16 bg-brand-warm-cream font-sans">
       <div className="w-full max-w-md bg-white border border-brand-border p-8 sm:p-10 shadow-sm relative">
-        {/* Nida Flag Ribbon */}
-        <div className="flex w-16 h-2 mx-auto mb-6">
-          <div className="w-1/3 bg-brand-brown"></div>
-          <div className="w-1/3 bg-white border-y border-gray-200"></div>
-          <div className="w-1/3 bg-brand-yellow"></div>
+        <div className="flex justify-center mb-6">
+          <NidaLogo size="lg" />
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-black uppercase text-center tracking-tight text-brand-brown mb-2">
