@@ -102,15 +102,13 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col p-0 bg-white border border-stone-200 shadow-2xl rounded-2xl">
         {/* Header Section with breathing room away from the Close button */}
-        <DialogHeader className="p-6 pb-4 sm:px-8 border-b border-stone-200/80 bg-stone-50/40 shrink-0 pr-16">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <AuditActionBadge actionType={log.actionType} />
-              <DialogTitle className="text-base sm:text-lg text-stone-900 font-bold tracking-tight">
-                {t('audit.diffModalTitle')}
-              </DialogTitle>
-            </div>
-            <span className="font-mono text-[11px] text-stone-500 bg-stone-200/60 border border-stone-200 px-2.5 py-0.5 rounded-md">
+        <DialogHeader className="p-6 pb-4 sm:px-8 border-b border-stone-200/80 bg-stone-50/40 shrink-0 pr-14">
+          <div className="flex flex-wrap items-center gap-3">
+            <AuditActionBadge actionType={log.actionType} />
+            <DialogTitle className="text-base sm:text-lg text-stone-900 font-bold tracking-tight">
+              {t('audit.diffModalTitle')}
+            </DialogTitle>
+            <span className="font-mono text-[11px] text-stone-500 bg-stone-200/70 border border-stone-200 px-2.5 py-0.5 rounded-md">
               ID: {log.id}
             </span>
           </div>
