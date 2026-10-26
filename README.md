@@ -1,164 +1,160 @@
-# Nida — Modern Classic Apparel & Lifestyle Platform
+# Nida — Luxury Apparel & Lifestyle E-Commerce Platform
 
-Nida is a full-stack e-commerce platform designed for fashion and lifestyle brands. Built on a **Monorepo architecture powered by Turborepo**, it features a customer-facing storefront, an admin back-office portal, a robust NestJS backend API, and a PostgreSQL database managed via Prisma ORM.
-
-## 🏗️ Workspace Architecture
-
-```
-Nida_Project/
-├── apps/
-│   ├── store/          # Next.js (Customer Storefront)
-│   ├── admin/          # React (Admin Portal)
-│   └── admin-api/      # NestJS Admin API
-|   └── api/            # NestJS Store API
-├── packages/
-│   ├── database/       # Prisma Schema, PostgreSQL Client, Migrations, and Seed Scripts
-│   ├── ui/             # Shared UI Component Library
-│   ├── validators/     # Shared Zod Schemas & Validation Logic
-│   ├── eslint-config/  # Shared ESLint Configuration
-│   ├── prettier-config/# Shared Prettier Code Style
-│   └── typescript-config/# Shared TypeScript Configuration
-├── docker-compose.yml  # PostgreSQL 16 + pgAdmin 4 Container Setup
-└── README.md           # Documentation & Usage Guide
-
-```
-
-## 🚀 Quick Setup Guide
-
-### 1. Prerequisites
-
-- **Node.js**: v20 or higher
-
-- **Docker Desktop**: For running PostgreSQL and pgAdmin containers
-
-### 2. Install Dependencies
-
-```
-npm install
-
-```
-
-### 3. Environment Variables
-
-Copy `.env.example` to `.env` at the project root:
-
-```
-cp .env.example .env
-
-```
-
-_(Default values are pre-configured for local development.)_
-
-## 🗄️ Database & Docker Setup
-
-### 1. Start PostgreSQL and pgAdmin via Docker
-
-Open **Docker Desktop** and run:
-
-```
-docker compose up -d
-
-```
-
-- **PostgreSQL**: Runs on port `5432` (`localhost:5432/ecommerce_db`)
-
-- **pgAdmin 4**: Access via web browser at `http://localhost:5050`
-
-  - **Email**: `admin@admin.com`
-
-  - **Password**: `admin`
-
-### 2. Push Schema to Database
-
-```
-npm run db:push -w @repo/database
-
-```
-
-### 3. Database Seeding (Development vs. Production)
-
-คำสั่งสำหรับ Seed ข้อมูล**เหมือนเดิมทุกประการ** โดยแยกตาม Environment อย่างชัดเจน:
-
-#### 🧪 สำหรับ Development (Mock Data ครบวงจร)
-ใช้สำหรับเครื่อง Local / Staging เพื่อสร้างข้อมูลจำลองสำหรับการพัฒนา (สินค้า 21 รายการพร้อม SKU Matrix, คำสั่งซื้อตัวอย่าง, Demo Staff, Demo Customers, CMS Banners, คูปองส่วนลด):
-
-```bash
-npm run db:seed -w @repo/database
-# หรือ
-npm --prefix packages/database run db:seed
-```
-
-> **🛡️ Production Safeguard**: สคริปต์นี้มี Safety Guard ในตัว หากรันบน `NODE_ENV=production` หรือ Connection String ของ Production ตัวสคริปต์จะปฏิเสธการทำงานทันทีเพื่อป้องกันข้อมูลสูญหาย (Data Loss)
-
-##### 🔑 ข้อมูลเข้าระบบเริ่มต้น (Dev Seed Credentials):
-- **Super Administrator**:
-  - **Email**: `admin@nida-apparel.com`
-  - **Username**: `superadmin`
-  - **Password**: `admin123`
-- **Demo Staff Users**:
-  - `inventory@nida-apparel.com` (บทบาท: `INVENTORY_MANAGER` / รหัสผ่าน: `admin123`)
-  - `fulfillment@nida-apparel.com` (บทบาท: `ORDER_MANAGER` / รหัสผ่าน: `admin123`)
-  - `marketing@nida-apparel.com` (บทบาท: `MARKETING_ADMIN` / รหัสผ่าน: `admin123`)
-- **Demo Customers (Storefront)**:
-  - `phannida@nida.com` / `customer@example.com` (รหัสผ่าน: `Password123!`)
-- **Sample Coupons**:
-  - `NIDA20`: ส่วนลด 20% (ช้อปขั้นต่ำ ฿1,000 ลดสูงสุด ฿500)
-  - `FREESHIP`: ส่งฟรีเมื่อช้อปครบ ฿1,000
-  - `WELCOME200`: ส่วนลด ฿200 เมื่อช้อปครบ ฿1,500
+A production-grade, full-stack e-commerce platform built as a high-performance TypeScript monorepo with Turborepo. Engineered for high-end fashion retail with editorial luxury aesthetics, strict inventory integrity, pro-rated order economics, and role-based operational workflows.
 
 ---
 
-#### 🛡️ สำหรับ Production (Safe Idempotent Setup)
-ใช้สำหรับขึ้นระบบจริงครั้งแรกหรือหลังการ Deploy Migration เพื่อเตรียม Master Data พื้นฐาน โดย**ไม่มีการลบข้อมูลเดิม** และ**ไม่มี Demo/Mock Users หลุดไปในระบบจริง**:
+## Architecture Overview
+
+Nida separates customer-facing commerce from back-office administration into distinct applications while sharing single-source-of-truth domain types and validation contracts across the entire monorepo.
+
+| Application / Package | Tech Stack                        | Role / Responsibility                                       | Port / Target           |
+| :-------------------- | :-------------------------------- | :---------------------------------------------------------- | :---------------------- |
+| `apps/store`          | Next.js (App Router), TailwindCSS | Customer storefront, editorial catalog, Cart & Checkout     | `http://localhost:3000` |
+| `apps/admin`          | React, Vite, TailwindCSS          | Admin Back-Office (Products, Inventory, Orders, CMS, Staff) | `http://localhost:5173` |
+| `apps/api`            | NestJS, Prisma, BullMQ, Redis     | Public Storefront API, OTP Auth, Checkout, Order Lifecycle  | `http://localhost:4001` |
+| `apps/admin-api`      | NestJS, Prisma, Redis             | Back-office REST API, RBAC Guards, Auditing, Shipments      | `http://localhost:4000` |
+| `packages/database`   | Prisma ORM, PostgreSQL            | Database schema, SQL migrations, idempotent seed engine     | Port `5432`             |
+| `packages/types`      | TypeScript                        | Shared domain entities, DTOs, Enums, API contracts          | Monorepo Package        |
+| `packages/validators` | Zod                               | Shared validation schemas for client forms & server pipes   | Monorepo Package        |
+| `packages/ui`         | React, TailwindCSS                | Design system primitives and reusable UI components         | Monorepo Package        |
+
+---
+
+## Quick Start (Local Setup in 4 Steps)
+
+### 1. Prerequisites
+
+- **Node.js**: `>= 20.0.0`
+- **Docker Desktop**: For running PostgreSQL 16 and Redis containers
+
+### 2. Clone & Install Dependencies
 
 ```bash
-npm run db:seed:prod -w @repo/database
-# หรือ
-npm --prefix packages/database run db:seed:prod
+git clone https://github.com/wiiznu17/Nida_E-Commerce.git
+cd Nida_Project
+npm install
+cp .env.example .env
 ```
 
-##### ⚙️ สิ่งที่ Production Seed จัดการ:
-1. **RBAC Matrix**: ซิงค์ Granular Permissions (10 รายการ) และ Default Roles (4 บทบาท)
-2. **Super Admin Initialization**: ตรวจสอบและสร้าง Super Admin (หากยังไม่มี) โดยอ่านจากค่า ENV:
-   - `INITIAL_ADMIN_EMAIL` (ค่าเริ่มต้น: `admin@nida-apparel.com`)
-   - `INITIAL_ADMIN_USERNAME` (ค่าเริ่มต้น: `superadmin`)
-   - `INITIAL_ADMIN_PASSWORD_HASH` *(จำเป็นต้องกำหนดใน Production มิฉะนั้นระบบจะ Abort ทันทีเพื่อความปลอดภัย)*
-3. **Core Categories (Taxonomy)**: Upsert หมวดหมู่สินค้าหลักและหมวดย่อยทั้ง 26 หมวดหมู่ (ไทย/อังกฤษ)
-4. **Default StoreSettings**: สร้างการตั้งค่าร้านค้าเริ่มต้น (เกณฑ์ส่งฟรี ฿1,000, นโยบายคืนสินค้า 7 วัน, แถบประกาศ)
+### 3. Spin Up Infrastructure & Seed Database
 
-### 4. Database GUI (Prisma Studio)
+```bash
+# 1. Start PostgreSQL 16, Redis 7, and pgAdmin containers
+docker compose up -d
 
-```
-npm run db:studio -w @repo/database
+# 2. Push database schema
+npm run db:push -w @repo/database
 
+# 3. Seed mock catalog, demo staff accounts, and test coupons
+npm run db:seed -w @repo/database
 ```
 
-Access Prisma Studio at `http://localhost:5555`.
+### 4. Start Development Servers
 
-## 🖥️ Local Development
-
-You can start all services concurrently or run specific applications individually.
-
-### Run All Services (Turborepo Dev Mode)
-
-```
+```bash
+# Start all services concurrently (Store, Admin, API, Admin-API)
 npm run dev
 ```
 
-## 🌟 Core Database & Business Features
+Alternatively, run specific application pairs during focused development:
 
-1. **Pre-Order Engine**: Supports advance order items, target release dates, and allocated reservation quotas.
+```bash
+npm run dev:store-full   # Storefront (Next.js) + Store API (NestJS)
+npm run dev:admin-full   # Admin Portal (Vite) + Admin API (NestJS)
+```
 
-2. **Promotion & Coupon Engine**: Flexible discount rules (percentage, fixed amount, free shipping, discount caps) with abuse-prevention logic.
+---
 
-3. **Weight & Dimensions Matrix**: Accurate shipping fee calculations based on package dimensions and weight (grams).
+## Test Accounts & Pre-Seeded Credentials
 
-4. **Pro-rated Net Price Calculation**: Automated item-level net cost breakdown for compliant partial refunds.
+Once the development seed finishes, the following accounts and resources are ready for evaluation:
 
-5. **Partial Refund Ledger**: Dedicated refund transaction ledger with actor audit trails for financial integrity.
+### Admin Back-Office Portal (`http://localhost:5173`)
 
-6. **Lightweight Return Workflow**: Streamlined return request lifecycle with customer submission and admin review/approval flows.
+| Account Role            | Email                          | Password   | Scope of Access                                    |
+| :---------------------- | :----------------------------- | :--------- | :------------------------------------------------- |
+| **Super Administrator** | `admin@nida-apparel.com`       | `admin123` | Full system control, Staff RBAC, Audit logs, CMS   |
+| **Inventory Manager**   | `inventory@nida-apparel.com`   | `admin123` | Stock balance, Warehouse adjustments, SKU tracking |
+| **Order Officer**       | `fulfillment@nida-apparel.com` | `admin123` | Order processing, Shipments, Returns review        |
+| **Marketing Admin**     | `marketing@nida-apparel.com`   | `admin123` | Coupons, Campaign tags, Discounts                  |
 
-7. **Loyalty Points Ledger**: Immutable point balance and transaction history ledger to prevent credit loss or mismatch.
+### Customer Storefront (`http://localhost:3000`)
 
-8. **Payment Security**: Built-in Idempotency Key handling and robust payment gateway webhook verification.
+| Customer Account | Email                  | Password       | Tier / Initial Balance            |
+| :--------------- | :--------------------- | :------------- | :-------------------------------- |
+| VIP Customer     | `phannida@nida.com`    | `Password123!` | `VIP_GOLD` (1,250 loyalty points) |
+| Regular Customer | `customer@example.com` | `Password123!` | `REGULAR` (200 loyalty points)    |
+
+### Active Demo Promotion Coupons
+
+- `NIDA20`: 20% off orders over ฿1,000 (Max discount ฿500)
+- `FREESHIP`: Complimentary shipping on orders over ฿1,000
+- `WELCOME200`: Flat ฿200 discount on orders over ฿1,500
+
+---
+
+## Key Engineering Highlights
+
+### 1. Dual-API Monorepo Separation
+
+Unlike monolithic APIs that mix customer shopping logic with administrative mutations, Nida isolates public storefront endpoints (`apps/api`) from staff back-office endpoints (`apps/admin-api`). Each service maintains its own Swagger documentation (`/api/docs`), middleware, and security boundary, while sharing data contracts through `@repo/types` and `@repo/validators`.
+
+### 2. Atomic Inventory & Pre-Order Reservation
+
+- SKU stock updates are never performed through loose mutation. Inventory is systematically tracked through `InventoryItem` with distinct fields for `quantityAvailable`, `quantityReserved`, and `preorderBooked`.
+- Order placement executes transactional stock holds, preventing overselling during concurrent checkouts.
+- Pre-order items feature quota caps (`preorderLimit`) and target fulfillment release dates.
+
+### 3. Pro-Rated Financial Economics & Partial Refunds
+
+- When multi-item orders utilize coupons or tiered discounts, the discount value is distributed pro-rata across eligible items.
+- Item-level snapshots (`productNameSnapshot`, `variantInfoSnapshot`, `discountShare`, `netPrice`) guarantee that customer return requests and partial refunds calculate refund totals accurately without financial discrepancies.
+
+### 4. Idempotent & Production-Guarded Seeding Engine
+
+- **Development Seed (`npm run db:seed -w @repo/database`)**: Destructive refresh for local testing. Armed with environment guards that abort immediately if executed against a production database or with `NODE_ENV=production`.
+- **Production Seed (`npm run db:seed:prod -w @repo/database`)**: Non-destructive, idempotent master data initialization. Syncs RBAC definitions, initializes the root Super Admin from environment secrets, and upserts product taxonomy without deleting operational data.
+
+### 5. Granular RBAC & Audit Trails
+
+- Staff accounts are decoupled from hardcoded roles. Administrative controllers enforce permissions via `@RequirePermissions(...)` guards against an immutable permission catalog.
+- Sensitive administrative mutations (stock adjustments, refunds, price updates) are automatically recorded to `AdminAuditLog` with actor attribution, client IP, and state diffs.
+
+---
+
+## Code Quality & Verification
+
+The codebase adheres to strict engineering constraints:
+
+- **Zero `any`**: Explicit type narrowing, generics, and strict TypeScript configurations across all apps.
+- **Contract Parity**: Shared Zod schemas (`@repo/validators`) are consumed directly by NestJS `ZodValidationPipe` on the server and React Hook Form on the client.
+
+### Run Verification Commands
+
+```bash
+# Type check across all workspaces
+npm run check-types
+
+# Run backend unit tests (389+ tests covering happy paths, negative guards & edge cases)
+npm --prefix apps/api run test
+npm --prefix apps/admin-api run test
+
+# Code formatting check
+npm run format:check
+```
+
+---
+
+## Infrastructure Services
+
+| Service               | Port   | Local URL / Details                                   |
+| :-------------------- | :----- | :---------------------------------------------------- |
+| Storefront Web        | `3000` | `http://localhost:3000`                               |
+| Admin Web             | `5173` | `http://localhost:5173`                               |
+| Storefront REST API   | `4001` | `http://localhost:4001/api/docs` (Swagger)            |
+| Admin Back-Office API | `4000` | `http://localhost:4000/api/docs` (Swagger)            |
+| PostgreSQL 16         | `5432` | `localhost:5432/ecommerce_db`                         |
+| Redis 7               | `6379` | `localhost:6379`                                      |
+| pgAdmin 4             | `5050` | `http://localhost:5050` (`admin@admin.com` / `admin`) |
+| Prisma Studio         | `5555` | `npm run db:studio -w @repo/database`                 |

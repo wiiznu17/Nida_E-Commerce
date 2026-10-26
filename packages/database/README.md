@@ -8,15 +8,15 @@
 
 สามารถรันคำสั่งเหล่านี้จาก root workspace ด้วย flag `-w @repo/database` หรือรันตรงภายในโฟลเดอร์ `packages/database`:
 
-| คำสั่ง | การทำงาน | จุดประสงค์ |
-| :--- | :--- | :--- |
-| `npm run db:seed` | รัน `tsx src/seed.ts` | 🧪 **Development Seed** (ล้างตาราง + ข้อมูลจำลองครบวงจร) |
-| `npm run db:seed:prod` | รัน `tsx src/seed-prod.ts` | 🛡️ **Production Seed** (ปลอดภัย 100%, Idempotent, ไม่ลบข้อมูล) |
-| `npm run db:generate` | รัน `prisma generate` | สร้าง Prisma Client ไปยัง `src/generated/prisma` |
-| `npm run db:push` | รัน `prisma db push` | Push Schema เข้า DB ตรงโดยไม่ผ่าน Migration (Local Dev) |
-| `npm run db:migrate:deploy` | รัน `prisma migrate deploy` | รัน Migration SQL ที่ยังค้างอยู่ใน Production/Staging |
-| `npm run db:migrate:status` | รัน `prisma migrate status` | ตรวจสอบสถานะของ Migration |
-| `npm run db:studio` | รัน `prisma studio` | เปิด GUI สำหรับดูและแก้ไขข้อมูลในตารางผ่าน Web Browser |
+| คำสั่ง                      | การทำงาน                    | จุดประสงค์                                                     |
+| :-------------------------- | :-------------------------- | :------------------------------------------------------------- |
+| `npm run db:seed`           | รัน `tsx src/seed.ts`       | 🧪 **Development Seed** (ล้างตาราง + ข้อมูลจำลองครบวงจร)       |
+| `npm run db:seed:prod`      | รัน `tsx src/seed-prod.ts`  | 🛡️ **Production Seed** (ปลอดภัย 100%, Idempotent, ไม่ลบข้อมูล) |
+| `npm run db:generate`       | รัน `prisma generate`       | สร้าง Prisma Client ไปยัง `src/generated/prisma`               |
+| `npm run db:push`           | รัน `prisma db push`        | Push Schema เข้า DB ตรงโดยไม่ผ่าน Migration (Local Dev)        |
+| `npm run db:migrate:deploy` | รัน `prisma migrate deploy` | รัน Migration SQL ที่ยังค้างอยู่ใน Production/Staging          |
+| `npm run db:migrate:status` | รัน `prisma migrate status` | ตรวจสอบสถานะของ Migration                                      |
+| `npm run db:studio`         | รัน `prisma studio`         | เปิด GUI สำหรับดูและแก้ไขข้อมูลในตารางผ่าน Web Browser         |
 
 ---
 
@@ -50,6 +50,7 @@ packages/database/src/
 ## 🛡️ Production Safety & Environment Variables
 
 สำหรับการรันบน Production (`npm run db:seed:prod`):
+
 - `INITIAL_ADMIN_EMAIL` — อีเมลของ Super Admin (default: `admin@nida-apparel.com`)
 - `INITIAL_ADMIN_USERNAME` — Username ของ Super Admin (default: `superadmin`)
 - `INITIAL_ADMIN_PASSWORD_HASH` — **จำเป็นต้องระบุใน Production** (bcrypt hash) หากไม่ได้ระบุ ระบบจะปฏิเสธการทำงานทันทีเพื่อป้องกันการใช้รหัสผ่านเริ่มต้น

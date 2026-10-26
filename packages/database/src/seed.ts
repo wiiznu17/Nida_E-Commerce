@@ -32,7 +32,9 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('🌱 Starting database seeding for Nida E-Commerce (Dev Environment)...');
+  console.log(
+    '🌱 Starting database seeding for Nida E-Commerce (Dev Environment)...',
+  );
 
   // 1. Clean existing records (in reverse dependency order)
   console.log('🧹 Cleaning existing data for fresh development cycle...');

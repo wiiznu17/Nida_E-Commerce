@@ -17,7 +17,8 @@ export async function seedSuperAdmin(prisma: PrismaClient) {
   }
 
   const isProduction = process.env.NODE_ENV === 'production';
-  const adminEmail = process.env.INITIAL_ADMIN_EMAIL ?? 'admin@nida-apparel.com';
+  const adminEmail =
+    process.env.INITIAL_ADMIN_EMAIL ?? 'admin@nida-apparel.com';
   const adminUsername = process.env.INITIAL_ADMIN_USERNAME ?? 'superadmin';
   const passwordHash = process.env.INITIAL_ADMIN_PASSWORD_HASH;
 

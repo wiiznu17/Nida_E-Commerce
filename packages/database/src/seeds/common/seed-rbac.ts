@@ -92,5 +92,7 @@ export async function syncRbac(prisma: PrismaClient) {
     );
   }
 
-  console.log('✨ RBAC synchronization completed successfully (no demo users injected).');
+  console.log(
+    '✨ RBAC synchronization completed successfully (no demo users injected).',
+  );
 }
