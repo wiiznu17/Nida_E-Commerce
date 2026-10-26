@@ -9,9 +9,7 @@ import {
   Tag,
   Sliders,
   Users,
-  ExternalLink,
   X,
-  ShieldCheck,
   ShieldAlert,
   LogOut,
   Ban,
@@ -21,7 +19,6 @@ import {
 import { NidaLogo } from '../common/NidaLogo';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { STOREFRONT_URL } from '../../config';
 import { SignOutConfirmModal } from '../common/SignOutConfirmModal';
 import { AdminPermission } from '@repo/types';
 
@@ -36,11 +33,15 @@ export function AdminSidebar({
   onClose,
   isDesktopOpen = true,
 }: AdminSidebarProps) {
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const { admin, hasPermission } = useAuth();
   const location = useLocation();
 
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
+
+  const initial = admin?.fullName
+    ? admin.fullName.charAt(0).toUpperCase()
+    : 'A';
 
   const rawSections = [
     {
@@ -170,10 +171,6 @@ export function AdminSidebar({
     }))
     .filter((section) => section.items.length > 0);
 
-  const initial = admin?.fullName
-    ? admin.fullName.charAt(0).toUpperCase()
-    : 'A';
-
   const renderContent = () => (
     <div className="flex flex-col h-full bg-brand-dark-brown text-white border-r border-brand-brown shadow-xl">
       {/* Sidebar Header / Brand */}
@@ -189,12 +186,6 @@ export function AdminSidebar({
         >
           <NidaLogo size="sm" dark />
         </Link>
-        <div className="mt-2 flex items-center space-x-1 bg-brand-yellow/15 border border-brand-yellow/30 px-2 py-0.5 rounded-full">
-          <ShieldCheck size={10} className="text-brand-yellow" />
-          <span className="text-[9px] font-black tracking-widest text-brand-yellow uppercase">
-            {t('nav.backOffice')}
-          </span>
-        </div>
       </div>
 
       {/* Navigation Sections */}
@@ -250,88 +241,34 @@ export function AdminSidebar({
         ))}
       </div>
 
-      {/* Footer / Storefront + Admin Profile */}
-      <div className="p-3 border-t border-white/10 space-y-2.5 bg-black/15">
-        {/* Quick Link to Storefront */}
-        <a
-          href={STOREFRONT_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs transition-colors border border-white/5"
-        >
-          <div className="flex items-center space-x-2">
-            <ExternalLink size={13} className="text-brand-yellow" />
-            <span className="font-bold text-[11px]">
-              {t('common.viewStorefront')}
-            </span>
-          </div>
-          <span className="text-[9px] text-white/40 font-mono">
-            {(() => {
-              try {
-                return new URL(STOREFRONT_URL).port || '5173';
-              } catch {
-                return '5173';
-              }
-            })()}
-          </span>
-        </a>
-
-        {/* User Card */}
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center space-x-2 truncate">
+      {/* Footer / Admin Profile & Logout */}
+      <div className="p-3 border-t border-white/10 bg-black/15">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2.5 min-w-0 pr-1">
             <div className="relative shrink-0">
-              <div className="w-7 h-7 rounded-full bg-brand-yellow text-brand-dark-brown flex items-center justify-center font-black text-[11px] shadow-xs">
+              <div className="w-8 h-8 rounded-full bg-brand-yellow text-brand-dark-brown flex items-center justify-center font-black text-xs shadow-xs">
                 {initial}
               </div>
-              <span className="absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full bg-emerald-500 ring-1 ring-brand-dark-brown" />
+              <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-brand-dark-brown" />
             </div>
-            <div className="truncate">
-              <div className="text-[11px] font-bold text-white leading-tight truncate">
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-white leading-tight truncate">
                 {admin?.fullName ?? 'Admin'}
               </div>
-              <div className="text-[9px] text-white/50 leading-tight truncate">
+              <div className="text-[10px] text-white/50 leading-tight truncate">
                 {admin?.role?.roleName ?? 'Staff'}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-1.5 shrink-0">
-            {/* Sign Out Button */}
-            <button
-              type="button"
-              onClick={() => setIsSignOutOpen(true)}
-              title={t('auth.sign_out_button')}
-              className="p-1 rounded-md text-white/60 hover:text-red-400 hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              <LogOut size={14} />
-            </button>
-
-            {/* Language Switcher */}
-            <div className="flex items-center bg-white/10 p-0.5 rounded-xs border border-white/20">
-              <button
-                type="button"
-                onClick={() => setLanguage('th')}
-                className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors cursor-pointer ${
-                  language === 'th'
-                    ? 'bg-brand-yellow text-brand-dark-brown'
-                    : 'text-white/70 hover:text-white'
-                }`}
-              >
-                TH
-              </button>
-              <button
-                type="button"
-                onClick={() => setLanguage('en')}
-                className={`px-1.5 py-0.5 text-[9px] font-black rounded-xs transition-colors cursor-pointer ${
-                  language === 'en'
-                    ? 'bg-brand-yellow text-brand-dark-brown'
-                    : 'text-white/70 hover:text-white'
-                }`}
-              >
-                EN
-              </button>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsSignOutOpen(true)}
+            title={t('auth.sign_out_button')}
+            className="p-1.5 rounded-lg text-white/60 hover:text-red-400 hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+          >
+            <LogOut size={16} />
+          </button>
         </div>
       </div>
     </div>
