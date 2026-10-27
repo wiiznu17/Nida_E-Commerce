@@ -6,6 +6,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { CartDrawer } from './CartDrawer';
 import { AuthDrawer } from './AuthDrawer';
+import { CookieConsentBanner } from '@/components/common';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen flex flex-col bg-stone-50/60 text-brand-brown selection:bg-brand-yellow selection:text-brand-brown font-sans">
         <main className="flex-1 w-full">{children}</main>
+        <CookieConsentBanner />
       </div>
     );
   }
@@ -27,6 +29,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <Footer />
       <CartDrawer />
       <AuthDrawer />
+      <CookieConsentBanner />
     </div>
   );
 }

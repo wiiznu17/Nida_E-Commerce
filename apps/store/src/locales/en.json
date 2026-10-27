@@ -791,5 +791,12 @@
     "completed": "Completed",
     "cancelled": "Cancelled",
     "refunded": "Refunded"
+  },
+  "cookie": {
+    "title": "Privacy & Cookie Policy",
+    "description": "We use cookies to maintain your secure session, enhance browsing performance, and personalize your luxury shopping experience on NIDA.",
+    "acceptAll": "Accept All",
+    "essentialOnly": "Essential Only",
+    "learnMore": "About Privacy Policy"
   }
 }
