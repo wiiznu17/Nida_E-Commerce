@@ -22,17 +22,11 @@ export function ProfileHeader({ user, onLogout }: ProfileHeaderProps) {
           {userInitial}
         </div>
         <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl sm:text-3xl font-black text-brand-brown uppercase tracking-tight">
-              {user.firstName} {user.lastName}
-            </h1>
-            <span className="bg-brand-brown text-brand-yellow text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">
-              {user.tier}
-            </span>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-brand-brown uppercase tracking-tight">
+            {user.firstName} {user.lastName}
+          </h1>
           <p className="text-xs text-gray-500 font-semibold mt-1">
-            {user.email} •{' '}
-            {language === 'th' ? 'สมาชิก Nida Club' : 'Nida Club Member'}
+            {user.email} • {t('auth.clubMember')}
           </p>
         </div>
       </div>
@@ -40,7 +34,7 @@ export function ProfileHeader({ user, onLogout }: ProfileHeaderProps) {
       <div className="flex items-center space-x-4 w-full md:w-auto justify-between md:justify-end">
         <div className="text-right hidden sm:block">
           <span className="text-[10px] font-bold uppercase text-gray-500 tracking-wider block">
-            {language === 'th' ? 'คะแนนสะสม' : 'Rewards Points'}
+            {t('auth.rewardsPoints')}
           </span>
           <span className="text-lg font-black text-brand-brown font-mono">
             {user.points} PTS
