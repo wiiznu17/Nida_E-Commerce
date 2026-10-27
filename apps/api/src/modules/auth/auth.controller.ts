@@ -26,6 +26,7 @@ import {
   VerifyOtpDto,
   CustomerRefreshTokenDto,
   UpdateCustomerProfileDto,
+  CustomerChangePasswordDto,
 } from './dto/index.js';
 import { CustomerJwtGuard } from './guards/customer-jwt.guard.js';
 import { CustomerAuthService } from './auth.service.js';
@@ -307,5 +308,24 @@ export class CustomerAuthController {
     @Body() dto: UpdateCustomerProfileDto,
   ): Promise<ApiUser> {
     return this.authService.updateProfile(req.user.id, dto);
+  }
+
+  @Post('change-password')
+  @UseGuards(CustomerJwtGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Change password for authenticated customer',
+    description:
+      'Verifies current password and updates to new password hash.',
+  })
+  @ApiResponse({ status: 200, description: 'Password changed successfully' })
+  @ApiResponse({ status: 400, description: 'Current password incorrect' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async changePassword(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: CustomerChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.authService.changePassword(req.user.id, dto);
   }
 }

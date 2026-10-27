@@ -14,6 +14,7 @@ import type {
   CustomerForgotPasswordInput,
   CustomerResetPasswordInput,
   UpdateCustomerProfileInput,
+  CustomerChangePasswordInput,
 } from '@repo/validators';
 
 export const authRequester = {
@@ -89,6 +90,18 @@ export const authRequester = {
   ): Promise<{ success: boolean; message: string }> => {
     return apiClient.post<{ success: boolean; message: string }>(
       '/auth/reset-password',
+      data,
+    );
+  },
+
+  /**
+   * Change password for authenticated customer.
+   */
+  changePassword: async (
+    data: CustomerChangePasswordInput,
+  ): Promise<{ success: boolean; message: string }> => {
+    return apiClient.post<{ success: boolean; message: string }>(
+      '/auth/change-password',
       data,
     );
   },

@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
-import { Edit3, ShieldAlert, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit3, ShieldAlert, LogOut, KeyRound } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Alert } from '@/components/ui';
 import type { User } from '@/context/AuthContext';
 import type { ProfileFormData } from './profileTypes';
+import { ChangePasswordModal } from './ChangePasswordModal';
 
 interface ProfileInfoTabProps {
   user: User;
@@ -27,6 +28,7 @@ export function ProfileInfoTab({
   onLogoutAll,
 }: ProfileInfoTabProps) {
   const { language, t } = useLanguage();
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   return (
     <div>
@@ -185,6 +187,37 @@ export function ProfileInfoTab({
               : 'Account authenticated via 2-factor OTP verification.'}
           </Alert>
 
+          {/* Security & Password */}
+          <div className="pt-6 border-t border-gray-200">
+            <div className="flex items-center space-x-2 mb-1">
+              <KeyRound size={16} className="text-brand-brown" />
+              <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
+                {t('auth.passwordSectionTitle')}
+              </h3>
+            </div>
+            <p className="text-[11px] text-gray-500 mb-3">
+              {t('auth.passwordSectionDesc')}
+            </p>
+            <div className="flex items-center justify-between p-3.5 bg-brand-warm-cream border border-brand-border">
+              <div>
+                <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                  {t('auth.passwordLabel').replace('*', '').trim()}
+                </p>
+                <p className="text-xs font-mono font-bold text-brand-brown mt-0.5 tracking-widest">
+                  ••••••••••••
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsChangePasswordOpen(true)}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 border border-brand-brown text-brand-brown hover:bg-brand-brown hover:text-white text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                <KeyRound size={13} />
+                <span>{t('auth.changePassword')}</span>
+              </button>
+            </div>
+          </div>
+
           {onLogoutAll && (
             <div className="pt-6 border-t border-gray-200">
               <div className="flex items-center space-x-2 mb-1">
@@ -208,6 +241,11 @@ export function ProfileInfoTab({
           )}
         </div>
       )}
+
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
     </div>
   );
 }

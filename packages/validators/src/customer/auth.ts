@@ -149,3 +149,15 @@ export const customerAddressSchema = z.object({
 });
 
 export type CustomerAddressInput = z.infer<typeof customerAddressSchema>;
+
+/**
+ * Customer Change Password Schema
+ */
+export const customerChangePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(6, 'New password must be at least 6 characters'),
+});
+
+export type CustomerChangePasswordInput = z.infer<
+  typeof customerChangePasswordSchema
+>;

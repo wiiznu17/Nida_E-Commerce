@@ -35,6 +35,7 @@ import type {
   CustomerResetPasswordInput,
   CustomerRefreshTokenInput,
   UpdateCustomerProfileInput,
+  CustomerChangePasswordInput,
 } from '@repo/validators';
 
 export const JWT_ACCESS_EXPIRATION_SECONDS = 900; // 15 minutes
@@ -538,6 +539,52 @@ export class CustomerAuthService {
     return {
       success: true,
       message: 'ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่',
+    };
+  }
+
+  /**
+   * Change password for authenticated customer.
+   */
+  async changePassword(
+    userId: string,
+    dto: CustomerChangePasswordInput,
+  ): Promise<{ success: boolean; message: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Customer account not found');
+    }
+
+    if (!user.passwordHash) {
+      throw new BadRequestException(
+        'บัญชีนี้ยังไม่ได้ตั้งรหัสผ่าน กรุณาใช้ระบบลืมรหัสผ่านเพื่อตั้งรหัสผ่านใหม่ (Password not set on this account. Please use forgot password.)',
+      );
+    }
+
+    const isMatch = await bcrypt.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
+    if (!isMatch) {
+      throw new BadRequestException(
+        'รหัสผ่านปัจจุบันไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง (Current password is incorrect.)',
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว (Password changed successfully)',
     };
   }
 

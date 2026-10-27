@@ -80,6 +80,8 @@ function AuthDrawerContent() {
   const [forgotEmail, setForgotEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // OTP states
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -137,6 +139,9 @@ function AuthDrawerContent() {
       setLoginPassword('');
       setRegisterPassword('');
       setNewPassword('');
+      setConfirmPassword('');
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
       setOtp(['', '', '', '', '', '']);
     }, 300);
   };
@@ -321,10 +326,16 @@ function AuthDrawerContent() {
   const handleResetPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join('');
-    if (code.length !== 6 || !activeEmail || !newPassword) return;
+    if (code.length !== 6 || !activeEmail || !newPassword || !confirmPassword)
+      return;
 
     if (newPassword.length < 8) {
       setErrorMessage(t('auth.passwordMinLength'));
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setErrorMessage(t('auth.passwordsDoNotMatch'));
       return;
     }
 
@@ -340,6 +351,8 @@ function AuthDrawerContent() {
       sessionStorage.removeItem('nida_dev_otp');
       setLoginEmail(activeEmail);
       setLoginPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
       setStep('form');
       switchTab('signin');
       setInfoMessage(t('auth.resetPasswordSuccess'));
@@ -1118,10 +1131,56 @@ function AuthDrawerContent() {
                   </div>
                 </div>
 
+                <div>
+                  <label
+                    htmlFor="drawer-reset-confirm-password"
+                    className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1"
+                  >
+                    {t('auth.confirmPasswordLabel')}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      id="drawer-reset-confirm-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={8}
+                      placeholder={t('auth.confirmPasswordPlaceholder')}
+                      className="w-full border border-gray-300 px-3 py-2 pl-10 pr-10 text-xs focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown"
+                    />
+                    <Lock
+                      size={16}
+                      className="absolute left-3 top-2.5 text-gray-400 pointer-events-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-2.5 text-gray-400 hover:text-brand-brown cursor-pointer p-0.5"
+                      aria-label={
+                        showConfirmPassword
+                          ? t('auth.hidePassword')
+                          : t('auth.showPassword')
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff size={16} />
+                      ) : (
+                        <Eye size={16} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={
-                    otp.join('').length !== 6 || !newPassword || isLoading
+                    otp.join('').length !== 6 ||
+                    !newPassword ||
+                    !confirmPassword ||
+                    isLoading
                   }
                   className="w-full bg-brand-brown hover:bg-brand-amber disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-2xs flex items-center justify-center space-x-2 cursor-pointer mt-4"
                 >

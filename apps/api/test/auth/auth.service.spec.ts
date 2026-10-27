@@ -755,4 +755,77 @@ describe('CustomerAuthService', () => {
       expect(redisMock.revokeAllCustomerSessions).toHaveBeenCalledWith('usr-1');
     });
   });
+
+  describe('changePassword', () => {
+    it('changes password successfully when current password matches', async () => {
+      const bcrypt = await import('bcryptjs');
+      const oldHash = await bcrypt.default.hash('CurrentPass123!', 10);
+
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-change-1',
+        email: 'user@nida.co',
+        passwordHash: oldHash,
+      });
+      prismaMock.user.update.mockResolvedValueOnce({ id: 'usr-change-1' });
+
+      const res = await service.changePassword('usr-change-1', {
+        currentPassword: 'CurrentPass123!',
+        newPassword: 'BrandNewPassword123!',
+      });
+
+      expect(res.success).toBe(true);
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'usr-change-1' },
+          data: expect.objectContaining({
+            passwordHash: expect.any(String),
+          }),
+        }),
+      );
+    });
+
+    it('throws BadRequestException when current password does not match', async () => {
+      const bcrypt = await import('bcryptjs');
+      const oldHash = await bcrypt.default.hash('CurrentPass123!', 10);
+
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-change-1',
+        email: 'user@nida.co',
+        passwordHash: oldHash,
+      });
+
+      await expect(
+        service.changePassword('usr-change-1', {
+          currentPassword: 'WrongPassword!',
+          newPassword: 'BrandNewPassword123!',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws NotFoundException when customer user record does not exist', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.changePassword('non-existent-user', {
+          currentPassword: 'CurrentPass123!',
+          newPassword: 'BrandNewPassword123!',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException when user has no passwordHash set', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-no-pwd',
+        email: 'nopwd@nida.co',
+        passwordHash: null,
+      });
+
+      await expect(
+        service.changePassword('usr-no-pwd', {
+          currentPassword: 'CurrentPass123!',
+          newPassword: 'BrandNewPassword123!',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
 });
