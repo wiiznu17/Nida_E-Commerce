@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   X,
   Mail,
@@ -981,7 +982,14 @@ function AuthDrawerContent() {
               </button>
 
               <p className="text-[10px] text-gray-400 text-center leading-relaxed pt-1">
-                {t('auth.termsNotice')}
+                {t('auth.termsNotice')}{' '}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  className="underline text-stone-600 hover:text-brand-brown transition-colors font-medium"
+                >
+                  ({t('terms.title')})
+                </Link>
               </p>
             </form>
           )}

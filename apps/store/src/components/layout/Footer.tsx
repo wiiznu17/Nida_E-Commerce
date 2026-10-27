@@ -200,9 +200,9 @@ export function Footer() {
             {t('footer.privacy')}
           </span>
           <span>•</span>
-          <span className="hover:text-white cursor-pointer">
+          <Link href="/terms" className="hover:text-white transition-colors">
             {t('footer.terms')}
-          </span>
+          </Link>
           <span>•</span>
           <span className="hover:text-white cursor-pointer">
             {t('footer.accessibility')}

@@ -14,4 +14,5 @@ export * from './order';
 export * from './auth';
 export * from './about';
 export * from './common';
+export * from './legal';
 export * from './Providers';

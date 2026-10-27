@@ -798,5 +798,96 @@
     "acceptAll": "Accept All",
     "essentialOnly": "Essential Only",
     "learnMore": "About Privacy Policy"
+  },
+  "terms": {
+    "badge": "LEGAL & COMPLIANCE",
+    "title": "Terms of Service",
+    "subtitle": "Please read these terms and conditions carefully before using our website and placing orders with the NIDA Official Store.",
+    "lastUpdated": "Effective Date: October 1, 2026",
+    "tocTitle": "Table of Contents",
+    "sections": {
+      "use": {
+        "id": "website-terms",
+        "num": "1.0",
+        "title": "Website Terms of Use",
+        "summary": "General rules regarding website access, usage, account security, and prohibited conduct.",
+        "items": [
+          {
+            "subNum": "1.1",
+            "subtitle": "Acceptance of Terms & Eligibility",
+            "content": "By accessing or using the NIDA website, you acknowledge that you have read, understood, and agreed to be bound by these Terms of Service. If you do not agree, please discontinue using this site immediately. You must be at least 20 years old or possess legal parental or guardian consent to use this service."
+          },
+          {
+            "subNum": "1.2",
+            "subtitle": "Account Registration & Security",
+            "content": "To place orders and enjoy member privileges, you may create a NIDA customer account. You are solely responsible for maintaining the confidentiality of your credentials and for all activities that occur under your account. Notify us immediately if you suspect any unauthorized access."
+          },
+          {
+            "subNum": "1.3",
+            "subtitle": "Prohibited Conduct",
+            "content": "You agree not to use the website for unlawful purposes or in violation of third-party rights. Prohibited conduct includes automated data scraping, reverse engineering, interfering with server security, or transmitting false information that could disrupt or damage our systems."
+          }
+        ]
+      },
+      "orders": {
+        "id": "orders-payments",
+        "num": "2.0",
+        "title": "Orders, Pricing & Payment Contract",
+        "summary": "Conditions governing order placement, confirmation, price and stock accuracy, payment methods, and cancellations.",
+        "items": [
+          {
+            "subNum": "2.1",
+            "subtitle": "Order Placement & Acceptance",
+            "content": "Placing an order constitutes an offer to purchase. A binding sales contract is formed once payment has been received and NIDA sends you an official Order Confirmation email. NIDA reserves the right to decline or cancel orders in cases of fraud suspicion, pricing discrepancies, or sudden inventory depletion."
+          },
+          {
+            "subNum": "2.2",
+            "subtitle": "Pricing & Inventory Accuracy",
+            "content": "All prices are listed in Thai Baht (THB) inclusive of VAT. While we strive for absolute accuracy, unexpected errors may occur. In the event of an erroneous price, NIDA reserves the right to contact you for confirmation at the correct price or cancel the order with a full refund."
+          },
+          {
+            "subNum": "2.3",
+            "subtitle": "Payment Methods & Transaction Security",
+            "content": "We support Credit/Debit Cards, PromptPay QR, and Cash on Delivery. Card payments are securely processed through Omise Payment Gateway in accordance with PCI-DSS Level 1 compliance. NIDA does not store your sensitive card details on our servers."
+          },
+          {
+            "subNum": "2.4",
+            "subtitle": "Order Cancellation & Return Policy",
+            "content": "Orders may be cancelled prior to dispatch. If an item has manufacturing defects, you may request an exchange or return within 7 days of delivery, provided that items are unworn, unwashed, and in their original packaging with all tags attached."
+          }
+        ]
+      },
+      "liability": {
+        "id": "liability-ip",
+        "num": "3.0",
+        "title": "Limitation of Liability & NIDA Trademarks",
+        "summary": "Intellectual property ownership, brand trademarks, statutory disclaimers, and dispute resolution.",
+        "items": [
+          {
+            "subNum": "3.1",
+            "subtitle": "Intellectual Property & Trademarks",
+            "content": "All content on this site, including text, graphics, logos, product imagery, multimedia, and software, is the property of NIDA or its licensors and is protected by intellectual property laws. Reproduction, modification, distribution, or commercial exploitation is strictly prohibited without prior written consent."
+          },
+          {
+            "subNum": "3.2",
+            "subtitle": "Disclaimer & Limitation of Liability",
+            "content": "The website and services are provided on an 'as is' and 'as available' basis. To the maximum extent permitted by applicable law, NIDA disclaims liability for indirect, incidental, or consequential damages. In no event shall our total aggregate liability exceed the purchase amount paid for the order in question."
+          },
+          {
+            "subNum": "3.3",
+            "subtitle": "Governing Law & Jurisdiction",
+            "content": "These Terms shall be governed by and construed in accordance with the laws of the Kingdom of Thailand. Any disputes arising out of or in connection with these terms shall be subject to the exclusive jurisdiction of the courts of Thailand."
+          }
+        ]
+      }
+    },
+    "contact": {
+      "title": "Have questions or need assistance?",
+      "description": "If you have questions regarding our Terms of Service or need help with your orders, our NIDA Client Concierge team is here to assist you.",
+      "emailLabel": "Customer Support Email",
+      "phoneLabel": "Phone Concierge",
+      "hoursLabel": "Business Hours",
+      "hoursValue": "Monday - Sunday: 09:00 - 18:00 (ICT)"
+    }
   }
 }
