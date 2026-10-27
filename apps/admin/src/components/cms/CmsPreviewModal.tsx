@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { X, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { CmsLivePreviewCanvas } from './preview/CmsLivePreviewCanvas';
 import type { ApiCmsBanner, ApiStoreSettings } from '@repo/types';
 import { useLanguage } from '../../context/LanguageContext';
@@ -24,6 +24,7 @@ export const CmsPreviewModal: React.FC<CmsPreviewModalProps> = ({
   onNavigateTab,
 }) => {
   const { t } = useLanguage();
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
 
   const handleNavigateTab = (
     tabKey: 'hero' | 'spotlight' | 'promo' | 'settings',
@@ -33,6 +34,12 @@ export const CmsPreviewModal: React.FC<CmsPreviewModalProps> = ({
       onClose();
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      setActiveHeroIndex(0);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -51,24 +58,19 @@ export const CmsPreviewModal: React.FC<CmsPreviewModalProps> = ({
       <div className="relative w-full max-w-6xl max-h-[92vh] bg-white rounded-xs shadow-2xl flex flex-col overflow-hidden border border-stone-300">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-[#FAF7F2]">
-          <div className="flex items-center space-x-2.5">
-            <span className="p-1.5 bg-[#2B1810] text-white rounded-xs">
-              <Eye size={16} />
-            </span>
-            <div>
-              <h3 className="text-sm font-black uppercase tracking-tight text-[#2B1810]">
-                {t('cms.previewModalTitle')}
-              </h3>
-              <p className="text-[11px] text-stone-500">
-                {t('cms.previewModalSubtitle')}
-              </p>
-            </div>
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-tight text-[#2B1810]">
+              {t('cms.previewModalTitle')}
+            </h3>
+            <p className="text-[11px] text-stone-500">
+              {t('cms.previewModalSubtitle')}
+            </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 rounded-xs transition-colors"
+            className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 rounded-xs transition-colors cursor-pointer"
             title="Close Preview"
           >
             <X size={18} />
@@ -79,7 +81,8 @@ export const CmsPreviewModal: React.FC<CmsPreviewModalProps> = ({
         <div className="flex-1 overflow-y-auto bg-stone-100 p-4">
           <CmsLivePreviewCanvas
             heroBanners={heroBanners}
-            activeHeroIndex={0}
+            activeHeroIndex={activeHeroIndex}
+            onSelectHeroIndex={setActiveHeroIndex}
             spotlights={spotlights}
             promoRibbon={promoRibbon}
             storeSettings={storeSettings ?? {}}

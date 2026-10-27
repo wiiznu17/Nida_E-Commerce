@@ -41,6 +41,10 @@ export default function AdminAnalytics() {
   });
 
   const [slowMovingDays, setSlowMovingDays] = useState(30);
+  const [slowMovingPage, setSlowMovingPage] = useState(1);
+  const [slowMovingPageSize, setSlowMovingPageSize] = useState(10);
+  const [slowMovingTotal, setSlowMovingTotal] = useState(0);
+  const [slowMovingTotalPages, setSlowMovingTotalPages] = useState(1);
 
   // Data States
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +63,16 @@ export default function AdminAnalytics() {
     avgRoiPercent: 0,
     items: [],
   });
+
+  const handleSlowMovingDaysChange = (days: number) => {
+    setSlowMovingDays(days);
+    setSlowMovingPage(1);
+  };
+
+  const handleSlowMovingPageSizeChange = (newSize: number) => {
+    setSlowMovingPageSize(newSize);
+    setSlowMovingPage(1);
+  };
 
   const fetchTabData = useCallback(async () => {
     if (activeTab === 'export') {
@@ -93,9 +107,12 @@ export default function AdminAnalytics() {
         case 'slow-moving': {
           const res = await analyticsRequester.getSlowMovingProducts({
             days: slowMovingDays,
-            limit: 20,
+            page: slowMovingPage,
+            limit: slowMovingPageSize,
           });
-          setSlowMoving(res);
+          setSlowMoving(res.items);
+          setSlowMovingTotal(res.total);
+          setSlowMovingTotalPages(res.totalPages);
           break;
         }
         case 'coupon': {
@@ -109,7 +126,15 @@ export default function AdminAnalytics() {
     } finally {
       setIsLoading(false);
     }
-  }, [activeTab, timeframe, isCustomRange, dateRange, slowMovingDays]);
+  }, [
+    activeTab,
+    timeframe,
+    isCustomRange,
+    dateRange,
+    slowMovingDays,
+    slowMovingPage,
+    slowMovingPageSize,
+  ]);
 
   useEffect(() => {
     fetchTabData();
@@ -150,8 +175,14 @@ export default function AdminAnalytics() {
         <AnalyticsSlowMoving
           products={slowMoving}
           days={slowMovingDays}
-          onDaysChange={setSlowMovingDays}
+          onDaysChange={handleSlowMovingDaysChange}
           isLoading={isLoading}
+          currentPage={slowMovingPage}
+          totalPages={slowMovingTotalPages}
+          pageSize={slowMovingPageSize}
+          totalItems={slowMovingTotal}
+          onPageChange={setSlowMovingPage}
+          onPageSizeChange={handleSlowMovingPageSizeChange}
         />
       )}
 

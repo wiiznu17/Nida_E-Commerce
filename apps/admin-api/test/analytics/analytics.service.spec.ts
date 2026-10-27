@@ -350,11 +350,14 @@ describe('AnalyticsService', () => {
 
       const result = await service.getSlowMovingProducts({ days: 30, limit: 10 });
 
-      expect(result.length).toBe(2);
-      expect(result[0].currentStock).toBeGreaterThan(0);
-      expect(result[0].daysSinceLastSale).toBeGreaterThan(30);
+      expect(result.items.length).toBe(2);
+      expect(result.total).toBe(2);
+      expect(result.page).toBe(1);
+      expect(result.totalPages).toBe(1);
+      expect(result.items[0].currentStock).toBeGreaterThan(0);
+      expect(result.items[0].daysSinceLastSale).toBeGreaterThan(30);
       expect(redisMock.cacheSet).toHaveBeenCalledWith(
-        'admin:analytics:slow_moving:30:10',
+        'admin:analytics:slow_moving:30:1:10',
         result,
         3600,
       );

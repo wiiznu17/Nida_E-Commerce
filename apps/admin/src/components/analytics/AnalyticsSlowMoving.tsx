@@ -1,7 +1,7 @@
 import type { AnalyticsSlowMovingProduct } from '@repo/types';
 import { AlertCircle, Clock } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { DropdownSelect } from '../ui';
+import { DropdownSelect, Pagination } from '../ui';
 import { SLOW_MOVING_DAY_OPTIONS } from './analyticsConstants';
 
 interface AnalyticsSlowMovingProps {
@@ -9,6 +9,12 @@ interface AnalyticsSlowMovingProps {
   days: number;
   onDaysChange: (days: number) => void;
   isLoading: boolean;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
 }
 
 export function AnalyticsSlowMoving({
@@ -16,6 +22,12 @@ export function AnalyticsSlowMoving({
   days,
   onDaysChange,
   isLoading,
+  currentPage,
+  totalPages,
+  pageSize,
+  totalItems,
+  onPageChange,
+  onPageSizeChange,
 }: AnalyticsSlowMovingProps) {
   const { t } = useLanguage();
 
@@ -119,6 +131,22 @@ export function AnalyticsSlowMoving({
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination Footer */}
+      {!isLoading && totalItems > 0 && (
+        <div className="p-4 border-t border-brand-border bg-stone-50/50">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={totalItems}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+            pageSizeOptions={[10, 20, 50]}
+            itemLabel={t('analytics.products.product') || 'items'}
+          />
         </div>
       )}
     </div>

@@ -13,6 +13,7 @@ import type {
   AnalyticsPageTimeframe,
   AnalyticsSlowMovingProduct,
   AnalyticsTopProduct,
+  PaginatedSlowMovingResponse,
 } from '@repo/types';
 import { ANALYTICS_CACHE_TTL } from '@repo/types';
 import type {
@@ -568,12 +569,14 @@ export class AnalyticsService {
 
   async getSlowMovingProducts(
     query: AnalyticsSlowMovingQuery,
-  ): Promise<AnalyticsSlowMovingProduct[]> {
+  ): Promise<PaginatedSlowMovingResponse> {
     const days = query.days ?? 30;
+    const page = query.page ?? 1;
     const limit = query.limit ?? 10;
-    const cacheKey = `admin:analytics:slow_moving:${days}:${limit}`;
+    const cacheKey = `admin:analytics:slow_moving:${days}:${page}:${limit}`;
 
-    const cached = await this.redis.cacheGet<AnalyticsSlowMovingProduct[]>(cacheKey);
+    const cached =
+      await this.redis.cacheGet<PaginatedSlowMovingResponse>(cacheKey);
     if (cached) {
       return cached;
     }
@@ -651,7 +654,17 @@ export class AnalyticsService {
     }
 
     candidates.sort((a, b) => b.daysSinceLastSale - a.daysSinceLastSale);
-    const result = candidates.slice(0, limit);
+    const total = candidates.length;
+    const totalPages = Math.ceil(total / limit) || 1;
+    const items = candidates.slice((page - 1) * limit, page * limit);
+
+    const result: PaginatedSlowMovingResponse = {
+      items,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
 
     await this.redis.cacheSet(cacheKey, result, 3600);
     return result;

@@ -87,7 +87,8 @@ export type AnalyticsCouponRoiQuery = z.infer<typeof analyticsCouponRoiSchema>;
  */
 export const analyticsSlowMovingSchema = z.object({
   days: z.coerce.number().int().min(7).max(365).optional().default(30),
-  limit: z.coerce.number().int().min(1).max(50).optional().default(10),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(10),
 });
 export type AnalyticsSlowMovingQuery = z.infer<typeof analyticsSlowMovingSchema>;
 

@@ -126,6 +126,15 @@ export interface AnalyticsSlowMovingProduct {
   lastSoldAt: string | null;
 }
 
+/** Paginated Response สำหรับสินค้าค้างสต็อก */
+export interface PaginatedSlowMovingResponse {
+  items: AnalyticsSlowMovingProduct[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 /** ROI ต่อคูปองแต่ละใบ */
 export interface AnalyticsCouponRoiItem {
   couponId: string;

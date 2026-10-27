@@ -8,9 +8,9 @@ import type {
   AnalyticsOverviewDto,
   AnalyticsPageTimeframe,
   AnalyticsRevenuePoint,
-  AnalyticsSlowMovingProduct,
   AnalyticsTimeframe,
   AnalyticsTopProduct,
+  PaginatedSlowMovingResponse,
 } from '@repo/types';
 
 export interface AnalyticsFilterParams {
@@ -22,6 +22,7 @@ export interface AnalyticsFilterParams {
 
 export interface SlowMovingParams {
   days?: number;
+  page?: number;
   limit?: number;
 }
 
@@ -164,11 +165,11 @@ export const analyticsRequester = {
 
   async getSlowMovingProducts(
     params?: SlowMovingParams,
-  ): Promise<AnalyticsSlowMovingProduct[]> {
+  ): Promise<PaginatedSlowMovingResponse> {
     const query = buildQueryString(
       (params ?? {}) as Record<string, string | number | undefined>,
     );
-    return apiClient.get<AnalyticsSlowMovingProduct[]>(
+    return apiClient.get<PaginatedSlowMovingResponse>(
       `/analytics/slow-moving-products${query}`,
     );
   },

@@ -1,14 +1,20 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ApiCmsBanner } from '@repo/types';
 
 interface HeroBillboardPreviewProps {
   banner: Partial<ApiCmsBanner> | null;
+  banners?: Partial<ApiCmsBanner>[];
+  currentIndex?: number;
+  onSelectIndex?: (index: number) => void;
   lang: 'th' | 'en';
   isMobileView?: boolean;
 }
 
 export const HeroBillboardPreview: React.FC<HeroBillboardPreviewProps> = ({
   banner,
+  banners = [],
+  currentIndex = 0,
+  onSelectIndex,
   lang,
   isMobileView = false,
 }) => {
@@ -101,6 +107,56 @@ export const HeroBillboardPreview: React.FC<HeroBillboardPreviewProps> = ({
           )}
         </div>
       </div>
+
+      {/* Multi-Slide Controls (Only rendered if > 1 banner) */}
+      {banners.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectIndex?.(
+                (currentIndex - 1 + banners.length) % banners.length,
+              );
+            }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-xs transition-colors z-20 cursor-pointer"
+            aria-label="Previous Slide"
+          >
+            <ChevronLeft size={isMobileView ? 16 : 20} />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectIndex?.((currentIndex + 1) % banners.length);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-xs transition-colors z-20 cursor-pointer"
+            aria-label="Next Slide"
+          >
+            <ChevronRight size={isMobileView ? 16 : 20} />
+          </button>
+
+          {/* Slide Indicator Dots */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 z-20">
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectIndex?.(i);
+                }}
+                className={`h-1.5 transition-all rounded-full cursor-pointer ${
+                  currentIndex === i
+                    ? 'w-6 bg-[#E6C687]'
+                    : 'w-2 bg-white/40 hover:bg-white/70'
+                }`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };

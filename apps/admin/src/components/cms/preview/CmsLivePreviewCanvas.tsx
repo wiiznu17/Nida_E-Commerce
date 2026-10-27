@@ -22,7 +22,7 @@ import { useLanguage } from '../../../context/LanguageContext';
 
 interface CmsLivePreviewCanvasProps {
   heroBanners: Partial<ApiCmsBanner>[];
-  activeHeroIndex: number;
+  activeHeroIndex?: number;
   onSelectHeroIndex?: (index: number) => void;
   spotlights?: Partial<ApiCmsBanner>[];
   promoRibbon: Partial<ApiCmsBanner> | null;
@@ -42,8 +42,16 @@ export const CmsLivePreviewCanvas: React.FC<CmsLivePreviewCanvasProps> = ({
   const { t } = useLanguage();
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [lang, setLang] = useState<'th' | 'en'>('th');
+  const [internalHeroIndex, setInternalHeroIndex] = useState(0);
 
-  const currentHero = heroBanners[activeHeroIndex] ?? heroBanners[0] ?? null;
+  const effectiveHeroIndex = activeHeroIndex ?? internalHeroIndex;
+
+  const handleSelectHero = (index: number) => {
+    setInternalHeroIndex(index);
+    onSelectHeroIndex?.(index);
+  };
+
+  const currentHero = heroBanners[effectiveHeroIndex] ?? heroBanners[0] ?? null;
 
   return (
     <div className="bg-white rounded-xs border border-stone-200 shadow-sm overflow-hidden flex flex-col h-full">
@@ -75,9 +83,9 @@ export const CmsLivePreviewCanvas: React.FC<CmsLivePreviewCanvasProps> = ({
                 <button
                   key={i}
                   type="button"
-                  onClick={() => onSelectHeroIndex?.(i)}
-                  className={`px-2 py-0.5 text-[10px] font-bold rounded-xs transition-colors ${
-                    activeHeroIndex === i
+                  onClick={() => handleSelectHero(i)}
+                  className={`px-2 py-0.5 text-[10px] font-bold rounded-xs transition-colors cursor-pointer ${
+                    effectiveHeroIndex === i
                       ? 'bg-[#2B1810] text-white'
                       : 'text-stone-600 hover:bg-stone-100'
                   }`}
@@ -178,6 +186,9 @@ export const CmsLivePreviewCanvas: React.FC<CmsLivePreviewCanvasProps> = ({
             >
               <HeroBillboardPreview
                 banner={currentHero}
+                banners={heroBanners}
+                currentIndex={effectiveHeroIndex}
+                onSelectIndex={handleSelectHero}
                 lang={lang}
                 isMobileView={false}
               />
@@ -270,6 +281,9 @@ export const CmsLivePreviewCanvas: React.FC<CmsLivePreviewCanvasProps> = ({
             >
               <HeroBillboardPreview
                 banner={currentHero}
+                banners={heroBanners}
+                currentIndex={effectiveHeroIndex}
+                onSelectIndex={handleSelectHero}
                 lang={lang}
                 isMobileView={true}
               />
