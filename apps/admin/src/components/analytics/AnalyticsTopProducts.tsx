@@ -1,15 +1,28 @@
 import type { AnalyticsTopProduct } from '@repo/types';
 import { Package } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { Pagination } from '../ui/pagination';
 
 interface AnalyticsTopProductsProps {
   products: AnalyticsTopProduct[];
   isLoading: boolean;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
 }
 
 export function AnalyticsTopProducts({
   products,
   isLoading,
+  currentPage,
+  totalPages,
+  pageSize,
+  totalItems,
+  onPageChange,
+  onPageSizeChange,
 }: AnalyticsTopProductsProps) {
   const { t } = useLanguage();
 
@@ -131,6 +144,22 @@ export function AnalyticsTopProducts({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Footer */}
+      {!isLoading && totalItems > 0 && (
+        <div className="p-4 border-t border-brand-border bg-stone-50/50">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={totalItems}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+            pageSizeOptions={[10, 20, 50]}
+            itemLabel={t('analytics.products.product') || 'items'}
+          />
+        </div>
+      )}
     </div>
   );
 }

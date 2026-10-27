@@ -9,14 +9,15 @@ import type {
   AnalyticsPageTimeframe,
   AnalyticsRevenuePoint,
   AnalyticsTimeframe,
-  AnalyticsTopProduct,
   PaginatedSlowMovingResponse,
+  PaginatedTopProductsResponse,
 } from '@repo/types';
 
 export interface AnalyticsFilterParams {
   timeframe?: AnalyticsPageTimeframe;
   startDate?: string;
   endDate?: string;
+  page?: number;
   limit?: number;
 }
 
@@ -156,11 +157,13 @@ export const analyticsRequester = {
 
   async getTopProducts(
     params: AnalyticsFilterParams,
-  ): Promise<AnalyticsTopProduct[]> {
+  ): Promise<PaginatedTopProductsResponse> {
     const query = buildQueryString(
       params as Record<string, string | number | undefined>,
     );
-    return apiClient.get<AnalyticsTopProduct[]>(`/analytics/top-products${query}`);
+    return apiClient.get<PaginatedTopProductsResponse>(
+      `/analytics/top-products${query}`,
+    );
   },
 
   async getSlowMovingProducts(

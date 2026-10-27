@@ -14,6 +14,7 @@ import type {
   AnalyticsSlowMovingProduct,
   AnalyticsTopProduct,
   PaginatedSlowMovingResponse,
+  PaginatedTopProductsResponse,
 } from '@repo/types';
 import { ANALYTICS_CACHE_TTL } from '@repo/types';
 import type {
@@ -455,13 +456,15 @@ export class AnalyticsService {
 
   async getTopProducts(
     query: AnalyticsTopProductsQuery,
-  ): Promise<AnalyticsTopProduct[]> {
+  ): Promise<PaginatedTopProductsResponse> {
+    const page = query.page ?? 1;
     const limit = query.limit ?? 10;
     const range = this.resolveRange(query);
 
     if (range.isPreset && range.timeframe) {
-      const cacheKey = `admin:analytics:top_products:${range.timeframe}:${limit}`;
-      const cached = await this.redis.cacheGet<AnalyticsTopProduct[]>(cacheKey);
+      const cacheKey = `admin:analytics:top_products:${range.timeframe}:${page}:${limit}`;
+      const cached =
+        await this.redis.cacheGet<PaginatedTopProductsResponse>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -538,12 +541,20 @@ export class AnalyticsService {
       }
     }
 
-    const sorted = Array.from(aggMap.values())
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, limit);
+    const sorted = Array.from(aggMap.values()).sort((a, b) => {
+      if (b.unitsSold !== a.unitsSold) {
+        return b.unitsSold - a.unitsSold;
+      }
+      return b.revenue - a.revenue;
+    });
 
-    const result: AnalyticsTopProduct[] = sorted.map((p, idx) => ({
-      rank: idx + 1,
+    const total = sorted.length;
+    const totalPages = Math.ceil(total / limit) || 1;
+    const offset = (page - 1) * limit;
+    const paginatedItems = sorted.slice(offset, offset + limit);
+
+    const items: AnalyticsTopProduct[] = paginatedItems.map((p, idx) => ({
+      rank: offset + idx + 1,
       productId: p.productId,
       productName: p.productName,
       skuCode: p.skuCode,
@@ -553,10 +564,18 @@ export class AnalyticsService {
       stockAvailable: p.stockAvailable,
     }));
 
+    const result: PaginatedTopProductsResponse = {
+      items,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
+
     if (range.isPreset && range.timeframe) {
       const ttl = ANALYTICS_CACHE_TTL[range.timeframe];
       await this.redis.cacheSet(
-        `admin:analytics:top_products:${range.timeframe}:${limit}`,
+        `admin:analytics:top_products:${range.timeframe}:${page}:${limit}`,
         result,
         ttl,
       );

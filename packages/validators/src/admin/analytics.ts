@@ -58,13 +58,15 @@ export type AnalyticsDeptQuery = z.infer<typeof analyticsDeptSchema>;
 export const analyticsTopProductsSchema = z.union([
   z.object({
     timeframe: analyticsPageTimeframeEnum,
-    limit: z.coerce.number().int().min(1).max(50).optional().default(10),
+    page: z.coerce.number().int().min(1).optional().default(1),
+    limit: z.coerce.number().int().min(1).max(100).optional().default(10),
   }),
   z
     .object({
       startDate: isoDateString,
       endDate: isoDateString,
-      limit: z.coerce.number().int().min(1).max(50).optional().default(10),
+      page: z.coerce.number().int().min(1).optional().default(1),
+      limit: z.coerce.number().int().min(1).max(100).optional().default(10),
     })
     .refine((d) => d.startDate <= d.endDate, {
       message: 'startDate must be on or before endDate',

@@ -46,6 +46,11 @@ export default function AdminAnalytics() {
   const [slowMovingTotal, setSlowMovingTotal] = useState(0);
   const [slowMovingTotalPages, setSlowMovingTotalPages] = useState(1);
 
+  const [topProductsPage, setTopProductsPage] = useState(1);
+  const [topProductsPageSize, setTopProductsPageSize] = useState(10);
+  const [topProductsTotal, setTopProductsTotal] = useState(0);
+  const [topProductsTotalPages, setTopProductsTotalPages] = useState(1);
+
   // Data States
   const [isLoading, setIsLoading] = useState(false);
   const [overview, setOverview] = useState<AnalyticsOverviewDto>(
@@ -74,6 +79,11 @@ export default function AdminAnalytics() {
     setSlowMovingPage(1);
   };
 
+  const handleTopProductsPageSizeChange = (newSize: number) => {
+    setTopProductsPageSize(newSize);
+    setTopProductsPage(1);
+  };
+
   const fetchTabData = useCallback(async () => {
     if (activeTab === 'export') {
       return;
@@ -99,9 +109,12 @@ export default function AdminAnalytics() {
         case 'products': {
           const res = await analyticsRequester.getTopProducts({
             ...filterParams,
-            limit: 15,
+            page: topProductsPage,
+            limit: topProductsPageSize,
           });
-          setTopProducts(res);
+          setTopProducts(res.items);
+          setTopProductsTotal(res.total);
+          setTopProductsTotalPages(res.totalPages);
           break;
         }
         case 'slow-moving': {
@@ -134,6 +147,8 @@ export default function AdminAnalytics() {
     slowMovingDays,
     slowMovingPage,
     slowMovingPageSize,
+    topProductsPage,
+    topProductsPageSize,
   ]);
 
   useEffect(() => {
@@ -149,11 +164,20 @@ export default function AdminAnalytics() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         timeframe={timeframe}
-        onTimeframeChange={setTimeframe}
+        onTimeframeChange={(tf) => {
+          setTimeframe(tf);
+          setTopProductsPage(1);
+        }}
         isCustomRange={isCustomRange}
-        onToggleCustomRange={setIsCustomRange}
+        onToggleCustomRange={(custom) => {
+          setIsCustomRange(custom);
+          setTopProductsPage(1);
+        }}
         dateRange={dateRange}
-        onDateRangeChange={setDateRange}
+        onDateRangeChange={(range) => {
+          setDateRange(range);
+          setTopProductsPage(1);
+        }}
       />
 
       {activeTab === 'overview' && (
@@ -168,7 +192,16 @@ export default function AdminAnalytics() {
       )}
 
       {activeTab === 'products' && (
-        <AnalyticsTopProducts products={topProducts} isLoading={isLoading} />
+        <AnalyticsTopProducts
+          products={topProducts}
+          isLoading={isLoading}
+          currentPage={topProductsPage}
+          totalPages={topProductsTotalPages}
+          pageSize={topProductsPageSize}
+          totalItems={topProductsTotal}
+          onPageChange={setTopProductsPage}
+          onPageSizeChange={handleTopProductsPageSizeChange}
+        />
       )}
 
       {activeTab === 'slow-moving' && (

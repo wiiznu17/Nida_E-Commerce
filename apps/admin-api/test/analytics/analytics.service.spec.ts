@@ -269,8 +269,8 @@ describe('AnalyticsService', () => {
   });
 
   describe('getTopProducts', () => {
-    it('ranks products by revenue and respects limit parameter', async () => {
-      prismaMock.orderItem.findMany.mockResolvedValueOnce([
+    it('ranks products by units sold, paginates items, and calculates correct rank', async () => {
+      const mockOrderItems = [
         {
           subtotal: 10000,
           quantity: 5,
@@ -301,15 +301,30 @@ describe('AnalyticsService', () => {
             },
           },
         },
-      ]);
+      ];
 
-      const result = await service.getTopProducts({ timeframe: 'week', limit: 1 });
+      prismaMock.orderItem.findMany.mockResolvedValueOnce(mockOrderItems);
 
-      expect(result.length).toBe(1);
-      expect(result[0].rank).toBe(1);
-      expect(result[0].productName).toBe('Wool Coat');
-      expect(result[0].revenue).toBe(15000);
-      expect(result[0].unitsSold).toBe(3);
+      const page1 = await service.getTopProducts({ timeframe: 'week', page: 1, limit: 1 });
+
+      expect(page1.total).toBe(2);
+      expect(page1.totalPages).toBe(2);
+      expect(page1.page).toBe(1);
+      expect(page1.items.length).toBe(1);
+      expect(page1.items[0].rank).toBe(1);
+      expect(page1.items[0].productName).toBe('Silk Shirt');
+      expect(page1.items[0].revenue).toBe(10000);
+      expect(page1.items[0].unitsSold).toBe(5);
+
+      prismaMock.orderItem.findMany.mockResolvedValueOnce(mockOrderItems);
+
+      const page2 = await service.getTopProducts({ timeframe: 'week', page: 2, limit: 1 });
+      expect(page2.page).toBe(2);
+      expect(page2.items.length).toBe(1);
+      expect(page2.items[0].rank).toBe(2);
+      expect(page2.items[0].productName).toBe('Wool Coat');
+      expect(page2.items[0].revenue).toBe(15000);
+      expect(page2.items[0].unitsSold).toBe(3);
     });
   });
 

@@ -115,6 +115,15 @@ export interface AnalyticsTopProduct {
   stockAvailable: number;
 }
 
+/** Paginated Response สำหรับสินค้าขายดี */
+export interface PaginatedTopProductsResponse {
+  items: AnalyticsTopProduct[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 /** สินค้าค้างสต็อก (Slow Moving Products) */
 export interface AnalyticsSlowMovingProduct {
   productId: string;
