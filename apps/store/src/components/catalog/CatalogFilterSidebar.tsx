@@ -46,8 +46,7 @@ export function CatalogFilterSidebar({
       {activeFilterCount > 0 && (
         <div className="pb-4 border-b border-brand-border flex items-center justify-between">
           <span className="text-xs font-bold text-brand-brown">
-            {activeFilterCount}{' '}
-            {language === 'th' ? 'ตัวกรองที่เลือก' : 'Filters Active'}
+            {activeFilterCount} {t('search.filtersActive')}
           </span>
           <button
             type="button"
@@ -195,10 +194,7 @@ export function CatalogFilterSidebar({
           onClick={() => toggleSection('badges')}
           className="w-full flex items-center justify-between text-xs font-black tracking-wider uppercase text-brand-brown py-1 text-left cursor-pointer"
         >
-          <span>
-            {t('search.productBadges') ??
-              (language === 'th' ? 'ป้ายสินค้า' : 'Product Badges')}
-          </span>
+          <span>{t('search.productBadges')}</span>
           {openSections.badges ? (
             <ChevronUp size={16} />
           ) : (

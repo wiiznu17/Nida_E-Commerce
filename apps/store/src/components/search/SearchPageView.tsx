@@ -136,10 +136,10 @@ export function SearchPageView() {
 
       {/* 2. Main Content Layout: Sidebar + Grid */}
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6">
-        <div className="flex gap-8">
+        <div className="flex gap-6 lg:gap-8">
           {/* Collapsible Left Filter Sidebar */}
           {isFilterVisible && (
-            <aside className="hidden lg:block w-64 shrink-0">
+            <aside className="hidden lg:block w-64 lg:w-72 shrink-0 border-r border-brand-border pr-6 lg:pr-8">
               <div className="sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto pr-2 pb-12">
                 <CatalogFilterSidebar
                   filters={filters}

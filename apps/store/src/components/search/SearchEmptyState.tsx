@@ -17,11 +17,7 @@ export function SearchEmptyState({ onClearAll }: SearchEmptyStateProps) {
       variant="card"
       icon={SearchIcon}
       title={t('search.noResults')}
-      description={
-        language === 'th'
-          ? 'เราไม่พบสินค้าที่ตรงกับการค้นหาของคุณ ลองตรวจสอบคำสะกด หรือล้างตัวกรองเพื่อค้นหาอีกครั้ง'
-          : 'We could not find anything matching your search term. Try checking your spelling or clearing active filters.'
-      }
+      description={t('search.noResultsDesc')}
       action={{
         label: t('search.clearAll'),
         onClick: onClearAll,

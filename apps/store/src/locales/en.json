@@ -89,6 +89,7 @@
     "matchingProducts": "Matching Products",
     "viewAll": "View All Results",
     "noResults": "No matching products found",
+    "noResultsDesc": "We could not find anything matching your search term. Try checking your spelling or clearing active filters.",
     "resultsFor": "Search results for",
     "allProducts": "All Products",
     "hideFilters": "Hide Filters",
@@ -113,7 +114,15 @@
     "sortFeatured": "Featured",
     "sortNewest": "Newest",
     "sortPriceAsc": "Price: Low to High",
-    "sortPriceDesc": "Price: High to Low"
+    "sortPriceDesc": "Price: High to Low",
+    "featured": "Featured",
+    "newest": "Newest",
+    "priceLowToHigh": "Price: Low to High",
+    "priceHighToLow": "Price: High to Low",
+    "title": "Search results for",
+    "filter": "Filter",
+    "filtersActive": "Filters Active",
+    "viewResults": "View Results"
   },
   "cart": {
     "title": "YOUR SHOPPING BAG",
