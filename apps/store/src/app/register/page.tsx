@@ -18,10 +18,12 @@ function RegisterRedirect() {
     }
 
     openAuthDrawer('signup');
-    const targetUrl = redirectParam
-      ? `/?auth=signup&redirect=${encodeURIComponent(redirectParam)}`
-      : '/?auth=signup';
-    router.replace(targetUrl);
+    if (redirectParam && redirectParam !== '/') {
+      const glue = redirectParam.includes('?') ? '&' : '?';
+      router.replace(`${redirectParam}${glue}auth=signup`, { scroll: false });
+    } else {
+      router.replace('/?auth=signup', { scroll: false });
+    }
   }, [router, searchParams, openAuthDrawer, isAuthenticated]);
 
   return <LoadingSpinner className="p-16" />;

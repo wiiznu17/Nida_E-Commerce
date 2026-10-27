@@ -112,15 +112,25 @@ function AuthDrawerContent() {
     }
   }, [step, resendTimer]);
 
-  // Lock body scroll when open
+  // Lock body scroll with scrollbar compensation and scroll position preservation
   useEffect(() => {
-    if (isAuthDrawerOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+    if (!isAuthDrawerOpen) return;
+
+    const scrollY = window.scrollY;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    const prevPaddingRight = document.body.style.paddingRight;
+    const prevOverflow = document.body.style.overflow;
+
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
+    document.body.style.overflow = 'hidden';
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.paddingRight = prevPaddingRight;
+      document.body.style.overflow = prevOverflow;
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
     };
   }, [isAuthDrawerOpen]);
 
@@ -478,18 +488,30 @@ function AuthDrawerContent() {
     }
   };
 
-  if (!isAuthDrawerOpen || isAuthenticated) return null;
+  if (isAuthenticated) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end font-sans">
+    <div
+      className={`fixed inset-0 z-50 flex justify-end font-sans ${
+        isAuthDrawerOpen ? 'pointer-events-auto' : 'pointer-events-none'
+      }`}
+      aria-hidden={!isAuthDrawerOpen}
+    >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-brand-brown/40 backdrop-blur-xs transition-opacity"
+        className={`absolute inset-0 bg-brand-brown/40 backdrop-blur-xs transition-opacity duration-300 ease-out ${
+          isAuthDrawerOpen ? 'opacity-100' : 'opacity-0'
+        }`}
         onClick={handleClose}
       />
 
       {/* Drawer Panel */}
-      <div className="relative w-full max-w-md sm:max-w-lg bg-white text-brand-brown h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out border-l-4 border-brand-brown">
+      <div
+        inert={!isAuthDrawerOpen ? true : undefined}
+        className={`relative w-full max-w-md sm:max-w-lg bg-white text-brand-brown h-full shadow-2xl flex flex-col transform transition-transform duration-300 ease-out border-l-4 border-brand-brown overscroll-contain ${
+          isAuthDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
         {/* Deep Espresso VIP Header */}
         <div className="p-6 bg-brand-brown text-white relative overflow-hidden shrink-0">
           <div className="flex justify-between items-start">

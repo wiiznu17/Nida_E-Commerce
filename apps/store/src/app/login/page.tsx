@@ -18,10 +18,12 @@ function LoginRedirect() {
     }
 
     openAuthDrawer('signin');
-    const targetUrl = redirectParam
-      ? `/?auth=signin&redirect=${encodeURIComponent(redirectParam)}`
-      : '/?auth=signin';
-    router.replace(targetUrl);
+    if (redirectParam && redirectParam !== '/') {
+      const glue = redirectParam.includes('?') ? '&' : '?';
+      router.replace(`${redirectParam}${glue}auth=signin`, { scroll: false });
+    } else {
+      router.replace('/?auth=signin', { scroll: false });
+    }
   }, [router, searchParams, openAuthDrawer, isAuthenticated]);
 
   return <LoadingSpinner className="p-16" />;

@@ -457,6 +457,7 @@
     "passwordPlaceholder": "At least 8 characters",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
+    "otpNotice": "A 2-factor OTP verification code will be sent to your email",
     "forgotPassword": "Forgot password?",
     "forgotPasswordTitle": "RESET PASSWORD",
     "forgotPasswordSubtitle": "Enter your email to receive an OTP code to reset your password",

@@ -30,7 +30,13 @@ const WishlistContext = createContext<WishlistContextType | undefined>(
 );
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  const { user, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const {
+    user,
+    token,
+    isAuthenticated,
+    isLoading: isAuthLoading,
+    openAuthDrawer,
+  } = useAuth();
   const { productsList, isLoading: isCatalogLoading } = useCatalog();
   const router = useRouter();
   const pathname = usePathname();
@@ -80,12 +86,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const toggleWishlist = async (productId: string) => {
     if (!productId) return;
 
-    // Guard: Require login first
+    // Guard: Require login first - open AuthDrawer directly on current page
     if (!isAuthenticated || !token || !user) {
-      const targetUrl = pathname
-        ? `/login?redirect=${encodeURIComponent(pathname)}`
-        : '/login';
-      router.push(targetUrl);
+      openAuthDrawer('signin');
       return;
     }
 

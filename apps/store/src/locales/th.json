@@ -457,6 +457,7 @@
     "passwordPlaceholder": "ระบุรหัสผ่านอย่างน้อย 8 ตัวอักษร",
     "showPassword": "แสดงรหัสผ่าน",
     "hidePassword": "ซ่อนรหัสผ่าน",
+    "otpNotice": "ระบบจะส่งรหัส OTP ไปยังอีเมลเพื่อยืนยันตัวตนอย่างปลอดภัย",
     "forgotPassword": "ลืมรหัสผ่าน?",
     "forgotPasswordTitle": "รีเซ็ตรหัสผ่าน",
     "forgotPasswordSubtitle": "กรอกอีเมลของคุณเพื่อรับรหัส OTP สำหรับตั้งรหัสผ่านใหม่",

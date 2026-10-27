@@ -3,6 +3,7 @@
 import React from 'react';
 import { Heart, SlidersHorizontal, Lock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { EmptyState } from '@/components/ui';
 import type { WishlistEmptyStateProps } from './wishlistTypes';
 
@@ -12,6 +13,7 @@ export function WishlistEmptyState({
   isUnauthenticated = false,
 }: WishlistEmptyStateProps) {
   const { language, t } = useLanguage();
+  const { openAuthDrawer } = useAuth();
 
   if (isUnauthenticated) {
     return (
@@ -22,7 +24,7 @@ export function WishlistEmptyState({
         description={t('wishlistPage.loginRequiredDesc')}
         action={{
           label: t('wishlistPage.signInBtn'),
-          href: '/login?redirect=/wishlist',
+          onClick: () => openAuthDrawer('signin'),
         }}
         secondaryAction={{
           label: t('wishlistPage.exploreCatalog'),
