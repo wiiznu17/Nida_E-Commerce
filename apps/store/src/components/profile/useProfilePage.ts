@@ -31,7 +31,11 @@ export function useProfilePage() {
   const [isAddressesLoading, setIsAddressesLoading] = useState(false);
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<ApiAddress | null>(null);
+  const [addressToDelete, setAddressToDelete] = useState<ApiAddress | null>(null);
   const [addressActionLoading, setAddressActionLoading] = useState(false);
+
+  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
+  const [isSignOutAllModalOpen, setIsSignOutAllModalOpen] = useState(false);
 
   const [orders, setOrders] = useState<ApiOrder[]>([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
@@ -139,12 +143,16 @@ export function useProfilePage() {
     await fetchAddresses();
   };
 
-  const handleDeleteAddress = async (addr: ApiAddress) => {
-    if (!token) return;
-    if (!window.confirm(t('addressBook.deleteConfirm'))) return;
+  const handleDeleteAddress = (addr: ApiAddress) => {
+    setAddressToDelete(addr);
+  };
+
+  const handleConfirmDeleteAddress = async () => {
+    if (!token || !addressToDelete) return;
     setAddressActionLoading(true);
     try {
-      await addressRequester.deleteAddress(addr.id, token);
+      await addressRequester.deleteAddress(addressToDelete.id, token);
+      setAddressToDelete(null);
       await fetchAddresses();
     } finally {
       setAddressActionLoading(false);
@@ -174,6 +182,10 @@ export function useProfilePage() {
     handleSubmitProfile,
     handleLogout,
     handleLogoutAll,
+    isSignOutModalOpen,
+    setIsSignOutModalOpen,
+    isSignOutAllModalOpen,
+    setIsSignOutAllModalOpen,
     orders,
 
     isOrdersLoading,
@@ -183,10 +195,13 @@ export function useProfilePage() {
     addressModalOpen,
     setAddressModalOpen,
     editingAddress,
+    addressToDelete,
+    setAddressToDelete,
     handleOpenAddAddress,
     handleOpenEditAddress,
     handleSaveAddress,
     handleDeleteAddress,
+    handleConfirmDeleteAddress,
     handleSetDefaultAddress,
   };
 }

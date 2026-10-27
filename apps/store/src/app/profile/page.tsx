@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
+import { Trash2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { AddressModal } from '@/components/address';
-import { Alert } from '@/components/ui';
+import { Alert, AlertModal } from '@/components/ui';
+import { SignOutConfirmModal } from '@/components/common';
 import {
   ProfileHeader,
   ProfileNavigation,
@@ -25,8 +27,10 @@ export default function ProfilePage() {
     formData,
     handleFormChange,
     handleSubmitProfile,
-    handleLogout,
-    handleLogoutAll,
+    isSignOutModalOpen,
+    setIsSignOutModalOpen,
+    isSignOutAllModalOpen,
+    setIsSignOutAllModalOpen,
     orders,
     isOrdersLoading,
     addresses,
@@ -35,10 +39,13 @@ export default function ProfilePage() {
     addressModalOpen,
     setAddressModalOpen,
     editingAddress,
+    addressToDelete,
+    setAddressToDelete,
     handleOpenAddAddress,
     handleOpenEditAddress,
     handleSaveAddress,
     handleDeleteAddress,
+    handleConfirmDeleteAddress,
     handleSetDefaultAddress,
   } = useProfilePage();
 
@@ -48,7 +55,10 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-10 font-sans">
-      <ProfileHeader user={user} onLogout={handleLogout} />
+      <ProfileHeader
+        user={user}
+        onLogout={() => setIsSignOutModalOpen(true)}
+      />
 
       {saveSuccess && (
         <Alert variant="success" className="mb-6">
@@ -68,7 +78,7 @@ export default function ProfilePage() {
               onSetIsEditing={setIsEditing}
               onChange={handleFormChange}
               onSubmit={handleSubmitProfile}
-              onLogoutAll={handleLogoutAll}
+              onLogoutAll={() => setIsSignOutAllModalOpen(true)}
             />
           )}
 
@@ -95,6 +105,33 @@ export default function ProfilePage() {
         onClose={() => setAddressModalOpen(false)}
         address={editingAddress}
         onSave={handleSaveAddress}
+      />
+
+      {/* SweetAlert Sign Out Modal */}
+      <SignOutConfirmModal
+        isOpen={isSignOutModalOpen}
+        onClose={() => setIsSignOutModalOpen(false)}
+      />
+
+      {/* SweetAlert Sign Out All Devices Modal */}
+      <SignOutConfirmModal
+        isOpen={isSignOutAllModalOpen}
+        onClose={() => setIsSignOutAllModalOpen(false)}
+        allDevices
+      />
+
+      {/* SweetAlert Delete Address Confirmation Modal */}
+      <AlertModal
+        isOpen={Boolean(addressToDelete)}
+        onClose={() => setAddressToDelete(null)}
+        onConfirm={handleConfirmDeleteAddress}
+        title={t('addressBook.deleteTitle')}
+        description={t('addressBook.deleteDesc')}
+        confirmText={t('addressBook.deleteButton')}
+        cancelText={t('common.cancel')}
+        variant="danger"
+        icon={Trash2}
+        isLoading={addressActionLoading}
       />
     </div>
   );
