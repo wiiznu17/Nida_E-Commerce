@@ -139,6 +139,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [clearSession]);
 
+  // Listen to token rotated event from apiClient to keep AuthContext state always fresh
+  useEffect(() => {
+    const handleTokenRotated = (e: Event) => {
+      const customEvent = e as CustomEvent<{
+        accessToken: string;
+        refreshToken?: string;
+      }>;
+      if (customEvent.detail?.accessToken) {
+        setToken(customEvent.detail.accessToken);
+        if (customEvent.detail.refreshToken) {
+          setRefreshToken(customEvent.detail.refreshToken);
+        }
+      }
+    };
+
+    window.addEventListener('nida:auth:token_rotated', handleTokenRotated);
+    return () => {
+      window.removeEventListener('nida:auth:token_rotated', handleTokenRotated);
+    };
+  }, []);
+
   const setSession = (
     accessToken: string,
     userOrRefreshToken: ApiUser | string,

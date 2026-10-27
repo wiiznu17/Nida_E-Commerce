@@ -27,6 +27,98 @@ export interface RequestOptions extends RequestInit {
   _isRetry?: boolean;
 }
 
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null = null): void {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else if (token) {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+}
+
+async function refreshCustomerToken(): Promise<string> {
+  if (isRefreshing) {
+    return new Promise<string>((resolve, reject) => {
+      failedQueue.push({ resolve, reject });
+    });
+  }
+
+  isRefreshing = true;
+  const storedRefreshToken =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('nida_customer_refresh_token')
+      : null;
+
+  if (!storedRefreshToken) {
+    isRefreshing = false;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('nida_customer_jwt_token');
+      localStorage.removeItem('nida_customer_refresh_token');
+      localStorage.removeItem('nida_customer_user_cache');
+      window.dispatchEvent(new CustomEvent('nida:auth:session_expired'));
+    }
+    throw new ApiError('Session has expired, please log in', 401);
+  }
+
+  try {
+    const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: storedRefreshToken }),
+    });
+
+    if (!refreshRes.ok) {
+      throw new Error('Refresh token rejected');
+    }
+
+    const rawJson = await refreshRes.json();
+    const unwrap =
+      rawJson && typeof rawJson === 'object' && 'data' in rawJson
+        ? (rawJson as { data: { accessToken: string; refreshToken: string } })
+            .data
+        : (rawJson as { accessToken: string; refreshToken: string });
+
+    if (!unwrap?.accessToken || !unwrap?.refreshToken) {
+      throw new Error('Invalid refresh response payload');
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nida_customer_jwt_token', unwrap.accessToken);
+      localStorage.setItem('nida_customer_refresh_token', unwrap.refreshToken);
+      window.dispatchEvent(
+        new CustomEvent('nida:auth:token_rotated', {
+          detail: {
+            accessToken: unwrap.accessToken,
+            refreshToken: unwrap.refreshToken,
+          },
+        }),
+      );
+    }
+
+    processQueue(null, unwrap.accessToken);
+    return unwrap.accessToken;
+  } catch (refreshErr: unknown) {
+    processQueue(refreshErr, null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('nida_customer_jwt_token');
+      localStorage.removeItem('nida_customer_refresh_token');
+      localStorage.removeItem('nida_customer_user_cache');
+      window.dispatchEvent(new CustomEvent('nida:auth:session_expired'));
+    }
+    throw new ApiError('Session expired, please sign in again', 401);
+  } finally {
+    isRefreshing = false;
+  }
+}
+
 async function request<T>(
   endpoint: string,
   options: RequestOptions = {},
@@ -56,12 +148,11 @@ async function request<T>(
     }
   }
 
-  // Token resolution: explicit parameter > customer localStorage session
+  // Token resolution: freshest localStorage token > explicit parameter
   const token =
-    explicitToken ??
     (typeof window !== 'undefined'
       ? localStorage.getItem('nida_customer_jwt_token')
-      : null);
+      : null) ?? explicitToken;
 
   const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -75,7 +166,7 @@ async function request<T>(
       headers: defaultHeaders,
     });
 
-    // Handle silent refresh on 401 Unauthorized
+    // Handle silent refresh on 401 Unauthorized using singleton lock queue
     if (
       response.status === 401 &&
       !_isRetry &&
@@ -85,55 +176,18 @@ async function request<T>(
       !url.includes('/auth/verify-otp') &&
       typeof window !== 'undefined'
     ) {
-      const storedRefreshToken = localStorage.getItem(
-        'nida_customer_refresh_token',
-      );
-      if (storedRefreshToken) {
-        try {
-          const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken: storedRefreshToken }),
-          });
-
-          if (refreshRes.ok) {
-            const rawJson = await refreshRes.json();
-            const unwrap =
-              rawJson && typeof rawJson === 'object' && 'data' in rawJson
-                ? (
-                    rawJson as {
-                      data: { accessToken: string; refreshToken: string };
-                    }
-                  ).data
-                : (rawJson as { accessToken: string; refreshToken: string });
-
-            if (unwrap?.accessToken && unwrap?.refreshToken) {
-              localStorage.setItem(
-                'nida_customer_jwt_token',
-                unwrap.accessToken,
-              );
-              localStorage.setItem(
-                'nida_customer_refresh_token',
-                unwrap.refreshToken,
-              );
-
-              // Retry original request with newly rotated token
-              return await request<T>(endpoint, {
-                ...options,
-                token: unwrap.accessToken,
-                _isRetry: true,
-              });
-            }
-          }
-        } catch {
-          // Token rotation failed
-        }
-
-        // Clear session if refresh failed completely
-        localStorage.removeItem('nida_customer_jwt_token');
-        localStorage.removeItem('nida_customer_refresh_token');
-        localStorage.removeItem('nida_customer_user_cache');
-        window.dispatchEvent(new CustomEvent('nida:auth:session_expired'));
+      try {
+        const newAccessToken = await refreshCustomerToken();
+        // Retry original request with newly rotated token
+        return await request<T>(endpoint, {
+          ...options,
+          token: newAccessToken,
+          _isRetry: true,
+        });
+      } catch (err: unknown) {
+        throw err instanceof ApiError
+          ? err
+          : new ApiError('Session expired, please sign in again', 401);
       }
     }
 
