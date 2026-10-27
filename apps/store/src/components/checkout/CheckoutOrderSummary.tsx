@@ -47,7 +47,7 @@ export function CheckoutOrderSummary({
       </h3>
 
       {/* Item Thumbnails */}
-      <div className="space-y-4 mb-6 max-h-88 overflow-y-auto pr-1">
+      <div className="space-y-4 mb-6 max-h-88 overflow-y-auto pt-2.5 pr-2.5 -mr-1.5">
         {items.map((item, index) => {
           const itemTitle = getProductTitle(item, language);
           return (
@@ -65,7 +65,7 @@ export function CheckoutOrderSummary({
                     className="object-cover"
                   />
                 )}
-                <span className="absolute -top-1.5 -right-1.5 bg-brand-brown text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-xs">
+                <span className="absolute -top-2 -right-2 bg-brand-brown text-white text-[11px] font-bold min-w-5.5 h-5.5 px-1.5 rounded-full flex items-center justify-center shadow-xs z-10 font-mono leading-none border border-white">
                   {item.quantity}
                 </span>
               </div>
@@ -74,7 +74,7 @@ export function CheckoutOrderSummary({
                   {itemTitle}
                 </h4>
                 <p className="text-xs text-stone-500 uppercase font-medium mt-0.5">
-                  {item.selectedColor} • {item.selectedSize}
+                  {item.selectedColor} • {item.selectedSize} • {language === 'th' ? `จำนวน: ${item.quantity}` : `Qty: ${item.quantity}`}
                 </p>
                 <p className="text-sm font-black text-brand-brown mt-1.5 font-mono">
                   ฿{(item.price * item.quantity).toLocaleString()}
@@ -180,23 +180,23 @@ export function CheckoutOrderSummary({
 
       {/* Cost Breakdown */}
       <div className="space-y-3 text-xs sm:text-sm font-semibold text-stone-600 pb-5 border-b border-stone-300">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <span>{t('checkout.orderSummary')}</span>
-          <span className="text-brand-brown font-bold font-mono">
+          <span className="text-brand-brown font-bold font-mono shrink-0 ml-4">
             ฿{cartTotal.toLocaleString()}
           </span>
         </div>
         {discountAmount > 0 && (
-          <div className="flex justify-between text-emerald-700 font-bold">
+          <div className="flex justify-between items-center text-emerald-700 font-bold">
             <span>{t('checkout.discount')}</span>
-            <span className="font-mono">
+            <span className="font-mono shrink-0 ml-4">
               -฿{discountAmount.toLocaleString()}
             </span>
           </div>
         )}
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <span>{t('checkout.shipping')}</span>
-          <span className="font-mono">
+          <span className="font-mono shrink-0 ml-4">
             {isFreeShipping ? (
               <span className="text-emerald-700 font-bold uppercase font-sans">
                 {t('checkout.free')}
@@ -216,7 +216,7 @@ export function CheckoutOrderSummary({
         <span className="font-black text-sm sm:text-base uppercase text-brand-brown">
           {t('checkout.total')}
         </span>
-        <span className="font-black text-2xl sm:text-3xl text-brand-brown font-mono">
+        <span className="font-black text-2xl sm:text-3xl text-brand-brown font-mono shrink-0 ml-4">
           ฿{finalTotal.toLocaleString()}
         </span>
       </div>
