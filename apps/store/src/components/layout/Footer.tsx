@@ -170,6 +170,7 @@ export function Footer() {
                 {t('footer.rewardsProgram')}
               </Link>
             </li>
+            {/* Store Locations - temporarily disabled
             <li>
               <Link
                 href="/about"
@@ -178,6 +179,7 @@ export function Footer() {
                 {t('footer.storeLocations')}
               </Link>
             </li>
+            */}
             <li>
               <Link
                 href="/about"

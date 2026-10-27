@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { MapPin, User } from 'lucide-react';
+import { User } from 'lucide-react';
+// import { MapPin } from 'lucide-react'; // Store Locator temporarily disabled
 import type { Language } from '@/context/LanguageContext';
 import { useStoreContent } from '@/context/StoreContentContext';
 
@@ -49,10 +50,12 @@ export function TopPromoBanner({
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex justify-between items-center gap-3">
         {/* Left Links */}
         <div className="hidden lg:flex items-center space-x-6 text-white/80 shrink-0">
+          {/* Store Locator - temporarily disabled
           <span className="flex items-center hover:text-white transition-colors cursor-pointer">
             <MapPin size={12} className="mr-1.5 text-brand-yellow" />{' '}
             {t('nav.storeLocator')}
           </span>
+          */}
           <Link href="/about" className="hover:text-white transition-colors">
             {t('nav.about')}
           </Link>
