@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { OrderLifecycleProducerService } from '../../src/modules/order-lifecycle/order-lifecycle-producer.service.js';
-import { OrderLifecycleJobName, ORDER_TIMEOUT_MS } from '@repo/types';
+import {
+  OrderLifecycleJobName,
+  ORDER_TIMEOUT_MS,
+  ORDER_LIFECYCLE_JOB_RETENTION,
+} from '@repo/types';
 import type { Queue, Job } from 'bullmq';
 
 describe('OrderLifecycleProducerService (Admin Domain) — BullMQ Queue Producer', () => {
@@ -66,8 +70,7 @@ describe('OrderLifecycleProducerService (Admin Domain) — BullMQ Queue Producer
         {
           jobId: 'order-timeout-order-123',
           delay: ORDER_TIMEOUT_MS.PROMPTPAY,
-          removeOnComplete: true,
-          removeOnFail: false,
+          ...ORDER_LIFECYCLE_JOB_RETENTION,
         },
       );
     });
@@ -150,8 +153,7 @@ describe('OrderLifecycleProducerService (Admin Domain) — BullMQ Queue Producer
         {
           jobId: 'cancel-review-req-505',
           delay: ORDER_TIMEOUT_MS.CANCELLATION_REVIEW,
-          removeOnComplete: true,
-          removeOnFail: false,
+          ...ORDER_LIFECYCLE_JOB_RETENTION,
         },
       );
     });
@@ -189,8 +191,7 @@ describe('OrderLifecycleProducerService (Admin Domain) — BullMQ Queue Producer
         {
           jobId: 'delivery-complete-order-606',
           delay: ORDER_TIMEOUT_MS.DELIVERY_COMPLETION,
-          removeOnComplete: true,
-          removeOnFail: false,
+          ...ORDER_LIFECYCLE_JOB_RETENTION,
         },
       );
     });
@@ -233,8 +234,7 @@ describe('OrderLifecycleProducerService (Admin Domain) — BullMQ Queue Producer
         {
           jobId: 'return-deadline-ret-707',
           delay: ORDER_TIMEOUT_MS.RETURN_SHIPMENT_DEADLINE,
-          removeOnComplete: true,
-          removeOnFail: false,
+          ...ORDER_LIFECYCLE_JOB_RETENTION,
         },
       );
     });

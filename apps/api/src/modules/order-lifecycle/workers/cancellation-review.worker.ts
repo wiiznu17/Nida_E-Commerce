@@ -4,6 +4,7 @@ import { Job } from 'bullmq';
 import {
   OrderLifecycleQueueName,
   OrderLifecycleJobName,
+  DEFAULT_BULLMQ_WORKER_OPTIONS,
   type AutoApproveCancellationJobData,
 } from '@repo/types';
 import {
@@ -16,7 +17,10 @@ import {
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import { OmiseService } from '../../orders/omise.service.js';
 
-@Processor(OrderLifecycleQueueName.CANCELLATION_REVIEW)
+@Processor(
+  OrderLifecycleQueueName.CANCELLATION_REVIEW,
+  DEFAULT_BULLMQ_WORKER_OPTIONS,
+)
 @Injectable()
 export class CancellationReviewWorker extends WorkerHost {
   private readonly logger = new Logger(CancellationReviewWorker.name);

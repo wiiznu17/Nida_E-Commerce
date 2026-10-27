@@ -53,3 +53,24 @@ export const ORDER_TIMEOUT_MS = {
   RETURN_WINDOW: 7 * 24 * 60 * 60 * 1000, // 7 days (168 hours)
   RETURN_SHIPMENT_DEADLINE: 7 * 24 * 60 * 60 * 1000, // 7 days (168 hours)
 } as const;
+
+// Age-based retention: keep completed 24h, failed 7d
+export const ORDER_LIFECYCLE_JOB_RETENTION = {
+  removeOnComplete: {
+    age: 24 * 3600, // 24 hours (max 500)
+    count: 500,
+  },
+  removeOnFail: {
+    age: 7 * 24 * 3600, // 7 days (max 200)
+    count: 200,
+  },
+} as const;
+
+// BullMQ worker options (reduces idle Redis commands)
+export const DEFAULT_BULLMQ_WORKER_OPTIONS = {
+  stalledInterval: 300_000, // check stalled every 5 mins
+  drainDelay: 30, // wait 30s when queue is empty
+  lockDuration: 60_000, // 60s lock
+  concurrency: 1,
+  maxStalledCount: 2,
+} as const;

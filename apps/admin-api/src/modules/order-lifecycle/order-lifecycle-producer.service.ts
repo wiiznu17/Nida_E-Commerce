@@ -5,6 +5,7 @@ import {
   OrderLifecycleQueueName,
   OrderLifecycleJobName,
   ORDER_TIMEOUT_MS,
+  ORDER_LIFECYCLE_JOB_RETENTION,
   type AutoCancelOrderJobData,
   type AutoApproveCancellationJobData,
   type AutoCompleteDeliveryJobData,
@@ -42,8 +43,7 @@ export class OrderLifecycleProducerService {
         {
           jobId,
           delay: delayMs,
-          removeOnComplete: true,
-          removeOnFail: false,
+          ...ORDER_LIFECYCLE_JOB_RETENTION,
         },
       );
       this.logger.log(
@@ -92,8 +92,7 @@ export class OrderLifecycleProducerService {
         {
           jobId,
           delay: delayMs,
-          removeOnComplete: true,
-          removeOnFail: false,
+          ...ORDER_LIFECYCLE_JOB_RETENTION,
         },
       );
       this.logger.log(
@@ -139,8 +138,7 @@ export class OrderLifecycleProducerService {
         {
           jobId,
           delay: delayMs,
-          removeOnComplete: true,
-          removeOnFail: false,
+          ...ORDER_LIFECYCLE_JOB_RETENTION,
         },
       );
       this.logger.log(
@@ -189,8 +187,7 @@ export class OrderLifecycleProducerService {
         {
           jobId,
           delay: delayMs,
-          removeOnComplete: true,
-          removeOnFail: false,
+          ...ORDER_LIFECYCLE_JOB_RETENTION,
         },
       );
       this.logger.log(

@@ -4,12 +4,16 @@ import { Job } from 'bullmq';
 import {
   OrderLifecycleQueueName,
   OrderLifecycleJobName,
+  DEFAULT_BULLMQ_WORKER_OPTIONS,
   type VoidExpiredReturnJobData,
 } from '@repo/types';
 import { AuditActionType } from '@repo/database';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
-@Processor(OrderLifecycleQueueName.RETURN_DEADLINE)
+@Processor(
+  OrderLifecycleQueueName.RETURN_DEADLINE,
+  DEFAULT_BULLMQ_WORKER_OPTIONS,
+)
 @Injectable()
 export class ReturnShipmentWorker extends WorkerHost {
   private readonly logger = new Logger(ReturnShipmentWorker.name);

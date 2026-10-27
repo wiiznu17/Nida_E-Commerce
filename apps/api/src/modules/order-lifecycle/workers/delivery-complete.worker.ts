@@ -4,12 +4,16 @@ import { Job } from 'bullmq';
 import {
   OrderLifecycleQueueName,
   OrderLifecycleJobName,
+  DEFAULT_BULLMQ_WORKER_OPTIONS,
   type AutoCompleteDeliveryJobData,
 } from '@repo/types';
 import { OrderStatus, PointChangeType, AuditActionType } from '@repo/database';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
-@Processor(OrderLifecycleQueueName.DELIVERY_COMPLETION)
+@Processor(
+  OrderLifecycleQueueName.DELIVERY_COMPLETION,
+  DEFAULT_BULLMQ_WORKER_OPTIONS,
+)
 @Injectable()
 export class DeliveryCompleteWorker extends WorkerHost {
   private readonly logger = new Logger(DeliveryCompleteWorker.name);

@@ -4,12 +4,13 @@ import { Job } from 'bullmq';
 import {
   OrderLifecycleQueueName,
   OrderLifecycleJobName,
+  DEFAULT_BULLMQ_WORKER_OPTIONS,
   type AutoCancelOrderJobData,
 } from '@repo/types';
 import { OrderStatus, PaymentStatus, StockChangeType } from '@repo/database';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
-@Processor(OrderLifecycleQueueName.ORDER_TIMEOUT)
+@Processor(OrderLifecycleQueueName.ORDER_TIMEOUT, DEFAULT_BULLMQ_WORKER_OPTIONS)
 @Injectable()
 export class OrderTimeoutWorker extends WorkerHost {
   private readonly logger = new Logger(OrderTimeoutWorker.name);
