@@ -26,8 +26,6 @@ import {
   VerifyOtpDto,
   CustomerRefreshTokenDto,
   UpdateCustomerProfileDto,
-  RequestEmailChangeDto,
-  VerifyEmailChangeDto,
 } from './dto/index.js';
 import { CustomerJwtGuard } from './guards/customer-jwt.guard.js';
 import { CustomerAuthService } from './auth.service.js';
@@ -309,47 +307,5 @@ export class CustomerAuthController {
     @Body() dto: UpdateCustomerProfileDto,
   ): Promise<ApiUser> {
     return this.authService.updateProfile(req.user.id, dto);
-  }
-
-  @Post('request-email-change')
-  @UseGuards(CustomerJwtGuard)
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Request OTP to change primary account email',
-    description:
-      'Dispatches a verification OTP to the proposed new email address.',
-  })
-  @ApiResponse({ status: 200, description: 'OTP dispatched' })
-  @ApiResponse({
-    status: 400,
-    description: 'Email already in use or identical',
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async requestEmailChange(
-    @Req() req: AuthenticatedRequest,
-    @Body() dto: RequestEmailChangeDto,
-  ): Promise<RequestOtpResponse> {
-    return this.authService.requestEmailChange(req.user.id, dto);
-  }
-
-  @Post('verify-email-change')
-  @UseGuards(CustomerJwtGuard)
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Verify OTP and switch primary account email',
-    description:
-      'Validates OTP, updates customer email in the database, and revokes previous sessions for security.',
-  })
-  @ApiResponse({ status: 200, description: 'Email updated successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async verifyEmailChange(
-    @Req() req: AuthenticatedRequest,
-    @Body() dto: VerifyEmailChangeDto,
-  ): Promise<VerifyOtpResponse> {
-    const meta = this.extractClientMeta(req);
-    return this.authService.verifyEmailChange(req.user.id, dto, meta);
   }
 }

@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Edit3, KeyRound, ShieldAlert, LogOut } from 'lucide-react';
+import React from 'react';
+import { Edit3, ShieldAlert, LogOut } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Alert } from '@/components/ui';
 import type { User } from '@/context/AuthContext';
 import type { ProfileFormData } from './profileTypes';
-import { EmailChangeModal } from './EmailChangeModal';
 
 interface ProfileInfoTabProps {
   user: User;
@@ -28,7 +27,6 @@ export function ProfileInfoTab({
   onLogoutAll,
 }: ProfileInfoTabProps) {
   const { language, t } = useLanguage();
-  const [emailModalOpen, setEmailModalOpen] = useState(false);
 
   return (
     <div>
@@ -93,30 +91,19 @@ export function ProfileInfoTab({
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700">
-                {t('auth.emailLabel')} -{' '}
-                {language === 'th' ? 'ปลอดภัยด้วย OTP' : 'OTP Protected'}
-              </label>
-              <button
-                type="button"
-                onClick={() => setEmailModalOpen(true)}
-                className="text-[10px] font-black uppercase tracking-wider text-brand-amber hover:underline cursor-pointer"
-              >
-                {t('auth.changeEmail')}
-              </button>
-            </div>
+            <label
+              htmlFor="email"
+              className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 mb-1"
+            >
+              {t('auth.emailLabel')}
+            </label>
             <input
               type="email"
+              id="email"
               value={user.email}
               disabled
               className="w-full border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 cursor-not-allowed"
             />
-            <p className="text-[10px] text-gray-400 mt-1">
-              {language === 'th'
-                ? 'อีเมลผูกกับระบบ OTP เพื่อความปลอดภัยสูงสุด หากต้องการเปลี่ยนให้คลิกเปลี่ยนอีเมล'
-                : 'Email linked to passwordless OTP system. Click change email to update.'}
-            </p>
           </div>
 
           <div>
@@ -175,18 +162,9 @@ export function ProfileInfoTab({
 
           <div className="grid grid-cols-2 gap-6 bg-brand-warm-cream p-4 border border-brand-border">
             <div>
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
-                  {language === 'th' ? 'อีเมลยืนยันแล้ว' : 'Verified Email'}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setEmailModalOpen(true)}
-                  className="text-[10px] font-black uppercase tracking-wider text-brand-amber hover:underline cursor-pointer"
-                >
-                  {t('auth.changeEmail')}
-                </button>
-              </div>
+              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                {t('auth.emailLabel')}
+              </p>
               <p className="text-sm font-bold text-brand-brown mt-0.5 truncate">
                 {user.email}
               </p>
@@ -230,12 +208,6 @@ export function ProfileInfoTab({
           )}
         </div>
       )}
-
-      <EmailChangeModal
-        isOpen={emailModalOpen}
-        onClose={() => setEmailModalOpen(false)}
-        currentEmail={user.email}
-      />
     </div>
   );
 }

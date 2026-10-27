@@ -134,29 +134,6 @@ export type CustomerRefreshTokenInput = z.infer<
 >;
 
 /**
- * Request Email Change Schema (Sensitive Action Re-Auth)
- */
-export const requestEmailChangeSchema = z.object({
-  newEmail: z.string().trim().email('Invalid email address').toLowerCase(),
-});
-
-export type RequestEmailChangeInput = z.infer<typeof requestEmailChangeSchema>;
-
-/**
- * Verify Email Change Schema (Sensitive Action Re-Auth)
- */
-export const verifyEmailChangeSchema = z.object({
-  newEmail: z.string().trim().email('Invalid email address').toLowerCase(),
-  otpCode: z
-    .string()
-    .trim()
-    .length(6, 'OTP must be exactly 6 digits')
-    .regex(/^\d{6}$/, 'OTP must be numeric digits'),
-});
-
-export type VerifyEmailChangeInput = z.infer<typeof verifyEmailChangeSchema>;
-
-/**
  * Customer Shipping / Billing Address Schema
  */
 export const customerAddressSchema = z.object({

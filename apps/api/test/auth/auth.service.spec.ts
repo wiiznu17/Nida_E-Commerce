@@ -489,89 +489,6 @@ describe('CustomerAuthService', () => {
     });
   });
 
-  describe('Sensitive Email Change Flow', () => {
-    it('rejects email change request if new email is identical to current email', async () => {
-      prismaMock.user.findUnique.mockResolvedValueOnce({
-        id: 'usr-1',
-        email: 'same@nida.co',
-      });
-
-      await expect(
-        service.requestEmailChange('usr-1', { newEmail: 'same@nida.co' }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('rejects email change request if new email is already in use by another user', async () => {
-      prismaMock.user.findUnique
-        .mockResolvedValueOnce({ id: 'usr-1', email: 'user1@nida.co' })
-        .mockResolvedValueOnce({ id: 'usr-2', email: 'taken@nida.co' });
-
-      await expect(
-        service.requestEmailChange('usr-1', { newEmail: 'taken@nida.co' }),
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('sends OTP and sets cooldown when new email is valid and available', async () => {
-      prismaMock.user.findUnique
-        .mockResolvedValueOnce({ id: 'usr-1', email: 'user1@nida.co' })
-        .mockResolvedValueOnce(null);
-
-      const res = await service.requestEmailChange('usr-1', {
-        newEmail: 'fresh@nida.co',
-      });
-
-      expect(res.success).toBe(true);
-      expect(mailerMock.sendOtpEmail).toHaveBeenCalledWith(
-        expect.objectContaining({ to: 'fresh@nida.co' }),
-      );
-      expect(redisMock.set).toHaveBeenCalledWith(
-        'otp:cooldown:fresh@nida.co',
-        '1',
-        60,
-      );
-    });
-
-    it('verifies OTP, updates user email in DB, and revokes all old sessions for security', async () => {
-      prismaMock.user.findUnique.mockResolvedValueOnce({
-        id: 'usr-1',
-        email: 'old@nida.co',
-      });
-      prismaMock.otpVerification.findFirst.mockResolvedValueOnce({
-        id: 'otp-email-1',
-        email: 'fresh@nida.co',
-        otpCode: '654321',
-        attemptsCount: 0,
-        isUsed: false,
-        expiresAt: new Date(Date.now() + 180_000),
-      });
-      prismaMock.user.update.mockResolvedValueOnce({
-        id: 'usr-1',
-        email: 'fresh@nida.co',
-        firstName: 'Jane',
-        lastName: 'Doe',
-        tier: 'REGULAR',
-        points: 0,
-        isVerified: true,
-        createdAt: new Date(),
-      });
-
-      const res = await service.verifyEmailChange(
-        'usr-1',
-        { newEmail: 'fresh@nida.co', otpCode: '654321' },
-        { ip: '192.168.1.5', userAgent: 'Macintosh' },
-      );
-
-      expect(res.success).toBe(true);
-      expect(res.user.email).toBe('fresh@nida.co');
-      expect(redisMock.revokeAllCustomerSessions).toHaveBeenCalledWith('usr-1');
-      expect(redisMock.setCustomerSession).toHaveBeenCalled();
-      expect(prismaMock.user.update).toHaveBeenCalledWith({
-        where: { id: 'usr-1' },
-        data: { email: 'fresh@nida.co' },
-      });
-    });
-  });
-
   describe('register & verifyRegisterOtp', () => {
     it('rejects registration with ConflictException if user already exists and is verified', async () => {
       prismaMock.user.findUnique.mockResolvedValueOnce({
@@ -586,6 +503,7 @@ describe('CustomerAuthService', () => {
           password: 'Password123!',
           firstName: 'Somchai',
           lastName: 'Dee',
+          phone: '0812345678',
         }),
       ).rejects.toThrow(ConflictException);
     });
@@ -597,6 +515,7 @@ describe('CustomerAuthService', () => {
         email: 'newuser@nida.co',
         firstName: 'Somchai',
         lastName: 'Dee',
+        phone: '0812345678',
       });
 
       const res = await service.register({
@@ -604,6 +523,7 @@ describe('CustomerAuthService', () => {
         password: 'Password123!',
         firstName: 'Somchai',
         lastName: 'Dee',
+        phone: '0812345678',
       });
 
       expect(res.success).toBe(true);
@@ -615,6 +535,7 @@ describe('CustomerAuthService', () => {
             email: 'newuser@nida.co',
             firstName: 'Somchai',
             lastName: 'Dee',
+            phone: '0812345678',
             isVerified: false,
           }),
         }),

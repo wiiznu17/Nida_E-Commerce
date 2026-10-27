@@ -170,33 +170,4 @@ export const authRequester = {
   ): Promise<ApiUser> => {
     return apiClient.patch<ApiUser>('/auth/profile', data, token);
   },
-
-  /**
-   * Request an OTP to change primary account email address.
-   */
-  requestEmailChange: async (
-    token: string,
-    newEmail: string,
-  ): Promise<RequestOtpResponse> => {
-    return apiClient.post<RequestOtpResponse>(
-      '/auth/request-email-change',
-      { newEmail },
-      token,
-    );
-  },
-
-  /**
-   * Verify OTP and finalize switching to the new email address.
-   */
-  verifyEmailChange: async (
-    token: string,
-    newEmail: string,
-    otpCode: string,
-  ): Promise<VerifyOtpResponse> => {
-    return apiClient.post<VerifyOtpResponse>(
-      '/auth/verify-email-change',
-      { newEmail, otpCode },
-      token,
-    );
-  },
 };

@@ -1028,7 +1028,9 @@ describe('Order Lifecycle Status Coherence — Storefront Customer Domain', () =
           ...mockApprovedOrder,
           returnRequests: [
             {
-              ...mockApprovedOrder.returnRequests[0],
+              ...((
+                mockApprovedOrder.returnRequests as Record<string, unknown>[]
+              )[0] ?? {}),
               status: ReturnStatus.SHIPPED,
               returnCarrier: 'Flash Express',
               returnTrackingNumber: 'TH0998877665',
