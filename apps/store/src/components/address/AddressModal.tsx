@@ -92,34 +92,36 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white border border-brand-border w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white border border-brand-border w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-brand-warm-cream">
-          <div className="flex items-center space-x-2">
-            <MapPin size={16} className="text-brand-amber" />
-            <h3 className="text-sm font-black uppercase tracking-tight text-brand-brown">
+        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-brand-border bg-brand-warm-cream shrink-0">
+          <div>
+            <h3 className="text-base sm:text-lg font-black uppercase tracking-wider text-brand-brown">
               {address
                 ? t('addressBook.modalEditTitle')
                 : t('addressBook.modalAddTitle')}
             </h3>
+            <p className="text-xs text-stone-500 mt-0.5">
+              {t('addressBook.subtitle')}
+            </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-stone-400 hover:text-brand-brown p-1 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full hover:bg-black/5 text-stone-400 hover:text-brand-brown flex items-center justify-center transition-colors cursor-pointer"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1">
           {error && <Alert variant="error">{error}</Alert>}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                {t('addressBook.recipientName')}
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                {t('addressBook.recipientName')} *
               </label>
               <input
                 type="text"
@@ -129,12 +131,12 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                   setFormData({ ...formData, recipientName: e.target.value })
                 }
                 placeholder={t('addressBook.recipientNamePlaceholder')}
-                className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+                className="w-full border border-stone-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-brown bg-white transition-colors placeholder:text-stone-400 text-stone-800"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                {t('addressBook.phone')}
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                {t('addressBook.phone')} *
               </label>
               <input
                 type="tel"
@@ -144,14 +146,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                   setFormData({ ...formData, phone: e.target.value })
                 }
                 placeholder={t('addressBook.phonePlaceholder')}
-                className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+                className="w-full border border-stone-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-brown bg-white transition-colors placeholder:text-stone-400 text-stone-800 font-mono"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-              {t('addressBook.addressLine1')}
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+              {t('addressBook.addressLine1')} *
             </label>
             <input
               type="text"
@@ -161,12 +163,12 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                 setFormData({ ...formData, addressLine1: e.target.value })
               }
               placeholder={t('addressBook.addressLine1Placeholder')}
-              className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+              className="w-full border border-stone-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-brown bg-white transition-colors placeholder:text-stone-400 text-stone-800"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
               {t('addressBook.addressLine2')}
             </label>
             <input
@@ -176,14 +178,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                 setFormData({ ...formData, addressLine2: e.target.value })
               }
               placeholder={t('addressBook.addressLine2Placeholder')}
-              className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+              className="w-full border border-stone-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-brown bg-white transition-colors placeholder:text-stone-400 text-stone-800"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                {t('addressBook.subdistrict')}
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                {t('addressBook.subdistrict')} *
               </label>
               <input
                 type="text"
@@ -193,12 +195,12 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                   setFormData({ ...formData, subdistrict: e.target.value })
                 }
                 placeholder={t('addressBook.subdistrictPlaceholder')}
-                className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+                className="w-full border border-stone-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-brown bg-white transition-colors placeholder:text-stone-400 text-stone-800"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                {t('addressBook.district')}
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                {t('addressBook.district')} *
               </label>
               <input
                 type="text"
@@ -208,15 +210,15 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                   setFormData({ ...formData, district: e.target.value })
                 }
                 placeholder={t('addressBook.districtPlaceholder')}
-                className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+                className="w-full border border-stone-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-brown bg-white transition-colors placeholder:text-stone-400 text-stone-800"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                {t('addressBook.province')}
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                {t('addressBook.province')} *
               </label>
               <input
                 type="text"
@@ -226,12 +228,12 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                   setFormData({ ...formData, province: e.target.value })
                 }
                 placeholder={t('addressBook.provincePlaceholder')}
-                className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+                className="w-full border border-stone-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-brown bg-white transition-colors placeholder:text-stone-400 text-stone-800"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                {t('addressBook.postalCode')}
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+                {t('addressBook.postalCode')} *
               </label>
               <input
                 type="text"
@@ -241,41 +243,48 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                   setFormData({ ...formData, postalCode: e.target.value })
                 }
                 placeholder={t('addressBook.postalCodePlaceholder')}
-                className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-brown"
+                className="w-full border border-stone-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-brown bg-white transition-colors placeholder:text-stone-400 text-stone-800 font-mono"
               />
             </div>
           </div>
 
           <div className="pt-2">
-            <label className="flex items-center space-x-2.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={Boolean(formData.isDefault)}
-                onChange={(e) =>
-                  setFormData({ ...formData, isDefault: e.target.checked })
-                }
-                className="w-4 h-4 text-brand-brown accent-brand-brown border-gray-300 rounded-none focus:ring-0"
-              />
-              <span className="text-xs font-medium text-gray-700">
+            <div className="flex items-center justify-between p-3.5 bg-stone-50 border border-stone-200">
+              <span className="text-xs font-medium text-stone-700">
                 {t('addressBook.isDefaultLabel')}
               </span>
-            </label>
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData({ ...formData, isDefault: !formData.isDefault })
+                }
+                className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors cursor-pointer ${
+                  formData.isDefault ? 'bg-brand-brown' : 'bg-stone-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                    formData.isDefault ? 'translate-x-5' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Modal Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-end space-x-3 pt-5 border-t border-brand-border">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-brand-brown transition-colors cursor-pointer"
+              className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-stone-600 hover:text-brand-brown border border-stone-300 hover:bg-stone-50 transition-colors cursor-pointer"
             >
               {t('auth.cancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-brand-brown hover:bg-brand-amber text-white px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-colors cursor-pointer flex items-center justify-center space-x-1.5"
+              className="bg-brand-brown hover:bg-brand-amber disabled:opacity-50 text-white px-7 py-2.5 text-xs font-black uppercase tracking-widest transition-colors cursor-pointer shadow-md inline-flex items-center space-x-2"
             >
               {isSubmitting ? (
                 <span>{t('addressBook.saving')}</span>
