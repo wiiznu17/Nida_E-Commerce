@@ -33,4 +33,5 @@ export type CouponInvalidReason =
   | 'USER_LIMIT_REACHED'
   | 'MIN_ORDER_NOT_MET'
   | 'TIER_NOT_ELIGIBLE'
-  | 'INACTIVE';
+  | 'INACTIVE'
+  | 'ACCOUNT_REQUIRED';

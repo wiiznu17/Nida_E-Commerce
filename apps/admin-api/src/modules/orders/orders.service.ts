@@ -614,6 +614,17 @@ export class OrdersService {
             },
           });
         }
+
+        if (existing.couponId) {
+          await tx.couponRedemption.deleteMany({
+            where: { orderId: existing.id },
+          });
+
+          await tx.promotionCoupon.update({
+            where: { id: existing.couponId },
+            data: { currentUsageCount: { decrement: 1 } },
+          });
+        }
       }
 
       return tx.order.update({

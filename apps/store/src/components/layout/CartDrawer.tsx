@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingBag, X, Check, Minus, Plus, Tag, Loader2, AlertTriangle } from 'lucide-react';
+import { ShoppingBag, X, Check, Minus, Plus, Tag, Loader2, AlertTriangle, Lock, Info } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
@@ -28,6 +28,7 @@ export function CartDrawer() {
     freeShippingProgress,
     finalTotal,
     couponError,
+    clearCouponError,
     isApplyingCoupon,
     applyCoupon,
     removeCoupon,
@@ -35,10 +36,17 @@ export function CartDrawer() {
     cartSyncNotice,
     clearCartSyncNotice,
   } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, openAuthDrawer } = useAuth();
   const { language, t } = useLanguage();
   const router = useRouter();
   const [promoInput, setPromoInput] = useState('');
+
+  useEffect(() => {
+    if (!isCartOpen) {
+      clearCouponError();
+      setPromoInput('');
+    }
+  }, [isCartOpen, clearCouponError]);
 
   const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,7 +267,35 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="p-5 border-t border-gray-200 bg-brand-warm-cream space-y-4">
             {/* Promo Code Input or Applied Badge */}
-            {appliedCoupon ? (
+            {!isAuthenticated ? (
+              <div
+                className="relative group"
+                title={t('checkout.couponReasonAccountRequired')}
+              >
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      disabled
+                      placeholder={t('cart.promoCodePlaceholder')}
+                      className="w-full text-xs font-mono px-3 py-2 bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed select-none uppercase placeholder:normal-case placeholder:text-stone-400"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    disabled
+                    className="px-4 py-2 bg-stone-200 text-stone-400 text-xs font-black uppercase tracking-wider cursor-not-allowed select-none shrink-0"
+                  >
+                    {t('cart.applyPromo')}
+                  </button>
+                </div>
+                {/* Info tooltip on hover */}
+                <div className="pointer-events-none absolute left-0 -top-8 hidden group-hover:flex items-center gap-1.5 bg-stone-900 text-white text-[11px] px-2.5 py-1 rounded-xs shadow-lg whitespace-nowrap z-20">
+                  <Info size={12} className="text-brand-amber shrink-0" />
+                  <span>{t('checkout.couponReasonAccountRequired')}</span>
+                </div>
+              </div>
+            ) : appliedCoupon ? (
               <div className="p-2.5 bg-emerald-50 border border-emerald-300 rounded-xs flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Tag size={14} className="text-emerald-700 shrink-0" />
@@ -270,10 +306,17 @@ export function CartDrawer() {
                     <span className="text-[11px] text-emerald-700 ml-2">
                       (
                       {appliedCoupon.discountType === 'PERCENTAGE'
-                        ? `${appliedCoupon.discountValue}% OFF`
+                        ? `${appliedCoupon.discountValue}% OFF${
+                            appliedCoupon.maxDiscountAmount
+                              ? ` - ${t('checkout.maxDiscountBadge', 'สูงสุด ฿{max}').replace(
+                                  '{max}',
+                                  appliedCoupon.maxDiscountAmount.toLocaleString(),
+                                )}`
+                              : ''
+                          }`
                         : appliedCoupon.discountType === 'FREE_SHIPPING'
                           ? t('cart.freeShippingEligible')
-                          : `$${appliedCoupon.discountValue} OFF`}
+                          : `฿${appliedCoupon.discountValue} OFF`}
                       )
                     </span>
                   </div>
@@ -295,9 +338,10 @@ export function CartDrawer() {
                     <input
                       type="text"
                       value={promoInput}
-                      onChange={(e) =>
-                        setPromoInput(e.target.value.toUpperCase())
-                      }
+                      onChange={(e) => {
+                        setPromoInput(e.target.value.toUpperCase());
+                        if (couponError) clearCouponError();
+                      }}
                       placeholder={t('cart.promoCodePlaceholder')}
                       className="w-full text-xs font-mono px-3 py-2 bg-white border border-brand-border focus:border-brand-brown focus:outline-hidden uppercase placeholder:normal-case placeholder:text-gray-400"
                     />
@@ -314,7 +358,7 @@ export function CartDrawer() {
                     )}
                   </button>
                 </form>
-                {couponError && (
+                {couponError && promoInput.trim().length > 0 && (
                   <p className="text-[11px] text-rose-600 mt-1.5 font-medium">
                     {couponError}
                   </p>
@@ -396,15 +440,16 @@ export function CartDrawer() {
                   {t('cart.checkoutBtn')}
                 </div>
               ) : (
-                <Link
-                  href={
-                    isAuthenticated ? '/checkout' : '/login?redirect=/checkout'
-                  }
-                  onClick={() => setIsCartOpen(false)}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCartOpen(false);
+                    router.push('/checkout');
+                  }}
                   className="w-full py-3.5 bg-brand-brown hover:bg-brand-amber text-white font-black transition-colors uppercase tracking-[0.2em] text-xs text-center block shadow-md cursor-pointer"
                 >
                   {t('cart.checkoutBtn')}
-                </Link>
+                </button>
               )}
             </div>
           </div>

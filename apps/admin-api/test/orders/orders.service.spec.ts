@@ -38,6 +38,7 @@ describe('OrdersService', () => {
       },
       orderItem: {
         create: vi.fn(),
+        findMany: vi.fn(),
       },
       inventoryItem: {
         update: vi.fn(),
@@ -680,6 +681,48 @@ describe('OrdersService', () => {
         }),
       );
       expect(result.status).toBe(OrderStatus.PAID);
+    });
+
+    it('restocks inventory and rolls back coupon when status is updated to CANCELLED', async () => {
+      const orderWithCoupon = {
+        id: 'ord-cancel-1',
+        orderNumber: 'NIDA-CANCEL-01',
+        status: OrderStatus.PENDING,
+        currency: 'THB',
+        couponId: 'coup-1',
+        placedAt: new Date(),
+        items: [
+          {
+            id: 'item-1',
+            variantId: 'var-1',
+            quantity: 2,
+          },
+        ],
+        shippingAddressSnapshot: {},
+        payment: null,
+        shipments: [],
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(orderWithCoupon);
+      prismaMock.orderItem.findMany.mockResolvedValue(orderWithCoupon.items);
+      prismaMock.order.update.mockResolvedValue({
+        ...orderWithCoupon,
+        status: OrderStatus.CANCELLED,
+      });
+
+      const res = await service.updateOrderStatus(
+        orderWithCoupon.id,
+        OrderStatus.CANCELLED,
+      );
+
+      expect(res.status).toBe(OrderStatus.CANCELLED);
+      expect(prismaMock.couponRedemption.deleteMany).toHaveBeenCalledWith({
+        where: { orderId: orderWithCoupon.id },
+      });
+      expect(prismaMock.promotionCoupon.update).toHaveBeenCalledWith({
+        where: { id: 'coup-1' },
+        data: { currentUsageCount: { decrement: 1 } },
+      });
     });
   });
 

@@ -206,6 +206,7 @@ export function Header() {
               cartItemCount={items.length}
               onOpenCart={() => setIsCartOpen(true)}
               onOpenAuth={openAuthDrawer}
+              hideCartButton={pathname?.startsWith('/checkout')}
               t={t}
             />
           </div>

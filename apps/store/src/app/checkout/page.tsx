@@ -5,12 +5,12 @@ import { useLanguage } from '@/context/LanguageContext';
 import { AddressModal } from '@/components/address';
 import { Alert, EmptyState } from '@/components/ui';
 import {
-  CheckoutMemberBanner,
   CheckoutSteps,
   CheckoutShippingForm,
   CheckoutPaymentForm,
   CheckoutOrderSummary,
   PriceMismatchModal,
+  GuestCheckoutDrawer,
   useCheckoutForm,
 } from '@/components/checkout';
 
@@ -60,6 +60,9 @@ export default function CheckoutPage() {
     isPriceMismatchModalOpen,
     setIsPriceMismatchModalOpen,
     handleAcceptNewPrices,
+    isGuestDecisionModalOpen,
+    setIsGuestDecisionModalOpen,
+    handleProceedAsGuest,
     router,
   } = useCheckoutForm();
 
@@ -79,19 +82,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-12 font-sans">
-      <CheckoutMemberBanner
-        isAuthenticated={isAuthenticated}
-        isLoading={isAuthLoading}
-      />
-
       {hasUnavailableItems && (
         <Alert
           variant="warning"
-          title={
-            language === 'th'
-              ? 'มีสินค้าที่ไม่พร้อมจำหน่ายในถุงช้อปปิ้ง'
-              : 'Unavailable Items in Bag'
-          }
+          title={t('cart.hasUnavailableTitle')}
           className="mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
@@ -112,17 +106,15 @@ export default function CheckoutPage() {
       {orderError && (
         <Alert
           variant="error"
-          title={
-            language === 'th' ? 'เกิดข้อผิดพลาดในการสั่งซื้อ' : 'Order Error'
-          }
+          title={t('checkout.orderErrorTitle')}
           className="mb-8"
         >
           {orderError}
         </Alert>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-12">
-        <div className="flex-1 lg:max-w-2xl">
+      <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 xl:gap-16 items-start justify-between">
+        <div className="flex-1 min-w-0 max-w-3xl">
           <CheckoutSteps currentStep={step} />
 
           {step === 'shipping' ? (
@@ -181,6 +173,14 @@ export default function CheckoutPage() {
         onClose={() => setIsPriceMismatchModalOpen(false)}
         mismatches={priceMismatches}
         onAcceptAndProceed={handleAcceptNewPrices}
+        isSubmitting={isSubmitting}
+      />
+
+      <GuestCheckoutDrawer
+        isOpen={isGuestDecisionModalOpen}
+        onClose={() => setIsGuestDecisionModalOpen(false)}
+        onProceedAsGuest={handleProceedAsGuest}
+        guestEmail={shippingData.email}
         isSubmitting={isSubmitting}
       />
     </div>

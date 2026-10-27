@@ -80,6 +80,7 @@ export type CartContextType = {
   freeShippingRemaining: number;
   finalTotal: number;
   couponError: string | null;
+  clearCouponError: () => void;
   isApplyingCoupon: boolean;
   applyCoupon: (
     code: string,
@@ -133,6 +134,11 @@ export function getCouponErrorMessage(
       return t(
         'checkout.couponReasonInactive',
         'โค้ดส่วนลดนี้ถูกปิดใช้งานชั่วคราว',
+      );
+    case 'ACCOUNT_REQUIRED':
+      return t(
+        'checkout.couponReasonAccountRequired',
+        'คูปองส่วนลดสงวนสิทธิ์เฉพาะสมาชิก กรุณาเข้าสู่ระบบก่อนใช้งาน',
       );
     default:
       return t(
@@ -591,6 +597,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const clearCouponError = useCallback(() => {
+    setCouponError(null);
+  }, []);
+
   const removeCoupon = () => {
     setAppliedCoupon(null);
     setCouponCode('');
@@ -862,6 +872,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         freeShippingRemaining,
         finalTotal,
         couponError,
+        clearCouponError,
         isApplyingCoupon,
         applyCoupon,
         removeCoupon,

@@ -34,6 +34,10 @@ export class CouponsService {
     const { code, orderAmount, userId } = input;
     const now = new Date();
 
+    if (!userId) {
+      return { valid: false, reason: 'ACCOUNT_REQUIRED' };
+    }
+
     const coupon = await this.prisma.promotionCoupon.findUnique({
       where: { code: code.toUpperCase().trim() },
     });

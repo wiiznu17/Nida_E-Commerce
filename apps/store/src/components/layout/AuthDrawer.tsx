@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   X,
   Mail,
@@ -34,6 +34,7 @@ function AuthDrawerContent() {
   } = useAuth();
   const { language, t } = useLanguage();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Auto-open if URL has ?auth=signin or ?auth=signup (only when unauthenticated)
   useEffect(() => {
@@ -41,6 +42,11 @@ function AuthDrawerContent() {
     const authQuery = searchParams?.get('auth');
     if (authQuery === 'signin' || authQuery === 'signup') {
       openAuthDrawer(authQuery);
+    }
+    const emailQuery = searchParams?.get('email');
+    if (emailQuery) {
+      setLoginEmail(emailQuery);
+      setRegisterEmail(emailQuery);
     }
   }, [searchParams, openAuthDrawer, isAuthenticated]);
 
@@ -376,8 +382,12 @@ function AuthDrawerContent() {
 
       setSession(res.accessToken, res.refreshToken, res.user);
       setIsSuccess(true);
+      const redirectParam = searchParams?.get('redirect');
       setTimeout(() => {
         handleClose();
+        if (redirectParam) {
+          router.push(redirectParam);
+        }
       }, 700);
     } catch (err: unknown) {
       const extracted = extractApiError(

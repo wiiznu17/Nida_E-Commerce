@@ -245,6 +245,11 @@ export class CustomerOrdersService {
     let normalizedCouponCode: string | null = null;
 
     if (couponCode) {
+      if (!effectiveUserId) {
+        throw new BadRequestException(
+          'Please sign in or create an account to use promotional coupons',
+        );
+      }
       normalizedCouponCode = couponCode.toUpperCase().trim();
       const coupon = await this.prisma.promotionCoupon.findUnique({
         where: { code: normalizedCouponCode },
@@ -427,6 +432,12 @@ export class CustomerOrdersService {
 
         if (!couponDef || !couponDef.isActive) {
           throw new BadRequestException('Coupon code is invalid or inactive');
+        }
+
+        if (!effectiveUserId) {
+          throw new BadRequestException(
+            'Please sign in or create an account to use promotional coupons',
+          );
         }
 
         if (effectiveUserId && couponDef.userUsageLimit > 0) {

@@ -345,6 +345,48 @@ describe('CustomerOrdersService', () => {
         }),
       );
     });
+
+    it('rejects order with BadRequestException if guest user attempts to use a coupon code', async () => {
+      (
+        prismaMock as { productVariant: { findMany: ReturnType<typeof vi.fn> } }
+      ).productVariant.findMany.mockResolvedValueOnce([
+        {
+          id: 'var-1',
+          skuCode: 'NIDA-DRS-BLK-S',
+          colorName: 'Black',
+          size: 'S',
+          priceAdjustment: 0,
+          product: {
+            name: 'Silk Evening Dress',
+            basePrice: 1500,
+            isActive: true,
+            isPreorder: false,
+            images: [],
+          },
+          inventoryItem: {
+            id: 'inv-1',
+            quantityAvailable: 10,
+          },
+        },
+      ]);
+
+      await expect(
+        service.createOrder(
+          {
+            items: [
+              {
+                variantId: 'var-1',
+                quantity: 1,
+              },
+            ],
+            shippingAddress: defaultShipping,
+            paymentMethod: 'PROMPTPAY',
+            couponCode: 'NIDA20',
+          },
+          undefined, // Unauthenticated Guest
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
   });
 
   describe('trackOrder', () => {

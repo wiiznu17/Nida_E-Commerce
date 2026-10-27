@@ -8,6 +8,7 @@ interface HeaderActionsProps {
   cartItemCount: number;
   onOpenCart: () => void;
   onOpenAuth?: (tab?: 'signin' | 'signup') => void;
+  hideCartButton?: boolean;
   t: (key: string, fallback?: string) => string;
 }
 
@@ -17,6 +18,7 @@ export function HeaderActions({
   cartItemCount,
   onOpenCart,
   onOpenAuth,
+  hideCartButton = false,
   t,
 }: HeaderActionsProps) {
   return (
@@ -58,19 +60,21 @@ export function HeaderActions({
       )}
 
       {/* Shopping Bag Button */}
-      <button
-        onClick={onOpenCart}
-        className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2.5 rounded-xs flex items-center space-x-2 transition-colors relative shadow-xs cursor-pointer"
-        aria-label={t('nav.bag')}
-      >
-        <ShoppingBag size={18} strokeWidth={2} />
-        <span className="text-xs font-bold tracking-widest hidden sm:inline">
-          {t('nav.bag')}
-        </span>
-        <span className="bg-brand-yellow text-brand-brown font-black text-[11px] w-5 h-5 rounded-full flex items-center justify-center ml-1">
-          {cartItemCount}
-        </span>
-      </button>
+      {!hideCartButton && (
+        <button
+          onClick={onOpenCart}
+          className="bg-brand-brown hover:bg-brand-amber text-white px-4 py-2.5 rounded-xs flex items-center space-x-2 transition-colors relative shadow-xs cursor-pointer"
+          aria-label={t('nav.bag')}
+        >
+          <ShoppingBag size={18} strokeWidth={2} />
+          <span className="text-xs font-bold tracking-widest hidden sm:inline">
+            {t('nav.bag')}
+          </span>
+          <span className="bg-brand-yellow text-brand-brown font-black text-[11px] w-5 h-5 rounded-full flex items-center justify-center ml-1">
+            {cartItemCount}
+          </span>
+        </button>
+      )}
     </>
   );
 }

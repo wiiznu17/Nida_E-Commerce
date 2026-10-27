@@ -39,6 +39,7 @@ export function useCheckoutForm() {
     isFreeShipping,
     finalTotal,
     couponError,
+    clearCouponError,
     isApplyingCoupon,
     applyCoupon,
     removeCoupon,
@@ -57,6 +58,8 @@ export function useCheckoutForm() {
     [],
   );
   const [isPriceMismatchModalOpen, setIsPriceMismatchModalOpen] =
+    useState(false);
+  const [isGuestDecisionModalOpen, setIsGuestDecisionModalOpen] =
     useState(false);
 
   const [shippingData, setShippingData] = useState<ShippingFormData>({
@@ -157,6 +160,17 @@ export function useCheckoutForm() {
       }));
     }
   }, [user, language, savedAddresses.length]);
+
+  useEffect(() => {
+    clearCouponError();
+  }, [clearCouponError]);
+
+  const handleSetPromoCode = (code: string) => {
+    setPromoCode(code);
+    if (couponError) {
+      clearCouponError();
+    }
+  };
 
   const handleApplyPromo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -308,6 +322,15 @@ export function useCheckoutForm() {
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      setIsGuestDecisionModalOpen(true);
+      return;
+    }
+    await submitOrder();
+  };
+
+  const handleProceedAsGuest = async () => {
+    setIsGuestDecisionModalOpen(false);
     await submitOrder();
   };
 
@@ -360,7 +383,7 @@ export function useCheckoutForm() {
     step,
     setStep,
     promoCode,
-    setPromoCode,
+    setPromoCode: handleSetPromoCode,
     paymentMethod,
     setPaymentMethod,
     isSubmitting,
@@ -385,6 +408,9 @@ export function useCheckoutForm() {
     isPriceMismatchModalOpen,
     setIsPriceMismatchModalOpen,
     handleAcceptNewPrices,
+    isGuestDecisionModalOpen,
+    setIsGuestDecisionModalOpen,
+    handleProceedAsGuest,
     router,
   };
 }

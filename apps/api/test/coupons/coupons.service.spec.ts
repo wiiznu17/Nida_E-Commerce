@@ -59,12 +59,23 @@ describe('CouponsService (apps/api)', () => {
       updatedAt: new Date(),
     };
 
-    it('validates a percentage coupon and calculates discount within cap', async () => {
+    it('rejects with ACCOUNT_REQUIRED if userId is not provided', async () => {
+      const result = await service.validateCoupon({
+        code: 'NIDA20',
+        orderAmount: 2000,
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.reason).toBe('ACCOUNT_REQUIRED');
+    });
+
+    it('validates a percentage coupon and calculates discount within cap for authenticated user', async () => {
       prismaMock.promotionCoupon.findUnique.mockResolvedValue(baseValidCoupon);
 
       const result = await service.validateCoupon({
         code: 'nida20',
         orderAmount: 2000,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(true);
@@ -78,6 +89,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'NIDA20',
         orderAmount: 3000, // 20% is 600, cap is 500
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(true);
@@ -95,6 +107,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'SAVE300',
         orderAmount: 1500,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(true);
@@ -111,6 +124,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'FREESHIP',
         orderAmount: 1200,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(true);
@@ -123,6 +137,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'INVALID',
         orderAmount: 1000,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(false);
@@ -138,6 +153,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'NIDA20',
         orderAmount: 1500,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(false);
@@ -153,6 +169,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'NIDA20',
         orderAmount: 1500,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(false);
@@ -168,6 +185,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'NIDA20',
         orderAmount: 1500,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(false);
@@ -184,6 +202,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'NIDA20',
         orderAmount: 1500,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(false);
@@ -210,6 +229,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'NIDA20',
         orderAmount: 999, // Min is 1000
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(false);
@@ -222,6 +242,7 @@ describe('CouponsService (apps/api)', () => {
       const result = await service.validateCoupon({
         code: 'NIDA20',
         orderAmount: 1000,
+        userId: 'user-uuid-1',
       });
 
       expect(result.valid).toBe(true);
@@ -325,6 +346,7 @@ describe('CouponsService (apps/api)', () => {
           { variantId: 'var-2', quantity: 1 }, // 800  (800/1800 of 180 = 80)
         ],
         couponCode: 'PROMO10',
+        userId: 'usr-1',
       });
 
       expect(result.subtotal).toBe(1800);
