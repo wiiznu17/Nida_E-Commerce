@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 import { ProductBadge } from '@/components/ui';
+import { NidaChevronRibbon } from '@/components/layout';
 import { useLanguage } from '@/context/LanguageContext';
 import type { ApiProduct, ApiProductDetail } from '@repo/types';
 
@@ -35,12 +36,8 @@ export function ProductInfo({
       {/* Brand Flag & Category */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <div className="flex w-10 h-1.5">
-              <div className="w-1/3 bg-brand-brown"></div>
-              <div className="w-1/3 bg-white border-y border-gray-200"></div>
-              <div className="w-1/3 bg-brand-yellow"></div>
-            </div>
+          <div className="flex items-center space-x-2.5">
+            <NidaChevronRibbon className="w-10 sm:w-11 h-auto" />
             <span className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">
               NIDA • {subCategory}
             </span>

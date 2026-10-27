@@ -1,5 +1,6 @@
 export * from './types';
 export * from './NidaLogo';
+export * from './NidaChevronRibbon';
 export * from './megaMenuBuilder';
 export * from './MegaMenu';
 export * from './MobileNavDrawer';

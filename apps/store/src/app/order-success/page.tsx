@@ -10,6 +10,7 @@ import { orderRequester } from '@/api';
 import { PaymentSuccessReceipt } from '@/components/order';
 import { OrderStatus, type ApiOrder } from '@repo/types';
 import { LoadingSpinner } from '@/components/ui';
+import { NidaChevronRibbon } from '@/components/layout';
 
 function OrderSuccessContent() {
   const router = useRouter();
@@ -99,12 +100,8 @@ function OrderSuccessContent() {
 
   return (
     <div className="max-w-xl w-full bg-white border border-brand-border p-6 sm:p-10 text-center shadow-xs">
-      {/* Nida Flag Ribbon */}
-      <div className="flex w-16 h-1.5 mx-auto mb-6">
-        <div className="w-1/3 bg-brand-brown"></div>
-        <div className="w-1/3 bg-white border-y border-gray-200"></div>
-        <div className="w-1/3 bg-brand-amber"></div>
-      </div>
+      {/* Nida Chevron Ribbon */}
+      <NidaChevronRibbon className="w-20 sm:w-24 h-auto mx-auto mb-6" />
 
       <PaymentSuccessReceipt
         order={order}

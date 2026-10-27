@@ -6,6 +6,7 @@ import { Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { orderRequester } from '@/api/requester/orderRequester';
+import { NidaChevronRibbon } from '@/components/layout';
 import { OrderStatus } from '@repo/types';
 
 function OmiseCallbackContent() {
@@ -79,11 +80,7 @@ function OmiseCallbackContent() {
 
   return (
     <div className="max-w-md w-full bg-white border border-brand-border p-8 text-center shadow-xs font-sans">
-      <div className="flex w-16 h-1.5 mx-auto mb-6">
-        <div className="w-1/3 bg-brand-brown"></div>
-        <div className="w-1/3 bg-white border-y border-gray-200"></div>
-        <div className="w-1/3 bg-brand-amber"></div>
-      </div>
+      <NidaChevronRibbon className="w-20 sm:w-24 h-auto mx-auto mb-6" />
 
       {error ? (
         <div className="space-y-4">

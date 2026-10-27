@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Check, Calendar } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { NidaChevronRibbon } from '@/components/layout';
 import type { TrackingResult } from '@repo/types';
 
 interface TrackingHeaderBannerProps {
@@ -21,11 +22,9 @@ export function TrackingHeaderBanner({
 
   return (
     <div className="w-full bg-brand-warm-cream border border-brand-border p-6 sm:p-8 lg:p-10 shadow-xs">
-      {/* Signature NIDA Tri-color Flag Ribbon */}
-      <div className="flex w-16 h-1 mb-5">
-        <div className="w-1/3 bg-brand-brown" />
-        <div className="w-1/3 bg-white border-y border-gray-200" />
-        <div className="w-1/3 bg-brand-amber" />
+      {/* Signature NIDA Chevron Ribbon */}
+      <div className="mb-5">
+        <NidaChevronRibbon className="w-20 sm:w-24 h-auto" />
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-6">

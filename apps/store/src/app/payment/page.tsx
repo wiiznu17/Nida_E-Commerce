@@ -22,6 +22,7 @@ import {
   type CardSubmitData,
 } from '@/components/order';
 import { LoadingSpinner } from '@/components/ui';
+import { NidaChevronRibbon } from '@/components/layout';
 import { OrderStatus, PaymentMethod, type ApiOrder } from '@repo/types';
 
 function PaymentPageContent() {
@@ -288,16 +289,12 @@ function PaymentPageContent() {
         </Link>
 
         {/* Center Brand Wordmark */}
-        <div className="flex flex-col items-center">
-          <span className="font-sans font-black tracking-[0.25em] text-brand-brown uppercase text-xl">
+        <Link href="/" className="flex flex-col items-center group">
+          <span className="font-sans font-black tracking-[0.25em] text-brand-brown uppercase text-xl group-hover:text-brand-amber transition-colors">
             NIDA
           </span>
-          <div className="flex w-10 h-1 mt-0.5 rounded-2xs overflow-hidden">
-            <div className="w-1/3 bg-brand-brown"></div>
-            <div className="w-1/3 bg-white border-y border-stone-200"></div>
-            <div className="w-1/3 bg-brand-amber"></div>
-          </div>
-        </div>
+          <NidaChevronRibbon className="w-14 sm:w-16 h-auto mt-1.5" />
+        </Link>
 
         <span className="font-mono text-xs font-bold text-stone-500">
           #{order.orderNumber}
@@ -309,12 +306,8 @@ function PaymentPageContent() {
         {/* Left Column (5 Cols): Order Amount & Payment Method Summary */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white border border-brand-border p-6 sm:p-8 shadow-xs space-y-6">
-            {/* Nida Flag Ribbon */}
-            <div className="flex w-16 h-1.5">
-              <div className="w-1/3 bg-brand-brown"></div>
-              <div className="w-1/3 bg-white border-y border-stone-200"></div>
-              <div className="w-1/3 bg-brand-amber"></div>
-            </div>
+            {/* Nida Chevron Ribbon */}
+            <NidaChevronRibbon className="w-20 sm:w-24 h-auto" />
 
             {/* Total Amount to Pay Banner */}
             <div>
