@@ -10,7 +10,7 @@ import { orderRequester } from '@/api';
 import { PaymentSuccessReceipt } from '@/components/order';
 import { OrderStatus, type ApiOrder } from '@repo/types';
 import { LoadingSpinner } from '@/components/ui';
-import { NidaChevronRibbon } from '@/components/layout';
+import { StandaloneHeader, StandaloneFooter } from '@/components/layout';
 
 function OrderSuccessContent() {
   const router = useRouter();
@@ -59,53 +59,83 @@ function OrderSuccessContent() {
 
   if (isLoading) {
     return (
-      <div className="max-w-xl w-full bg-white border border-brand-border p-12 text-center shadow-xs">
-        <LoadingSpinner
-          text={
-            language === 'th'
-              ? 'กำลังโหลดข้อมูลคำสั่งซื้อ...'
-              : 'Loading order details...'
-          }
-        />
+      <div className="w-full flex-1 flex flex-col justify-between">
+        <StandaloneHeader />
+        <div className="max-w-md mx-auto w-full bg-white border border-brand-border p-12 text-center shadow-xs my-auto">
+          <LoadingSpinner
+            text={
+              language === 'th'
+                ? 'กำลังโหลดข้อมูลคำสั่งซื้อ...'
+                : 'Loading order details...'
+            }
+          />
+        </div>
+        <StandaloneFooter />
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="max-w-xl w-full bg-white border border-brand-border p-8 text-center shadow-xs space-y-4">
-        <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto text-rose-700">
-          <AlertCircle size={24} />
+      <div className="w-full flex-1 flex flex-col justify-between">
+        <StandaloneHeader />
+        <div className="max-w-md mx-auto w-full bg-white border border-brand-border p-8 sm:p-10 text-center shadow-xs space-y-4 my-auto">
+          <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto text-rose-700">
+            <AlertCircle size={24} />
+          </div>
+          <h2 className="text-base font-black uppercase tracking-tight text-brand-brown">
+            {language === 'th' ? 'ไม่พบคำสั่งซื้อ' : 'Order Not Found'}
+          </h2>
+          <p className="text-xs text-rose-700">
+            {errorMessage ||
+              (language === 'th'
+                ? 'หมายเลขคำสั่งซื้อไม่ถูกต้อง'
+                : 'Invalid order number')}
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/profile/orders"
+              className="inline-block py-2.5 px-6 bg-brand-brown text-white text-xs font-bold uppercase tracking-wider transition-colors hover:bg-brand-dark-brown"
+            >
+              {language === 'th'
+                ? 'กลับไปยังประวัติคำสั่งซื้อ'
+                : 'Back to My Orders'}
+            </Link>
+          </div>
         </div>
-        <h2 className="text-base font-black uppercase tracking-tight text-brand-brown">
-          {language === 'th' ? 'ไม่พบคำสั่งซื้อ' : 'Order Not Found'}
-        </h2>
-        <p className="text-xs text-rose-700">
-          {errorMessage ||
-            (language === 'th'
-              ? 'หมายเลขคำสั่งซื้อไม่ถูกต้อง'
-              : 'Invalid order number')}
-        </p>
-        <Link
-          href="/profile/orders"
-          className="inline-block py-2.5 px-6 bg-brand-brown text-white text-xs font-bold uppercase tracking-wider transition-colors hover:bg-brand-dark-brown"
-        >
-          {language === 'th'
-            ? 'กลับไปยังประวัติคำสั่งซื้อ'
-            : 'Back to My Orders'}
-        </Link>
+        <StandaloneFooter />
       </div>
     );
   }
 
   return (
-    <div className="max-w-xl w-full bg-white border border-brand-border p-6 sm:p-10 text-center shadow-xs">
-      {/* Nida Chevron Ribbon */}
-      <NidaChevronRibbon className="w-20 sm:w-24 h-auto mx-auto mb-6" />
+    <div className="w-full flex-1 flex flex-col justify-between">
+      {/* Shared Slim Standalone Brand Header */}
+      <StandaloneHeader
+        orderNumber={displayOrderNumber}
+        backHref={`/profile/orders/${encodeURIComponent(displayOrderNumber)}`}
+        backLabel={
+          language === 'th' ? 'ดูรายละเอียดคำสั่งซื้อ' : 'Order Details'
+        }
+      />
 
-      <PaymentSuccessReceipt
-        order={order}
-        displayOrderNumber={displayOrderNumber}
+      {/* Main Single Centered Interstitial Confirmation Card */}
+      <div className="max-w-md mx-auto w-full my-auto px-2 sm:px-0">
+        <div className="bg-white border border-brand-border p-6 sm:p-9 shadow-xs">
+          <PaymentSuccessReceipt
+            order={order}
+            displayOrderNumber={displayOrderNumber}
+          />
+        </div>
+      </div>
+
+      {/* Shared Minimal Footer Note */}
+      <StandaloneFooter
+        note={
+          language === 'th'
+            ? `© ${new Date().getFullYear()} NIDA. All rights reserved. • เอกสารยืนยันการชำระเงินทางการ NIDA Official`
+            : undefined
+        }
       />
     </div>
   );
@@ -113,10 +143,12 @@ function OrderSuccessContent() {
 
 export default function OrderSuccessPage() {
   return (
-    <div className="min-h-[75vh] flex flex-col items-center justify-center px-4 py-16 bg-brand-warm-cream font-sans">
-      <Suspense fallback={<LoadingSpinner className="p-12" />}>
-        <OrderSuccessContent />
-      </Suspense>
+    <div className="min-h-screen bg-stone-50/50 font-sans pt-2 sm:pt-3 pb-8 sm:pb-12 flex flex-col justify-between">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 w-full flex-1 flex flex-col">
+        <Suspense fallback={<LoadingSpinner className="p-16 my-auto" />}>
+          <OrderSuccessContent />
+        </Suspense>
+      </div>
     </div>
   );
 }

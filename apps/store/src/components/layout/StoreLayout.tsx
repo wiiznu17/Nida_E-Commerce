@@ -9,9 +9,10 @@ import { AuthDrawer } from './AuthDrawer';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isStandalonePayment = pathname?.startsWith('/payment');
+  const isStandalone =
+    pathname?.startsWith('/payment') || pathname?.startsWith('/order-success');
 
-  if (isStandalonePayment) {
+  if (isStandalone) {
     return (
       <div className="min-h-screen flex flex-col bg-stone-50/60 text-brand-brown selection:bg-brand-yellow selection:text-brand-brown font-sans">
         <main className="flex-1 w-full">{children}</main>

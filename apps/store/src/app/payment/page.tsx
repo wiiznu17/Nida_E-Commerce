@@ -6,10 +6,8 @@ import Link from 'next/link';
 import {
   CreditCard,
   QrCode,
-  ChevronLeft,
   AlertCircle,
   ShieldCheck,
-  Lock,
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
@@ -22,7 +20,11 @@ import {
   type CardSubmitData,
 } from '@/components/order';
 import { LoadingSpinner } from '@/components/ui';
-import { NidaChevronRibbon } from '@/components/layout';
+import {
+  NidaChevronRibbon,
+  StandaloneHeader,
+  StandaloneFooter,
+} from '@/components/layout';
 import { OrderStatus, PaymentMethod, type ApiOrder } from '@repo/types';
 
 function PaymentPageContent() {
@@ -235,71 +237,61 @@ function PaymentPageContent() {
 
   if (isLoading) {
     return (
-      <div className="w-full bg-white border border-brand-border p-16 text-center shadow-xs">
-        <LoadingSpinner
-          text={
-            language === 'th'
-              ? 'กำลังโหลดข้อมูลการชำระเงิน...'
-              : 'Loading payment details...'
-          }
-        />
+      <div className="w-full">
+        <StandaloneHeader />
+        <div className="max-w-md mx-auto bg-white border border-brand-border p-16 text-center shadow-xs">
+          <LoadingSpinner
+            text={
+              language === 'th'
+                ? 'กำลังโหลดข้อมูลการชำระเงิน...'
+                : 'Loading payment details...'
+            }
+          />
+        </div>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="max-w-xl mx-auto w-full bg-white border border-brand-border p-10 text-center shadow-xs space-y-4">
-        <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto text-rose-700">
-          <AlertCircle size={24} />
+      <div className="w-full">
+        <StandaloneHeader />
+        <div className="max-w-xl mx-auto w-full bg-white border border-brand-border p-10 text-center shadow-xs space-y-4">
+          <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto text-rose-700">
+            <AlertCircle size={24} />
+          </div>
+          <h2 className="text-base font-black uppercase tracking-tight text-brand-brown">
+            {language === 'th' ? 'ไม่พบคำสั่งซื้อ' : 'Order Not Found'}
+          </h2>
+          <p className="text-xs text-rose-700">
+            {errorMessage ??
+              (language === 'th'
+                ? 'หมายเลขคำสั่งซื้อไม่ถูกต้อง'
+                : 'Invalid order number')}
+          </p>
+          <Link
+            href="/profile/orders"
+            className="inline-block py-2.5 px-6 bg-brand-brown text-white text-xs font-bold uppercase tracking-wider transition-colors hover:bg-brand-dark-brown"
+          >
+            {language === 'th'
+              ? 'กลับไปยังประวัติคำสั่งซื้อ'
+              : 'Back to My Orders'}
+          </Link>
         </div>
-        <h2 className="text-base font-black uppercase tracking-tight text-brand-brown">
-          {language === 'th' ? 'ไม่พบคำสั่งซื้อ' : 'Order Not Found'}
-        </h2>
-        <p className="text-xs text-rose-700">
-          {errorMessage ??
-            (language === 'th'
-              ? 'หมายเลขคำสั่งซื้อไม่ถูกต้อง'
-              : 'Invalid order number')}
-        </p>
-        <Link
-          href="/profile/orders"
-          className="inline-block py-2.5 px-6 bg-brand-brown text-white text-xs font-bold uppercase tracking-wider transition-colors hover:bg-brand-dark-brown"
-        >
-          {language === 'th'
-            ? 'กลับไปยังประวัติคำสั่งซื้อ'
-            : 'Back to My Orders'}
-        </Link>
       </div>
     );
   }
 
   return (
     <div className="w-full">
-      {/* Top Header / Breadcrumb navigation with Brand Identity */}
-      <div className="flex items-center justify-between pb-6 mb-8 border-b border-stone-200">
-        <Link
-          href={`/profile/orders/${encodeURIComponent(order.orderNumber)}`}
-          className="inline-flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-stone-500 hover:text-brand-brown transition-colors"
-        >
-          <ChevronLeft size={16} />
-          <span>
-            {language === 'th' ? 'กลับไปยังคำสั่งซื้อ' : 'Back to Order'}
-          </span>
-        </Link>
-
-        {/* Center Brand Wordmark */}
-        <Link href="/" className="flex flex-col items-center group">
-          <span className="font-sans font-black tracking-[0.25em] text-brand-brown uppercase text-xl group-hover:text-brand-amber transition-colors">
-            NIDA
-          </span>
-          <NidaChevronRibbon className="w-14 sm:w-16 h-auto mt-1.5" />
-        </Link>
-
-        <span className="font-mono text-xs font-bold text-stone-500">
-          #{order.orderNumber}
-        </span>
-      </div>
+      {/* Top Header: Shared Slim Standalone Brand Header with Back Link & Order Number */}
+      <StandaloneHeader
+        orderNumber={order.orderNumber}
+        backHref={`/profile/orders/${encodeURIComponent(order.orderNumber)}`}
+        backLabel={
+          language === 'th' ? 'กลับไปยังคำสั่งซื้อ' : 'Back to Order'
+        }
+      />
 
       {/* Main Payment Section: 12-Column Responsive Home-Aligned Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -412,7 +404,7 @@ function PaymentPageContent() {
 
 export default function PaymentPage() {
   return (
-    <div className="min-h-screen bg-stone-50/50 font-sans py-8 sm:py-12 flex flex-col justify-between">
+    <div className="min-h-screen bg-stone-50/50 font-sans pt-2 sm:pt-3 pb-8 sm:pb-12 flex flex-col justify-between">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 w-full">
         <Suspense fallback={<LoadingSpinner className="p-16" />}>
           <PaymentPageContent />
@@ -420,12 +412,7 @@ export default function PaymentPage() {
       </div>
 
       {/* Minimal Enclosed Footer Note */}
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 w-full pt-12 pb-4 text-center">
-        <p className="text-[11px] text-stone-400 font-medium">
-          © {new Date().getFullYear()} NIDA. All rights reserved. • Secured by
-          Omise Payment Gateway (PCI-DSS Level 1)
-        </p>
-      </div>
+      <StandaloneFooter />
     </div>
   );
 }

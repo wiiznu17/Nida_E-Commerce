@@ -377,6 +377,7 @@
     "paymentSuccessDesc": "Your order has been confirmed and paid. We are now preparing your items for delivery.",
     "itemsOrdered": "Items Ordered",
     "totalAmount": "Total Amount",
+    "viewOrderDetail": "View Order Details",
     "trackOrder": "Track Shipment",
     "continueShopping": "Continue Shopping"
   },

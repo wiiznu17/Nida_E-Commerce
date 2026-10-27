@@ -13,3 +13,5 @@ export * from './Footer';
 export * from './CartDrawer';
 export * from './AuthDrawer';
 export * from './StoreLayout';
+export * from './StandaloneHeader';
+export * from './StandaloneFooter';

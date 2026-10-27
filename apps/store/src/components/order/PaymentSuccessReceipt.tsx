@@ -1,8 +1,17 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
-import { CheckCircle2, Package, ShoppingBag, ArrowRight } from 'lucide-react';
+import {
+  CheckCircle2,
+  ShoppingBag,
+  FileText,
+  ArrowRight,
+  CreditCard,
+  QrCode,
+} from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import type { ApiOrder } from '@repo/types';
+import { PaymentMethod, type ApiOrder } from '@repo/types';
 
 interface PaymentSuccessReceiptProps {
   order: ApiOrder | null;
@@ -13,87 +22,92 @@ export function PaymentSuccessReceipt({
   order,
   displayOrderNumber,
 }: PaymentSuccessReceiptProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const isTh = language === 'th';
+
+  const isCard =
+    order?.payment?.paymentMethod === PaymentMethod.CREDIT_CARD;
 
   return (
-    <div>
-      <div className="flex justify-center mb-4">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
-          <CheckCircle2 size={36} strokeWidth={2.2} />
+    <div className="text-center space-y-6">
+      {/* Success Confirmation Icon & Title */}
+      <div className="space-y-3">
+        <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200/90 flex items-center justify-center text-emerald-600 shadow-2xs mx-auto">
+          <CheckCircle2 size={34} strokeWidth={2.3} />
         </div>
+
+        <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-brand-brown">
+          {t('orderSuccess.paymentSuccessTitle')}
+        </h1>
+
+        <p className="text-xs text-stone-500 max-w-sm mx-auto leading-relaxed font-medium">
+          {t('orderSuccess.paymentSuccessDesc')}
+        </p>
       </div>
 
-      <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-brand-brown mb-2">
-        {t('orderSuccess.paymentSuccessTitle')}
-      </h1>
-      <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-6 font-medium">
-        {t('orderSuccess.paymentSuccessDesc')}
-      </p>
-
-      {/* Order Number & Status Box */}
-      <div className="border border-brand-border bg-brand-warm-cream p-5 mb-6 text-left sm:text-center">
-        <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 mb-1">
-          {t('orderSuccess.orderNumberLabel')}
-        </p>
-        <p className="text-2xl font-black font-mono text-brand-brown tracking-wider">
-          #{displayOrderNumber}
-        </p>
-        <div className="mt-2 flex items-center justify-start sm:justify-center space-x-2 text-xs text-emerald-800 font-bold">
-          <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-          <span>{t('orderSuccess.orderPaidStatus')}</span>
+      {/* Minimal Order Summary Box */}
+      <div className="bg-stone-50/80 border border-stone-200/80 p-4 sm:p-5 rounded-xs text-left space-y-3 shadow-2xs">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-stone-500 font-medium">
+            {t('orderSuccess.orderNumberLabel')}
+          </span>
+          <span className="font-mono font-bold text-stone-900 tracking-tight">
+            #{displayOrderNumber}
+          </span>
         </div>
-      </div>
 
-      {/* Real Items Summary */}
-      {order && order.items && order.items.length > 0 && (
-        <div className="mb-6 border border-gray-200 p-4 text-left">
-          <p className="text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-3">
-            {t('orderSuccess.itemsOrdered')} ({order.items.length})
-          </p>
-          <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
-            {order.items.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex justify-between items-center text-xs"
-              >
-                <div className="truncate mr-2">
-                  <p className="font-bold text-brand-brown truncate">
-                    {item.productName}
-                  </p>
-                  <p className="text-[10px] text-gray-500">
-                    {item.variantInfo} • จำนวน: {item.quantity}
-                  </p>
-                </div>
-                <span className="font-bold text-brand-brown shrink-0 font-mono">
-                  ฿{(Number(item.unitPrice) * item.quantity).toLocaleString()}
+        {order && (
+          <>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-stone-500 font-medium">
+                {isTh ? 'ยอดเงินที่ชำระ' : 'Amount Paid'}
+              </span>
+              <span className="font-mono font-black text-brand-dark-brown text-base">
+                ฿{Number(order.totalAmount).toLocaleString()}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-xs pt-3 border-t border-stone-200/60">
+              <span className="text-stone-500 font-medium">
+                {isTh ? 'สถานะการชำระเงิน' : 'Payment Status'}
+              </span>
+              <div className="flex items-center space-x-2">
+                <span className="inline-flex items-center space-x-1 text-stone-600 font-mono text-[11px]">
+                  {isCard ? <CreditCard size={13} /> : <QrCode size={13} />}
+                  <span>
+                    {isCard
+                      ? isTh
+                        ? 'บัตรเครดิต'
+                        : 'Credit Card'
+                      : 'PromptPay'}
+                  </span>
+                </span>
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                  <span>{isTh ? 'ชำระเรียบร้อย' : 'Paid'}</span>
                 </span>
               </div>
-            ))}
-          </div>
-          <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between font-black text-sm text-brand-brown">
-            <span>{t('orderSuccess.totalAmount')}</span>
-            <span className="font-mono text-base">
-              ฿{Number(order.totalAmount).toLocaleString()}
-            </span>
-          </div>
-        </div>
-      )}
+            </div>
+          </>
+        )}
+      </div>
 
-      {/* Bottom Actions */}
-      <div className="flex flex-col space-y-3">
+      {/* Primary & Secondary Action Buttons */}
+      <div className="pt-2 space-y-2.5">
         <Link
-          href={`/track-order/${encodeURIComponent(displayOrderNumber)}`}
-          className="w-full bg-brand-brown hover:bg-brand-amber text-white py-3.5 text-xs font-black uppercase tracking-[0.2em] transition-colors shadow-2xs flex items-center justify-center space-x-2 cursor-pointer"
+          href={`/profile/orders/${encodeURIComponent(displayOrderNumber)}`}
+          className="w-full bg-brand-brown hover:bg-brand-dark-brown text-white py-3.5 px-5 text-xs font-black uppercase tracking-[0.15em] transition-colors shadow-2xs flex items-center justify-center space-x-2 cursor-pointer text-center"
         >
-          <Package size={16} />
-          <span>{t('orderSuccess.trackOrder')}</span>
+          <FileText size={15} />
+          <span>{t('orderSuccess.viewOrderDetail')}</span>
           <ArrowRight size={14} />
         </Link>
+
         <Link
           href="/"
-          className="w-full py-3.5 text-xs font-black uppercase tracking-[0.2em] text-brand-brown hover:text-brand-amber border border-gray-300 hover:border-brand-brown transition-colors flex items-center justify-center space-x-2 cursor-pointer"
+          className="w-full py-3.5 px-5 text-xs font-black uppercase tracking-[0.15em] text-brand-brown hover:text-brand-amber border border-stone-300 hover:border-brand-brown bg-white hover:bg-stone-50 transition-colors flex items-center justify-center space-x-2 cursor-pointer text-center shadow-2xs"
         >
-          <ShoppingBag size={16} />
+          <ShoppingBag size={15} />
           <span>{t('orderSuccess.continueShopping')}</span>
         </Link>
       </div>
