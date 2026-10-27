@@ -314,6 +314,7 @@
     "couponReasonTierNotEligible": "Exclusive to specific membership tier",
     "couponReasonInactive": "This coupon is currently inactive",
     "couponReasonAccountRequired": "Coupons are reserved for members. Please sign in to use.",
+    "couponReasonAlreadyFreeShipping": "Your order already qualifies for complimentary free shipping.",
     "couponReasonUnknown": "Unable to apply this coupon",
     "guestCouponLockedTitle": "Exclusive for NIDA Members",
     "guestCouponLockedDesc": "Sign in or create an account to unlock promo codes and earn reward points.",

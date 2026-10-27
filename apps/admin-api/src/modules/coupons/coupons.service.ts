@@ -223,6 +223,13 @@ export class CouponsService {
       return { valid: false, reason: 'MIN_ORDER_NOT_MET' };
     }
 
+    if (
+      coupon.discountType === DiscountType.FREE_SHIPPING &&
+      orderAmount >= FREE_SHIPPING_THRESHOLD
+    ) {
+      return { valid: false, reason: 'ALREADY_FREE_SHIPPING' };
+    }
+
     let discountAmount = 0;
     const discountVal = Number(coupon.discountValue);
 

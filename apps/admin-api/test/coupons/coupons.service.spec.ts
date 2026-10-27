@@ -280,6 +280,52 @@ describe('CouponsService', () => {
       expect(result.reason).toBe('MIN_ORDER_NOT_MET');
     });
 
+    it('validates a free shipping coupon for orders below free shipping threshold', async () => {
+      prismaMock.promotionCoupon.findUnique.mockResolvedValue({
+        id: 'coupon-fs',
+        code: 'FREESHIP',
+        isActive: true,
+        startsAt: new Date(Date.now() - 10000),
+        expiresAt: new Date(Date.now() + 100000),
+        totalUsageLimit: 100,
+        currentUsageCount: 0,
+        minOrderAmount: 0,
+        discountType: DiscountType.FREE_SHIPPING,
+        discountValue: 0,
+      });
+
+      const result = await service.validateCoupon({
+        code: 'FREESHIP',
+        orderAmount: 650,
+      });
+
+      expect(result.valid).toBe(true);
+      expect(result.discountAmount).toBe(50);
+    });
+
+    it('rejects a free shipping coupon with ALREADY_FREE_SHIPPING when order qualifies for free shipping', async () => {
+      prismaMock.promotionCoupon.findUnique.mockResolvedValue({
+        id: 'coupon-fs',
+        code: 'FREESHIP',
+        isActive: true,
+        startsAt: new Date(Date.now() - 10000),
+        expiresAt: new Date(Date.now() + 100000),
+        totalUsageLimit: 100,
+        currentUsageCount: 0,
+        minOrderAmount: 0,
+        discountType: DiscountType.FREE_SHIPPING,
+        discountValue: 0,
+      });
+
+      const result = await service.validateCoupon({
+        code: 'FREESHIP',
+        orderAmount: 1500,
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.reason).toBe('ALREADY_FREE_SHIPPING');
+    });
+
     it('correctly calculates percentage discount with maxDiscountAmount cap', async () => {
       prismaMock.promotionCoupon.findUnique.mockResolvedValue({
         id: 'coupon-1',

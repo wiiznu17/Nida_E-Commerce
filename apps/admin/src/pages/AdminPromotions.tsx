@@ -840,29 +840,29 @@ export default function AdminPromotions() {
       {/* Create Coupon Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/50 backdrop-blur-xs">
-          <div className="bg-white border border-brand-border max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center pb-3 mb-4 border-b border-brand-border">
+          <div className="bg-white border border-brand-border max-w-2xl lg:max-w-3xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto rounded-xs">
+            <div className="flex justify-between items-center pb-4 mb-6 border-b border-brand-border">
               <div>
-                <h3 className="text-base font-black uppercase tracking-wider text-brand-brown">
+                <h3 className="text-base sm:text-lg font-black uppercase tracking-wider text-brand-brown">
                   {t('promotions.modal.createTitle')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-500 mt-1">
                   {t('promotions.modal.createSubtitle')}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                className="w-8 h-8 rounded-full hover:bg-black/5 text-gray-400 hover:text-gray-700 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleAddSubmit} className="space-y-4 text-xs">
+            <form onSubmit={handleAddSubmit} className="space-y-5 text-xs">
               {/* Promo Code Input */}
               <div>
-                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                   {t('promotions.modal.codeLabel')}
                 </label>
                 <input
@@ -876,7 +876,7 @@ export default function AdminPromotions() {
                     })
                   }
                   placeholder={t('promotions.modal.codePlaceholder')}
-                  className={`w-full border px-3 py-2 font-mono font-bold uppercase focus:outline-none rounded-xs ${
+                  className={`w-full border px-3.5 py-2.5 font-mono font-bold uppercase focus:outline-none rounded-xs ${
                     fieldErrors.code
                       ? 'border-rose-400 focus:border-rose-600'
                       : 'border-gray-300 focus:border-brand-brown'
@@ -886,9 +886,9 @@ export default function AdminPromotions() {
               </div>
 
               {/* Discount Type and Value */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                     {t('promotions.modal.typeLabel')}
                   </label>
                   <DropdownSelect
@@ -897,6 +897,12 @@ export default function AdminPromotions() {
                       setFormData({
                         ...formData,
                         discountType: val as DiscountType,
+                        discountValue:
+                          val === DiscountType.FREE_SHIPPING
+                            ? 0
+                            : formData.discountValue === 0
+                              ? 10
+                              : formData.discountValue,
                       })
                     }
                     options={[
@@ -917,46 +923,66 @@ export default function AdminPromotions() {
                 </div>
 
                 <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                     {t('promotions.modal.valueLabel')}
                   </label>
-                  <input
-                    type="number"
-                    required
-                    min={
-                      formData.discountType === DiscountType.FREE_SHIPPING
-                        ? 0
-                        : 1
-                    }
-                    max={
-                      formData.discountType === DiscountType.PERCENTAGE
-                        ? 100
-                        : undefined
-                    }
-                    disabled={
-                      formData.discountType === DiscountType.FREE_SHIPPING
-                    }
-                    value={formData.discountValue}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        discountValue: Number(e.target.value),
-                      })
-                    }
-                    className={`w-full border px-3 py-2 font-mono font-bold focus:outline-none rounded-xs disabled:bg-gray-100 disabled:text-gray-400 ${
-                      fieldErrors.discountValue
-                        ? 'border-rose-400'
-                        : 'border-gray-300 focus:border-brand-brown'
-                    }`}
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      required
+                      min={
+                        formData.discountType === DiscountType.FREE_SHIPPING
+                          ? 0
+                          : 1
+                      }
+                      max={
+                        formData.discountType === DiscountType.PERCENTAGE
+                          ? 100
+                          : undefined
+                      }
+                      disabled={
+                        formData.discountType === DiscountType.FREE_SHIPPING
+                      }
+                      value={
+                        formData.discountType === DiscountType.FREE_SHIPPING
+                          ? 0
+                          : formData.discountValue
+                      }
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          discountValue: Number(e.target.value),
+                        })
+                      }
+                      placeholder={
+                        formData.discountType === DiscountType.PERCENTAGE
+                          ? 'e.g. 20'
+                          : formData.discountType === DiscountType.FIXED_AMOUNT
+                            ? 'e.g. 100'
+                            : '0'
+                      }
+                      className={`w-full border px-3.5 py-2.5 pr-10 font-mono font-bold focus:outline-none rounded-xs disabled:bg-gray-100 disabled:text-gray-400 ${
+                        fieldErrors.discountValue
+                          ? 'border-rose-400'
+                          : 'border-gray-300 focus:border-brand-brown'
+                      }`}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-xs font-bold text-gray-500 font-mono">
+                      {formData.discountType === DiscountType.PERCENTAGE
+                        ? '%'
+                        : formData.discountType === DiscountType.FIXED_AMOUNT
+                          ? '฿'
+                          : '-'}
+                    </div>
+                  </div>
                   <InlineError message={fieldErrors.discountValue} />
                 </div>
               </div>
 
               {/* Min Order & Max Discount */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                     {t('promotions.modal.minOrderLabel')}
                   </label>
                   <input
@@ -969,12 +995,12 @@ export default function AdminPromotions() {
                         minOrderAmount: Number(e.target.value),
                       })
                     }
-                    className="w-full border border-gray-300 px-3 py-2 font-mono focus:outline-none focus:border-brand-brown rounded-xs"
+                    className="w-full border border-gray-300 px-3.5 py-2.5 font-mono focus:outline-none focus:border-brand-brown rounded-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                     {t('promotions.modal.maxDiscountLabel')}
                   </label>
                   <input
@@ -993,15 +1019,15 @@ export default function AdminPromotions() {
                         ? 'e.g. 100'
                         : '-'
                     }
-                    className="w-full border border-gray-300 px-3 py-2 font-mono focus:outline-none focus:border-brand-brown rounded-xs disabled:bg-gray-100 disabled:text-gray-400"
+                    className="w-full border border-gray-300 px-3.5 py-2.5 font-mono focus:outline-none focus:border-brand-brown rounded-xs disabled:bg-gray-100 disabled:text-gray-400"
                   />
                 </div>
               </div>
 
               {/* Quotas */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                     {t('promotions.modal.totalLimitLabel')}
                   </label>
                   <input
@@ -1015,12 +1041,12 @@ export default function AdminPromotions() {
                         totalUsageLimit: Number(e.target.value),
                       })
                     }
-                    className="w-full border border-gray-300 px-3 py-2 font-mono focus:outline-none focus:border-brand-brown rounded-xs"
+                    className="w-full border border-gray-300 px-3.5 py-2.5 font-mono focus:outline-none focus:border-brand-brown rounded-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                     {t('promotions.modal.userLimitLabel')}
                   </label>
                   <input
@@ -1034,15 +1060,15 @@ export default function AdminPromotions() {
                         userUsageLimit: Number(e.target.value),
                       })
                     }
-                    className="w-full border border-gray-300 px-3 py-2 font-mono focus:outline-none focus:border-brand-brown rounded-xs"
+                    className="w-full border border-gray-300 px-3.5 py-2.5 font-mono focus:outline-none focus:border-brand-brown rounded-xs"
                   />
                 </div>
               </div>
 
               {/* Validity Dates */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                     {t('promotions.modal.startsAtLabel')}
                   </label>
                   <input
@@ -1051,12 +1077,12 @@ export default function AdminPromotions() {
                     onChange={(e) =>
                       setFormData({ ...formData, startsAt: e.target.value })
                     }
-                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-brand-brown rounded-xs"
+                    className="w-full border border-gray-300 px-3.5 py-2.5 focus:outline-none focus:border-brand-brown rounded-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1">
+                  <label className="block font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                     {t('promotions.modal.expiresAtLabel')}
                   </label>
                   <input
@@ -1066,14 +1092,14 @@ export default function AdminPromotions() {
                     onChange={(e) =>
                       setFormData({ ...formData, expiresAt: e.target.value })
                     }
-                    className="w-full border border-gray-300 px-3 py-2 focus:outline-none focus:border-brand-brown rounded-xs"
+                    className="w-full border border-gray-300 px-3.5 py-2.5 focus:outline-none focus:border-brand-brown rounded-xs"
                   />
                 </div>
               </div>
 
               {/* Is Active Switch */}
-              <div className="flex items-center justify-between pt-2">
-                <span className="font-bold text-gray-700">
+              <div className="flex items-center justify-between p-3.5 bg-stone-50 border border-stone-200 rounded-xs">
+                <span className="font-bold text-xs uppercase tracking-wider text-gray-700">
                   {t('promotions.modal.isActiveLabel')}
                 </span>
                 <button
@@ -1081,32 +1107,32 @@ export default function AdminPromotions() {
                   onClick={() =>
                     setFormData({ ...formData, isActive: !formData.isActive })
                   }
-                  className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors cursor-pointer ${
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
                     formData.isActive ? 'bg-emerald-600' : 'bg-gray-300'
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      formData.isActive ? 'translate-x-5' : 'translate-x-0.5'
+                      formData.isActive ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </button>
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end space-x-3 pt-4 border-t border-brand-border">
+              <div className="flex justify-end space-x-3 pt-5 border-t border-brand-border">
                 <button
                   type="button"
                   disabled={isSubmitting}
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 font-bold text-gray-600 hover:bg-gray-100 rounded-xs transition-colors cursor-pointer"
+                  className="px-5 py-2.5 border border-gray-300 font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-100 rounded-xs transition-colors cursor-pointer"
                 >
                   {t('promotions.modal.cancelBtn')}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white font-bold uppercase tracking-wider shadow-xs rounded-xs transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center space-x-1.5"
+                  className="px-6 py-2.5 bg-brand-brown hover:bg-brand-amber text-white font-bold uppercase tracking-wider shadow-xs rounded-xs transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center space-x-1.5"
                 >
                   {isSubmitting && (
                     <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />

@@ -114,11 +114,30 @@ describe('CouponsService (apps/api)', () => {
       expect(result.discountAmount).toBe(300);
     });
 
-    it('validates a free shipping coupon with standard shipping fee reduction', async () => {
+    it('validates a free shipping coupon with standard shipping fee reduction for orders below threshold', async () => {
       prismaMock.promotionCoupon.findUnique.mockResolvedValue({
         ...baseValidCoupon,
         discountType: DiscountType.FREE_SHIPPING,
         discountValue: 0,
+        minOrderAmount: 0,
+      });
+
+      const result = await service.validateCoupon({
+        code: 'FREESHIP',
+        orderAmount: 600,
+        userId: 'user-uuid-1',
+      });
+
+      expect(result.valid).toBe(true);
+      expect(result.discountAmount).toBe(50);
+    });
+
+    it('rejects a free shipping coupon with ALREADY_FREE_SHIPPING when order already qualifies for free shipping', async () => {
+      prismaMock.promotionCoupon.findUnique.mockResolvedValue({
+        ...baseValidCoupon,
+        discountType: DiscountType.FREE_SHIPPING,
+        discountValue: 0,
+        minOrderAmount: 0,
       });
 
       const result = await service.validateCoupon({
@@ -127,8 +146,8 @@ describe('CouponsService (apps/api)', () => {
         userId: 'user-uuid-1',
       });
 
-      expect(result.valid).toBe(true);
-      expect(result.discountAmount).toBe(50);
+      expect(result.valid).toBe(false);
+      expect(result.reason).toBe('ALREADY_FREE_SHIPPING');
     });
 
     it('rejects with NOT_FOUND if coupon does not exist', async () => {

@@ -34,4 +34,5 @@ export type CouponInvalidReason =
   | 'MIN_ORDER_NOT_MET'
   | 'TIER_NOT_ELIGIBLE'
   | 'INACTIVE'
-  | 'ACCOUNT_REQUIRED';
+  | 'ACCOUNT_REQUIRED'
+  | 'ALREADY_FREE_SHIPPING';

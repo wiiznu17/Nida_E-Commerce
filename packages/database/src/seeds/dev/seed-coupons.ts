@@ -21,7 +21,7 @@ export async function seedCoupons(prisma: PrismaClient) {
         code: 'FREESHIP',
         discountType: DiscountType.FREE_SHIPPING,
         discountValue: 0,
-        minOrderAmount: 1000,
+        minOrderAmount: 0,
         totalUsageLimit: 1000,
         userUsageLimit: 2,
         startsAt: new Date(),

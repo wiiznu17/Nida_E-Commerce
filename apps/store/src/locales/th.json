@@ -314,6 +314,7 @@
     "couponReasonTierNotEligible": "สิทธิ์การใช้งานเฉพาะระดับสมาชิกที่กำหนด",
     "couponReasonInactive": "โค้ดส่วนลดนี้ถูกปิดใช้งานชั่วคราว",
     "couponReasonAccountRequired": "คูปองส่วนลดสงวนสิทธิ์เฉพาะสมาชิก กรุณาเข้าสู่ระบบก่อนใช้งาน",
+    "couponReasonAlreadyFreeShipping": "คำสั่งซื้อของคุณได้รับสิทธิ์จัดส่งฟรีอยู่แล้ว ไม่จำเป็นต้องใช้โค้ดนี้",
     "couponReasonUnknown": "ไม่สามารถใช้งานโค้ดส่วนลดนี้ได้",
     "guestCouponLockedTitle": "สิทธิพิเศษเฉพาะสมาชิก NIDA",
     "guestCouponLockedDesc": "เข้าสู่ระบบหรือสร้างบัญชีเพื่อปลดล็อคการใช้คูปองส่วนลดและสะสมแต้มสมาชิก",

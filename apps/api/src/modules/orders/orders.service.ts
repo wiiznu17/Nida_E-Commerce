@@ -243,6 +243,7 @@ export class CustomerOrdersService {
     let discountTotal = 0;
     let couponId: string | null = null;
     let normalizedCouponCode: string | null = null;
+    let isCouponFreeShipping = false;
 
     if (couponCode) {
       if (!effectiveUserId) {
@@ -286,6 +287,15 @@ export class CustomerOrdersService {
         );
       }
 
+      if (
+        coupon.discountType === DiscountType.FREE_SHIPPING &&
+        subtotal >= FREE_SHIPPING_THRESHOLD
+      ) {
+        throw new BadRequestException(
+          'Your order already qualifies for free shipping',
+        );
+      }
+
       couponId = coupon.id;
       const discountVal = Number(coupon.discountValue);
       if (coupon.discountType === DiscountType.PERCENTAGE) {
@@ -299,14 +309,17 @@ export class CustomerOrdersService {
       } else if (coupon.discountType === DiscountType.FIXED_AMOUNT) {
         discountTotal = Math.min(subtotal, discountVal);
       } else if (coupon.discountType === DiscountType.FREE_SHIPPING) {
-        discountTotal = STANDARD_SHIPPING_FEE;
+        discountTotal = 0;
+        isCouponFreeShipping = true;
       }
 
       discountTotal = Math.round(discountTotal * 100) / 100;
     }
 
     const shippingFee =
-      subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
+      subtotal >= FREE_SHIPPING_THRESHOLD || isCouponFreeShipping
+        ? 0
+        : STANDARD_SHIPPING_FEE;
     const totalAmount = Math.max(
       0,
       Math.round((subtotal - discountTotal + shippingFee) * 100) / 100,
@@ -469,7 +482,9 @@ export class CustomerOrdersService {
             couponId,
             userId: effectiveUserId,
             orderId: order.id,
-            discountGranted: discountTotal,
+            discountGranted: isCouponFreeShipping
+              ? STANDARD_SHIPPING_FEE
+              : discountTotal,
           },
         });
       }

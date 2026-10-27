@@ -140,6 +140,11 @@ export function getCouponErrorMessage(
         'checkout.couponReasonAccountRequired',
         'คูปองส่วนลดสงวนสิทธิ์เฉพาะสมาชิก กรุณาเข้าสู่ระบบก่อนใช้งาน',
       );
+    case 'ALREADY_FREE_SHIPPING':
+      return t(
+        'checkout.couponReasonAlreadyFreeShipping',
+        'คำสั่งซื้อของคุณได้รับสิทธิ์จัดส่งฟรีอยู่แล้ว ไม่จำเป็นต้องใช้โค้ดนี้',
+      );
     default:
       return t(
         'checkout.couponReasonUnknown',

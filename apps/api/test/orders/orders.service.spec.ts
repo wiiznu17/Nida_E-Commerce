@@ -387,6 +387,199 @@ describe('CustomerOrdersService', () => {
         ),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it('rejects order with BadRequestException if free shipping coupon is applied to an order >= 1000', async () => {
+      (
+        prismaMock as { productVariant: { findMany: ReturnType<typeof vi.fn> } }
+      ).productVariant.findMany.mockResolvedValueOnce([
+        {
+          id: 'var-1',
+          skuCode: 'NIDA-DRS-BLK-S',
+          colorName: 'Black',
+          size: 'S',
+          priceAdjustment: 0,
+          product: {
+            name: 'Silk Evening Dress',
+            basePrice: 1500,
+            isActive: true,
+            isPreorder: false,
+            images: [],
+          },
+          inventoryItem: {
+            id: 'inv-1',
+            quantityAvailable: 10,
+          },
+        },
+      ]);
+
+      (
+        prismaMock as { promotionCoupon: { findUnique: ReturnType<typeof vi.fn> } }
+      ).promotionCoupon.findUnique.mockResolvedValueOnce({
+        id: 'coupon-fs',
+        code: 'FREESHIP',
+        isActive: true,
+        startsAt: new Date(Date.now() - 10000),
+        expiresAt: new Date(Date.now() + 100000),
+        totalUsageLimit: 100,
+        currentUsageCount: 0,
+        userUsageLimit: 5,
+        minOrderAmount: 0,
+        discountType: 'FREE_SHIPPING',
+        discountValue: 0,
+      });
+
+      await expect(
+        service.createOrder(
+          {
+            items: [{ variantId: 'var-1', quantity: 1 }],
+            shippingAddress: defaultShipping,
+            paymentMethod: 'PROMPTPAY',
+            couponCode: 'FREESHIP',
+          },
+          'user-uuid-1',
+        ),
+      ).rejects.toThrow('Your order already qualifies for free shipping');
+    });
+
+    it('successfully applies free shipping coupon to an order below threshold with 0 shippingFee and 0 discountTotal', async () => {
+      (
+        prismaMock as { productVariant: { findMany: ReturnType<typeof vi.fn> } }
+      ).productVariant.findMany.mockResolvedValueOnce([
+        {
+          id: 'var-1',
+          skuCode: 'NIDA-TSH-WHT-S',
+          colorName: 'White',
+          size: 'S',
+          priceAdjustment: 0,
+          product: {
+            name: 'Classic Tee',
+            basePrice: 500,
+            isActive: true,
+            isPreorder: false,
+            images: [],
+          },
+          inventoryItem: {
+            id: 'inv-1',
+            quantityAvailable: 10,
+          },
+        },
+      ]);
+
+      (
+        prismaMock as { promotionCoupon: { findUnique: ReturnType<typeof vi.fn> } }
+      ).promotionCoupon.findUnique.mockResolvedValueOnce({
+        id: 'coupon-fs',
+        code: 'FREESHIP',
+        isActive: true,
+        startsAt: new Date(Date.now() - 10000),
+        expiresAt: new Date(Date.now() + 100000),
+        totalUsageLimit: 100,
+        currentUsageCount: 0,
+        userUsageLimit: 5,
+        minOrderAmount: 0,
+        discountType: 'FREE_SHIPPING',
+        discountValue: 0,
+      });
+
+      (
+        prismaMock as { couponRedemption: { count: ReturnType<typeof vi.fn> } }
+      ).couponRedemption.count.mockResolvedValueOnce(0);
+
+      const txMock = {
+        order: {
+          create: vi.fn().mockResolvedValue({
+            id: 'order-fs-1',
+            orderNumber: 'NIDA-20261014-FS1',
+            status: 'PENDING',
+            userId: 'user-uuid-1',
+            customerEmail: 'member@example.com',
+            totalAmount: 500,
+            subtotal: 500,
+            shippingFee: 0,
+            discountTotal: 0,
+            placedAt: new Date(),
+            items: [],
+            shipments: [],
+            payment: { paymentMethod: 'PROMPTPAY', status: 'PENDING' },
+          }),
+        },
+        orderItem: {
+          create: vi.fn().mockResolvedValue({ id: 'item-1' }),
+        },
+        inventoryItem: {
+          updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+          findUnique: vi.fn().mockResolvedValue({ quantityAvailable: 9 }),
+        },
+        stockMovement: {
+          create: vi.fn().mockResolvedValue({ id: 'sm-1' }),
+        },
+        payment: {
+          create: vi.fn().mockResolvedValue({ id: 'pay-1' }),
+        },
+        promotionCoupon: {
+          findUnique: vi.fn().mockResolvedValue({ id: 'coupon-fs', totalUsageLimit: 100, isActive: true }),
+          updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+        },
+        couponRedemption: {
+          create: vi.fn().mockResolvedValue({ id: 'cr-1' }),
+        },
+      };
+
+      (
+        prismaMock as { $transaction: ReturnType<typeof vi.fn> }
+      ).$transaction.mockImplementation(
+        async (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
+      );
+
+      (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique = vi.fn().mockResolvedValue({
+        id: 'order-fs-1',
+        orderNumber: 'NIDA-20261014-FS1',
+        status: 'PENDING',
+        userId: 'user-uuid-1',
+        customerEmail: 'member@example.com',
+        totalAmount: 500,
+        subtotal: 500,
+        shippingFee: 0,
+        discountTotal: 0,
+        taxAmount: 0,
+        shippingAddressSnapshot: defaultShipping,
+        placedAt: new Date(),
+        items: [],
+        shipments: [],
+        payment: { paymentMethod: 'PROMPTPAY', status: 'PENDING' },
+      });
+
+      const order = await service.createOrder(
+        {
+          items: [{ variantId: 'var-1', quantity: 1 }],
+          shippingAddress: defaultShipping,
+          paymentMethod: 'PROMPTPAY',
+          couponCode: 'FREESHIP',
+        },
+        'user-uuid-1',
+      );
+
+      expect(order.orderNumber).toBe('NIDA-20261014-FS1');
+      expect(txMock.order.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            subtotal: 500,
+            discountTotal: 0,
+            shippingFee: 0,
+            totalAmount: 500,
+          }),
+        }),
+      );
+      expect(txMock.couponRedemption.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            discountGranted: 50, // Standard shipping fee value granted
+          }),
+        }),
+      );
+    });
   });
 
   describe('trackOrder', () => {
