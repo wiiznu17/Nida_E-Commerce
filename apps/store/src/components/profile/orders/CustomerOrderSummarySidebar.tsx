@@ -14,6 +14,14 @@ export function CustomerOrderSummarySidebar({
 }: CustomerOrderSummarySidebarProps) {
   const { t } = useLanguage();
 
+  const originalShippingFee = Number(
+    order.originalShippingFee ??
+      (Number(order.shippingFee) === 0 ? 50 : order.shippingFee),
+  );
+  const shippingDiscount = Number(
+    order.shippingDiscount ?? (Number(order.shippingFee) === 0 ? 50 : 0),
+  );
+
   return (
     <div className="space-y-6 font-sans">
       {/* Order Financial Summary */}
@@ -41,11 +49,18 @@ export function CustomerOrderSummarySidebar({
         <div className="flex justify-between text-stone-600">
           <span>{t('orderDetail.shippingFee')}</span>
           <span className="font-mono font-medium">
-            {Number(order.shippingFee) === 0
-              ? t('orderDetail.freeShipping')
-              : `฿${Number(order.shippingFee).toLocaleString()}`}
+            ฿{originalShippingFee.toLocaleString()}
           </span>
         </div>
+
+        {shippingDiscount > 0 && (
+          <div className="flex justify-between text-emerald-700">
+            <span>{t('orderDetail.shippingDiscount')}</span>
+            <span className="font-mono font-medium">
+              -฿{shippingDiscount.toLocaleString()}
+            </span>
+          </div>
+        )}
 
         <div className="pt-2 border-t border-brand-border flex justify-between items-baseline text-stone-900">
           <span className="font-black uppercase tracking-wider text-xs">

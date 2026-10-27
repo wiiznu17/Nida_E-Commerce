@@ -63,6 +63,8 @@ import {
   type ApiRefundSummary,
 } from '@repo/types';
 
+const STANDARD_SHIPPING_FEE = 50;
+
 const ORDER_INCLUDE = {
   items: {
     include: {
@@ -162,6 +164,12 @@ export class OrdersService {
         }
       }
 
+      const originalShippingFee = STANDARD_SHIPPING_FEE;
+      const shippingDiscount = Math.max(
+        0,
+        originalShippingFee - calc.shippingFee,
+      );
+
       const order = await tx.order.create({
         data: {
           orderNumber,
@@ -170,6 +178,8 @@ export class OrdersService {
           hasPreorderItems,
           subtotal: calc.subtotal,
           discountTotal: calc.discountTotal,
+          originalShippingFee,
+          shippingDiscount,
           shippingFee: calc.shippingFee,
           taxAmount: calc.taxAmount,
           totalAmount: calc.totalAmount,
@@ -849,6 +859,18 @@ export class OrdersService {
       hasPreorderItems: order.hasPreorderItems,
       subtotal: Number(order.subtotal),
       discountTotal: Number(order.discountTotal),
+      originalShippingFee:
+        order.originalShippingFee !== undefined
+          ? Number(order.originalShippingFee)
+          : Number(order.shippingFee) === 0
+            ? 50
+            : Number(order.shippingFee),
+      shippingDiscount:
+        order.shippingDiscount !== undefined
+          ? Number(order.shippingDiscount)
+          : Number(order.shippingFee) === 0
+            ? 50
+            : 0,
       shippingFee: Number(order.shippingFee),
       taxAmount: Number(order.taxAmount),
       totalAmount: Number(order.totalAmount),

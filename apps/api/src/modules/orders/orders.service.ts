@@ -316,10 +316,11 @@ export class CustomerOrdersService {
       discountTotal = Math.round(discountTotal * 100) / 100;
     }
 
-    const shippingFee =
-      subtotal >= FREE_SHIPPING_THRESHOLD || isCouponFreeShipping
-        ? 0
-        : STANDARD_SHIPPING_FEE;
+    const originalShippingFee = STANDARD_SHIPPING_FEE;
+    const isFreeShipping =
+      subtotal >= FREE_SHIPPING_THRESHOLD || isCouponFreeShipping;
+    const shippingDiscount = isFreeShipping ? originalShippingFee : 0;
+    const shippingFee = isFreeShipping ? 0 : originalShippingFee;
     const totalAmount = Math.max(
       0,
       Math.round((subtotal - discountTotal + shippingFee) * 100) / 100,
@@ -339,6 +340,8 @@ export class CustomerOrdersService {
           hasPreorderItems,
           subtotal,
           discountTotal,
+          originalShippingFee,
+          shippingDiscount,
           shippingFee,
           taxAmount: 0,
           totalAmount,
@@ -1526,6 +1529,8 @@ export class CustomerOrdersService {
     hasPreorderItems: boolean;
     subtotal: { toNumber(): number } | number;
     discountTotal: { toNumber(): number } | number;
+    originalShippingFee?: { toNumber(): number } | number;
+    shippingDiscount?: { toNumber(): number } | number;
     shippingFee: { toNumber(): number } | number;
     taxAmount: { toNumber(): number } | number;
     totalAmount: { toNumber(): number } | number;
@@ -1761,6 +1766,18 @@ export class CustomerOrdersService {
       hasPreorderItems: order.hasPreorderItems,
       subtotal: Number(order.subtotal),
       discountTotal: Number(order.discountTotal),
+      originalShippingFee:
+        order.originalShippingFee !== undefined
+          ? Number(order.originalShippingFee)
+          : Number(order.shippingFee) === 0
+            ? 50
+            : Number(order.shippingFee),
+      shippingDiscount:
+        order.shippingDiscount !== undefined
+          ? Number(order.shippingDiscount)
+          : Number(order.shippingFee) === 0
+            ? 50
+            : 0,
       shippingFee: Number(order.shippingFee),
       taxAmount: Number(order.taxAmount),
       totalAmount: Number(order.totalAmount),

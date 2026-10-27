@@ -388,6 +388,8 @@ model Order {
   hasPreorderItems        Boolean            @default(false) @map("has_preorder_items")
   subtotal                Decimal            @db.Decimal(10, 2)
   discountTotal           Decimal            @default(0) @map("discount_total") @db.Decimal(10, 2)
+  originalShippingFee     Decimal            @default(0) @map("original_shipping_fee") @db.Decimal(10, 2)
+  shippingDiscount        Decimal            @default(0) @map("shipping_discount") @db.Decimal(10, 2)
   shippingFee             Decimal            @default(0) @map("shipping_fee") @db.Decimal(10, 2)
   taxAmount               Decimal            @default(0) @map("tax_amount") @db.Decimal(10, 2)
   totalAmount             Decimal            @map("total_amount") @db.Decimal(10, 2)

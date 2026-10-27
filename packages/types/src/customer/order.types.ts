@@ -20,6 +20,8 @@ export interface ApiOrder {
 
   subtotal: number;
   discountTotal: number;
+  originalShippingFee?: number;
+  shippingDiscount?: number;
   shippingFee: number;
   taxAmount: number;
   totalAmount: number;
