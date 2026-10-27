@@ -10,7 +10,15 @@ import type { ApiAddress, CreateAddressDto, ApiOrder } from '@repo/types';
 import type { ProfileTab, ProfileFormData } from './profileTypes';
 
 export function useProfilePage() {
-  const { user, token, logout, logoutAll, updateProfile } = useAuth();
+  const {
+    user,
+    token,
+    isLoading: isAuthLoading,
+    logout,
+    logoutAll,
+    updateProfile,
+    openAuthDrawer,
+  } = useAuth();
   const { language, t } = useLanguage();
   const router = useRouter();
 
@@ -79,8 +87,11 @@ export function useProfilePage() {
   }, [activeTab, token, fetchAddresses]);
 
   useEffect(() => {
+    if (isAuthLoading) return;
+
     if (!user) {
-      router.push('/login');
+      openAuthDrawer('signin');
+      router.replace('/?auth=signin&redirect=/profile', { scroll: false });
     } else {
       setFormData({
         firstName: user.firstName ?? '',
@@ -91,7 +102,7 @@ export function useProfilePage() {
         postalCode: user.postalCode ?? '',
       });
     }
-  }, [user, router, language]);
+  }, [user, isAuthLoading, router, openAuthDrawer, language]);
 
   const handleLogout = async () => {
     await logout();
@@ -100,7 +111,7 @@ export function useProfilePage() {
 
   const handleLogoutAll = async () => {
     await logoutAll();
-    router.push('/login');
+    router.push('/?auth=signin');
   };
 
   const handleSubmitProfile = async (e: React.FormEvent) => {
@@ -172,6 +183,7 @@ export function useProfilePage() {
 
   return {
     user,
+    isAuthLoading,
     activeTab,
     setActiveTab,
     isEditing,

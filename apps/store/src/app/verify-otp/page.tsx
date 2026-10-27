@@ -115,7 +115,7 @@ function VerifyOTPContent() {
 
         <div>
           <Link
-            href="/login"
+            href="/?auth=signin"
             className="text-[11px] font-bold text-gray-400 hover:text-brand-brown uppercase tracking-wider"
           >
             {t('auth.backToLogin')}

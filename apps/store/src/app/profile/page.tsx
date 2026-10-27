@@ -4,7 +4,7 @@ import React from 'react';
 import { Trash2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { AddressModal } from '@/components/address';
-import { Alert, AlertModal } from '@/components/ui';
+import { Alert, AlertModal, LoadingSpinner } from '@/components/ui';
 import { SignOutConfirmModal } from '@/components/common';
 import {
   ProfileHeader,
@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const { t } = useLanguage();
   const {
     user,
+    isAuthLoading,
     activeTab,
     setActiveTab,
     isEditing,
@@ -48,6 +49,14 @@ export default function ProfilePage() {
     handleConfirmDeleteAddress,
     handleSetDefaultAddress,
   } = useProfilePage();
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <LoadingSpinner className="p-16" />
+      </div>
+    );
+  }
 
   if (!user) {
     return null;

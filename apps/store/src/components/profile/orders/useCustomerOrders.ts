@@ -12,7 +12,7 @@ import type {
 } from './orderHistoryTypes';
 
 export function useCustomerOrders() {
-  const { user, token, isLoading: isAuthLoading } = useAuth();
+  const { user, token, isLoading: isAuthLoading, openAuthDrawer } = useAuth();
   const router = useRouter();
 
   const [allOrders, setAllOrders] = useState<ApiOrder[]>([]);
@@ -39,9 +39,10 @@ export function useCustomerOrders() {
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
-      router.push('/login?redirect=/profile/orders');
+      openAuthDrawer('signin');
+      router.replace('/?auth=signin&redirect=/profile/orders', { scroll: false });
     }
-  }, [user, isAuthLoading, router]);
+  }, [user, isAuthLoading, router, openAuthDrawer]);
 
   useEffect(() => {
     if (token) {

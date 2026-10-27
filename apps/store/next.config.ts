@@ -13,6 +13,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/login',
+        destination: '/?auth=signin',
+        permanent: false,
+      },
+      {
+        source: '/register',
+        destination: '/?auth=signup',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

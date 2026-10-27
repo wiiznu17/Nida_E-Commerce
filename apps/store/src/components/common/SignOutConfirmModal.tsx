@@ -32,7 +32,7 @@ export const SignOutConfirmModal: React.FC<SignOutConfirmModalProps> = ({
         if (onSuccess) {
           onSuccess();
         } else {
-          window.location.href = '/login';
+          window.location.href = '/?auth=signin';
         }
       } else {
         await logout();
@@ -44,7 +44,7 @@ export const SignOutConfirmModal: React.FC<SignOutConfirmModalProps> = ({
         }
       }
     } catch {
-      window.location.href = allDevices ? '/login' : '/';
+      window.location.href = allDevices ? '/?auth=signin' : '/';
     } finally {
       setIsLoggingOut(false);
     }
