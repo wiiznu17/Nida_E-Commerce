@@ -45,14 +45,12 @@ export function DepartmentDonutChart({ shares }: DepartmentDonutChartProps) {
       </div>
 
       {/* Main Content: Donut Chart on Left (4:10), Data Breakdown on Right (6:10) */}
-      <div className="flex-1 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 py-3 my-auto">
+      <div className="flex-1 flex flex-col md:flex-row items-center gap-5 sm:gap-6 lg:gap-8 py-3 my-auto">
         {/* SVG Donut Ring (4:10 proportion) */}
-        <div className="w-full sm:w-[40%] flex-shrink-0 flex items-center justify-center relative">
+        <div className="w-full md:w-[40%] flex-shrink-0 flex items-center justify-center relative">
           <svg
-            width="190"
-            height="190"
             viewBox="0 0 190 190"
-            className="rotate-[-90deg] select-none"
+            className="w-40 h-40 sm:w-44 sm:h-44 xl:w-48 xl:h-48 rotate-[-90deg] select-none"
           >
             {/* Background circle track */}
             <circle
@@ -88,14 +86,14 @@ export function DepartmentDonutChart({ shares }: DepartmentDonutChartProps) {
 
           {/* Center Text Info */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4">
-            <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+            <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block truncate max-w-[130px]">
               {activeSlice
                 ? language === 'th'
                   ? activeSlice.labelTh
                   : activeSlice.labelEn
                 : t('dashboard.charts.totalSales')}
             </span>
-            <span className="text-sm font-mono font-bold text-brand-brown">
+            <span className="text-xs sm:text-sm font-mono font-bold text-brand-brown">
               {activeSlice
                 ? `${activeSlice.percentage}%`
                 : formatPrice(totalRevenue)}
@@ -104,7 +102,7 @@ export function DepartmentDonutChart({ shares }: DepartmentDonutChartProps) {
         </div>
 
         {/* Legend & Breakdown List (6:10 proportion, shifted closer) */}
-        <div className="w-full sm:w-[60%] flex-1 space-y-2 sm:border-l sm:border-gray-100 sm:pl-6">
+        <div className="w-full md:w-[60%] flex-1 space-y-1.5 sm:space-y-2 md:border-l md:border-gray-100 md:pl-5 lg:pl-6 min-w-0">
           {shares.length === 0 || totalRevenue === 0 ? (
             <div className="py-4 text-center text-xs text-stone-400">
               {t('dashboard.charts.noDeptData')}
@@ -117,20 +115,20 @@ export function DepartmentDonutChart({ shares }: DepartmentDonutChartProps) {
                   key={item.department}
                   onMouseEnter={() => setHoveredDept(item.department)}
                   onMouseLeave={() => setHoveredDept(null)}
-                  className={`flex items-center justify-between text-xs py-1.5 px-2 rounded-2xs transition-colors cursor-pointer ${
+                  className={`flex items-center justify-between text-xs py-1.5 px-2 rounded-2xs transition-colors cursor-pointer min-w-0 ${
                     isHovered ? 'bg-brand-cream/80' : 'hover:bg-brand-cream/40'
                   }`}
                 >
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 min-w-0 pr-2">
                     <span
                       className="w-2.5 h-2.5 rounded-2xs flex-shrink-0"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-gray-700 font-bold">
+                    <span className="text-gray-700 font-bold truncate">
                       {language === 'th' ? item.labelTh : item.labelEn}
                     </span>
                   </div>
-                  <div className="flex items-center space-x-2 font-mono">
+                  <div className="flex items-center space-x-2 font-mono shrink-0">
                     <span className="text-gray-400 text-[11px]">
                       {formatPrice(item.revenue)}
                     </span>

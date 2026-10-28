@@ -115,7 +115,7 @@ export function DashboardExportModal({
             <label className="text-[11px] font-black uppercase tracking-wider text-gray-500 block">
               {t('dashboard.export.selectPeriod')}
             </label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
                 { id: 'today', label: t('dashboard.timeframe.today') },
                 { id: '7d', label: t('dashboard.timeframe.week') },
@@ -143,7 +143,7 @@ export function DashboardExportModal({
             <label className="text-[11px] font-black uppercase tracking-wider text-gray-500 block">
               {t('dashboard.export.selectFormat')}
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setFormat('csv')}
@@ -153,12 +153,12 @@ export function DashboardExportModal({
                     : 'border-brand-border hover:bg-gray-50'
                 }`}
               >
-                <FileSpreadsheet size={20} className="text-emerald-700" />
-                <div className="text-left">
+                <FileSpreadsheet size={20} className="text-emerald-700 shrink-0" />
+                <div className="text-left min-w-0">
                   <span className="text-xs font-black text-brand-brown block">
                     CSV (Excel)
                   </span>
-                  <span className="text-[10px] text-gray-400">
+                  <span className="text-[10px] text-gray-400 block truncate">
                     UTF-8 BOM Thai Compatible
                   </span>
                 </div>
@@ -173,12 +173,12 @@ export function DashboardExportModal({
                     : 'border-brand-border hover:bg-gray-50'
                 }`}
               >
-                <FileCode size={20} className="text-brand-amber" />
-                <div className="text-left">
+                <FileCode size={20} className="text-brand-amber shrink-0" />
+                <div className="text-left min-w-0">
                   <span className="text-xs font-black text-brand-brown block">
                     JSON
                   </span>
-                  <span className="text-[10px] text-gray-400">
+                  <span className="text-[10px] text-gray-400 block truncate">
                     Structured Data Payload
                   </span>
                 </div>
@@ -194,12 +194,12 @@ export function DashboardExportModal({
         </div>
 
         {/* Modal Actions */}
-        <div className="p-4 border-t border-brand-border bg-gray-50 flex items-center justify-end space-x-2">
+        <div className="p-4 border-t border-brand-border bg-gray-50 flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-2 sm:space-x-2">
           <button
             type="button"
             onClick={onClose}
             disabled={isDownloading}
-            className="px-4 py-2 border border-brand-border text-xs font-bold text-gray-600 hover:text-brand-brown bg-white cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2 border border-brand-border text-xs font-bold text-gray-600 hover:text-brand-brown bg-white cursor-pointer text-center"
           >
             {t('common.cancel')}
           </button>
@@ -207,9 +207,9 @@ export function DashboardExportModal({
             type="button"
             onClick={handleDownload}
             disabled={isDownloading}
-            className="px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+            className="w-full sm:w-auto px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white text-xs font-black uppercase tracking-wider transition-colors inline-flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs disabled:opacity-50 text-center"
           >
-            <Download size={14} />
+            <Download size={14} className="shrink-0" />
             <span>
               {isDownloading
                 ? t('common.loading')

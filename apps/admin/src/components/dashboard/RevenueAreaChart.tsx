@@ -104,12 +104,12 @@ export function RevenueAreaChart({
         </div>
 
         {/* Timeframe Switcher */}
-        <div className="flex items-center space-x-1 bg-brand-cream/80 p-0.5 border border-brand-border">
+        <div className="flex items-center space-x-1 bg-brand-cream/80 p-0.5 border border-brand-border overflow-x-auto max-w-full">
           {TIMEFRAME_OPTIONS.map((tf) => (
             <button
               key={tf.id}
               onClick={() => onTimeframeChange(tf.id)}
-              className={`px-2.5 py-1 text-[11px] font-black uppercase tracking-wider transition-colors cursor-pointer ${
+              className={`flex-1 sm:flex-initial px-2 sm:px-2.5 py-1 text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap ${
                 timeframe === tf.id
                   ? 'bg-brand-brown text-white shadow-2xs'
                   : 'text-gray-600 hover:text-brand-brown'
@@ -122,29 +122,31 @@ export function RevenueAreaChart({
       </div>
 
       {/* Summary Micro Bar */}
-      <div className="flex items-center space-x-6 py-2 border-b border-gray-50 text-xs">
-        <div>
-          <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
-            {t('dashboard.charts.periodRevenue')}
-          </span>
-          <span className="font-mono font-bold text-brand-brown text-sm">
-            {formatPrice(totalPeriodRev)}
-          </span>
-        </div>
-        <div>
-          <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
-            {t('dashboard.charts.dailyAverage')}
-          </span>
-          <span className="font-mono font-bold text-gray-700 text-sm">
-            {formatPrice(avgDailyRev)}
-          </span>
+      <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-6 py-2 border-b border-gray-50 text-xs">
+        <div className="flex items-center space-x-4 sm:space-x-6">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+              {t('dashboard.charts.periodRevenue')}
+            </span>
+            <span className="font-mono font-bold text-brand-brown text-xs sm:text-sm">
+              {formatPrice(totalPeriodRev)}
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+              {t('dashboard.charts.dailyAverage')}
+            </span>
+            <span className="font-mono font-bold text-gray-700 text-xs sm:text-sm">
+              {formatPrice(avgDailyRev)}
+            </span>
+          </div>
         </div>
         {activeHover && (
-          <div className="ml-auto text-right">
+          <div className="text-left sm:text-right">
             <span className="text-[10px] font-black uppercase tracking-wider text-brand-amber block">
               {activeHover.point.label}
             </span>
-            <span className="font-mono font-bold text-brand-brown text-sm">
+            <span className="font-mono font-bold text-brand-brown text-xs sm:text-sm">
               {formatPrice(activeHover.point.revenue)}{' '}
               <span className="text-[10px] font-sans font-normal text-gray-500">
                 ({activeHover.point.orders} {t('dashboard.hero.ordersUnit')})

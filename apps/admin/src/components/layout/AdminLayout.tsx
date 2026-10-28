@@ -3,6 +3,7 @@ import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
 import { AdminPageHeader, type AdminBreadcrumbItem } from './AdminPageHeader';
 import { AdminFooter } from './AdminFooter';
+import { TooltipProvider } from '../ui';
 export { NidaLogo } from '../common/NidaLogo';
 export type { AdminBreadcrumbItem } from './AdminPageHeader';
 
@@ -81,7 +82,9 @@ export function AdminLayout({
 
         {/* Page Body */}
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 min-w-0">
-          {children}
+          <TooltipProvider delay={100} timeout={300} closeDelay={0}>
+            {children}
+          </TooltipProvider>
         </main>
 
         {/* Admin Footer */}

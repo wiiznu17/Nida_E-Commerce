@@ -63,8 +63,8 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
             </div>
           </div>
 
-          <div className="flex items-baseline space-x-3">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white font-mono">
+          <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white font-mono break-all sm:break-normal">
               {formatPrice(metrics.netRevenue)}
             </h2>
             <div className="flex items-center text-xs font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-xs border border-emerald-500/30">
@@ -85,7 +85,7 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
         </div>
 
         {/* Financial Breakdown Chips */}
-        <div className="mt-6 pt-4 border-t border-white/10 grid grid-cols-3 gap-2">
+        <div className="mt-6 pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-2">
           <div>
             <div className="flex items-center space-x-1">
               <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
@@ -156,7 +156,7 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
             </div>
           </div>
 
-          <div className="flex items-baseline space-x-3">
+          <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-brand-brown font-mono">
               {metrics.totalOrders}{' '}
               <span className="text-sm font-sans font-bold text-gray-500">

@@ -44,6 +44,8 @@ export interface InfoTooltipProps {
   side?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;
   iconClassName?: string;
+  delay?: number;
+  closeDelay?: number;
 }
 
 export function InfoTooltip({
@@ -54,11 +56,15 @@ export function InfoTooltip({
   side = 'top',
   className = '',
   iconClassName = '',
+  delay = 100,
+  closeDelay = 0,
 }: InfoTooltipProps) {
   return (
     <TooltipPrimitive.Root>
       <TooltipPrimitive.Trigger
         type="button"
+        delay={delay}
+        closeDelay={closeDelay}
         className={cn(
           'inline-flex items-center text-stone-400 hover:text-stone-200 transition-colors focus:outline-none cursor-help',
           className,

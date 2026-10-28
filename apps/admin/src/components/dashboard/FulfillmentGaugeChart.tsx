@@ -52,13 +52,11 @@ export function FulfillmentGaugeChart({
         </div>
       </div>
 
-      {/* Semi-Circle Gauge SVG (Enlarged) */}
+      {/* Semi-Circle Gauge SVG (Enlarged & Responsive) */}
       <div className="flex flex-col items-center justify-center my-4 relative">
         <svg
-          width="220"
-          height="120"
           viewBox="0 0 220 120"
-          className="overflow-visible select-none"
+          className="w-48 sm:w-52 xl:w-56 h-auto overflow-visible select-none"
         >
           {/* Background Track Arc */}
           <path
@@ -93,7 +91,7 @@ export function FulfillmentGaugeChart({
       </div>
 
       {/* Operational Breakdown Badges */}
-      <div className="grid grid-cols-2 gap-2 border-t border-gray-50 pt-3 text-xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border-t border-gray-50 pt-3 text-xs">
         <div className="bg-brand-cream/50 p-2 border border-brand-border">
           <div className="flex items-center space-x-1">
             <span className="text-[10px] font-black uppercase tracking-wider text-gray-500 block">
