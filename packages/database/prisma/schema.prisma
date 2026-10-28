@@ -28,7 +28,7 @@ enum Department {
   KIDS
   BAGS
   SHOES
-  HOME
+  FRAGRANCE
 }
 
 enum MarketingTag {

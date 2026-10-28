@@ -439,7 +439,8 @@ export function ProductForm({
       applySizePreset('shoes');
     } else if (
       (newCat.includes('bags') ||
-        newCat.includes('home') ||
+        newCat.includes('fragrance') ||
+        newCat.includes('perfume') ||
         newCat.includes('accessories')) &&
       (activeSizes.includes('S') || activeSizes.includes('US 8'))
     ) {

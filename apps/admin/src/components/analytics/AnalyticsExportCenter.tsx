@@ -58,7 +58,7 @@ export function AnalyticsExportCenter() {
     { value: 'BAGS', label: 'Bags & Accessories' },
     { value: 'SHOES', label: 'Footwear' },
     { value: 'KIDS', label: 'Kids & Teens' },
-    { value: 'HOME', label: 'Living & Lifestyle' },
+    { value: 'FRAGRANCE', label: 'Fragrance' },
   ];
 
   const inventoryStatusOptions: DropdownSelectOption[] = [

@@ -61,17 +61,41 @@ export const DEPARTMENT_INFO: Record<string, DepartmentMeta> = {
     bgImage:
       'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
   },
-  home: {
-    title: 'HOME & LIFESTYLE',
-    titleTh: 'ของแต่งบ้านและไลฟ์สไตล์',
+  fragrance: {
+    title: 'FRAGRANCE',
+    titleTh: 'เครื่องหอมและกลิ่นสัมผัสชั้นสูง',
     subtitle:
-      'Elevate your sanctuary with striped organic towels, hinoki wood candles, and artisan ceramics.',
+      'Artisanal Eau de Parfum, bespoke candles and ambient scents crafted with rare botanicals.',
     subtitleTh:
-      'เติมเต็มความสงบในบ้านด้วยผ้าขนหนูออร์แกนิก เทียนหอมไม้ฮิโนกิ และเครื่องเคลือบดินเผางานช่างศิลป์',
-    bannerTag: 'INTENTIONAL LIVING',
-    bannerTagTh: 'วิถีชีวิตอย่างมีระดับ',
+      'น้ำหอม โอ เดอ ปาร์ฟูม และเทียนหอมระดับงานคราฟต์ ผสานสารสกัดจากพรรณไม้หายากและกลิ่นอายอันเป็นเอกลักษณ์',
+    bannerTag: 'SIGNATURE SCENTS',
+    bannerTagTh: 'กลิ่นหอมเอกลักษณ์',
     bgImage:
-      'https://images.unsplash.com/photo-1583847268964-b28ce8f31161?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
+  },
+  perfume: {
+    title: 'FRAGRANCE',
+    titleTh: 'เครื่องหอมและกลิ่นสัมผัสชั้นสูง',
+    subtitle:
+      'Artisanal Eau de Parfum, bespoke candles and ambient scents crafted with rare botanicals.',
+    subtitleTh:
+      'น้ำหอม โอ เดอ ปาร์ฟูม และเทียนหอมระดับงานคราฟต์ ผสานสารสกัดจากพรรณไม้หายากและกลิ่นอายอันเป็นเอกลักษณ์',
+    bannerTag: 'SIGNATURE SCENTS',
+    bannerTagTh: 'กลิ่นหอมเอกลักษณ์',
+    bgImage:
+      'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
+  },
+  home: {
+    title: 'PERFUME & FRAGRANCE',
+    titleTh: 'น้ำหอมและเครื่องหอมชั้นสูง',
+    subtitle:
+      'Artisanal Eau de Parfum and bespoke fragrance crafted with rare botanicals and signature notes.',
+    subtitleTh:
+      'น้ำหอม โอ เดอ ปาร์ฟูม งานคราฟต์ระดับสูง ผสานสารสกัดจากพรรณไม้หายากและกลิ่นอายอันเป็นเอกลักษณ์',
+    bannerTag: 'SIGNATURE SCENTS',
+    bannerTagTh: 'กลิ่นหอมเอกลักษณ์',
+    bgImage:
+      'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
   },
   sale: {
     title: 'SALE MARKDOWNS',

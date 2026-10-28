@@ -131,6 +131,14 @@ export function Footer() {
             </li>
             <li>
               <Link
+                href="/collections/fragrance"
+                className="hover:text-white transition-colors"
+              >
+                {t('nav.fragrance')}
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/collections/sale"
                 className="text-brand-yellow font-bold hover:underline"
               >

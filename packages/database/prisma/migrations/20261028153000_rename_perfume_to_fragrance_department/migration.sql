@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "Department" RENAME VALUE 'PERFUME' TO 'FRAGRANCE';

@@ -54,7 +54,7 @@ export class CatalogController {
     name: 'department',
     required: false,
     description:
-      'Filter categories by department code (WOMEN, MEN, KIDS, BAGS, SHOES, HOME)',
+      'Filter categories by department code (WOMEN, MEN, KIDS, BAGS, SHOES, FRAGRANCE)',
     example: 'WOMEN',
   })
   @ApiQuery({

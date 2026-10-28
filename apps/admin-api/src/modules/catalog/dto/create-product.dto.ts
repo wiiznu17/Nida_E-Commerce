@@ -142,7 +142,7 @@ export class CreateProductDto {
   category: string;
 
   @ApiPropertyOptional({
-    description: 'Department code (WOMEN, MEN, BAGS, SHOES, HOME)',
+    description: 'Department code (WOMEN, MEN, KIDS, BAGS, SHOES, FRAGRANCE)',
     example: 'WOMEN',
   })
   @IsOptional()

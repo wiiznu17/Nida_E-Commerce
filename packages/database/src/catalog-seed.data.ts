@@ -78,10 +78,10 @@ export const CATEGORIES_SEED_DATA = [
     displayOrder: 6,
   },
   {
-    name: 'Home & Living',
-    nameTh: 'ของแต่งบ้านและเครื่องหอม',
-    slug: 'home-living',
-    department: 'HOME',
+    name: 'Fragrance',
+    nameTh: 'เครื่องหอม',
+    slug: 'fragrance',
+    department: 'FRAGRANCE',
     displayOrder: 7,
   },
   {
@@ -221,19 +221,19 @@ export const CATEGORIES_SEED_DATA = [
     displayOrder: 61,
   },
   {
-    name: 'Bath & Bedding',
-    nameTh: 'เครื่องนอนและห้องน้ำ',
-    slug: 'home-bath-bedding',
-    department: 'HOME',
-    parentSlug: 'home-living',
+    name: 'Eau de Parfum',
+    nameTh: 'น้ำหอม โอ เดอ ปาร์ฟูม',
+    slug: 'eau-de-parfum',
+    department: 'FRAGRANCE',
+    parentSlug: 'fragrance',
     displayOrder: 70,
   },
   {
-    name: 'Home Fragrance',
-    nameTh: 'เครื่องหอมและตกแต่งบ้าน',
-    slug: 'home-fragrance',
-    department: 'HOME',
-    parentSlug: 'home-living',
+    name: 'Home Fragrance & Candles',
+    nameTh: 'เทียนหอมและเครื่องหอมปรับอากาศ',
+    slug: 'home-fragrance-candles',
+    department: 'FRAGRANCE',
+    parentSlug: 'fragrance',
     displayOrder: 71,
   },
 ];
@@ -1327,7 +1327,7 @@ export const PRODUCTS_SEED_DATA: ProductSeedItem[] = [
     categorySlug: 'kids-outerwear',
     isPreorder: false,
     images: [
-      'https://images.unsplash.com/photo-1503944547408-b6559a445e0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       {
@@ -1715,7 +1715,7 @@ export const PRODUCTS_SEED_DATA: ProductSeedItem[] = [
     categorySlug: 'shoes-dress-shoes',
     isPreorder: false,
     images: [
-      'https://images.unsplash.com/photo-1608256246200-53e65389ea8ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1533867617858-e7b97e060509?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       {
@@ -1938,53 +1938,36 @@ export const PRODUCTS_SEED_DATA: ProductSeedItem[] = [
     ],
   },
   {
-    name: 'Signature Striped Organic Bath Towel Set',
-    nameTh: 'เซ็ตผ้าขนหนูออร์แกนิก ลายทางซิกเนเจอร์',
-    slug: 'signature-striped-organic-bath-towel-set',
+    name: 'Nida Signature Eau de Parfum - Espresso & Damask Rose (50ml)',
+    nameTh: 'น้ำหอม โอ เดอ ปาร์ฟูม ซิกเนเจอร์ กลิ่นเอสเปรสโซและกุหลาบดามัสก์ (50 มล.)',
+    slug: 'nida-signature-eau-de-parfum-espresso-rose',
     description:
-      'Plush 650 GSM Aegean organic cotton towel bundle featuring jacquard woven collegiate stripe border.',
+      'Artisanal Eau de Parfum blending bold roasted espresso bean notes, dark Damask rose petals, warm amber, and Madagascar vanilla.',
     descriptionTh:
-      'เซ็ตผ้าขนหนูคอตตอนออร์แกนิก 100% ทอหนา 650 GSM ซับน้ำได้ดีเยี่ยม นุ่มละมุนผิว ไม่ระคายเคือง',
+      'น้ำหอมกลิ่นซิกเนเจอร์อันเป็นเอกลักษณ์ ผสานกลิ่นเมล็ดกาแฟเอสเปรสโซคั่วเข้ม กลีบกุหลาบดามัสก์สีเข้ม อำพัน และวานิลลามาดากัสการ์',
     materialsCare:
-      '100% Turkish Organic Cotton 600 GSM. Machine wash warm, tumble dry low.',
+      'Alcohol Denat., Parfum/Fragrance, Aqua/Water. Keep in a cool, dry place away from direct sunlight.',
     materialsCareTh:
-      'ผ้าฝ้ายออร์แกนิกตุรกี 100% ความหนา 600 GSM. ซักเครื่องน้ำอุ่น อบแห้งความร้อนต่ำ',
-    basePrice: 680,
-    originalPrice: 900,
-    tag: MarketingTag.EXCLUSIVE,
-    tagTh: 'คอลเลกชันพิเศษ',
-    categorySlug: 'home-bath-bedding',
+      'แอลกอฮอล์บริสุทธิ์, หัวน้ำหอมนำเข้าเข้มข้น, น้ำบริสุทธิ์. ควรเก็บในที่แห้งและเย็น หลีกเลี่ยงแสงแดดโดยตรง',
+    basePrice: 1890,
+    originalPrice: 2200,
+    tag: MarketingTag.BESTSELLER,
+    tagTh: 'สินค้าขายดี',
+    categorySlug: 'eau-de-parfum',
     isPreorder: false,
     images: [
-      'https://images.unsplash.com/photo-1583847268964-b28ce8f31161?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       {
-        sku: 'NIDA-H1-2B1-OS',
-        size: 'One Size',
-        color: 'Nida Espresso',
-        colorTh: 'เอสเปรสโซ่ ซิกเนเจอร์',
+        sku: 'NIDA-PERF-ESP-50ML',
+        size: '50ml',
+        color: 'Signature Amber',
+        colorTh: 'อำพัน ซิกเนเจอร์',
         hex: '#2B1810',
-        stock: 30,
-        weight: 300,
-      },
-      {
-        sku: 'NIDA-H1-FFF-OS',
-        size: 'One Size',
-        color: 'Pure White',
-        colorTh: 'ขาวบริสุทธิ์',
-        hex: '#FFFFFF',
-        stock: 30,
-        weight: 300,
-      },
-      {
-        sku: 'NIDA-H1-F59-OS',
-        size: 'One Size',
-        color: 'Imperial Gold',
-        colorTh: 'ทองอิมพีเรียล',
-        hex: '#F59E0B',
-        stock: 30,
-        weight: 300,
+        stock: 45,
+        weight: 250,
       },
     ],
   },
@@ -2004,10 +1987,10 @@ export const PRODUCTS_SEED_DATA: ProductSeedItem[] = [
     originalPrice: 550,
     tag: MarketingTag.TRENDING,
     tagTh: 'กำลังนิยม',
-    categorySlug: 'home-fragrance',
+    categorySlug: 'home-fragrance-candles',
     isPreorder: false,
     images: [
-      'https://images.unsplash.com/photo-1602921516766-3d3f9b2d978a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80',
     ],
     variants: [
       {

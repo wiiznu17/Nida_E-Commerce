@@ -15,7 +15,7 @@ export const PRODUCT_DEPARTMENTS: DepartmentOption[] = [
   { id: Department.KIDS, labelEn: 'Kids', labelTh: 'เด็ก' },
   { id: Department.BAGS, labelEn: 'Bags', labelTh: 'กระเป๋าและเครื่องหนัง' },
   { id: Department.SHOES, labelEn: 'Shoes', labelTh: 'รองเท้า' },
-  { id: Department.HOME, labelEn: 'Home & Living', labelTh: 'ของแต่งบ้าน' },
+  { id: Department.FRAGRANCE, labelEn: 'Fragrance', labelTh: 'เครื่องหอม' },
 ];
 
 // --- 2. Marketing Tags Enum & Preset Options ---

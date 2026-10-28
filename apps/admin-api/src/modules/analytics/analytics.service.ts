@@ -462,9 +462,9 @@ export class AnalyticsService {
         labelTh: 'เสื้อผ้าเด็ก',
         color: '#C8B6A6',
       },
-      [Department.HOME]: {
-        labelEn: 'Living & Lifestyle',
-        labelTh: 'ของตกแต่งและเครื่องใช้ในบ้าน',
+      [Department.FRAGRANCE]: {
+        labelEn: 'Fragrance',
+        labelTh: 'เครื่องหอม',
         color: '#D4C5B9',
       },
     };

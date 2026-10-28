@@ -127,7 +127,7 @@ export function CategoryModal({
     { value: Department.KIDS, label: isTh ? 'เด็ก (KIDS)' : 'KIDS' },
     { value: Department.BAGS, label: isTh ? 'กระเป๋า (BAGS)' : 'BAGS' },
     { value: Department.SHOES, label: isTh ? 'รองเท้า (SHOES)' : 'SHOES' },
-    { value: Department.HOME, label: isTh ? 'ของแต่งบ้าน (HOME)' : 'HOME' },
+    { value: Department.FRAGRANCE, label: isTh ? 'เครื่องหอม (FRAGRANCE)' : 'FRAGRANCE' },
   ];
 
   // Candidates for parent category: top-level categories in the same department (excluding itself)

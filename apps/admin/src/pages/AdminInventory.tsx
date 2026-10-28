@@ -306,8 +306,8 @@ export default function AdminInventory() {
                       label: language === 'th' ? 'รองเท้า (Shoes)' : 'Shoes',
                     },
                     {
-                      value: 'home',
-                      label: language === 'th' ? 'ของแต่งบ้าน (Home)' : 'Home',
+                      value: 'fragrance',
+                      label: language === 'th' ? 'เครื่องหอม (Fragrance)' : 'Fragrance',
                     },
                   ]}
                 />

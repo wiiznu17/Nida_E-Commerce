@@ -28,7 +28,7 @@ export class QueryProductsDto {
 
   @ApiPropertyOptional({
     description: 'Filter by department',
-    enum: ['WOMEN', 'MEN', 'KIDS', 'BAGS', 'SHOES', 'HOME'],
+    enum: ['WOMEN', 'MEN', 'KIDS', 'BAGS', 'SHOES', 'FRAGRANCE'],
     example: 'WOMEN',
   })
   @IsOptional()

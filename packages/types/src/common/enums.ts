@@ -10,7 +10,7 @@ export const Department = {
   KIDS: 'KIDS',
   BAGS: 'BAGS',
   SHOES: 'SHOES',
-  HOME: 'HOME',
+  FRAGRANCE: 'FRAGRANCE',
 } as const;
 export type Department = (typeof Department)[keyof typeof Department];
 

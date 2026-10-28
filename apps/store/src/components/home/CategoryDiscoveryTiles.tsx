@@ -50,11 +50,11 @@ const DEPARTMENTS: DepartmentTileConfig[] = [
       'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80',
   },
   {
-    id: 'home',
-    labelKey: 'nav.home',
-    href: '/collections/home',
+    id: 'fragrance',
+    labelKey: 'nav.fragrance',
+    href: '/collections/fragrance',
     defaultImage:
-      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
   },
 ];
 
@@ -94,6 +94,11 @@ export const CategoryDiscoveryTiles: React.FC = () => {
                     alt={t(dept.labelKey)}
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                     loading="lazy"
+                    onError={(e) => {
+                      if (e.currentTarget.src !== dept.defaultImage) {
+                        e.currentTarget.src = dept.defaultImage;
+                      }
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/85 via-brand-brown/25 to-transparent flex flex-col justify-end p-4 transition-colors duration-300 group-hover:from-brand-brown/95">
                     <span className="text-white font-black text-xs sm:text-sm uppercase tracking-wider line-clamp-1">

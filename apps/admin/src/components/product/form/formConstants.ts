@@ -41,8 +41,9 @@ export function getDepartmentCode(dept: string): string {
       return 'BAG';
     case 'shoes':
       return 'SHO';
-    case 'home':
-      return 'HOM';
+    case 'fragrance':
+    case 'perfume':
+      return 'FRG';
     default:
       return 'GEN';
   }

@@ -52,7 +52,7 @@ export function ProductListFilters({
     { id: 'kids', label: language === 'th' ? 'เด็ก (Kids)' : 'Kids' },
     { id: 'bags', label: language === 'th' ? 'กระเป๋า (Bags)' : 'Bags' },
     { id: 'shoes', label: language === 'th' ? 'รองเท้า (Shoes)' : 'Shoes' },
-    { id: 'home', label: language === 'th' ? 'ของแต่งบ้าน (Home)' : 'Home' },
+    { id: 'fragrance', label: language === 'th' ? 'เครื่องหอม (Fragrance)' : 'Fragrance' },
   ];
 
   const sortOptions = [
