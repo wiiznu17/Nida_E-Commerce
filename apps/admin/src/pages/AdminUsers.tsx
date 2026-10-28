@@ -149,7 +149,7 @@ export const AdminUsers: React.FC = () => {
       actionButton={
         <button
           onClick={handleOpenInvite}
-          className="inline-flex items-center justify-center space-x-2 bg-brand-brown hover:bg-brand-dark-brown active:scale-[0.99] text-white text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-sm transition-all cursor-pointer"
+          className="bg-brand-brown hover:bg-brand-dark-brown text-white px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center space-x-1.5 rounded-xs shadow-2xs cursor-pointer"
         >
           <UserPlus className="w-4 h-4 stroke-[2]" />
           <span>{t('users.invite_admin_button')}</span>
@@ -158,7 +158,7 @@ export const AdminUsers: React.FC = () => {
     >
       <div className="space-y-6">
         {/* Users Table Card */}
-        <div className="bg-white border border-[#EAE3D9] rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white border border-[#EAE3D9] rounded-xs shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -306,38 +306,34 @@ export const AdminUsers: React.FC = () => {
 
         {/* Invite Admin Modal */}
         {isInviteOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-brown/60 backdrop-blur-xs animate-in fade-in duration-200">
-            <div className="bg-white border border-brand-border rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
-              {/* Dismiss X button */}
-              <button
-                type="button"
-                onClick={() => setIsInviteOpen(false)}
-                disabled={isSubmittingInvite}
-                className="absolute top-4 right-4 text-stone-400 hover:text-stone-600 p-1.5 rounded-lg hover:bg-stone-100 transition-colors cursor-pointer disabled:opacity-40"
-                aria-label={t('common.close')}
-              >
-                <X size={16} />
-              </button>
-
-              {/* Modal Header */}
-              <div className="flex items-start space-x-3.5 mb-5 pr-6">
-                <div className="w-10 h-10 rounded-full bg-brand-cream border border-brand-border text-brand-brown flex items-center justify-center shrink-0 shadow-2xs">
-                  <UserPlus size={18} />
-                </div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <div className="relative w-full max-w-lg max-h-[90vh] bg-white rounded-xs shadow-2xl flex flex-col overflow-hidden border border-stone-200">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-[#FAF7F2]">
                 <div>
-                  <h2 className="text-base font-black text-brand-brown tracking-tight leading-snug">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-[#2B1810]">
                     {t('users.invite_modal_title')}
-                  </h2>
-                  <p className="text-xs text-stone-500 mt-0.5 leading-relaxed">
+                  </h3>
+                  <p className="text-[11px] text-stone-500">
                     {t('users.invite_modal_desc')}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setIsInviteOpen(false)}
+                  disabled={isSubmittingInvite}
+                  className="p-1 text-stone-400 hover:text-stone-700 rounded-xs transition-colors cursor-pointer disabled:opacity-40"
+                  aria-label={t('common.close')}
+                >
+                  <X size={18} />
+                </button>
               </div>
 
-              <form onSubmit={handleInviteSubmit} className="space-y-4">
+              {/* Form Body */}
+              <form onSubmit={handleInviteSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1.5">
-                    {t('users.form_full_name')} *
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
+                    {t('users.form_full_name')} <span className="text-rose-600">*</span>
                   </label>
                   <input
                     type="text"
@@ -345,18 +341,18 @@ export const AdminUsers: React.FC = () => {
                     value={inviteName}
                     onChange={(e) => setInviteName(e.target.value)}
                     placeholder="Kanya Somchai"
-                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-brand-brown placeholder:text-stone-400 focus:outline-none transition-colors ${
+                    className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden transition-colors ${
                       fieldErrors.name
-                        ? 'border-rose-400 focus:ring-1 focus:ring-rose-500'
-                        : 'border-brand-border focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20'
+                        ? 'border-rose-400 focus:border-rose-600'
+                        : 'border-stone-300 focus:border-[#2B1810]'
                     }`}
                   />
                   <InlineError message={fieldErrors.name} />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1.5">
-                    {t('users.form_email')} *
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
+                    {t('users.form_email')} <span className="text-rose-600">*</span>
                   </label>
                   <input
                     type="email"
@@ -364,19 +360,19 @@ export const AdminUsers: React.FC = () => {
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="kanya@nida-apparel.com"
-                    className={`w-full px-3.5 py-2.5 border rounded-xl text-xs text-brand-brown placeholder:text-stone-400 focus:outline-none transition-colors ${
+                    className={`w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden transition-colors ${
                       fieldErrors.email
-                        ? 'border-rose-400 focus:ring-1 focus:ring-rose-500'
-                        : 'border-brand-border focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20'
+                        ? 'border-rose-400 focus:border-rose-600'
+                        : 'border-stone-300 focus:border-[#2B1810]'
                     }`}
                   />
                   <InlineError message={fieldErrors.email} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1.5">
-                      {t('users.form_role')} *
+                    <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
+                      {t('users.form_role')} <span className="text-rose-600">*</span>
                     </label>
                     <DropdownSelect
                       value={inviteRoleId}
@@ -385,12 +381,11 @@ export const AdminUsers: React.FC = () => {
                         value: r.id,
                         label: r.roleName,
                       }))}
-                      className="h-[38px] rounded-xl border-brand-border text-xs text-brand-brown shadow-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-stone-600 mb-1.5">
+                    <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
                       {t('users.form_department')}
                     </label>
                     <input
@@ -398,24 +393,25 @@ export const AdminUsers: React.FC = () => {
                       value={inviteDept}
                       onChange={(e) => setInviteDept(e.target.value)}
                       placeholder="Logistics"
-                      className="w-full px-3.5 py-2.5 border border-brand-border rounded-xl text-xs text-brand-brown placeholder:text-stone-400 focus:outline-none focus:border-brand-brown focus:ring-1 focus:ring-brand-brown/20 transition-colors"
+                      className="w-full text-xs px-3 py-2 border rounded-xs focus:outline-hidden border-stone-300 focus:border-[#2B1810] transition-colors"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end space-x-2.5 pt-4 border-t border-brand-cream">
+                {/* Footer Actions */}
+                <div className="flex items-center justify-end space-x-3 pt-4 border-t border-stone-200">
                   <button
                     type="button"
                     onClick={() => setIsInviteOpen(false)}
                     disabled={isSubmittingInvite}
-                    className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-bold text-stone-700 hover:bg-stone-50 transition-colors cursor-pointer disabled:opacity-50"
+                    className="px-4 py-2 border border-stone-300 text-stone-700 text-xs font-black uppercase tracking-wider rounded-xs hover:bg-stone-50 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {t('users.btn_cancel')}
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmittingInvite || !inviteName || !inviteEmail}
-                    className="px-5 py-2.5 bg-brand-dark-brown hover:bg-brand-brown text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer flex items-center space-x-1.5"
+                    className="px-5 py-2 bg-[#2B1810] text-white text-xs font-black uppercase tracking-wider rounded-xs hover:bg-[#3D2317] transition-colors disabled:opacity-50 shadow-xs cursor-pointer flex items-center space-x-1.5"
                   >
                     {isSubmittingInvite ? (
                       <>
@@ -446,14 +442,14 @@ export const AdminUsers: React.FC = () => {
         >
           {createdInviteLink && (
             <div className="space-y-3 pt-1">
-              <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 flex items-center justify-between">
+              <div className="bg-stone-50 border border-stone-200 rounded-xs p-3 flex items-center justify-between">
                 <span className="text-[11px] font-mono text-stone-700 truncate pr-3 select-all">
                   {createdInviteLink}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="shrink-0 p-2 bg-white border border-stone-200 hover:bg-stone-100 rounded-lg text-stone-700 transition-all flex items-center space-x-1 text-xs cursor-pointer"
+                  className="shrink-0 p-2 bg-white border border-stone-200 hover:bg-stone-100 rounded-xs text-stone-700 transition-all flex items-center space-x-1 text-xs cursor-pointer"
                 >
                   {hasCopied ? (
                     <>
