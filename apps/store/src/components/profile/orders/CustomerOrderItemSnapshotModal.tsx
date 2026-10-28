@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import Image from 'next/image';
-import { Package, X, ShieldCheck } from 'lucide-react';
+import { Package, X } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import type { ApiOrderItem } from '@repo/types';
 
@@ -56,47 +56,33 @@ export function CustomerOrderItemSnapshotModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white border border-brand-border w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col"
+        className="bg-white rounded-md max-w-2xl w-full border border-brand-border shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-brand-border bg-brand-warm-cream shrink-0">
+        <div className="p-4 bg-brand-cream border-b border-brand-border flex items-center justify-between shrink-0">
           <div>
-            <h3 className="text-base sm:text-lg font-black uppercase tracking-wider text-brand-brown">
+            <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
               {t('orderDetail.snapshotModalTitle')}
             </h3>
-            <p className="text-xs text-stone-500 mt-0.5">
-              {t('orderDetail.snapshotModalSubtitle')} •{' '}
-              <span className="font-mono text-stone-600 font-bold">{skuCode}</span>
+            <p className="text-xs text-stone-500 font-mono mt-0.5">
+              {skuCode}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full hover:bg-black/5 text-stone-400 hover:text-brand-brown flex items-center justify-center transition-colors cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded-xs text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors cursor-pointer"
             aria-label={t('orderDetail.close')}
           >
-            <X size={20} />
+            <X size={16} />
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1">
-          {/* Transparency / Integrity Notice */}
-          <div className="p-4 bg-[#FAF7F2] border border-brand-border/80 flex items-start space-x-3 text-xs text-stone-700">
-            <ShieldCheck size={18} className="text-brand-brown shrink-0 mt-0.5" />
-            <div className="space-y-0.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-brand-brown block">
-                {isTh ? 'บันทึกข้อมูลถาวร (Immutable Purchase Snapshot)' : 'Immutable Purchase Snapshot'}
-              </span>
-              <p className="leading-relaxed text-[11px] text-stone-600">
-                {t('orderDetail.snapshotNotice')}
-              </p>
-            </div>
-          </div>
-
-          {/* Product Overview Box */}
-          <div className="flex flex-col sm:flex-row gap-5 p-5 border border-brand-border bg-brand-warm-cream/30">
-            <div className="w-24 h-28 bg-white border border-brand-border overflow-hidden shrink-0 relative flex items-center justify-center shadow-2xs">
+        {/* Content Body */}
+        <div className="p-5 overflow-y-auto space-y-4">
+          {/* Product Overview Card */}
+          <div className="flex flex-col sm:flex-row gap-4 p-4 border border-brand-border/60 rounded-xs bg-stone-50/40">
+            <div className="w-24 h-28 bg-stone-100 border border-brand-border rounded-xs overflow-hidden shrink-0 relative flex items-center justify-center">
               {imageUrl ? (
                 <Image
                   src={imageUrl}
@@ -110,61 +96,61 @@ export function CustomerOrderItemSnapshotModal({
               )}
             </div>
 
-            <div className="space-y-3 flex-1 min-w-0">
+            <div className="space-y-2 flex-1 min-w-0">
               <div>
-                <h4 className="font-bold text-base text-brand-brown truncate">
+                <h4 className="font-bold text-sm text-stone-900 truncate">
                   {productName}
                 </h4>
-                <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                  <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-bold bg-white border border-stone-200 text-stone-700">
+                <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[10px] font-mono font-bold bg-white border border-stone-200 text-stone-700">
                     {t('orderDetail.skuLabel')}: {skuCode}
                   </span>
                   {snapshot?.department && (
-                    <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-brand-cream border border-brand-border text-brand-brown">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-brand-cream border border-brand-border text-brand-brown">
                       {snapshot.department}
                     </span>
                   )}
                   {snapshot?.categoryName && (
-                    <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-600 border border-stone-200">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-600 border border-stone-200">
                       {snapshot.categoryName}
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Price & Variant Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 border-t border-brand-border/60 text-xs">
+              {/* Price & Variant Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-stone-200/60 text-xs">
                 <div>
-                  <span className="text-[10px] text-stone-500 font-black uppercase tracking-wider block">
+                  <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">
                     {t('orderDetail.colorLabel')}
                   </span>
-                  <div className="flex items-center space-x-1.5 mt-1">
+                  <div className="flex items-center space-x-1.5 mt-0.5">
                     {snapshot?.colorHex && (
                       <span
-                        className="w-3 h-3 rounded-full border border-black/20 shrink-0 shadow-2xs"
+                        className="w-2.5 h-2.5 rounded-full border border-black/20 shrink-0"
                         style={{ backgroundColor: snapshot.colorHex }}
                       />
                     )}
-                    <span className="font-bold text-stone-800 text-xs truncate">
+                    <span className="font-bold text-stone-800 text-xs">
                       {colorName ?? item.variantInfo}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-stone-500 font-black uppercase tracking-wider block">
+                  <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">
                     {t('orderDetail.sizeLabel')}
                   </span>
-                  <span className="font-mono font-bold text-stone-800 text-xs mt-1 block">
+                  <span className="font-mono font-bold text-stone-800 text-xs mt-0.5 block">
                     {snapshot?.size ?? '-'}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-stone-500 font-black uppercase tracking-wider block">
+                  <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">
                     {t('orderDetail.basePriceLabel')}
                   </span>
-                  <span className="font-mono font-bold text-brand-brown text-xs mt-1 block">
+                  <span className="font-mono font-bold text-stone-900 text-xs mt-0.5 block">
                     ฿{Number(item.unitPrice).toLocaleString()}
                   </span>
                 </div>
@@ -174,7 +160,7 @@ export function CustomerOrderItemSnapshotModal({
 
           {/* Materials & Care */}
           {materialsCare && (
-            <div className="border border-brand-border p-5 space-y-1.5 bg-white">
+            <div className="border border-brand-border/60 rounded-xs p-3.5 space-y-1.5">
               <span className="text-[10px] font-black uppercase tracking-wider text-brand-brown block">
                 {t('orderDetail.materialsCareLabel')}
               </span>
@@ -186,7 +172,7 @@ export function CustomerOrderItemSnapshotModal({
 
           {/* Description */}
           {description && (
-            <div className="border border-brand-border p-5 space-y-1.5 bg-white">
+            <div className="border border-brand-border/60 rounded-xs p-3.5 space-y-1.5">
               <span className="text-[10px] font-black uppercase tracking-wider text-brand-brown block">
                 {t('orderDetail.descriptionLabel')}
               </span>
@@ -197,14 +183,14 @@ export function CustomerOrderItemSnapshotModal({
           )}
         </div>
 
-        {/* Modal Actions */}
-        <div className="flex items-center justify-end px-6 sm:px-8 py-4 bg-brand-warm-cream/50 border-t border-brand-border shrink-0">
+        {/* Modal Footer */}
+        <div className="p-3 bg-stone-50 border-t border-brand-border flex justify-end shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="bg-brand-brown hover:bg-brand-amber text-white px-7 py-2.5 text-xs font-black uppercase tracking-widest transition-colors cursor-pointer shadow-md inline-flex items-center space-x-2"
+            className="px-4 py-1.5 bg-brand-brown text-white text-xs font-bold rounded-xs hover:bg-brand-brown/90 transition-colors cursor-pointer"
           >
-            <span>{t('orderDetail.close')}</span>
+            {t('orderDetail.close')}
           </button>
         </div>
       </div>

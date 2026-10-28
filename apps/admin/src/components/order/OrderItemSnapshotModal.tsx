@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, X, FileText, ShieldCheck } from 'lucide-react';
+import { Package, X } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatPrice } from '../../utils';
 import type { ApiOrderItem } from '@repo/types';
@@ -42,18 +42,13 @@ export const OrderItemSnapshotModal: React.FC<OrderItemSnapshotModalProps> = ({
       <div className="bg-white rounded-md max-w-2xl w-full border border-brand-border shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Modal Header */}
         <div className="p-4 bg-brand-cream border-b border-brand-border flex items-center justify-between shrink-0">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-xs bg-brand-brown text-white flex items-center justify-center shrink-0">
-              <FileText size={16} />
-            </div>
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-brand-brown block">
-                {t('orders.detail.snapshotModalTitle')}
-              </span>
-              <p className="text-xs text-gray-500 font-mono">
-                {skuCode}
-              </p>
-            </div>
+          <div>
+            <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
+              {t('orders.detail.snapshotModalTitle')}
+            </h3>
+            <p className="text-xs text-gray-500 font-mono mt-0.5">
+              {skuCode}
+            </p>
           </div>
           <button
             type="button"
@@ -67,14 +62,6 @@ export const OrderItemSnapshotModal: React.FC<OrderItemSnapshotModalProps> = ({
 
         {/* Content Body */}
         <div className="p-5 overflow-y-auto space-y-4">
-          {/* Historical Integrity Notice Banner */}
-          <div className="p-3 bg-amber-50/70 border border-amber-200/70 rounded-xs flex items-start space-x-2.5 text-xs text-amber-900">
-            <ShieldCheck size={16} className="text-amber-700 shrink-0 mt-0.5" />
-            <p className="leading-relaxed text-[11px]">
-              {t('orders.detail.snapshotNotice')}
-            </p>
-          </div>
-
           {/* Product Overview Card */}
           <div className="flex flex-col sm:flex-row gap-4 p-4 border border-brand-border/60 rounded-xs bg-stone-50/40">
             <div className="w-24 h-28 bg-stone-100 border border-brand-border rounded-xs overflow-hidden shrink-0 flex items-center justify-center">
