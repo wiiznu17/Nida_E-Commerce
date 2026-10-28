@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { RotateCw, X, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { orderRequester } from '@/api/requester/orderRequester';
 import { useAuth } from '@/context/AuthContext';
@@ -41,6 +41,18 @@ export function CustomerReturnRequestModal({
   const [customerNote, setCustomerNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -114,30 +126,31 @@ export function CustomerReturnRequestModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white rounded-md max-w-lg w-full border border-gray-200 shadow-2xl overflow-hidden flex flex-col font-sans max-h-[90vh]">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-md max-w-lg w-full border border-brand-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-150"
+      >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-stone-50/50 shrink-0">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-full bg-brand-cream text-brand-dark-brown flex items-center justify-center border border-brand-border">
-              <RotateCw className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-stone-900 tracking-tight">
-                {t('orderDetail.returnModal.title')}
-              </h2>
-              <p className="text-[11px] text-stone-500 font-mono tracking-wider uppercase">
-                #{order.orderNumber}
-              </p>
-            </div>
+        <div className="px-6 py-4 border-b border-brand-border flex items-center justify-between bg-stone-50/80 shrink-0">
+          <div>
+            <h3 className="text-sm font-bold text-stone-900 tracking-tight">
+              {t('orderDetail.returnModal.title')}
+            </h3>
+            <p className="text-[11px] text-stone-500 font-mono tracking-wider uppercase mt-0.5">
+              #{order.orderNumber}
+            </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-stone-400 hover:text-stone-700 transition-colors p-1 cursor-pointer"
-            aria-label="Close"
+            className="w-7 h-7 flex items-center justify-center rounded-xs text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors cursor-pointer"
+            aria-label={t('common.close')}
           >
-            <X className="w-4 h-4" />
+            <X size={16} />
           </button>
         </div>
 
@@ -170,8 +183,8 @@ export function CustomerReturnRequestModal({
                   onClick={() => setReason(preset)}
                   className={`text-xs px-2.5 py-1 rounded-xs border transition-colors cursor-pointer ${
                     reason === preset
-                      ? 'bg-brand-brown text-white border-brand-brown font-bold'
-                      : 'bg-white text-stone-700 border-gray-300 hover:bg-stone-50'
+                      ? 'bg-brand-brown text-white border-brand-brown font-bold shadow-2xs'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-brand-brown hover:bg-stone-50'
                   }`}
                 >
                   {preset}
@@ -187,7 +200,7 @@ export function CustomerReturnRequestModal({
             onChange={(e) => setReason(e.target.value)}
             placeholder={t('orderDetail.returnModal.reasonPlaceholder')}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-xs text-xs text-stone-900 focus:outline-hidden focus:ring-1 focus:ring-brand-brown"
+            className="w-full px-3 py-2 border border-stone-200 rounded-xs text-xs text-stone-900 focus:outline-hidden focus:border-brand-brown focus:ring-1 focus:ring-brand-brown"
           />
 
           {/* Customer Note */}
@@ -200,24 +213,24 @@ export function CustomerReturnRequestModal({
               value={customerNote}
               onChange={(e) => setCustomerNote(e.target.value)}
               placeholder={t('orderDetail.returnModal.notePlaceholder')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xs text-xs text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:ring-1 focus:ring-brand-brown resize-none"
+              className="w-full px-3 py-2 border border-stone-200 rounded-xs text-xs text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:border-brand-brown focus:ring-1 focus:ring-brand-brown resize-none"
             />
           </div>
 
           {/* Action buttons */}
-          <div className="pt-3 border-t border-gray-200 flex justify-end space-x-2 shrink-0">
+          <div className="pt-4 border-t border-brand-border/40 flex justify-end space-x-2 shrink-0">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-wider border border-gray-300 text-stone-700 rounded-xs hover:bg-stone-50 transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider border border-stone-300 text-stone-700 rounded-xs hover:bg-stone-50 transition-colors cursor-pointer"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-brand-brown hover:bg-brand-dark-brown text-white rounded-xs transition-colors cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-brand-brown hover:bg-brand-dark-brown text-white rounded-xs shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
             >
               {isSubmitting
                 ? t('common.submitting')

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle2, X, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { orderRequester } from '@/api/requester/orderRequester';
@@ -26,6 +26,18 @@ export function CustomerAcceptDeliveryModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleConfirm = async () => {
@@ -49,30 +61,31 @@ export function CustomerAcceptDeliveryModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white rounded-md max-w-lg w-full border border-gray-200 shadow-2xl overflow-hidden flex flex-col font-sans">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-md max-w-lg w-full border border-brand-border shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150"
+      >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-stone-50/50">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-stone-900 tracking-tight">
-                {t('orderDetail.acceptModal.title')}
-              </h2>
-              <p className="text-[11px] text-stone-500 font-mono tracking-wider uppercase">
-                #{orderNumber}
-              </p>
-            </div>
+        <div className="px-6 py-4 border-b border-brand-border flex items-center justify-between bg-stone-50/80 shrink-0">
+          <div>
+            <h3 className="text-sm font-bold text-stone-900 tracking-tight">
+              {t('orderDetail.acceptModal.title')}
+            </h3>
+            <p className="text-[11px] text-stone-500 font-mono tracking-wider uppercase mt-0.5">
+              #{orderNumber}
+            </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-stone-400 hover:text-stone-700 transition-colors p-1 cursor-pointer"
-            aria-label="Close"
+            className="w-7 h-7 flex items-center justify-center rounded-xs text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors cursor-pointer"
+            aria-label={t('common.close')}
           >
-            <X className="w-4 h-4" />
+            <X size={16} />
           </button>
         </div>
 
@@ -85,14 +98,14 @@ export function CustomerAcceptDeliveryModal({
             </div>
           )}
 
-          <div className="p-4 bg-emerald-50/50 border border-emerald-200/80 rounded-xs text-xs text-emerald-900 space-y-1.5">
+          <div className="p-4 bg-stone-50/70 border border-brand-border/60 rounded-xs text-xs space-y-1.5">
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-              <p className="font-bold text-emerald-900">
+              <ShieldCheck className="w-4 h-4 text-brand-amber shrink-0" />
+              <p className="font-bold text-stone-900">
                 {t('orderDetail.acceptModal.reviewNoticeTitle')}
               </p>
             </div>
-            <p className="text-[12px] text-stone-600 leading-relaxed pt-1">
+            <p className="text-[12px] text-stone-600 leading-relaxed pt-0.5">
               {t('orderDetail.acceptModal.reviewNoticeDesc')}
             </p>
           </div>
@@ -104,12 +117,12 @@ export function CustomerAcceptDeliveryModal({
           </p>
 
           {/* Action buttons */}
-          <div className="pt-4 border-t border-gray-200 flex justify-end space-x-2">
+          <div className="pt-4 border-t border-brand-border/40 flex justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-wider border border-gray-300 text-stone-700 rounded-xs hover:bg-stone-50 transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider border border-stone-300 text-stone-700 rounded-xs hover:bg-stone-50 transition-colors cursor-pointer"
             >
               {t('common.cancel')}
             </button>
@@ -117,7 +130,7 @@ export function CustomerAcceptDeliveryModal({
               type="button"
               onClick={handleConfirm}
               disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-emerald-700 hover:bg-emerald-800 text-white rounded-xs transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center space-x-1.5"
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-brand-brown hover:bg-brand-dark-brown text-white rounded-xs shadow-2xs transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center space-x-1.5"
             >
               {isSubmitting ? (
                 <span>{t('common.submitting')}</span>
