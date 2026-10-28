@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect } from '../ui';
 import { orderRequester } from '../../api/requester/orderRequester';
 import { ShipmentStatus, type ApiShipment } from '@repo/types';
+import { ALLOWED_SHIPMENT_TRANSITIONS } from '@repo/validators';
 
 export interface OrderShipmentStatusModalProps {
   isOpen: boolean;
@@ -116,6 +117,22 @@ export const OrderShipmentStatusModal: React.FC<
   onSuccess,
 }) => {
   const { t, language } = useLanguage();
+
+  const isTerminal = currentShipmentStatus === ShipmentStatus.DELIVERED;
+  const allowedNext = currentShipmentStatus
+    ? (ALLOWED_SHIPMENT_TRANSITIONS[currentShipmentStatus] ?? [])
+    : Object.values(ShipmentStatus);
+
+  const selectableStatuses = isTerminal
+    ? [ShipmentStatus.DELIVERED]
+    : currentShipmentStatus
+      ? [currentShipmentStatus, ...allowedNext]
+      : Object.values(ShipmentStatus);
+
+  const availableOptions = STATUS_SELECT_OPTIONS.filter((opt) =>
+    selectableStatuses.includes(opt.value),
+  );
+
   const [status, setStatus] = useState<ShipmentStatus>(
     currentShipmentStatus ?? ShipmentStatus.IN_TRANSIT,
   );
@@ -128,36 +145,54 @@ export const OrderShipmentStatusModal: React.FC<
   useEffect(() => {
     if (isOpen) {
       setErrorMessage(null);
-      // Auto-populate with next logical preset
-      const defaultPreset =
-        currentShipmentStatus === ShipmentStatus.LABEL_CREATED
-          ? PRESETS[0]
-          : currentShipmentStatus === ShipmentStatus.PICKED_UP
-            ? PRESETS[1]
-            : currentShipmentStatus === ShipmentStatus.IN_TRANSIT
-              ? PRESETS[2]
-              : PRESETS[3];
 
-      if (defaultPreset) {
-        setStatus(defaultPreset.status);
+      if (isTerminal) {
+        setStatus(ShipmentStatus.DELIVERED);
+        const deliveredPreset = PRESETS.find(
+          (p) => p.status === ShipmentStatus.DELIVERED,
+        );
+        if (deliveredPreset) {
+          setStatusTitle(
+            language === 'th'
+              ? deliveredPreset.titleTh
+              : deliveredPreset.titleEn,
+          );
+          setStatusDescription(
+            language === 'th' ? deliveredPreset.descTh : deliveredPreset.descEn,
+          );
+          setLocation(
+            language === 'th'
+              ? deliveredPreset.locationTh
+              : deliveredPreset.locationEn,
+          );
+        }
+        return;
+      }
+
+      // Auto-populate with next logical allowed preset
+      const targetStatus = allowedNext[0] ?? currentShipmentStatus;
+      const targetPreset =
+        PRESETS.find((p) => p.status === targetStatus) ?? PRESETS[0];
+
+      if (targetPreset) {
+        setStatus(targetPreset.status);
         setStatusTitle(
-          language === 'th' ? defaultPreset.titleTh : defaultPreset.titleEn,
+          language === 'th' ? targetPreset.titleTh : targetPreset.titleEn,
         );
         setStatusDescription(
-          language === 'th' ? defaultPreset.descTh : defaultPreset.descEn,
+          language === 'th' ? targetPreset.descTh : targetPreset.descEn,
         );
         setLocation(
-          language === 'th'
-            ? defaultPreset.locationTh
-            : defaultPreset.locationEn,
+          language === 'th' ? targetPreset.locationTh : targetPreset.locationEn,
         );
       }
     }
-  }, [isOpen, currentShipmentStatus, language]);
+  }, [isOpen, currentShipmentStatus, language, isTerminal]);
 
   if (!isOpen) return null;
 
   const handleApplyPreset = (preset: WebhookPreset) => {
+    if (isTerminal || !selectableStatuses.includes(preset.status)) return;
     setStatus(preset.status);
     setStatusTitle(language === 'th' ? preset.titleTh : preset.titleEn);
     setStatusDescription(language === 'th' ? preset.descTh : preset.descEn);
@@ -250,6 +285,15 @@ export const OrderShipmentStatusModal: React.FC<
           </div>
         )}
 
+        {isTerminal && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded-xs flex items-center space-x-2">
+            <AlertCircle size={15} className="shrink-0 text-amber-700" />
+            <span className="font-medium">
+              {t('orders.shipmentWebhook.terminalDelivered')}
+            </span>
+          </div>
+        )}
+
         {/* Quick Presets */}
         <div className="mb-4">
           <label className="block text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2">
@@ -258,15 +302,20 @@ export const OrderShipmentStatusModal: React.FC<
           <div className="flex flex-wrap gap-1.5">
             {PRESETS.map((p) => {
               const isSelected = status === p.status;
+              const isAllowed =
+                !isTerminal && selectableStatuses.includes(p.status);
               return (
                 <button
                   key={p.id}
                   type="button"
+                  disabled={!isAllowed}
                   onClick={() => handleApplyPreset(p)}
-                  className={`text-[11px] font-bold px-2.5 py-1.5 border rounded-xs transition-colors cursor-pointer text-left ${
-                    isSelected
-                      ? 'bg-brand-brown text-white border-brand-brown shadow-2xs'
-                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'
+                  className={`text-[11px] font-bold px-2.5 py-1.5 border rounded-xs transition-colors text-left ${
+                    !isAllowed
+                      ? 'opacity-35 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200'
+                      : isSelected
+                        ? 'bg-brand-brown text-white border-brand-brown shadow-2xs cursor-pointer'
+                        : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200 cursor-pointer'
                   }`}
                 >
                   {language === 'th' ? p.labelTh : p.labelEn}
@@ -285,7 +334,8 @@ export const OrderShipmentStatusModal: React.FC<
             <DropdownSelect
               value={status}
               onChange={(val) => setStatus(val as ShipmentStatus)}
-              options={STATUS_SELECT_OPTIONS}
+              options={availableOptions}
+              disabled={isTerminal}
             />
           </div>
 
@@ -297,10 +347,11 @@ export const OrderShipmentStatusModal: React.FC<
             <input
               type="text"
               required
+              disabled={isTerminal}
               value={statusTitle}
               onChange={(e) => setStatusTitle(e.target.value)}
               placeholder={t('orders.shipmentWebhook.statusTitlePlaceholder')}
-              className="w-full border border-gray-300 px-3 py-2 text-xs font-medium focus:outline-none focus:border-brand-brown rounded-xs"
+              className="w-full border border-gray-300 px-3 py-2 text-xs font-medium focus:outline-none focus:border-brand-brown rounded-xs disabled:opacity-50 disabled:bg-gray-50"
             />
           </div>
 
@@ -311,10 +362,11 @@ export const OrderShipmentStatusModal: React.FC<
             </label>
             <textarea
               rows={2}
+              disabled={isTerminal}
               value={statusDescription}
               onChange={(e) => setStatusDescription(e.target.value)}
               placeholder={t('orders.shipmentWebhook.statusDescPlaceholder')}
-              className="w-full border border-gray-300 px-3 py-2 text-xs font-medium focus:outline-none focus:border-brand-brown rounded-xs"
+              className="w-full border border-gray-300 px-3 py-2 text-xs font-medium focus:outline-none focus:border-brand-brown rounded-xs disabled:opacity-50 disabled:bg-gray-50"
             />
           </div>
 
@@ -326,10 +378,11 @@ export const OrderShipmentStatusModal: React.FC<
             <div className="relative">
               <input
                 type="text"
+                disabled={isTerminal}
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder={t('orders.shipmentWebhook.locationPlaceholder')}
-                className="w-full border border-gray-300 pl-8 pr-3 py-2 text-xs font-medium focus:outline-none focus:border-brand-brown rounded-xs"
+                className="w-full border border-gray-300 pl-8 pr-3 py-2 text-xs font-medium focus:outline-none focus:border-brand-brown rounded-xs disabled:opacity-50 disabled:bg-gray-50"
               />
               <MapPin
                 size={13}
@@ -338,7 +391,7 @@ export const OrderShipmentStatusModal: React.FC<
             </div>
           </div>
 
-          {status === ShipmentStatus.DELIVERED && (
+          {!isTerminal && status === ShipmentStatus.DELIVERED && (
             <div className="p-2.5 bg-amber-50/80 border border-amber-200 text-amber-900 text-[11px] rounded-xs flex items-start space-x-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
               <span>{t('orders.shipmentWebhook.deliveredNotice')}</span>
@@ -357,7 +410,7 @@ export const OrderShipmentStatusModal: React.FC<
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !statusTitle.trim()}
+              disabled={isTerminal || isSubmitting || !statusTitle.trim()}
               className="px-4 py-2 bg-brand-brown hover:bg-brand-dark-brown text-white font-bold uppercase tracking-wider shadow-xs flex items-center space-x-1.5 rounded-xs cursor-pointer disabled:opacity-50"
             >
               <Send size={13} />

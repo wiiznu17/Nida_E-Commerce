@@ -25,6 +25,7 @@ import {
   Prisma,
 } from '@repo/database';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
+import { validateShipmentStatusTransition } from '@repo/validators';
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -257,12 +258,9 @@ export class AdminService {
       throw new NotFoundException(`Order "${identifier}" not found`);
     }
 
-    if (
-      order.status === OrderStatus.CANCELLED ||
-      order.status === OrderStatus.REFUNDED
-    ) {
+    if (order.status !== OrderStatus.PROCESSING) {
       throw new BadRequestException(
-        `Cannot fulfill order in ${order.status} status`,
+        `Cannot fulfill order in "${order.status}" status. Order must be in "${OrderStatus.PROCESSING}" status before dispatching.`,
       );
     }
 
@@ -336,6 +334,23 @@ export class AdminService {
 
     if (!shipment) {
       throw new NotFoundException(`Shipment with id "${shipmentId}" not found`);
+    }
+
+    if (
+      shipment.order.status === OrderStatus.CANCELLED ||
+      shipment.order.status === OrderStatus.REFUNDED
+    ) {
+      throw new BadRequestException(
+        `Cannot update shipment for order in "${shipment.order.status}" status`,
+      );
+    }
+
+    const validation = validateShipmentStatusTransition(
+      shipment.status,
+      dto.status,
+    );
+    if (!validation.isValid) {
+      throw new BadRequestException(validation.error);
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {

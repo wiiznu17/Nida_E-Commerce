@@ -250,26 +250,26 @@ describe('AdminService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('throws BadRequestException if order is already cancelled', async () => {
+    it('throws BadRequestException if order is not in PROCESSING status (e.g. PAID or CANCELLED)', async () => {
       prismaMock.order.findFirst.mockResolvedValue({
         id: 'order-1',
-        orderNumber: 'NIDA-2026-CANCELLED',
-        status: OrderStatus.CANCELLED,
+        orderNumber: 'NIDA-2026-PAID',
+        status: OrderStatus.PAID,
       });
 
       await expect(
-        service.fulfillOrder('NIDA-2026-CANCELLED', {
+        service.fulfillOrder('NIDA-2026-PAID', {
           courierName: 'Flash Express',
           trackingNumber: 'TH12345678',
         }),
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('creates shipment and logs, and sets order status to SHIPPED', async () => {
+    it('creates shipment and logs, and sets order status to SHIPPED when order is PROCESSING', async () => {
       prismaMock.order.findFirst.mockResolvedValue({
         id: '11111111-1111-4111-8111-111111111111',
-        orderNumber: 'NIDA-2026-PAID',
-        status: OrderStatus.PAID,
+        orderNumber: 'NIDA-2026-PROCESSING',
+        status: OrderStatus.PROCESSING,
       });
 
       prismaMock.shipment.create.mockResolvedValue({
@@ -279,7 +279,7 @@ describe('AdminService', () => {
         status: ShipmentStatus.LABEL_CREATED,
       });
 
-      const result = await service.fulfillOrder('NIDA-2026-PAID', {
+      const result = await service.fulfillOrder('NIDA-2026-PROCESSING', {
         courierName: 'KEX Express',
         trackingNumber: 'TH999888',
       });
@@ -289,6 +289,86 @@ describe('AdminService', () => {
       expect(prismaMock.order.update).toHaveBeenCalledWith({
         where: { id: '11111111-1111-4111-8111-111111111111' },
         data: { status: OrderStatus.SHIPPED },
+      });
+    });
+  });
+
+  describe('updateShipmentStatus', () => {
+    it('throws NotFoundException if shipment does not exist', async () => {
+      prismaMock.shipment.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.updateShipmentStatus('non-existent-shipment', {
+          status: ShipmentStatus.IN_TRANSIT,
+          statusTitle: 'In transit',
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException if parent order is cancelled', async () => {
+      prismaMock.shipment.findUnique.mockResolvedValue({
+        id: 'ship-1',
+        status: ShipmentStatus.PICKED_UP,
+        order: { id: 'ord-1', status: OrderStatus.CANCELLED },
+      });
+
+      await expect(
+        service.updateShipmentStatus('ship-1', {
+          status: ShipmentStatus.IN_TRANSIT,
+          statusTitle: 'In transit',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException if attempting to revert an already DELIVERED shipment', async () => {
+      prismaMock.shipment.findUnique.mockResolvedValue({
+        id: 'ship-1',
+        status: ShipmentStatus.DELIVERED,
+        order: { id: 'ord-1', status: OrderStatus.DELIVERED },
+      });
+
+      await expect(
+        service.updateShipmentStatus('ship-1', {
+          status: ShipmentStatus.PICKED_UP,
+          statusTitle: 'Reverting to picked up',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('successfully updates shipment and sets order status to DELIVERED when status is DELIVERED', async () => {
+      prismaMock.shipment.findUnique.mockResolvedValue({
+        id: 'ship-1',
+        orderId: 'ord-1',
+        status: ShipmentStatus.OUT_FOR_DELIVERY,
+        order: { id: 'ord-1', status: OrderStatus.SHIPPED },
+      });
+
+      prismaMock.shipment.update.mockResolvedValue({
+        id: 'ship-1',
+        status: ShipmentStatus.DELIVERED,
+        deliveredAt: new Date(),
+        logs: [],
+      });
+
+      prismaMock.shipmentLog.create.mockResolvedValue({
+        id: 'log-1',
+        shipmentId: 'ship-1',
+        status: ShipmentStatus.DELIVERED,
+        statusTitle: 'Delivered to customer',
+        logTimestamp: new Date(),
+      } as any);
+
+      prismaMock.shipmentLog.findMany.mockResolvedValue([]);
+
+      const result = await service.updateShipmentStatus('ship-1', {
+        status: ShipmentStatus.DELIVERED,
+        statusTitle: 'Delivered to customer',
+      });
+
+      expect(result.status).toBe(ShipmentStatus.DELIVERED);
+      expect(prismaMock.order.update).toHaveBeenCalledWith({
+        where: { id: 'ord-1' },
+        data: { status: OrderStatus.DELIVERED },
       });
     });
   });

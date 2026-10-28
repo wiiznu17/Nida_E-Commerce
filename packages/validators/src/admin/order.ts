@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { OrderStatus } from '@repo/types';
+import type { OrderStatus, ShipmentStatus } from '@repo/types';
 
 /**
  * Sequential State Machine Transitions for E-commerce Orders.
@@ -16,6 +16,58 @@ export const ALLOWED_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   CANCELLED: [],
   REFUNDED: [],
 };
+
+/**
+ * Forward-only State Machine Transitions for Shipments.
+ * Strictly forbids reverting terminal or past statuses (e.g. DELIVERED cannot go back to PICKED_UP).
+ */
+export const ALLOWED_SHIPMENT_TRANSITIONS: Record<
+  ShipmentStatus,
+  ShipmentStatus[]
+> = {
+  LABEL_CREATED: [
+    'PICKED_UP',
+    'IN_TRANSIT',
+    'OUT_FOR_DELIVERY',
+    'DELIVERED',
+    'FAILED',
+  ],
+  PICKED_UP: ['IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'FAILED'],
+  IN_TRANSIT: ['OUT_FOR_DELIVERY', 'DELIVERED', 'FAILED'],
+  OUT_FOR_DELIVERY: ['DELIVERED', 'FAILED'],
+  FAILED: ['OUT_FOR_DELIVERY', 'DELIVERED'],
+  DELIVERED: [],
+};
+
+export function validateShipmentStatusTransition(
+  currentStatus: ShipmentStatus,
+  newStatus: ShipmentStatus,
+): { isValid: boolean; error?: string; errorTh?: string } {
+  if (currentStatus === newStatus) {
+    return { isValid: true };
+  }
+
+  if (currentStatus === 'DELIVERED') {
+    return {
+      isValid: false,
+      error: 'Cannot update or revert status of an already delivered shipment.',
+      errorTh: 'พัสดุนี้จัดส่งสำเร็จเรียบร้อยแล้ว ไม่สามารถย้อนกลับหรือเปลี่ยนสถานะได้',
+    };
+  }
+
+  const allowed = ALLOWED_SHIPMENT_TRANSITIONS[currentStatus];
+  if (!allowed || !allowed.includes(newStatus)) {
+    const allowedList =
+      allowed && allowed.length > 0 ? allowed.join(', ') : 'None (Terminal)';
+    return {
+      isValid: false,
+      error: `Invalid shipment status transition from "${currentStatus}" to "${newStatus}". Allowed next: ${allowedList}.`,
+      errorTh: `ไม่สามารถเปลี่ยนสถานะพัสดุจาก "${currentStatus}" ไปเป็น "${newStatus}" ได้ สถานะถัดไปที่อนุญาตคือ: ${allowedList}`,
+    };
+  }
+
+  return { isValid: true };
+}
 
 export interface StatusTransitionValidationResult {
   isValid: boolean;

@@ -154,7 +154,7 @@ export function OrderDetailTopBar({
           </button>
         )}
 
-        {!trackingNumber ? (
+        {status === 'PROCESSING' && !trackingNumber ? (
           <button
             type="button"
             onClick={onOpenFulfill}

@@ -454,6 +454,7 @@
       "location": "Location",
       "locationPlaceholder": "e.g. Bangna Sorting Hub, Bangkok",
       "deliveredNotice": "Selecting 'DELIVERED' will automatically transition the order status to DELIVERED.",
+      "terminalDelivered": "This shipment is already delivered (Terminal status - cannot be modified).",
       "cancel": "Cancel",
       "submit": "Trigger Webhook Event",
       "submitting": "Simulating Webhook...",
