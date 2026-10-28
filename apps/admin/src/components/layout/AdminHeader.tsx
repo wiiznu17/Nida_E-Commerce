@@ -1,19 +1,33 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, ChevronRight, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { STOREFRONT_URL } from '../../config';
 
+export interface AdminBreadcrumbItem {
+  label: string;
+  path?: string;
+}
+
 export interface AdminHeaderProps {
   title?: string;
+  breadcrumbs?: AdminBreadcrumbItem[];
+  actionButton?: React.ReactNode;
   onToggleSidebar: () => void;
 }
 
-export function AdminHeader({ title, onToggleSidebar }: AdminHeaderProps) {
+export function AdminHeader({
+  title,
+  breadcrumbs,
+  actionButton,
+  onToggleSidebar,
+}: AdminHeaderProps) {
   const { language, setLanguage, t } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-30 h-13 bg-white/95 backdrop-blur-md border-b border-brand-border px-3 sm:px-6 flex items-center justify-between shadow-xs w-full min-w-0">
+    <header className="sticky top-0 z-30 min-h-13 bg-white/95 backdrop-blur-md border-b border-brand-border px-3 sm:px-6 py-2 sm:py-0 flex items-center justify-between shadow-xs w-full min-w-0">
       {/* Left: Sidebar Toggle & Breadcrumbs */}
-      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 pr-2">
         <button
           type="button"
           onClick={onToggleSidebar}
@@ -24,17 +38,62 @@ export function AdminHeader({ title, onToggleSidebar }: AdminHeaderProps) {
           <Menu size={20} />
         </button>
 
-        <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs truncate">
-          <span className="hidden sm:inline font-bold text-gray-500">Admin</span>
-          <ChevronRight size={14} className="hidden sm:inline text-gray-400 shrink-0" />
-          <span className="font-bold text-brand-brown truncate">
-            {title ?? 'Dashboard'}
-          </span>
-        </div>
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center space-x-1.5 sm:space-x-2 text-xs truncate"
+        >
+          <Link
+            to="/admin"
+            className="hidden sm:inline font-bold text-gray-500 hover:text-brand-brown transition-colors shrink-0"
+          >
+            Admin
+          </Link>
+          <ChevronRight
+            size={14}
+            className="hidden sm:inline text-gray-400 shrink-0"
+          />
+
+          {breadcrumbs && breadcrumbs.length > 0 ? (
+            breadcrumbs.map((bc, idx) => {
+              const isLast = idx === breadcrumbs.length - 1;
+              return (
+                <React.Fragment key={idx}>
+                  {idx > 0 && (
+                    <ChevronRight
+                      size={12}
+                      className="text-gray-400 shrink-0"
+                    />
+                  )}
+                  {bc.path && !isLast ? (
+                    <Link
+                      to={bc.path}
+                      className="text-gray-500 hover:text-brand-brown font-bold transition-colors truncate max-w-[120px] sm:max-w-none"
+                    >
+                      {bc.label}
+                    </Link>
+                  ) : (
+                    <span className="font-bold text-brand-brown truncate max-w-[160px] sm:max-w-none">
+                      {bc.label}
+                    </span>
+                  )}
+                </React.Fragment>
+              );
+            })
+          ) : (
+            <span className="font-bold text-brand-brown truncate max-w-[180px] sm:max-w-none">
+              {title ?? 'Dashboard'}
+            </span>
+          )}
+        </nav>
       </div>
 
-      {/* Right: Language Switcher & Storefront Gateway */}
+      {/* Right: Action Button, Language Switcher & Storefront Gateway */}
       <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        {actionButton && (
+          <div className="flex items-center shrink-0">
+            {actionButton}
+          </div>
+        )}
         {/* Language Switcher */}
         <div className="flex items-center bg-brand-cream/80 p-0.5 rounded-full border border-brand-border shrink-0">
           <button

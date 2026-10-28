@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { AdminSidebar } from './AdminSidebar';
-import { AdminHeader } from './AdminHeader';
-import { AdminPageHeader, type AdminBreadcrumbItem } from './AdminPageHeader';
+import { AdminHeader, type AdminBreadcrumbItem } from './AdminHeader';
 import { AdminFooter } from './AdminFooter';
 import { TooltipProvider } from '../ui';
 export { NidaLogo } from '../common/NidaLogo';
-export type { AdminBreadcrumbItem } from './AdminPageHeader';
+export type { AdminBreadcrumbItem } from './AdminHeader';
 
 export interface AdminLayoutProps {
   children: React.ReactNode;
@@ -19,10 +18,10 @@ export interface AdminLayoutProps {
 export function AdminLayout({
   children,
   title,
-  subtitle,
+  subtitle: _subtitle,
   actionButton,
   breadcrumbs,
-  hidePageHeader = false,
+  hidePageHeader: _hidePageHeader = false,
 }: AdminLayoutProps) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState<boolean>(
@@ -67,18 +66,10 @@ export function AdminLayout({
         {/* Top Navbar */}
         <AdminHeader
           title={title}
+          breadcrumbs={breadcrumbs}
+          actionButton={actionButton}
           onToggleSidebar={handleToggleSidebar}
         />
-
-        {/* Page Title & Breadcrumb Header */}
-        {!hidePageHeader && (title || actionButton || breadcrumbs) && (
-          <AdminPageHeader
-            title={title || ''}
-            subtitle={subtitle}
-            actionButton={actionButton}
-            breadcrumbs={breadcrumbs}
-          />
-        )}
 
         {/* Page Body */}
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 min-w-0">
