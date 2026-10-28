@@ -3,9 +3,9 @@ import { ShieldCheck } from 'lucide-react';
 import { InfoTooltip } from '../ui';
 
 interface FulfillmentGaugeChartProps {
-  score: number; // e.g. 98.4
-  avgHours: number; // e.g. 3.8
-  onTimeDispatchPct: number; // e.g. 99.1
+  score?: number | null; // e.g. 98.4
+  avgHours?: number | null; // e.g. 3.8
+  onTimeDispatchPct?: number | null; // e.g. 99.1
 }
 
 export function FulfillmentGaugeChart({
@@ -15,10 +15,19 @@ export function FulfillmentGaugeChart({
 }: FulfillmentGaugeChartProps) {
   const { t } = useLanguage();
 
+  const safeScore =
+    typeof score === 'number' && !Number.isNaN(score) ? score : 100;
+  const safeAvgHours =
+    typeof avgHours === 'number' && !Number.isNaN(avgHours) ? avgHours : 0;
+  const safeOnTimePct =
+    typeof onTimeDispatchPct === 'number' && !Number.isNaN(onTimeDispatchPct)
+      ? onTimeDispatchPct
+      : 100;
+
   const radius = 80;
   const strokeWidth = 16;
   const arcLength = Math.PI * radius; // Half circumference for semi-circle (~251.3)
-  const strokeDashoffset = arcLength - (score / 100) * arcLength;
+  const strokeDashoffset = arcLength - (safeScore / 100) * arcLength;
 
   return (
     <div className="bg-white border border-brand-border p-5 shadow-xs flex flex-col justify-between h-full">
@@ -75,7 +84,7 @@ export function FulfillmentGaugeChart({
         {/* Center Score Readout & Optimal Health Badge */}
         <div className="absolute bottom-1 flex flex-col items-center text-center">
           <span className="text-3xl sm:text-4xl font-black font-mono text-brand-brown tracking-tight">
-            {score}%
+            {safeScore}%
           </span>
           <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-xs border border-emerald-300 mt-1 shadow-2xs">
             {t('dashboard.charts.operationsOptimal')}
@@ -97,7 +106,7 @@ export function FulfillmentGaugeChart({
             />
           </div>
           <span className="font-mono font-bold text-brand-brown">
-            {onTimeDispatchPct}%
+            {safeOnTimePct}%
           </span>
         </div>
         <div className="bg-brand-cream/50 p-2 border border-brand-border">
@@ -112,7 +121,7 @@ export function FulfillmentGaugeChart({
             />
           </div>
           <span className="font-mono font-bold text-brand-brown">
-            {avgHours} {t('dashboard.hero.hours')}
+            {safeAvgHours} {t('dashboard.hero.hours')}
           </span>
         </div>
       </div>

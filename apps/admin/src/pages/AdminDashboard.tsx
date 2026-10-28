@@ -98,7 +98,8 @@ export default function AdminDashboard() {
             onTimeframeChange: setTimeframe,
             revenuePoints,
             departmentShares,
-            fulfillmentScore: overview.operationsScore,
+            fulfillmentScore:
+              overview.operationsScore ?? overview.fulfillmentRate ?? 100,
             avgHours: overview.averageFulfillmentHours,
             onTimeDispatchPct: overview.onTimeDispatchPct,
           }}

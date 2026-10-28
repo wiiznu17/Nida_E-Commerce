@@ -110,6 +110,8 @@ describe('AnalyticsService', () => {
         pendingShipmentCount: 2,
         lowStockCount: 1,
         activeShoppersCount: 12,
+        onTimeDispatchPct: 100,
+        operationsScore: 100,
       };
 
       redisMock.cacheGet.mockResolvedValueOnce(mockCached);
