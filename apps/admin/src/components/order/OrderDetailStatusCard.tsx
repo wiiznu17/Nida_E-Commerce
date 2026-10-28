@@ -125,14 +125,38 @@ export function OrderDetailStatusCard({
     onStatusChange(val);
   };
 
+  const getStatusLabel = (s: OrderStatus): string => {
+    switch (s) {
+      case 'PENDING':
+        return t('orders.detail.stepPlaced');
+      case 'PAID':
+        return t('orders.detail.stepPaid');
+      case 'PROCESSING':
+        return t('orders.detail.stepProcessing');
+      case 'SHIPPED':
+        return t('orders.detail.stepShipped');
+      case 'DELIVERED':
+        return t('orders.detail.stepDelivered');
+      case 'COMPLETED':
+        return t('orders.detail.stepCompleted');
+      case 'CANCELLED':
+        return t('orders.detail.stepCancelled');
+      default:
+        return s;
+    }
+  };
+
   const statusOptions = [
     {
       value: currentStatus,
-      label: `${currentStatus} (${t('orders.status.current') || 'Current'})`,
+      label: `${getStatusLabel(currentStatus)} (${t('orders.detail.current')})`,
     },
     ...allowedNext.map((s) => ({
       value: s,
-      label: s === 'SHIPPED' && !hasTracking ? `${s} (+Tracking)` : s,
+      label:
+        s === 'SHIPPED' && !hasTracking
+          ? `${getStatusLabel(s)} (+Tracking)`
+          : getStatusLabel(s),
     })),
   ];
 

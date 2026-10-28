@@ -490,6 +490,7 @@
       "stepDelivered": "ส่งมอบสำเร็จ",
       "stepCompleted": "เสร็จสมบูรณ์",
       "stepCancelled": "ยกเลิกออเดอร์",
+      "current": "สถานะปัจจุบัน",
       "itemsTitle": "1. รายการสินค้าที่สั่งซื้อ (Purchased Items)",
       "statusActionTitle": "สถานะและการจัดการ (Status & Actions)",
       "updateStatusBtn": "บันทึกสถานะ",

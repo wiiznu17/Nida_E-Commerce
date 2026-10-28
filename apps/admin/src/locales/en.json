@@ -490,6 +490,7 @@
       "stepDelivered": "Delivered",
       "stepCompleted": "Completed",
       "stepCancelled": "Cancelled",
+      "current": "Current Status",
       "itemsTitle": "1. Purchased Items",
       "statusActionTitle": "Status & Actions",
       "updateStatusBtn": "Save Status",
