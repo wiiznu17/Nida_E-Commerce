@@ -18,24 +18,19 @@ export const ALLOWED_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 };
 
 /**
- * Forward-only State Machine Transitions for Shipments.
- * Strictly forbids reverting terminal or past statuses (e.g. DELIVERED cannot go back to PICKED_UP).
+ * Strict Sequential State Machine Transitions for Shipments.
+ * Enforces stepwise progression (LABEL_CREATED -> PICKED_UP -> IN_TRANSIT -> OUT_FOR_DELIVERY -> DELIVERED).
+ * Forbids skipping milestones or reverting terminal / past statuses.
  */
 export const ALLOWED_SHIPMENT_TRANSITIONS: Record<
   ShipmentStatus,
   ShipmentStatus[]
 > = {
-  LABEL_CREATED: [
-    'PICKED_UP',
-    'IN_TRANSIT',
-    'OUT_FOR_DELIVERY',
-    'DELIVERED',
-    'FAILED',
-  ],
-  PICKED_UP: ['IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'FAILED'],
-  IN_TRANSIT: ['OUT_FOR_DELIVERY', 'DELIVERED', 'FAILED'],
+  LABEL_CREATED: ['PICKED_UP'],
+  PICKED_UP: ['IN_TRANSIT'],
+  IN_TRANSIT: ['OUT_FOR_DELIVERY'],
   OUT_FOR_DELIVERY: ['DELIVERED', 'FAILED'],
-  FAILED: ['OUT_FOR_DELIVERY', 'DELIVERED'],
+  FAILED: ['OUT_FOR_DELIVERY'],
   DELIVERED: [],
 };
 
@@ -43,16 +38,16 @@ export function validateShipmentStatusTransition(
   currentStatus: ShipmentStatus,
   newStatus: ShipmentStatus,
 ): { isValid: boolean; error?: string; errorTh?: string } {
-  if (currentStatus === newStatus) {
-    return { isValid: true };
-  }
-
   if (currentStatus === 'DELIVERED') {
     return {
       isValid: false,
       error: 'Cannot update or revert status of an already delivered shipment.',
       errorTh: 'พัสดุนี้จัดส่งสำเร็จเรียบร้อยแล้ว ไม่สามารถย้อนกลับหรือเปลี่ยนสถานะได้',
     };
+  }
+
+  if (currentStatus === newStatus) {
+    return { isValid: true };
   }
 
   const allowed = ALLOWED_SHIPMENT_TRANSITIONS[currentStatus];

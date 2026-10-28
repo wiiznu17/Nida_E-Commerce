@@ -25,7 +25,6 @@ export interface OrderDetailTopBarProps {
   isFulfillDisabled?: boolean;
   fulfillDisabledReason?: string;
   trackingNumber?: string;
-  onScrollTo: (elementId: string) => void;
 }
 
 export function OrderDetailTopBar({
@@ -43,7 +42,6 @@ export function OrderDetailTopBar({
   isFulfillDisabled = false,
   fulfillDisabledReason,
   trackingNumber,
-  onScrollTo,
 }: OrderDetailTopBarProps) {
   const { t } = useLanguage();
 
@@ -89,31 +87,6 @@ export function OrderDetailTopBar({
           <span className="hidden md:inline-block text-[11px] text-gray-400 font-mono">
             {placedAt}
           </span>
-        </div>
-
-        {/* Anchor Jumps */}
-        <div className="hidden lg:flex items-center space-x-1 pl-3 border-l border-gray-200 text-[11px] font-bold">
-          <button
-            type="button"
-            onClick={() => onScrollTo('sec-items')}
-            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
-          >
-            {t('orders.detail.itemsPurchased')}
-          </button>
-          <button
-            type="button"
-            onClick={() => onScrollTo('sec-shipping')}
-            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
-          >
-            {t('orders.detail.shippingTitle')}
-          </button>
-          <button
-            type="button"
-            onClick={() => onScrollTo('sec-customer')}
-            className="px-2.5 py-1 text-gray-600 hover:text-brand-brown hover:bg-gray-100 rounded-sm transition-colors cursor-pointer"
-          >
-            {t('orders.detail.customerTitle')}
-          </button>
         </div>
       </div>
 

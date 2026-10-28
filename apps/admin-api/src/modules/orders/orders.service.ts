@@ -637,6 +637,39 @@ export class OrdersService {
         }
       }
 
+      if (status === OrderStatus.DELIVERED) {
+        const activeShipment = existing.shipments?.[0];
+        if (activeShipment) {
+          await tx.shipment.update({
+            where: { id: activeShipment.id },
+            data: {
+              status: ShipmentStatus.DELIVERED,
+              deliveredAt: new Date(),
+            },
+          });
+
+          const recipientCity =
+            (existing.shippingAddressSnapshot as Record<string, string>)
+              ?.city ??
+            (existing.shippingAddressSnapshot as Record<string, string>)
+              ?.province ??
+            'ปลายทางของผู้รับ';
+
+          if (tx.shipmentLog) {
+            await tx.shipmentLog.create({
+              data: {
+                shipmentId: activeShipment.id,
+                statusTitle: 'พัสดุจัดส่งสำเร็จและส่งมอบให้ผู้รับเรียบร้อยแล้ว',
+                statusDescription:
+                  overrideReason?.trim() ||
+                  'ยืนยันการนำส่งสำเร็จโดยเจ้าหน้าที่ร้านค้า',
+                location: recipientCity,
+              },
+            });
+          }
+        }
+      }
+
       return tx.order.update({
         where: { id: existing.id },
         data: {

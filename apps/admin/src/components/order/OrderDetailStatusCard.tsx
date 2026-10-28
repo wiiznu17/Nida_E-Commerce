@@ -39,6 +39,7 @@ export interface OrderDetailStatusCardProps {
   onSaveStatus: () => void;
   onOpenFulfill?: () => void;
   onOpenPaymentOverride?: () => void;
+  onOpenWebhookModal?: () => void;
 }
 
 export function OrderDetailStatusCard({
@@ -54,6 +55,7 @@ export function OrderDetailStatusCard({
   onSaveStatus,
   onOpenFulfill,
   onOpenPaymentOverride,
+  onOpenWebhookModal,
 }: OrderDetailStatusCardProps) {
   const { t } = useLanguage();
 
@@ -89,7 +91,11 @@ export function OrderDetailStatusCard({
     return 'pending';
   };
 
-  const allowedNext = ALLOWED_STATUS_TRANSITIONS[currentStatus] ?? [];
+  const allowedNextRaw = ALLOWED_STATUS_TRANSITIONS[currentStatus] ?? [];
+  const allowedNext =
+    currentStatus === 'SHIPPED'
+      ? allowedNextRaw.filter((s) => s !== 'DELIVERED')
+      : allowedNextRaw;
 
   const handleStatusSelect = (val: OrderStatus) => {
     if (val === currentStatus) {
@@ -210,6 +216,29 @@ export function OrderDetailStatusCard({
               options={statusOptions}
             />
           </div>
+
+          {/* Carrier Webhook Delivery Notice for SHIPPED Orders */}
+          {currentStatus === 'SHIPPED' && (
+            <div className="p-3 bg-amber-50/80 border border-amber-200/90 rounded-xs space-y-2">
+              <div className="flex items-start space-x-2 text-amber-900 text-xs">
+                <Truck size={15} className="text-brand-amber shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  {t('orders.detail.carrierWebhookDeliveryNotice')}
+                </span>
+              </div>
+              {onOpenWebhookModal && (
+                <div className="flex justify-end pt-1">
+                  <button
+                    type="button"
+                    onClick={onOpenWebhookModal}
+                    className="px-2.5 py-1 text-[11px] font-bold uppercase rounded-xs bg-brand-brown text-white hover:bg-brand-dark-brown transition-colors cursor-pointer"
+                  >
+                    {t('orders.shipmentWebhook.button')}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Stepper Milestones */}
           <div className="pt-2 border-t border-brand-cream">

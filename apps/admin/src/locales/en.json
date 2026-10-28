@@ -494,6 +494,7 @@
       "current": "Current Status",
       "itemsTitle": "1. Purchased Items",
       "statusActionTitle": "Status & Actions",
+      "carrierWebhookDeliveryNotice": "Delivery status (DELIVERED) is automatically updated via carrier webhook events.",
       "updateStatusBtn": "Save Status",
       "updatingStatus": "Saving...",
       "statusUpdatedSuccess": "Order status updated successfully",

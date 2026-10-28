@@ -335,6 +335,21 @@ describe('AdminService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
+    it('throws BadRequestException if attempting to skip forward milestones (e.g. LABEL_CREATED to DELIVERED)', async () => {
+      prismaMock.shipment.findUnique.mockResolvedValue({
+        id: 'ship-1',
+        status: ShipmentStatus.LABEL_CREATED,
+        order: { id: 'ord-1', status: OrderStatus.SHIPPED },
+      });
+
+      await expect(
+        service.updateShipmentStatus('ship-1', {
+          status: ShipmentStatus.DELIVERED,
+          statusTitle: 'Skipping directly to delivered',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('successfully updates shipment and sets order status to DELIVERED when status is DELIVERED', async () => {
       prismaMock.shipment.findUnique.mockResolvedValue({
         id: 'ship-1',

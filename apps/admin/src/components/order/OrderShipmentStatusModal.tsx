@@ -4,7 +4,10 @@ import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect } from '../ui';
 import { orderRequester } from '../../api/requester/orderRequester';
 import { ShipmentStatus, type ApiShipment } from '@repo/types';
-import { ALLOWED_SHIPMENT_TRANSITIONS } from '@repo/validators';
+import {
+  ALLOWED_SHIPMENT_TRANSITIONS,
+  validateShipmentStatusTransition,
+} from '@repo/validators';
 
 export interface OrderShipmentStatusModalProps {
   isOpen: boolean;
@@ -121,20 +124,21 @@ export const OrderShipmentStatusModal: React.FC<
   const isTerminal = currentShipmentStatus === ShipmentStatus.DELIVERED;
   const allowedNext = currentShipmentStatus
     ? (ALLOWED_SHIPMENT_TRANSITIONS[currentShipmentStatus] ?? [])
-    : Object.values(ShipmentStatus);
+    : [ShipmentStatus.PICKED_UP];
 
+  // Strictly enforce next sequential status only (with same-stage transit checkpoint allowed for IN_TRANSIT)
   const selectableStatuses = isTerminal
-    ? [ShipmentStatus.DELIVERED]
-    : currentShipmentStatus
-      ? [currentShipmentStatus, ...allowedNext]
-      : Object.values(ShipmentStatus);
+    ? []
+    : currentShipmentStatus === ShipmentStatus.IN_TRANSIT
+      ? [ShipmentStatus.IN_TRANSIT, ...allowedNext]
+      : allowedNext;
 
   const availableOptions = STATUS_SELECT_OPTIONS.filter((opt) =>
     selectableStatuses.includes(opt.value),
   );
 
   const [status, setStatus] = useState<ShipmentStatus>(
-    currentShipmentStatus ?? ShipmentStatus.IN_TRANSIT,
+    allowedNext[0] ?? currentShipmentStatus ?? ShipmentStatus.PICKED_UP,
   );
   const [statusTitle, setStatusTitle] = useState('');
   const [statusDescription, setStatusDescription] = useState('');
@@ -202,6 +206,21 @@ export const OrderShipmentStatusModal: React.FC<
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!shipmentId || !statusTitle.trim()) return;
+
+    if (currentShipmentStatus) {
+      const check = validateShipmentStatusTransition(
+        currentShipmentStatus,
+        status,
+      );
+      if (!check.isValid) {
+        setErrorMessage(
+          language === 'th'
+            ? (check.errorTh ?? check.error ?? 'สถานะไม่ถูกต้องตามลำดับขั้นตอน')
+            : (check.error ?? 'Invalid status transition'),
+        );
+        return;
+      }
+    }
 
     setIsSubmitting(true);
     setErrorMessage(null);

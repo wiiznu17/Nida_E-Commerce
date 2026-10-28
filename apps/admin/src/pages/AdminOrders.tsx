@@ -216,6 +216,11 @@ export default function AdminOrders() {
       return;
     }
 
+    if (targetOrder.status === 'SHIPPED' && newStatus === 'DELIVERED') {
+      handleOpenShipmentWebhook(targetOrder);
+      return;
+    }
+
     const primaryShipment = targetOrder.shipments?.[0];
     const hasTracking = Boolean(primaryShipment?.trackingNumber?.trim());
     const validation = validateOrderStatusTransition(
@@ -635,8 +640,12 @@ export default function AdminOrders() {
                           const primaryShipment = order.shipments?.[0];
                           const trackingNumber =
                             primaryShipment?.trackingNumber;
-                          const allowedNext =
+                          const allowedNextRaw =
                             ALLOWED_STATUS_TRANSITIONS[order.status] ?? [];
+                          const allowedNext =
+                            order.status === 'SHIPPED'
+                              ? allowedNextRaw.filter((s) => s !== 'DELIVERED')
+                              : allowedNextRaw;
                           const rowStatusOptions = [
                             { value: order.status, label: order.status },
                             ...allowedNext.map((s) => ({

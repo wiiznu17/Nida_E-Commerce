@@ -494,6 +494,7 @@
       "current": "สถานะปัจจุบัน",
       "itemsTitle": "1. รายการสินค้าที่สั่งซื้อ (Purchased Items)",
       "statusActionTitle": "สถานะและการจัดการ (Status & Actions)",
+      "carrierWebhookDeliveryNotice": "สถานะจัดส่งสำเร็จ (DELIVERED) จะถูกอัปเดตอัตโนมัติตามข้อมูลจากขนส่ง (Carrier Webhook)",
       "updateStatusBtn": "บันทึกสถานะ",
       "updatingStatus": "กำลังบันทึก...",
       "statusUpdatedSuccess": "อัปเดตสถานะคำสั่งซื้อสำเร็จ",

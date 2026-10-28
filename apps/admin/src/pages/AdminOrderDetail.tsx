@@ -71,13 +71,6 @@ export default function AdminOrderDetail() {
     loadOrder();
   }, [id]);
 
-  const handleScrollTo = (elementId: string) => {
-    const el = document.getElementById(elementId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   const primaryShipment = order?.shipments?.[0];
   const trackingNumber = primaryShipment?.trackingNumber;
   const courierName = primaryShipment?.courierName;
@@ -211,7 +204,6 @@ export default function AdminOrderDetail() {
               : undefined
           }
           trackingNumber={trackingNumber}
-          onScrollTo={handleScrollTo}
         />
 
         {/* Row 1: Core Items (8 cols) + Status Action Hub (4 cols) */}
@@ -237,6 +229,7 @@ export default function AdminOrderDetail() {
               onSaveStatus={handleSaveStatus}
               onOpenFulfill={handleOpenFulfillModal}
               onOpenPaymentOverride={() => setIsPaymentOverrideModalOpen(true)}
+              onOpenWebhookModal={() => setIsWebhookModalOpen(true)}
             />
           </div>
         </div>

@@ -58,6 +58,10 @@ describe('Order Lifecycle Status Coherence — Admin Back-Office Domain', () => 
         create: vi.fn(),
         update: vi.fn(),
       },
+      shipmentLog: {
+        create: vi.fn(),
+        findMany: vi.fn(),
+      },
       refund: {
         create: vi.fn(),
         count: vi.fn().mockResolvedValue(0),
