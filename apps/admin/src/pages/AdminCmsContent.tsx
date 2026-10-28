@@ -128,46 +128,38 @@ export const AdminCmsContent: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        {/* Page Top Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-5">
-          <div>
-            <h1 className="text-xl font-black uppercase tracking-tight text-[#2B1810]">
-              {t('cms.pageTitle')}
-            </h1>
-            <p className="text-xs text-stone-500 mt-1">
-              {t('cms.pageSubtitle')}
-            </p>
-          </div>
+    <AdminLayout
+      title={t('cms.pageTitle')}
+      subtitle={t('cms.pageSubtitle')}
+      actionButton={
+        <div className="flex items-center space-x-2">
+          {/* Live Preview Button */}
+          <button
+            type="button"
+            onClick={() => setIsPreviewOpen(true)}
+            className="px-3.5 py-1.5 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+          >
+            <Eye size={14} />
+            <span>{t('cms.previewStorefront')}</span>
+          </button>
 
-          <div className="flex items-center space-x-3">
-            {/* Live Preview Button */}
-            <button
-              type="button"
-              onClick={() => setIsPreviewOpen(true)}
-              className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-[#2B1810] font-black text-xs uppercase tracking-wider rounded-xs border border-stone-300 shadow-xs transition-colors flex items-center"
-            >
-              <Eye size={14} className="mr-1.5 text-stone-700" />
-              {t('cms.previewStorefront')}
-            </button>
-
-            {/* Refresh Button */}
-            <button
-              type="button"
-              onClick={fetchContent}
-              disabled={isLoading}
-              className="p-2 border border-stone-300 text-stone-700 rounded-xs hover:bg-stone-50 transition-colors disabled:opacity-50"
-              title="Refresh Content"
-            >
-              <RefreshCw
-                size={14}
-                className={isLoading ? 'animate-spin' : ''}
-              />
-            </button>
-          </div>
+          {/* Refresh Button */}
+          <button
+            type="button"
+            onClick={fetchContent}
+            disabled={isLoading}
+            className="p-1.5 border border-brand-border bg-white text-brand-brown rounded-xs hover:bg-stone-50 transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
+            title="Refresh Content"
+          >
+            <RefreshCw
+              size={14}
+              className={isLoading ? 'animate-spin' : ''}
+            />
+          </button>
         </div>
-
+      }
+    >
+      <div className="space-y-6">
         {/* Modular Navigation Tabs (Separated Per Feature) */}
         <div className="flex border-b border-stone-200 bg-white rounded-t-xs overflow-x-auto no-scrollbar scroll-smooth">
           <button
