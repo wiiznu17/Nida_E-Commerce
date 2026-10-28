@@ -171,7 +171,7 @@ export class AnalyticsService {
     if (range.isPreset && range.timeframe) {
       const cacheKey = `admin:analytics:overview:${range.timeframe}`;
       const cached = await this.redis.cacheGet<AnalyticsOverviewDto>(cacheKey);
-      if (cached && typeof cached.operationsScore === 'number') {
+      if (cached) {
         return cached;
       }
     }
