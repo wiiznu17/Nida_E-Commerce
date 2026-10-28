@@ -41,12 +41,6 @@ export const AdminLogin: React.FC = () => {
     }
   };
 
-  const handleDemoFill = () => {
-    setIdentifier('superadmin');
-    setPassword('admin123');
-    setErrorMessage(null);
-  };
-
   return (
     <AuthSplitLayout>
       {/* Form Card Header */}
@@ -143,17 +137,6 @@ export const AdminLogin: React.FC = () => {
           </button>
         </div>
       </form>
-
-      {/* 1-Click Demo Fill Assistant - Minimal text link */}
-      <div className="mt-8 text-center">
-        <button
-          type="button"
-          onClick={handleDemoFill}
-          className="text-xs text-stone-400 hover:text-[#EE593B] transition-colors cursor-pointer"
-        >
-          {t('auth.demo_fill_button')} (superadmin)
-        </button>
-      </div>
     </AuthSplitLayout>
   );
 };

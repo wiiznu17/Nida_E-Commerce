@@ -761,35 +761,6 @@ function AuthDrawerContent() {
                   <span>{t('auth.signInBtn')}</span>
                 )}
               </button>
-
-              {/* Quick Demo Accounts */}
-              <div className="mt-5 pt-4 border-t border-gray-100">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
-                  {t('auth.quickDemo')}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginEmail('phannida@nida.com');
-                      setLoginPassword('Password123!');
-                    }}
-                    className="text-[11px] bg-stone-100 hover:bg-stone-200 text-brand-brown font-semibold px-2.5 py-1 rounded-2xs transition-colors cursor-pointer"
-                  >
-                    phannida@nida.com
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginEmail('customer@example.com');
-                      setLoginPassword('Password123!');
-                    }}
-                    className="text-[11px] bg-stone-100 hover:bg-stone-200 text-brand-brown font-semibold px-2.5 py-1 rounded-2xs transition-colors cursor-pointer"
-                  >
-                    customer@example.com
-                  </button>
-                </div>
-              </div>
             </form>
           )}
 
