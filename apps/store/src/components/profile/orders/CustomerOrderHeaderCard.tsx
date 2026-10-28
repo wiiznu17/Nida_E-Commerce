@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { StatusBadge } from '@/components/ui';
+import { formatPaymentMethod } from '@/utils';
 import type { ApiOrder } from '@repo/types';
 
 interface CustomerOrderHeaderCardProps {
@@ -116,21 +117,30 @@ export function CustomerOrderHeaderCard({
             </span>
             <StatusBadge status={order.status} />
           </div>
-          <p className="text-xs text-stone-500 mt-1">
-            {t('orderDetail.placedAt')}:{' '}
-            <span className="font-medium text-stone-800">
-              {new Date(order.placedAt).toLocaleDateString(
-                language === 'th' ? 'th-TH' : 'en-US',
-                {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                },
-              )}
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-stone-500 mt-1">
+            <span>
+              {t('orderDetail.placedAt')}:{' '}
+              <span className="font-medium text-stone-800">
+                {new Date(order.placedAt).toLocaleDateString(
+                  language === 'th' ? 'th-TH' : 'en-US',
+                  {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  },
+                )}
+              </span>
             </span>
-          </p>
+            <span>•</span>
+            <span>
+              {t('orderDetail.paymentMethodLabel')}:{' '}
+              <span className="font-semibold text-stone-800">
+                {formatPaymentMethod(order.payment?.paymentMethod, language)}
+              </span>
+            </span>
+          </div>
         </div>
 
         {/* Action Hub */}

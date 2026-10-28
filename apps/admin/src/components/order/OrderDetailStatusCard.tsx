@@ -7,6 +7,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatPaymentMethod } from '../../utils';
 import { DropdownSelect } from '../ui';
 import {
   ALLOWED_STATUS_TRANSITIONS,
@@ -301,7 +302,7 @@ export function OrderDetailStatusCard({
             <div className="flex justify-between items-center text-gray-600">
               <span>{t('orders.detail.paymentMethod')}</span>
               <strong className="text-brand-brown truncate max-w-[150px]">
-                {paymentMethod}
+                {formatPaymentMethod(paymentMethod)}
               </strong>
             </div>
             <div className="pt-2 border-t border-brand-border flex justify-between items-baseline">

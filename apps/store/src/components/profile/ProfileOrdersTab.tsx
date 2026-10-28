@@ -5,6 +5,7 @@ import { Package, ArrowRight, QrCode } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { OrderStatus, PaymentMethod, type ApiOrder } from '@repo/types';
 import { EmptyState, StatusBadge } from '@/components/ui';
+import { formatPaymentMethod } from '@/utils';
 
 interface ProfileOrdersTabProps {
   orders: ApiOrder[];
@@ -128,6 +129,9 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                       </span>
                       <span className="text-base font-black text-brand-brown font-mono">
                         ฿{Number(order.totalAmount).toLocaleString()}
+                      </span>
+                      <span className="text-[11px] text-stone-500 font-medium block mt-0.5">
+                        {formatPaymentMethod(order.payment?.paymentMethod, language)}
                       </span>
                     </div>
                     <Link

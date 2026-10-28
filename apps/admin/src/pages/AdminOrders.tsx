@@ -32,7 +32,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { orderRequester } from '../api/requester/orderRequester';
-import { formatOrderDateTime, formatPrice } from '../utils';
+import { formatOrderDateTime, formatPrice, formatPaymentMethod } from '../utils';
 import { STOREFRONT_URL } from '../config';
 import { PermissionGate } from '../components/common';
 import {
@@ -630,7 +630,7 @@ export default function AdminOrders() {
                           {formatPrice(order.totalAmount)}
                         </div>
                         <div className="text-[10px] text-gray-500 mt-0.5">
-                          {order.payment?.paymentMethod ?? 'CREDIT_CARD'}
+                          {formatPaymentMethod(order.payment?.paymentMethod)}
                         </div>
                       </TableCell>
 
@@ -938,7 +938,7 @@ export default function AdminOrders() {
                 <p className="text-gray-700">
                   {t('orders.detail.paymentMethod')}{' '}
                   <strong className="text-brand-brown">
-                    {selectedOrder.payment?.paymentMethod ?? 'CREDIT_CARD'}
+                    {formatPaymentMethod(selectedOrder.payment?.paymentMethod)}
                   </strong>
                 </p>
                 <p className="text-gray-700 mt-1">

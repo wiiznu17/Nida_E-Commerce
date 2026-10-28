@@ -120,60 +120,83 @@ export function TrackingMilestonesCard({
           </h4>
         </div>
 
-        {trackingData.shipment?.timeline &&
-        trackingData.shipment.timeline.length > 0 ? (
-          <div className="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-2 sm:before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-stone-200">
-            {trackingData.shipment.timeline.map((entry, idx) => {
-              const isFirst = idx === 0;
-              return (
-                <div
-                  key={entry.id ?? idx}
-                  className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-4 text-xs"
-                >
-                  {/* Timeline Node Bullet */}
-                  <span
-                    className={`absolute -left-6 sm:-left-8 top-1.5 w-3 h-3 rounded-full border-2 border-white ring-2 transition-all ${
-                      isFirst
-                        ? 'bg-amber-600 ring-amber-300'
-                        : 'bg-stone-400 ring-stone-200'
-                    }`}
-                  />
-                  <div className="space-y-1 pr-4">
-                    <p
-                      className={`font-black text-sm ${isFirst ? 'text-brand-brown' : 'text-stone-800'}`}
-                    >
-                      {entry.statusTitle}
-                    </p>
-                    {entry.statusDescription && (
-                      <p className="text-stone-600 text-xs leading-relaxed">
-                        {entry.statusDescription}
-                      </p>
-                    )}
-                    {entry.location && (
-                      <p className="text-[11px] text-stone-500 font-medium inline-flex items-center gap-1 mt-0.5">
-                        <MapPin size={12} className="text-amber-700" />
-                        <span>{entry.location}</span>
-                      </p>
-                    )}
+        {(() => {
+          const sortedTimeline = [
+            ...(trackingData.shipment?.timeline ?? []),
+          ].sort(
+            (a, b) =>
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+          );
+
+          if (sortedTimeline.length === 0) {
+            return (
+              <p className="text-xs text-stone-400 py-4 italic">
+                {t('trackOrder.emptyLogs')}
+              </p>
+            );
+          }
+
+          return (
+            <div className="relative space-y-6">
+              {/* Perfectly centered continuous timeline line */}
+              <div className="absolute left-[11px] top-2 bottom-2 w-0.5 -translate-x-1/2 bg-stone-200" />
+
+              {sortedTimeline.map((entry, idx) => {
+                const isFirst = idx === 0;
+                return (
+                  <div
+                    key={entry.id ?? idx}
+                    className="relative flex items-start gap-3.5 text-xs"
+                  >
+                    {/* Timeline Node Bullet */}
+                    <div className="w-[22px] flex items-center justify-center shrink-0 pt-0.5 z-10">
+                      <span
+                        className={`w-3 h-3 rounded-full border-2 border-white ring-2 transition-all shrink-0 ${
+                          isFirst
+                            ? 'bg-amber-600 ring-amber-300'
+                            : 'bg-stone-400 ring-stone-200'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="flex-1 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-4 min-w-0 pr-2">
+                      <div className="space-y-1">
+                        <p
+                          className={`font-black text-sm ${
+                            isFirst ? 'text-brand-brown' : 'text-stone-800'
+                          }`}
+                        >
+                          {entry.statusTitle}
+                        </p>
+                        {entry.statusDescription && (
+                          <p className="text-stone-600 text-xs leading-relaxed">
+                            {entry.statusDescription}
+                          </p>
+                        )}
+                        {entry.location && (
+                          <p className="text-[11px] text-stone-500 font-medium inline-flex items-center gap-1 mt-0.5">
+                            <MapPin size={12} className="text-amber-700" />
+                            <span>{entry.location}</span>
+                          </p>
+                        )}
+                      </div>
+
+                      <span className="text-[11px] font-mono font-bold text-stone-400 whitespace-nowrap sm:text-right shrink-0 mt-0.5">
+                        {new Date(entry.timestamp).toLocaleString(
+                          language === 'th' ? 'th-TH' : 'en-US',
+                          {
+                            dateStyle: 'medium',
+                            timeStyle: 'short',
+                          },
+                        )}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[11px] font-mono font-bold text-stone-400 whitespace-nowrap sm:text-right shrink-0 mt-0.5">
-                    {new Date(entry.timestamp).toLocaleString(
-                      language === 'th' ? 'th-TH' : 'en-US',
-                      {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      },
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-xs text-stone-400 py-4 italic">
-            {t('trackOrder.emptyLogs')}
-          </p>
-        )}
+                );
+              })}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

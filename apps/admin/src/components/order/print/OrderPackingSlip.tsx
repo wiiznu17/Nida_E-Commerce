@@ -2,6 +2,7 @@ import React from 'react';
 import type { OrderPackingSlipProps } from './printTypes';
 import { NIDA_SENDER_INFO, PACKING_POLICY_NOTES } from './printConstants';
 import { OrderBarcode } from './OrderBarcode';
+import { formatPaymentMethod } from '../../../utils';
 
 export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({
   order,
@@ -92,8 +93,8 @@ export const OrderPackingSlip: React.FC<OrderPackingSlipProps> = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-black/60">Payment Method / การชำระ:</span>
-                <span className="font-semibold uppercase">
-                  {order.payment?.paymentMethod || 'CREDIT_CARD'}
+                <span className="font-semibold">
+                  {formatPaymentMethod(order.payment?.paymentMethod)}
                 </span>
               </div>
             </div>

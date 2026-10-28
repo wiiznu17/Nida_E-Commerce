@@ -1,5 +1,6 @@
 import { MapPin, CreditCard, Mail, Phone, User } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatPaymentMethod } from '../../utils';
 import type {
   ApiOrderAddress,
   ApiPaymentSummary,
@@ -25,7 +26,7 @@ export function OrderDetailCustomerCard({
   const addressLine1 = shippingAddress?.addressLine1 ?? '-';
   const province = shippingAddress?.province ?? '-';
   const postalCode = shippingAddress?.postalCode ?? '-';
-  const paymentMethod = payment?.paymentMethod ?? 'CREDIT_CARD';
+  const paymentMethod = formatPaymentMethod(payment?.paymentMethod);
 
   return (
     <div

@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Copy,
   Check,
+  ChevronDown,
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import type { ApiOrder, OrderStatus, ShipmentStatus } from '@repo/types';
@@ -53,11 +54,15 @@ export function CustomerOrderTrackingCard({
 }: CustomerOrderTrackingCardProps) {
   const { t, language } = useLanguage();
   const [copiedTracking, setCopiedTracking] = useState(false);
+  const [showAllLogs, setShowAllLogs] = useState(false);
 
   const shipment = order.shipments?.[0];
   const trackingNumber = shipment?.trackingNumber;
   const courierName = shipment?.courierName;
-  const latestTimeline = shipment?.timeline?.[shipment.timeline.length - 1];
+  const sortedTimeline = [...(shipment?.timeline ?? [])].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+  );
+  const latestTimeline = sortedTimeline[0];
 
   const currentStep = getStepProgressIndex(order.status, shipment?.status);
 
@@ -191,6 +196,93 @@ export function CustomerOrderTrackingCard({
                   ({latestTimeline.location})
                 </span>
               )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Expandable Checkpoint Timeline Logs on Order Detail */}
+      {sortedTimeline.length > 1 && (
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={() => setShowAllLogs(!showAllLogs)}
+            className="text-[11px] font-bold text-brand-brown hover:text-brand-dark-brown inline-flex items-center space-x-1 cursor-pointer transition-colors"
+          >
+            <ChevronDown
+              size={13}
+              className={`transition-transform duration-200 ${
+                showAllLogs ? 'rotate-180' : ''
+              }`}
+            />
+            <span>
+              {showAllLogs
+                ? language === 'th'
+                  ? 'ซ่อนประวัติการเดินทาง'
+                  : 'Hide Checkpoint Logs'
+                : language === 'th'
+                  ? `ดูประวัติการเดินทางทั้งหมด (${sortedTimeline.length})`
+                  : `View Checkpoint Logs (${sortedTimeline.length})`}
+            </span>
+          </button>
+
+          {showAllLogs && (
+            <div className="mt-4 pt-4 border-t border-stone-100 relative space-y-4">
+              {/* Perfectly centered continuous timeline line */}
+              <div className="absolute left-[11px] top-3 bottom-3 w-0.5 -translate-x-1/2 bg-stone-200" />
+
+              {sortedTimeline.map((entry, idx) => {
+                const isFirst = idx === 0;
+                return (
+                  <div
+                    key={entry.id ?? idx}
+                    className="relative flex items-start gap-3.5 text-xs"
+                  >
+                    <div className="w-[22px] flex items-center justify-center shrink-0 pt-0.5 z-10">
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full border-2 border-white ring-2 transition-all shrink-0 ${
+                          isFirst
+                            ? 'bg-amber-600 ring-amber-300'
+                            : 'bg-stone-400 ring-stone-200'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="flex-1 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-4 min-w-0 pr-2">
+                      <div className="space-y-0.5">
+                        <p
+                          className={`font-black text-xs ${
+                            isFirst ? 'text-brand-brown' : 'text-stone-800'
+                          }`}
+                        >
+                          {entry.statusTitle}
+                        </p>
+                        {entry.statusDescription && (
+                          <p className="text-stone-600 text-[11px] leading-relaxed">
+                            {entry.statusDescription}
+                          </p>
+                        )}
+                        {entry.location && (
+                          <p className="text-[10px] text-stone-500 font-medium inline-flex items-center gap-1 mt-0.5">
+                            <MapPin size={11} className="text-amber-700" />
+                            <span>{entry.location}</span>
+                          </p>
+                        )}
+                      </div>
+
+                      <span className="text-[10px] font-mono font-bold text-stone-400 whitespace-nowrap sm:text-right shrink-0 mt-0.5">
+                        {new Date(entry.timestamp).toLocaleString(
+                          language === 'th' ? 'th-TH' : 'en-US',
+                          {
+                            dateStyle: 'medium',
+                            timeStyle: 'short',
+                          },
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

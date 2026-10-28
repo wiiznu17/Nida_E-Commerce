@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { orderRequester } from '../../api/requester/orderRequester';
-import { formatCurrency } from '../../utils/currency';
+import { formatCurrency, formatPaymentMethod } from '../../utils';
 
 export interface OrderPaymentOverrideModalProps {
   isOpen: boolean;
@@ -140,8 +140,8 @@ export const OrderPaymentOverrideModal: React.FC<
               <span className="font-medium text-stone-500">
                 {t('orders.paymentOverride.paymentMethod')}
               </span>
-              <span className="font-mono text-stone-700 text-[11px] uppercase tracking-wider">
-                {paymentMethod}
+              <span className="font-semibold text-stone-700 text-xs">
+                {formatPaymentMethod(paymentMethod)}
               </span>
             </div>
             <div className="flex justify-between items-center text-stone-600">

@@ -5,6 +5,7 @@ import { Package, CreditCard, Copy, Check, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { OrderStatus, type ApiOrder } from '@repo/types';
 import { StatusBadge } from '@/components/ui';
+import { formatPaymentMethod } from '@/utils';
 
 interface OrdersListItemProps {
   order: ApiOrder;
@@ -88,6 +89,9 @@ export function OrdersListItem({ order }: OrdersListItemProps) {
           </span>
           <span className="text-lg font-black text-brand-brown font-mono">
             ฿{Number(currentOrder.totalAmount).toLocaleString()}
+          </span>
+          <span className="text-[11px] text-stone-500 font-medium mt-0.5">
+            {formatPaymentMethod(currentOrder.payment?.paymentMethod, language)}
           </span>
         </div>
       </div>

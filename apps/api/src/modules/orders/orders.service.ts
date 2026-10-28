@@ -1447,7 +1447,7 @@ export class CustomerOrdersService {
       include: {
         shipments: {
           include: {
-            logs: { orderBy: { logTimestamp: 'asc' } },
+            logs: { orderBy: { logTimestamp: 'desc' } },
           },
         },
       },
