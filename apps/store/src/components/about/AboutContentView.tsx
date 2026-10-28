@@ -4,6 +4,7 @@ import React from 'react';
 import { Sparkles, Heart, Compass } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { NidaLogo, NidaChevronRibbon } from '@/components/layout';
 
 export function AboutContentView() {
   const { language, t } = useLanguage();
@@ -18,11 +19,9 @@ export function AboutContentView() {
           className="absolute inset-0 w-full h-full object-cover opacity-45"
         />
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center text-white">
-          {/* Nida Flag Bar */}
-          <div className="flex w-20 h-2.5 mx-auto mb-6 shadow-md">
-            <div className="w-1/3 bg-brand-brown"></div>
-            <div className="w-1/3 bg-white"></div>
-            <div className="w-1/3 bg-brand-yellow"></div>
+          {/* Official Nida Logo */}
+          <div className="flex justify-center mb-6">
+            <NidaLogo size="xl" dark className="drop-shadow-lg" />
           </div>
           <span className="text-xs sm:text-sm font-black uppercase tracking-[0.3em] text-brand-yellow block mb-3">
             {t('about.heroTag')}
@@ -106,11 +105,7 @@ export function AboutContentView() {
             />
           </div>
           <div className="space-y-5">
-            <div className="flex w-12 h-1.5">
-              <div className="w-1/3 bg-brand-brown"></div>
-              <div className="w-1/3 bg-gray-300"></div>
-              <div className="w-1/3 bg-brand-yellow"></div>
-            </div>
+            <NidaChevronRibbon className="w-16 h-auto" />
             <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-brand-brown">
               {language === 'th'
                 ? 'รังสรรค์เพื่อทุกช่วงเวลาของชีวิต'
