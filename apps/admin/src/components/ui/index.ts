@@ -11,3 +11,4 @@ export * from './ApiErrorModal';
 export * from './AlertModal';
 export * from './InlineError';
 export * from './StatCard';
+export * from './tooltip';

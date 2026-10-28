@@ -6,7 +6,9 @@ import { z } from 'zod';
  */
 const analyticsPageTimeframeEnum = z.enum([
   'today',
+  '7d',
   'week',
+  '30d',
   'month',
   'quarter',
   'year',
@@ -51,6 +53,17 @@ export type AnalyticsOverviewQuery = z.infer<typeof analyticsOverviewSchema>;
  */
 export const analyticsDeptSchema = timeframeOrRange;
 export type AnalyticsDeptQuery = z.infer<typeof analyticsDeptSchema>;
+
+/**
+ * GET /admin/analytics/revenue-trend
+ */
+export const analyticsRevenueTrendSchema = z.object({
+  timeframe: analyticsPageTimeframeEnum.optional().default('7d'),
+});
+export type AnalyticsRevenueTrendQuery = z.infer<
+  typeof analyticsRevenueTrendSchema
+>;
+
 
 /**
  * GET /admin/analytics/top-products

@@ -4,7 +4,9 @@ export type AnalyticsTimeframe = 'today' | '7d' | '30d' | 'year';
 // ─── Analytics Page Timeframe (ใช้ใน AdminAnalytics.tsx เท่านั้น) ─────────────
 export type AnalyticsPageTimeframe =
   | 'today'
+  | '7d'
   | 'week'
+  | '30d'
   | 'month'
   | 'quarter'
   | 'year';
@@ -47,6 +49,8 @@ export interface AnalyticsOverviewDto {
   pendingShipmentCount: number;
   lowStockCount: number;
   activeShoppersCount: number;
+  onTimeDispatchPct: number;
+  operationsScore: number;
 }
 
 export interface AnalyticsRevenuePoint {
@@ -167,7 +171,9 @@ export interface AnalyticsCouponRoiSummary {
 // ─── Analytics Cache TTL Map (seconds) ───────────────────────────────────────
 export const ANALYTICS_CACHE_TTL: Record<AnalyticsPageTimeframe, number> = {
   today: 300,
+  '7d': 600,
   week: 600,
+  '30d': 900,
   month: 900,
   quarter: 3600,
   year: 7200,

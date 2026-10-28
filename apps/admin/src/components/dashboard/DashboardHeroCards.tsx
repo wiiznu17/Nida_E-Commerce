@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatPrice } from '../../utils';
+import { InfoTooltip } from '../ui';
 import type { AnalyticsOverviewDto } from '@repo/types';
 
 interface DashboardHeroCardsProps {
@@ -46,9 +47,17 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
 
         <div>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-black uppercase tracking-wider text-amber-200/80">
-              {t('dashboard.hero.netRevenueTitle')}
-            </span>
+            <div className="flex items-center space-x-1.5">
+              <span className="text-[11px] font-black uppercase tracking-wider text-amber-200/80">
+                {t('dashboard.hero.netRevenueTitle')}
+              </span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.netRevenueTitle')}
+                description={t('dashboard.tooltips.netRevenueDesc')}
+                formula={t('dashboard.tooltips.netRevenueFormula')}
+                className="text-amber-200/60 hover:text-amber-200"
+              />
+            </div>
             <div className="w-8 h-8 rounded-full bg-white/10 text-amber-300 flex items-center justify-center">
               <DollarSign size={16} />
             </div>
@@ -61,6 +70,12 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
             <div className="flex items-center text-xs font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-xs border border-emerald-500/30">
               <TrendingUp size={12} className="mr-1" />
               <span>+{metrics.revenueTrendPct}%</span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.revenueTrendTitle')}
+                description={t('dashboard.tooltips.revenueTrendDesc')}
+                formula={t('dashboard.tooltips.revenueTrendFormula')}
+                className="ml-1 text-emerald-400/80 hover:text-emerald-300"
+              />
             </div>
           </div>
 
@@ -72,25 +87,49 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
         {/* Financial Breakdown Chips */}
         <div className="mt-6 pt-4 border-t border-white/10 grid grid-cols-3 gap-2">
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
-              {t('dashboard.hero.grossSales')}
-            </span>
+            <div className="flex items-center space-x-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+                {t('dashboard.hero.grossSales')}
+              </span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.grossSalesTitle')}
+                description={t('dashboard.tooltips.grossSalesDesc')}
+                formula={t('dashboard.tooltips.grossSalesFormula')}
+                className="text-gray-400 hover:text-gray-200"
+              />
+            </div>
             <span className="text-xs font-bold font-mono text-gray-200">
               {formatPrice(metrics.grossRevenue)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
-              {t('dashboard.hero.discounts')}
-            </span>
+            <div className="flex items-center space-x-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+                {t('dashboard.hero.discounts')}
+              </span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.discountsTitle')}
+                description={t('dashboard.tooltips.discountsDesc')}
+                formula={t('dashboard.tooltips.discountsFormula')}
+                className="text-gray-400 hover:text-gray-200"
+              />
+            </div>
             <span className="text-xs font-bold font-mono text-amber-300">
               -{formatPrice(metrics.totalDiscounts)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
-              {t('dashboard.hero.refunds')}
-            </span>
+            <div className="flex items-center space-x-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+                {t('dashboard.hero.refunds')}
+              </span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.refundsTitle')}
+                description={t('dashboard.tooltips.refundsDesc')}
+                formula={t('dashboard.tooltips.refundsFormula')}
+                className="text-gray-400 hover:text-gray-200"
+              />
+            </div>
             <span className="text-xs font-bold font-mono text-rose-300">
               -{formatPrice(metrics.totalRefunds)}
             </span>
@@ -102,9 +141,16 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
       <div className="bg-white border border-brand-border p-5 sm:p-6 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
-              {t('dashboard.hero.ordersVelocityTitle')}
-            </span>
+            <div className="flex items-center space-x-1.5">
+              <span className="text-[11px] font-black uppercase tracking-wider text-gray-500">
+                {t('dashboard.hero.ordersVelocityTitle')}
+              </span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.orderVelocityTitle')}
+                description={t('dashboard.tooltips.orderVelocityDesc')}
+                formula={t('dashboard.tooltips.orderVelocityFormula')}
+              />
+            </div>
             <div className="w-8 h-8 rounded-full bg-brand-cream text-brand-brown flex items-center justify-center">
               <ShoppingBag size={16} />
             </div>
@@ -120,6 +166,12 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
             <div className="flex items-center text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-xs border border-emerald-200">
               <TrendingUp size={12} className="mr-1" />
               <span>+{metrics.ordersTrendPct}%</span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.ordersTrendTitle')}
+                description={t('dashboard.tooltips.ordersTrendDesc')}
+                formula={t('dashboard.tooltips.ordersTrendFormula')}
+                className="ml-1 text-emerald-700/80 hover:text-emerald-900"
+              />
             </div>
           </div>
 
@@ -134,6 +186,12 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
             <div className="flex items-center text-[10px] font-black uppercase tracking-wider text-gray-500">
               <CheckCircle size={12} className="text-emerald-600 mr-1" />
               <span>{t('dashboard.hero.fulfillmentRate')}</span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.fulfillmentRateTitle')}
+                description={t('dashboard.tooltips.fulfillmentRateDesc')}
+                formula={t('dashboard.tooltips.fulfillmentRateFormula')}
+                className="ml-1"
+              />
             </div>
             <div className="text-sm font-black text-brand-brown font-mono">
               {metrics.fulfillmentRate}%
@@ -150,12 +208,36 @@ export function DashboardHeroCards({ metrics }: DashboardHeroCardsProps) {
             <div className="flex items-center text-[10px] font-black uppercase tracking-wider text-gray-500">
               <Clock size={12} className="text-brand-amber mr-1" />
               <span>{t('dashboard.hero.avgFulfillmentTime')}</span>
+              <InfoTooltip
+                title={t('dashboard.tooltips.avgFulfillmentTitle')}
+                description={t('dashboard.tooltips.avgFulfillmentDesc')}
+                formula={t('dashboard.tooltips.avgFulfillmentFormula')}
+                className="ml-1"
+              />
             </div>
             <div className="text-sm font-black text-brand-brown font-mono">
               {metrics.averageFulfillmentHours} {t('dashboard.hero.hours')}
             </div>
             <div className="text-[10px] text-gray-400">
-              {t('dashboard.hero.dispatchBenchmark')}
+              {metrics.averageFulfillmentHours <= 0
+                ? t('dashboard.hero.dispatchNoData')
+                : metrics.averageFulfillmentHours <= 24
+                  ? t('dashboard.hero.dispatchFaster').replace(
+                      '{pct}',
+                      String(
+                        Math.round(
+                          ((24 - metrics.averageFulfillmentHours) / 24) * 100,
+                        ),
+                      ),
+                    )
+                  : t('dashboard.hero.dispatchSlower').replace(
+                      '{pct}',
+                      String(
+                        Math.round(
+                          ((metrics.averageFulfillmentHours - 24) / 24) * 100,
+                        ),
+                      ),
+                    )}
             </div>
           </div>
 

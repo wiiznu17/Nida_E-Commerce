@@ -161,7 +161,9 @@ describe('AnalyticsService', () => {
       ]);
       prismaMock.order.count.mockResolvedValueOnce(3);
       prismaMock.inventoryItem.count.mockResolvedValueOnce(5);
-      prismaMock.cart.count.mockResolvedValueOnce(10);
+      prismaMock.cart.count
+        .mockResolvedValueOnce(10) // activeShoppersCount
+        .mockResolvedValueOnce(3); // activeCartsWithItems
 
       const result = await service.getOverview({ timeframe: 'month' });
 
@@ -176,6 +178,13 @@ describe('AnalyticsService', () => {
       expect(result.pendingShipmentCount).toBe(3);
       expect(result.lowStockCount).toBe(5);
       expect(result.activeShoppersCount).toBe(10);
+      expect(result.cartAbandonmentRate).toBe(60.0);
+      expect(result.conversionRate).toBe(40.0);
+      expect(result.onTimeDispatchPct).toBe(100.0);
+      expect(result.averageFulfillmentHours).toBe(4.0);
+      expect(result.operationsScore).toBe(100.0);
+      expect(result.returningCustomerPct).toBe(100.0);
+      expect(result.newCustomerPct).toBe(0);
 
       expect(redisMock.cacheSet).toHaveBeenCalledWith(
         'admin:analytics:overview:month',
@@ -191,17 +200,62 @@ describe('AnalyticsService', () => {
       prismaMock.refund.findMany.mockResolvedValueOnce([]);
       prismaMock.order.count.mockResolvedValueOnce(0);
       prismaMock.inventoryItem.count.mockResolvedValueOnce(0);
-      prismaMock.cart.count.mockResolvedValueOnce(0);
+      prismaMock.cart.count
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0);
 
       const result = await service.getOverview({
         startDate: '2026-09-01',
         endDate: '2026-09-30',
       });
 
-      expect(result.totalOrders).toBe(0);
       expect(result.netRevenue).toBe(0);
+      expect(result.totalOrders).toBe(0);
+      expect(result.conversionRate).toBe(0);
+      expect(result.cartAbandonmentRate).toBe(0);
+      expect(result.onTimeDispatchPct).toBe(100);
+      expect(result.operationsScore).toBe(100);
+      expect(result.averageFulfillmentHours).toBe(0);
+      expect(result.returningCustomerPct).toBe(0);
+      expect(result.newCustomerPct).toBe(0);
       expect(redisMock.cacheGet).not.toHaveBeenCalled();
       expect(redisMock.cacheSet).not.toHaveBeenCalled();
+    });
+
+    it('calculates operationsScore accurately when dispatch exceeds 24h SLA', async () => {
+      redisMock.cacheGet.mockResolvedValueOnce(null);
+
+      const placedDate = new Date('2026-10-10T10:00:00.000Z');
+      const shippedDate48h = new Date('2026-10-12T10:00:00.000Z'); // 48 hours later
+
+      prismaMock.order.findMany
+        .mockResolvedValueOnce([
+          {
+            id: 'ord-late',
+            subtotal: 1000,
+            discountTotal: 0,
+            totalAmount: 1000,
+            status: OrderStatus.SHIPPED,
+            userId: 'user-late',
+            placedAt: placedDate,
+            shipments: [{ shippedAt: shippedDate48h }],
+            returnRequests: [],
+          },
+        ])
+        .mockResolvedValueOnce([]);
+      prismaMock.refund.findMany.mockResolvedValueOnce([]);
+      prismaMock.order.count.mockResolvedValueOnce(0);
+      prismaMock.inventoryItem.count.mockResolvedValueOnce(0);
+      prismaMock.cart.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+
+      const result = await service.getOverview({ timeframe: 'today' });
+
+      // 48 hours: onTimeShippedCount = 0 -> onTimeDispatchPct = 0%
+      // speedScore = 100 - ((48 - 24) / 48) * 100 = 50
+      // operationsScore = (0 * 0.7) + (50 * 0.3) = 15.0
+      expect(result.averageFulfillmentHours).toBe(48.0);
+      expect(result.onTimeDispatchPct).toBe(0);
+      expect(result.operationsScore).toBe(15.0);
     });
 
     it('handles zero orders gracefully without division by zero', async () => {
@@ -211,7 +265,9 @@ describe('AnalyticsService', () => {
       prismaMock.refund.findMany.mockResolvedValueOnce([]);
       prismaMock.order.count.mockResolvedValueOnce(0);
       prismaMock.inventoryItem.count.mockResolvedValueOnce(0);
-      prismaMock.cart.count.mockResolvedValueOnce(0);
+      prismaMock.cart.count
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0);
 
       const result = await service.getOverview({ timeframe: 'today' });
 
@@ -219,7 +275,11 @@ describe('AnalyticsService', () => {
       expect(result.netRevenue).toBe(0);
       expect(result.aov).toBe(0);
       expect(result.fulfillmentRate).toBe(100);
+      expect(result.onTimeDispatchPct).toBe(100);
+      expect(result.averageFulfillmentHours).toBe(0);
       expect(result.revenueTrendPct).toBe(0);
+      expect(result.cartAbandonmentRate).toBe(0);
+      expect(result.conversionRate).toBe(0);
     });
   });
 
@@ -328,6 +388,28 @@ describe('AnalyticsService', () => {
     });
   });
 
+  describe('getRevenueTrend', () => {
+    it('returns daily revenue points filling empty days', async () => {
+      const now = new Date();
+      prismaMock.order.findMany.mockResolvedValueOnce([
+        { placedAt: now, totalAmount: 5000 },
+      ]);
+
+      const res = await service.getRevenueTrend({ timeframe: '7d' });
+      expect(res.length).toBe(7);
+      expect(res[res.length - 1].revenue).toBe(5000);
+      expect(res[res.length - 1].orders).toBe(1);
+    });
+
+    it('returns 12 monthly points for year timeframe', async () => {
+      prismaMock.order.findMany.mockResolvedValueOnce([]);
+
+      const res = await service.getRevenueTrend({ timeframe: 'year' });
+      expect(res.length).toBe(12);
+      expect(res[0].label).toBe('Jan');
+    });
+  });
+
   describe('getSlowMovingProducts', () => {
     it('returns variants with inventory that have no recent sales', async () => {
       const oldSaleDate = new Date('2026-08-01T00:00:00.000Z');
@@ -363,7 +445,7 @@ describe('AnalyticsService', () => {
         },
       ]);
 
-      const result = await service.getSlowMovingProducts({ days: 30, limit: 10 });
+      const result = await service.getSlowMovingProducts({ days: 30, page: 1, limit: 10 });
 
       expect(result.items.length).toBe(2);
       expect(result.total).toBe(2);

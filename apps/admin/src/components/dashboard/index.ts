@@ -7,6 +7,5 @@ export * from './RevenueAreaChart';
 export * from './DepartmentDonutChart';
 export * from './FulfillmentGaugeChart';
 export * from './DashboardChartsSection';
-export * from './DashboardMerchandisingGrid';
-export * from './DashboardRecentOrders';
 export * from './DashboardExportModal';
+

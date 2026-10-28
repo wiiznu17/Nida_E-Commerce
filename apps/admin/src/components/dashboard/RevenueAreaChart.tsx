@@ -1,6 +1,6 @@
 import { useState, useId } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { formatPrice } from '../../utils';
+import { formatPrice, formatCompactPrice } from '../../utils';
 import type { AnalyticsRevenuePoint, AnalyticsTimeframe } from '@repo/types';
 import { TIMEFRAME_OPTIONS } from './dashboardConstants';
 
@@ -21,21 +21,24 @@ export function RevenueAreaChart({
 
   if (points.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-400 text-xs">
+      <div className="h-44 flex items-center justify-center text-gray-400 text-xs">
         {t('common.noData')}
       </div>
     );
   }
 
-  // Calculate SVG dimensions and coordinate paths
-  const svgWidth = 600;
-  const svgHeight = 220;
-  const padLeft = 10;
-  const padRight = 10;
-  const padTop = 20;
-  const padBottom = 30;
+  // Calculate compact SVG dimensions and coordinate paths
+  const svgWidth = 1000;
+  const svgHeight = 150;
+  const padLeft = 54;
+  const padRight = 16;
+  const padTop = 14;
+  const padBottom = 22;
 
-  const maxVal = Math.max(...points.map((p) => p.revenue), 1000) * 1.15;
+  const rawMax = Math.max(...points.map((p) => p.revenue), 1000);
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawMax)));
+  const step = magnitude >= 1000 ? magnitude / 2 : 500;
+  const maxVal = Math.max(Math.ceil((rawMax * 1.15) / step) * step, 1000);
   const minVal = 0;
 
   const chartW = svgWidth - padLeft - padRight;
@@ -84,10 +87,13 @@ export function RevenueAreaChart({
   const activeHover =
     hoveredIdx !== null ? coords[hoveredIdx] : coords[coords.length - 1];
 
+  // Y-axis ticks at 0%, 25%, 50%, 75%, 100%
+  const yTicks = [0, 0.25, 0.5, 0.75, 1];
+
   return (
-    <div className="bg-white border border-brand-border p-5 shadow-xs flex flex-col justify-between">
+    <div className="bg-white border border-brand-border px-5 py-3.5 shadow-xs flex flex-col justify-between">
       {/* Chart Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-100 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 border-b border-gray-100 gap-2">
         <div>
           <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
             {t('dashboard.charts.revenueTrendTitle')}
@@ -116,7 +122,7 @@ export function RevenueAreaChart({
       </div>
 
       {/* Summary Micro Bar */}
-      <div className="flex items-center space-x-6 py-3 border-b border-gray-50 text-xs">
+      <div className="flex items-center space-x-6 py-2 border-b border-gray-50 text-xs">
         <div>
           <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
             {t('dashboard.charts.periodRevenue')}
@@ -149,7 +155,7 @@ export function RevenueAreaChart({
       </div>
 
       {/* Vector Curve Chart */}
-      <div className="relative pt-2">
+      <div className="relative pt-1.5">
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className="w-full h-auto overflow-visible select-none"
@@ -162,22 +168,44 @@ export function RevenueAreaChart({
             </linearGradient>
           </defs>
 
-          {/* Horizontal Grid lines */}
-          {[0.25, 0.5, 0.75, 1].map((pct, i) => {
+          {/* Y-axis Ticks & Horizontal Grid lines */}
+          {yTicks.map((pct, i) => {
             const y = padTop + chartH * (1 - pct);
+            const tickVal = Math.round(minVal + pct * (maxVal - minVal));
             return (
-              <line
-                key={i}
-                x1={padLeft}
-                y1={y}
-                x2={svgWidth - padRight}
-                y2={y}
-                stroke="#EAE3D9"
-                strokeWidth="1"
-                strokeDasharray="3 3"
-              />
+              <g key={`y-axis-${i}`}>
+                {/* Horizontal line */}
+                <line
+                  x1={padLeft}
+                  y1={y}
+                  x2={svgWidth - padRight}
+                  y2={y}
+                  stroke="#EAE3D9"
+                  strokeWidth="1"
+                  strokeDasharray={pct === 0 ? undefined : '3 3'}
+                />
+                {/* Y-axis label */}
+                <text
+                  x={padLeft - 8}
+                  y={y + 3}
+                  textAnchor="end"
+                  className="text-[9px] font-mono fill-gray-400 select-none"
+                >
+                  {formatCompactPrice(tickVal)}
+                </text>
+              </g>
             );
           })}
+
+          {/* Y-axis vertical divider */}
+          <line
+            x1={padLeft}
+            y1={padTop}
+            x2={padLeft}
+            y2={padTop + chartH}
+            stroke="#EAE3D9"
+            strokeWidth="1"
+          />
 
           {/* Area Fill */}
           <path d={areaPath} fill={`url(#${gradId})`} />
@@ -218,7 +246,7 @@ export function RevenueAreaChart({
                 {/* X-axis label */}
                 <text
                   x={c.x}
-                  y={padTop + chartH + 18}
+                  y={padTop + chartH + 16}
                   textAnchor="middle"
                   className={`text-[9px] font-sans ${
                     isHovered ? 'fill-brand-brown font-bold' : 'fill-gray-400'

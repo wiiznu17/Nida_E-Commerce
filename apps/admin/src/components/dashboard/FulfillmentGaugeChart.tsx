@@ -1,5 +1,6 @@
 import { useLanguage } from '../../context/LanguageContext';
 import { ShieldCheck } from 'lucide-react';
+import { InfoTooltip } from '../ui';
 
 interface FulfillmentGaugeChartProps {
   score: number; // e.g. 98.4
@@ -14,38 +15,45 @@ export function FulfillmentGaugeChart({
 }: FulfillmentGaugeChartProps) {
   const { t } = useLanguage();
 
-  const radius = 64;
-  const strokeWidth = 14;
-  const arcLength = Math.PI * radius; // Half circumference for semi-circle
+  const radius = 80;
+  const strokeWidth = 16;
+  const arcLength = Math.PI * radius; // Half circumference for semi-circle (~251.3)
   const strokeDashoffset = arcLength - (score / 100) * arcLength;
 
   return (
-    <div className="bg-white border border-brand-border p-5 shadow-xs flex flex-col justify-between">
+    <div className="bg-white border border-brand-border p-5 shadow-xs flex flex-col justify-between h-full">
       <div className="border-b border-gray-100 pb-3 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
-            {t('dashboard.charts.operationsTitle')}
-          </h3>
+          <div className="flex items-center space-x-1.5">
+            <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
+              {t('dashboard.charts.operationsTitle')}
+            </h3>
+            <InfoTooltip
+              title={t('dashboard.tooltips.operationsScoreTitle')}
+              description={t('dashboard.tooltips.operationsScoreDesc')}
+              formula={t('dashboard.tooltips.operationsScoreFormula')}
+            />
+          </div>
           <p className="text-xs text-gray-500">
             {t('dashboard.charts.operationsSub')}
           </p>
         </div>
-        <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center">
-          <ShieldCheck size={15} />
+        <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center">
+          <ShieldCheck size={18} />
         </div>
       </div>
 
-      {/* Semi-Circle Gauge SVG */}
-      <div className="flex flex-col items-center justify-center my-3 relative">
+      {/* Semi-Circle Gauge SVG (Enlarged) */}
+      <div className="flex flex-col items-center justify-center my-4 relative">
         <svg
-          width="180"
-          height="100"
-          viewBox="0 0 180 100"
-          className="overflow-visible"
+          width="220"
+          height="120"
+          viewBox="0 0 220 120"
+          className="overflow-visible select-none"
         >
           {/* Background Track Arc */}
           <path
-            d="M 20 90 A 64 64 0 0 1 160 90"
+            d="M 30 108 A 80 80 0 0 1 190 108"
             fill="none"
             stroke="#FAF7F2"
             strokeWidth={strokeWidth}
@@ -53,7 +61,7 @@ export function FulfillmentGaugeChart({
           />
           {/* Foreground Score Arc */}
           <path
-            d="M 20 90 A 64 64 0 0 1 160 90"
+            d="M 30 108 A 80 80 0 0 1 190 108"
             fill="none"
             stroke="#059669"
             strokeWidth={strokeWidth}
@@ -64,12 +72,12 @@ export function FulfillmentGaugeChart({
           />
         </svg>
 
-        {/* Center Score Readout */}
+        {/* Center Score Readout & Optimal Health Badge */}
         <div className="absolute bottom-1 flex flex-col items-center text-center">
-          <span className="text-2xl font-black font-mono text-brand-brown tracking-tight">
+          <span className="text-3xl sm:text-4xl font-black font-mono text-brand-brown tracking-tight">
             {score}%
           </span>
-          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-xs border border-emerald-200 mt-0.5">
+          <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-xs border border-emerald-300 mt-1 shadow-2xs">
             {t('dashboard.charts.operationsOptimal')}
           </span>
         </div>
@@ -78,17 +86,31 @@ export function FulfillmentGaugeChart({
       {/* Operational Breakdown Badges */}
       <div className="grid grid-cols-2 gap-2 border-t border-gray-50 pt-3 text-xs">
         <div className="bg-brand-cream/50 p-2 border border-brand-border">
-          <span className="text-[10px] font-black uppercase tracking-wider text-gray-500 block">
-            {t('dashboard.charts.onTimeDispatch')}
-          </span>
+          <div className="flex items-center space-x-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-gray-500 block">
+              {t('dashboard.charts.onTimeDispatch')}
+            </span>
+            <InfoTooltip
+              title={t('dashboard.tooltips.onTimeDispatchTitle')}
+              description={t('dashboard.tooltips.onTimeDispatchDesc')}
+              formula={t('dashboard.tooltips.onTimeDispatchFormula')}
+            />
+          </div>
           <span className="font-mono font-bold text-brand-brown">
             {onTimeDispatchPct}%
           </span>
         </div>
         <div className="bg-brand-cream/50 p-2 border border-brand-border">
-          <span className="text-[10px] font-black uppercase tracking-wider text-gray-500 block">
-            {t('dashboard.charts.avgProcessing')}
-          </span>
+          <div className="flex items-center space-x-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-gray-500 block">
+              {t('dashboard.charts.avgProcessing')}
+            </span>
+            <InfoTooltip
+              title={t('dashboard.tooltips.avgFulfillmentTitle')}
+              description={t('dashboard.tooltips.avgFulfillmentDesc')}
+              formula={t('dashboard.tooltips.avgFulfillmentFormula')}
+            />
+          </div>
           <span className="font-mono font-bold text-brand-brown">
             {avgHours} {t('dashboard.hero.hours')}
           </span>

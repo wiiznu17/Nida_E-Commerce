@@ -6,125 +6,57 @@ import {
   DashboardHeroCards,
   DashboardKpiGrid,
   DashboardChartsSection,
-  DashboardMerchandisingGrid,
-  DashboardRecentOrders,
   DashboardExportModal,
-  DEFAULT_OVERVIEW_METRICS,
-  DEFAULT_REVENUE_POINTS_7D,
-  DEFAULT_DEPARTMENT_SHARES,
-  DEFAULT_BEST_SELLERS,
-  DEFAULT_INVENTORY_VELOCITY,
+  INITIAL_OVERVIEW_METRICS,
 } from '../components/dashboard';
 import { useLanguage } from '../context/LanguageContext';
-import { orderRequester } from '../api/requester/orderRequester';
-import { inventoryRequester } from '../api/requester/inventoryRequester';
 import { analyticsRequester } from '../api/requester/analyticsRequester';
 import type {
-  ApiOrder,
-  OrderStatus,
-  ApiInventoryItem,
   AnalyticsTimeframe,
   AnalyticsOverviewDto,
   AnalyticsRevenuePoint,
   AnalyticsDepartmentShare,
-  AnalyticsBestSeller,
-  AnalyticsInventoryVelocity,
 } from '@repo/types';
 
 export default function AdminDashboard() {
   const { t } = useLanguage();
   const [timeframe, setTimeframe] = useState<AnalyticsTimeframe>('7d');
-  const [ordersList, setOrdersList] = useState<ApiOrder[]>([]);
-  const [, setInventoryList] = useState<ApiInventoryItem[]>([]);
   const [isExportOpen, setIsExportOpen] = useState(false);
 
-  // Analytics states with resilient fallback datasets
+  // 100% Real-time analytics state (Zero initial state, populated strictly from DB)
   const [overview, setOverview] = useState<AnalyticsOverviewDto>(
-    DEFAULT_OVERVIEW_METRICS,
+    INITIAL_OVERVIEW_METRICS,
   );
-  const [revenuePoints, setRevenuePoints] = useState<AnalyticsRevenuePoint[]>(
-    DEFAULT_REVENUE_POINTS_7D,
-  );
+  const [revenuePoints, setRevenuePoints] = useState<AnalyticsRevenuePoint[]>([]);
   const [departmentShares, setDepartmentShares] = useState<
     AnalyticsDepartmentShare[]
-  >(DEFAULT_DEPARTMENT_SHARES);
-  const [bestSellers, setBestSellers] =
-    useState<AnalyticsBestSeller[]>(DEFAULT_BEST_SELLERS);
-  const [inventoryVelocity, setInventoryVelocity] = useState<
-    AnalyticsInventoryVelocity[]
-  >(DEFAULT_INVENTORY_VELOCITY);
+  >([]);
 
   const loadData = useCallback(async (selectedTf: AnalyticsTimeframe) => {
     try {
-      const [
-        apiOrdersRes,
-        apiInv,
-        apiOverview,
-        apiPoints,
-        apiDepts,
-        apiSellers,
-        apiVelocity,
-      ] = await Promise.allSettled([
-        orderRequester.getOrders(),
-        inventoryRequester.getInventory(),
+      const [apiOverview, apiPoints, apiDepts] = await Promise.allSettled([
         analyticsRequester.getOverview(selectedTf),
         analyticsRequester.getRevenueTrend(selectedTf),
         analyticsRequester.getDepartmentShare(selectedTf),
-        analyticsRequester.getBestSellers(selectedTf),
-        analyticsRequester.getInventoryVelocity(),
       ]);
 
-      if (apiOrdersRes.status === 'fulfilled') {
-        setOrdersList(apiOrdersRes.value.items ?? []);
-      }
-      if (apiInv.status === 'fulfilled') {
-        const invItems = apiInv.value ?? [];
-        setInventoryList(invItems);
-        // Sync dynamic low-stock count if backend analytics endpoint is pending
-        const lowStockCount = invItems.filter(
-          (i) => i.quantityAvailable <= i.lowStockThreshold,
-        ).length;
-        setOverview((prev) => ({ ...prev, lowStockCount }));
-      }
       if (apiOverview.status === 'fulfilled' && apiOverview.value) {
         setOverview(apiOverview.value);
       }
-      if (apiPoints.status === 'fulfilled' && apiPoints.value?.length) {
-        setRevenuePoints(apiPoints.value);
+      if (apiPoints.status === 'fulfilled') {
+        setRevenuePoints(apiPoints.value ?? []);
       }
-      if (apiDepts.status === 'fulfilled' && apiDepts.value?.length) {
-        setDepartmentShares(apiDepts.value);
-      }
-      if (apiSellers.status === 'fulfilled' && apiSellers.value?.length) {
-        setBestSellers(apiSellers.value);
-      }
-      if (apiVelocity.status === 'fulfilled' && apiVelocity.value?.length) {
-        setInventoryVelocity(apiVelocity.value);
+      if (apiDepts.status === 'fulfilled') {
+        setDepartmentShares(apiDepts.value ?? []);
       }
     } catch (err: unknown) {
-      console.warn('Backend analytics data fallback activated:', err);
+      console.warn('Failed to load dashboard analytics:', err);
     }
   }, []);
 
   useEffect(() => {
     loadData(timeframe);
   }, [timeframe, loadData]);
-
-  const handleQuickShip = async (orderId: string, newStatus: OrderStatus) => {
-    try {
-      await orderRequester.updateStatus(
-        orderId,
-        newStatus,
-        'Kerry Express TH',
-        `KER-${Math.floor(100000000 + Math.random() * 900000000)}TH`,
-      );
-      await loadData(timeframe);
-    } catch {
-      setOrdersList((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
-      );
-    }
-  };
 
   return (
     <AdminLayout
@@ -159,32 +91,20 @@ export default function AdminDashboard() {
         {/* Zone 3: Core E-Commerce KPIs */}
         <DashboardKpiGrid metrics={overview} />
 
-        {/* Zone 4: Interactive Analytical Vector Charts */}
+        {/* Zone 4: Full-Width Revenue Trend & Balanced Operations Health */}
         <DashboardChartsSection
           data={{
             timeframe,
             onTimeframeChange: setTimeframe,
             revenuePoints,
             departmentShares,
-            fulfillmentScore: overview.fulfillmentRate,
+            fulfillmentScore: overview.operationsScore,
             avgHours: overview.averageFulfillmentHours,
-            onTimeDispatchPct: 99.1,
+            onTimeDispatchPct: overview.onTimeDispatchPct,
           }}
         />
 
-        {/* Zone 5: Merchandising & Inventory Velocity */}
-        <DashboardMerchandisingGrid
-          bestSellers={bestSellers}
-          inventoryVelocity={inventoryVelocity}
-        />
-
-        {/* Zone 6: Recent Customer Orders Table */}
-        <DashboardRecentOrders
-          orders={ordersList}
-          onQuickShip={handleQuickShip}
-        />
-
-        {/* Zone 7: Data Export Center Modal */}
+        {/* Zone 5: Data Export Center Modal */}
         <DashboardExportModal
           isOpen={isExportOpen}
           onClose={() => setIsExportOpen(false)}

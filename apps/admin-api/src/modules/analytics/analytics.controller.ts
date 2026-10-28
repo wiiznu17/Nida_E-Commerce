@@ -11,6 +11,7 @@ import {
   analyticsCouponRoiSchema,
   analyticsDeptSchema,
   analyticsOverviewSchema,
+  analyticsRevenueTrendSchema,
   analyticsSlowMovingSchema,
   analyticsTopProductsSchema,
   exportAuditLogsSchema,
@@ -20,6 +21,7 @@ import {
   type AnalyticsCouponRoiQuery,
   type AnalyticsDeptQuery,
   type AnalyticsOverviewQuery,
+  type AnalyticsRevenueTrendQuery,
   type AnalyticsSlowMovingQuery,
   type AnalyticsTopProductsQuery,
   type ExportAuditLogsQuery,
@@ -64,6 +66,20 @@ export class AnalyticsController {
     query: AnalyticsDeptQuery,
   ) {
     return this.analyticsService.getSalesByDepartment(query);
+  }
+
+  @Get('revenue-trend')
+  @RequirePermissions(AdminPermission.ORDERS_READ)
+  @ApiOperation({
+    summary: 'แนวโน้มรายได้ตามช่วงเวลา (Revenue Trend)',
+    description: 'ดึงจุดพิกัดรายได้และจำนวนคำสั่งซื้อรายวัน/รายเดือนสำหรับกราฟเส้น',
+  })
+  @ApiResponse({ status: 200, description: 'ชุดข้อมูลแนวโน้มรายได้' })
+  async getRevenueTrend(
+    @Query(new ZodValidationPipe(analyticsRevenueTrendSchema))
+    query: AnalyticsRevenueTrendQuery,
+  ) {
+    return this.analyticsService.getRevenueTrend(query);
   }
 
   @Get('top-products')

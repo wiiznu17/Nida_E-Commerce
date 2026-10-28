@@ -1,10 +1,8 @@
 import { apiClient, API_BASE_URL } from '../client';
 import type {
-  AnalyticsBestSeller,
   AnalyticsCouponRoiSummary,
   AnalyticsDepartmentShare,
   AnalyticsExportPayload,
-  AnalyticsInventoryVelocity,
   AnalyticsOverviewDto,
   AnalyticsPageTimeframe,
   AnalyticsRevenuePoint,
@@ -139,20 +137,6 @@ export const analyticsRequester = {
     );
   },
 
-  async getBestSellers(
-    timeframe: AnalyticsTimeframe,
-  ): Promise<AnalyticsBestSeller[]> {
-    return apiClient.get<AnalyticsBestSeller[]>(
-      `/analytics/best-sellers?timeframe=${timeframe}`,
-    );
-  },
-
-  async getInventoryVelocity(): Promise<AnalyticsInventoryVelocity[]> {
-    return apiClient.get<AnalyticsInventoryVelocity[]>(
-      '/analytics/inventory-velocity',
-    );
-  },
-
   // ─── Analytics Page Endpoints ──────────────────────────────────────────────
 
   async getTopProducts(
@@ -217,13 +201,22 @@ export const analyticsRequester = {
   },
 
   async triggerExport(payload: AnalyticsExportPayload): Promise<Blob> {
-    const sp: Record<string, string | number | undefined> = {
-      dataType: payload.dataType,
-      timeframe: payload.timeframe,
-      format: payload.format,
-      startDate: payload.startDate,
-      endDate: payload.endDate,
-    };
-    return fetchExportBlob('/analytics/export', sp);
+    const now = new Date();
+    let days = 30;
+    if (payload.timeframe === 'today') days = 1;
+    else if (payload.timeframe === '7d') days = 7;
+    else if (payload.timeframe === 'year') days = 365;
+
+    const start =
+      payload.startDate ??
+      new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0];
+    const end = payload.endDate ?? now.toISOString().split('T')[0];
+
+    if (payload.dataType === 'inventory') {
+      return this.exportInventory();
+    }
+    return this.exportOrders({ startDate: start, endDate: end });
   },
 };

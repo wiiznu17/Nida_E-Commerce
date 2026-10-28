@@ -11,6 +11,7 @@ import type {
   AnalyticsDepartmentShare,
   AnalyticsOverviewDto,
   AnalyticsPageTimeframe,
+  AnalyticsRevenuePoint,
   AnalyticsSlowMovingProduct,
   AnalyticsTopProduct,
   PaginatedSlowMovingResponse,
@@ -21,6 +22,7 @@ import type {
   AnalyticsCouponRoiQuery,
   AnalyticsDeptQuery,
   AnalyticsOverviewQuery,
+  AnalyticsRevenueTrendQuery,
   AnalyticsSlowMovingQuery,
   AnalyticsTopProductsQuery,
   ExportAuditLogsQuery,
@@ -117,12 +119,14 @@ export class AnalyticsService {
         prevEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
         break;
       }
+      case '7d':
       case 'week': {
         start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         prevStart = new Date(start.getTime() - 7 * 24 * 60 * 60 * 1000);
         prevEnd = start;
         break;
       }
+      case '30d':
       case 'month': {
         start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         prevStart = new Date(start.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -172,59 +176,72 @@ export class AnalyticsService {
       }
     }
 
-    const [currentOrders, refunds, prevOrders, pendingShipmentCount, lowStockCount, activeCarts] =
-      await Promise.all([
-        this.prisma.order.findMany({
-          where: {
-            placedAt: { gte: range.start, lte: range.end },
-            status: { in: ELIGIBLE_ORDER_STATUSES },
+    const [
+      currentOrders,
+      refunds,
+      prevOrders,
+      pendingShipmentCount,
+      lowStockCount,
+      activeCarts,
+      activeCartsWithItems,
+    ] = await Promise.all([
+      this.prisma.order.findMany({
+        where: {
+          placedAt: { gte: range.start, lte: range.end },
+          status: { in: ELIGIBLE_ORDER_STATUSES },
+        },
+        select: {
+          id: true,
+          subtotal: true,
+          discountTotal: true,
+          totalAmount: true,
+          status: true,
+          userId: true,
+          placedAt: true,
+          shipments: {
+            select: { shippedAt: true },
           },
-          select: {
-            id: true,
-            subtotal: true,
-            discountTotal: true,
-            totalAmount: true,
-            status: true,
-            userId: true,
-            placedAt: true,
-            shipments: {
-              select: { shippedAt: true },
-            },
-            returnRequests: {
-              select: { id: true },
-            },
+          returnRequests: {
+            select: { id: true },
           },
-        }),
-        this.prisma.refund.findMany({
-          where: {
-            createdAt: { gte: range.start, lte: range.end },
-            status: RefundStatus.SUCCEEDED,
-          },
-          select: { amount: true },
-        }),
-        this.prisma.order.findMany({
-          where: {
-            placedAt: { gte: range.prevStart, lte: range.prevEnd },
-            status: { in: ELIGIBLE_ORDER_STATUSES },
-          },
-          select: { totalAmount: true },
-        }),
-        this.prisma.order.count({
-          where: {
-            status: { in: [OrderStatus.PAID, OrderStatus.PROCESSING] },
-          },
-        }),
-        this.prisma.inventoryItem.count({
-          where: {
-            quantityAvailable: { lte: 5 },
-          },
-        }),
-        this.prisma.cart.count({
-          where: {
-            updatedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-          },
-        }),
-      ]);
+        },
+      }),
+      this.prisma.refund.findMany({
+        where: {
+          createdAt: { gte: range.start, lte: range.end },
+          status: RefundStatus.SUCCEEDED,
+        },
+        select: { amount: true },
+      }),
+      this.prisma.order.findMany({
+        where: {
+          placedAt: { gte: range.prevStart, lte: range.prevEnd },
+          status: { in: ELIGIBLE_ORDER_STATUSES },
+        },
+        select: { totalAmount: true },
+      }),
+      this.prisma.order.count({
+        where: {
+          status: { in: [OrderStatus.PAID, OrderStatus.PROCESSING] },
+        },
+      }),
+      this.prisma.inventoryItem.count({
+        where: {
+          quantityAvailable: { lte: 5 },
+        },
+      }),
+      this.prisma.cart.count({
+        where: {
+          updatedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        },
+      }),
+      this.prisma.cart.count({
+        where: {
+          items: { some: {} },
+          updatedAt: { gte: range.start, lte: range.end },
+        },
+      }),
+    ]);
 
     const grossRevenue = currentOrders.reduce((sum, o) => sum + Number(o.subtotal), 0);
     const totalDiscounts = currentOrders.reduce((sum, o) => sum + Number(o.discountTotal), 0);
@@ -260,6 +277,7 @@ export class AnalyticsService {
 
     let totalFulfillmentHours = 0;
     let shippedCount = 0;
+    let onTimeShippedCount = 0;
     for (const order of currentOrders) {
       const shipment = order.shipments.find((s) => s.shippedAt !== null);
       if (shipment?.shippedAt) {
@@ -268,11 +286,24 @@ export class AnalyticsService {
         if (hours >= 0) {
           totalFulfillmentHours += hours;
           shippedCount++;
+          if (hours <= 24) {
+            onTimeShippedCount++;
+          }
         }
       }
     }
     const averageFulfillmentHours =
-      shippedCount > 0 ? Number((totalFulfillmentHours / shippedCount).toFixed(1)) : 4.0;
+      shippedCount > 0 ? Number((totalFulfillmentHours / shippedCount).toFixed(1)) : 0;
+    const onTimeDispatchPct =
+      shippedCount > 0
+        ? Number(((onTimeShippedCount / shippedCount) * 100).toFixed(1))
+        : 100;
+
+    const speedScore =
+      shippedCount === 0 || averageFulfillmentHours <= 24
+        ? 100
+        : Math.max(0, Math.min(100, Math.round(100 - ((averageFulfillmentHours - 24) / 48) * 100)));
+    const operationsScore = Number(((onTimeDispatchPct * 0.7) + (speedScore * 0.3)).toFixed(1));
 
     const aov = totalOrders > 0 ? Math.round(netRevenue / totalOrders) : 0;
     const prevAov = prevTotalOrders > 0 ? Math.round(prevRevenue / prevTotalOrders) : 0;
@@ -292,14 +323,25 @@ export class AnalyticsService {
     const returningCustomerPct =
       uniqueCustomerCount > 0
         ? Number(((returningCount / uniqueCustomerCount) * 100).toFixed(1))
-        : 35.0;
-    const newCustomerPct = Number((100 - returningCustomerPct).toFixed(1));
+        : 0;
+    const newCustomerPct =
+      uniqueCustomerCount > 0 ? Number((100 - returningCustomerPct).toFixed(1)) : 0;
 
     const returnedOrdersCount = currentOrders.filter(
       (o) => o.returnRequests.length > 0,
     ).length;
     const returnRate =
       totalOrders > 0 ? Number(((returnedOrdersCount / totalOrders) * 100).toFixed(1)) : 0;
+
+    const totalPurchaseIntent = activeCartsWithItems + totalOrders;
+    const cartAbandonmentRate =
+      totalPurchaseIntent > 0
+        ? Number(((activeCartsWithItems / totalPurchaseIntent) * 100).toFixed(1))
+        : 0;
+    const conversionRate =
+      totalPurchaseIntent > 0
+        ? Number(((totalOrders / totalPurchaseIntent) * 100).toFixed(2))
+        : 0;
 
     const result: AnalyticsOverviewDto = {
       netRevenue,
@@ -316,12 +358,14 @@ export class AnalyticsService {
       aovTrendPct,
       returningCustomerPct,
       newCustomerPct,
-      conversionRate: 3.4,
-      cartAbandonmentRate: 67.2,
+      conversionRate,
+      cartAbandonmentRate,
       returnRate,
       pendingShipmentCount,
       lowStockCount,
       activeShoppersCount: activeCarts,
+      onTimeDispatchPct,
+      operationsScore,
     };
 
     if (range.isPreset && range.timeframe) {
@@ -582,6 +626,162 @@ export class AnalyticsService {
     }
 
     return result;
+  }
+
+  // ─── 3.1 Revenue Trend (Dashboard Area Chart) ────────────────────────────────
+
+  async getRevenueTrend(
+    query: AnalyticsRevenueTrendQuery,
+  ): Promise<AnalyticsRevenuePoint[]> {
+    const timeframe = query.timeframe ?? '7d';
+    const cacheKey = `admin:analytics:revenue_trend:${timeframe}`;
+    const cached = await this.redis.cacheGet<AnalyticsRevenuePoint[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const range = this.resolveRange({ timeframe });
+    const orders = await this.prisma.order.findMany({
+      where: {
+        placedAt: { gte: range.start, lte: range.end },
+        status: { in: ELIGIBLE_ORDER_STATUSES },
+      },
+      select: {
+        placedAt: true,
+        totalAmount: true,
+      },
+      orderBy: { placedAt: 'asc' },
+    });
+
+    const now = new Date();
+    const points: AnalyticsRevenuePoint[] = [];
+
+    if (timeframe === 'today') {
+      const buckets = [0, 4, 8, 12, 16, 20];
+      for (const h of buckets) {
+        const label = `${String(h).padStart(2, '0')}:00`;
+        const bucketStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          h,
+          0,
+          0,
+          0,
+        );
+        const bucketEnd = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          h + 3,
+          59,
+          59,
+          999,
+        );
+        const inBucket = orders.filter(
+          (o) => o.placedAt >= bucketStart && o.placedAt <= bucketEnd,
+        );
+        const rev = inBucket.reduce(
+          (sum, o) => sum + Number(o.totalAmount),
+          0,
+        );
+        points.push({
+          date: bucketStart.toISOString().split('T')[0],
+          label,
+          revenue: Math.round(rev),
+          orders: inBucket.length,
+        });
+      }
+    } else if (timeframe === 'year') {
+      const year = now.getFullYear();
+      const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      for (let m = 0; m < 12; m++) {
+        const mStart = new Date(year, m, 1, 0, 0, 0, 0);
+        const mEnd = new Date(year, m + 1, 0, 23, 59, 59, 999);
+        const inMonth = orders.filter(
+          (o) => o.placedAt >= mStart && o.placedAt <= mEnd,
+        );
+        const rev = inMonth.reduce(
+          (sum, o) => sum + Number(o.totalAmount),
+          0,
+        );
+        points.push({
+          date: `${year}-${String(m + 1).padStart(2, '0')}`,
+          label: monthNames[m],
+          revenue: Math.round(rev),
+          orders: inMonth.length,
+        });
+      }
+    } else {
+      const numDays =
+        timeframe === '30d' || timeframe === 'month' ? 30 : 7;
+      const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      for (let i = numDays - 1; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const ymd = d.toISOString().split('T')[0];
+        const dayLabel = `${d.getDate()} ${monthNames[d.getMonth()]}`;
+
+        const dStart = new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate(),
+          0,
+          0,
+          0,
+          0,
+        );
+        const dEnd = new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate(),
+          23,
+          59,
+          59,
+          999,
+        );
+        const inDay = orders.filter(
+          (o) => o.placedAt >= dStart && o.placedAt <= dEnd,
+        );
+        const rev = inDay.reduce((sum, o) => sum + Number(o.totalAmount), 0);
+
+        points.push({
+          date: ymd,
+          label: dayLabel,
+          revenue: Math.round(rev),
+          orders: inDay.length,
+        });
+      }
+    }
+
+    const ttl = ANALYTICS_CACHE_TTL[timeframe] ?? 600;
+    await this.redis.cacheSet(cacheKey, points, ttl);
+    return points;
   }
 
   // ─── 4. Slow Moving Products ─────────────────────────────────────────────────
