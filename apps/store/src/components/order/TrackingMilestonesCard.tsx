@@ -44,8 +44,8 @@ export function TrackingMilestonesCard({
   ];
 
   return (
-    <div className="border border-brand-border bg-white p-6 sm:p-8 lg:p-10 shadow-xs">
-      <div className="flex items-center justify-between mb-8 pb-3 border-b border-gray-100">
+    <div className="border border-brand-border bg-white p-4 sm:p-6 lg:p-8 rounded-md shadow-xs">
+      <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-100">
         <div>
           <span className="text-[10px] uppercase font-black tracking-widest text-brand-amber block mb-0.5">
             TRANSIT PROGRESS
@@ -54,14 +54,24 @@ export function TrackingMilestonesCard({
             {t('trackOrder.milestones')}
           </h3>
         </div>
-        <span className="text-xs font-mono font-bold text-gray-400">
+        <span className="text-[11px] sm:text-xs font-mono font-bold text-stone-400">
           Step {currentStep + 1} of {steps.length}
         </span>
       </div>
 
       <div className="relative py-2 sm:py-3">
-        {/* Stepper Connecting Line */}
-        <div className="absolute top-8 sm:top-[40px] -translate-y-1/2 left-[12.5%] right-[12.5%] h-0.5 bg-gray-200 hidden sm:block z-0">
+        {/* Mobile Connecting Line (Vertical) */}
+        <div className="absolute left-[24px] top-6 bottom-6 w-0.5 -translate-x-1/2 bg-stone-200 sm:hidden z-0">
+          <div
+            className="w-full bg-brand-brown transition-all duration-700"
+            style={{
+              height: `${(currentStep / (steps.length - 1)) * 100}%`,
+            }}
+          />
+        </div>
+
+        {/* Desktop Connecting Line (Horizontal) */}
+        <div className="absolute top-[28px] sm:top-[34px] -translate-y-1/2 left-[12.5%] right-[12.5%] h-0.5 bg-stone-200 hidden sm:block z-0">
           <div
             className="h-full bg-brand-brown transition-all duration-700"
             style={{
@@ -70,7 +80,7 @@ export function TrackingMilestonesCard({
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 sm:gap-x-0 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-5 sm:gap-x-0 relative z-10">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isCompleted = index <= currentStep;
@@ -82,7 +92,7 @@ export function TrackingMilestonesCard({
                 className="flex sm:flex-col items-center sm:text-center group"
               >
                 <div
-                  className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 transition-all mr-4 sm:mr-0 sm:mb-3 shadow-2xs
+                  className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 transition-all mr-3.5 sm:mr-0 sm:mb-2.5 shadow-2xs
                   ${
                     isCompleted
                       ? 'bg-brand-brown text-brand-yellow border-2 border-brand-brown'
@@ -91,10 +101,10 @@ export function TrackingMilestonesCard({
                   ${isCurrent ? 'ring-4 ring-amber-200/80 scale-105' : ''}
                 `}
                 >
-                  <Icon size={20} strokeWidth={2.2} />
+                  <Icon size={index === 0 ? 18 : 20} strokeWidth={2.2} />
                 </div>
 
-                <div className="flex flex-col sm:items-center">
+                <div className="flex flex-col sm:items-center min-w-0">
                   <p
                     className={`text-xs font-black uppercase tracking-wider ${
                       isCompleted ? 'text-brand-brown' : 'text-stone-400'
@@ -110,7 +120,7 @@ export function TrackingMilestonesCard({
       </div>
 
       {/* Checkpoint Timeline Logs */}
-      <div className="mt-12 pt-8 border-t border-gray-100">
+      <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-100">
         <div className="mb-6">
           <span className="text-[10px] uppercase font-black tracking-widest text-brand-amber block mb-0.5">
             CARRIER SCANS & EVENTS

@@ -63,15 +63,13 @@ export const orderRequester = {
   },
 
   /**
-   * Track order using order number and phone (for guest customers).
+   * Track order using order number (for guest customers).
    */
   trackOrderByQuery: async (
     orderNumber: string,
-    phone?: string,
   ): Promise<TrackingResult> => {
     return apiClient.post<TrackingResult>('/orders/track', {
       orderNumber,
-      phone,
     });
   },
 

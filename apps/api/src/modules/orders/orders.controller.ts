@@ -86,16 +86,16 @@ export class CustomerOrdersController {
   }
 
   @Post('track')
-  @ApiOperation({ summary: 'Track order with order number and phone' })
+  @ApiOperation({ summary: 'Track order with order number' })
   @ApiResponse({
     status: 200,
     description: 'Tracking timeline and carrier status',
   })
   @ApiResponse({ status: 404, description: 'Order not found' })
   async trackOrderByQuery(
-    @Body() body: { orderNumber: string; phone?: string },
+    @Body() body: { orderNumber: string },
   ): Promise<TrackingResult> {
-    return this.ordersService.trackOrder(body.orderNumber, body.phone);
+    return this.ordersService.trackOrder(body.orderNumber);
   }
 
   @Post('webhook/omise')
