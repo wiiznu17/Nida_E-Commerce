@@ -54,7 +54,7 @@ packages/database/src/
 
 - `INITIAL_ADMIN_EMAIL` — อีเมลของ Super Admin (default: `admin@nida-apparel.com`)
 - `INITIAL_ADMIN_USERNAME` — Username ของ Super Admin (default: `superadmin`)
-- `INITIAL_ADMIN_PASSWORD_HASH` — **จำเป็นต้องระบุใน Production** (bcrypt hash) หากไม่ได้ระบุ ระบบจะปฏิเสธการทำงานทันทีเพื่อป้องกันการใช้รหัสผ่านเริ่มต้น
+- `INITIAL_ADMIN_PASSWORD` — รหัสผ่านเริ่มต้นของ Super Admin (ระบุเป็น plain text ได้เลย ระบบจะนำไป hash ด้วย bcrypt ให้อัตโนมัติในตอน seed) หรือระบุเป็น `INITIAL_ADMIN_PASSWORD_HASH` (bcrypt hash) แทนได้
 
 ---
 

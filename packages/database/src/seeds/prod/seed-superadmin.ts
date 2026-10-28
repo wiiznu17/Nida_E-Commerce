@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { PrismaClient } from '../../generated/prisma/index.js';
 
 export async function seedSuperAdmin(prisma: PrismaClient) {
@@ -20,24 +21,28 @@ export async function seedSuperAdmin(prisma: PrismaClient) {
   const adminEmail =
     process.env.INITIAL_ADMIN_EMAIL ?? 'admin@nida-apparel.com';
   const adminUsername = process.env.INITIAL_ADMIN_USERNAME ?? 'superadmin';
-  const passwordHash = process.env.INITIAL_ADMIN_PASSWORD_HASH;
+  const rawPassword = process.env.INITIAL_ADMIN_PASSWORD;
+  const rawPasswordHash = process.env.INITIAL_ADMIN_PASSWORD_HASH;
 
-  if (isProduction && !passwordHash) {
+  let effectivePasswordHash = rawPasswordHash?.trim();
+  if (rawPassword && rawPassword.trim()) {
+    effectivePasswordHash = await bcrypt.hash(rawPassword.trim(), 10);
+  }
+
+  if (isProduction && !effectivePasswordHash) {
     throw new Error(
-      '🚨 SECURITY VIOLATION: INITIAL_ADMIN_PASSWORD_HASH is required in production environment!\n' +
-        'Please generate a secure bcrypt hash and configure INITIAL_ADMIN_PASSWORD_HASH in your environment before seeding production.',
+      '🚨 SECURITY VIOLATION: INITIAL_ADMIN_PASSWORD (or INITIAL_ADMIN_PASSWORD_HASH) is required in production environment!\n' +
+        'Please configure INITIAL_ADMIN_PASSWORD in your environment before seeding production.',
     );
   }
 
   // Non-production fallback (e.g. local staging/dev testing)
-  const effectivePasswordHash =
-    passwordHash ??
-    '$2b$10$/45cqjrkP0Gy4P0tjZeBJe5XyQ0u1vpEhkTI1A14DnM2Y9Kxa6dL.'; // admin123
-
-  if (!passwordHash) {
+  if (!effectivePasswordHash) {
     console.warn(
-      '⚠️  [SECURITY NOTICE] Using fallback password ("admin123") because INITIAL_ADMIN_PASSWORD_HASH was not provided. Ensure this is NOT a production deployment.',
+      '⚠️  [SECURITY NOTICE] Using fallback password ("admin123") because neither INITIAL_ADMIN_PASSWORD nor INITIAL_ADMIN_PASSWORD_HASH was provided. Ensure this is NOT a production deployment.',
     );
+    effectivePasswordHash =
+      '$2b$10$/45cqjrkP0Gy4P0tjZeBJe5XyQ0u1vpEhkTI1A14DnM2Y9Kxa6dL.'; // admin123
   }
 
   const createdAdmin = await prisma.adminUser.create({
