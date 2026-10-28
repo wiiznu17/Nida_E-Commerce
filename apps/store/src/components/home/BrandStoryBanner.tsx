@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { NidaLogo } from '@/components/layout';
 
 export const BrandStoryBanner: React.FC = () => {
   const { t } = useLanguage();
@@ -11,11 +12,7 @@ export const BrandStoryBanner: React.FC = () => {
     <section className="relative bg-brand-brown text-white py-24 overflow-hidden">
       <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
         <div className="flex justify-center mb-6">
-          <div className="flex w-16 h-2">
-            <div className="w-1/3 bg-brand-brown" />
-            <div className="w-1/3 bg-white" />
-            <div className="w-1/3 bg-brand-yellow" />
-          </div>
+          <NidaLogo size="lg" dark className="drop-shadow-md" />
         </div>
         <span className="text-xs font-black tracking-[0.3em] uppercase text-brand-yellow block mb-4">
           {t('home.heritageTag')}
