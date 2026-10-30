@@ -578,6 +578,9 @@ export class CatalogService {
       }
 
       return created;
+    }, {
+      maxWait: 10000,
+      timeout: 30000,
     });
 
     const result = await this.getProductBySlug(newProduct.slug);
@@ -1120,6 +1123,9 @@ export class CatalogService {
           }
         }
       }
+    }, {
+      maxWait: 10000,
+      timeout: 30000,
     });
 
     const result = await this.getProductBySlug(existing.slug);

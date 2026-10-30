@@ -307,6 +307,9 @@ export class OrdersService {
       });
 
       return order;
+    }, {
+      maxWait: 10000,
+      timeout: 30000,
     });
 
     void this.auditLog?.recordLog({

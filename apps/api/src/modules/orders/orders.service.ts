@@ -533,6 +533,9 @@ export class CustomerOrdersService {
       });
 
       return order;
+    }, {
+      maxWait: 10000,
+      timeout: 30000,
     });
 
     await this.orderLifecycleProducer.scheduleOrderTimeout(
