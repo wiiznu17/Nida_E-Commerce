@@ -21,7 +21,7 @@ Nida separates customer-facing commerce from back-office administration into dis
 
 ---
 
-## Quick Start (Local Setup in 4 Steps)
+## Quick Start (Local Setup)
 
 ### 1. Prerequisites
 
@@ -34,23 +34,58 @@ Nida separates customer-facing commerce from back-office administration into dis
 git clone https://github.com/wiiznu17/Nida_E-Commerce.git
 cd Nida_Project
 npm install
-cp .env.example .env
 ```
 
-### 3. Spin Up Infrastructure & Seed Database
+### 3. Configure Environment Variables
+
+This monorepo uses **separate `.env` files** per workspace. Each workspace reads its own `.env` — they are **not** inherited from root.
 
 ```bash
-# 1. Start PostgreSQL 16, Redis 7, and pgAdmin containers
+# Root (docker-compose only)
+cp .env.example .env
+
+# Database package (Prisma CLI reads DATABASE_URL from here)
+cp packages/database/.env.example packages/database/.env
+
+# Backend APIs
+cp apps/api/.env.example apps/api/.env
+cp apps/admin-api/.env.example apps/admin-api/.env
+```
+
+> **Note**: If using the default Docker Compose setup (local PostgreSQL + Redis), the `.env.example` files ship with working defaults — no edits needed. For Supabase or other cloud databases, update `DATABASE_URL` and `DIRECT_URL` in `packages/database/.env` and the backend `.env` files accordingly.
+
+**Environment File Hierarchy:**
+
+| File | Read By | Purpose |
+| :--- | :--- | :--- |
+| `.env` (root) | `docker-compose.yml` | Container names, ports, Postgres/Redis passwords |
+| `packages/database/.env` | Prisma CLI (`db:push`, `db:seed`, `db:generate`, `db:studio`) | `DATABASE_URL`, `DIRECT_URL`, production seed secrets |
+| `apps/api/.env` | Storefront NestJS API | DB connection, Redis, JWT customer secret, Omise keys |
+| `apps/admin-api/.env` | Admin NestJS API | DB connection, Redis, JWT admin secrets, Cloudinary keys |
+| `apps/store/.env.local` | Next.js Storefront | `NEXT_PUBLIC_API_URL` |
+| `apps/admin/.env` | Vite Admin Portal | `VITE_API_URL`, `VITE_STOREFRONT_URL` |
+
+### 4. Spin Up Infrastructure & Seed Database
+
+```bash
+# Start PostgreSQL 16, Redis 7, and pgAdmin containers
 docker compose up -d
 
-# 2. Push database schema
+# Push database schema (reads DATABASE_URL from packages/database/.env)
 npm run db:push -w @repo/database
 
-# 3. Seed mock catalog, demo staff accounts, and test coupons
+# Seed mock catalog, demo staff accounts, and test coupons
 npm run db:seed -w @repo/database
 ```
 
-### 4. Start Development Servers
+> **Tip**: You can also run Prisma commands directly from the package directory:
+> ```bash
+> cd packages/database
+> npx prisma db push
+> npx prisma studio
+> ```
+
+### 5. Start Development Servers
 
 ```bash
 # Start all services concurrently (Store, Admin, API, Admin-API)
