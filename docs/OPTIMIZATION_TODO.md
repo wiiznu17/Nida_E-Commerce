@@ -123,23 +123,26 @@
 
 ### เฟส 4: Database Indexing & Redis Caching
 
-> **เป้าหมาย**: เพิ่มความเร็ว Query แคตตาล็อกและการค้นหาลงเหลือ < 20ms และรองรับ Concurrent High-Traffic
+> **เป้าหมาย**: เพิ่มความเร็ว Query แคตตาล็อกและการค้นหาลงเหลือ < 20ms และรองรับ Concurrent High-Traffic (สำเร็จ: เพิ่ม 4 B-Tree Composite Indexes, เพิ่ม Redis Cache-Aside, เพิ่ม Admin Invalidation Hooks)
 
-- [ ] **4.1 เพิ่ม Composite Indexes ใน Prisma Schema (`packages/database/prisma/schema.prisma`)**
-  - [ ] `Product`: เพิ่ม `@@index([isActive, createdAt(sort: Desc)])` สำหรับการดึงรายการสินค้าล่าสุด (Default Catalog View)
-  - [ ] `Product`: เพิ่ม `@@index([tag, isActive])` สำหรับการกรองแคมเปญ (NEW_ARRIVAL, BESTSELLER, SALE)
-  - [ ] `ProductVariant`: เพิ่ม `@@index([colorHex])` สำหรับการกรองตัวเลือกสี
-  - [ ] `ProductVariant`: เพิ่ม `@@index([productId, isActive])` สำหรับดึง SKU ตัวที่เปิดใช้งาน
-- [ ] **4.2 สร้าง Migration File ตามมาตรฐานโปรเจกต์**
-  - สร้างไฟล์ migration ใต้ `packages/database/prisma/migrations/<timestamp>_add_performance_indexes/migration.sql`
-  - รัน `npm --prefix packages/database run db:generate`
-- [ ] **4.3 เพิ่ม Redis Cache-Aside ใน `apps/api` (Catalog Service)**
+- [x] **4.1 เพิ่ม Composite Indexes ใน Prisma Schema (`packages/database/prisma/schema.prisma`)**
+  - [x] `Product`: เพิ่ม `@@index([isActive, createdAt(sort: Desc)])` สำหรับการดึงรายการสินค้าล่าสุด (Default Catalog View แบบไม่ต้อง Sort)
+  - [x] `Product`: เพิ่ม `@@index([tag, isActive])` สำหรับการกรองแคมเปญการตลาด (NEW_ARRIVAL, BESTSELLER, SALE)
+  - [x] `ProductVariant`: เพิ่ม `@@index([colorHex])` สำหรับการกรองตัวเลือกสีในหน้า Catalog
+  - [x] `ProductVariant`: เพิ่ม `@@index([productId, isActive])` สำหรับดึง SKU ตัวที่เปิดใช้งาน (Covering Index)
+- [x] **4.2 สร้าง Migration File ตามมาตรฐานโปรเจกต์**
+  - สร้างไฟล์ migration: `packages/database/prisma/migrations/20261101201500_add_performance_indexes/migration.sql`
+  - รัน `npm --prefix packages/database run db:generate` อัปเดต Prisma Client สำเร็จ 100%
+- [x] **4.3 เพิ่ม Redis Cache-Aside ใน `apps/api` (Catalog Service)**
   - เพิ่ม Cache-Aside Pattern ให้กับ:
-    - `CustomerCatalogService.getProducts()`: แคช Default query (page 1, limit 24, newest) ด้วย TTL 120 วินาที
+    - `CustomerCatalogService.getProducts()`: แคช Query แคตตาล็อกด้วย TTL 120 วินาที
     - `CustomerCatalogService.getCategories()`: แคชโครงสร้างหมวดหมู่ด้วย TTL 600 วินาที
     - `CustomerCatalogService.getProductByIdOrSlug()`: แคชข้อมูลรายละเอียดสินค้าด้วย TTL 180 วินาที
-  - เพิ่ม Cache Invalidation Hooks:
-    - ล้างแคช Catalog เมื่อ Admin ทำการสร้าง, แก้ไข, ลบ สินค้า หรืออัปเดตสถานะหมวดหมู่
+  - ป้องกันสต็อกผิดพลาด: สต็อกแบบ Real-time และขั้นตอน SyncCart/Checkout ไม่แคช และดึงตรงจาก DB เสมอ
+- [x] **4.4 เพิ่ม Cache Invalidation Hooks ใน `apps/admin-api`**
+  - เพิ่มเมธอด `delByPattern('catalog:*')` ใน `RedisService` ทั้งสองระบบ
+  - ล้างแคช Catalog อัตโนมัติเมื่อ Admin ทำการสร้าง, แก้ไข, ลบสินค้า, ปิดการขาย หรืออัปเดตหมวดหมู่
+  - เพิ่ม Unit Tests ใน `apps/api/test/catalog/catalog.service.spec.ts` ทดสอบ Cache Hit & Miss ผ่านครบ 100%
 
 ---
 

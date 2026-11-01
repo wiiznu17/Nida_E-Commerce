@@ -182,6 +182,30 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.memoryStore.delete(key);
   }
 
+  async delByPattern(pattern: string): Promise<void> {
+    if (this.isConnected && this.client) {
+      try {
+        const keys = await this.client.keys(pattern);
+        if (keys.length > 0) {
+          await this.client.del(...keys);
+        }
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis delByPattern failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+    const escaped = pattern
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/\\\*/g, '.*');
+    const regex = new RegExp(`^${escaped}$`);
+    for (const key of this.memoryStore.keys()) {
+      if (regex.test(key)) {
+        this.memoryStore.delete(key);
+      }
+    }
+  }
+
   async ttl(key: string): Promise<number> {
     if (this.isConnected && this.client) {
       try {

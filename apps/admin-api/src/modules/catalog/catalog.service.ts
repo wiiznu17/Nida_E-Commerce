@@ -31,6 +31,7 @@ import {
 import { Prisma, Department, MarketingTag } from '@repo/database';
 import { UploadService } from '../upload/upload.service.js';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
+import { RedisService } from '../../core/redis/redis.service.js';
 
 @Injectable()
 export class CatalogService {
@@ -38,7 +39,14 @@ export class CatalogService {
     private readonly prisma: PrismaService,
     private readonly uploadService: UploadService,
     private readonly auditLog?: AuditLogService,
+    private readonly redis?: RedisService,
   ) {}
+
+  private async invalidateCatalogCache(): Promise<void> {
+    if (this.redis) {
+      await this.redis.delByPattern('catalog:*');
+    }
+  }
 
   async getCategories(
     department?: string,
@@ -133,6 +141,7 @@ export class CatalogService {
       },
     });
 
+    await this.invalidateCatalogCache();
     return this.mapCategory(created);
   }
 
@@ -246,6 +255,7 @@ export class CatalogService {
       },
     });
 
+    await this.invalidateCatalogCache();
     return this.mapCategory(updated);
   }
 
@@ -293,6 +303,7 @@ export class CatalogService {
       newValuesJson: null,
     });
 
+    await this.invalidateCatalogCache();
     return {
       success: true,
       message: `Category "${existing.name}" has been deleted successfully`,
@@ -613,6 +624,7 @@ export class CatalogService {
       },
     });
 
+    await this.invalidateCatalogCache();
     return result;
   }
 
@@ -886,6 +898,7 @@ export class CatalogService {
       },
     });
 
+    await this.invalidateCatalogCache();
     return { success: true, id: updated.id, isActive: updated.isActive };
   }
 
@@ -933,6 +946,7 @@ export class CatalogService {
         },
       });
 
+      await this.invalidateCatalogCache();
       return { success: true, id };
     }
 
@@ -950,6 +964,7 @@ export class CatalogService {
       newValuesJson: null,
     });
 
+    await this.invalidateCatalogCache();
     return { success: true, id };
   }
 
@@ -1174,6 +1189,7 @@ export class CatalogService {
       },
     });
 
+    await this.invalidateCatalogCache();
     return result;
   }
 

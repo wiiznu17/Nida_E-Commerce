@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@repo/database';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
+import { RedisService } from '../../core/redis/redis.service.js';
 import {
   Department,
   MarketingTag,
@@ -25,11 +26,25 @@ type CategoryWithRelations = Prisma.CategoryGetPayload<
 
 @Injectable()
 export class CustomerCatalogService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis?: RedisService,
+  ) {}
 
   async getProducts(
     params: StoreQueryProductsParams = {},
   ): Promise<PaginatedResponse<ApiProduct>> {
+    const cacheKey = `catalog:products:${JSON.stringify(params)}`;
+    if (this.redis) {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        try {
+          return JSON.parse(cached) as PaginatedResponse<ApiProduct>;
+        } catch {
+          // continue to fetch from DB on parse error
+        }
+      }
+    }
     const {
       department,
       category,
@@ -249,7 +264,7 @@ export class CustomerCatalogService {
       };
     });
 
-    return {
+    const response: PaginatedResponse<ApiProduct> = {
       success: true,
       data: items,
       pagination: {
@@ -259,9 +274,27 @@ export class CustomerCatalogService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    if (this.redis) {
+      await this.redis.set(cacheKey, JSON.stringify(response), 120);
+    }
+
+    return response;
   }
 
   async getProductBySlug(slugOrId: string): Promise<ApiProductDetail> {
+    const cacheKey = `catalog:product:${slugOrId.toLowerCase()}`;
+    if (this.redis) {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        try {
+          return JSON.parse(cached) as ApiProductDetail;
+        } catch {
+          // continue to fetch from DB on parse error
+        }
+      }
+    }
+
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
         slugOrId,
@@ -285,7 +318,7 @@ export class CustomerCatalogService {
       throw new NotFoundException(`Product "${slugOrId}" not found`);
     }
 
-    return {
+    const detail: ApiProductDetail = {
       id: product.id,
       name: product.name,
       nameTh: product.nameTh ?? undefined,
@@ -352,9 +385,28 @@ export class CustomerCatalogService {
         : undefined,
       isActive: product.isActive,
     };
+
+    if (this.redis) {
+      await this.redis.set(cacheKey, JSON.stringify(detail), 180);
+    }
+
+    return detail;
   }
 
   async getCategories(department?: string): Promise<ApiCategory[]> {
+    const deptKey = department?.toLowerCase() || 'all';
+    const cacheKey = `catalog:categories:${deptKey}`;
+    if (this.redis) {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        try {
+          return JSON.parse(cached) as ApiCategory[];
+        } catch {
+          // continue to fetch from DB on parse error
+        }
+      }
+    }
+
     const where: Prisma.CategoryWhereInput = { isActive: true };
     if (
       department &&
@@ -375,7 +427,11 @@ export class CustomerCatalogService {
       orderBy: { displayOrder: 'asc' },
     });
 
-    return categories.map((c) => this.mapCategory(c));
+    const result = categories.map((c) => this.mapCategory(c));
+    if (this.redis) {
+      await this.redis.set(cacheKey, JSON.stringify(result), 600);
+    }
+    return result;
   }
 
   private mapCategory(cat: CategoryWithRelations): ApiCategory {

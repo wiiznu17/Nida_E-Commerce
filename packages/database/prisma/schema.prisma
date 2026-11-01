@@ -313,6 +313,8 @@ model Product {
 
   @@index([categoryId, isActive])
   @@index([isPreorder, isActive])
+  @@index([isActive, createdAt(sort: Desc)])
+  @@index([tag, isActive])
   @@map("products")
 }
 
@@ -345,6 +347,8 @@ model ProductVariant {
   cartItems       CartItem[]
 
   @@index([productId])
+  @@index([productId, isActive])
+  @@index([colorHex])
   @@map("product_variants")
 }
 

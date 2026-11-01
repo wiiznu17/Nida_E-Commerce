@@ -1,10 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CustomerCatalogService } from '../../src/modules/catalog/catalog.service.js';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
+import type { RedisService } from '../../src/core/redis/redis.service.js';
 import { Department } from '@repo/types';
 
 describe('CustomerCatalogService', () => {
   let service: CustomerCatalogService;
+  let redisMock: {
+    get: ReturnType<typeof vi.fn>;
+    set: ReturnType<typeof vi.fn>;
+    del: ReturnType<typeof vi.fn>;
+    delByPattern: ReturnType<typeof vi.fn>;
+  };
   let prismaMock: {
     product: {
       fields: {
@@ -83,8 +90,16 @@ describe('CustomerCatalogService', () => {
       },
     };
 
+    redisMock = {
+      get: vi.fn().mockResolvedValue(null),
+      set: vi.fn().mockResolvedValue(undefined),
+      del: vi.fn().mockResolvedValue(undefined),
+      delByPattern: vi.fn().mockResolvedValue(undefined),
+    };
+
     service = new CustomerCatalogService(
       prismaMock as unknown as PrismaService,
+      redisMock as unknown as RedisService,
     );
   });
 
@@ -215,6 +230,67 @@ describe('CustomerCatalogService', () => {
             ]),
           }),
         }),
+      );
+    });
+
+    it('returns cached products when cache hit occurs without querying database', async () => {
+      const cachedPayload = {
+        success: true,
+        data: [{ id: 'cached-prod', name: 'Cached Polo' }],
+        pagination: { page: 1, limit: 24, total: 1, totalPages: 1 },
+      };
+      redisMock.get.mockResolvedValueOnce(JSON.stringify(cachedPayload));
+
+      const result = await service.getProducts({ page: 1 });
+      expect(result).toEqual(cachedPayload);
+      expect(prismaMock.product.findMany).not.toHaveBeenCalled();
+    });
+
+    it('stores query result in Redis on cache miss', async () => {
+      redisMock.get.mockResolvedValueOnce(null);
+
+      const result = await service.getProducts({ page: 1 });
+      expect(prismaMock.product.findMany).toHaveBeenCalled();
+      expect(redisMock.set).toHaveBeenCalledWith(
+        expect.stringContaining('catalog:products:'),
+        expect.any(String),
+        120,
+      );
+      expect(result.data.length).toBe(1);
+    });
+  });
+
+  describe('getCategories caching', () => {
+    it('returns cached categories on cache hit', async () => {
+      const cachedCategories = [{ id: 'cat-1', name: 'Men', slug: 'men' }];
+      redisMock.get.mockResolvedValueOnce(JSON.stringify(cachedCategories));
+
+      const result = await service.getCategories('men');
+      expect(result).toEqual(cachedCategories);
+      expect(prismaMock.category.findMany).not.toHaveBeenCalled();
+    });
+
+    it('stores categories in Redis on cache miss with 600s TTL', async () => {
+      redisMock.get.mockResolvedValueOnce(null);
+      prismaMock.category.findMany.mockResolvedValueOnce([
+        {
+          id: 'cat-1',
+          name: 'Men',
+          slug: 'men',
+          department: Department.MEN,
+          displayOrder: 1,
+          isActive: true,
+          children: [],
+          _count: { products: 10 },
+        },
+      ]);
+
+      const result = await service.getCategories('men');
+      expect(result.length).toBe(1);
+      expect(redisMock.set).toHaveBeenCalledWith(
+        'catalog:categories:men',
+        expect.any(String),
+        600,
       );
     });
   });
