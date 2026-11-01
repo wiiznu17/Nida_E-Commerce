@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import compression from 'compression';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AppModule } from './app.module.js';
@@ -40,6 +41,9 @@ async function bootstrap() {
 
   // HTTP Security Headers
   app.use(helmet());
+
+  // Response Payload Compression (Gzip/Deflate for payloads > 1KB)
+  app.use(compression({ threshold: 1024 }));
 
   // Strict CORS Whitelist Configuration
   const isProd = process.env.NODE_ENV === 'production';

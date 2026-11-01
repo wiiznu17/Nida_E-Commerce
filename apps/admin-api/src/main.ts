@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import compression from 'compression';
 import express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -36,6 +37,9 @@ async function bootstrap() {
 
   // HTTP Security Headers (allow cross-origin resource policy for uploaded static files)
   app.use(helmet({ crossOriginResourcePolicy: false }));
+
+  // Response Payload Compression (Gzip/Deflate for payloads > 1KB)
+  app.use(compression({ threshold: 1024 }));
 
   // Strict CORS Whitelist Configuration
   const isProd = process.env.NODE_ENV === 'production';
@@ -103,7 +107,13 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  app.use(
+    '/uploads',
+    express.static(path.join(process.cwd(), 'uploads'), {
+      maxAge: '7d',
+      immutable: true,
+    }),
+  );
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Header } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { StoreContentService } from './content.service.js';
 
@@ -8,6 +8,10 @@ export class StoreContentController {
   constructor(private readonly contentService: StoreContentService) {}
 
   @Get('home')
+  @Header(
+    'Cache-Control',
+    'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+  )
   @ApiOperation({
     summary: 'ดึงข้อมูลเนื้อหาหน้าแรกของหน้าร้าน',
     description:
@@ -19,6 +23,10 @@ export class StoreContentController {
   }
 
   @Get('settings')
+  @Header(
+    'Cache-Control',
+    'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+  )
   @ApiOperation({
     summary: 'ดึงการตั้งค่าร้านค้าและแถบประกาศ',
   })

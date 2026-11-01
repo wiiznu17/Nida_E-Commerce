@@ -5,6 +5,7 @@ import {
   Body,
   Param,
   Query,
+  Header,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -112,6 +113,10 @@ export class CustomerCatalogController {
   }
 
   @Get('categories')
+  @Header(
+    'Cache-Control',
+    'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+  )
   @ApiOperation({ summary: 'List categories' })
   @ApiQuery({ name: 'department', required: false })
   async getCategories(
