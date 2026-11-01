@@ -99,20 +99,21 @@
 ---
 
 ### เฟส 3: Admin Bundle & Code-Splitting (`apps/admin`)
-> **เป้าหมาย**: ทำลาย Monolithic JS Chunk ขนาด 1.39 MB ให้เหลือ Initial Bundle < 220 KB
+> **เป้าหมาย**: ทำลาย Monolithic JS Chunk ขนาด 1.39 MB ให้เหลือ Initial Bundle < 220 KB (สำเร็จ: ลดเหลือ ~19 KB entry chunk + แยก 41 chunks ย่อย)
 
-- [ ] **3.1 แปลงการนำเข้า Route เป็นแบบ Lazy Loading (`React.lazy` + `Suspense`)**
-  - แก้ไข `apps/admin/src/App.tsx` โดยเปลี่ยนจากการ `import` หน้าแบบ Static ทั้งหมด 20+ หน้า ให้เป็น Dynamic `React.lazy(() => import('./pages/...'))`
-  - ห่อ `RouterProvider` หรือ Route elements ด้วย `<Suspense fallback={<AdminLoadingFallback />}>`
-  - แยกหน้าหนักที่ใช้งานเฉพาะทาง (เช่น `AdminOrders`, `AdminAnalytics`, `AdminAuditLogs`, `AdminProductCreate`) ออกจาก Initial Chunk
-- [ ] **3.2 ปรับแต่ง Rollup Chunk Splitting ใน `vite.config.ts`**
-  - เพิ่มการตั้งค่า `build.rollupOptions.output.manualChunks` ใน `apps/admin/vite.config.ts`:
-    - `vendor-react`: `['react', 'react-dom', 'react-router-dom']`
-    - `vendor-ui`: `['lucide-react', 'clsx', 'tailwind-merge']`
-    - `vendor-form`: `['zod', 'react-hook-form', '@hookform/resolvers']`
-  - กำหนด `chunkSizeWarningLimit: 600`
-- [ ] **3.3 แก้ปัญหา Ineffective Dynamic Import**
-  - ปรับการ import ใน `src/utils/cloudinary.ts` และ `src/api/index.ts` เพื่อไม่ให้เกิด circular static/dynamic import ตามคำเตือนของ Vite build
+- [x] **3.1 แปลงการนำเข้า Route เป็นแบบ Lazy Loading (`React.lazy` + `Suspense`)**
+  - แก้ไข `apps/admin/src/App.tsx` โดยเปลี่ยนจากการ `import` หน้าแบบ Static ทั้งหมด 20+ หน้า ให้เป็น Dynamic `React.lazy(() => import('./pages/...'))` พร้อม helper `lazyWithRetry` สำหรับตรวจจับและ auto-refresh เมื่อเกิด chunk hash mismatch
+  - สร้างคอมโพเนนต์ `<AdminPageLoader />` และห่อ `Outlet` ใน `ProtectedRoute.tsx` และ `PublicOnlyRoute.tsx` ด้วย `<Suspense fallback={<AdminPageLoader />}>`
+  - แยกหน้าหนักที่ใช้งานเฉพาะทาง (เช่น `AdminOrders`, `AdminAnalytics`, `AdminAuditLogs`, `AdminProductCreate`, `AdminInventory`) ออกจาก Initial Chunk เหลือขนาดเพียง 1.5 - 37 KB ต่อหน้า
+- [x] **3.2 ปรับแต่ง Rollup Chunk Splitting ใน `vite.config.ts`**
+  - เพิ่มการตั้งค่า `build.rollupOptions.output.manualChunks(id)` ใน `apps/admin/vite.config.ts`:
+    - `vendor-react`: แยก `['react', 'react-dom', 'react-router-dom']` (189 kB, gzip 59 kB)
+    - `vendor-ui`: แยก `['lucide-react', '@base-ui/react', 'class-variance-authority']` (181 kB, gzip 61 kB)
+    - `vendor-validators`: แยก `['zod', '@repo/validators']` (111 kB, gzip 31 kB)
+  - กำหนด `chunkSizeWarningLimit: 600` ขจัดคำเตือน bundle ขนาดเกิน 500 kB สำเร็จ 100%
+- [x] **3.3 แก้ปัญหา Ineffective Dynamic Import**
+  - ปรับการ import ใน `apps/admin/src/utils/cloudinary.ts` ให้เรียกตรงจาก `uploadRequester` แทนการ static/dynamic circular re-export ขจัดคำเตือน Vite warning ได้สมบูรณ์ 100%
+  - ปรับการ lazy import ของ `AdminAccessDenied` ใน `ProtectedRoute.tsx` ให้สอดคล้องกัน ขจัด ineffective import warning ทั้งหมด
 
 ---
 

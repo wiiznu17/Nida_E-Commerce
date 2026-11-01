@@ -1,15 +1,22 @@
 /**
  * Cloudinary & Upload Utility
  *
- * Re-exports from clean API layer in apps/admin/src/api/upload.api.ts
+ * Direct delegation to uploadRequester
  */
-export { uploadApi, type UploadResponse } from '../api';
-export { uploadApi as cloudinaryApi } from '../api';
+import {
+  uploadRequester,
+  type UploadResponse,
+} from '../api/requester/uploadRequester';
+
+export {
+  uploadRequester as uploadApi,
+  uploadRequester as cloudinaryApi,
+  type UploadResponse,
+};
 
 export async function uploadImageToCloudinary(
   file: File,
   onProgress?: (percent: number) => void,
 ): Promise<string> {
-  const { uploadApi } = await import('../api');
-  return uploadApi.uploadImage(file, onProgress);
+  return uploadRequester.uploadImage(file, onProgress);
 }

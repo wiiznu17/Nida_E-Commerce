@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { AdminAccessDenied } from '../../pages/AdminAccessDenied';
+import { AdminPageLoader } from './AdminPageLoader';
 import type { AdminPermission } from '@repo/types';
+
+const AdminAccessDenied = lazy(
+  () => import('../../pages/AdminAccessDenied'),
+);
 
 export interface ProtectedRouteProps {
   requiredPermissions?: (AdminPermission | string)[] | AdminPermission | string;
@@ -45,7 +49,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }
 
-  return <Outlet />;
+  return (
+    <Suspense fallback={<AdminPageLoader />}>
+      <Outlet />
+    </Suspense>
+  );
 };
 
 export const PublicOnlyRoute: React.FC = () => {
@@ -63,5 +71,9 @@ export const PublicOnlyRoute: React.FC = () => {
     return <Navigate to="/admin" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <Suspense fallback={<AdminPageLoader />}>
+      <Outlet />
+    </Suspense>
+  );
 };

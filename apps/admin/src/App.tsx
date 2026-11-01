@@ -1,3 +1,4 @@
+import { lazy } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -10,30 +11,81 @@ import {
   ProtectedRoute,
   PublicOnlyRoute,
 } from './components/common/ProtectedRoute';
-
-import { AdminLogin } from './pages/AdminLogin';
-import { AdminSetupPassword } from './pages/AdminSetupPassword';
-import { AdminForgotPassword } from './pages/AdminForgotPassword';
-import { AdminResetPassword } from './pages/AdminResetPassword';
-
-import AdminDashboard from './pages/AdminDashboard';
-import AdminProducts from './pages/AdminProducts';
-import AdminCategories from './pages/AdminCategories';
-import AdminProductCreate from './pages/AdminProductCreate';
-import AdminProductEdit from './pages/AdminProductEdit';
-import AdminOrders from './pages/AdminOrders';
-import AdminOrderDetail from './pages/AdminOrderDetail';
-import AdminAnalytics from './pages/AdminAnalytics';
-import AdminCancellations from './pages/AdminCancellations';
-import AdminReturns from './pages/AdminReturns';
-import AdminInventory from './pages/AdminInventory';
-import AdminInventoryAudit from './pages/AdminInventoryAudit';
-import AdminPromotions from './pages/AdminPromotions';
-import AdminCmsContent from './pages/AdminCmsContent';
-import { AdminUsers } from './pages/AdminUsers';
-import AdminAuditLogs from './pages/AdminAuditLogs';
-import { AdminAccessDenied } from './pages/AdminAccessDenied';
 import { AdminPermission } from '@repo/types';
+
+const lazyWithRetry = (factory: Parameters<typeof lazy>[0]) => {
+  return lazy(async () => {
+    const pageAlreadyRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page_refreshed_on_chunk_error') || 'false',
+    );
+    try {
+      const module = await factory();
+      window.sessionStorage.setItem('page_refreshed_on_chunk_error', 'false');
+      return module;
+    } catch (error: unknown) {
+      if (!pageAlreadyRefreshed) {
+        window.sessionStorage.setItem('page_refreshed_on_chunk_error', 'true');
+        window.location.reload();
+      }
+      throw error;
+    }
+  });
+};
+
+// Public Auth Pages (Lazy-loaded)
+const AdminLogin = lazyWithRetry(() =>
+  import('./pages/AdminLogin').then((m) => ({ default: m.AdminLogin })),
+);
+const AdminSetupPassword = lazyWithRetry(() =>
+  import('./pages/AdminSetupPassword').then((m) => ({
+    default: m.AdminSetupPassword,
+  })),
+);
+const AdminForgotPassword = lazyWithRetry(() =>
+  import('./pages/AdminForgotPassword').then((m) => ({
+    default: m.AdminForgotPassword,
+  })),
+);
+const AdminResetPassword = lazyWithRetry(() =>
+  import('./pages/AdminResetPassword').then((m) => ({
+    default: m.AdminResetPassword,
+  })),
+);
+
+// Protected Admin Pages (Lazy-loaded)
+const AdminDashboard = lazyWithRetry(() => import('./pages/AdminDashboard'));
+const AdminProducts = lazyWithRetry(() => import('./pages/AdminProducts'));
+const AdminCategories = lazyWithRetry(() => import('./pages/AdminCategories'));
+const AdminProductCreate = lazyWithRetry(
+  () => import('./pages/AdminProductCreate'),
+);
+const AdminProductEdit = lazyWithRetry(
+  () => import('./pages/AdminProductEdit'),
+);
+const AdminOrders = lazyWithRetry(() => import('./pages/AdminOrders'));
+const AdminOrderDetail = lazyWithRetry(
+  () => import('./pages/AdminOrderDetail'),
+);
+const AdminAnalytics = lazyWithRetry(() => import('./pages/AdminAnalytics'));
+const AdminCancellations = lazyWithRetry(
+  () => import('./pages/AdminCancellations'),
+);
+const AdminReturns = lazyWithRetry(() => import('./pages/AdminReturns'));
+const AdminInventory = lazyWithRetry(() => import('./pages/AdminInventory'));
+const AdminInventoryAudit = lazyWithRetry(
+  () => import('./pages/AdminInventoryAudit'),
+);
+const AdminPromotions = lazyWithRetry(() => import('./pages/AdminPromotions'));
+const AdminCmsContent = lazyWithRetry(() => import('./pages/AdminCmsContent'));
+const AdminUsers = lazyWithRetry(() =>
+  import('./pages/AdminUsers').then((m) => ({ default: m.AdminUsers })),
+);
+const AdminAuditLogs = lazyWithRetry(() => import('./pages/AdminAuditLogs'));
+const AdminAccessDenied = lazyWithRetry(() =>
+  import('./pages/AdminAccessDenied').then((m) => ({
+    default: m.AdminAccessDenied,
+  })),
+);
 
 const router = createBrowserRouter([
   // Public-only Auth Routes (If already logged in, redirect to /admin)
