@@ -70,6 +70,34 @@
 
 ---
 
+### เฟส 2.5: ปรับปรุง Loading State และป้องกัน Double-Submit / Spam Click ในฝั่ง Admin
+> **เป้าหมาย**: ป้องกันการแสดงผล False Empty State ("ไม่พบข้อมูล") ขณะที่ API กำลังโหลด และป้องกันการกดปุ่มบันทึก/ปรับสถานะรัวๆ ซ้ำซ้อน
+
+- [x] **แก้ไขหน้าจัดการสต็อก (`apps/admin/src/pages/AdminInventory.tsx`)**:
+  - เพิ่มสถานะ `isSubmitting` และ `disabled` บนปุ่มบันทึกการปรับสต็อกใน Modal พร้อมแสดง `Loader2` แอนิเมชันหมุนขณะบันทึก ป้องกันการกดเบิ้ลส่งคำขอซ้ำ
+  - ปิดการกดปุ่ม "ยกเลิก" ขณะกำลังส่งข้อมูล (`disabled={isSubmitting}`)
+  - เพิ่ม `isLoading` (เริ่มต้นเป็น `true`) ในฟังก์ชัน `loadInventory()`
+  - แสดง Loading Row ใน `TableBody` ขณะกำลังโหลด แทนการกะพริบแสดง `EmptyState` ("ไม่พบรายการสต็อกสินค้า")
+  - ปรับยอดสรุปตัวเลขบนแถบ Filter Tabs ให้แสดง `...` ขณะกำลังโหลดข้อมูล แทนการกะพริบเป็น `(0)`
+- [x] **แก้ไขหน้ารายละเอียดคำสั่งซื้อ (`apps/admin/src/pages/AdminOrderDetail.tsx`)**:
+  - เพิ่มสถานะ `isLoading` (เริ่มต้นเป็น `true`) ใน `loadOrder()`
+  - แสดง Loading Spinner Screen ระหว่างรอ API ดึงข้อมูลคำสั่งซื้อ ป้องกันการกะพริบแสดง `EmptyState` ("ไม่พบคำสั่งซื้อ") ก่อนที่ข้อมูลจะมาถึง
+- [x] **แก้ไขหน้ารายการคำสั่งซื้อ (`apps/admin/src/pages/AdminOrders.tsx`)**:
+  - กำหนดค่าเริ่มต้น `isLoading` เป็น `true` เพื่อไม่ให้แสดงผลว่างเปล่าในเฟรมแรก
+  - แสดง Loading Row ใน `TableBody` ก่อนตรวจสอบเงื่อนไข `paginatedOrders.length === 0`
+  - เพิ่ม `updatingOrderId` state เพื่อล็อค Dropdown สถานะคำสั่งซื้อในแถวตารางขณะกำลังอัปเดต ป้องกันการกดย้ำเปลี่ยนสถานะซ้ำซ้อน
+- [x] **แก้ไขหน้าประวัติความเคลื่อนไหวสต็อก (`apps/admin/src/pages/AdminInventoryAudit.tsx`)**:
+  - เพิ่มสถานะ `isLoading` ใน `loadMovements()`
+  - แสดง Loading Row ในตาราง Ledger ขณะรอ API ตอบกลับ แทนการแสดง Empty State ล่วงหน้า
+- [x] **แก้ไขตารางคำขอยกเลิกและคืนสินค้า (`CancellationTable.tsx`, `ReturnTable.tsx`, `AdminCancellations.tsx`, `AdminReturns.tsx`)**:
+  - แก้ไข `CancellationTable` และ `ReturnTable` ให้นำ prop `isLoading` มาตรวจสอบก่อนเงื่อนไข `items.length === 0`
+  - ปรับค่าเริ่มต้น `isLoading` ในหน้า `AdminCancellations` และ `AdminReturns` เป็น `true`
+- [x] **แก้ไขหน้า Dashboard และ Analytics (`AdminDashboard.tsx`, `AdminAnalytics.tsx`)**:
+  - เพิ่ม `isLoading` ใน `AdminDashboard` เพื่อแสดง Loading Spinner แทนการกะพริบตัวเลขเป็น `0 ฿`, `0 คำสั่งซื้อ`, `0%` ก่อนข้อมูลจริงจะมาถึง
+  - ปรับค่าเริ่มต้น `isLoading` ใน `AdminAnalytics` เป็น `true` เพื่อให้ Skeletons และ Loading States แสดงผลทันทีตั้งแต่เริ่มโหลด
+
+---
+
 ### เฟส 3: Admin Bundle & Code-Splitting (`apps/admin`)
 > **เป้าหมาย**: ทำลาย Monolithic JS Chunk ขนาด 1.39 MB ให้เหลือ Initial Bundle < 220 KB
 

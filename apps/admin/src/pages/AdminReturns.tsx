@@ -32,7 +32,7 @@ export default function AdminReturns() {
     completed: 0,
     rejected: 0,
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Review & Inspect Modals
   const [reviewModalRequest, setReviewModalRequest] =

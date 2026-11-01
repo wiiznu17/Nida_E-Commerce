@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCw, Clock, Truck, ExternalLink } from 'lucide-react';
+import { RotateCw, Clock, Truck, ExternalLink, Loader2 } from 'lucide-react';
 import {
   TableContainer,
   Table,
@@ -111,7 +111,21 @@ export const ReturnTable: React.FC<ReturnTableProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.length === 0 ? (
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={7} className="py-20 text-center">
+                <div className="flex flex-col items-center justify-center space-y-2">
+                  <Loader2
+                    size={24}
+                    className="animate-spin text-brand-brown"
+                  />
+                  <span className="text-xs text-gray-500 font-medium">
+                    {t('common.loading') || 'กำลังโหลดข้อมูล...'}
+                  </span>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : items.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="py-12">
                 <EmptyState

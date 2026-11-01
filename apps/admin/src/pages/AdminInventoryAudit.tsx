@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, History, Search, RotateCcw, Filter } from 'lucide-react';
+import { ArrowLeft, History, Search, RotateCcw, Filter, Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
   DropdownSelect,
@@ -24,6 +24,7 @@ export default function AdminInventoryAudit() {
   const [searchParams] = useSearchParams();
 
   const [movementsList, setMovementsList] = useState<ApiStockMovement[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [typeFilter, setTypeFilter] = useState<'all' | StockMovementType>(
     'all',
   );
@@ -42,6 +43,7 @@ export default function AdminInventoryAudit() {
   const [pageSize, setPageSize] = useState(10);
 
   const loadMovements = async () => {
+    setIsLoading(true);
     try {
       const data = await inventoryRequester.getMovements();
       if (Array.isArray(data)) {
@@ -52,6 +54,8 @@ export default function AdminInventoryAudit() {
     } catch (err: unknown) {
       console.warn('Backend movements unavailable:', err);
       setMovementsList([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -173,7 +177,9 @@ export default function AdminInventoryAudit() {
         t('inventoryAudit.subtitle') ||
         'ตรวจสอบบันทึกประวัติการนำเข้า ตัดจำหน่าย และการปรับปรุงสต็อกสินค้าคงคลัง'
       } (${
-        language === 'th'
+        isLoading
+          ? (language === 'th' ? 'กำลังโหลดข้อมูล...' : 'Loading records...')
+          : language === 'th'
           ? `แสดง ${filteredMovements.length} จาก ${movementsList.length} รายการ`
           : `${filteredMovements.length} of ${movementsList.length} records displayed`
       })`}
@@ -444,7 +450,21 @@ export default function AdminInventoryAudit() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedMovements.length === 0 ? (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="py-20 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Loader2
+                          size={24}
+                          className="animate-spin text-brand-brown"
+                        />
+                        <span className="text-xs text-gray-500 font-medium">
+                          {t('common.loading') || 'กำลังโหลดข้อมูล...'}
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedMovements.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="p-8">
                       <EmptyState

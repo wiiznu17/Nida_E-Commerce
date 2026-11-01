@@ -13,6 +13,7 @@ import {
   Printer,
   Activity,
   ShieldAlert,
+  Loader2,
 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
@@ -70,7 +71,8 @@ export default function AdminOrders() {
     pendingCancellations: 0,
     pendingReturns: 0,
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
 
   // Read search & filter params from URL
   const [searchParams, setSearchParams] = useSearchParams();
@@ -254,6 +256,9 @@ export default function AdminOrders() {
       return;
     }
 
+    if (updatingOrderId) return;
+    setUpdatingOrderId(orderId);
+
     try {
       await orderRequester.updateStatus(orderId, newStatus);
       await loadOrders();
@@ -266,6 +271,8 @@ export default function AdminOrders() {
       setApiError(
         err instanceof Error ? err.message : 'Failed to update order status',
       );
+    } finally {
+      setUpdatingOrderId(null);
     }
   };
 
@@ -543,7 +550,21 @@ export default function AdminOrders() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedOrders.length === 0 ? (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="py-20 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Loader2
+                          size={24}
+                          className="animate-spin text-brand-brown"
+                        />
+                        <span className="text-xs text-gray-500 font-medium">
+                          {t('common.loading') || 'กำลังโหลดข้อมูล...'}
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedOrders.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="p-8">
                       <EmptyState
@@ -659,6 +680,7 @@ export default function AdminOrders() {
                           return (
                             <DropdownSelect
                               value={order.status}
+                              disabled={updatingOrderId === order.id}
                               onChange={(val) =>
                                 handleQuickStatusChange(
                                   order.id,
@@ -668,7 +690,7 @@ export default function AdminOrders() {
                               options={rowStatusOptions}
                               className={`text-[10px] font-black uppercase h-7 px-2 py-0.5 w-full justify-between ${getStatusBadgeStyle(
                                 order.status,
-                              )}`}
+                              )} ${updatingOrderId === order.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
                           );
                         })()}

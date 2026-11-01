@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Filter,
   ImageIcon,
+  Loader2,
 } from 'lucide-react';
 
 import { AdminLayout } from '../components/layout';
@@ -38,6 +39,8 @@ export default function AdminInventory() {
   const [searchParams] = useSearchParams();
 
   const [inventoryList, setInventoryList] = useState<ApiInventoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
@@ -67,12 +70,15 @@ export default function AdminInventory() {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const loadInventory = async () => {
+    setIsLoading(true);
     try {
       const apiItems = await inventoryRequester.getInventory();
       setInventoryList(apiItems ?? []);
     } catch (err: unknown) {
       console.warn('Backend inventory unavailable:', err);
       setInventoryList([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,8 +88,9 @@ export default function AdminInventory() {
 
   const handleAdjustSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adjustTarget) return;
+    if (!adjustTarget || isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       await inventoryRequester.restock({
         variantId: adjustTarget.id,
@@ -97,13 +104,14 @@ export default function AdminInventory() {
           ? `ปรับสต็อก SKU: ${adjustTarget.sku} จำนวน ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity} ชิ้น เรียบร้อยแล้ว`
           : `Stock for ${adjustTarget.sku} adjusted by ${adjustQuantity > 0 ? '+' : ''}${adjustQuantity}`,
       );
+      setAdjustTarget(null);
+      setAdjustQuantity(10);
     } catch (err: unknown) {
       const errMsg =
         err instanceof Error ? err.message : 'Failed to adjust stock';
       setApiError(errMsg);
     } finally {
-      setAdjustTarget(null);
-      setAdjustQuantity(10);
+      setIsSubmitting(false);
     }
   };
 
@@ -179,7 +187,9 @@ export default function AdminInventory() {
     <AdminLayout
       title={t('inventory.title') || 'การจัดการสต็อกและความเคลื่อนไหว'}
       subtitle={`${t('inventory.subtitle') || 'ควบคุมระดับสินค้าคงคลังราย SKU และตรวจสอบประวัติการปรับสต็อก'} (${
-        language === 'th'
+        isLoading
+          ? (language === 'th' ? 'กำลังโหลดข้อมูล...' : 'Loading items...')
+          : language === 'th'
           ? `แสดง ${filteredInventory.length} จาก ${inventoryList.length} รายการ`
           : `${filteredInventory.length} of ${inventoryList.length} items displayed`
       })`}
@@ -208,7 +218,7 @@ export default function AdminInventory() {
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {t('inventory.filterAll') || 'ทั้งหมด'} ({inventoryList.length})
+                {t('inventory.filterAll') || 'ทั้งหมด'} ({isLoading ? '...' : inventoryList.length})
               </button>
 
               <button
@@ -224,7 +234,7 @@ export default function AdminInventory() {
                   className={`w-1.5 h-1.5 rounded-full ${stockFilter === 'low' ? 'bg-white' : 'bg-amber-500'}`}
                 />
                 <span>
-                  {t('inventory.filterLow') || 'สต็อกใกล้หมด'} ({lowStockCount})
+                  {t('inventory.filterLow') || 'สต็อกใกล้หมด'} ({isLoading ? '...' : lowStockCount})
                 </span>
               </button>
 
@@ -241,7 +251,7 @@ export default function AdminInventory() {
                   className={`w-1.5 h-1.5 rounded-full ${stockFilter === 'out' ? 'bg-white' : 'bg-red-500'}`}
                 />
                 <span>
-                  {t('inventory.filterOut') || 'สินค้าหมด'} ({outOfStockCount})
+                  {t('inventory.filterOut') || 'สินค้าหมด'} ({isLoading ? '...' : outOfStockCount})
                 </span>
               </button>
             </div>
@@ -395,7 +405,21 @@ export default function AdminInventory() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedInventory.length === 0 ? (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="py-20 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Loader2
+                          size={24}
+                          className="animate-spin text-brand-brown"
+                        />
+                        <span className="text-xs text-gray-500 font-medium">
+                          {t('common.loading') || 'กำลังโหลดข้อมูล...'}
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedInventory.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="p-8">
                       <EmptyState
@@ -675,17 +699,26 @@ export default function AdminInventory() {
                 <button
                   type="button"
                   onClick={() => setAdjustTarget(null)}
-                  className="px-4 py-2 border border-gray-300 font-bold text-gray-600 hover:bg-gray-100"
+                  disabled={isSubmitting}
+                  className="px-4 py-2 border border-gray-300 font-bold text-gray-600 hover:bg-gray-100 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {language === 'th' ? 'ยกเลิก' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white font-bold uppercase tracking-wider shadow-xs"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center justify-center px-5 py-2 bg-brand-brown hover:bg-brand-amber text-white font-bold uppercase tracking-wider shadow-xs disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
-                  {language === 'th'
-                    ? 'บันทึกการปรับสต็อก'
-                    : 'Apply Stock Change'}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={15} className="animate-spin mr-1.5" />
+                      <span>{language === 'th' ? 'กำลังบันทึก...' : 'Saving...'}</span>
+                    </>
+                  ) : language === 'th' ? (
+                    'บันทึกการปรับสต็อก'
+                  ) : (
+                    'Apply Stock Change'
+                  )}
                 </button>
               </div>
             </form>

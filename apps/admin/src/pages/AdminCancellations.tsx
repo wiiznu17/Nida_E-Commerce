@@ -26,7 +26,7 @@ export default function AdminCancellations() {
       approved: 0,
       rejected: 0,
     });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // URL-driven search & filter params
   const [searchParams, setSearchParams] = useSearchParams();

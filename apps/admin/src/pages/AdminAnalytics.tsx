@@ -52,7 +52,7 @@ export default function AdminAnalytics() {
   const [topProductsTotalPages, setTopProductsTotalPages] = useState(1);
 
   // Data States
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [overview, setOverview] = useState<AnalyticsOverviewDto>(
     DEFAULT_OVERVIEW_METRICS,
   );

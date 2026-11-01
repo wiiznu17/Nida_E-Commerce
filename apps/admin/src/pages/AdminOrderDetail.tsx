@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Package } from 'lucide-react';
+import { Package, Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import { ApiErrorModal, EmptyState } from '../components/ui';
 import { useToast } from '../context/ToastContext';
@@ -32,6 +32,7 @@ export default function AdminOrderDetail() {
   const toast = useToast();
 
   const [order, setOrder] = useState<ApiOrder | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PAID');
   const [isUpdating, setIsUpdating] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export default function AdminOrderDetail() {
 
   const loadOrder = async () => {
     if (!id) return;
+    setIsLoading(true);
     try {
       const apiOrder = await orderRequester.getByNumber(id);
       if (apiOrder) {
@@ -61,10 +63,13 @@ export default function AdminOrderDetail() {
         setSelectedStatus(apiOrder.status);
         return;
       }
+      setOrder(null);
     } catch (err: unknown) {
       console.warn('Failed to load order from API:', err);
+      setOrder(null);
+    } finally {
+      setIsLoading(false);
     }
-    setOrder(null);
   };
 
   useEffect(() => {
@@ -154,6 +159,19 @@ export default function AdminOrderDetail() {
     }
     setIsFulfillModalOpen(true);
   };
+
+  if (isLoading) {
+    return (
+      <AdminLayout title={t('orders.title')} subtitle={t('orders.subtitle')}>
+        <div className="bg-white border border-brand-border p-20 rounded-md shadow-2xs text-center flex flex-col items-center justify-center space-y-3">
+          <Loader2 size={32} className="animate-spin text-brand-brown" />
+          <p className="text-xs text-gray-500 font-medium">
+            {t('common.loading') || 'กำลังโหลดข้อมูลคำสั่งซื้อ...'}
+          </p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (!order) {
     return (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Download } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
   DashboardHealthStrip,
@@ -24,6 +24,7 @@ export default function AdminDashboard() {
   const [isExportOpen, setIsExportOpen] = useState(false);
 
   // 100% Real-time analytics state (Zero initial state, populated strictly from DB)
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [overview, setOverview] = useState<AnalyticsOverviewDto>(
     INITIAL_OVERVIEW_METRICS,
   );
@@ -33,6 +34,7 @@ export default function AdminDashboard() {
   >([]);
 
   const loadData = useCallback(async (selectedTf: AnalyticsTimeframe) => {
+    setIsLoading(true);
     try {
       const [apiOverview, apiPoints, apiDepts] = await Promise.allSettled([
         analyticsRequester.getOverview(selectedTf),
@@ -51,6 +53,8 @@ export default function AdminDashboard() {
       }
     } catch (err: unknown) {
       console.warn('Failed to load dashboard analytics:', err);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -73,44 +77,53 @@ export default function AdminDashboard() {
         </button>
       }
     >
-      <div className="space-y-4">
-        {/* Zone 1: Store Health Strip */}
-        <DashboardHealthStrip
-          data={{
-            isStoreOnline: true,
-            pendingShipmentCount: overview.pendingShipmentCount,
-            lowStockCount: overview.lowStockCount,
-            conversionRate: overview.conversionRate,
-            activeShoppersCount: overview.activeShoppersCount,
-          }}
-        />
+      {isLoading ? (
+        <div className="bg-white border border-brand-border p-20 rounded-md shadow-2xs text-center flex flex-col items-center justify-center space-y-3">
+          <Loader2 size={32} className="animate-spin text-brand-brown" />
+          <p className="text-xs text-gray-500 font-medium">
+            {t('common.loading') || 'กำลังโหลดข้อมูลสถิติภาพรวม...'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* Zone 1: Store Health Strip */}
+          <DashboardHealthStrip
+            data={{
+              isStoreOnline: true,
+              pendingShipmentCount: overview.pendingShipmentCount,
+              lowStockCount: overview.lowStockCount,
+              conversionRate: overview.conversionRate,
+              activeShoppersCount: overview.activeShoppersCount,
+            }}
+          />
 
-        {/* Zone 2: Hero Performance Cards */}
-        <DashboardHeroCards metrics={overview} />
+          {/* Zone 2: Hero Performance Cards */}
+          <DashboardHeroCards metrics={overview} />
 
-        {/* Zone 3: Core E-Commerce KPIs */}
-        <DashboardKpiGrid metrics={overview} />
+          {/* Zone 3: Core E-Commerce KPIs */}
+          <DashboardKpiGrid metrics={overview} />
 
-        {/* Zone 4: Full-Width Revenue Trend & Balanced Operations Health */}
-        <DashboardChartsSection
-          data={{
-            timeframe,
-            onTimeframeChange: setTimeframe,
-            revenuePoints,
-            departmentShares,
-            fulfillmentScore:
-              overview.operationsScore ?? overview.fulfillmentRate ?? 100,
-            avgHours: overview.averageFulfillmentHours,
-            onTimeDispatchPct: overview.onTimeDispatchPct,
-          }}
-        />
+          {/* Zone 4: Full-Width Revenue Trend & Balanced Operations Health */}
+          <DashboardChartsSection
+            data={{
+              timeframe,
+              onTimeframeChange: setTimeframe,
+              revenuePoints,
+              departmentShares,
+              fulfillmentScore:
+                overview.operationsScore ?? overview.fulfillmentRate ?? 100,
+              avgHours: overview.averageFulfillmentHours,
+              onTimeDispatchPct: overview.onTimeDispatchPct,
+            }}
+          />
 
-        {/* Zone 5: Data Export Center Modal */}
-        <DashboardExportModal
-          isOpen={isExportOpen}
-          onClose={() => setIsExportOpen(false)}
-        />
-      </div>
+          {/* Zone 5: Data Export Center Modal */}
+          <DashboardExportModal
+            isOpen={isExportOpen}
+            onClose={() => setIsExportOpen(false)}
+          />
+        </div>
+      )}
     </AdminLayout>
   );
 }
