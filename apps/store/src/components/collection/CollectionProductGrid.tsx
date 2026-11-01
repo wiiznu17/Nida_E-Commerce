@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Heart } from 'lucide-react';
 import { useWishlist } from '@/context/WishlistContext';
 import {
@@ -42,13 +43,20 @@ export function CollectionProductGrid({
           >
             {/* Image Card Container */}
             <div className="relative aspect-[3/4] bg-brand-warm-cream overflow-hidden mb-4 border border-gray-100 rounded-sm">
-              <Link href={productHref} className="block w-full h-full">
-                <img
-                  src={displayImage}
-                  alt={title}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                  loading="lazy"
-                />
+              <Link href={productHref} className="block w-full h-full relative">
+                {displayImage ? (
+                  <Image
+                    src={displayImage}
+                    alt={title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-stone-100 flex items-center justify-center text-xs text-stone-400">
+                    NIDA
+                  </div>
+                )}
               </Link>
 
               {/* Tag badge */}

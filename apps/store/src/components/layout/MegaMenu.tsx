@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import type { MegaMenuDepartment } from './types';
 
@@ -52,12 +53,14 @@ export function MegaMenu({
           <div className="col-span-4 border-l border-brand-border pl-8">
             <div className="bg-brand-warm-cream border border-brand-border p-4 group cursor-pointer hover:border-brand-brown transition-all">
               <div className="relative aspect-[16/10] overflow-hidden mb-4 bg-gray-200">
-                <img
+                <Image
                   src={departmentData.promo.image}
                   alt={departmentData.promo.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  fill
+                  sizes="320px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-                <span className="absolute top-3 left-3 bg-brand-brown text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5">
+                <span className="absolute top-3 left-3 bg-brand-brown text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 z-10">
                   {departmentData.promo.tag}
                 </span>
               </div>

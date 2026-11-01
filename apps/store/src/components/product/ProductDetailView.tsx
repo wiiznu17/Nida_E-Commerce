@@ -10,9 +10,14 @@ import {
   ProductRecommendations,
   useProductDetail,
 } from '@/components/product';
+import type { ApiProductDetail } from '@repo/types';
 import { EmptyState, LoadingSpinner } from '@/components/ui';
 
-export function ProductDetailView() {
+interface ProductDetailViewProps {
+  initialProduct?: ApiProductDetail | null;
+}
+
+export function ProductDetailView({ initialProduct }: ProductDetailViewProps = {}) {
   const {
     product,
     isLoading,
@@ -43,7 +48,7 @@ export function ProductDetailView() {
     relatedProducts,
     isTh,
     t,
-  } = useProductDetail();
+  } = useProductDetail(initialProduct);
 
   if (!product) {
     if (isLoading) {

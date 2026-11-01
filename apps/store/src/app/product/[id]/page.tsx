@@ -52,6 +52,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function ProductDetailPage() {
-  return <ProductDetailView />;
+export default async function ProductDetailPage({ params }: Props) {
+  const { id } = await params;
+  let product: ApiProductDetail | null = null;
+  try {
+    product = await catalogRequester.getProductByIdOrSlug(id);
+  } catch {}
+
+  return <ProductDetailView initialProduct={product} />;
 }

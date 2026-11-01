@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Sparkles, Heart, Compass } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
@@ -13,10 +14,13 @@ export function AboutContentView() {
     <div className="w-full font-sans">
       {/* Hero Banner */}
       <div className="relative h-[55vh] md:h-[70vh] w-full bg-brand-dark-brown flex items-center justify-center overflow-hidden">
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1544816155-12df9643f363?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
           alt="Nida Brand Craftsmanship"
-          className="absolute inset-0 w-full h-full object-cover opacity-45"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover opacity-45"
         />
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center text-white">
           {/* Official Nida Logo */}
@@ -98,10 +102,12 @@ export function AboutContentView() {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden shadow-md">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
               alt="Nida Collection"
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
             />
           </div>
           <div className="space-y-5">

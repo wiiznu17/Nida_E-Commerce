@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ShoppingBag, X, Check, Minus, Plus, Tag, Loader2, AlertTriangle, Lock, Info } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
@@ -176,11 +177,19 @@ export function CartDrawer() {
                   }`}
                 >
                   <div className="w-20 h-24 bg-gray-100 relative shrink-0 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-stone-100 flex items-center justify-center text-[10px] text-stone-400">
+                        NIDA
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <div>

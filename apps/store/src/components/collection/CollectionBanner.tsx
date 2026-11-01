@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { Breadcrumb } from '@/components/ui';
 import type { CollectionBannerProps } from './collectionTypes';
@@ -23,10 +24,12 @@ export function CollectionBanner({
     <div className="bg-brand-brown text-white py-12 sm:py-16 px-4 relative overflow-hidden">
       {bgImage && (
         <div className="absolute inset-0 opacity-20">
-          <img
+          <Image
             src={bgImage}
             alt={title}
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
           />
         </div>
       )}

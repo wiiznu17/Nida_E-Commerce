@@ -16,7 +16,9 @@ import type { ApiProduct, ApiProductDetail } from '@repo/types';
 import { getProductSizes } from '@/utils';
 import type { ProductColor, ProductAccordionKey } from './productTypes';
 
-export function useProductDetail() {
+export function useProductDetail(
+  initialProduct?: ApiProductDetail | null,
+) {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const { productsList, isLoading: isCatalogLoading } = useCatalog();
@@ -26,7 +28,7 @@ export function useProductDetail() {
   const isTh = language === 'th';
 
   const [fetchedProduct, setFetchedProduct] = useState<ApiProductDetail | null>(
-    null,
+    initialProduct ?? null,
   );
   const [isFetching, setIsFetching] = useState(false);
 
@@ -35,6 +37,11 @@ export function useProductDetail() {
     fetchedProduct ?? catalogProduct;
 
   useEffect(() => {
+    if (initialProduct) {
+      setFetchedProduct(initialProduct);
+      return;
+    }
+
     if (
       (!fetchedProduct ||
         !fetchedProduct.variants ||
@@ -55,7 +62,7 @@ export function useProductDetail() {
         isMounted = false;
       };
     }
-  }, [id, fetchedProduct]);
+  }, [id, fetchedProduct, initialProduct]);
 
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
@@ -253,7 +260,7 @@ export function useProductDetail() {
 
   return {
     product,
-    isLoading: isCatalogLoading || isFetching,
+    isLoading: !product && (isCatalogLoading || isFetching),
     title,
     subCategory,
     description,

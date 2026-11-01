@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Check } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useStoreContent } from '@/context/StoreContentContext';
@@ -47,19 +48,15 @@ export const PromoRibbon: React.FC = () => {
   return (
     <section className="relative overflow-hidden bg-brand-brown text-white py-8 border-y-4 border-brand-yellow">
       {(promoRibbon?.imageDesktopUrl || promoRibbon?.imageMobileUrl) && (
-        <picture className="absolute inset-0 w-full h-full pointer-events-none">
-          {promoRibbon?.imageMobileUrl && (
-            <source
-              media="(max-width: 767px)"
-              srcSet={promoRibbon.imageMobileUrl}
-            />
-          )}
-          <img
+        <div className="absolute inset-0 w-full h-full pointer-events-none">
+          <Image
             src={promoRibbon?.imageDesktopUrl || promoRibbon?.imageMobileUrl || ''}
             alt={title}
-            className="w-full h-full object-cover opacity-20"
+            fill
+            sizes="100vw"
+            className="object-cover opacity-20"
           />
-        </picture>
+        </div>
       )}
       <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
         <div>

@@ -12,25 +12,28 @@ import { Layout } from '@/components/layout';
 const montserrat = Montserrat({
   variable: '--font-montserrat',
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
+  weight: ['400', '600', '700', '900'],
+  display: 'swap',
 });
 
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
 const playfair = Playfair_Display({
   variable: '--font-playfair',
   subsets: ['latin'],
-  weight: ['400', '700', '900'],
+  weight: ['400', '700'],
+  display: 'swap',
 });
 
 const ibmPlexSansThai = IBM_Plex_Sans_Thai({
   variable: '--font-thai',
   subsets: ['thai'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 

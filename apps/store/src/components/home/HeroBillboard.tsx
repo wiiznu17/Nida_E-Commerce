@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useStoreContent } from '@/context/StoreContentContext';
@@ -74,14 +75,17 @@ export const HeroBillboard: React.FC = () => {
   return (
     <section className="relative w-full min-h-[580px] lg:min-h-[720px] bg-brand-brown flex items-center overflow-hidden">
       {/* Background Image with subtle zoom and mobile adaptation */}
-      <picture className="absolute inset-0">
-        <source media="(max-width: 640px)" srcSet={mobileImage} />
-        <img
+      <div className="absolute inset-0">
+        <Image
           src={desktopImage}
           alt={activeBanner?.title || 'Nida Campaign'}
-          className="w-full h-full object-cover object-center opacity-65 scale-105 transition-transform duration-1000 ease-out"
+          fill
+          priority
+          sizes="100vw"
+          quality={85}
+          className="object-cover object-center opacity-65 scale-105 transition-transform duration-1000 ease-out"
         />
-      </picture>
+      </div>
       <div className="absolute inset-0 bg-gradient-to-t from-brand-brown via-brand-brown/40 to-transparent lg:bg-gradient-to-r lg:from-brand-brown/90 lg:via-brand-brown/50 lg:to-transparent" />
 
       {/* Content Box */}

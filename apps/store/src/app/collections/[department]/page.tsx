@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { Department } from '@repo/types';
 import { CollectionDepartmentView } from '@/components/collection';
 import { LoadingSpinner } from '@/components/ui';
 
@@ -56,6 +57,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
     },
   };
+}
+
+export function generateStaticParams() {
+  const departments = Array.from(
+    new Set([
+      ...Object.values(Department).map((d) => d.toLowerCase()),
+      ...Object.keys(DEPARTMENT_METADATA_MAP),
+    ]),
+  );
+
+  return departments.map((department) => ({ department }));
 }
 
 export default function CollectionDepartmentPage() {

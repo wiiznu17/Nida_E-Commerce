@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useStoreContent } from '@/context/StoreContentContext';
@@ -104,10 +105,12 @@ export const SplitEditorialBento: React.FC = () => {
             key={card.id}
             className="relative group overflow-hidden bg-gray-100 aspect-[4/5] sm:aspect-[16/12]"
           >
-            <img
+            <Image
               src={card.image}
               alt={card.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/90 via-brand-brown/30 to-transparent flex flex-col justify-end p-8 sm:p-10">
               <span className="text-[11px] font-black tracking-[0.25em] text-white/80 uppercase mb-2">

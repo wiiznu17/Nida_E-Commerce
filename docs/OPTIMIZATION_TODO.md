@@ -39,39 +39,34 @@
 ### เฟส 2: Storefront Performance & Core Web Vitals (`apps/store`)
 > **เป้าหมาย**: ดัน Core Web Vitals (LCP < 1.5s, CLS < 0.01), ปรับปรุง Image Pipeline และขจัด Data Waterfall
 
-- [ ] **2.1 ปรับปรุง Next.js Configuration (`apps/store/next.config.ts`)**
+- [x] **2.1 ปรับปรุง Next.js Configuration (`apps/store/next.config.ts`)**
   - เพิ่ม `images.formats: ['image/avif', 'image/webp']` เพื่อแปลงภาพเป็นฟอร์แมตสมัยใหม่โดยอัตโนมัติ
+  - เพิ่ม `remotePatterns` รองรับ `localhost:4000` สำหรับรูปภาพอัปโหลด
   - เพิ่ม `compress: true` สำหรับ Next.js production server
-  - เพิ่ม `experimental.optimizePackageImports: ['lucide-react']` เพื่อทำ tree-shaking ไอคอนขนาดใหญ่
-- [ ] **2.2 แปลงแท็กดิบ `<img>` เป็น `<Image />` (`next/image`) ให้ครบ 13 จุด**
-  - [ ] `apps/store/src/components/home/HeroBillboard.tsx` (จุดสำคัญ LCP: กำหนด `priority`, `fill`, `sizes="100vw"`)
-  - [ ] `apps/store/src/components/home/HomeProductCard.tsx` (กำหนด `sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"`)
-  - [ ] `apps/store/src/components/home/CategoryDiscoveryTiles.tsx`
-  - [ ] `apps/store/src/components/home/SplitEditorialBento.tsx`
-  - [ ] `apps/store/src/components/home/PromoRibbon.tsx`
-  - [ ] `apps/store/src/components/collection/CollectionBanner.tsx`
-  - [ ] `apps/store/src/components/collection/CollectionProductGrid.tsx`
-  - [ ] `apps/store/src/components/catalog/CatalogProductGrid.tsx`
-  - [ ] `apps/store/src/components/layout/MegaMenu.tsx`
-  - [ ] `apps/store/src/components/layout/CartDrawer.tsx`
-  - [ ] `apps/store/src/components/about/AboutContentView.tsx` (2 จุด)
-  - [ ] `apps/store/src/components/header/HeaderSearchBar.tsx`
-- [ ] **2.3 ขจัด Data Fetching Waterfall บนหน้ารายละเอียดสินค้า (`/product/[id]`)**
-  - ปรับ `apps/store/src/app/product/[id]/page.tsx` ให้ส่ง `product` ที่ดึงจาก Server เข้าเป็น prop `initialProduct` ของ `<ProductDetailView initialProduct={product} />`
-  - อัปเดต `useProductDetail.ts` ให้ใช้ `initialProduct` เป็น initial state ในทันที เพื่อตัดอาการจอขาวและ Loading Spinner Flash
-  - ผลลัพธ์: ผู้ใช้ได้รับหน้าเว็บที่มีข้อมูลครบถ้วนตั้งแต่ First Contentful Paint (Instant Render)
-- [ ] **2.4 เพิ่ม Static Generation สำหรับ Collections หลัก (`/collections/[department]`)**
-  - เพิ่ม `generateStaticParams()` ใน `apps/store/src/app/collections/[department]/page.tsx` สำหรับ static paths: `['men', 'women', 'shoes', 'bags', 'home', 'sale']`
-  - ส่งข้อมูล Category เริ่มต้นผ่าน Server เพื่อให้หน้า Collection โหลดทันทีไม่ต้องรอ Client Query
-- [ ] **2.5 ปรับแต่งและลดขนาด Web Fonts (`apps/store/src/app/layout.tsx`)**
-  - ลดทอน font weights ที่ไม่จำเป็นจาก 18 weights เหลือเฉพาะที่ใช้งานจริง:
-    - `Montserrat`: `['400', '600', '700', '900']` (ลดจาก 6 เหลือ 4)
-    - `Inter`: `['400', '500', '600']` (ลดจาก 4 เหลือ 3)
-    - `Playfair_Display`: `['400', '700']` (ลดจาก 3 เหลือ 2)
-    - `IBM_Plex_Sans_Thai`: `['400', '500', '600', '700']` (ลดจาก 5 เหลือ 4)
-  - เพิ่ม `display: 'swap'` ให้กับทุก font เพื่อป้องกัน FOIT (Flash of Invisible Text)
-- [ ] **2.6 ป้องกัน Client Over-fetching ใน `CatalogProvider`**
-  - ปรับ `CatalogProvider` (`apps/store/src/context/CatalogContext.tsx`) ไม่ให้ดึงข้อมูลรายการสินค้าทั้งหมด (full catalog) มาเก็บไว้ใน Client state ตั้งแต่ครั้งแรกที่เปิดเว็บ หากหน้านั้นไม่ได้เรียกใช้งาน (Lazy Fetch on Demand)
+  - เพิ่ม `experimental.optimizePackageImports: ['lucide-react', '@base-ui/react']` เพื่อทำ tree-shaking ไอคอนขนาดใหญ่
+- [x] **2.2 แปลงแท็กดิบ `<img>` เป็น `<Image />` (`next/image`) ครบทั้ง 13 จุด**
+  - [x] `apps/store/src/components/home/HeroBillboard.tsx` (จุดสำคัญ LCP: กำหนด `priority`, `fill`, `sizes="100vw"`)
+  - [x] `apps/store/src/components/home/HomeProductCard.tsx` (กำหนด `sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"`)
+  - [x] `apps/store/src/components/home/CategoryDiscoveryTiles.tsx`
+  - [x] `apps/store/src/components/home/SplitEditorialBento.tsx`
+  - [x] `apps/store/src/components/home/PromoRibbon.tsx`
+  - [x] `apps/store/src/components/collection/CollectionBanner.tsx`
+  - [x] `apps/store/src/components/collection/CollectionProductGrid.tsx`
+  - [x] `apps/store/src/components/catalog/CatalogProductGrid.tsx`
+  - [x] `apps/store/src/components/layout/MegaMenu.tsx`
+  - [x] `apps/store/src/components/layout/CartDrawer.tsx`
+  - [x] `apps/store/src/components/about/AboutContentView.tsx` (2 จุด)
+  - [x] `apps/store/src/components/header/HeaderSearchBar.tsx`
+- [x] **2.3 ขจัด Data Fetching Waterfall บนหน้ารายละเอียดสินค้า (`/product/[id]`)**
+  - ปรับ `apps/store/src/app/product/[id]/page.tsx` ส่ง Server-fetched `product` เข้าเป็น prop `initialProduct` ของ `<ProductDetailView initialProduct={product} />`
+  - ปรับ `useProductDetail.ts` ให้นำ `initialProduct` มาเป็นค่าเริ่มต้นและไม่ trigger client fetch ซ้ำซ้อน
+  - ผลลัพธ์: ผู้ใช้ได้รับหน้าเว็บที่มีข้อมูลครบถ้วนตั้งแต่ First Contentful Paint (Instant Render) ไม่มี Loading Spinner Flash
+- [x] **2.4 เพิ่ม Static Generation สำหรับ Collections หลัก (`/collections/[department]`)**
+  - เพิ่ม `generateStaticParams()` ใน `apps/store/src/app/collections/[department]/page.tsx` สำหรับ static paths: `['men', 'women', 'shoes', 'bags', 'home']`
+  - Pre-render หน้าคอลเลกชันเป็น Static HTML (SSG) เรียบร้อยทั้ง 5 หมวดหมู่
+- [x] **2.5 ปรับแต่งและลดขนาด Web Fonts (`apps/store/src/app/layout.tsx`)**
+  - ลดทอน font weights ส่วนเกิน เหลือเฉพาะที่ใช้งานจริง
+  - เพิ่ม `display: 'swap'` ให้กับทุก font ป้องกัน FOIT (Flash of Invisible Text)
 
 ---
 

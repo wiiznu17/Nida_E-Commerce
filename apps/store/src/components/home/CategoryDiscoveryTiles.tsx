@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCatalog } from '@/context/CatalogContext';
@@ -89,16 +90,12 @@ export const CategoryDiscoveryTiles: React.FC = () => {
                 className="group relative block bg-white border border-brand-border/70 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 rounded-sm"
               >
                 <div className="aspect-[3/4] bg-neutral-100 overflow-hidden relative">
-                  <img
+                  <Image
                     src={coverImage}
                     alt={t(dept.labelKey)}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                    loading="lazy"
-                    onError={(e) => {
-                      if (e.currentTarget.src !== dept.defaultImage) {
-                        e.currentTarget.src = dept.defaultImage;
-                      }
-                    }}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-brown/85 via-brand-brown/25 to-transparent flex flex-col justify-end p-4 transition-colors duration-300 group-hover:from-brand-brown/95">
                     <span className="text-white font-black text-xs sm:text-sm uppercase tracking-wider line-clamp-1">

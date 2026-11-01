@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, X } from 'lucide-react';
 import { useLanguage, getProductTitle } from '@/context/LanguageContext';
 import { formatPrice } from '@/utils';
@@ -122,11 +123,21 @@ export function HeaderSearchBar({
                       onClick={() => setIsSearchFocused(false)}
                       className="flex items-center space-x-3 p-1.5 hover:bg-brand-warm-cream rounded-lg transition-colors group"
                     >
-                      <img
-                        src={product.primaryImage ?? ''}
-                        alt={product.name}
-                        className="w-10 h-10 object-cover rounded-md flex-shrink-0 bg-gray-100"
-                      />
+                      <div className="w-10 h-10 relative flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
+                        {product.primaryImage ? (
+                          <Image
+                            src={product.primaryImage}
+                            alt={product.name}
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-400">
+                            NIDA
+                          </div>
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-xs font-semibold text-brand-brown truncate group-hover:text-brand-amber">
                           {getProductTitle(product, language)}

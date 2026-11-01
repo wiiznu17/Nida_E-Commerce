@@ -1,7 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  compress: true,
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -11,7 +13,20 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '4000',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '4000',
+      },
     ],
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@base-ui/react'],
   },
   async redirects() {
     return [
