@@ -179,9 +179,12 @@ export const catalogRequester = {
    */
   syncCart: async (variantIds: string[]): Promise<SyncCartResponse> => {
     try {
-      const data = await apiClient.post<SyncCartResponse>('/catalog/sync-cart', {
-        variantIds,
-      });
+      const data = await apiClient.post<SyncCartResponse>(
+        '/catalog/sync-cart',
+        {
+          variantIds,
+        },
+      );
       return data ?? { items: [] };
     } catch (err) {
       console.warn('[catalogRequester] syncCart error:', err);

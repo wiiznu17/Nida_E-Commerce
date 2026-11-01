@@ -67,7 +67,10 @@ export const authRequester = {
   resendOtp: async (
     data: CustomerResendOtpInput,
   ): Promise<CustomerOtpChallengeResponse> => {
-    return apiClient.post<CustomerOtpChallengeResponse>('/auth/resend-otp', data);
+    return apiClient.post<CustomerOtpChallengeResponse>(
+      '/auth/resend-otp',
+      data,
+    );
   },
 
   /**

@@ -2,7 +2,10 @@ import type { AnalyticsPageTimeframe } from '@repo/types';
 import { Calendar, Filter } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { DropdownSelect } from '../ui';
-import { ANALYTICS_TABS, ANALYTICS_TIMEFRAME_OPTIONS } from './analyticsConstants';
+import {
+  ANALYTICS_TABS,
+  ANALYTICS_TIMEFRAME_OPTIONS,
+} from './analyticsConstants';
 import type { AnalyticsTab, DateRangeState } from './analyticsTypes';
 
 interface AnalyticsTopBarProps {
@@ -45,7 +48,8 @@ export function AnalyticsTopBar({
   };
 
   // Hide timeframe controls on Export tab since each export section has its own date range
-  const showTimeframeControl = activeTab !== 'export' && activeTab !== 'slow-moving';
+  const showTimeframeControl =
+    activeTab !== 'export' && activeTab !== 'slow-moving';
 
   return (
     <div className="bg-white border border-brand-border rounded-xs shadow-xs p-3 mb-6 space-y-3">

@@ -32,7 +32,9 @@ export function AnalyticsExportCenter() {
   const [isExportingProducts, setIsExportingProducts] = useState(false);
 
   // Inventory Form State
-  const [inventoryStatus, setInventoryStatus] = useState<'all' | 'low_stock' | 'out_of_stock'>('all');
+  const [inventoryStatus, setInventoryStatus] = useState<
+    'all' | 'low_stock' | 'out_of_stock'
+  >('all');
   const [isExportingInventory, setIsExportingInventory] = useState(false);
 
   // Audit Logs Form State

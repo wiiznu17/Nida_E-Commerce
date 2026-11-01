@@ -64,7 +64,6 @@ export type AnalyticsRevenueTrendQuery = z.infer<
   typeof analyticsRevenueTrendSchema
 >;
 
-
 /**
  * GET /admin/analytics/top-products
  */
@@ -105,7 +104,9 @@ export const analyticsSlowMovingSchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(10),
 });
-export type AnalyticsSlowMovingQuery = z.infer<typeof analyticsSlowMovingSchema>;
+export type AnalyticsSlowMovingQuery = z.infer<
+  typeof analyticsSlowMovingSchema
+>;
 
 // ─── Export CSV Query Schemas ─────────────────────────────────────────────────
 

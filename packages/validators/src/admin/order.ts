@@ -42,7 +42,8 @@ export function validateShipmentStatusTransition(
     return {
       isValid: false,
       error: 'Cannot update or revert status of an already delivered shipment.',
-      errorTh: 'พัสดุนี้จัดส่งสำเร็จเรียบร้อยแล้ว ไม่สามารถย้อนกลับหรือเปลี่ยนสถานะได้',
+      errorTh:
+        'พัสดุนี้จัดส่งสำเร็จเรียบร้อยแล้ว ไม่สามารถย้อนกลับหรือเปลี่ยนสถานะได้',
     };
   }
 

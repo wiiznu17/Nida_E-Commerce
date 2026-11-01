@@ -89,9 +89,7 @@ export default function CheckoutPage() {
           className="mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-            <p className="text-xs">
-              {t('cart.hasUnavailableNotice')}
-            </p>
+            <p className="text-xs">{t('cart.hasUnavailableNotice')}</p>
             <button
               type="button"
               onClick={removeUnavailableItems}

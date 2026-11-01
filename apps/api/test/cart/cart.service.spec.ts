@@ -46,7 +46,9 @@ describe('CustomerCartService', () => {
             originalPrice: 150,
             isPreorder: false,
             isActive: true,
-            images: [{ imageUrl: 'https://example.com/polo.jpg', isPrimary: true }],
+            images: [
+              { imageUrl: 'https://example.com/polo.jpg', isPrimary: true },
+            ],
           },
           inventoryItem: { quantityAvailable: 10 },
         },
@@ -106,7 +108,11 @@ describe('CustomerCartService', () => {
 
     it('creates a new cart if not found and returns empty items', async () => {
       prismaMock.cart.findUnique.mockResolvedValue(null);
-      prismaMock.cart.create.mockResolvedValue({ id: 'cart-new', userId: 'user-2', items: [] });
+      prismaMock.cart.create.mockResolvedValue({
+        id: 'cart-new',
+        userId: 'user-2',
+        items: [],
+      });
 
       const res = await service.getCart('user-2');
       expect(prismaMock.cart.create).toHaveBeenCalledWith(
@@ -126,7 +132,11 @@ describe('CustomerCartService', () => {
     });
 
     it('merges new guest items into user cart when valid and in stock', async () => {
-      prismaMock.cart.findUnique.mockResolvedValue({ id: 'cart-1', userId: 'user-1', items: [] });
+      prismaMock.cart.findUnique.mockResolvedValue({
+        id: 'cart-1',
+        userId: 'user-1',
+        items: [],
+      });
       prismaMock.productVariant.findUnique.mockResolvedValue({
         id: 'var-2',
         inventoryItem: { quantityAvailable: 5 },
@@ -212,7 +222,10 @@ describe('CustomerCartService', () => {
 
   describe('clearCart', () => {
     it('deletes all cart items for cartId and returns empty items', async () => {
-      prismaMock.cart.findUnique.mockResolvedValue({ id: 'cart-1', userId: 'user-1' });
+      prismaMock.cart.findUnique.mockResolvedValue({
+        id: 'cart-1',
+        userId: 'user-1',
+      });
 
       const res = await service.clearCart('user-1');
 

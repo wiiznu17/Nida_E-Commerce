@@ -127,7 +127,10 @@ export function CategoryModal({
     { value: Department.KIDS, label: isTh ? 'เด็ก (KIDS)' : 'KIDS' },
     { value: Department.BAGS, label: isTh ? 'กระเป๋า (BAGS)' : 'BAGS' },
     { value: Department.SHOES, label: isTh ? 'รองเท้า (SHOES)' : 'SHOES' },
-    { value: Department.FRAGRANCE, label: isTh ? 'เครื่องหอม (FRAGRANCE)' : 'FRAGRANCE' },
+    {
+      value: Department.FRAGRANCE,
+      label: isTh ? 'เครื่องหอม (FRAGRANCE)' : 'FRAGRANCE',
+    },
   ];
 
   // Candidates for parent category: top-level categories in the same department (excluding itself)
@@ -169,12 +172,16 @@ export function CategoryModal({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-6 space-y-4"
+        >
           {/* Department & Parent Category (2 cols) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                {t('category.modal.department')} <span className="text-rose-600">*</span>
+                {t('category.modal.department')}{' '}
+                <span className="text-rose-600">*</span>
               </label>
               <DropdownSelect
                 value={department}
@@ -199,7 +206,8 @@ export function CategoryModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                {t('category.modal.nameEn')} <span className="text-rose-600">*</span>
+                {t('category.modal.nameEn')}{' '}
+                <span className="text-rose-600">*</span>
               </label>
               <input
                 type="text"

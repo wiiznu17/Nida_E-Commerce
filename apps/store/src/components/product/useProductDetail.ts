@@ -16,9 +16,7 @@ import type { ApiProduct, ApiProductDetail } from '@repo/types';
 import { getProductSizes } from '@/utils';
 import type { ProductColor, ProductAccordionKey } from './productTypes';
 
-export function useProductDetail(
-  initialProduct?: ApiProductDetail | null,
-) {
+export function useProductDetail(initialProduct?: ApiProductDetail | null) {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const { productsList, isLoading: isCatalogLoading } = useCatalog();

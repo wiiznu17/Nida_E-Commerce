@@ -1,7 +1,4 @@
-import type {
-  AnalyticsTimeframe,
-  AnalyticsOverviewDto,
-} from '@repo/types';
+import type { AnalyticsTimeframe, AnalyticsOverviewDto } from '@repo/types';
 
 export const TIMEFRAME_OPTIONS: { id: AnalyticsTimeframe; labelKey: string }[] =
   [

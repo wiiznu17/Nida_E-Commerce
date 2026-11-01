@@ -60,7 +60,9 @@ export default function AdminAnalytics() {
     AnalyticsDepartmentShare[]
   >([]);
   const [topProducts, setTopProducts] = useState<AnalyticsTopProduct[]>([]);
-  const [slowMoving, setSlowMoving] = useState<AnalyticsSlowMovingProduct[]>([]);
+  const [slowMoving, setSlowMoving] = useState<AnalyticsSlowMovingProduct[]>(
+    [],
+  );
   const [couponRoi, setCouponRoi] = useState<AnalyticsCouponRoiSummary>({
     totalUsage: 0,
     totalDiscount: 0,

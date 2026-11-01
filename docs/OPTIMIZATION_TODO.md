@@ -6,20 +6,21 @@
 
 ## 1. เป้าหมายตัวชี้วัดประสิทธิภาพ (Target Performance KPIs)
 
-| มิติ (Metric) | ค่าปัจจุบัน (Current) | ค่าเป้าหมาย (Target) | วิธีการวัดผล (Verification) |
-| :--- | :--- | :--- | :--- |
-| **Admin Initial Bundle (JS)** | `1,388.91 kB` (352 kB gzip) | `< 220 kB` (ลดลง ~84%) | `npm --prefix apps/admin run build` |
-| **Store LCP (Largest Contentful Paint)** | ~2.8s – 3.5s | `< 1.2s – 1.5s` | Chrome DevTools Lighthouse / Core Web Vitals |
-| **Store CLS (Cumulative Layout Shift)** | ~0.08 | `< 0.01` (Zero Shift) | Lighthouse Audit |
-| **Catalog API Response TTFB** | ~80ms – 180ms | `< 20ms` (Redis Cache Hit) | Autocannon / API Benchmark |
-| **API Response Payload Transfer** | 100% Uncompressed | ลดลง 65% – 80% | `Content-Encoding: gzip` verification |
-| **Product Detail Render Flow** | Waterfall + Client Spinner | Zero-Flash Instant SSR | Next.js Server Components initial data |
+| มิติ (Metric)                            | ค่าปัจจุบัน (Current)       | ค่าเป้าหมาย (Target)       | วิธีการวัดผล (Verification)                  |
+| :--------------------------------------- | :-------------------------- | :------------------------- | :------------------------------------------- |
+| **Admin Initial Bundle (JS)**            | `1,388.91 kB` (352 kB gzip) | `< 220 kB` (ลดลง ~84%)     | `npm --prefix apps/admin run build`          |
+| **Store LCP (Largest Contentful Paint)** | ~2.8s – 3.5s                | `< 1.2s – 1.5s`            | Chrome DevTools Lighthouse / Core Web Vitals |
+| **Store CLS (Cumulative Layout Shift)**  | ~0.08                       | `< 0.01` (Zero Shift)      | Lighthouse Audit                             |
+| **Catalog API Response TTFB**            | ~80ms – 180ms               | `< 20ms` (Redis Cache Hit) | Autocannon / API Benchmark                   |
+| **API Response Payload Transfer**        | 100% Uncompressed           | ลดลง 65% – 80%             | `Content-Encoding: gzip` verification        |
+| **Product Detail Render Flow**           | Waterfall + Client Spinner  | Zero-Flash Instant SSR     | Next.js Server Components initial data       |
 
 ---
 
 ## 2. รายการแผนงานจำแนกตามเฟส (Phase Breakdown & Action Items)
 
 ### เฟส 1: Quick Wins & Network Optimization (Backend APIs)
+
 > **เป้าหมาย**: ลดขนาด Response payload ข้ามเครือข่ายทันที 60–80% และเปิดใช้งาน Response Compression
 
 - [x] **1.1 ติดตั้ง `compression` middleware ใน `apps/api`**
@@ -37,6 +38,7 @@
 ---
 
 ### เฟส 2: Storefront Performance & Core Web Vitals (`apps/store`)
+
 > **เป้าหมาย**: ดัน Core Web Vitals (LCP < 1.5s, CLS < 0.01), ปรับปรุง Image Pipeline และขจัด Data Waterfall
 
 - [x] **2.1 ปรับปรุง Next.js Configuration (`apps/store/next.config.ts`)**
@@ -71,6 +73,7 @@
 ---
 
 ### เฟส 2.5: ปรับปรุง Loading State และป้องกัน Double-Submit / Spam Click ในฝั่ง Admin
+
 > **เป้าหมาย**: ป้องกันการแสดงผล False Empty State ("ไม่พบข้อมูล") ขณะที่ API กำลังโหลด และป้องกันการกดปุ่มบันทึก/ปรับสถานะรัวๆ ซ้ำซ้อน
 
 - [x] **แก้ไขหน้าจัดการสต็อก (`apps/admin/src/pages/AdminInventory.tsx`)**:
@@ -99,6 +102,7 @@
 ---
 
 ### เฟส 3: Admin Bundle & Code-Splitting (`apps/admin`)
+
 > **เป้าหมาย**: ทำลาย Monolithic JS Chunk ขนาด 1.39 MB ให้เหลือ Initial Bundle < 220 KB (สำเร็จ: ลดเหลือ ~19 KB entry chunk + แยก 41 chunks ย่อย)
 
 - [x] **3.1 แปลงการนำเข้า Route เป็นแบบ Lazy Loading (`React.lazy` + `Suspense`)**
@@ -118,6 +122,7 @@
 ---
 
 ### เฟส 4: Database Indexing & Redis Caching
+
 > **เป้าหมาย**: เพิ่มความเร็ว Query แคตตาล็อกและการค้นหาลงเหลือ < 20ms และรองรับ Concurrent High-Traffic
 
 - [ ] **4.1 เพิ่ม Composite Indexes ใน Prisma Schema (`packages/database/prisma/schema.prisma`)**
@@ -143,6 +148,7 @@
 หลังจากดำเนินงานแต่ละเฟส ต้องทำการทดสอบและผ่านเกณฑ์ดังต่อไปนี้:
 
 1. **การตรวจสอบ Build ของทุก Workspace**:
+
    ```bash
    npm --prefix packages/types run build
    npm --prefix packages/validators run build
@@ -152,14 +158,17 @@
    npm --prefix apps/admin run build
    npm --prefix apps/store run build
    ```
-   *เกณฑ์ผ่าน: ไม่มี Build Error, ไม่มี Type Error, ขนาด Initial JS Bundle ของ Admin < 250 kB*
+
+   _เกณฑ์ผ่าน: ไม่มี Build Error, ไม่มี Type Error, ขนาด Initial JS Bundle ของ Admin < 250 kB_
 
 2. **การรัน Unit Tests ทั่วทั้งระบบ**:
+
    ```bash
    npm --prefix apps/api run test
    npm --prefix apps/admin-api run test
    ```
-   *เกณฑ์ผ่าน: 389+ Tests ต้องผ่าน 100% ไม่มี Regression*
+
+   _เกณฑ์ผ่าน: 389+ Tests ต้องผ่าน 100% ไม่มี Regression_
 
 3. **การทดสอบ Core Web Vitals (Lighthouse / DevTools Audit)**:
    - ตรวจสอบหน้า `/` (Home) และ `/product/[id]` (Product Detail)
@@ -171,5 +180,4 @@
    ```bash
    curl -I -H "Accept-Encoding: gzip" http://localhost:4001/api/v1/catalog/products
    ```
-   *เกณฑ์ผ่าน: มี header `Content-Encoding: gzip` ส่งกลับมา*
-
+   _เกณฑ์ผ่าน: มี header `Content-Encoding: gzip` ส่งกลับมา_

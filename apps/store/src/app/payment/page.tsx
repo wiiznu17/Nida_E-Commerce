@@ -3,12 +3,7 @@
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import {
-  CreditCard,
-  QrCode,
-  AlertCircle,
-  ShieldCheck,
-} from 'lucide-react';
+import { CreditCard, QrCode, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { orderRequester, extractApiError } from '@/api';
@@ -288,9 +283,7 @@ function PaymentPageContent() {
       <StandaloneHeader
         orderNumber={order.orderNumber}
         backHref={`/profile/orders/${encodeURIComponent(order.orderNumber)}`}
-        backLabel={
-          language === 'th' ? 'กลับไปยังคำสั่งซื้อ' : 'Back to Order'
-        }
+        backLabel={language === 'th' ? 'กลับไปยังคำสั่งซื้อ' : 'Back to Order'}
       />
 
       {/* Main Payment Section: 12-Column Responsive Home-Aligned Layout */}

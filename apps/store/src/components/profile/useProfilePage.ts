@@ -39,7 +39,9 @@ export function useProfilePage() {
   const [isAddressesLoading, setIsAddressesLoading] = useState(false);
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<ApiAddress | null>(null);
-  const [addressToDelete, setAddressToDelete] = useState<ApiAddress | null>(null);
+  const [addressToDelete, setAddressToDelete] = useState<ApiAddress | null>(
+    null,
+  );
   const [addressActionLoading, setAddressActionLoading] = useState(false);
 
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);

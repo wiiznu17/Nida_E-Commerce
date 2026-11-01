@@ -115,7 +115,10 @@ export const AddressModal: React.FC<AddressModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1"
+        >
           {error && <Alert variant="error">{error}</Alert>}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">

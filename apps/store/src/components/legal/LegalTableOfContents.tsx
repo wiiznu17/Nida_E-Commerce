@@ -73,7 +73,9 @@ export function LegalTableOfContents({ items }: LegalTableOfContentsProps) {
           <div className="space-y-2.5 text-xs">
             <div className="flex items-center space-x-2.5 text-stone-600">
               <Mail className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-              <span className="font-medium truncate">support@nida-apparel.com</span>
+              <span className="font-medium truncate">
+                support@nida-apparel.com
+              </span>
             </div>
             <div className="flex items-center space-x-2.5 text-stone-600">
               <Phone className="w-3.5 h-3.5 text-stone-400 shrink-0" />

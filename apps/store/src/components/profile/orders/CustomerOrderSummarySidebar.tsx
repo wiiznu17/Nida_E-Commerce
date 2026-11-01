@@ -82,14 +82,18 @@ export function CustomerOrderSummarySidebar({
 
         <div className="text-stone-700 space-y-2.5 pt-1">
           <div className="flex justify-between items-center">
-            <span className="text-stone-500">{t('orderDetail.paymentMethodLabel')}</span>
+            <span className="text-stone-500">
+              {t('orderDetail.paymentMethodLabel')}
+            </span>
             <span className="font-bold text-stone-900">
               {formatPaymentMethod(order.payment?.paymentMethod, language)}
             </span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-stone-500">{t('orderDetail.paymentStatusLabel')}</span>
+            <span className="text-stone-500">
+              {t('orderDetail.paymentStatusLabel')}
+            </span>
             <span
               className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                 order.payment?.status === 'CAPTURED' ||
@@ -113,7 +117,9 @@ export function CustomerOrderSummarySidebar({
 
           {order.payment?.paidAt && (
             <div className="flex justify-between items-center">
-              <span className="text-stone-500">{t('orderDetail.paidAtLabel')}</span>
+              <span className="text-stone-500">
+                {t('orderDetail.paidAtLabel')}
+              </span>
               <span className="font-mono text-stone-600">
                 {new Date(order.payment.paidAt).toLocaleDateString(
                   language === 'th' ? 'th-TH' : 'en-US',

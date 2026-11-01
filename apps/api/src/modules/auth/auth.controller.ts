@@ -112,7 +112,10 @@ export class CustomerAuthController {
     description:
       'Validates 6-digit OTP, marks customer account verified, and returns JWT access and refresh tokens.',
   })
-  @ApiResponse({ status: 200, description: 'Registration completed and logged in' })
+  @ApiResponse({
+    status: 200,
+    description: 'Registration completed and logged in',
+  })
   @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
   async verifyRegisterOtp(
     @Body() dto: VerifyOtpDto,
@@ -129,7 +132,10 @@ export class CustomerAuthController {
     description:
       'Verifies customer password with bcrypt, then dispatches 6-digit OTP code to email.',
   })
-  @ApiResponse({ status: 200, description: 'Credentials verified, OTP dispatched' })
+  @ApiResponse({
+    status: 200,
+    description: 'Credentials verified, OTP dispatched',
+  })
   @ApiResponse({ status: 401, description: 'Invalid credentials or password' })
   @ApiResponse({ status: 404, description: 'Account not found' })
   async login(
@@ -316,8 +322,7 @@ export class CustomerAuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Change password for authenticated customer',
-    description:
-      'Verifies current password and updates to new password hash.',
+    description: 'Verifies current password and updates to new password hash.',
   })
   @ApiResponse({ status: 200, description: 'Password changed successfully' })
   @ApiResponse({ status: 400, description: 'Current password incorrect' })

@@ -35,10 +35,13 @@ export const formatCurrency = formatPrice;
  *   formatCompactPrice(50000) -> "฿50k"
  *   formatCompactPrice(1200000) -> "฿1.2M"
  */
-export function formatCompactPrice(
-  amount: number | null | undefined,
-): string {
-  if (amount === null || amount === undefined || isNaN(amount) || amount === 0) {
+export function formatCompactPrice(amount: number | null | undefined): string {
+  if (
+    amount === null ||
+    amount === undefined ||
+    isNaN(amount) ||
+    amount === 0
+  ) {
     return '฿0';
   }
 
@@ -53,9 +56,7 @@ export function formatCompactPrice(
   }
 
   if (numeric >= 1_000) {
-    const formatted = (numeric / 1_000).toFixed(
-      numeric % 1_000 === 0 ? 0 : 1,
-    );
+    const formatted = (numeric / 1_000).toFixed(numeric % 1_000 === 0 ? 0 : 1);
     return `${sign}฿${formatted}k`;
   }
 

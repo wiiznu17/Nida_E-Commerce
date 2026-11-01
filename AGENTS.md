@@ -167,4 +167,3 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
     ```bash
     npm --prefix packages/database run db:generate
     ```
-

@@ -11,7 +11,12 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CustomerCartService } from './cart.service.js';
 import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard.js';
 import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
@@ -39,7 +44,10 @@ export class CustomerCartController {
 
   @Get()
   @ApiOperation({ summary: 'Get current customer cart from database' })
-  @ApiResponse({ status: 200, description: 'User cart items with live details' })
+  @ApiResponse({
+    status: 200,
+    description: 'User cart items with live details',
+  })
   async getCart(
     @Request() req: AuthenticatedCustomerRequest,
   ): Promise<ServerCartResponse> {
@@ -48,7 +56,9 @@ export class CustomerCartController {
 
   @Post('merge')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Merge local guest cart items into customer cart on login' })
+  @ApiOperation({
+    summary: 'Merge local guest cart items into customer cart on login',
+  })
   @ApiResponse({ status: 200, description: 'Merged cart items' })
   async mergeCart(
     @Request() req: AuthenticatedCustomerRequest,

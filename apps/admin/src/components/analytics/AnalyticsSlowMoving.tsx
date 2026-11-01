@@ -68,11 +68,21 @@ export function AnalyticsSlowMoving({
             <thead>
               <tr className="bg-stone-50 border-b border-brand-border text-stone-500 uppercase tracking-wider text-[10px] font-semibold">
                 <th className="py-3 px-4">{t('analytics.products.product')}</th>
-                <th className="py-3 px-4 w-36">{t('analytics.products.sku')}</th>
-                <th className="py-3 px-4 w-32">{t('analytics.departments.colDept')}</th>
-                <th className="py-3 px-4 w-32 text-center">{t('analytics.slowMoving.currentStock')}</th>
-                <th className="py-3 px-4 w-40 text-center">{t('analytics.slowMoving.daysSinceLastSale')}</th>
-                <th className="py-3 px-4 w-36 text-right">{t('analytics.slowMoving.lastSaleDate')}</th>
+                <th className="py-3 px-4 w-36">
+                  {t('analytics.products.sku')}
+                </th>
+                <th className="py-3 px-4 w-32">
+                  {t('analytics.departments.colDept')}
+                </th>
+                <th className="py-3 px-4 w-32 text-center">
+                  {t('analytics.slowMoving.currentStock')}
+                </th>
+                <th className="py-3 px-4 w-40 text-center">
+                  {t('analytics.slowMoving.daysSinceLastSale')}
+                </th>
+                <th className="py-3 px-4 w-36 text-right">
+                  {t('analytics.slowMoving.lastSaleDate')}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -87,7 +97,10 @@ export function AnalyticsSlowMoving({
                   const isHighUrgency = p.daysSinceLastSale >= 60;
 
                   return (
-                    <tr key={p.productId} className="hover:bg-stone-50/70 transition-colors">
+                    <tr
+                      key={p.productId}
+                      className="hover:bg-stone-50/70 transition-colors"
+                    >
                       <td className="py-3 px-4">
                         <span className="font-medium text-brand-brown">
                           {p.productName}

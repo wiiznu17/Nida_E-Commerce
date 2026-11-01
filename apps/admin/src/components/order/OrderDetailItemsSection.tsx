@@ -133,7 +133,9 @@ export function OrderDetailItemsSection({
 
                       {/* Line Total */}
                       <td className="py-3 px-4 text-right font-mono font-black text-brand-brown text-sm">
-                        {formatPrice((item.unitPrice ?? 0) * (item.quantity ?? 1))}
+                        {formatPrice(
+                          (item.unitPrice ?? 0) * (item.quantity ?? 1),
+                        )}
                       </td>
                     </tr>
                   );

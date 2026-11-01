@@ -90,9 +90,7 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
         <div className="md:col-span-2">
           <DropdownSelect
             value={draftActionType}
-            onChange={(val) =>
-              setDraftActionType(val as AuditActionType | '')
-            }
+            onChange={(val) => setDraftActionType(val as AuditActionType | '')}
             options={actionOptions}
             className="w-full bg-stone-50/50"
           />
@@ -118,7 +116,9 @@ export const AuditFilterBar: React.FC<AuditFilterBarProps> = ({
             className="flex-1 flex items-center justify-center gap-1.5"
           >
             <Search className="w-3.5 h-3.5" />
-            <span className="text-xs font-semibold">{t('audit.searchBtn')}</span>
+            <span className="text-xs font-semibold">
+              {t('audit.searchBtn')}
+            </span>
           </Button>
         </div>
       </div>

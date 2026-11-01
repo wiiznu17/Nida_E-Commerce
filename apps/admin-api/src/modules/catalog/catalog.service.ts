@@ -23,7 +23,11 @@ import type {
   ApiColorSwatch,
   PaginatedResponse,
 } from '@repo/types';
-import { AuditActionType, AdminPermission, findMarketingTagByLabel } from '@repo/types';
+import {
+  AuditActionType,
+  AdminPermission,
+  findMarketingTagByLabel,
+} from '@repo/types';
 import { Prisma, Department, MarketingTag } from '@repo/database';
 import { UploadService } from '../upload/upload.service.js';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
@@ -514,74 +518,77 @@ export class CatalogService {
       dto.colors?.[0],
     );
 
-    const newProduct = await this.prisma.$transaction(async (tx) => {
-      const created = await tx.product.create({
-        data: {
-          name: dto.name,
-          nameTh: dto.nameTh ?? null,
-          slug,
-          description: dto.description ?? null,
-          descriptionTh: dto.descriptionTh ?? null,
-          materialsCare: dto.materialsCare ?? null,
-          materialsCareTh: dto.materialsCareTh ?? null,
-          basePrice,
-          originalPrice,
-          tag: dto.tag ?? null,
-          tagTh: dto.tagTh ?? null,
-          categoryId: category.id,
-          isPreorder: dto.isPreorder ?? false,
-          preorderReleaseDate: dto.preorderReleaseDate
-            ? new Date(dto.preorderReleaseDate)
-            : null,
-          preorderLimit: dto.preorderLimit ?? null,
-          preorderDepositAmount: dto.preorderDepositAmount ?? null,
-          isActive: dto.isActive !== undefined ? dto.isActive : true,
-        },
-      });
-
-      for (const img of imageList) {
-        await tx.productImage.create({
+    const newProduct = await this.prisma.$transaction(
+      async (tx) => {
+        const created = await tx.product.create({
           data: {
-            productId: created.id,
-            imageUrl: img.imageUrl,
-            displayOrder: img.displayOrder,
-            isPrimary: img.isPrimary,
-            altText: img.altText ?? null,
-          },
-        });
-      }
-
-      for (const skuItem of skusToCreate) {
-        const variant = await tx.productVariant.create({
-          data: {
-            productId: created.id,
-            skuCode: skuItem.sku,
-            size: skuItem.size,
-            colorName: skuItem.colorName,
-            colorHex: skuItem.colorHex,
-            priceAdjustment: skuItem.priceAdjustment ?? 0,
-            barcode: skuItem.barcode ?? null,
-            weightGrams: skuItem.weightGrams ?? 300,
-            isActive: skuItem.isActive ?? true,
+            name: dto.name,
+            nameTh: dto.nameTh ?? null,
+            slug,
+            description: dto.description ?? null,
+            descriptionTh: dto.descriptionTh ?? null,
+            materialsCare: dto.materialsCare ?? null,
+            materialsCareTh: dto.materialsCareTh ?? null,
+            basePrice,
+            originalPrice,
+            tag: dto.tag ?? null,
+            tagTh: dto.tagTh ?? null,
+            categoryId: category.id,
+            isPreorder: dto.isPreorder ?? false,
+            preorderReleaseDate: dto.preorderReleaseDate
+              ? new Date(dto.preorderReleaseDate)
+              : null,
+            preorderLimit: dto.preorderLimit ?? null,
+            preorderDepositAmount: dto.preorderDepositAmount ?? null,
+            isActive: dto.isActive !== undefined ? dto.isActive : true,
           },
         });
 
-        await tx.inventoryItem.create({
-          data: {
-            variantId: variant.id,
-            quantityAvailable: skuItem.stock ?? 0,
-            quantityReserved: 0,
-            preorderBooked: 0,
-            lowStockThreshold: skuItem.lowStockThreshold ?? 5,
-          },
-        });
-      }
+        for (const img of imageList) {
+          await tx.productImage.create({
+            data: {
+              productId: created.id,
+              imageUrl: img.imageUrl,
+              displayOrder: img.displayOrder,
+              isPrimary: img.isPrimary,
+              altText: img.altText ?? null,
+            },
+          });
+        }
 
-      return created;
-    }, {
-      maxWait: 10000,
-      timeout: 30000,
-    });
+        for (const skuItem of skusToCreate) {
+          const variant = await tx.productVariant.create({
+            data: {
+              productId: created.id,
+              skuCode: skuItem.sku,
+              size: skuItem.size,
+              colorName: skuItem.colorName,
+              colorHex: skuItem.colorHex,
+              priceAdjustment: skuItem.priceAdjustment ?? 0,
+              barcode: skuItem.barcode ?? null,
+              weightGrams: skuItem.weightGrams ?? 300,
+              isActive: skuItem.isActive ?? true,
+            },
+          });
+
+          await tx.inventoryItem.create({
+            data: {
+              variantId: variant.id,
+              quantityAvailable: skuItem.stock ?? 0,
+              quantityReserved: 0,
+              preorderBooked: 0,
+              lowStockThreshold: skuItem.lowStockThreshold ?? 5,
+            },
+          });
+        }
+
+        return created;
+      },
+      {
+        maxWait: 10000,
+        timeout: 30000,
+      },
+    );
 
     const result = await this.getProductBySlug(newProduct.slug);
 
@@ -996,137 +1003,142 @@ export class CatalogService {
       } as CreateProductDto);
     }
 
-    await this.prisma.$transaction(async (tx) => {
-      await tx.product.update({
-        where: { id: existing.id },
-        data: {
-          name: dto.name ?? existing.name,
-          nameTh: dto.nameTh !== undefined ? dto.nameTh : existing.nameTh,
-          description:
-            dto.description !== undefined
-              ? dto.description
-              : existing.description,
-          descriptionTh:
-            dto.descriptionTh !== undefined
-              ? dto.descriptionTh
-              : existing.descriptionTh,
-          materialsCare:
-            dto.materialsCare !== undefined
-              ? dto.materialsCare
-              : existing.materialsCare,
-          materialsCareTh:
-            dto.materialsCareTh !== undefined
-              ? dto.materialsCareTh
-              : existing.materialsCareTh,
-          basePrice,
-          originalPrice:
-            dto.originalPrice !== undefined
-              ? dto.originalPrice
-              : existing.originalPrice,
-          categoryId,
-          tag: dto.tag !== undefined ? dto.tag : existing.tag,
-          tagTh: dto.tagTh !== undefined ? dto.tagTh : existing.tagTh,
-          isPreorder:
-            dto.isPreorder !== undefined ? dto.isPreorder : existing.isPreorder,
-          preorderReleaseDate: dto.preorderReleaseDate
-            ? new Date(dto.preorderReleaseDate)
-            : existing.preorderReleaseDate,
-          preorderLimit:
-            dto.preorderLimit !== undefined
-              ? dto.preorderLimit
-              : existing.preorderLimit,
-          preorderDepositAmount:
-            dto.preorderDepositAmount !== undefined
-              ? dto.preorderDepositAmount
-              : existing.preorderDepositAmount,
-          isActive:
-            dto.isActive !== undefined ? dto.isActive : existing.isActive,
-        },
-      });
-
-      if (imageList !== undefined && imageList.length > 0) {
-        await tx.productImage.deleteMany({
-          where: { productId: existing.id },
+    await this.prisma.$transaction(
+      async (tx) => {
+        await tx.product.update({
+          where: { id: existing.id },
+          data: {
+            name: dto.name ?? existing.name,
+            nameTh: dto.nameTh !== undefined ? dto.nameTh : existing.nameTh,
+            description:
+              dto.description !== undefined
+                ? dto.description
+                : existing.description,
+            descriptionTh:
+              dto.descriptionTh !== undefined
+                ? dto.descriptionTh
+                : existing.descriptionTh,
+            materialsCare:
+              dto.materialsCare !== undefined
+                ? dto.materialsCare
+                : existing.materialsCare,
+            materialsCareTh:
+              dto.materialsCareTh !== undefined
+                ? dto.materialsCareTh
+                : existing.materialsCareTh,
+            basePrice,
+            originalPrice:
+              dto.originalPrice !== undefined
+                ? dto.originalPrice
+                : existing.originalPrice,
+            categoryId,
+            tag: dto.tag !== undefined ? dto.tag : existing.tag,
+            tagTh: dto.tagTh !== undefined ? dto.tagTh : existing.tagTh,
+            isPreorder:
+              dto.isPreorder !== undefined
+                ? dto.isPreorder
+                : existing.isPreorder,
+            preorderReleaseDate: dto.preorderReleaseDate
+              ? new Date(dto.preorderReleaseDate)
+              : existing.preorderReleaseDate,
+            preorderLimit:
+              dto.preorderLimit !== undefined
+                ? dto.preorderLimit
+                : existing.preorderLimit,
+            preorderDepositAmount:
+              dto.preorderDepositAmount !== undefined
+                ? dto.preorderDepositAmount
+                : existing.preorderDepositAmount,
+            isActive:
+              dto.isActive !== undefined ? dto.isActive : existing.isActive,
+          },
         });
 
-        for (const img of imageList) {
-          await tx.productImage.create({
-            data: {
-              productId: existing.id,
-              imageUrl: img.imageUrl,
-              displayOrder: img.displayOrder,
-              isPrimary: img.isPrimary,
-              altText: img.altText ?? null,
-            },
-          });
-        }
-      }
-
-      if (dto.skus && Array.isArray(dto.skus) && dto.skus.length > 0) {
-        for (const skuItem of dto.skus) {
-          const existingVariant = await tx.productVariant.findFirst({
-            where: {
-              productId: existing.id,
-              skuCode: skuItem.sku,
-            },
+        if (imageList !== undefined && imageList.length > 0) {
+          await tx.productImage.deleteMany({
+            where: { productId: existing.id },
           });
 
-          if (existingVariant) {
-            await tx.productVariant.update({
-              where: { id: existingVariant.id },
-              data: {
-                size: skuItem.size,
-                colorName: skuItem.colorName,
-                colorHex: skuItem.colorHex,
-                priceAdjustment: skuItem.priceAdjustment ?? 0,
-                barcode: skuItem.barcode ?? null,
-                isActive:
-                  skuItem.isActive !== undefined
-                    ? skuItem.isActive
-                    : existingVariant.isActive,
-              },
-            });
-
-            if (skuItem.stock !== undefined) {
-              await tx.inventoryItem.updateMany({
-                where: { variantId: existingVariant.id },
-                data: {
-                  quantityAvailable: skuItem.stock,
-                  lowStockThreshold: skuItem.lowStockThreshold ?? 5,
-                },
-              });
-            }
-          } else {
-            const newVariant = await tx.productVariant.create({
+          for (const img of imageList) {
+            await tx.productImage.create({
               data: {
                 productId: existing.id,
-                skuCode: skuItem.sku,
-                size: skuItem.size,
-                colorName: skuItem.colorName,
-                colorHex: skuItem.colorHex,
-                priceAdjustment: skuItem.priceAdjustment ?? 0,
-                barcode: skuItem.barcode ?? null,
-                weightGrams: skuItem.weightGrams ?? 300,
-                isActive: skuItem.isActive ?? true,
-              },
-            });
-
-            await tx.inventoryItem.create({
-              data: {
-                variantId: newVariant.id,
-                quantityAvailable: skuItem.stock ?? 0,
-                quantityReserved: 0,
-                preorderBooked: 0,
-                lowStockThreshold: skuItem.lowStockThreshold ?? 5,
+                imageUrl: img.imageUrl,
+                displayOrder: img.displayOrder,
+                isPrimary: img.isPrimary,
+                altText: img.altText ?? null,
               },
             });
           }
         }
-      }
-    }, {
-      maxWait: 10000,
-      timeout: 30000,
-    });
+
+        if (dto.skus && Array.isArray(dto.skus) && dto.skus.length > 0) {
+          for (const skuItem of dto.skus) {
+            const existingVariant = await tx.productVariant.findFirst({
+              where: {
+                productId: existing.id,
+                skuCode: skuItem.sku,
+              },
+            });
+
+            if (existingVariant) {
+              await tx.productVariant.update({
+                where: { id: existingVariant.id },
+                data: {
+                  size: skuItem.size,
+                  colorName: skuItem.colorName,
+                  colorHex: skuItem.colorHex,
+                  priceAdjustment: skuItem.priceAdjustment ?? 0,
+                  barcode: skuItem.barcode ?? null,
+                  isActive:
+                    skuItem.isActive !== undefined
+                      ? skuItem.isActive
+                      : existingVariant.isActive,
+                },
+              });
+
+              if (skuItem.stock !== undefined) {
+                await tx.inventoryItem.updateMany({
+                  where: { variantId: existingVariant.id },
+                  data: {
+                    quantityAvailable: skuItem.stock,
+                    lowStockThreshold: skuItem.lowStockThreshold ?? 5,
+                  },
+                });
+              }
+            } else {
+              const newVariant = await tx.productVariant.create({
+                data: {
+                  productId: existing.id,
+                  skuCode: skuItem.sku,
+                  size: skuItem.size,
+                  colorName: skuItem.colorName,
+                  colorHex: skuItem.colorHex,
+                  priceAdjustment: skuItem.priceAdjustment ?? 0,
+                  barcode: skuItem.barcode ?? null,
+                  weightGrams: skuItem.weightGrams ?? 300,
+                  isActive: skuItem.isActive ?? true,
+                },
+              });
+
+              await tx.inventoryItem.create({
+                data: {
+                  variantId: newVariant.id,
+                  quantityAvailable: skuItem.stock ?? 0,
+                  quantityReserved: 0,
+                  preorderBooked: 0,
+                  lowStockThreshold: skuItem.lowStockThreshold ?? 5,
+                },
+              });
+            }
+          }
+        }
+      },
+      {
+        maxWait: 10000,
+        timeout: 30000,
+      },
+    );
 
     const result = await this.getProductBySlug(existing.slug);
 

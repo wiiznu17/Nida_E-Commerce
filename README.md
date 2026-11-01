@@ -56,14 +56,14 @@ cp apps/admin-api/.env.example apps/admin-api/.env
 
 **Environment File Hierarchy:**
 
-| File | Read By | Purpose |
-| :--- | :--- | :--- |
-| `.env` (root) | `docker-compose.yml` | Container names, ports, Postgres/Redis passwords |
-| `packages/database/.env` | Prisma CLI (`db:push`, `db:seed`, `db:generate`, `db:studio`) | `DATABASE_URL`, `DIRECT_URL`, production seed secrets |
-| `apps/api/.env` | Storefront NestJS API | DB connection, Redis, JWT customer secret, Omise keys |
-| `apps/admin-api/.env` | Admin NestJS API | DB connection, Redis, JWT admin secrets, Cloudinary keys |
-| `apps/store/.env.local` | Next.js Storefront | `NEXT_PUBLIC_API_URL` |
-| `apps/admin/.env` | Vite Admin Portal | `VITE_API_URL`, `VITE_STOREFRONT_URL` |
+| File                     | Read By                                                       | Purpose                                                  |
+| :----------------------- | :------------------------------------------------------------ | :------------------------------------------------------- |
+| `.env` (root)            | `docker-compose.yml`                                          | Container names, ports, Postgres/Redis passwords         |
+| `packages/database/.env` | Prisma CLI (`db:push`, `db:seed`, `db:generate`, `db:studio`) | `DATABASE_URL`, `DIRECT_URL`, production seed secrets    |
+| `apps/api/.env`          | Storefront NestJS API                                         | DB connection, Redis, JWT customer secret, Omise keys    |
+| `apps/admin-api/.env`    | Admin NestJS API                                              | DB connection, Redis, JWT admin secrets, Cloudinary keys |
+| `apps/store/.env.local`  | Next.js Storefront                                            | `NEXT_PUBLIC_API_URL`                                    |
+| `apps/admin/.env`        | Vite Admin Portal                                             | `VITE_API_URL`, `VITE_STOREFRONT_URL`                    |
 
 ### 4. Spin Up Infrastructure & Seed Database
 
@@ -79,6 +79,7 @@ npm run db:seed -w @repo/database
 ```
 
 > **Tip**: You can also run Prisma commands directly from the package directory:
+>
 > ```bash
 > cd packages/database
 > npx prisma db push

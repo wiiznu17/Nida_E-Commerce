@@ -119,7 +119,9 @@ describe('AnalyticsService', () => {
       const result = await service.getOverview({ timeframe: 'month' });
 
       expect(result).toEqual(mockCached);
-      expect(redisMock.cacheGet).toHaveBeenCalledWith('admin:analytics:overview:month');
+      expect(redisMock.cacheGet).toHaveBeenCalledWith(
+        'admin:analytics:overview:month',
+      );
       expect(prismaMock.order.findMany).not.toHaveBeenCalled();
     });
 
@@ -154,13 +156,9 @@ describe('AnalyticsService', () => {
             returnRequests: [],
           },
         ])
-        .mockResolvedValueOnce([
-          { totalAmount: 5000 },
-        ]);
+        .mockResolvedValueOnce([{ totalAmount: 5000 }]);
 
-      prismaMock.refund.findMany.mockResolvedValueOnce([
-        { amount: 200 },
-      ]);
+      prismaMock.refund.findMany.mockResolvedValueOnce([{ amount: 200 }]);
       prismaMock.order.count.mockResolvedValueOnce(3);
       prismaMock.inventoryItem.count.mockResolvedValueOnce(5);
       prismaMock.cart.count
@@ -202,9 +200,7 @@ describe('AnalyticsService', () => {
       prismaMock.refund.findMany.mockResolvedValueOnce([]);
       prismaMock.order.count.mockResolvedValueOnce(0);
       prismaMock.inventoryItem.count.mockResolvedValueOnce(0);
-      prismaMock.cart.count
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
+      prismaMock.cart.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
 
       const result = await service.getOverview({
         startDate: '2026-09-01',
@@ -267,9 +263,7 @@ describe('AnalyticsService', () => {
       prismaMock.refund.findMany.mockResolvedValueOnce([]);
       prismaMock.order.count.mockResolvedValueOnce(0);
       prismaMock.inventoryItem.count.mockResolvedValueOnce(0);
-      prismaMock.cart.count
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(0);
+      prismaMock.cart.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
 
       const result = await service.getOverview({ timeframe: 'today' });
 
@@ -308,7 +302,9 @@ describe('AnalyticsService', () => {
         },
       ]);
 
-      const result = await service.getSalesByDepartment({ timeframe: 'quarter' });
+      const result = await service.getSalesByDepartment({
+        timeframe: 'quarter',
+      });
 
       expect(result.length).toBe(6);
       const women = result.find((d) => d.department === Department.WOMEN);
@@ -367,7 +363,11 @@ describe('AnalyticsService', () => {
 
       prismaMock.orderItem.findMany.mockResolvedValueOnce(mockOrderItems);
 
-      const page1 = await service.getTopProducts({ timeframe: 'week', page: 1, limit: 1 });
+      const page1 = await service.getTopProducts({
+        timeframe: 'week',
+        page: 1,
+        limit: 1,
+      });
 
       expect(page1.total).toBe(2);
       expect(page1.totalPages).toBe(2);
@@ -380,7 +380,11 @@ describe('AnalyticsService', () => {
 
       prismaMock.orderItem.findMany.mockResolvedValueOnce(mockOrderItems);
 
-      const page2 = await service.getTopProducts({ timeframe: 'week', page: 2, limit: 1 });
+      const page2 = await service.getTopProducts({
+        timeframe: 'week',
+        page: 2,
+        limit: 1,
+      });
       expect(page2.page).toBe(2);
       expect(page2.items.length).toBe(1);
       expect(page2.items[0].rank).toBe(2);
@@ -447,7 +451,11 @@ describe('AnalyticsService', () => {
         },
       ]);
 
-      const result = await service.getSlowMovingProducts({ days: 30, page: 1, limit: 10 });
+      const result = await service.getSlowMovingProducts({
+        days: 30,
+        page: 1,
+        limit: 10,
+      });
 
       expect(result.items.length).toBe(2);
       expect(result.total).toBe(2);
@@ -502,7 +510,10 @@ describe('AnalyticsService', () => {
           discountTotal: 500,
           shippingFee: 100,
           totalAmount: 4600,
-          shippingAddressSnapshot: { recipientName: 'Somchai, Suk', phone: '0812345678' },
+          shippingAddressSnapshot: {
+            recipientName: 'Somchai, Suk',
+            phone: '0812345678',
+          },
           user: {
             email: 'somchai@example.com',
             firstName: 'Somchai',
@@ -631,7 +642,9 @@ describe('AnalyticsService', () => {
   describe('invalidateAll', () => {
     it('calls redis cacheDelByPattern with admin:analytics:* pattern', async () => {
       await service.invalidateAll();
-      expect(redisMock.cacheDelByPattern).toHaveBeenCalledWith('admin:analytics:*');
+      expect(redisMock.cacheDelByPattern).toHaveBeenCalledWith(
+        'admin:analytics:*',
+      );
     });
   });
 });

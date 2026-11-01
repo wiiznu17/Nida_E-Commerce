@@ -31,10 +31,7 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
   const newValues = log.newValuesJson ?? null;
 
   const allKeys = Array.from(
-    new Set([
-      ...Object.keys(oldValues ?? {}),
-      ...Object.keys(newValues ?? {}),
-    ]),
+    new Set([...Object.keys(oldValues ?? {}), ...Object.keys(newValues ?? {})]),
   );
 
   const modifiedKeys = allKeys.filter((key) => {
@@ -63,7 +60,9 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
     }
     if (val === null) {
       return (
-        <span className="text-stone-400 font-mono text-[11px] italic">null</span>
+        <span className="text-stone-400 font-mono text-[11px] italic">
+          null
+        </span>
       );
     }
     if (typeof val === 'boolean') {
@@ -199,7 +198,10 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
             <div className="mt-3 flex items-center gap-2 text-[11px] text-stone-500 px-1">
               <Globe className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               <span>
-                IP: <strong className="font-mono text-stone-700">{log.ipAddress}</strong>
+                IP:{' '}
+                <strong className="font-mono text-stone-700">
+                  {log.ipAddress}
+                </strong>
               </span>
               {log.userAgent && <span className="text-stone-300">•</span>}
               {log.userAgent && (
@@ -280,20 +282,21 @@ export const AuditDiffModal: React.FC<AuditDiffModalProps> = ({
                   </span>
                 </div>
 
-                {modifiedKeys.length > 0 && modifiedKeys.length < allKeys.length && (
-                  <button
-                    type="button"
-                    onClick={() => setOnlyModified(!onlyModified)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 transition-colors shadow-2xs cursor-pointer"
-                  >
-                    <Filter className="w-3.5 h-3.5 text-stone-400" />
-                    <span>
-                      {onlyModified
-                        ? `${t('audit.showAllFields')} (${allKeys.length})`
-                        : `${t('audit.showOnlyChanged')} (${modifiedKeys.length})`}
-                    </span>
-                  </button>
-                )}
+                {modifiedKeys.length > 0 &&
+                  modifiedKeys.length < allKeys.length && (
+                    <button
+                      type="button"
+                      onClick={() => setOnlyModified(!onlyModified)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 transition-colors shadow-2xs cursor-pointer"
+                    >
+                      <Filter className="w-3.5 h-3.5 text-stone-400" />
+                      <span>
+                        {onlyModified
+                          ? `${t('audit.showAllFields')} (${allKeys.length})`
+                          : `${t('audit.showOnlyChanged')} (${modifiedKeys.length})`}
+                      </span>
+                    </button>
+                  )}
               </div>
 
               {/* Table Column Header */}

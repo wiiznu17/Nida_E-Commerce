@@ -46,9 +46,7 @@ export const OrderItemSnapshotModal: React.FC<OrderItemSnapshotModalProps> = ({
             <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
               {t('orders.detail.snapshotModalTitle')}
             </h3>
-            <p className="text-xs text-gray-500 font-mono mt-0.5">
-              {skuCode}
-            </p>
+            <p className="text-xs text-gray-500 font-mono mt-0.5">{skuCode}</p>
           </div>
           <button
             type="button"

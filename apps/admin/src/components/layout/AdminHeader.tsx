@@ -90,9 +90,7 @@ export function AdminHeader({
       {/* Right: Action Button, Language Switcher & Storefront Gateway */}
       <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
         {actionButton && (
-          <div className="flex items-center shrink-0">
-            {actionButton}
-          </div>
+          <div className="flex items-center shrink-0">{actionButton}</div>
         )}
         {/* Language Switcher */}
         <div className="flex items-center bg-brand-cream/80 p-0.5 rounded-full border border-brand-border shrink-0">

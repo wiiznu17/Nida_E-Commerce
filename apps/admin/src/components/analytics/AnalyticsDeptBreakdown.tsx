@@ -76,10 +76,18 @@ export function AnalyticsDeptBreakdown({
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-stone-50 border-b border-brand-border text-stone-500 uppercase tracking-wider text-[10px] font-semibold">
-              <th className="py-3 px-4 w-52">{t('analytics.departments.colDept')}</th>
-              <th className="py-3 px-4 w-40 text-right">{t('analytics.departments.colRevenue')}</th>
-              <th className="py-3 px-4 w-32 text-right">{t('analytics.departments.colUnits')}</th>
-              <th className="py-3 px-4 w-48">{t('analytics.departments.colShare')}</th>
+              <th className="py-3 px-4 w-52">
+                {t('analytics.departments.colDept')}
+              </th>
+              <th className="py-3 px-4 w-40 text-right">
+                {t('analytics.departments.colRevenue')}
+              </th>
+              <th className="py-3 px-4 w-32 text-right">
+                {t('analytics.departments.colUnits')}
+              </th>
+              <th className="py-3 px-4 w-48">
+                {t('analytics.departments.colShare')}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -91,7 +99,10 @@ export function AnalyticsDeptBreakdown({
               </tr>
             ) : (
               departments.map((dept) => (
-                <tr key={dept.department} className="hover:bg-stone-50/70 transition-colors">
+                <tr
+                  key={dept.department}
+                  className="hover:bg-stone-50/70 transition-colors"
+                >
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
                       <span
@@ -132,7 +143,9 @@ export function AnalyticsDeptBreakdown({
           {departments.length > 0 && (
             <tfoot>
               <tr className="bg-stone-50/80 font-bold border-t border-brand-border text-stone-800">
-                <td className="py-3 px-4 uppercase tracking-wider text-[10px]">Total</td>
+                <td className="py-3 px-4 uppercase tracking-wider text-[10px]">
+                  Total
+                </td>
                 <td className="py-3 px-4 text-right font-mono">
                   ฿{totalRevenue.toLocaleString('th-TH')}
                 </td>

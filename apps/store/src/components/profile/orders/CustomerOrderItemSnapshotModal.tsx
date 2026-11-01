@@ -64,9 +64,7 @@ export function CustomerOrderItemSnapshotModal({
             <h3 className="text-xs font-black uppercase tracking-wider text-brand-brown">
               {t('orderDetail.snapshotModalTitle')}
             </h3>
-            <p className="text-xs text-stone-500 font-mono mt-0.5">
-              {skuCode}
-            </p>
+            <p className="text-xs text-stone-500 font-mono mt-0.5">{skuCode}</p>
           </div>
           <button
             type="button"

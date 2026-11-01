@@ -93,7 +93,9 @@ export function AnalyticsOverviewPanel({
           footer={
             <div className="flex items-center justify-between w-full">
               <span>{renderTrend(overview.aovTrendPct)}</span>
-              <span className="text-[11px] text-stone-400">Per transaction</span>
+              <span className="text-[11px] text-stone-400">
+                Per transaction
+              </span>
             </div>
           }
         />
@@ -208,7 +210,9 @@ export function AnalyticsOverviewPanel({
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-stone-500">Estimated Conversion Rate</span>
+                <span className="text-stone-500">
+                  Estimated Conversion Rate
+                </span>
                 <span className="font-semibold text-stone-800 font-mono">
                   {overview.conversionRate}%
                 </span>

@@ -84,10 +84,20 @@ export class AnalyticsService {
 
   private resolveRange(
     params:
-      | { timeframe?: AnalyticsPageTimeframe; startDate?: string; endDate?: string }
+      | {
+          timeframe?: AnalyticsPageTimeframe;
+          startDate?: string;
+          endDate?: string;
+        }
       | undefined,
   ): ResolvedTimeRange {
-    if (params && 'startDate' in params && 'endDate' in params && params.startDate && params.endDate) {
+    if (
+      params &&
+      'startDate' in params &&
+      'endDate' in params &&
+      params.startDate &&
+      params.endDate
+    ) {
       const start = new Date(`${params.startDate}T00:00:00.000Z`);
       const end = new Date(`${params.endDate}T23:59:59.999Z`);
       const durationMs = end.getTime() - start.getTime();
@@ -103,7 +113,9 @@ export class AnalyticsService {
       };
     }
 
-    const timeframe = (params && 'timeframe' in params ? params.timeframe : undefined) ?? 'month';
+    const timeframe =
+      (params && 'timeframe' in params ? params.timeframe : undefined) ??
+      'month';
     const now = new Date();
 
     let start: Date;
@@ -113,10 +125,42 @@ export class AnalyticsService {
 
     switch (timeframe) {
       case 'today': {
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-        end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-        prevStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
-        prevEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
+        start = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          0,
+          0,
+          0,
+          0,
+        );
+        end = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          23,
+          59,
+          59,
+          999,
+        );
+        prevStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - 1,
+          0,
+          0,
+          0,
+          0,
+        );
+        prevEnd = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - 1,
+          23,
+          59,
+          59,
+          999,
+        );
         break;
       }
       case '7d':
@@ -138,10 +182,27 @@ export class AnalyticsService {
         start = new Date(now.getFullYear(), q * 3, 1, 0, 0, 0, 0);
         end = new Date(now.getFullYear(), q * 3 + 3, 0, 23, 59, 59, 999);
 
-        const prevQuarterYear = q === 0 ? now.getFullYear() - 1 : now.getFullYear();
+        const prevQuarterYear =
+          q === 0 ? now.getFullYear() - 1 : now.getFullYear();
         const prevQuarterIndex = q === 0 ? 3 : q - 1;
-        prevStart = new Date(prevQuarterYear, prevQuarterIndex * 3, 1, 0, 0, 0, 0);
-        prevEnd = new Date(prevQuarterYear, prevQuarterIndex * 3 + 3, 0, 23, 59, 59, 999);
+        prevStart = new Date(
+          prevQuarterYear,
+          prevQuarterIndex * 3,
+          1,
+          0,
+          0,
+          0,
+          0,
+        );
+        prevEnd = new Date(
+          prevQuarterYear,
+          prevQuarterIndex * 3 + 3,
+          0,
+          23,
+          59,
+          59,
+          999,
+        );
         break;
       }
       case 'year': {
@@ -165,7 +226,9 @@ export class AnalyticsService {
 
   // ─── 1. Overview ─────────────────────────────────────────────────────────────
 
-  async getOverview(query: AnalyticsOverviewQuery): Promise<AnalyticsOverviewDto> {
+  async getOverview(
+    query: AnalyticsOverviewQuery,
+  ): Promise<AnalyticsOverviewDto> {
     const range = this.resolveRange(query);
 
     if (range.isPreset && range.timeframe) {
@@ -243,13 +306,25 @@ export class AnalyticsService {
       }),
     ]);
 
-    const grossRevenue = currentOrders.reduce((sum, o) => sum + Number(o.subtotal), 0);
-    const totalDiscounts = currentOrders.reduce((sum, o) => sum + Number(o.discountTotal), 0);
+    const grossRevenue = currentOrders.reduce(
+      (sum, o) => sum + Number(o.subtotal),
+      0,
+    );
+    const totalDiscounts = currentOrders.reduce(
+      (sum, o) => sum + Number(o.discountTotal),
+      0,
+    );
     const totalRefunds = refunds.reduce((sum, r) => sum + Number(r.amount), 0);
-    const totalCurrentAmount = currentOrders.reduce((sum, o) => sum + Number(o.totalAmount), 0);
+    const totalCurrentAmount = currentOrders.reduce(
+      (sum, o) => sum + Number(o.totalAmount),
+      0,
+    );
     const netRevenue = Math.max(0, totalCurrentAmount - totalRefunds);
 
-    const prevRevenue = prevOrders.reduce((sum, o) => sum + Number(o.totalAmount), 0);
+    const prevRevenue = prevOrders.reduce(
+      (sum, o) => sum + Number(o.totalAmount),
+      0,
+    );
     const revenueTrendPct =
       prevRevenue > 0
         ? Number((((netRevenue - prevRevenue) / prevRevenue) * 100).toFixed(1))
@@ -259,11 +334,17 @@ export class AnalyticsService {
     const prevTotalOrders = prevOrders.length;
     const ordersTrendPct =
       prevTotalOrders > 0
-        ? Number((((totalOrders - prevTotalOrders) / prevTotalOrders) * 100).toFixed(1))
+        ? Number(
+            (((totalOrders - prevTotalOrders) / prevTotalOrders) * 100).toFixed(
+              1,
+            ),
+          )
         : 0;
 
     const completedOrders = currentOrders.filter(
-      (o) => o.status === OrderStatus.COMPLETED || o.status === OrderStatus.DELIVERED,
+      (o) =>
+        o.status === OrderStatus.COMPLETED ||
+        o.status === OrderStatus.DELIVERED,
     ).length;
 
     const fulfilledOrders = currentOrders.filter(
@@ -273,7 +354,9 @@ export class AnalyticsService {
         o.status === OrderStatus.COMPLETED,
     ).length;
     const fulfillmentRate =
-      totalOrders > 0 ? Number(((fulfilledOrders / totalOrders) * 100).toFixed(1)) : 100;
+      totalOrders > 0
+        ? Number(((fulfilledOrders / totalOrders) * 100).toFixed(1))
+        : 100;
 
     let totalFulfillmentHours = 0;
     let shippedCount = 0;
@@ -282,7 +365,8 @@ export class AnalyticsService {
       const shipment = order.shipments.find((s) => s.shippedAt !== null);
       if (shipment?.shippedAt) {
         const hours =
-          (shipment.shippedAt.getTime() - order.placedAt.getTime()) / (1000 * 60 * 60);
+          (shipment.shippedAt.getTime() - order.placedAt.getTime()) /
+          (1000 * 60 * 60);
         if (hours >= 0) {
           totalFulfillmentHours += hours;
           shippedCount++;
@@ -293,7 +377,9 @@ export class AnalyticsService {
       }
     }
     const averageFulfillmentHours =
-      shippedCount > 0 ? Number((totalFulfillmentHours / shippedCount).toFixed(1)) : 0;
+      shippedCount > 0
+        ? Number((totalFulfillmentHours / shippedCount).toFixed(1))
+        : 0;
     const onTimeDispatchPct =
       shippedCount > 0
         ? Number(((onTimeShippedCount / shippedCount) * 100).toFixed(1))
@@ -302,18 +388,30 @@ export class AnalyticsService {
     const speedScore =
       shippedCount === 0 || averageFulfillmentHours <= 24
         ? 100
-        : Math.max(0, Math.min(100, Math.round(100 - ((averageFulfillmentHours - 24) / 48) * 100)));
-    const operationsScore = Number(((onTimeDispatchPct * 0.7) + (speedScore * 0.3)).toFixed(1));
+        : Math.max(
+            0,
+            Math.min(
+              100,
+              Math.round(100 - ((averageFulfillmentHours - 24) / 48) * 100),
+            ),
+          );
+    const operationsScore = Number(
+      (onTimeDispatchPct * 0.7 + speedScore * 0.3).toFixed(1),
+    );
 
     const aov = totalOrders > 0 ? Math.round(netRevenue / totalOrders) : 0;
-    const prevAov = prevTotalOrders > 0 ? Math.round(prevRevenue / prevTotalOrders) : 0;
+    const prevAov =
+      prevTotalOrders > 0 ? Math.round(prevRevenue / prevTotalOrders) : 0;
     const aovTrendPct =
       prevAov > 0 ? Number((((aov - prevAov) / prevAov) * 100).toFixed(1)) : 0;
 
     const customerOrderCounts = new Map<string, number>();
     for (const o of currentOrders) {
       if (o.userId) {
-        customerOrderCounts.set(o.userId, (customerOrderCounts.get(o.userId) ?? 0) + 1);
+        customerOrderCounts.set(
+          o.userId,
+          (customerOrderCounts.get(o.userId) ?? 0) + 1,
+        );
       }
     }
     const returningCount = Array.from(customerOrderCounts.values()).filter(
@@ -325,18 +423,24 @@ export class AnalyticsService {
         ? Number(((returningCount / uniqueCustomerCount) * 100).toFixed(1))
         : 0;
     const newCustomerPct =
-      uniqueCustomerCount > 0 ? Number((100 - returningCustomerPct).toFixed(1)) : 0;
+      uniqueCustomerCount > 0
+        ? Number((100 - returningCustomerPct).toFixed(1))
+        : 0;
 
     const returnedOrdersCount = currentOrders.filter(
       (o) => o.returnRequests.length > 0,
     ).length;
     const returnRate =
-      totalOrders > 0 ? Number(((returnedOrdersCount / totalOrders) * 100).toFixed(1)) : 0;
+      totalOrders > 0
+        ? Number(((returnedOrdersCount / totalOrders) * 100).toFixed(1))
+        : 0;
 
     const totalPurchaseIntent = activeCartsWithItems + totalOrders;
     const cartAbandonmentRate =
       totalPurchaseIntent > 0
-        ? Number(((activeCartsWithItems / totalPurchaseIntent) * 100).toFixed(1))
+        ? Number(
+            ((activeCartsWithItems / totalPurchaseIntent) * 100).toFixed(1),
+          )
         : 0;
     const conversionRate =
       totalPurchaseIntent > 0
@@ -370,7 +474,11 @@ export class AnalyticsService {
 
     if (range.isPreset && range.timeframe) {
       const ttl = ANALYTICS_CACHE_TTL[range.timeframe];
-      await this.redis.cacheSet(`admin:analytics:overview:${range.timeframe}`, result, ttl);
+      await this.redis.cacheSet(
+        `admin:analytics:overview:${range.timeframe}`,
+        result,
+        ttl,
+      );
     }
 
     return result;
@@ -385,7 +493,8 @@ export class AnalyticsService {
 
     if (range.isPreset && range.timeframe) {
       const cacheKey = `admin:analytics:dept:${range.timeframe}`;
-      const cached = await this.redis.cacheGet<AnalyticsDepartmentShare[]>(cacheKey);
+      const cached =
+        await this.redis.cacheGet<AnalyticsDepartmentShare[]>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -415,7 +524,10 @@ export class AnalyticsService {
       },
     });
 
-    const deptMap = new Map<Department, { revenue: number; unitsSold: number }>();
+    const deptMap = new Map<
+      Department,
+      { revenue: number; unitsSold: number }
+    >();
     for (const d of Object.values(Department)) {
       deptMap.set(d, { revenue: 0, unitsSold: 0 });
     }
@@ -469,28 +581,36 @@ export class AnalyticsService {
       },
     };
 
-    const result: AnalyticsDepartmentShare[] = Object.values(Department).map((dept) => {
-      const data = deptMap.get(dept) ?? { revenue: 0, unitsSold: 0 };
-      const meta = DEPT_METADATA[dept];
-      const percentage =
-        totalRevenue > 0 ? Number(((data.revenue / totalRevenue) * 100).toFixed(1)) : 0;
+    const result: AnalyticsDepartmentShare[] = Object.values(Department).map(
+      (dept) => {
+        const data = deptMap.get(dept) ?? { revenue: 0, unitsSold: 0 };
+        const meta = DEPT_METADATA[dept];
+        const percentage =
+          totalRevenue > 0
+            ? Number(((data.revenue / totalRevenue) * 100).toFixed(1))
+            : 0;
 
-      return {
-        department: dept,
-        labelEn: meta.labelEn,
-        labelTh: meta.labelTh,
-        revenue: Math.round(data.revenue),
-        percentage,
-        unitsSold: data.unitsSold,
-        color: meta.color,
-      };
-    });
+        return {
+          department: dept,
+          labelEn: meta.labelEn,
+          labelTh: meta.labelTh,
+          revenue: Math.round(data.revenue),
+          percentage,
+          unitsSold: data.unitsSold,
+          color: meta.color,
+        };
+      },
+    );
 
     result.sort((a, b) => b.revenue - a.revenue);
 
     if (range.isPreset && range.timeframe) {
       const ttl = ANALYTICS_CACHE_TTL[range.timeframe];
-      await this.redis.cacheSet(`admin:analytics:dept:${range.timeframe}`, result, ttl);
+      await this.redis.cacheSet(
+        `admin:analytics:dept:${range.timeframe}`,
+        result,
+        ttl,
+      );
     }
 
     return result;
@@ -681,10 +801,7 @@ export class AnalyticsService {
         const inBucket = orders.filter(
           (o) => o.placedAt >= bucketStart && o.placedAt <= bucketEnd,
         );
-        const rev = inBucket.reduce(
-          (sum, o) => sum + Number(o.totalAmount),
-          0,
-        );
+        const rev = inBucket.reduce((sum, o) => sum + Number(o.totalAmount), 0);
         points.push({
           date: bucketStart.toISOString().split('T')[0],
           label,
@@ -714,10 +831,7 @@ export class AnalyticsService {
         const inMonth = orders.filter(
           (o) => o.placedAt >= mStart && o.placedAt <= mEnd,
         );
-        const rev = inMonth.reduce(
-          (sum, o) => sum + Number(o.totalAmount),
-          0,
-        );
+        const rev = inMonth.reduce((sum, o) => sum + Number(o.totalAmount), 0);
         points.push({
           date: `${year}-${String(m + 1).padStart(2, '0')}`,
           label: monthNames[m],
@@ -726,8 +840,7 @@ export class AnalyticsService {
         });
       }
     } else {
-      const numDays =
-        timeframe === '30d' || timeframe === 'month' ? 30 : 7;
+      const numDays = timeframe === '30d' || timeframe === 'month' ? 30 : 7;
       const monthNames = [
         'Jan',
         'Feb',
@@ -855,9 +968,12 @@ export class AnalyticsService {
 
       if (!lastSoldAt || lastSoldAt < thresholdDate) {
         const daysSinceLastSale = lastSoldAt
-          ? Math.floor((now.getTime() - lastSoldAt.getTime()) / (1000 * 60 * 60 * 24))
+          ? Math.floor(
+              (now.getTime() - lastSoldAt.getTime()) / (1000 * 60 * 60 * 24),
+            )
           : Math.floor(
-              (now.getTime() - v.product.createdAt.getTime()) / (1000 * 60 * 60 * 24),
+              (now.getTime() - v.product.createdAt.getTime()) /
+                (1000 * 60 * 60 * 24),
             ) + days;
 
         candidates.push({
@@ -898,7 +1014,8 @@ export class AnalyticsService {
 
     if (range.isPreset && range.timeframe) {
       const cacheKey = `admin:analytics:coupon_roi:${range.timeframe}`;
-      const cached = await this.redis.cacheGet<AnalyticsCouponRoiSummary>(cacheKey);
+      const cached =
+        await this.redis.cacheGet<AnalyticsCouponRoiSummary>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -962,7 +1079,9 @@ export class AnalyticsService {
       (c) => {
         const roiPercent =
           c.totalDiscount > 0
-            ? Math.round(((c.netRevenue - c.totalDiscount) / c.totalDiscount) * 100)
+            ? Math.round(
+                ((c.netRevenue - c.totalDiscount) / c.totalDiscount) * 100,
+              )
             : 0;
 
         return {
@@ -984,7 +1103,9 @@ export class AnalyticsService {
     const netRevenueGenerated = items.reduce((acc, i) => acc + i.netRevenue, 0);
     const avgRoiPercent =
       items.length > 0
-        ? Math.round(items.reduce((acc, i) => acc + i.roiPercent, 0) / items.length)
+        ? Math.round(
+            items.reduce((acc, i) => acc + i.roiPercent, 0) / items.length,
+          )
         : 0;
 
     const result: AnalyticsCouponRoiSummary = {
@@ -997,7 +1118,11 @@ export class AnalyticsService {
 
     if (range.isPreset && range.timeframe) {
       const ttl = ANALYTICS_CACHE_TTL[range.timeframe];
-      await this.redis.cacheSet(`admin:analytics:coupon_roi:${range.timeframe}`, result, ttl);
+      await this.redis.cacheSet(
+        `admin:analytics:coupon_roi:${range.timeframe}`,
+        result,
+        ttl,
+      );
     }
 
     return result;
@@ -1077,14 +1202,14 @@ export class AnalyticsService {
       const customerName =
         o.user?.firstName || o.user?.lastName
           ? `${o.user.firstName ?? ''} ${o.user.lastName ?? ''}`.trim()
-          : (typeof o.shippingAddressSnapshot === 'object' &&
-            o.shippingAddressSnapshot !== null &&
-            'recipientName' in o.shippingAddressSnapshot
-              ? String(
-                  (o.shippingAddressSnapshot as { recipientName?: unknown })
-                    .recipientName ?? '',
-                )
-              : '');
+          : typeof o.shippingAddressSnapshot === 'object' &&
+              o.shippingAddressSnapshot !== null &&
+              'recipientName' in o.shippingAddressSnapshot
+            ? String(
+                (o.shippingAddressSnapshot as { recipientName?: unknown })
+                  .recipientName ?? '',
+              )
+            : '';
 
       const phone =
         o.user?.phone ??

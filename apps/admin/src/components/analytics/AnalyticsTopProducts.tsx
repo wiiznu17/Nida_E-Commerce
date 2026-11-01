@@ -51,12 +51,20 @@ export function AnalyticsTopProducts({
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-stone-50 border-b border-brand-border text-stone-500 uppercase tracking-wider text-[10px] font-semibold">
-              <th className="py-3 px-4 w-16 text-center">{t('analytics.products.rank')}</th>
+              <th className="py-3 px-4 w-16 text-center">
+                {t('analytics.products.rank')}
+              </th>
               <th className="py-3 px-4">{t('analytics.products.product')}</th>
               <th className="py-3 px-4 w-36">{t('analytics.products.sku')}</th>
-              <th className="py-3 px-4 w-32 text-right">{t('analytics.products.unitsSold')}</th>
-              <th className="py-3 px-4 w-36 text-right">{t('analytics.products.revenue')}</th>
-              <th className="py-3 px-4 w-36 text-center">{t('analytics.products.stockAvailable')}</th>
+              <th className="py-3 px-4 w-32 text-right">
+                {t('analytics.products.unitsSold')}
+              </th>
+              <th className="py-3 px-4 w-36 text-right">
+                {t('analytics.products.revenue')}
+              </th>
+              <th className="py-3 px-4 w-36 text-center">
+                {t('analytics.products.stockAvailable')}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -69,10 +77,14 @@ export function AnalyticsTopProducts({
             ) : (
               products.map((p) => {
                 const isOutOfStock = p.stockAvailable <= 0;
-                const isLowStock = p.stockAvailable > 0 && p.stockAvailable <= 5;
+                const isLowStock =
+                  p.stockAvailable > 0 && p.stockAvailable <= 5;
 
                 return (
-                  <tr key={p.productId} className="hover:bg-stone-50/70 transition-colors">
+                  <tr
+                    key={p.productId}
+                    className="hover:bg-stone-50/70 transition-colors"
+                  >
                     <td className="py-3 px-4 text-center">
                       <span
                         className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${

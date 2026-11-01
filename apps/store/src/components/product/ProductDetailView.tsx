@@ -17,7 +17,9 @@ interface ProductDetailViewProps {
   initialProduct?: ApiProductDetail | null;
 }
 
-export function ProductDetailView({ initialProduct }: ProductDetailViewProps = {}) {
+export function ProductDetailView({
+  initialProduct,
+}: ProductDetailViewProps = {}) {
   const {
     product,
     isLoading,

@@ -9,8 +9,9 @@ export const TooltipTrigger = TooltipPrimitive.Trigger;
 export const TooltipPortal = TooltipPrimitive.Portal;
 export const TooltipPositioner = TooltipPrimitive.Positioner;
 
-export interface TooltipContentProps
-  extends React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Popup> {
+export interface TooltipContentProps extends React.ComponentPropsWithoutRef<
+  typeof TooltipPrimitive.Popup
+> {
   side?: 'top' | 'bottom' | 'left' | 'right';
   sideOffset?: number;
 }

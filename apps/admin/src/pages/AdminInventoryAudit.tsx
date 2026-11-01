@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, History, Search, RotateCcw, Filter, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  History,
+  Search,
+  RotateCcw,
+  Filter,
+  Loader2,
+} from 'lucide-react';
 import { AdminLayout } from '../components/layout';
 import {
   DropdownSelect,
@@ -178,10 +185,12 @@ export default function AdminInventoryAudit() {
         'ตรวจสอบบันทึกประวัติการนำเข้า ตัดจำหน่าย และการปรับปรุงสต็อกสินค้าคงคลัง'
       } (${
         isLoading
-          ? (language === 'th' ? 'กำลังโหลดข้อมูล...' : 'Loading records...')
+          ? language === 'th'
+            ? 'กำลังโหลดข้อมูล...'
+            : 'Loading records...'
           : language === 'th'
-          ? `แสดง ${filteredMovements.length} จาก ${movementsList.length} รายการ`
-          : `${filteredMovements.length} of ${movementsList.length} records displayed`
+            ? `แสดง ${filteredMovements.length} จาก ${movementsList.length} รายการ`
+            : `${filteredMovements.length} of ${movementsList.length} records displayed`
       })`}
       breadcrumbs={[
         { label: t('nav.inventory'), path: '/admin/inventory' },

@@ -131,7 +131,10 @@ export function ProfileOrdersTab({ orders, isLoading }: ProfileOrdersTabProps) {
                         ฿{Number(order.totalAmount).toLocaleString()}
                       </span>
                       <span className="text-[11px] text-stone-500 font-medium block mt-0.5">
-                        {formatPaymentMethod(order.payment?.paymentMethod, language)}
+                        {formatPaymentMethod(
+                          order.payment?.paymentMethod,
+                          language,
+                        )}
                       </span>
                     </div>
                     <Link

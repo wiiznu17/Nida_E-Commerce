@@ -10,7 +10,9 @@ export const mergeCartItemSchema = z.object({
 });
 
 export const mergeCartSchema = z.object({
-  items: z.array(mergeCartItemSchema).max(50, 'Cannot merge more than 50 items'),
+  items: z
+    .array(mergeCartItemSchema)
+    .max(50, 'Cannot merge more than 50 items'),
 });
 
 export type MergeCartInput = z.infer<typeof mergeCartSchema>;

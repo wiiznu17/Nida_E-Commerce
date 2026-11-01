@@ -239,7 +239,10 @@ export default function AdminProducts() {
         title={t('productList.deleteTitle')}
         description={
           deleteTarget
-            ? t('productList.confirmDelete').replace('{name}', deleteTarget.name)
+            ? t('productList.confirmDelete').replace(
+                '{name}',
+                deleteTarget.name,
+              )
             : ''
         }
         variant="danger"

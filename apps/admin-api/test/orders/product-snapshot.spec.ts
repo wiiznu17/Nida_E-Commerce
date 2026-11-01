@@ -189,7 +189,9 @@ describe('Product Snapshot in Order Items (Admin API)', () => {
     expect(orderItemCreateSpy).toHaveBeenCalledTimes(1);
     const createData = orderItemCreateSpy.mock.calls[0][0].data;
 
-    expect(createData.imageUrlSnapshot).toBe('https://images.nida.co/products/coat-main.jpg');
+    expect(createData.imageUrlSnapshot).toBe(
+      'https://images.nida.co/products/coat-main.jpg',
+    );
     expect(createData.skuCodeSnapshot).toBe('NIDA-CASHMERE-COAT-M');
 
     const snap = createData.productSnapshot as ApiProductSnapshot;
@@ -200,7 +202,9 @@ describe('Product Snapshot in Order Items (Admin API)', () => {
     expect(snap.colorName).toBe('Espresso Brown');
     expect(snap.basePrice).toBe(12500);
     expect(snap.originalPrice).toBe(15000);
-    expect(snap.materialsCare).toBe('100% Mongolian Cashmere. Specialist dry clean.');
+    expect(snap.materialsCare).toBe(
+      '100% Mongolian Cashmere. Specialist dry clean.',
+    );
   });
 
   it('admin getOrderById maps historical snapshots and protects order history from catalog edits', async () => {
@@ -264,9 +268,9 @@ describe('Product Snapshot in Order Items (Admin API)', () => {
       returnRequests: [],
     };
 
-    (prismaMock.order as { findUnique: ReturnType<typeof vi.fn> }).findUnique.mockResolvedValue(
-      historicalOrderPayload,
-    );
+    (
+      prismaMock.order as { findUnique: ReturnType<typeof vi.fn> }
+    ).findUnique.mockResolvedValue(historicalOrderPayload);
 
     const result = await service.getOrderByNumber('NIDA-20261025-SNAP');
 
@@ -312,7 +316,9 @@ describe('Product Snapshot in Order Items (Admin API)', () => {
           variant: {
             skuCode: 'LEGACY-VARIANT-SKU',
             product: {
-              images: [{ imageUrl: 'https://cdn.nida.co/legacy-variant-image.jpg' }],
+              images: [
+                { imageUrl: 'https://cdn.nida.co/legacy-variant-image.jpg' },
+              ],
             },
           },
         },
@@ -324,12 +330,14 @@ describe('Product Snapshot in Order Items (Admin API)', () => {
       returnRequests: [],
     };
 
-    (prismaMock.order as { findUnique: ReturnType<typeof vi.fn> }).findUnique.mockResolvedValue(
-      legacyOrderPayload,
-    );
+    (
+      prismaMock.order as { findUnique: ReturnType<typeof vi.fn> }
+    ).findUnique.mockResolvedValue(legacyOrderPayload);
 
     const result = await service.getOrderByNumber('NIDA-20261025-LEGACY-ADMIN');
-    expect(result.items[0].imageUrl).toBe('https://cdn.nida.co/legacy-variant-image.jpg');
+    expect(result.items[0].imageUrl).toBe(
+      'https://cdn.nida.co/legacy-variant-image.jpg',
+    );
     expect(result.items[0].skuCode).toBe('LEGACY-VARIANT-SKU');
     expect(result.items[0].productSnapshot).toBeNull();
   });

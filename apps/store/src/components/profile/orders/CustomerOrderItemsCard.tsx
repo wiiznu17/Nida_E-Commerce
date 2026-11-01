@@ -66,7 +66,8 @@ export function CustomerOrderItemsCard({ order }: CustomerOrderItemsCardProps) {
                     </div>
                     <div className="flex items-center gap-3 mt-1.5">
                       <p className="text-[11px] font-mono text-stone-500">
-                        ฿{Number(item.unitPrice).toLocaleString()} x {item.quantity}
+                        ฿{Number(item.unitPrice).toLocaleString()} x{' '}
+                        {item.quantity}
                       </p>
                       <button
                         type="button"

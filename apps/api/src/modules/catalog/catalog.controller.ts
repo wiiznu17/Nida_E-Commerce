@@ -127,7 +127,9 @@ export class CustomerCatalogController {
 
   @Post('sync-cart')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Batch sync latest prices and stock for cart items' })
+  @ApiOperation({
+    summary: 'Batch sync latest prices and stock for cart items',
+  })
   @ApiResponse({
     status: 200,
     description: 'Latest variant prices, status, and stock availability',

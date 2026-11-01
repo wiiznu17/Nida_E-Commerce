@@ -73,7 +73,9 @@ export function DashboardHealthStrip({ data }: DashboardHealthStripProps) {
           <AlertTriangle
             size={14}
             className={
-              data.lowStockCount > 0 ? 'text-rose-600 shrink-0' : 'text-gray-400 shrink-0'
+              data.lowStockCount > 0
+                ? 'text-rose-600 shrink-0'
+                : 'text-gray-400 shrink-0'
             }
           />
           <span className="text-[11px] font-black uppercase tracking-wider text-brand-brown truncate">

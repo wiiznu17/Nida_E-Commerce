@@ -19,7 +19,10 @@ export function AnalyticsCouponRoi({
       <div className="space-y-4 animate-pulse">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 bg-white border border-brand-border rounded-xs p-4" />
+            <div
+              key={i}
+              className="h-24 bg-white border border-brand-border rounded-xs p-4"
+            />
           ))}
         </div>
         <div className="h-48 bg-white border border-brand-border rounded-xs p-6" />
@@ -76,11 +79,21 @@ export function AnalyticsCouponRoi({
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-stone-50 border-b border-brand-border text-stone-500 uppercase tracking-wider text-[10px] font-semibold">
-                <th className="py-3 px-4">{t('analytics.coupons.couponCode')}</th>
-                <th className="py-3 px-4 w-32 text-center">{t('analytics.coupons.usageCount')}</th>
-                <th className="py-3 px-4 w-40 text-right">{t('analytics.coupons.discountGiven')}</th>
-                <th className="py-3 px-4 w-40 text-right">{t('analytics.coupons.salesGenerated')}</th>
-                <th className="py-3 px-4 w-32 text-center">{t('analytics.coupons.roi')}</th>
+                <th className="py-3 px-4">
+                  {t('analytics.coupons.couponCode')}
+                </th>
+                <th className="py-3 px-4 w-32 text-center">
+                  {t('analytics.coupons.usageCount')}
+                </th>
+                <th className="py-3 px-4 w-40 text-right">
+                  {t('analytics.coupons.discountGiven')}
+                </th>
+                <th className="py-3 px-4 w-40 text-right">
+                  {t('analytics.coupons.salesGenerated')}
+                </th>
+                <th className="py-3 px-4 w-32 text-center">
+                  {t('analytics.coupons.roi')}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -92,7 +105,10 @@ export function AnalyticsCouponRoi({
                 </tr>
               ) : (
                 summary.items.map((item) => (
-                  <tr key={item.couponId} className="hover:bg-stone-50/70 transition-colors">
+                  <tr
+                    key={item.couponId}
+                    className="hover:bg-stone-50/70 transition-colors"
+                  >
                     <td className="py-3 px-4">
                       <span className="font-mono font-bold text-brand-brown bg-stone-100 px-2.5 py-1 rounded-xs text-[11px]">
                         {item.couponCode}

@@ -241,11 +241,16 @@ describe('CustomerOrdersService', () => {
         expect.unreachable('Should have thrown ConflictException');
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(ConflictException);
-        const resp = (err as ConflictException).getResponse() as Record<string, unknown>;
+        const resp = (err as ConflictException).getResponse() as Record<
+          string,
+          unknown
+        >;
         expect(resp.code).toBe('PRICE_MISMATCH');
         expect(Array.isArray(resp.mismatches)).toBe(true);
         expect(resp.mismatches).toHaveLength(1);
-        expect((resp.mismatches as Array<Record<string, unknown>>)[0]).toMatchObject({
+        expect(
+          (resp.mismatches as Array<Record<string, unknown>>)[0],
+        ).toMatchObject({
           variantId: 'var-1',
           expectedPrice: 1200,
           currentPrice: 1500,
@@ -301,7 +306,10 @@ describe('CustomerOrdersService', () => {
       };
 
       (
-        prismaMock as { $transaction: ReturnType<typeof vi.fn>; order: { findUnique: ReturnType<typeof vi.fn> } }
+        prismaMock as {
+          $transaction: ReturnType<typeof vi.fn>;
+          order: { findUnique: ReturnType<typeof vi.fn> };
+        }
       ).$transaction.mockImplementation(
         async (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock),
       );
@@ -413,7 +421,9 @@ describe('CustomerOrdersService', () => {
       ]);
 
       (
-        prismaMock as { promotionCoupon: { findUnique: ReturnType<typeof vi.fn> } }
+        prismaMock as {
+          promotionCoupon: { findUnique: ReturnType<typeof vi.fn> };
+        }
       ).promotionCoupon.findUnique.mockResolvedValueOnce({
         id: 'coupon-fs',
         code: 'FREESHIP',
@@ -466,7 +476,9 @@ describe('CustomerOrdersService', () => {
       ]);
 
       (
-        prismaMock as { promotionCoupon: { findUnique: ReturnType<typeof vi.fn> } }
+        prismaMock as {
+          promotionCoupon: { findUnique: ReturnType<typeof vi.fn> };
+        }
       ).promotionCoupon.findUnique.mockResolvedValueOnce({
         id: 'coupon-fs',
         code: 'FREESHIP',
@@ -517,7 +529,13 @@ describe('CustomerOrdersService', () => {
           create: vi.fn().mockResolvedValue({ id: 'pay-1' }),
         },
         promotionCoupon: {
-          findUnique: vi.fn().mockResolvedValue({ id: 'coupon-fs', totalUsageLimit: 100, isActive: true }),
+          findUnique: vi
+            .fn()
+            .mockResolvedValue({
+              id: 'coupon-fs',
+              totalUsageLimit: 100,
+              isActive: true,
+            }),
           updateMany: vi.fn().mockResolvedValue({ count: 1 }),
         },
         couponRedemption: {

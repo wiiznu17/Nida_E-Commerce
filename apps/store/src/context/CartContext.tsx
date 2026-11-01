@@ -358,9 +358,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 ? { variantId: resolvedId, quantity: Math.max(i.quantity, 1) }
                 : null;
             })
-            .filter(
-              (item): item is { variantId: string; quantity: number } =>
-                Boolean(item),
+            .filter((item): item is { variantId: string; quantity: number } =>
+              Boolean(item),
             );
 
           if (validPayloadItems.length > 0) {
@@ -397,7 +396,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 maxStock: serverItem.maxStock,
                 isPreorder: serverItem.isPreorder,
                 isActive: serverItem.isActive,
-                isAvailable: serverItem.isAvailable ?? (serverItem.isActive !== false),
+                isAvailable:
+                  serverItem.isAvailable ?? serverItem.isActive !== false,
               }));
               setItems(mapped);
               return;
@@ -428,7 +428,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               maxStock: serverItem.maxStock,
               isPreorder: serverItem.isPreorder,
               isActive: serverItem.isActive,
-              isAvailable: serverItem.isAvailable ?? (serverItem.isActive !== false),
+              isAvailable:
+                serverItem.isAvailable ?? serverItem.isActive !== false,
             }));
             setItems(mapped);
           } else if (guestItems.length > 0) {
@@ -436,7 +437,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             setItems(guestItems);
           }
         } catch (err) {
-          console.warn('[CartContext] Failed to sync customer cart on login:', err);
+          console.warn(
+            '[CartContext] Failed to sync customer cart on login:',
+            err,
+          );
         } finally {
           setIsSyncingCart(false);
         }

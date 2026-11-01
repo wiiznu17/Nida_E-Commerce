@@ -715,7 +715,10 @@ describe('CustomerAuthService', () => {
     });
 
     it('sends password reset OTP when email exists', async () => {
-      prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'usr-1', email: 'user@nida.co' });
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-1',
+        email: 'user@nida.co',
+      });
 
       const res = await service.forgotPassword({ email: 'user@nida.co' });
       expect(res.success).toBe(true);
@@ -734,7 +737,10 @@ describe('CustomerAuthService', () => {
         isUsed: false,
         expiresAt: new Date(Date.now() + 180_000),
       });
-      prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'usr-1', email: 'user@nida.co' });
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-1',
+        email: 'user@nida.co',
+      });
       prismaMock.user.update.mockResolvedValueOnce({ id: 'usr-1' });
 
       const res = await service.resetPassword({

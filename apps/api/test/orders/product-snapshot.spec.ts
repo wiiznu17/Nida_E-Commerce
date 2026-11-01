@@ -183,7 +183,9 @@ describe('Product Snapshot in Order Items (Customer API)', () => {
     const createData = orderItemCreateSpy.mock.calls[0][0].data;
 
     // Snapshot Image: should pick isPrimary: true
-    expect(createData.imageUrlSnapshot).toBe('https://images.nida.co/products/blouse-main.jpg');
+    expect(createData.imageUrlSnapshot).toBe(
+      'https://images.nida.co/products/blouse-main.jpg',
+    );
 
     // Snapshot SKU: exact SKU code of variant at purchase time
     expect(createData.skuCodeSnapshot).toBe('NIDA-SILK-BLOUSE-W-M');
@@ -258,7 +260,9 @@ describe('Product Snapshot in Order Items (Customer API)', () => {
           variant: {
             skuCode: 'NEW-MODIFIED-SKU-999',
             product: {
-              images: [{ imageUrl: 'https://cdn.nida.co/brand-new-catalog-image.jpg' }],
+              images: [
+                { imageUrl: 'https://cdn.nida.co/brand-new-catalog-image.jpg' },
+              ],
             },
           },
         },
@@ -273,9 +277,9 @@ describe('Product Snapshot in Order Items (Customer API)', () => {
       shipments: [],
     };
 
-    (prismaMock.order as { findUnique: ReturnType<typeof vi.fn> }).findUnique.mockResolvedValue(
-      historicalOrderRecord,
-    );
+    (
+      prismaMock.order as { findUnique: ReturnType<typeof vi.fn> }
+    ).findUnique.mockResolvedValue(historicalOrderRecord);
 
     const result = await service.getOrderByNumber('NIDA-20261025-HIST');
 
@@ -288,7 +292,9 @@ describe('Product Snapshot in Order Items (Customer API)', () => {
     expect(item.imageUrlSnapshot).toBe('https://cdn.nida.co/snap-blouse.jpg');
     expect(item.skuCode).toBe('HISTORICAL-SKU-001');
     expect(item.skuCodeSnapshot).toBe('HISTORICAL-SKU-001');
-    expect(item.productSnapshot?.name).toBe('Original Blouse Title At Checkout');
+    expect(item.productSnapshot?.name).toBe(
+      'Original Blouse Title At Checkout',
+    );
     expect(item.productSnapshot?.materialsCare).toBe('Historical Care Guide');
   });
 
@@ -325,7 +331,9 @@ describe('Product Snapshot in Order Items (Customer API)', () => {
           variant: {
             skuCode: 'FALLBACK-LEGACY-SKU',
             product: {
-              images: [{ imageUrl: 'https://cdn.nida.co/fallback-primary.jpg' }],
+              images: [
+                { imageUrl: 'https://cdn.nida.co/fallback-primary.jpg' },
+              ],
             },
           },
         },
@@ -334,12 +342,14 @@ describe('Product Snapshot in Order Items (Customer API)', () => {
       shipments: [],
     };
 
-    (prismaMock.order as { findUnique: ReturnType<typeof vi.fn> }).findUnique.mockResolvedValue(
-      legacyOrderRecord,
-    );
+    (
+      prismaMock.order as { findUnique: ReturnType<typeof vi.fn> }
+    ).findUnique.mockResolvedValue(legacyOrderRecord);
 
     const result = await service.getOrderByNumber('NIDA-20261025-LEGACY');
-    expect(result.items[0].imageUrl).toBe('https://cdn.nida.co/fallback-primary.jpg');
+    expect(result.items[0].imageUrl).toBe(
+      'https://cdn.nida.co/fallback-primary.jpg',
+    );
     expect(result.items[0].skuCode).toBe('FALLBACK-LEGACY-SKU');
     expect(result.items[0].productSnapshot).toBeNull();
   });

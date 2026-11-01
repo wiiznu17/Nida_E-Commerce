@@ -91,9 +91,7 @@ export const analyticsRequester = {
 
   async getOverview(
     timeframeOrParams:
-      | AnalyticsTimeframe
-      | AnalyticsPageTimeframe
-      | AnalyticsFilterParams,
+      AnalyticsTimeframe | AnalyticsPageTimeframe | AnalyticsFilterParams,
   ): Promise<AnalyticsOverviewDto> {
     if (typeof timeframeOrParams === 'string') {
       return apiClient.get<AnalyticsOverviewDto>(
@@ -110,9 +108,7 @@ export const analyticsRequester = {
 
   async getDepartmentShare(
     timeframeOrParams:
-      | AnalyticsTimeframe
-      | AnalyticsPageTimeframe
-      | AnalyticsFilterParams,
+      AnalyticsTimeframe | AnalyticsPageTimeframe | AnalyticsFilterParams,
   ): Promise<AnalyticsDepartmentShare[]> {
     if (typeof timeframeOrParams === 'string') {
       return apiClient.get<AnalyticsDepartmentShare[]>(
@@ -167,7 +163,9 @@ export const analyticsRequester = {
     const query = buildQueryString(
       params as Record<string, string | number | undefined>,
     );
-    return apiClient.get<AnalyticsCouponRoiSummary>(`/analytics/coupon-roi${query}`);
+    return apiClient.get<AnalyticsCouponRoiSummary>(
+      `/analytics/coupon-roi${query}`,
+    );
   },
 
   // ─── Data Export Endpoints (CSV) ──────────────────────────────────────────

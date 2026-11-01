@@ -153,7 +153,10 @@ export function DashboardExportModal({
                     : 'border-brand-border hover:bg-gray-50'
                 }`}
               >
-                <FileSpreadsheet size={20} className="text-emerald-700 shrink-0" />
+                <FileSpreadsheet
+                  size={20}
+                  className="text-emerald-700 shrink-0"
+                />
                 <div className="text-left min-w-0">
                   <span className="text-xs font-black text-brand-brown block">
                     CSV (Excel)

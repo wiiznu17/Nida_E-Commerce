@@ -28,7 +28,9 @@ export default function AdminDashboard() {
   const [overview, setOverview] = useState<AnalyticsOverviewDto>(
     INITIAL_OVERVIEW_METRICS,
   );
-  const [revenuePoints, setRevenuePoints] = useState<AnalyticsRevenuePoint[]>([]);
+  const [revenuePoints, setRevenuePoints] = useState<AnalyticsRevenuePoint[]>(
+    [],
+  );
   const [departmentShares, setDepartmentShares] = useState<
     AnalyticsDepartmentShare[]
   >([]);

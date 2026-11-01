@@ -3,13 +3,7 @@ export type AnalyticsTimeframe = 'today' | '7d' | '30d' | 'year';
 
 // ─── Analytics Page Timeframe (ใช้ใน AdminAnalytics.tsx เท่านั้น) ─────────────
 export type AnalyticsPageTimeframe =
-  | 'today'
-  | '7d'
-  | 'week'
-  | '30d'
-  | 'month'
-  | 'quarter'
-  | 'year';
+  'today' | '7d' | 'week' | '30d' | 'month' | 'quarter' | 'year';
 
 /**
  * Discriminated union สำหรับ analytics query mode:

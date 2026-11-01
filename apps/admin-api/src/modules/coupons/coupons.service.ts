@@ -15,11 +15,7 @@ import type {
   CheckoutLineItem,
   CheckoutCouponSummary,
 } from '@repo/types';
-import {
-  DiscountType,
-  AuditActionType,
-  AdminPermission,
-} from '@repo/types';
+import { DiscountType, AuditActionType, AdminPermission } from '@repo/types';
 import type { PromotionCoupon } from '@repo/database';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
 
@@ -94,10 +90,7 @@ export class CouponsService {
     return this.mapCoupon(coupon);
   }
 
-  async toggleCoupon(
-    identifier: string,
-    adminId?: string,
-  ): Promise<ApiCoupon> {
+  async toggleCoupon(identifier: string, adminId?: string): Promise<ApiCoupon> {
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
         identifier,

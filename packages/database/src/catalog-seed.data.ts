@@ -1939,7 +1939,8 @@ export const PRODUCTS_SEED_DATA: ProductSeedItem[] = [
   },
   {
     name: 'Nida Signature Eau de Parfum - Espresso & Damask Rose (50ml)',
-    nameTh: 'น้ำหอม โอ เดอ ปาร์ฟูม ซิกเนเจอร์ กลิ่นเอสเปรสโซและกุหลาบดามัสก์ (50 มล.)',
+    nameTh:
+      'น้ำหอม โอ เดอ ปาร์ฟูม ซิกเนเจอร์ กลิ่นเอสเปรสโซและกุหลาบดามัสก์ (50 มล.)',
     slug: 'nida-signature-eau-de-parfum-espresso-rose',
     description:
       'Artisanal Eau de Parfum blending bold roasted espresso bean notes, dark Damask rose petals, warm amber, and Madagascar vanilla.',

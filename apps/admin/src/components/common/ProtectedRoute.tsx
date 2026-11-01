@@ -4,9 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { AdminPageLoader } from './AdminPageLoader';
 import type { AdminPermission } from '@repo/types';
 
-const AdminAccessDenied = lazy(
-  () => import('../../pages/AdminAccessDenied'),
-);
+const AdminAccessDenied = lazy(() => import('../../pages/AdminAccessDenied'));
 
 export interface ProtectedRouteProps {
   requiredPermissions?: (AdminPermission | string)[] | AdminPermission | string;

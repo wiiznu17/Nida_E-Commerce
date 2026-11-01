@@ -59,7 +59,10 @@ export function formatPaymentStatus(
     return isTh ? 'ชำระเงินไม่สำเร็จ' : 'Failed';
   }
 
-  if (status === PaymentStatus.REFUNDED || orderStatus === OrderStatus.REFUNDED) {
+  if (
+    status === PaymentStatus.REFUNDED ||
+    orderStatus === OrderStatus.REFUNDED
+  ) {
     return isTh ? 'คืนเงินแล้ว' : 'Refunded';
   }
 

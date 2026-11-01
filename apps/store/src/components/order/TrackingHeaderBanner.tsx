@@ -35,15 +35,12 @@ export function TrackingHeaderBanner({
             onClick={onRefresh}
             disabled={isLoading}
             className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-white hover:bg-stone-50 border border-stone-200 hover:border-brand-brown rounded-xs text-[11px] font-bold uppercase tracking-wider text-stone-700 hover:text-brand-brown cursor-pointer transition-colors shadow-2xs"
-            title={language === 'th' ? 'รีเฟรชสถานะ' : 'Refresh tracking status'}
+            title={
+              language === 'th' ? 'รีเฟรชสถานะ' : 'Refresh tracking status'
+            }
           >
-            <RefreshCw
-              size={12}
-              className={isLoading ? 'animate-spin' : ''}
-            />
-            <span>
-              {language === 'th' ? 'รีเฟรชสถานะ' : 'Refresh'}
-            </span>
+            <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
+            <span>{language === 'th' ? 'รีเฟรชสถานะ' : 'Refresh'}</span>
           </button>
         )}
       </div>
@@ -65,7 +62,9 @@ export function TrackingHeaderBanner({
             </span>
             <span className="text-stone-300">•</span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="text-stone-500">{t('trackOrder.trackingNumber')}</span>
+              <span className="text-stone-500">
+                {t('trackOrder.trackingNumber')}
+              </span>
               <strong className="font-mono text-brand-brown font-bold">
                 {trackingData.shipment?.trackingNumber || '-'}
               </strong>

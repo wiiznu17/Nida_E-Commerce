@@ -331,212 +331,217 @@ export class CustomerOrdersService {
     const orderNumber = `NIDA-${datePart}-${randomPart}`;
     const hasPreorderItems = computedItems.some((ci) => ci.isPreorder);
 
-    const createdOrder = await this.prisma.$transaction(async (tx) => {
-      const order = await tx.order.create({
-        data: {
-          orderNumber,
-          userId: effectiveUserId,
-          status: OrderStatus.PENDING,
-          hasPreorderItems,
-          subtotal,
-          discountTotal,
-          originalShippingFee,
-          shippingDiscount,
-          shippingFee,
-          taxAmount: 0,
-          totalAmount,
-          currency: 'THB',
-          shippingAddressSnapshot: JSON.parse(JSON.stringify(shippingAddress)),
-          promoCodeUsed: normalizedCouponCode,
-          couponId,
-        },
-      });
-
-      for (const ci of computedItems) {
-        const itemDiscountShare =
-          subtotal > 0
-            ? Math.round((ci.subtotal / subtotal) * discountTotal * 100) / 100
-            : 0;
-        const itemNetPrice = Math.max(0, ci.subtotal - itemDiscountShare);
-
-        await tx.orderItem.create({
+    const createdOrder = await this.prisma.$transaction(
+      async (tx) => {
+        const order = await tx.order.create({
           data: {
-            orderId: order.id,
-            variantId: ci.variant.id,
-            productNameSnapshot: ci.variant.product.name,
-            variantInfoSnapshot: `${ci.variant.colorName} / ${ci.variant.size}`,
-            imageUrlSnapshot: ci.imageUrl,
-            skuCodeSnapshot: ci.skuCode,
-            productSnapshot: JSON.parse(JSON.stringify(ci.productSnapshot)),
-            unitPrice: ci.unitPrice,
-            expectedPrice: ci.expectedPrice ?? ci.unitPrice,
-            quantity: ci.quantity,
-            subtotal: ci.subtotal,
-            discountShare: itemDiscountShare,
-            netPrice: itemNetPrice,
-            isPreorder: ci.isPreorder,
-            expectedShipDate: ci.variant.product.preorderReleaseDate ?? null,
+            orderNumber,
+            userId: effectiveUserId,
+            status: OrderStatus.PENDING,
+            hasPreorderItems,
+            subtotal,
+            discountTotal,
+            originalShippingFee,
+            shippingDiscount,
+            shippingFee,
+            taxAmount: 0,
+            totalAmount,
+            currency: 'THB',
+            shippingAddressSnapshot: JSON.parse(
+              JSON.stringify(shippingAddress),
+            ),
+            promoCodeUsed: normalizedCouponCode,
+            couponId,
           },
         });
 
-        if (ci.isPreorder) {
-          if (ci.variant.inventoryItem) {
-            if (ci.variant.preorderLimit && ci.variant.preorderLimit > 0) {
-              const maxAllowedBooked = ci.variant.preorderLimit - ci.quantity;
-              const updateResult = await tx.inventoryItem.updateMany({
-                where: {
-                  id: ci.variant.inventoryItem.id,
-                  preorderBooked: { lte: maxAllowedBooked },
-                },
-                data: { preorderBooked: { increment: ci.quantity } },
-              });
-              if (updateResult.count === 0) {
-                throw new BadRequestException(
-                  `Pre-order quota exceeded for "${ci.variant.product.name} (${ci.variant.colorName}/${ci.variant.size})"`,
-                );
+        for (const ci of computedItems) {
+          const itemDiscountShare =
+            subtotal > 0
+              ? Math.round((ci.subtotal / subtotal) * discountTotal * 100) / 100
+              : 0;
+          const itemNetPrice = Math.max(0, ci.subtotal - itemDiscountShare);
+
+          await tx.orderItem.create({
+            data: {
+              orderId: order.id,
+              variantId: ci.variant.id,
+              productNameSnapshot: ci.variant.product.name,
+              variantInfoSnapshot: `${ci.variant.colorName} / ${ci.variant.size}`,
+              imageUrlSnapshot: ci.imageUrl,
+              skuCodeSnapshot: ci.skuCode,
+              productSnapshot: JSON.parse(JSON.stringify(ci.productSnapshot)),
+              unitPrice: ci.unitPrice,
+              expectedPrice: ci.expectedPrice ?? ci.unitPrice,
+              quantity: ci.quantity,
+              subtotal: ci.subtotal,
+              discountShare: itemDiscountShare,
+              netPrice: itemNetPrice,
+              isPreorder: ci.isPreorder,
+              expectedShipDate: ci.variant.product.preorderReleaseDate ?? null,
+            },
+          });
+
+          if (ci.isPreorder) {
+            if (ci.variant.inventoryItem) {
+              if (ci.variant.preorderLimit && ci.variant.preorderLimit > 0) {
+                const maxAllowedBooked = ci.variant.preorderLimit - ci.quantity;
+                const updateResult = await tx.inventoryItem.updateMany({
+                  where: {
+                    id: ci.variant.inventoryItem.id,
+                    preorderBooked: { lte: maxAllowedBooked },
+                  },
+                  data: { preorderBooked: { increment: ci.quantity } },
+                });
+                if (updateResult.count === 0) {
+                  throw new BadRequestException(
+                    `Pre-order quota exceeded for "${ci.variant.product.name} (${ci.variant.colorName}/${ci.variant.size})"`,
+                  );
+                }
+              } else {
+                await tx.inventoryItem.update({
+                  where: { id: ci.variant.inventoryItem.id },
+                  data: { preorderBooked: { increment: ci.quantity } },
+                });
               }
-            } else {
-              await tx.inventoryItem.update({
-                where: { id: ci.variant.inventoryItem.id },
-                data: { preorderBooked: { increment: ci.quantity } },
-              });
+            }
+          } else if (ci.variant.inventoryItem) {
+            const updateResult = await tx.inventoryItem.updateMany({
+              where: {
+                id: ci.variant.inventoryItem.id,
+                quantityAvailable: { gte: ci.quantity },
+              },
+              data: {
+                quantityAvailable: { decrement: ci.quantity },
+              },
+            });
+
+            if (updateResult.count === 0) {
+              throw new BadRequestException(
+                `Insufficient stock for "${ci.variant.product.name} (${ci.variant.colorName}/${ci.variant.size})"`,
+              );
+            }
+
+            const updatedInv = await tx.inventoryItem.findUnique({
+              where: { id: ci.variant.inventoryItem.id },
+              select: { quantityAvailable: true },
+            });
+
+            await tx.stockMovement.create({
+              data: {
+                variantId: ci.variant.id,
+                changeType: StockChangeType.ORDER_DEDUCT,
+                quantityChange: -ci.quantity,
+                balanceAfter: updatedInv?.quantityAvailable ?? 0,
+                reasonNote: `Storefront Order #${orderNumber}`,
+              },
+            });
+          }
+        }
+
+        if (couponId) {
+          const couponDef = await tx.promotionCoupon.findUnique({
+            where: { id: couponId },
+            select: {
+              userUsageLimit: true,
+              totalUsageLimit: true,
+              isActive: true,
+            },
+          });
+
+          if (!couponDef || !couponDef.isActive) {
+            throw new BadRequestException('Coupon code is invalid or inactive');
+          }
+
+          if (!effectiveUserId) {
+            throw new BadRequestException(
+              'Please sign in or create an account to use promotional coupons',
+            );
+          }
+
+          if (effectiveUserId && couponDef.userUsageLimit > 0) {
+            const userRedemptions = await tx.couponRedemption.count({
+              where: { couponId, userId: effectiveUserId },
+            });
+            if (userRedemptions >= couponDef.userUsageLimit) {
+              throw new BadRequestException(
+                'You have reached the redemption limit for this coupon',
+              );
             }
           }
-        } else if (ci.variant.inventoryItem) {
-          const updateResult = await tx.inventoryItem.updateMany({
+
+          const couponUpdate = await tx.promotionCoupon.updateMany({
             where: {
-              id: ci.variant.inventoryItem.id,
-              quantityAvailable: { gte: ci.quantity },
+              id: couponId,
+              currentUsageCount: { lt: couponDef.totalUsageLimit },
+              isActive: true,
             },
-            data: {
-              quantityAvailable: { decrement: ci.quantity },
-            },
+            data: { currentUsageCount: { increment: 1 } },
           });
 
-          if (updateResult.count === 0) {
-            throw new BadRequestException(
-              `Insufficient stock for "${ci.variant.product.name} (${ci.variant.colorName}/${ci.variant.size})"`,
-            );
+          if (couponUpdate.count === 0) {
+            throw new BadRequestException('Coupon usage limit reached');
           }
 
-          const updatedInv = await tx.inventoryItem.findUnique({
-            where: { id: ci.variant.inventoryItem.id },
-            select: { quantityAvailable: true },
-          });
-
-          await tx.stockMovement.create({
+          await tx.couponRedemption.create({
             data: {
-              variantId: ci.variant.id,
-              changeType: StockChangeType.ORDER_DEDUCT,
-              quantityChange: -ci.quantity,
-              balanceAfter: updatedInv?.quantityAvailable ?? 0,
-              reasonNote: `Storefront Order #${orderNumber}`,
+              couponId,
+              userId: effectiveUserId,
+              orderId: order.id,
+              discountGranted: isCouponFreeShipping
+                ? STANDARD_SHIPPING_FEE
+                : discountTotal,
             },
           });
         }
-      }
 
-      if (couponId) {
-        const couponDef = await tx.promotionCoupon.findUnique({
-          where: { id: couponId },
-          select: {
-            userUsageLimit: true,
-            totalUsageLimit: true,
-            isActive: true,
-          },
-        });
+        const orderExpiresAt = new Date(
+          Date.now() + ORDER_TIMEOUT_MS.STOREFRONT_UNPAID,
+        );
 
-        if (!couponDef || !couponDef.isActive) {
-          throw new BadRequestException('Coupon code is invalid or inactive');
-        }
+        let omiseChargeId: string | undefined;
+        let omiseQrUri: string | undefined;
+        let omiseQrExpiresAt: string | undefined;
 
-        if (!effectiveUserId) {
-          throw new BadRequestException(
-            'Please sign in or create an account to use promotional coupons',
-          );
-        }
-
-        if (effectiveUserId && couponDef.userUsageLimit > 0) {
-          const userRedemptions = await tx.couponRedemption.count({
-            where: { couponId, userId: effectiveUserId },
-          });
-          if (userRedemptions >= couponDef.userUsageLimit) {
-            throw new BadRequestException(
-              'You have reached the redemption limit for this coupon',
+        if (paymentMethod === PaymentMethod.PROMPTPAY && totalAmount > 0) {
+          try {
+            const qrResult = await this.omiseService.createPromptPayCharge(
+              orderNumber,
+              totalAmount,
+              orderExpiresAt,
+            );
+            omiseChargeId = qrResult.chargeId;
+            omiseQrUri = qrResult.qrDownloadUri;
+            omiseQrExpiresAt = qrResult.expiresAt;
+          } catch (err: unknown) {
+            this.logger.warn(
+              `Failed to generate initial Omise PromptPay QR for #${orderNumber}: ${err}`,
             );
           }
         }
 
-        const couponUpdate = await tx.promotionCoupon.updateMany({
-          where: {
-            id: couponId,
-            currentUsageCount: { lt: couponDef.totalUsageLimit },
-            isActive: true,
-          },
-          data: { currentUsageCount: { increment: 1 } },
-        });
-
-        if (couponUpdate.count === 0) {
-          throw new BadRequestException('Coupon usage limit reached');
-        }
-
-        await tx.couponRedemption.create({
+        await tx.payment.create({
           data: {
-            couponId,
-            userId: effectiveUserId,
             orderId: order.id,
-            discountGranted: isCouponFreeShipping
-              ? STANDARD_SHIPPING_FEE
-              : discountTotal,
+            paymentMethod,
+            amount: totalAmount,
+            currency: 'THB',
+            status: PaymentStatus.PENDING,
+            transactionReference: omiseChargeId,
+            rawWebhookPayload: {
+              qrDownloadUri: omiseQrUri,
+              qrExpiresAt: omiseQrExpiresAt,
+            },
           },
         });
-      }
 
-      const orderExpiresAt = new Date(
-        Date.now() + ORDER_TIMEOUT_MS.STOREFRONT_UNPAID,
-      );
-
-      let omiseChargeId: string | undefined;
-      let omiseQrUri: string | undefined;
-      let omiseQrExpiresAt: string | undefined;
-
-      if (paymentMethod === PaymentMethod.PROMPTPAY && totalAmount > 0) {
-        try {
-          const qrResult = await this.omiseService.createPromptPayCharge(
-            orderNumber,
-            totalAmount,
-            orderExpiresAt,
-          );
-          omiseChargeId = qrResult.chargeId;
-          omiseQrUri = qrResult.qrDownloadUri;
-          omiseQrExpiresAt = qrResult.expiresAt;
-        } catch (err: unknown) {
-          this.logger.warn(
-            `Failed to generate initial Omise PromptPay QR for #${orderNumber}: ${err}`,
-          );
-        }
-      }
-
-      await tx.payment.create({
-        data: {
-          orderId: order.id,
-          paymentMethod,
-          amount: totalAmount,
-          currency: 'THB',
-          status: PaymentStatus.PENDING,
-          transactionReference: omiseChargeId,
-          rawWebhookPayload: {
-            qrDownloadUri: omiseQrUri,
-            qrExpiresAt: omiseQrExpiresAt,
-          },
-        },
-      });
-
-      return order;
-    }, {
-      maxWait: 10000,
-      timeout: 30000,
-    });
+        return order;
+      },
+      {
+        maxWait: 10000,
+        timeout: 30000,
+      },
+    );
 
     await this.orderLifecycleProducer.scheduleOrderTimeout(
       createdOrder.id,
@@ -1441,9 +1446,7 @@ export class CustomerOrdersService {
     return { received: true };
   }
 
-  async trackOrder(
-    orderNumber: string,
-  ): Promise<TrackingResult> {
+  async trackOrder(orderNumber: string): Promise<TrackingResult> {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
       include: {

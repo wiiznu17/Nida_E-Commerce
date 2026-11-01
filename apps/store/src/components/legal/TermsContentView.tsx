@@ -95,7 +95,9 @@ export function TermsContentView() {
               <ShieldCheck className="w-5 h-5 text-brand-brown shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-stone-700 uppercase tracking-wider text-[11px] mb-1">
-                  {language === 'th' ? 'การคุ้มครองตามมาตรฐานสากล' : 'Verified Standard Compliance'}
+                  {language === 'th'
+                    ? 'การคุ้มครองตามมาตรฐานสากล'
+                    : 'Verified Standard Compliance'}
                 </p>
                 <p>
                   {language === 'th'

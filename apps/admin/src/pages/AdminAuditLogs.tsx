@@ -25,9 +25,16 @@ export default function AdminAuditLogs() {
 
   const urlUsername = searchParams.get('username') ?? '';
   const urlTargetTable = searchParams.get('targetTable') ?? '';
-  const urlActionType = (searchParams.get('actionType') as AuditActionType | '') ?? '';
-  const currentPage = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10) || 1);
-  const pageSize = Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10) || 20);
+  const urlActionType =
+    (searchParams.get('actionType') as AuditActionType | '') ?? '';
+  const currentPage = Math.max(
+    1,
+    parseInt(searchParams.get('page') ?? '1', 10) || 1,
+  );
+  const pageSize = Math.max(
+    1,
+    parseInt(searchParams.get('limit') ?? '20', 10) || 20,
+  );
 
   const activeFilters: AuditFilterState = useMemo(
     () => ({
@@ -100,7 +107,8 @@ export default function AdminAuditLogs() {
 
   const handleApplyFilters = (newFilters: AuditFilterState) => {
     const next = new URLSearchParams();
-    if (newFilters.username.trim()) next.set('username', newFilters.username.trim());
+    if (newFilters.username.trim())
+      next.set('username', newFilters.username.trim());
     if (newFilters.targetTable) next.set('targetTable', newFilters.targetTable);
     if (newFilters.actionType) next.set('actionType', newFilters.actionType);
     next.set('page', '1');

@@ -330,10 +330,14 @@ export const AdminUsers: React.FC = () => {
               </div>
 
               {/* Form Body */}
-              <form onSubmit={handleInviteSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
+              <form
+                onSubmit={handleInviteSubmit}
+                className="flex-1 overflow-y-auto p-6 space-y-4"
+              >
                 <div>
                   <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                    {t('users.form_full_name')} <span className="text-rose-600">*</span>
+                    {t('users.form_full_name')}{' '}
+                    <span className="text-rose-600">*</span>
                   </label>
                   <input
                     type="text"
@@ -352,7 +356,8 @@ export const AdminUsers: React.FC = () => {
 
                 <div>
                   <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                    {t('users.form_email')} <span className="text-rose-600">*</span>
+                    {t('users.form_email')}{' '}
+                    <span className="text-rose-600">*</span>
                   </label>
                   <input
                     type="email"
@@ -372,7 +377,8 @@ export const AdminUsers: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
                     <label className="block text-[11px] font-black uppercase tracking-wider text-stone-700 mb-1">
-                      {t('users.form_role')} <span className="text-rose-600">*</span>
+                      {t('users.form_role')}{' '}
+                      <span className="text-rose-600">*</span>
                     </label>
                     <DropdownSelect
                       value={inviteRoleId}

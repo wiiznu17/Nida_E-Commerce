@@ -394,7 +394,9 @@ export class CustomerAuthService {
       data: { isVerified: true },
     });
 
-    this.logger.log(`Customer registration completed: ${updatedUser.id} (${cleanEmail})`);
+    this.logger.log(
+      `Customer registration completed: ${updatedUser.id} (${cleanEmail})`,
+    );
     return this.issueTokensAndSession(updatedUser, meta, true);
   }
 

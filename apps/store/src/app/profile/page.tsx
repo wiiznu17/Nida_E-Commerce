@@ -64,10 +64,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-10 font-sans">
-      <ProfileHeader
-        user={user}
-        onLogout={() => setIsSignOutModalOpen(true)}
-      />
+      <ProfileHeader user={user} onLogout={() => setIsSignOutModalOpen(true)} />
 
       {saveSuccess && (
         <Alert variant="success" className="mb-6">

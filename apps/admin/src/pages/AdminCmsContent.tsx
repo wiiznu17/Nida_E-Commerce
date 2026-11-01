@@ -151,10 +151,7 @@ export const AdminCmsContent: React.FC = () => {
             className="p-1.5 border border-brand-border bg-white text-brand-brown rounded-xs hover:bg-stone-50 transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
             title="Refresh Content"
           >
-            <RefreshCw
-              size={14}
-              className={isLoading ? 'animate-spin' : ''}
-            />
+            <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
           </button>
         </div>
       }

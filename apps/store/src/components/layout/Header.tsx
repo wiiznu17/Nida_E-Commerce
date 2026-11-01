@@ -127,7 +127,11 @@ export function Header() {
     { id: 'kids', label: t('nav.kids'), path: '/collections/kids' },
     { id: 'bags', label: t('nav.bags'), path: '/collections/bags' },
     { id: 'shoes', label: t('nav.shoes'), path: '/collections/shoes' },
-    { id: 'fragrance', label: t('nav.fragrance'), path: '/collections/fragrance' },
+    {
+      id: 'fragrance',
+      label: t('nav.fragrance'),
+      path: '/collections/fragrance',
+    },
     {
       id: 'sale',
       label: t('nav.sale'),

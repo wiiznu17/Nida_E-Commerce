@@ -26,10 +26,7 @@ import type {
   PaginatedReturnsResponse,
   AdminReturnStatusCounts,
 } from '@repo/types';
-import {
-  AuditActionType,
-  AdminPermission,
-} from '@repo/types';
+import { AuditActionType, AdminPermission } from '@repo/types';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
 import {
   OrderStatus,
@@ -105,10 +102,7 @@ export class OrdersService {
     private readonly auditLog?: AuditLogService,
   ) {}
 
-  async createOrder(
-    dto: CreateOrderDto,
-    adminId?: string,
-  ): Promise<ApiOrder> {
+  async createOrder(dto: CreateOrderDto, adminId?: string): Promise<ApiOrder> {
     const { items, shippingAddress, paymentMethod, couponCode, userId } = dto;
 
     const calc = await this.couponsService.calculateCheckout({
@@ -150,167 +144,172 @@ export class OrdersService {
     const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
     const orderNumber = `NIDA-${datePart}-${randomPart}`;
 
-    const createdOrder = await this.prisma.$transaction(async (tx) => {
-      let couponId: string | null = null;
-      if (calc.couponApplied) {
-        const c = await tx.promotionCoupon.findUnique({
-          where: { code: calc.couponApplied.code },
-        });
-        if (c) {
-          if (c.currentUsageCount >= c.totalUsageLimit) {
-            throw new BadRequestException('Coupon usage limit reached');
+    const createdOrder = await this.prisma.$transaction(
+      async (tx) => {
+        let couponId: string | null = null;
+        if (calc.couponApplied) {
+          const c = await tx.promotionCoupon.findUnique({
+            where: { code: calc.couponApplied.code },
+          });
+          if (c) {
+            if (c.currentUsageCount >= c.totalUsageLimit) {
+              throw new BadRequestException('Coupon usage limit reached');
+            }
+            couponId = c.id;
           }
-          couponId = c.id;
         }
-      }
 
-      const originalShippingFee = STANDARD_SHIPPING_FEE;
-      const shippingDiscount = Math.max(
-        0,
-        originalShippingFee - calc.shippingFee,
-      );
+        const originalShippingFee = STANDARD_SHIPPING_FEE;
+        const shippingDiscount = Math.max(
+          0,
+          originalShippingFee - calc.shippingFee,
+        );
 
-      const order = await tx.order.create({
-        data: {
-          orderNumber,
-          userId: userId ?? null,
-          status: OrderStatus.PENDING,
-          hasPreorderItems,
-          subtotal: calc.subtotal,
-          discountTotal: calc.discountTotal,
-          originalShippingFee,
-          shippingDiscount,
-          shippingFee: calc.shippingFee,
-          taxAmount: calc.taxAmount,
-          totalAmount: calc.totalAmount,
-          currency: 'THB',
-          shippingAddressSnapshot: JSON.parse(JSON.stringify(shippingAddress)),
-          promoCodeUsed: calc.couponApplied?.code ?? null,
-          couponId,
-        },
-      });
-
-      for (const calcItem of calc.items) {
-        const v = variantMap.get(calcItem.variantId)!;
-        const isPreorder = v.product.isPreorder;
-
-        const primaryImage =
-          v.product.images?.find((img) => img.isPrimary)?.imageUrl ??
-          v.product.images?.[0]?.imageUrl ??
-          null;
-        const productSnapshot: ApiProductSnapshot = {
-          productId: v.product.id,
-          name: v.product.name,
-          nameTh: v.product.nameTh,
-          slug: v.product.slug,
-          department: v.product.category?.department,
-          categoryName: v.product.category?.name,
-          colorName: v.colorName,
-          colorNameTh: v.colorNameTh,
-          colorHex: v.colorHex,
-          size: v.size,
-          basePrice: Number(v.product.basePrice),
-          originalPrice: v.product.originalPrice
-            ? Number(v.product.originalPrice)
-            : null,
-          materialsCare: v.product.materialsCare,
-          materialsCareTh: v.product.materialsCareTh,
-          description: v.product.description,
-          descriptionTh: v.product.descriptionTh,
-        };
-
-        await tx.orderItem.create({
+        const order = await tx.order.create({
           data: {
-            orderId: order.id,
-            variantId: v.id,
-            productNameSnapshot: calcItem.productName,
-            variantInfoSnapshot: calcItem.variantInfo,
-            imageUrlSnapshot: primaryImage,
-            skuCodeSnapshot: v.skuCode,
-            productSnapshot: JSON.parse(JSON.stringify(productSnapshot)),
-            unitPrice: calcItem.unitPrice,
-            expectedPrice: calcItem.unitPrice,
-            quantity: calcItem.quantity,
-            subtotal: calcItem.subtotal,
-            discountShare: calcItem.discountShare,
-            netPrice: calcItem.netPrice,
-            isPreorder,
-            expectedShipDate: v.product.preorderReleaseDate ?? null,
+            orderNumber,
+            userId: userId ?? null,
+            status: OrderStatus.PENDING,
+            hasPreorderItems,
+            subtotal: calc.subtotal,
+            discountTotal: calc.discountTotal,
+            originalShippingFee,
+            shippingDiscount,
+            shippingFee: calc.shippingFee,
+            taxAmount: calc.taxAmount,
+            totalAmount: calc.totalAmount,
+            currency: 'THB',
+            shippingAddressSnapshot: JSON.parse(
+              JSON.stringify(shippingAddress),
+            ),
+            promoCodeUsed: calc.couponApplied?.code ?? null,
+            couponId,
           },
         });
 
-        if (isPreorder) {
-          if (v.inventoryItem) {
-            await tx.inventoryItem.update({
+        for (const calcItem of calc.items) {
+          const v = variantMap.get(calcItem.variantId)!;
+          const isPreorder = v.product.isPreorder;
+
+          const primaryImage =
+            v.product.images?.find((img) => img.isPrimary)?.imageUrl ??
+            v.product.images?.[0]?.imageUrl ??
+            null;
+          const productSnapshot: ApiProductSnapshot = {
+            productId: v.product.id,
+            name: v.product.name,
+            nameTh: v.product.nameTh,
+            slug: v.product.slug,
+            department: v.product.category?.department,
+            categoryName: v.product.category?.name,
+            colorName: v.colorName,
+            colorNameTh: v.colorNameTh,
+            colorHex: v.colorHex,
+            size: v.size,
+            basePrice: Number(v.product.basePrice),
+            originalPrice: v.product.originalPrice
+              ? Number(v.product.originalPrice)
+              : null,
+            materialsCare: v.product.materialsCare,
+            materialsCareTh: v.product.materialsCareTh,
+            description: v.product.description,
+            descriptionTh: v.product.descriptionTh,
+          };
+
+          await tx.orderItem.create({
+            data: {
+              orderId: order.id,
+              variantId: v.id,
+              productNameSnapshot: calcItem.productName,
+              variantInfoSnapshot: calcItem.variantInfo,
+              imageUrlSnapshot: primaryImage,
+              skuCodeSnapshot: v.skuCode,
+              productSnapshot: JSON.parse(JSON.stringify(productSnapshot)),
+              unitPrice: calcItem.unitPrice,
+              expectedPrice: calcItem.unitPrice,
+              quantity: calcItem.quantity,
+              subtotal: calcItem.subtotal,
+              discountShare: calcItem.discountShare,
+              netPrice: calcItem.netPrice,
+              isPreorder,
+              expectedShipDate: v.product.preorderReleaseDate ?? null,
+            },
+          });
+
+          if (isPreorder) {
+            if (v.inventoryItem) {
+              await tx.inventoryItem.update({
+                where: { id: v.inventoryItem.id },
+                data: { preorderBooked: { increment: calcItem.quantity } },
+              });
+            }
+          } else if (v.inventoryItem) {
+            const updateResult = await tx.inventoryItem.updateMany({
+              where: {
+                id: v.inventoryItem.id,
+                quantityAvailable: { gte: calcItem.quantity },
+              },
+              data: {
+                quantityAvailable: { decrement: calcItem.quantity },
+              },
+            });
+
+            if (updateResult.count === 0) {
+              throw new BadRequestException(
+                `Insufficient stock for "${v.product.name} (${v.colorName}/${v.size})"`,
+              );
+            }
+
+            const updatedInv = await tx.inventoryItem.findUnique({
               where: { id: v.inventoryItem.id },
-              data: { preorderBooked: { increment: calcItem.quantity } },
+              select: { quantityAvailable: true },
+            });
+
+            await tx.stockMovement.create({
+              data: {
+                variantId: v.id,
+                changeType: StockChangeType.ORDER_DEDUCT,
+                quantityChange: -calcItem.quantity,
+                balanceAfter: updatedInv?.quantityAvailable ?? 0,
+                reasonNote: `Order #${orderNumber}`,
+              },
             });
           }
-        } else if (v.inventoryItem) {
-          const updateResult = await tx.inventoryItem.updateMany({
-            where: {
-              id: v.inventoryItem.id,
-              quantityAvailable: { gte: calcItem.quantity },
-            },
+        }
+
+        if (couponId && calc.couponApplied) {
+          await tx.couponRedemption.create({
             data: {
-              quantityAvailable: { decrement: calcItem.quantity },
+              couponId,
+              userId: userId ?? null,
+              orderId: order.id,
+              discountGranted: calc.couponApplied.discountAmount,
             },
           });
 
-          if (updateResult.count === 0) {
-            throw new BadRequestException(
-              `Insufficient stock for "${v.product.name} (${v.colorName}/${v.size})"`,
-            );
-          }
-
-          const updatedInv = await tx.inventoryItem.findUnique({
-            where: { id: v.inventoryItem.id },
-            select: { quantityAvailable: true },
-          });
-
-          await tx.stockMovement.create({
-            data: {
-              variantId: v.id,
-              changeType: StockChangeType.ORDER_DEDUCT,
-              quantityChange: -calcItem.quantity,
-              balanceAfter: updatedInv?.quantityAvailable ?? 0,
-              reasonNote: `Order #${orderNumber}`,
-            },
+          await tx.promotionCoupon.update({
+            where: { id: couponId },
+            data: { currentUsageCount: { increment: 1 } },
           });
         }
-      }
 
-      if (couponId && calc.couponApplied) {
-        await tx.couponRedemption.create({
+        await tx.payment.create({
           data: {
-            couponId,
-            userId: userId ?? null,
             orderId: order.id,
-            discountGranted: calc.couponApplied.discountAmount,
+            paymentMethod,
+            amount: calc.totalAmount,
+            currency: 'THB',
+            status: PaymentStatus.PENDING,
           },
         });
 
-        await tx.promotionCoupon.update({
-          where: { id: couponId },
-          data: { currentUsageCount: { increment: 1 } },
-        });
-      }
-
-      await tx.payment.create({
-        data: {
-          orderId: order.id,
-          paymentMethod,
-          amount: calc.totalAmount,
-          currency: 'THB',
-          status: PaymentStatus.PENDING,
-        },
-      });
-
-      return order;
-    }, {
-      maxWait: 10000,
-      timeout: 30000,
-    });
+        return order;
+      },
+      {
+        maxWait: 10000,
+        timeout: 30000,
+      },
+    );
 
     void this.auditLog?.recordLog({
       adminId: adminId ?? null,

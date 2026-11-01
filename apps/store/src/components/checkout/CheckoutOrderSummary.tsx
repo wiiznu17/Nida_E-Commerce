@@ -74,7 +74,10 @@ export function CheckoutOrderSummary({
                   {itemTitle}
                 </h4>
                 <p className="text-xs text-stone-500 uppercase font-medium mt-0.5">
-                  {item.selectedColor} • {item.selectedSize} • {language === 'th' ? `จำนวน: ${item.quantity}` : `Qty: ${item.quantity}`}
+                  {item.selectedColor} • {item.selectedSize} •{' '}
+                  {language === 'th'
+                    ? `จำนวน: ${item.quantity}`
+                    : `Qty: ${item.quantity}`}
                 </p>
                 <p className="text-sm font-black text-brand-brown mt-1.5 font-mono">
                   ฿{(item.price * item.quantity).toLocaleString()}
@@ -126,7 +129,10 @@ export function CheckoutOrderSummary({
                 {appliedCoupon.discountType === 'PERCENTAGE'
                   ? `${appliedCoupon.discountValue}% OFF${
                       appliedCoupon.maxDiscountAmount
-                        ? ` (${t('checkout.maxDiscountBadge', 'สูงสุด ฿{max}').replace(
+                        ? ` (${t(
+                            'checkout.maxDiscountBadge',
+                            'สูงสุด ฿{max}',
+                          ).replace(
                             '{max}',
                             appliedCoupon.maxDiscountAmount.toLocaleString(),
                           )})`

@@ -40,7 +40,9 @@ export function useCustomerOrders() {
   useEffect(() => {
     if (!isAuthLoading && !user) {
       openAuthDrawer('signin');
-      router.replace('/?auth=signin&redirect=/profile/orders', { scroll: false });
+      router.replace('/?auth=signin&redirect=/profile/orders', {
+        scroll: false,
+      });
     }
   }, [user, isAuthLoading, router, openAuthDrawer]);
 

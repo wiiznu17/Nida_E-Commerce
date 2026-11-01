@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Header,
-  Query,
-  StreamableFile,
-} from '@nestjs/common';
+import { Controller, Get, Header, Query, StreamableFile } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AdminPermission } from '@repo/types';
 import {
@@ -72,7 +66,8 @@ export class AnalyticsController {
   @RequirePermissions(AdminPermission.ORDERS_READ)
   @ApiOperation({
     summary: 'แนวโน้มรายได้ตามช่วงเวลา (Revenue Trend)',
-    description: 'ดึงจุดพิกัดรายได้และจำนวนคำสั่งซื้อรายวัน/รายเดือนสำหรับกราฟเส้น',
+    description:
+      'ดึงจุดพิกัดรายได้และจำนวนคำสั่งซื้อรายวัน/รายเดือนสำหรับกราฟเส้น',
   })
   @ApiResponse({ status: 200, description: 'ชุดข้อมูลแนวโน้มรายได้' })
   async getRevenueTrend(
@@ -168,8 +163,7 @@ export class AnalyticsController {
   @Header('Content-Disposition', 'attachment; filename="inventory-export.csv"')
   @ApiOperation({
     summary: 'ส่งออกรายงานสต็อกสินค้าคงคลังเป็นไฟล์ CSV',
-    description:
-      'ดาวน์โหลดรายงานสต็อกทั้งหมด สต็อกใกล้หมด หรือสินค้าหมดสต็อก',
+    description: 'ดาวน์โหลดรายงานสต็อกทั้งหมด สต็อกใกล้หมด หรือสินค้าหมดสต็อก',
   })
   async exportInventory(
     @Query(new ZodValidationPipe(exportInventorySchema))

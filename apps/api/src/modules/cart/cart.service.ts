@@ -132,7 +132,11 @@ export class CustomerCartService {
       });
 
       if (existing) {
-        const newQty = Math.min(existing.quantity + item.quantity, maxStock, 99);
+        const newQty = Math.min(
+          existing.quantity + item.quantity,
+          maxStock,
+          99,
+        );
         await this.prisma.cartItem.update({
           where: { id: existing.id },
           data: { quantity: newQty },
@@ -236,10 +240,7 @@ export class CustomerCartService {
         where: { OR: [{ id: variantId }, { productId: variantId }] },
         select: { id: true },
       });
-      const idsToDelete = [
-        variantId,
-        ...relatedVariants.map((v) => v.id),
-      ];
+      const idsToDelete = [variantId, ...relatedVariants.map((v) => v.id)];
 
       await this.prisma.cartItem.deleteMany({
         where: {

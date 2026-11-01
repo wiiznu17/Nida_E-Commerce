@@ -93,7 +93,10 @@ function VerifyOTPContent() {
           {t('auth.didNotReceive')}{' '}
           {resendTimer > 0 ? (
             <span className="text-gray-400 font-semibold">
-              {t('auth.resendCountdown').replace('{seconds}', String(resendTimer))}
+              {t('auth.resendCountdown').replace(
+                '{seconds}',
+                String(resendTimer),
+              )}
             </span>
           ) : (
             <button

@@ -165,9 +165,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                 onClick={() => setShowCurrent(!showCurrent)}
                 className="absolute right-3 top-2.5 text-stone-400 hover:text-brand-brown cursor-pointer p-1"
                 aria-label={
-                  showCurrent
-                    ? t('auth.hidePassword')
-                    : t('auth.showPassword')
+                  showCurrent ? t('auth.hidePassword') : t('auth.showPassword')
                 }
               >
                 {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -232,9 +230,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                 onClick={() => setShowConfirm(!showConfirm)}
                 className="absolute right-3 top-2.5 text-stone-400 hover:text-brand-brown cursor-pointer p-1"
                 aria-label={
-                  showConfirm
-                    ? t('auth.hidePassword')
-                    : t('auth.showPassword')
+                  showConfirm ? t('auth.hidePassword') : t('auth.showPassword')
                 }
               >
                 {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}

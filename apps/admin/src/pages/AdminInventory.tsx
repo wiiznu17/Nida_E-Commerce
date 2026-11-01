@@ -188,10 +188,12 @@ export default function AdminInventory() {
       title={t('inventory.title') || 'การจัดการสต็อกและความเคลื่อนไหว'}
       subtitle={`${t('inventory.subtitle') || 'ควบคุมระดับสินค้าคงคลังราย SKU และตรวจสอบประวัติการปรับสต็อก'} (${
         isLoading
-          ? (language === 'th' ? 'กำลังโหลดข้อมูล...' : 'Loading items...')
+          ? language === 'th'
+            ? 'กำลังโหลดข้อมูล...'
+            : 'Loading items...'
           : language === 'th'
-          ? `แสดง ${filteredInventory.length} จาก ${inventoryList.length} รายการ`
-          : `${filteredInventory.length} of ${inventoryList.length} items displayed`
+            ? `แสดง ${filteredInventory.length} จาก ${inventoryList.length} รายการ`
+            : `${filteredInventory.length} of ${inventoryList.length} items displayed`
       })`}
       actionButton={
         <Link
@@ -218,7 +220,8 @@ export default function AdminInventory() {
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {t('inventory.filterAll') || 'ทั้งหมด'} ({isLoading ? '...' : inventoryList.length})
+                {t('inventory.filterAll') || 'ทั้งหมด'} (
+                {isLoading ? '...' : inventoryList.length})
               </button>
 
               <button
@@ -234,7 +237,8 @@ export default function AdminInventory() {
                   className={`w-1.5 h-1.5 rounded-full ${stockFilter === 'low' ? 'bg-white' : 'bg-amber-500'}`}
                 />
                 <span>
-                  {t('inventory.filterLow') || 'สต็อกใกล้หมด'} ({isLoading ? '...' : lowStockCount})
+                  {t('inventory.filterLow') || 'สต็อกใกล้หมด'} (
+                  {isLoading ? '...' : lowStockCount})
                 </span>
               </button>
 
@@ -251,7 +255,8 @@ export default function AdminInventory() {
                   className={`w-1.5 h-1.5 rounded-full ${stockFilter === 'out' ? 'bg-white' : 'bg-red-500'}`}
                 />
                 <span>
-                  {t('inventory.filterOut') || 'สินค้าหมด'} ({isLoading ? '...' : outOfStockCount})
+                  {t('inventory.filterOut') || 'สินค้าหมด'} (
+                  {isLoading ? '...' : outOfStockCount})
                 </span>
               </button>
             </div>
@@ -317,7 +322,10 @@ export default function AdminInventory() {
                     },
                     {
                       value: 'fragrance',
-                      label: language === 'th' ? 'เครื่องหอม (Fragrance)' : 'Fragrance',
+                      label:
+                        language === 'th'
+                          ? 'เครื่องหอม (Fragrance)'
+                          : 'Fragrance',
                     },
                   ]}
                 />
@@ -712,7 +720,9 @@ export default function AdminInventory() {
                   {isSubmitting ? (
                     <>
                       <Loader2 size={15} className="animate-spin mr-1.5" />
-                      <span>{language === 'th' ? 'กำลังบันทึก...' : 'Saving...'}</span>
+                      <span>
+                        {language === 'th' ? 'กำลังบันทึก...' : 'Saving...'}
+                      </span>
                     </>
                   ) : language === 'th' ? (
                     'บันทึกการปรับสต็อก'

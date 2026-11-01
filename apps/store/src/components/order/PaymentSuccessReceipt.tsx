@@ -25,8 +25,7 @@ export function PaymentSuccessReceipt({
   const { language, t } = useLanguage();
   const isTh = language === 'th';
 
-  const isCard =
-    order?.payment?.paymentMethod === PaymentMethod.CREDIT_CARD;
+  const isCard = order?.payment?.paymentMethod === PaymentMethod.CREDIT_CARD;
 
   return (
     <div className="text-center space-y-6">

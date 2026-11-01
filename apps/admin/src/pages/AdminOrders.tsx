@@ -33,7 +33,11 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { orderRequester } from '../api/requester/orderRequester';
-import { formatOrderDateTime, formatPrice, formatPaymentMethod } from '../utils';
+import {
+  formatOrderDateTime,
+  formatPrice,
+  formatPaymentMethod,
+} from '../utils';
 import { STOREFRONT_URL } from '../config';
 import { PermissionGate } from '../components/common';
 import {

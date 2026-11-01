@@ -1,4 +1,3 @@
-
 export interface NidaLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   dark?: boolean;

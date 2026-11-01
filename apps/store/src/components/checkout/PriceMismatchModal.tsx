@@ -38,7 +38,8 @@ export function PriceMismatchModal({
                 {t('checkout.priceMismatchTitle')}
               </h2>
               <p className="text-[11px] text-stone-500 font-medium">
-                {mismatches.length} {mismatches.length === 1 ? 'item updated' : 'items updated'}
+                {mismatches.length}{' '}
+                {mismatches.length === 1 ? 'item updated' : 'items updated'}
               </p>
             </div>
           </div>
@@ -63,8 +64,12 @@ export function PriceMismatchModal({
           <div className="border border-stone-200 rounded-lg overflow-hidden bg-stone-50/40">
             <div className="grid grid-cols-12 px-4 py-2 bg-stone-100/70 border-b border-stone-200 text-[10px] uppercase font-bold tracking-wider text-stone-500">
               <div className="col-span-6">{t('checkout.colProduct')}</div>
-              <div className="col-span-3 text-right">{t('checkout.colPreviousPrice')}</div>
-              <div className="col-span-3 text-right">{t('checkout.colCurrentPrice')}</div>
+              <div className="col-span-3 text-right">
+                {t('checkout.colPreviousPrice')}
+              </div>
+              <div className="col-span-3 text-right">
+                {t('checkout.colCurrentPrice')}
+              </div>
             </div>
 
             <div className="divide-y divide-stone-100 max-h-56 overflow-y-auto bg-white">
@@ -87,7 +92,9 @@ export function PriceMismatchModal({
                       <ArrowRight className="w-2.5 h-2.5 text-stone-300 shrink-0" />
                       <span
                         className={`font-mono text-[11px] font-bold ${
-                          isPriceIncrease ? 'text-amber-700' : 'text-emerald-700'
+                          isPriceIncrease
+                            ? 'text-amber-700'
+                            : 'text-emerald-700'
                         }`}
                       >
                         ฿{item.currentPrice.toLocaleString()}
@@ -107,7 +114,9 @@ export function PriceMismatchModal({
               disabled={isSubmitting}
               className="flex-1 py-2.5 px-4 rounded-lg bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs transition-colors shadow-xs cursor-pointer disabled:opacity-50 text-center"
             >
-              {isSubmitting ? t('common.loading') : t('checkout.acceptNewPrices')}
+              {isSubmitting
+                ? t('common.loading')
+                : t('checkout.acceptNewPrices')}
             </button>
             <button
               type="button"

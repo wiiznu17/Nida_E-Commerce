@@ -431,7 +431,9 @@ export class CustomerCatalogService {
 
     const items: SyncCartItem[] = variants.map((v) => {
       const unitPrice = Number(v.product.basePrice) + Number(v.priceAdjustment);
-      const isAvailable = Boolean(v.product.isActive !== false && v.isActive !== false);
+      const isAvailable = Boolean(
+        v.product.isActive !== false && v.isActive !== false,
+      );
       const stock = v.inventoryItem?.quantityAvailable ?? 0;
 
       return {

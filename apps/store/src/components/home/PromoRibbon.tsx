@@ -50,7 +50,9 @@ export const PromoRibbon: React.FC = () => {
       {(promoRibbon?.imageDesktopUrl || promoRibbon?.imageMobileUrl) && (
         <div className="absolute inset-0 w-full h-full pointer-events-none">
           <Image
-            src={promoRibbon?.imageDesktopUrl || promoRibbon?.imageMobileUrl || ''}
+            src={
+              promoRibbon?.imageDesktopUrl || promoRibbon?.imageMobileUrl || ''
+            }
             alt={title}
             fill
             sizes="100vw"
