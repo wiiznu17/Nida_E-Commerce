@@ -529,13 +529,11 @@ describe('CustomerOrdersService', () => {
           create: vi.fn().mockResolvedValue({ id: 'pay-1' }),
         },
         promotionCoupon: {
-          findUnique: vi
-            .fn()
-            .mockResolvedValue({
-              id: 'coupon-fs',
-              totalUsageLimit: 100,
-              isActive: true,
-            }),
+          findUnique: vi.fn().mockResolvedValue({
+            id: 'coupon-fs',
+            totalUsageLimit: 100,
+            isActive: true,
+          }),
           updateMany: vi.fn().mockResolvedValue({ count: 1 }),
         },
         couponRedemption: {

@@ -59,25 +59,19 @@ async function bootstrap() {
     }
   }
 
-  const rawOrigins = [
-    ...(process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(',')
-      : []),
-    process.env.ADMIN_FRONTEND_URL,
-    process.env.STORE_FRONTEND_URL,
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-  ];
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((o) => o.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
 
-  const allowedOrigins = Array.from(
-    new Set(
-      rawOrigins
-        .filter((o): o is string => Boolean(o && typeof o === 'string'))
-        .map((o) => o.trim().replace(/\/+$/, '')),
-    ),
-  );
+  if (isProd && allowedOrigins.length === 0) {
+    logger.error(
+      'SECURITY CRITICAL: ALLOWED_ORIGINS must be configured in production!',
+    );
+    throw new Error(
+      'SECURITY MISCONFIGURATION: Missing ALLOWED_ORIGINS on production.',
+    );
+  }
 
   app.enableCors({
     origin: (
