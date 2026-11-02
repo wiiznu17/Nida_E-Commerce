@@ -147,7 +147,7 @@ enum BannerPlacement {
 // CUSTOMER, AUTHENTICATION & LOYALTY
 
 model User {
-  id           String             @id @default(uuid()) @db.Uuid
+  id           String             @id @default(uuid(7)) @db.Uuid
   email        String             @unique @db.VarChar(255)
   phone        String?            @db.VarChar(50)
   firstName    String?            @map("first_name") @db.VarChar(100)
@@ -173,7 +173,7 @@ model User {
 }
 
 model OtpVerification {
-  id            String    @id @default(uuid()) @db.Uuid
+  id            String    @id @default(uuid(7)) @db.Uuid
   email         String    @db.VarChar(255)
   otpCode       String    @map("otp_code") @db.VarChar(10)
   expiresAt     DateTime  @map("expires_at")
@@ -186,7 +186,7 @@ model OtpVerification {
 }
 
 model UserAddress {
-  id            String   @id @default(uuid()) @db.Uuid
+  id            String   @id @default(uuid(7)) @db.Uuid
   userId        String   @map("user_id") @db.Uuid
   recipientName String   @map("recipient_name") @db.VarChar(150)
   phone         String   @db.VarChar(50)
@@ -207,7 +207,7 @@ model UserAddress {
 }
 
 model PointTransaction {
-  id           String          @id @default(uuid()) @db.Uuid
+  id           String          @id @default(uuid(7)) @db.Uuid
   userId       String          @map("user_id") @db.Uuid
   orderId      String?         @map("order_id") @db.Uuid
   changeType   PointChangeType @map("change_type")
@@ -226,7 +226,7 @@ model PointTransaction {
 // SHOPPING CART (PERSISTED)
 
 model Cart {
-  id        String     @id @default(uuid()) @db.Uuid
+  id        String     @id @default(uuid(7)) @db.Uuid
   userId    String     @unique @map("user_id") @db.Uuid
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
@@ -238,7 +238,7 @@ model Cart {
 }
 
 model CartItem {
-  id        String         @id @default(uuid()) @db.Uuid
+  id        String         @id @default(uuid(7)) @db.Uuid
   cartId    String         @map("cart_id") @db.Uuid
   variantId String         @map("variant_id") @db.Uuid
   quantity  Int            @default(1)
@@ -254,7 +254,7 @@ model CartItem {
 // PRODUCT CATALOG & INVENTORY (WITH WEIGHT & DIMENSIONS)
 
 model Category {
-  id            String      @id @default(uuid()) @db.Uuid
+  id            String      @id @default(uuid(7)) @db.Uuid
   parentId      String?     @map("parent_id") @db.Uuid
   name          String      @db.VarChar(100)
   nameTh        String?     @map("name_th") @db.VarChar(100)
@@ -279,7 +279,7 @@ model Category {
 }
 
 model Product {
-  id                    String           @id @default(uuid()) @db.Uuid
+  id                    String           @id @default(uuid(7)) @db.Uuid
   categoryId            String           @map("category_id") @db.Uuid
   name                  String           @db.VarChar(200)
   nameTh                String?          @map("name_th") @db.VarChar(200)
@@ -319,7 +319,7 @@ model Product {
 }
 
 model ProductVariant {
-  id              String          @id @default(uuid()) @db.Uuid
+  id              String          @id @default(uuid(7)) @db.Uuid
   productId       String          @map("product_id") @db.Uuid
   skuCode         String          @unique @map("sku_code") @db.VarChar(100)
   size            String          @db.VarChar(50)
@@ -353,7 +353,7 @@ model ProductVariant {
 }
 
 model InventoryItem {
-  id                String         @id @default(uuid()) @db.Uuid
+  id                String         @id @default(uuid(7)) @db.Uuid
   variantId         String         @unique @map("variant_id") @db.Uuid
   quantityAvailable Int            @default(0) @map("quantity_available")
   quantityReserved  Int            @default(0) @map("quantity_reserved")
@@ -368,7 +368,7 @@ model InventoryItem {
 }
 
 model ProductImage {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String   @id @default(uuid(7)) @db.Uuid
   productId    String   @map("product_id") @db.Uuid
   imageUrl     String   @map("image_url") @db.Text
   altText      String?  @map("alt_text") @db.VarChar(255)
@@ -385,7 +385,7 @@ model ProductImage {
 // ORDERS, CHECKOUT & FULFILLMENT
 
 model Order {
-  id                      String             @id @default(uuid()) @db.Uuid
+  id                      String             @id @default(uuid(7)) @db.Uuid
   orderNumber             String             @unique @map("order_number") @db.VarChar(50)
   userId                  String?            @map("user_id") @db.Uuid
   status                  OrderStatus        @default(PENDING)
@@ -426,7 +426,7 @@ model Order {
 }
 
 model OrderItem {
-  id                  String         @id @default(uuid()) @db.Uuid
+  id                  String         @id @default(uuid(7)) @db.Uuid
   orderId             String         @map("order_id") @db.Uuid
   variantId           String         @map("variant_id") @db.Uuid
   productNameSnapshot String         @map("product_name_snapshot") @db.VarChar(200)
@@ -459,7 +459,7 @@ model OrderItem {
 }
 
 model Payment {
-  id                   String        @id @default(uuid()) @db.Uuid
+  id                   String        @id @default(uuid(7)) @db.Uuid
   orderId              String        @unique @map("order_id") @db.Uuid
   paymentMethod        PaymentMethod @map("payment_method")
   transactionReference String?       @map("transaction_reference") @db.VarChar(150)
@@ -485,7 +485,7 @@ model Payment {
 }
 
 model Refund {
-  id              String       @id @default(uuid()) @db.Uuid
+  id              String       @id @default(uuid(7)) @db.Uuid
   refundNumber    String       @unique @map("refund_number") @db.VarChar(50)
   paymentId       String       @map("payment_id") @db.Uuid
   orderId         String       @map("order_id") @db.Uuid
@@ -506,7 +506,7 @@ model Refund {
 }
 
 model Shipment {
-  id                String         @id @default(uuid()) @db.Uuid
+  id                String         @id @default(uuid(7)) @db.Uuid
   orderId           String         @map("order_id") @db.Uuid
   carrierCode       CarrierCode?   @map("carrier_code")
   courierName       String         @map("courier_name") @db.VarChar(100)
@@ -527,7 +527,7 @@ model Shipment {
 }
 
 model ShipmentLog {
-  id                String   @id @default(uuid()) @db.Uuid
+  id                String   @id @default(uuid(7)) @db.Uuid
   shipmentId        String   @map("shipment_id") @db.Uuid
   statusTitle       String   @map("status_title") @db.VarChar(150)
   statusDescription String?  @map("status_description") @db.Text
@@ -543,7 +543,7 @@ model ShipmentLog {
 // LIGHTWEIGHT RETURN REQUEST (คำขอคืนสินค้าแบบเรียบง่าย)
 
 model ReturnRequest {
-  id                        String       @id @default(uuid()) @db.Uuid
+  id                        String       @id @default(uuid(7)) @db.Uuid
   requestNumber             String       @unique @map("request_number") @db.VarChar(50)
   orderId                   String       @map("order_id") @db.Uuid
   userId                    String       @map("user_id") @db.Uuid
@@ -575,7 +575,7 @@ model ReturnRequest {
 // 1 ORDER CANCELLATION REQUEST (คำขอยกเลิกคำสั่งซื้อ)
 
 model OrderCancellationRequest {
-  id            String                    @id @default(uuid()) @db.Uuid
+  id            String                    @id @default(uuid(7)) @db.Uuid
   requestNumber String                    @unique @map("request_number") @db.VarChar(50)
   orderId       String                    @map("order_id") @db.Uuid
   userId        String                    @map("user_id") @db.Uuid
@@ -599,7 +599,7 @@ model OrderCancellationRequest {
 }
 
 model ReturnItem {
-  id              String        @id @default(uuid()) @db.Uuid
+  id              String        @id @default(uuid(7)) @db.Uuid
   returnRequestId String        @map("return_request_id") @db.Uuid
   orderItemId     String        @map("order_item_id") @db.Uuid
   quantity        Int           @default(1)
@@ -613,7 +613,7 @@ model ReturnItem {
 // PROMOTIONS & COUPON ENGINE
 
 model PromotionCoupon {
-  id                String             @id @default(uuid()) @db.Uuid
+  id                String             @id @default(uuid(7)) @db.Uuid
   code              String             @unique @db.VarChar(50)
   discountType      DiscountType       @map("discount_type")
   discountValue     Decimal            @map("discount_value") @db.Decimal(10, 2)
@@ -640,7 +640,7 @@ model PromotionCoupon {
 }
 
 model CouponRedemption {
-  id              String          @id @default(uuid()) @db.Uuid
+  id              String          @id @default(uuid(7)) @db.Uuid
   couponId        String          @map("coupon_id") @db.Uuid
   userId          String?         @map("user_id") @db.Uuid
   orderId         String          @map("order_id") @db.Uuid
@@ -656,7 +656,7 @@ model CouponRedemption {
 }
 
 model Wishlist {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid(7)) @db.Uuid
   userId    String   @map("user_id") @db.Uuid
   productId String   @map("product_id") @db.Uuid
   addedAt   DateTime @default(now()) @map("added_at")
@@ -669,7 +669,7 @@ model Wishlist {
 }
 
 model Review {
-  id         String   @id @default(uuid()) @db.Uuid
+  id         String   @id @default(uuid(7)) @db.Uuid
   productId  String   @map("product_id") @db.Uuid
   userId     String   @map("user_id") @db.Uuid
   rating     Int      @db.SmallInt
@@ -687,7 +687,7 @@ model Review {
 // ADMIN & RBAC BACK-OFFICE
 
 model AdminUser {
-  id               String          @id @default(uuid()) @db.Uuid
+  id               String          @id @default(uuid(7)) @db.Uuid
   roleId           String          @map("role_id") @db.Uuid
   username         String          @unique @db.VarChar(50)
   email            String          @unique @db.VarChar(255)
@@ -712,7 +712,7 @@ model AdminUser {
 }
 
 model Role {
-  id              String           @id @default(uuid()) @db.Uuid
+  id              String           @id @default(uuid(7)) @db.Uuid
   roleCode        String           @unique @map("role_code") @db.VarChar(50)
   roleName        String           @map("role_name") @db.VarChar(100)
   description     String?          @db.VarChar(255)
@@ -724,7 +724,7 @@ model Role {
 }
 
 model Permission {
-  id              String           @id @default(uuid()) @db.Uuid
+  id              String           @id @default(uuid(7)) @db.Uuid
   permissionCode  String           @unique @map("permission_code") @db.VarChar(100)
   module          String           @db.VarChar(50)
   description     String?          @db.VarChar(255)
@@ -746,7 +746,7 @@ model RolePermission {
 }
 
 model StockMovement {
-  id             String          @id @default(uuid()) @db.Uuid
+  id             String          @id @default(uuid(7)) @db.Uuid
   variantId      String          @map("variant_id") @db.Uuid
   adminId        String?         @map("admin_id") @db.Uuid
   changeType     StockChangeType @map("change_type")
@@ -764,7 +764,7 @@ model StockMovement {
 }
 
 model AdminAuditLog {
-  id            String          @id @default(uuid()) @db.Uuid
+  id            String          @id @default(uuid(7)) @db.Uuid
   adminId       String?         @map("admin_id") @db.Uuid
   actionType    AuditActionType @map("action_type")
   targetTable   String          @map("target_table") @db.VarChar(50)
@@ -786,7 +786,7 @@ model AdminAuditLog {
 }
 
 model CmsBanner {
-  id                 String          @id @default(uuid()) @db.Uuid
+  id                 String          @id @default(uuid(7)) @db.Uuid
   placement          BannerPlacement @default(HERO_HOME)
   title              String          @default("") @db.VarChar(150)
   titleTh            String?         @map("title_th") @db.VarChar(150)
