@@ -2,11 +2,8 @@ import {
   Injectable,
   Logger,
   BadRequestException,
-  OnModuleInit,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as path from 'path';
 
 export interface UploadedFileDto {
   fieldname: string;
@@ -22,7 +19,7 @@ export interface UploadedFileDto {
 
 export interface UploadResult {
   url: string;
-  source: 'cloudinary' | 'local';
+  source: 'cloudinary';
 }
 
 interface CloudinaryConfig {
@@ -37,18 +34,8 @@ interface CloudinaryUploadResponse {
 }
 
 @Injectable()
-export class UploadService implements OnModuleInit {
+export class UploadService {
   private readonly logger = new Logger(UploadService.name);
-
-  onModuleInit() {
-    this.cleanupExpiredTempFiles();
-    setInterval(
-      () => {
-        this.cleanupExpiredTempFiles();
-      },
-      6 * 60 * 60 * 1000,
-    ).unref();
-  }
 
   private readonly allowedMimeTypes = new Set([
     'image/jpeg',
@@ -84,44 +71,31 @@ export class UploadService implements OnModuleInit {
       .replace(/[^a-zA-Z0-9_\-]/g, '')
       .toLowerCase();
     const targetFolder = cleanFolder.length > 0 ? cleanFolder : 'products';
-    const isProd = process.env.NODE_ENV === 'production';
 
     const cloudinaryConfig = this.resolveCloudinaryConfig();
-    if (cloudinaryConfig) {
-      try {
-        const cloudinaryFolder = `nida/${targetFolder}`;
-        const resultUrl = await this.uploadToCloudinaryApi(
-          file,
-          cloudinaryConfig,
-          cloudinaryFolder,
-        );
-        this.logger.log(
-          `Successfully uploaded image to Cloudinary (${cloudinaryFolder}): ${resultUrl}`,
-        );
-        return { url: resultUrl, source: 'cloudinary' };
-      } catch (err: unknown) {
-        const errMsg = err instanceof Error ? err.message : String(err);
-        this.logger.error(`Cloudinary upload failed: ${errMsg}`);
-
-        if (isProd) {
-          throw new BadRequestException(
-            `Cloud storage upload failed: ${errMsg}. Local storage fallback is prohibited in production.`,
-          );
-        }
-      }
-    } else {
-      if (isProd) {
-        throw new BadRequestException(
-          'Cloud storage (Cloudinary) is not configured in production environment. Local storage fallback is prohibited in production.',
-        );
-      }
-      this.logger.warn(
-        'Cloudinary credentials not configured in apps/admin-api/.env. Falling back to local storage (Development only).',
+    if (!cloudinaryConfig) {
+      this.logger.error('Cloud storage (Cloudinary) is not configured.');
+      throw new BadRequestException(
+        'Cloud storage (Cloudinary) credentials are not configured in environment variables.',
       );
     }
 
-    const localUrl = await this.saveLocally(file, targetFolder);
-    return { url: localUrl, source: 'local' };
+    try {
+      const cloudinaryFolder = `nida/${targetFolder}`;
+      const resultUrl = await this.uploadToCloudinaryApi(
+        file,
+        cloudinaryConfig,
+        cloudinaryFolder,
+      );
+      this.logger.log(
+        `Successfully uploaded image to Cloudinary (${cloudinaryFolder}): ${resultUrl}`,
+      );
+      return { url: resultUrl, source: 'cloudinary' };
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Cloudinary upload failed: ${errMsg}`);
+      throw new BadRequestException(`Cloud storage upload failed: ${errMsg}`);
+    }
   }
 
   private resolveCloudinaryConfig(): CloudinaryConfig | null {
@@ -149,14 +123,6 @@ export class UploadService implements OnModuleInit {
     }
 
     return null;
-  }
-
-  private buildLocalUrl(subFolder: string, filename: string): string {
-    const baseUrl =
-      process.env.API_PUBLIC_URL ??
-      process.env.SERVER_BASE_URL ??
-      `http://localhost:${process.env.PORT ?? 4000}`;
-    return `${baseUrl.replace(/\/+$/, '')}/uploads/${subFolder}/${filename}`;
   }
 
   private async uploadToCloudinaryApi(
@@ -201,92 +167,10 @@ export class UploadService implements OnModuleInit {
     return resultUrl;
   }
 
-  private async saveLocally(
-    file: UploadedFileDto,
-    subFolder: string = 'products',
-  ): Promise<string> {
-    const uploadDir = path.join(process.cwd(), 'uploads', subFolder);
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const parsedExt = path.extname(file.originalname);
-    const ext = parsedExt.length > 0 ? parsedExt : '.jpg';
-    const filename = `${subFolder}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
-    const targetPath = path.join(uploadDir, filename);
-
-    await fs.promises.writeFile(targetPath, file.buffer);
-    return this.buildLocalUrl(subFolder, filename);
-  }
-
   async commitTempImage(
     url?: string,
-    targetSubFolder: string = 'products',
+    _targetSubFolder: string = 'products',
   ): Promise<string> {
-    if (!url || typeof url !== 'string') {
-      return url ?? '';
-    }
-
-    if (url.includes('/uploads/temp/')) {
-      try {
-        const filename = path.basename(url);
-        const tempPath = path.join(process.cwd(), 'uploads', 'temp', filename);
-        const targetDir = path.join(process.cwd(), 'uploads', targetSubFolder);
-
-        if (!fs.existsSync(targetDir)) {
-          fs.mkdirSync(targetDir, { recursive: true });
-        }
-
-        const targetPath = path.join(targetDir, filename);
-
-        if (fs.existsSync(tempPath)) {
-          await fs.promises.rename(tempPath, targetPath);
-          this.logger.log(
-            `[Storage] Committed temp image to ${targetSubFolder}: ${filename}`,
-          );
-        }
-
-        return this.buildLocalUrl(targetSubFolder, filename);
-      } catch (err: unknown) {
-        const errMsg = err instanceof Error ? err.message : String(err);
-        this.logger.error(`Failed to commit temp image: ${errMsg}`);
-        return url;
-      }
-    }
-
-    return url;
-  }
-
-  async cleanupExpiredTempFiles(maxAgeHours: number = 24): Promise<number> {
-    const tempDir = path.join(process.cwd(), 'uploads', 'temp');
-    if (!fs.existsSync(tempDir)) return 0;
-
-    let deletedCount = 0;
-    const now = Date.now();
-    const maxAgeMs = maxAgeHours * 60 * 60 * 1000;
-
-    try {
-      const files = await fs.promises.readdir(tempDir);
-      for (const file of files) {
-        const filePath = path.join(tempDir, file);
-        const stats = await fs.promises.stat(filePath);
-
-        if (now - stats.mtimeMs > maxAgeMs) {
-          await fs.promises.unlink(filePath);
-          deletedCount++;
-        }
-      }
-
-      if (deletedCount > 0) {
-        this.logger.log(
-          `[Storage Cleanup] Purged ${deletedCount} abandoned temp images.`,
-        );
-      }
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : String(err);
-      this.logger.warn(`Temp cleanup encountered an error: ${errMsg}`);
-    }
-
-    return deletedCount;
+    return url ?? '';
   }
 }

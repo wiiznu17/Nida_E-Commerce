@@ -4,33 +4,8 @@ import {
   UploadedFileDto,
 } from '../../src/modules/upload/upload.service.js';
 import { BadRequestException } from '@nestjs/common';
-import * as fs from 'fs';
 
-vi.mock('fs', async () => {
-  const actual = await vi.importActual<typeof import('fs')>('fs');
-  return {
-    ...actual,
-    default: {
-      ...actual,
-      existsSync: vi.fn().mockReturnValue(true),
-      mkdirSync: vi.fn(),
-      promises: {
-        ...actual.promises,
-        writeFile: vi.fn().mockResolvedValue(undefined),
-        rename: vi.fn().mockResolvedValue(undefined),
-      },
-    },
-    existsSync: vi.fn().mockReturnValue(true),
-    mkdirSync: vi.fn(),
-    promises: {
-      ...actual.promises,
-      writeFile: vi.fn().mockResolvedValue(undefined),
-      rename: vi.fn().mockResolvedValue(undefined),
-    },
-  };
-});
-
-describe('Admin UploadService', () => {
+describe('Admin UploadService (Pure Cloudinary Storage)', () => {
   let service: UploadService;
   const originalEnv = process.env;
 
@@ -116,35 +91,19 @@ describe('Admin UploadService', () => {
     );
   });
 
-  it('saves locally in development mode when Cloudinary is not configured', async () => {
+  it('strictly rejects upload when Cloudinary credentials are not configured', async () => {
     delete process.env.CLOUDINARY_CLOUD_NAME;
     delete process.env.CLOUDINARY_URL;
-    process.env.NODE_ENV = 'development';
-    process.env.API_PUBLIC_URL = 'http://localhost:4001';
-
-    const result = await service.uploadImage(validJpgFile, 'banners');
-
-    expect(result.source).toBe('local');
-    expect(result.url).toMatch(
-      /^http:\/\/localhost:4001\/uploads\/banners\/banners-/,
-    );
-  });
-
-  it('strictly rejects upload and prohibits local storage in production mode when Cloudinary is missing', async () => {
-    delete process.env.CLOUDINARY_CLOUD_NAME;
-    delete process.env.CLOUDINARY_URL;
-    process.env.NODE_ENV = 'production';
 
     await expect(service.uploadImage(validJpgFile, 'products')).rejects.toThrow(
-      /Cloud storage \(Cloudinary\) is not configured in production environment/,
+      /Cloud storage \(Cloudinary\) credentials are not configured/,
     );
   });
 
-  it('strictly rejects upload in production mode if Cloudinary upload fails', async () => {
+  it('strictly rejects upload if Cloudinary API responds with an error', async () => {
     process.env.CLOUDINARY_CLOUD_NAME = 'test-cloud';
     process.env.CLOUDINARY_API_KEY = 'test-key';
     process.env.CLOUDINARY_API_SECRET = 'test-secret';
-    process.env.NODE_ENV = 'production';
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
@@ -158,15 +117,7 @@ describe('Admin UploadService', () => {
     );
   });
 
-  it('commits temp image when URL is local path', async () => {
-    const tempUrl = 'http://localhost:4000/uploads/temp/item-temp-123.jpg';
-    const result = await service.commitTempImage(tempUrl, 'products');
-
-    expect(fs.promises.rename).toHaveBeenCalled();
-    expect(result).toContain('/uploads/products/item-temp-123.jpg');
-  });
-
-  it('leaves Cloudinary URLs untouched during commitTempImage', async () => {
+  it('returns clean image URL during commitTempImage without file system operations', async () => {
     const cloudUrl =
       'https://res.cloudinary.com/test-cloud/image/upload/v1/nida/products/item.jpg';
     const result = await service.commitTempImage(cloudUrl, 'products');

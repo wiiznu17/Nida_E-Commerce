@@ -607,6 +607,16 @@ flowchart TD
   - [x] เมื่อลูกค้าต้องการเปลี่ยนอีเมลหลัก ต้องผ่านการยืนยันรหัส OTP ส่งไปยังอีเมลใหม่ พร้อมเพิกถอนเซสชันเดิมทุกเครื่องอัตโนมัติเพื่อความปลอดภัย
 - [x] **4. ป้องกันบอทและการโจมตีแบบอัตโนมัติ (Anti-Bot & Brute-force Shield)**:
   - [x] ติดตั้ง Invisible Bot Protection (Cloudflare Turnstile Guard) พร้อม API Endpoint Verification และ Development Bypass Mode
+- [ ] **5. ระบบ Mask ข้อมูล PII บนหน้าจอแสดงผล (Frontend Display PII Masking)**:
+  - [ ] พัฒนา Utility กลาง `apps/store/src/utils/mask.ts`:
+    - `maskEmail(email)`: ซ่อนตัวอักษรตรงกลาง เช่น `cu***@domain.com`
+    - `maskPhone(phone)`: ซ่อนเลข 3 ตัวกลาง เช่น `081-***-5678`
+    - `maskCardNumber(last4)`: แสดงเฉพาะเลข 4 ตัวท้าย เช่น `•••• •••• •••• 4242`
+  - [ ] ติดตั้งในหน้าจอแสดงผลสาธารณะ:
+    - **Track Order (`/track-order`):** ปิดบังชื่อผู้รับและเบอร์โทรศัพท์ ป้องกันบุคคลภายนอกสุ่มเลขพัสดุมาขโมยข้อมูล PII
+    - **Customer Profile (`/profile`):** ปิดบังเบอร์โทรศัพท์และอีเมลในหน้าดูข้อมูลส่วนตัว
+    - **Checkout / Payment Methods:** ยืนยันการแสดงผลบัตรเครดิตเฉพาะ `cardLast4` ตามมาตรฐาน PCI-DSS
+  - [ ] **ข้อควรระวังสำคัญ:** ฟอร์ม Input ตอนแก้ไขข้อมูลหรือสั่งซื้อ ต้องรับค่าจริงและส่งค่าจริงเข้า API เสมอ ห้ามส่งค่าที่ติด `***` เข้าฐานข้อมูล
 
 ### 9.2 หมวดสต็อกสินค้าและโปรโมชั่น (Inventory & Marketing Safeguards)
 

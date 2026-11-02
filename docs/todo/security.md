@@ -69,6 +69,16 @@
   - ลบ Header `X-Powered-By: Express` ผ่าน `hidePoweredBy` และ `expressApp.disable('x-powered-by')`
 - [x] **2.4 ปิดการเข้าถึง Swagger / OpenAPI ในโหมด Production**
   - ครอบ `if (!isProd)` ปิด Route `/api/docs` และ `/api/docs-json` ไม่ให้บุคคลภายนอกเข้าถึงเมื่อ `NODE_ENV === 'production'`
+- [ ] **2.5 ระบบ Mask ข้อมูล PII ฝั่ง Frontend (Display UI Masking)**
+  - สร้าง Utility กลาง `apps/store/src/utils/mask.ts` และ `apps/admin/src/utils/mask.ts`:
+    - `maskEmail(email)`: แสดงเฉพาะ 2 ตัวหน้าและโดเมน เช่น `cu***@domain.com`
+    - `maskPhone(phone)`: ซ่อนตัวเลข 3 ตัวกลาง เช่น `081-***-5678`
+    - `maskCardNumber(last4)`: แสดงเฉพาะเลข 4 ตัวท้าย เช่น `•••• •••• •••• 4242`
+  - ติดตั้งในหน้าจอแสดงผลสาธารณะของหน้าร้าน:
+    - **Track Order (`/track-order`):** ปิดบังชื่อผู้รับและเบอร์โทรศัพท์ เพื่อป้องกันบุคคลภายนอกสุ่มเลขออเดอร์มาขโมยข้อมูล PII
+    - **Customer Profile (`/profile`):** ปิดบังเบอร์โทรศัพท์และอีเมลในหน้าดูข้อมูลส่วนตัว
+    - **Checkout / Payment Methods:** ตรวจสอบให้แน่ใจว่าแสดงผลบัตรเครดิตเฉพาะ `cardLast4` ตามมาตรฐาน PCI-DSS
+  - **ข้อควรระวังสำคัญ:** ในช่องกรอกข้อมูล (Input Fields) ตอนสร้าง/แก้ไขที่อยู่ หรือสั่งซื้อ ต้องรับค่าจริงและส่งค่าจริงเข้า API เสมอ ห้ามเผลอส่งก้อนดอกจัน `***` เข้าฐานข้อมูล
 
 ---
 

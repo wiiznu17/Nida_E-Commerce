@@ -123,13 +123,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.use(
-    '/uploads',
-    express.static(path.join(process.cwd(), 'uploads'), {
-      maxAge: '7d',
-      immutable: true,
-    }),
-  );
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
