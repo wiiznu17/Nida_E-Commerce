@@ -232,15 +232,21 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Admin logout',
-    description: 'Revoke the active session or specific refresh token.',
+    description: 'Revoke the active session or specific refresh token and blacklist access token.',
   })
   @ApiBody({ type: AdminLogoutDto, required: false })
   @ApiResponse({ status: 200, description: 'Logged out successfully' })
   async logout(
     @Body() body: AdminLogoutDto,
     @CurrentAdmin() admin: ApiAdminUser | null,
+    @Req() req: Request,
   ): Promise<ApiGenericResponse<{ message: string }>> {
-    await this.authService.logout(body?.refreshToken, admin?.id);
+    const rawAuth = req.headers['authorization'];
+    const accessToken =
+      typeof rawAuth === 'string' && rawAuth.startsWith('Bearer ')
+        ? rawAuth.substring(7)
+        : undefined;
+    await this.authService.logout(body?.refreshToken, admin?.id, accessToken);
     return {
       success: true,
       data: { message: 'ออกจากระบบเรียบร้อยแล้ว' },

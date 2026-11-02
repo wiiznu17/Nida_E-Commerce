@@ -28,6 +28,10 @@ describe('AuthService', () => {
     addSessionToUser: ReturnType<typeof vi.fn>;
     removeSessionFromUser: ReturnType<typeof vi.fn>;
     revokeAllUserSessions: ReturnType<typeof vi.fn>;
+    blacklistToken: ReturnType<typeof vi.fn>;
+    isTokenBlacklisted: ReturnType<typeof vi.fn>;
+    revokeAllUserTokens: ReturnType<typeof vi.fn>;
+    getUserRevocationTimestamp: ReturnType<typeof vi.fn>;
     getInviteToken: ReturnType<typeof vi.fn>;
     deleteInviteToken: ReturnType<typeof vi.fn>;
     setResetToken: ReturnType<typeof vi.fn>;
@@ -37,6 +41,7 @@ describe('AuthService', () => {
 
   let jwtMock: {
     signAsync: ReturnType<typeof vi.fn>;
+    decode: ReturnType<typeof vi.fn>;
   };
 
   let mailerMock: {
@@ -64,6 +69,10 @@ describe('AuthService', () => {
       addSessionToUser: vi.fn().mockResolvedValue(undefined),
       removeSessionFromUser: vi.fn().mockResolvedValue(undefined),
       revokeAllUserSessions: vi.fn().mockResolvedValue(undefined),
+      blacklistToken: vi.fn().mockResolvedValue(undefined),
+      isTokenBlacklisted: vi.fn().mockResolvedValue(false),
+      revokeAllUserTokens: vi.fn().mockResolvedValue(undefined),
+      getUserRevocationTimestamp: vi.fn().mockResolvedValue(null),
       getInviteToken: vi.fn().mockResolvedValue(null),
       deleteInviteToken: vi.fn().mockResolvedValue(undefined),
       setResetToken: vi.fn().mockResolvedValue(undefined),
@@ -73,6 +82,7 @@ describe('AuthService', () => {
 
     jwtMock = {
       signAsync: vi.fn().mockResolvedValue('mock_jwt_access_token'),
+      decode: vi.fn().mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 900 }),
     };
 
     mailerMock = {
@@ -233,20 +243,27 @@ describe('AuthService', () => {
   });
 
   describe('logout & logoutAll', () => {
-    it('should delete token from session and user set on logout', async () => {
-      await service.logout('test-token', 'admin-uuid-1');
+    it('should delete token from session, user set, and blacklist access token on logout', async () => {
+      const exp = Math.floor(Date.now() / 1000) + 900;
+      jwtMock.decode.mockReturnValueOnce({ exp });
+
+      await service.logout('test-token', 'admin-uuid-1', 'valid-admin-access-token');
 
       expect(redisMock.deleteSession).toHaveBeenCalledWith('test-token');
       expect(redisMock.removeSessionFromUser).toHaveBeenCalledWith(
         'admin-uuid-1',
         'test-token',
       );
+      expect(redisMock.blacklistToken).toHaveBeenCalledWith('valid-admin-access-token', exp);
     });
 
-    it('should revoke all user sessions on logoutAll', async () => {
+    it('should revoke all user sessions and invalidate all user tokens on logoutAll', async () => {
       await service.logoutAll('admin-uuid-1');
 
       expect(redisMock.revokeAllUserSessions).toHaveBeenCalledWith(
+        'admin-uuid-1',
+      );
+      expect(redisMock.revokeAllUserTokens).toHaveBeenCalledWith(
         'admin-uuid-1',
       );
     });

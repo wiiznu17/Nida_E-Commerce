@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import type { ApiError } from '@repo/types';
+import { sanitizeData } from '../utils/sanitizer.js';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -78,20 +79,24 @@ export class HttpExceptionFilter implements ExceptionFilter {
         }
 
         if (typeof res['details'] === 'object' && res['details'] !== null) {
-          details = res['details'] as Record<string, unknown>;
+          details = sanitizeData(res['details'] as Record<string, unknown>);
         }
       }
 
       error = this.getErrorName(statusCode);
     } else {
-      this.logger.error('Unhandled exception:', exception);
+      const sanitizedException =
+        exception instanceof Error
+          ? { name: exception.name, message: exception.message }
+          : exception;
+      this.logger.error('Unhandled exception:', sanitizeData(sanitizedException));
       message = 'An unexpected server error occurred';
       if (process.env.NODE_ENV !== 'production') {
-        details = {
+        details = sanitizeData({
           devError:
             exception instanceof Error ? exception.message : String(exception),
           devStack: exception instanceof Error ? exception.stack : undefined,
-        };
+        });
       }
     }
 

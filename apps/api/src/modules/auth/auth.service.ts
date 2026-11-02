@@ -1011,7 +1011,10 @@ export class CustomerAuthService {
     };
   }
 
-  async logout(refreshToken?: string): Promise<{ success: boolean }> {
+  async logout(
+    refreshToken?: string,
+    accessToken?: string,
+  ): Promise<{ success: boolean }> {
     if (refreshToken) {
       const session = await this.redis.getCustomerSession(refreshToken);
       if (session) {
@@ -1019,11 +1022,28 @@ export class CustomerAuthService {
         await this.redis.removeCustomerSession(session.userId, refreshToken);
       }
     }
+
+    if (accessToken) {
+      try {
+        const decoded = this.jwtService.decode(accessToken) as {
+          exp?: number;
+        } | null;
+        if (decoded?.exp) {
+          await this.redis.blacklistToken(accessToken, decoded.exp);
+        }
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Failed to blacklist customer access token: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
     return { success: true };
   }
 
   async logoutAll(userId: string): Promise<{ success: boolean }> {
     await this.redis.revokeAllCustomerSessions(userId);
+    await this.redis.revokeAllUserTokens(userId);
     return { success: true };
   }
 

@@ -40,12 +40,17 @@ describe('CustomerAuthService', () => {
     removeCustomerSession: ReturnType<typeof vi.fn>;
     getCustomerSessions: ReturnType<typeof vi.fn>;
     revokeAllCustomerSessions: ReturnType<typeof vi.fn>;
+    blacklistToken: ReturnType<typeof vi.fn>;
+    isTokenBlacklisted: ReturnType<typeof vi.fn>;
+    revokeAllUserTokens: ReturnType<typeof vi.fn>;
+    getUserRevocationTimestamp: ReturnType<typeof vi.fn>;
   };
   let mailerMock: {
     sendOtpEmail: ReturnType<typeof vi.fn>;
   };
   let jwtMock: {
     sign: ReturnType<typeof vi.fn>;
+    decode: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -78,6 +83,10 @@ describe('CustomerAuthService', () => {
       removeCustomerSession: vi.fn().mockResolvedValue(undefined),
       getCustomerSessions: vi.fn().mockResolvedValue([]),
       revokeAllCustomerSessions: vi.fn().mockResolvedValue(undefined),
+      blacklistToken: vi.fn().mockResolvedValue(undefined),
+      isTokenBlacklisted: vi.fn().mockResolvedValue(false),
+      revokeAllUserTokens: vi.fn().mockResolvedValue(undefined),
+      getUserRevocationTimestamp: vi.fn().mockResolvedValue(null),
     };
 
     mailerMock = {
@@ -86,6 +95,7 @@ describe('CustomerAuthService', () => {
 
     jwtMock = {
       sign: vi.fn().mockReturnValue('mock-jwt-token'),
+      decode: vi.fn().mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 900 }),
     };
 
     service = new CustomerAuthService(
@@ -429,26 +439,32 @@ describe('CustomerAuthService', () => {
   });
 
   describe('logout & logoutAll', () => {
-    it('removes active session from Redis on logout', async () => {
-      const token = 'active-session-token';
+    it('removes active session from Redis and blacklists access token on logout', async () => {
+      const refreshToken = 'active-session-token';
+      const accessToken = 'valid-access-token';
+      const exp = Math.floor(Date.now() / 1000) + 600;
+
       redisMock.getCustomerSession.mockResolvedValueOnce({
-        sessionId: token,
+        sessionId: refreshToken,
         userId: 'usr-1',
       });
+      jwtMock.decode.mockReturnValueOnce({ exp });
 
-      const res = await service.logout(token);
+      const res = await service.logout(refreshToken, accessToken);
       expect(res.success).toBe(true);
-      expect(redisMock.deleteCustomerSession).toHaveBeenCalledWith(token);
+      expect(redisMock.deleteCustomerSession).toHaveBeenCalledWith(refreshToken);
       expect(redisMock.removeCustomerSession).toHaveBeenCalledWith(
         'usr-1',
-        token,
+        refreshToken,
       );
+      expect(redisMock.blacklistToken).toHaveBeenCalledWith(accessToken, exp);
     });
 
-    it('revokes all sessions on logoutAll', async () => {
+    it('revokes all sessions and invalidates all user tokens on logoutAll', async () => {
       const res = await service.logoutAll('usr-1');
       expect(res.success).toBe(true);
       expect(redisMock.revokeAllCustomerSessions).toHaveBeenCalledWith('usr-1');
+      expect(redisMock.revokeAllUserTokens).toHaveBeenCalledWith('usr-1');
     });
   });
 

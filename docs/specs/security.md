@@ -168,3 +168,26 @@ Retry-After: 45
 2. **URL-Encoded Body:** กำหนดเพดานสูงสุด `1mb` (`express.urlencoded({ extended: true, limit: '1mb' })`)
 3. **File Uploads (`/upload`):** อนุญาตเฉพาะ Multipart File Upload ขนาดสูงสุด **`10mb`** และตรวจสอบ Magic Bytes ของไฟล์รูปภาพ (`image/jpeg`, `image/png`, `image/webp`) เสมอ
 
+---
+
+## 6. มาตรการรักษาความปลอดภัยระดับ HTTP Headers (Helmet Security Specification)
+
+เพื่อป้องกันการโจมตีระดับ Browser-based Attacks (MIME-sniffing, Clickjacking, Protocol Downgrade):
+
+| Security Header | ค่าคอนฟิก (Configuration) | ภัยคุกคามที่ป้องกัน |
+| :--- | :--- | :--- |
+| **Strict-Transport-Security (HSTS)** | `max-age=31536000; includeSubDomains; preload` | ป้องกัน Man-in-the-Middle (MitM) และบังคับการเชื่อมต่อแบบ HTTPS 100% ตลอด 1 ปี |
+| **X-Content-Type-Options** | `nosniff` | ป้องกันการโจมตีแบบ MIME-Confusion / Sniffing ไฟล์ปลอม |
+| **X-Frame-Options** | `DENY` (`frameguard: { action: 'deny' }`) | ป้องกัน Clickjacking โดยห้ามฝังเว็บไซต์ใน `<iframe>` ใดๆ |
+| **Referrer-Policy** | `strict-origin-when-cross-origin` | ป้องกันการรั่วไหลของ Sensitive Query Params ไปยังเว็บไซต์ภายนอก |
+| **Server Cloaking** | ลบ Header `X-Powered-By: Express` | ซ่อนข้อมูลเทคโนโลยีและเวอร์ชันของเซิร์ฟเวอร์ |
+| **Cross-Origin-Resource-Policy** | `cross-origin` | อนุญาตให้ไฟล์ภาพที่อัปโหลดโหลดข้ามโดเมนได้ถูกต้อง |
+
+---
+
+## 7. เอกสารอ้างอิงที่เกี่ยวข้อง (Related Specifications)
+
+- **การจัดการวงจรชีวิตและการเพิกถอน JWT Token (Blacklist & Global Revocation):** ดูรายละเอียดทางสถาปัตยกรรมที่ [docs/specs/account.md#5-สถาปัตยกรรมการจัดการ-jwt-แบบวงจรปิด-closed-loop-jwt-lifecycle--revocation-architecture](file:///Users/wiiznu/project/Nida_Project/docs/specs/account.md#5-สถาปัตยกรรมการจัดการ-jwt-แบบวงจรปิด-closed-loop-jwt-lifecycle--revocation-architecture)
+- **ระบบ PII & Sensitive Data Masking:** อธิบายใน [docs/specs/account.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/account.md) และดูโค้ดจริงที่ [`sanitizeData()`](file:///Users/wiiznu/project/Nida_Project/apps/api/src/core/utils/sanitizer.ts)
+
+

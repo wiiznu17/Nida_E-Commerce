@@ -9,13 +9,13 @@
 | รหัส OWASP | ภัยคุกคาม / ช่องโหว่ | สถานะปัจจุบัน | แผนการยกระดับและการป้องกัน (Action Item) |
 | :--- | :--- | :---: | :--- |
 | **API1:2023** | **Broken Object Level Authorization (BOLA)** | ✅ ผ่าน | ตรวจสอบความเป็นเจ้าของ Resource (เช่น `userId` บน Order/Address/Cart) เสมอ |
-| **API2:2023** | **Broken Authentication** | 🟢 ปลอดภัย | ติดตั้ง Rate Limiting บน Login/OTP (5 req/min), นโยบาย 5-Strike Lockout (15m), IP Lockout |
-| **API3:2023** | **Broken Object Property Level Authorization** | 🟡 ปานกลาง | ทำ PII / Sensitive Data Sanitizer ใน Application Logger (Mask รหัสผ่าน, OTP, บัตร) |
+| **API2:2023** | **Broken Authentication** | 🟢 ปลอดภัย | ติดตั้ง Rate Limiting บน Login/OTP (5 req/min), นโยบาย 5-Strike Lockout (15m), JWT Token Blacklist บน Redis |
+| **API3:2023** | **Broken Object Property Level Authorization** | 🟢 ปลอดภัย | ติดตั้ง PII & Sensitive Data Sanitizer ใน Core Logger และ HttpExceptionFilter (Mask รหัสผ่าน, OTP, บัตร 100%) |
 | **API4:2023** | **Unrestricted Resource Consumption** | 🟢 ปลอดภัย | ติดตั้ง Global & Route RateLimitGuard บน Redis, 1MB Payload Limit, และ Trust Proxy Protection |
 | **API5:2023** | **Broken Function Level Authorization (BFLA)** | ✅ ผ่าน | บังคับใช้ `JwtAuthGuard` และ `PermissionsGuard` ครอบคลุมทุก Endpoint ของ Admin |
 | **API6:2023** | **Unrestricted Access to Sensitive Business Flows** | 🟢 ปลอดภัย | ดักจับ OTP / Email Pumping Attack (จำกัด OTP 3 req/60s, Coupon validation 15 req/60s) |
 | **API7:2023** | **Server-Side Request Forgery (SSRF)** | ✅ ผ่าน | ป้องกันการดึง URL ภายนอกที่ไม่ได้รับอนุญาต และตรวจสอบ Webhook Signature |
-| **API8:2023** | **Security Misconfiguration** | 🟡 ปานกลาง | ปรับแต่ง Helmet เต็มรูปแบบ (HSTS, CSP, X-Content-Type-Options) และปิด Swagger ใน Production |
+| **API8:2023** | **Security Misconfiguration** | 🟢 ปลอดภัย | ปรับแต่ง Helmet เต็มรูปแบบ (HSTS 1 ปี + Preload, nosniff, Frameguard, ลบ X-Powered-By) และปิด Swagger ใน Production |
 | **API9:2023** | **Improper Inventory Management** | ✅ ผ่าน | ควบคุม API Versioning (`/api/v1`) ชัดเจน และไม่มี Shadow Endpoints |
 | **API10:2023** | **Unsafe Consumption of Third-Party APIs** | ✅ ผ่าน | มี Wrapper ดักจับ Error และ Validation จาก Resend และ Omise ครบถ้วน |
 
@@ -51,22 +51,24 @@
 ### 📌 เฟส 2: การรักษาความปลอดภัยข้อมูลและสิทธิ์ผู้ใช้ (Data Protection & Authentication)
 > **เป้าหมาย:** อุดช่องโหว่ OWASP API2, API3 & API8 ป้องกันข้อมูลรั่วไหลใน Logs และจัดการ Session วงจรปิด
 
-- [ ] **2.1 ระบบ JWT Token Revocation & Blacklist บน Redis**
-  - สร้าง `TokenBlacklistService` จัดเก็บ Token Identifier (`jti` หรือ Token Hash) บน Redis
+- [x] **2.1 ระบบ JWT Token Revocation & Blacklist บน Redis**
+  - ติดตั้ง `blacklistToken` (SHA-256 hash + Remaining TTL) และ `revokeAllUserTokens` (`jwt:revoked_before:<userId>`) บน Redis
   - เมื่อผู้ใช้หรือแอดมินกด Logout (`POST /auth/logout`) ให้นำ Access Token ไปขึ้นบัญชีดำตามอายุ TTL ที่เหลืออยู่
-  - อัปเดต `JwtAuthGuard` ให้ตรวจสอบ Redis Blacklist ก่อนอนุญาตให้ Request ผ่าน
-- [ ] **2.2 ระบบปิดบังข้อมูลสำคัญใน Logs (PII & Sensitive Data Sanitizer)**
-  - สร้าง Logging Interceptor / Custom Winston Formatter ที่ทำการ Mask ข้อมูลก่อนบันทึก:
-    - ฟิลด์ที่ต้อง Mask 100%: `password`, `newPassword`, `currentPassword`, `otpCode`, `cardNumber`, `cvv`
-    - ฟิลด์ PII ที่ต้อง Mask บางส่วน: อีเมล (`w***@gmail.com`), เบอร์โทร (`081-***-1234`)
-  - ตรวจสอบให้แน่ใจว่าไม่มี Payload อ่อนไหวหลุดเข้าไปใน Render / Supabase / CloudWatch logs
-- [ ] **2.3 ยกระดับ HTTP Security Headers ผ่าน Helmet**
-  - เพิ่ม `Strict-Transport-Security` (HSTS: `max-age=31536000; includeSubDomains; preload`)
+  - เมื่อกด Logout All Devices (`POST /auth/logout-all`) ให้ยกเลิก Token ทั้งหมดที่ออกก่อนหน้าทันที
+  - อัปเดต `CustomerJwtStrategy` และ `JwtStrategy` ให้ตรวจสอบ Redis Blacklist และ Revocation Timestamp ก่อนอนุญาตให้คำขอผ่าน
+- [x] **2.2 ระบบปิดบังข้อมูลสำคัญใน Logs (PII & Sensitive Data Sanitizer)**
+  - สร้าง Utility กลาง `sanitizeData` กรองและ Mask ข้อมูลอ่อนไหวก่อนพิมพ์ลง Logs หรือส่งกลับ Client:
+    - ฟิลด์ที่ Mask 100%: `password`, `newPassword`, `currentPassword`, `confirmPassword`, `otpCode`, `cardNumber`, `cvv`, `securityCode`, `token`, `secret`, `omiseToken`
+    - ฟิลด์ PII ที่ Mask บางส่วน: อีเมล (`cu***@domain.com`), เบอร์โทร (`081-***-5678`)
+  - ติดตั้งเข้าสู่ `HttpExceptionFilter` ทั้งสองแอป พร้อมทดสอบ Circular Reference Protection
+- [x] **2.3 ยกระดับ HTTP Security Headers ผ่าน Helmet**
+  - เพิ่ม `Strict-Transport-Security` (HSTS: `maxAge: 31536000`, `includeSubDomains: true`, `preload: true`)
   - กำหนด `X-Content-Type-Options: nosniff` เพื่อป้องกัน MIME-sniffing
+  - กำหนด `frameguard: { action: 'deny' }` เพื่อป้องกัน Clickjacking
   - กำหนด `Referrer-Policy: strict-origin-when-cross-origin`
-  - ลบ Header `X-Powered-By: Express` เพื่อไม่ให้เปิดเผยเทคโนโลยีฝั่งเซิร์ฟเวอร์
-- [ ] **2.4 ปิดการเข้าถึง Swagger / OpenAPI ในโหมด Production**
-  - ซ่อน Route `/api/docs` เมื่อ `NODE_ENV === 'production'` หรือต้องผ่าน Basic Auth เฉพาะทีมงานภายใน
+  - ลบ Header `X-Powered-By: Express` ผ่าน `hidePoweredBy` และ `expressApp.disable('x-powered-by')`
+- [x] **2.4 ปิดการเข้าถึง Swagger / OpenAPI ในโหมด Production**
+  - ครอบ `if (!isProd)` ปิด Route `/api/docs` และ `/api/docs-json` ไม่ให้บุคคลภายนอกเข้าถึงเมื่อ `NODE_ENV === 'production'`
 
 ---
 

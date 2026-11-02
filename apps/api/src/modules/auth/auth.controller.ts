@@ -272,13 +272,19 @@ export class CustomerAuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Logout current customer session',
-    description: 'Revokes the active refresh token session.',
+    description: 'Revokes the active refresh token session and blacklists the access token.',
   })
   @ApiResponse({ status: 200, description: 'Logged out successfully' })
   async logout(
+    @Req() req: RawRequest,
     @Body() dto?: Partial<CustomerRefreshTokenDto>,
   ): Promise<{ success: boolean }> {
-    return this.authService.logout(dto?.refreshToken);
+    const rawAuth = req.headers['authorization'];
+    const accessToken =
+      typeof rawAuth === 'string' && rawAuth.startsWith('Bearer ')
+        ? rawAuth.substring(7)
+        : undefined;
+    return this.authService.logout(dto?.refreshToken, accessToken);
   }
 
   @Post('logout-all')

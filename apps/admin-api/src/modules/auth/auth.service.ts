@@ -251,17 +251,37 @@ export class AuthService {
     };
   }
 
-  async logout(refreshToken?: string, adminId?: string): Promise<void> {
+  async logout(
+    refreshToken?: string,
+    adminId?: string,
+    accessToken?: string,
+  ): Promise<void> {
     if (refreshToken) {
       await this.redis.deleteSession(refreshToken);
       if (adminId) {
         await this.redis.removeSessionFromUser(adminId, refreshToken);
       }
     }
+
+    if (accessToken) {
+      try {
+        const decoded = this.jwt.decode(accessToken) as {
+          exp?: number;
+        } | null;
+        if (decoded?.exp) {
+          await this.redis.blacklistToken(accessToken, decoded.exp);
+        }
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Failed to blacklist admin access token: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
   }
 
   async logoutAll(adminId: string): Promise<void> {
     await this.redis.revokeAllUserSessions(adminId);
+    await this.redis.revokeAllUserTokens(adminId);
   }
 
   async verifyToken(

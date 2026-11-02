@@ -4,6 +4,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
+import { createHash } from 'node:crypto';
 import { Redis } from 'ioredis';
 import type { RedisSessionData } from '@repo/types';
 
@@ -594,5 +595,99 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         this.memoryStore.delete(key);
       }
     }
+  }
+
+  async blacklistToken(token: string, exp: number): Promise<void> {
+    const hash = createHash('sha256').update(token).digest('hex');
+    const key = `jwt:bl:${hash}`;
+    const remainingSeconds = Math.max(1, exp - Math.floor(Date.now() / 1000));
+
+    if (this.isConnected && this.client) {
+      try {
+        await this.client.set(key, 'revoked', 'EX', remainingSeconds);
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis blacklistToken failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    this.memoryStore.set(key, {
+      value: 'revoked',
+      expiresAt: Date.now() + remainingSeconds * 1000,
+    });
+  }
+
+  async isTokenBlacklisted(token: string): Promise<boolean> {
+    const hash = createHash('sha256').update(token).digest('hex');
+    const key = `jwt:bl:${hash}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        const result = await this.client.exists(key);
+        return result === 1;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis isTokenBlacklisted failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    const item = this.memoryStore.get(key);
+    if (!item) return false;
+    if (Date.now() > item.expiresAt) {
+      this.memoryStore.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  async revokeAllUserTokens(userId: string): Promise<void> {
+    const key = `jwt:revoked_before:${userId}`;
+    const now = Math.floor(Date.now() / 1000);
+    const ttlSeconds = 7 * 86400;
+
+    if (this.isConnected && this.client) {
+      try {
+        await this.client.set(key, String(now), 'EX', ttlSeconds);
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis revokeAllUserTokens failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    this.memoryStore.set(key, {
+      value: String(now),
+      expiresAt: Date.now() + ttlSeconds * 1000,
+    });
+  }
+
+  async getUserRevocationTimestamp(userId: string): Promise<number | null> {
+    const key = `jwt:revoked_before:${userId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        const val = await this.client.get(key);
+        if (!val) return null;
+        const parsed = Number(val);
+        return Number.isFinite(parsed) ? parsed : null;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis getUserRevocationTimestamp failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    const item = this.memoryStore.get(key);
+    if (!item) return null;
+    if (Date.now() > item.expiresAt) {
+      this.memoryStore.delete(key);
+      return null;
+    }
+    const parsed = Number(item.value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 }
