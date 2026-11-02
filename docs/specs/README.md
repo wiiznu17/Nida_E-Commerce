@@ -14,6 +14,7 @@
 | [return.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/return.md) | **Return & Exchange** | คำขอคืนสินค้า (`ReturnStatus`), การตรวจรับของคลัง, และเส้นตายการจัดส่ง |
 | [inventory.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/inventory.md) | **Inventory & Stock** | การจองสต็อก (`quantityReserved`), การตัดสต็อก, และ Ledger (`StockChangeType`) |
 | [account.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/account.md) | **Account & Security** | สถานะบัญชี (`AccountStatus`: Active/Suspended/Banned), Guards, และ Auto-Lockout |
+| [security.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/security.md) | **Network & Rate Limiting** | การจัดการ Client IP (`trust proxy`), ป้องกัน IP Spoofing, และ 5-Tier Rate Limiting |
 | [coupon.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/coupon.md) | **Promotions & Coupons** | กลไกคำนวณส่วนลด (`DiscountType`), สิทธิ์การใช้งาน, และโควต้าคูปอง |
 
 ---

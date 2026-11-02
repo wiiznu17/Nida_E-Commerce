@@ -25,6 +25,7 @@ docs/
 - [return.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/return.md) — การขอคืนสินค้า (`ReturnStatus`), การตรวจรับของคลัง QC, และเส้นตาย 7 วัน
 - [inventory.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/inventory.md) — การจองสต็อก (Reservation), การตัดสต็อก, และ Ledger (`StockChangeType`)
 - [account.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/account.md) — สถานะบัญชี (`AccountStatus`), Guards สกัดกั้น API, และ Auto-Lockout
+- [security.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/security.md) — การจัดการ Client IP (`trust proxy`), ป้องกัน IP Spoofing, และระบบ 5-Tier Rate Limiting
 - [coupon.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/coupon.md) — เครื่องคำนวณส่วนลด (`DiscountType`), โควต้าคูปอง, และการคืนสิทธิ์
 
 ---
