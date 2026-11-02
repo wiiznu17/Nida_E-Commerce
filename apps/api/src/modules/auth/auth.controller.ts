@@ -30,6 +30,7 @@ import {
 } from './dto/index.js';
 import { CustomerJwtGuard } from './guards/customer-jwt.guard.js';
 import { CustomerAuthService } from './auth.service.js';
+import { RateLimit } from '../../core/decorators/rate-limit.decorator.js';
 import type {
   RequestOtpResponse,
   CustomerOtpChallengeResponse,
@@ -76,6 +77,7 @@ export class CustomerAuthController {
   }
 
   @Get('check-email')
+  @RateLimit({ limit: 10, windowSeconds: 60, keyPrefix: 'auth:check-email' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Check if customer email already exists',
@@ -89,6 +91,7 @@ export class CustomerAuthController {
   }
 
   @Post('register')
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'auth:register' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Step 1: Register customer with password and send OTP challenge',
@@ -106,6 +109,7 @@ export class CustomerAuthController {
   }
 
   @Post('register/verify-otp')
+  @RateLimit({ limit: 10, windowSeconds: 60, keyPrefix: 'auth:verify-otp' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Step 2: Verify registration OTP and issue session tokens',
@@ -126,6 +130,7 @@ export class CustomerAuthController {
   }
 
   @Post('login')
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'auth:login' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Step 1: Authenticate email and password, then send OTP challenge',
@@ -147,6 +152,7 @@ export class CustomerAuthController {
   }
 
   @Post('login/verify-otp')
+  @RateLimit({ limit: 10, windowSeconds: 60, keyPrefix: 'auth:verify-otp' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Step 2: Verify login OTP code and issue session tokens',
@@ -164,6 +170,7 @@ export class CustomerAuthController {
   }
 
   @Post('resend-otp')
+  @RateLimit({ limit: 3, windowSeconds: 60, keyPrefix: 'auth:resend' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Resend OTP code for active login or register flow',
@@ -178,6 +185,7 @@ export class CustomerAuthController {
   }
 
   @Post('forgot-password')
+  @RateLimit({ limit: 3, windowSeconds: 60, keyPrefix: 'auth:forgot' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Request password reset OTP code',
@@ -193,6 +201,7 @@ export class CustomerAuthController {
   }
 
   @Post('reset-password')
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'auth:reset-pw' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Verify OTP code and reset customer password',
@@ -206,6 +215,7 @@ export class CustomerAuthController {
   }
 
   @Post('request-otp')
+  @RateLimit({ limit: 3, windowSeconds: 60, keyPrefix: 'auth:request' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Request OTP for customer login/registration',
@@ -223,6 +233,7 @@ export class CustomerAuthController {
   }
 
   @Post('verify-otp')
+  @RateLimit({ limit: 10, windowSeconds: 60, keyPrefix: 'auth:verify-otp' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Verify OTP code and authenticate',
@@ -240,6 +251,7 @@ export class CustomerAuthController {
   }
 
   @Post('refresh')
+  @RateLimit({ limit: 20, windowSeconds: 60, keyPrefix: 'auth:refresh' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Refresh access token with refresh token rotation',
@@ -317,6 +329,7 @@ export class CustomerAuthController {
   }
 
   @Post('change-password')
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'auth:change-pw' })
   @UseGuards(CustomerJwtGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)

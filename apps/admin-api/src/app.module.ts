@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { RateLimitGuard } from './core/guards/rate-limit.guard.js';
 import { PrismaModule } from './core/prisma/prisma.module.js';
 import { RedisModule } from './core/redis/redis.module.js';
 import { MailerModule } from './core/mailer/mailer.module.js';
@@ -77,6 +78,10 @@ import { AppService } from './app.service.js';
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_GUARD,
+      useClass: RateLimitGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

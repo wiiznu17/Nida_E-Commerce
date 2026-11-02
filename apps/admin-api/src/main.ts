@@ -35,6 +35,16 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
+  // Trust first proxy hop (Render, Cloudflare, AWS ALB) for accurate client IP resolution
+  (app.getHttpAdapter().getInstance() as express.Application).set(
+    'trust proxy',
+    1,
+  );
+
+  // Request Body Payload Size Limits (Anti-DoS / Memory Exhaustion)
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
   // HTTP Security Headers (allow cross-origin resource policy for uploaded static files)
   app.use(helmet({ crossOriginResourcePolicy: false }));
 

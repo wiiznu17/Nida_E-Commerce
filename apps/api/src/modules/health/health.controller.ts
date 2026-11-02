@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
+import { SkipRateLimit } from '../../core/decorators/rate-limit.decorator.js';
 
 @ApiTags('Health')
 @Controller('health')
@@ -8,6 +9,7 @@ export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get()
+  @SkipRateLimit()
   @ApiOperation({ summary: 'Health check probe' })
   async check() {
     let dbStatus = 'ok';

@@ -27,6 +27,10 @@ import {
   CustomerJwtGuard,
   OptionalCustomerJwtGuard,
 } from '../auth/guards/customer-jwt.guard.js';
+import {
+  RateLimit,
+  SkipRateLimit,
+} from '../../core/decorators/rate-limit.decorator.js';
 import type { ApiOrder, TrackingResult, PaymentMethod } from '@repo/types';
 
 interface AuthenticatedCustomerRequest {
@@ -42,6 +46,7 @@ export class CustomerOrdersController {
   constructor(private readonly ordersService: CustomerOrdersService) {}
 
   @Post()
+  @RateLimit({ limit: 10, windowSeconds: 60, keyPrefix: 'order:create' })
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({
     summary:
@@ -73,6 +78,7 @@ export class CustomerOrdersController {
   }
 
   @Get('track/:orderNumber')
+  @RateLimit({ limit: 15, windowSeconds: 60, keyPrefix: 'order:track' })
   @ApiOperation({ summary: 'Track order shipment and delivery status' })
   @ApiResponse({
     status: 200,
@@ -86,6 +92,7 @@ export class CustomerOrdersController {
   }
 
   @Post('track')
+  @RateLimit({ limit: 15, windowSeconds: 60, keyPrefix: 'order:track' })
   @ApiOperation({ summary: 'Track order with order number' })
   @ApiResponse({
     status: 200,
@@ -99,6 +106,7 @@ export class CustomerOrdersController {
   }
 
   @Post('webhook/omise')
+  @SkipRateLimit()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Receive and process Omise webhook events' })
   async handleOmiseWebhook(
@@ -121,6 +129,7 @@ export class CustomerOrdersController {
   }
 
   @Get(':orderNumber/omise-status')
+  @RateLimit({ limit: 20, windowSeconds: 60, keyPrefix: 'order:omise-status' })
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Sync and retrieve latest Omise payment status' })
   async getOmiseStatus(
@@ -166,6 +175,7 @@ export class CustomerOrdersController {
   }
 
   @Post(':orderNumber/pay')
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'order:pay' })
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Complete or simulate payment for an order' })
   @ApiResponse({ status: 200, description: 'Payment successful' })
@@ -191,6 +201,7 @@ export class CustomerOrdersController {
   }
 
   @Post(':orderNumber/cancellation-request')
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'order:cancel' })
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Submit pre-fulfillment cancellation request' })
   @ApiResponse({ status: 201, description: 'Cancellation request submitted' })
@@ -208,6 +219,7 @@ export class CustomerOrdersController {
   }
 
   @Post(':orderNumber/return-request')
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'order:return' })
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({ summary: 'Submit post-delivery return request' })
   @ApiResponse({ status: 201, description: 'Return request submitted' })

@@ -60,17 +60,76 @@ sequenceDiagram
 
 ---
 
-## 3. ตารางแบ่งระดับการจำกัดอัตรา (5-Tier Rate Limiting Specification)
+## 3. ตารางสรุปการจำกัดอัตราคำขอแยกตามราย Route (Comprehensive Route-by-Route Rate Limit Matrix)
 
-ระบบจะใช้ `req.ip` ร่วมกับ Identifier เฉพาะเพื่อป้องกันการโจมตีแบ่งตาม 5 ระดับ:
+### 3.1 หลักการออกแบบและการจัดการ Redis Memory (Design & Memory Architecture)
+1. **Global Fallback (120 req / 60s ต่อ 1 IP):**
+   - ทุก Route ในระบบที่ไม่ได้ระบุ `@RateLimit` หรือ `@SkipRateLimit` จะถูกคุ้มกันอัตโนมัติด้วย Tier 1 Global Limit
+   - **การประหยัดหน่วยความจำ Redis:** ทุก Route ทั่วไป (เช่น `users/addresses`, `cart`, `wishlist`) จะแชร์ Redis Key เดียวกันคือ **`global:<ip>`** ทำให้ผู้ใช้ 1 คนสร้าง Key ใน Redis เพียง 1 ตัว (~100 bytes พร้อม TTL 60 วินาที) แทนที่จะสร้างนับสิบคีย์
+2. **Dedicated Decorator `@RateLimit(...)`:**
+   - ใช้เฉพาะ Route ที่มี **ความเสี่ยงสูง (High-Risk)**, จุดตัดเงิน, สแปม OTP/อีเมล, หรือการสุ่มเดา (Enumeration) เพื่อแยก Key และตั้งค่าเวลาที่เข้มงวดเป็นพิเศษ
+3. **Whitelist Decorator `@SkipRateLimit()`:**
+   - ใช้กับ Route พิเศษที่ห้ามถูกบล็อกเด็ดขาด (เช่น Health Check Probes ของ Cloud และ Payment Webhook ของ Omise)
 
-| ระดับ (Tier) | ขอบเขต Endpoints | อัตราสูงสุดที่อนุญาต | คีย์บน Redis | ภัยคุกคามที่ป้องกัน |
-| :--- | :--- | :--- | :--- | :--- |
-| **Tier 1: Global** | ทุก Endpoint ทั้งระบบ | 120 req / 60 วินาที | `rl:global:<ip>` | DoS / สแปมถล่มเซิร์ฟเวอร์ |
-| **Tier 2: Auth** | • `/auth/login`<br>• `/auth/register`<br>• `/auth/reset-password` | 5 req / 60 วินาที | `rl:auth:<ip>:<identifier>` | Brute-force รหัสผ่าน & Credential Stuffing |
-| **Tier 3: Email/OTP** | • `/auth/resend-otp`<br>• `/auth/request-otp`<br>• `/auth/forgot-password` | **ต่ออีเมล:** 1 req / 60 วินาที<br>**ต่อ IP:** 10 req / 15 นาที | `rl:email:<target_email>`<br>`rl:ip_email:<ip>` | Email Pumping Attack & ป้องกันโควต้า Resend หมด |
-| **Tier 4: Business** | • `/coupons/validate`<br>• `/checkout/calculate` | 15 req / 60 วินาที | `rl:coupon:<ip>:<userId>` | Dictionary Attack สุ่มเดารหัสคูปองส่วนลด |
-| **Tier 5: Heavy Search** | • `/catalog/products?search=...` | 30 req / 60 วินาที | `rl:search:<ip>` | Database CPU Spike จากคำค้นหาซับซ้อน |
+---
+
+### 3.2 Storefront Customer API (`apps/api`)
+
+| Method & Route Path | Rate Limit | Key Prefix บน Redis | วัตถุประสงค์และความเสี่ยงที่ป้องกัน |
+| :--- | :---: | :---: | :--- |
+| **Authentication & Profile** | | | |
+| `POST /api/v1/auth/login` | 5 req / 60s | `auth:login:<ip>` | ป้องกัน Brute-force รหัสผ่าน (มีนโยบาย 5-Strike Lockout 15 นาที) |
+| `POST /api/v1/auth/register` | 5 req / 60s | `auth:register:<ip>` | ป้องกันการยิงสคริปต์สมัครสมาชิกขยะ |
+| `POST /api/v1/auth/request-otp` | 3 req / 60s | `auth:request:<ip>` | ป้องกันการปั๊ม OTP (Email Pumping) และคุมค่าใช้จ่าย Resend |
+| `POST /api/v1/auth/resend-otp` | 3 req / 60s | `auth:resend:<ip>` | ป้องกันการขอยิง OTP ซ้ำถี่เกินไป |
+| `POST /api/v1/auth/forgot-password` | 3 req / 60s | `auth:forgot:<ip>` | ป้องกันการสแปมอีเมล Reset Password ไปรบกวนเหยื่อ |
+| `POST /api/v1/auth/reset-password` | 5 req / 60s | `auth:reset-pw:<ip>` | ป้องกันการสุ่มเดารหัส OTP ในขั้นตอนรีเซ็ตรหัสผ่าน |
+| `POST /api/v1/auth/change-password` | 5 req / 60s | `auth:change-pw:<ip>` | ป้องกันการสุ่มเดารหัสผ่านเดิม (Bcrypt verification) |
+| `POST /api/v1/auth/verify-otp` | 10 req / 60s | `auth:verify-otp:<ip>` | ป้องกันการยิงเดา OTP 6 หลัก |
+| `POST /api/v1/auth/login/verify-otp` | 10 req / 60s | `auth:verify-otp:<ip>` | ป้องกันการยิงเดา OTP 6 หลักในขั้นตอน Login |
+| `POST /api/v1/auth/register/verify-otp`| 10 req / 60s | `auth:verify-otp:<ip>` | ป้องกันการยิงเดา OTP 6 หลักในขั้นตอน Register |
+| `GET /api/v1/auth/check-email` | 10 req / 60s | `auth:check-email:<ip>`| ป้องกัน User Enumeration (การเอาลิสต์อีเมลมาสแกนหารายชื่อผู้ใช้) |
+| `POST /api/v1/auth/refresh` | 20 req / 60s | `auth:refresh:<ip>` | ป้องกันการลูปยิงขอ Access Token ใหม่ถี่เกินไป |
+| **Orders & Checkout** | | | |
+| `POST /api/v1/orders` | 10 req / 60s | `order:create:<ip>` | ป้องกัน Fake Order Flood และการกักตุนสต็อกสินค้า (Inventory Hoarding) |
+| `POST /api/v1/orders/:num/pay` | 5 req / 60s | `order:pay:<ip>` | ป้องกันการสุ่มตัดบัตรเครดิต (Card Testing) และลดภาระ Omise API |
+| `GET /api/v1/orders/:num/omise-status` | 20 req / 60s | `order:omise-status:<ip>`| ป้องกัน Client ฝั่งหน้าร้าน Polling สถานะการจ่ายเงินถี่เกินไป |
+| `GET /api/v1/orders/track/:num` | 15 req / 60s | `order:track:<ip>` | ป้องกันการสุ่มเดาเลขออเดอร์เพื่อขโมยข้อมูล PII ของลูกค้า |
+| `POST /api/v1/orders/track` | 15 req / 60s | `order:track:<ip>` | ป้องกันการสุ่มเดาเลขออเดอร์ผ่าน Request Body |
+| `POST /api/v1/orders/:num/cancellation-request` | 5 req / 60s | `order:cancel:<ip>` | ป้องกันการสแปมคำขอยกเลิกออเดอร์ |
+| `POST /api/v1/orders/:num/return-request` | 5 req / 60s | `order:return:<ip>` | ป้องกันการสแปมคำขอคืนสินค้า |
+| `POST /api/v1/orders/webhook/omise` | **BYPASS** | `@SkipRateLimit()` | Webhook ชำระเงินจาก Omise ห้ามบล็อกเด็ดขาดเพื่อไม่ให้ออเดอร์ตกหล่น |
+| **Coupons & Promotions** | | | |
+| `POST /api/v1/coupons/validate` | 15 req / 60s | `coupon:val:<ip>` | ป้องกัน Dictionary Attack สุ่มเดาโค้ดส่วนลด |
+| `POST /api/v1/coupons/calculate-checkout` | 20 req / 60s | `coupon:calc:<ip>` | ป้องกันการยิงคำนวณส่วนลดตะกร้าถี่เกินไป |
+| **Catalog & Products** | | | |
+| `GET /api/v1/catalog/products` | 60 req / 60s | `catalog:products:<ip>`| ป้องกัน Search & Filter Bombing ไม่ให้ PostgreSQL CPU Spike |
+| `POST /api/v1/catalog/sync-cart` | 30 req / 60s | `catalog:sync-cart:<ip>`| ป้องกันการยิงเช็คสต็อกและราคาตะกร้าสินค้าถี่เกินไป |
+| **Health Check** | | | |
+| `GET /api/v1/health` | **BYPASS** | `@SkipRateLimit()` | ป้องกัน Liveness/Readiness Probe ของ Render และ Uptime Tools โดน 429 |
+| **Protected General CRUD (Addresses, Cart, Wishlist, Profile)** | | | |
+| • `GET, POST, PUT, DELETE /users/addresses`<br>• `GET, POST, DELETE /cart`<br>• `GET, POST, DELETE /wishlist`<br>• `GET, PATCH /auth/profile` | **120 req / 60s** *(Global)* | `global:<ip>` | ผู้ใช้ต้องมี `CustomerJwtGuard` ล็อกอินก่อนเสมอ แชร์คีย์ `global:<ip>` เพื่อประหยัด Redis |
+
+---
+
+### 3.3 Admin Back-office API (`apps/admin-api`)
+
+| Method & Route Path | Rate Limit | Key Prefix บน Redis | วัตถุประสงค์และความเสี่ยงที่ป้องกัน |
+| :--- | :---: | :---: | :--- |
+| **Admin Authentication & Staff Management** | | | |
+| `POST /api/v1/auth/admin/login` | 5 req / 60s | `admin:login:<ip>` | ป้องกัน Brute-force รหัสผ่านหลังบ้าน (พร้อม 5-Strike Lockout 15 นาที) |
+| `POST /api/v1/auth/admin/forgot-password` | 3 req / 60s | `admin:forgot:<ip>` | ป้องกันการสแปมอีเมลรีเซ็ตรหัสผ่านแอดมิน |
+| `POST /api/v1/auth/admin/setup-password` | 5 req / 60s | `admin:setup-pw:<ip>` | ป้องกันการสุ่มเดาโทเค็นเปิดใช้งานบัญชีพนักงานใหม่ |
+| `POST /api/v1/auth/admin/reset-password` | 5 req / 60s | `admin:reset-pw:<ip>` | ป้องกันการสุ่มเดา Reset Token ของผู้ดูแลระบบ |
+| `GET /api/v1/auth/admin/verify-token` | 10 req / 60s | `admin:verify-token:<ip>`| ป้องกันการสุ่มทดสอบสถานะโทเค็น |
+| `POST /api/v1/auth/admin/refresh` | 20 req / 60s | `admin:refresh:<ip>` | ป้องกันการลูปยิง Refresh Token ของแอดมิน |
+| `POST /api/v1/admin/users/invite` | 5 req / 60s | `admin:invite:<ip>` | ป้องกันการสแปมยิงอีเมลเทียบเชิญพนักงาน (Resend Quota Protection) |
+| **File & Media Storage** | | | |
+| `POST /api/v1/upload` | 20 req / 60s | `admin:upload:<ip>` | ป้องกันการอัปโหลดไฟล์รัวๆ (สูงสุด 10MB/รูป) ไม่ให้ดิสก์เต็มและไม่เปลือง Cloudinary |
+| **Admin Health Check** | | | |
+| `GET /api/v1/health` | **BYPASS** | `@SkipRateLimit()` | Liveness/Readiness Probe สำหรับระบบหลังบ้าน |
+| **All Other Admin Management Modules** | | | |
+| • Products, Categories, CMS Content<br>• Orders, Shipments, Logistics<br>• Inventory & Audits, Analytics | **120 req / 60s** *(Global)* | `global:<ip>` | ป้องกัน DoS ชั้นนอก, กั้นสิทธิ์ 2 ชั้นด้วย `JwtAuthGuard` + `PermissionsGuard` |
 
 ---
 

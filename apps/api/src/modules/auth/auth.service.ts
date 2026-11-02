@@ -409,6 +409,37 @@ export class CustomerAuthService {
   ): Promise<CustomerOtpChallengeResponse> {
     const cleanEmail = dto.email.trim().toLowerCase();
 
+    // Check account-level lockout from previous failed password attempts
+    const isLocked = await this.redis.get(`login:lockout:${cleanEmail}`);
+    if (isLocked) {
+      const remainingSeconds = await this.redis.ttl(`login:lockout:${cleanEmail}`);
+      const mins = Math.max(1, Math.ceil(remainingSeconds / 60));
+      throw new HttpException(
+        `บัญชีนี้ถูกระงับการเข้าสู่ระบบชั่วคราวเนื่องจากกรอกรหัสผ่านผิดเกินกำหนด กรุณารอ ${mins} นาที (Account locked due to too many failed attempts. Please wait ${mins} minutes.)`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    // IP-based burst rate limit for login attempts
+    if (
+      clientIp &&
+      clientIp !== 'unknown' &&
+      clientIp !== '127.0.0.1' &&
+      clientIp !== '::1'
+    ) {
+      const ipRate = await this.redis.checkRateLimit(
+        `login:ip:${clientIp}`,
+        10,
+        60,
+      );
+      if (!ipRate.allowed) {
+        throw new HttpException(
+          `มีการพยายามเข้าสู่ระบบจาก IP นี้บ่อยเกินไป กรุณารอ ${ipRate.retryAfter} วินาที (Too many login attempts from this IP. Please wait.)`,
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { email: cleanEmail },
     });
@@ -427,10 +458,28 @@ export class CustomerAuthService {
 
     const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isMatch) {
+      const failsStr = await this.redis.get(`login:fails:${cleanEmail}`);
+      const nextFails = (failsStr ? Number(failsStr) : 0) + 1;
+      await this.redis.set(`login:fails:${cleanEmail}`, String(nextFails), 900);
+
+      if (nextFails >= 5) {
+        await this.redis.set(`login:lockout:${cleanEmail}`, '1', 900);
+        await this.redis.del(`login:fails:${cleanEmail}`);
+        throw new HttpException(
+          'คุณกรอกรหัสผ่านผิดติดต่อกัน 5 ครั้ง บัญชีนี้ถูกระงับชั่วคราว 15 นาทีเพื่อความปลอดภัย (Too many failed login attempts. Account locked for 15 minutes.)',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+
+      const remainingTries = 5 - nextFails;
       throw new UnauthorizedException(
-        'รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง (Invalid password. Please try again.)',
+        `รหัสผ่านไม่ถูกต้อง (เหลือโอกาสอีก ${remainingTries} ครั้ง) (Invalid password. ${remainingTries} attempts remaining.)`,
       );
     }
+
+    // Password verified: clear any failed counters
+    await this.redis.del(`login:fails:${cleanEmail}`);
+    await this.redis.del(`login:lockout:${cleanEmail}`);
 
     return this.dispatchOtp(
       cleanEmail,

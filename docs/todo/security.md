@@ -9,11 +9,11 @@
 | รหัส OWASP | ภัยคุกคาม / ช่องโหว่ | สถานะปัจจุบัน | แผนการยกระดับและการป้องกัน (Action Item) |
 | :--- | :--- | :---: | :--- |
 | **API1:2023** | **Broken Object Level Authorization (BOLA)** | ✅ ผ่าน | ตรวจสอบความเป็นเจ้าของ Resource (เช่น `userId` บน Order/Address/Cart) เสมอ |
-| **API2:2023** | **Broken Authentication** | 🟡 ปานกลาง | ติดตั้ง Rate Limiting บน Login/OTP, นโยบาย Account Lockout, และ JWT Blacklist |
+| **API2:2023** | **Broken Authentication** | 🟢 ปลอดภัย | ติดตั้ง Rate Limiting บน Login/OTP (5 req/min), นโยบาย 5-Strike Lockout (15m), IP Lockout |
 | **API3:2023** | **Broken Object Property Level Authorization** | 🟡 ปานกลาง | ทำ PII / Sensitive Data Sanitizer ใน Application Logger (Mask รหัสผ่าน, OTP, บัตร) |
-| **API4:2023** | **Unrestricted Resource Consumption** | 🔴 เสี่ยง | ติดตั้ง `@nestjs/throttler` ร่วมกับ Redis Storage เพื่อจำกัด Rate Limit และกำหนด Request Body Limit |
+| **API4:2023** | **Unrestricted Resource Consumption** | 🟢 ปลอดภัย | ติดตั้ง Global & Route RateLimitGuard บน Redis, 1MB Payload Limit, และ Trust Proxy Protection |
 | **API5:2023** | **Broken Function Level Authorization (BFLA)** | ✅ ผ่าน | บังคับใช้ `JwtAuthGuard` และ `PermissionsGuard` ครอบคลุมทุก Endpoint ของ Admin |
-| **API6:2023** | **Unrestricted Access to Sensitive Business Flows** | 🔴 เสี่ยง | ดักจับ OTP / Email Pumping Attack (จำกัดการขอ OTP 1 ครั้ง/นาที ต่ออีเมล/IP) |
+| **API6:2023** | **Unrestricted Access to Sensitive Business Flows** | 🟢 ปลอดภัย | ดักจับ OTP / Email Pumping Attack (จำกัด OTP 3 req/60s, Coupon validation 15 req/60s) |
 | **API7:2023** | **Server-Side Request Forgery (SSRF)** | ✅ ผ่าน | ป้องกันการดึง URL ภายนอกที่ไม่ได้รับอนุญาต และตรวจสอบ Webhook Signature |
 | **API8:2023** | **Security Misconfiguration** | 🟡 ปานกลาง | ปรับแต่ง Helmet เต็มรูปแบบ (HSTS, CSP, X-Content-Type-Options) และปิด Swagger ใน Production |
 | **API9:2023** | **Improper Inventory Management** | ✅ ผ่าน | ควบคุม API Versioning (`/api/v1`) ชัดเจน และไม่มี Shadow Endpoints |
@@ -26,22 +26,25 @@
 ### 📌 เฟส 1: การป้องกันการโจมตีและการจำกัดทรัพยากร (Anti-Abuse & Rate Limiting)
 > **เป้าหมาย:** อุดช่องโหว่ OWASP API4 & API2 ป้องกันการ Brute-force, สแปม OTP (Email Pumping) และ DDoS
 
-- [ ] **1.1 ติดตั้ง `@nestjs/throttler` ร่วมกับ Redis Storage**
-  - ติดตั้ง `@nestjs/throttler` และ `throttler-storage-redis` (หรือเขียน Custom Redis Throttler บน `RedisService` ที่มีอยู่แล้ว)
-  - กำหนดค่า Global Throttler Module ใน `apps/api` และ `apps/admin-api`
-  - ทดสอบการคืนค่า HTTP Status `429 Too Many Requests` พร้อม Header `Retry-After`
-- [ ] **1.2 กำหนด Tiered Rate Limiting ตามระดับความเสี่ยงของ Endpoint**
-  - **Public Read (ทั่วไป):** `100 requests / 1 นาที`
-  - **Login / Password Setup:** `5 requests / 1 นาที` (ป้องกัน Brute-force รหัสผ่าน)
-  - **Customer OTP Request (`/auth/otp/send`):** `1 request / 60 วินาที` ต่อ 1 อีเมลและ IP (ป้องกันค่าใช้จ่าย Resend บานปลาย)
-  - **OTP Verify (`/auth/otp/verify`):** `5 attempts / OTP session` (ถ้าใส่ผิดเกิน 5 ครั้ง ให้ Void OTP ทันที)
-- [ ] **1.3 นโยบาย Account Lockout สำหรับผู้ดูแลระบบ (Admin Account Lockout)**
-  - บันทึกจำนวนครั้งที่ Login ล้มเหลวลงใน Redis key `admin:login_fails:<username>`
-  - หากใส่รหัสผ่านผิดติดต่อกัน 5 ครั้ง ให้ล็อคบัญชีชั่วคราวเป็นเวลา 15 นาที
-  - ส่ง Security Alert เข้าสู่ `AdminAuditLog` ทันทีเมื่อเกิดการล็อคบัญชี
-- [ ] **1.4 กำหนด Request Payload Size Limits (Anti-Buffer Overflow / ReDoS)**
-  - กำหนด `express.json({ limit: '1mb' })` สำหรับคำขอทั่วไปใน `main.ts`
-  - อนุญาตขนาดพิเศษ `10mb` เฉพาะ Multipart Upload Route (`/admin/upload`)
+- [x] **1.1 ติดตั้ง Redis-backed Rate Limiter (`RateLimitGuard` & `@RateLimit` Decorator)**
+  - พัฒนา Custom Global Guard `RateLimitGuard` เชื่อมต่อกับ `RedisService` รองรับ Multi-instance
+  - ลงทะเบียน Global Guard ใน `apps/api` และ `apps/admin-api`
+  - คืนค่า HTTP Status `429 Too Many Requests` พร้อม Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`
+- [x] **1.2 กำหนด Tiered Rate Limiting ตามระดับความเสี่ยงของ Endpoint**
+  - **Tier 1 (Global Fallback):** `120 requests / 60 วินาที` ทุก Endpoint (ป้องกัน DDoS ชั้นนอก)
+  - **Tier 2 (Sensitive Auth / Login):** `5 requests / 60 วินาที` (`/auth/login`, `/auth/register`)
+  - **Tier 3 (Anti-Pumping OTP / Forgot Password):** `3 requests / 60 วินาที` (`/auth/otp/send`, `/auth/forgot-password`, `/auth/otp/resend`)
+  - **Tier 4 (Financial / Coupon Enumeration):** `15 requests / 60 วินาที` (`/coupons/validate`), `20 requests / 60 วินาที` (`/coupons/calculate-checkout`)
+  - **Tier 5 (OTP Verify Attempt):** สูงสุด 5 ครั้ง ต่อ OTP Session (หากเกินจะ Void OTP ทันที)
+- [x] **1.3 นโยบาย Account Lockout และ Anti-Brute-force (Admin & Customer)**
+  - ติดตาม Failed Login Attempts บน Redis (`login:fails:<email>`)
+  - หากใส่รหัสผิดติดต่อกัน 5 ครั้ง (5-Strike Rule) ล็อคบัญชีชั่วคราว 15 นาที (`login:lockout:<email>`)
+  - คืนค่า HTTP 429 พร้อมแจ้งเวลาที่เหลือให้ผู้ใช้ทราบ
+  - เคลียร์ Counter และ Lockout ทันทีเมื่อเข้าสู่ระบบสำเร็จ
+- [x] **1.4 กำหนด Request Payload Size Limits & Reverse Proxy IP Resolution**
+  - กำหนด `trust proxy = 1` ใน Express adapter ทั้งสองแอป ป้องกัน Client ปลอมแปลง `X-Forwarded-For`
+  - กำหนด `express.json({ limit: '1mb' })` และ `express.urlencoded({ extended: true, limit: '1mb' })` ใน `main.ts` ของทั้งสองแอป
+  - ป้องกัน Payload Flooding และ ReDoS จากคำขอขนาดใหญ่
 
 ---
 

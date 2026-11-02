@@ -27,6 +27,7 @@ import {
   AdminLogoutDto,
 } from './dto/auth.dto.js';
 import { Public, CurrentAdmin } from './decorators/index.js';
+import { RateLimit } from '../../core/decorators/rate-limit.decorator.js';
 import type {
   AdminLoginResponse,
   AdminRefreshResponse,
@@ -41,6 +42,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'admin:login' })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -71,6 +73,7 @@ export class AuthController {
   }
 
   @Public()
+  @RateLimit({ limit: 20, windowSeconds: 60, keyPrefix: 'admin:refresh' })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -95,6 +98,7 @@ export class AuthController {
   }
 
   @Public()
+  @RateLimit({ limit: 10, windowSeconds: 60, keyPrefix: 'admin:verify-token' })
   @Get('verify-token')
   @ApiOperation({
     summary: 'Verify invitation or password reset token',
@@ -135,6 +139,7 @@ export class AuthController {
   }
 
   @Public()
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'admin:setup-pw' })
   @Post('setup-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -158,6 +163,7 @@ export class AuthController {
   }
 
   @Public()
+  @RateLimit({ limit: 3, windowSeconds: 60, keyPrefix: 'admin:forgot' })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -168,8 +174,16 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Reset email initiated' })
   async forgotPassword(
     @Body() dto: ForgotPasswordDto,
+    @Req() req: Request,
   ): Promise<ApiGenericResponse<{ message: string }>> {
-    const result = await this.authService.forgotPassword(dto);
+    const ip = req.ip ?? req.socket.remoteAddress;
+    const rawUserAgent = req.headers['user-agent'];
+    const userAgent =
+      typeof rawUserAgent === 'string' ? rawUserAgent : undefined;
+    const result = await this.authService.forgotPassword(dto, {
+      ip,
+      userAgent,
+    });
     return {
       success: true,
       data: { message: result.message },
@@ -177,6 +191,7 @@ export class AuthController {
   }
 
   @Public()
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'admin:reset-pw' })
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

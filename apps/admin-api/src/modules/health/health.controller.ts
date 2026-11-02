@@ -2,6 +2,7 @@ import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { Public } from '../auth/decorators/public.decorator.js';
+import { SkipRateLimit } from '../../core/decorators/rate-limit.decorator.js';
 
 @ApiTags('Health')
 @Public()
@@ -10,6 +11,7 @@ export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get()
+  @SkipRateLimit()
   @ApiOperation({
     summary: 'Health check probe',
     description:

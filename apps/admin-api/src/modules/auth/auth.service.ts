@@ -328,9 +328,45 @@ export class AuthService {
 
   async forgotPassword(
     dto: ForgotPasswordDto,
+    meta: ClientConnectionMeta = {},
   ): Promise<{ success: boolean; message: string }> {
+    const cleanEmail = dto.email.trim().toLowerCase();
+
+    // Anti-Email Pumping: Rate limit per target email (1 request / 60 seconds)
+    const emailRate = await this.redis.checkRateLimit(
+      `forgot-password:email:${cleanEmail}`,
+      1,
+      60,
+    );
+    if (!emailRate.allowed) {
+      throw new HttpException(
+        `คำขอรีเซ็ตรหัสผ่านสำหรับอีเมลนี้ถี่เกินไป กรุณารอ ${emailRate.retryAfter} วินาที (Too many reset requests for this email. Please wait.)`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    // IP-based burst rate limit (5 requests / 15 minutes)
+    if (
+      meta.ip &&
+      meta.ip !== 'local' &&
+      meta.ip !== '127.0.0.1' &&
+      meta.ip !== '::1'
+    ) {
+      const ipRate = await this.redis.checkRateLimit(
+        `forgot-password:ip:${meta.ip}`,
+        5,
+        900,
+      );
+      if (!ipRate.allowed) {
+        throw new HttpException(
+          `มีการขอรีเซ็ตรหัสผ่านจาก IP นี้มากเกินไป กรุณารอ 15 นาที (Too many reset requests from this IP. Please wait 15 minutes.)`,
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+    }
+
     const admin = await this.prisma.adminUser.findUnique({
-      where: { email: dto.email.trim().toLowerCase() },
+      where: { email: cleanEmail },
     });
 
     if (admin && admin.isActive) {

@@ -436,7 +436,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     limit: number,
     windowSeconds: number,
   ): Promise<RateLimitResult> {
-    const redisKey = `login:rate:${key}`;
+    const redisKey =
+      key.startsWith('login:') ||
+      key.startsWith('rl:') ||
+      key.startsWith('global:')
+        ? key
+        : `login:rate:${key}`;
 
     if (this.isConnected && this.client) {
       try {
@@ -483,7 +488,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async clearRateLimit(key: string): Promise<void> {
-    const redisKey = `login:rate:${key}`;
+    const redisKey =
+      key.startsWith('login:') ||
+      key.startsWith('rl:') ||
+      key.startsWith('global:')
+        ? key
+        : `login:rate:${key}`;
 
     if (this.isConnected && this.client) {
       try {

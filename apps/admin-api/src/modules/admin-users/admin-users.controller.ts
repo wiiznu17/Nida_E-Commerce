@@ -18,6 +18,7 @@ import {
   CurrentAdmin,
 } from '../auth/decorators/index.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
+import { RateLimit } from '../../core/decorators/rate-limit.decorator.js';
 import {
   AdminPermission,
   AdminRoleCode,
@@ -66,6 +67,7 @@ export class AdminUsersController {
   }
 
   @Post('invite')
+  @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'admin:invite' })
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Invite new admin user',

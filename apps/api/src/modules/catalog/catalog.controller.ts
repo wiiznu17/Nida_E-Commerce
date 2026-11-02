@@ -12,6 +12,7 @@ import {
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { CustomerCatalogService } from './catalog.service.js';
 import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
+import { RateLimit } from '../../core/decorators/rate-limit.decorator.js';
 import { syncCartSchema, type SyncCartInput } from '@repo/validators';
 import type {
   ApiProduct,
@@ -27,6 +28,7 @@ export class CustomerCatalogController {
   constructor(private readonly catalogService: CustomerCatalogService) {}
 
   @Get('products')
+  @RateLimit({ limit: 60, windowSeconds: 60, keyPrefix: 'catalog:products' })
   @ApiOperation({ summary: 'List storefront products' })
   @ApiQuery({ name: 'department', required: false })
   @ApiQuery({ name: 'category', required: false })
@@ -126,6 +128,7 @@ export class CustomerCatalogController {
   }
 
   @Post('sync-cart')
+  @RateLimit({ limit: 30, windowSeconds: 60, keyPrefix: 'catalog:sync-cart' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Batch sync latest prices and stock for cart items',

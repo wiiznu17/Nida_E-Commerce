@@ -2,6 +2,7 @@ import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CouponsService } from './coupons.service.js';
 import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
+import { RateLimit } from '../../core/decorators/rate-limit.decorator.js';
 import {
   validateCouponSchema,
   calculateCheckoutSchema,
@@ -15,6 +16,7 @@ export class CouponsController {
   constructor(private readonly couponsService: CouponsService) {}
 
   @Post('coupons/validate')
+  @RateLimit({ limit: 15, windowSeconds: 60, keyPrefix: 'coupon:validate' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Validate promotional coupon code',
@@ -30,6 +32,7 @@ export class CouponsController {
   }
 
   @Post('checkout/calculate')
+  @RateLimit({ limit: 20, windowSeconds: 60, keyPrefix: 'checkout:calc' })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Calculate checkout totals',

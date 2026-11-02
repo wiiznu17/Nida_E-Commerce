@@ -640,6 +640,41 @@ describe('CustomerAuthService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
 
+    it('rejects login with 429 when account is currently in password lockout', async () => {
+      redisMock.get.mockImplementation(async (key: string) => {
+        if (key === 'login:lockout:user@nida.co') return '1';
+        return null;
+      });
+      redisMock.ttl.mockResolvedValueOnce(600);
+
+      await expect(
+        service.login({ email: 'user@nida.co', password: 'Password123!' }),
+      ).rejects.toThrow(HttpException);
+    });
+
+    it('locks account in Redis for 15 minutes when 5th failed password attempt occurs', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-1',
+        email: 'user@nida.co',
+        passwordHash: '$2a$10$someotherhash',
+      });
+      redisMock.get.mockImplementation(async (key: string) => {
+        if (key === 'login:fails:user@nida.co') return '4';
+        return null;
+      });
+
+      await expect(
+        service.login({ email: 'user@nida.co', password: 'WrongPassword!' }),
+      ).rejects.toThrow(HttpException);
+
+      expect(redisMock.set).toHaveBeenCalledWith(
+        'login:lockout:user@nida.co',
+        '1',
+        900,
+      );
+      expect(redisMock.del).toHaveBeenCalledWith('login:fails:user@nida.co');
+    });
+
     it('issues OTP challenge when login credentials are valid', async () => {
       const bcrypt = await import('bcryptjs');
       const hash = await bcrypt.default.hash('Password123!', 10);

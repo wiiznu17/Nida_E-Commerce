@@ -9,6 +9,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UploadFolder } from '@repo/types';
+import { RateLimit } from '../../core/decorators/rate-limit.decorator.js';
 import {
   UploadService,
   type UploadResult,
@@ -21,6 +22,7 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post()
+  @RateLimit({ limit: 20, windowSeconds: 60, keyPrefix: 'admin:upload' })
   @ApiOperation({ summary: 'Upload an image with folder namespace' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
