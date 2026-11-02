@@ -10,6 +10,7 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx src/seed.ts",
     "db:seed:prod": "tsx src/seed-prod.ts",
+    "db:seed:products": "tsx src/seed-products-only.ts",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:reset": "prisma migrate reset",
     "db:migrate:status": "prisma migrate status"
