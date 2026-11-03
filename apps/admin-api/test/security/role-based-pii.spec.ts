@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ExecutionContext, CallHandler, ForbiddenException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  CallHandler,
+  ForbiddenException,
+} from '@nestjs/common';
 import { of } from 'rxjs';
 import {
   AdminRoleCode,
@@ -219,11 +223,12 @@ describe('RoleBasedPiiInterceptor', () => {
 
   describe('Analytics Data Export Audit Logging', () => {
     it('records AuditActionType.EXPORT with targetTable and metadata', async () => {
-      const { AnalyticsController } = await import(
-        '../../src/modules/analytics/analytics.controller.js'
-      );
+      const { AnalyticsController } =
+        await import('../../src/modules/analytics/analytics.controller.js');
       const mockAnalyticsService = {
-        exportOrders: vi.fn().mockResolvedValue('orderNumber,amount\nNIDA-1,100'),
+        exportOrders: vi
+          .fn()
+          .mockResolvedValue('orderNumber,amount\nNIDA-1,100'),
         exportProducts: vi.fn().mockResolvedValue('sku,name\nSKU-1,Item'),
       };
 

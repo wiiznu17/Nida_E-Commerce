@@ -120,7 +120,8 @@ export class OrdersController {
     name: 'revealPii',
     required: false,
     type: Boolean,
-    description: 'ขอเปิดดูข้อมูลส่วนบุคคล (PII) แบบ Unmasked พร้อมบันทึก Audit Log',
+    description:
+      'ขอเปิดดูข้อมูลส่วนบุคคล (PII) แบบ Unmasked พร้อมบันทึก Audit Log',
   })
   @ApiResponse({ status: 200, description: 'ข้อมูลคำสั่งซื้อ' })
   @ApiResponse({ status: 404, description: 'ไม่พบคำสั่งซื้อ' })

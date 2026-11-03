@@ -123,4 +123,3 @@ export class RoleBasedPiiInterceptor implements NestInterceptor {
     return obj;
   }
 }
-

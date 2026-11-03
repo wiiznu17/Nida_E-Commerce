@@ -72,9 +72,7 @@ export function OrderDetailCustomerCard({
             phone: orderData.shippingAddress.phone,
             addressLine1: orderData.shippingAddress.addressLine1,
             email:
-              rawOrder.user?.email ??
-              rawOrder.customerEmail ??
-              customerEmail,
+              rawOrder.user?.email ?? rawOrder.customerEmail ?? customerEmail,
           });
         }
         setIsRevealed(true);
