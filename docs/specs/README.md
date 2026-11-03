@@ -6,16 +6,16 @@
 
 ## 📚 สารบัญโมดูลและสถานะ (Specifications Directory)
 
-| เอกสาร | โมดูล (Domain) | ขอบเขตและสถานะที่เกี่ยวข้อง |
-| :--- | :--- | :--- |
-| [order.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/order.md) | **Order & Cancellation** | วงจรคำสั่งซื้อ (`OrderStatus`) และการขอยกเลิก (`CancellationRequestStatus`) |
-| [payment.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/payment.md) | **Payment & Refund** | การชำระเงิน (`PaymentStatus`), เกตเวย์ Omise/PromptPay, และการคืนเงิน (`RefundStatus`) |
-| [shipment.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/shipment.md) | **Logistics & Delivery** | สถานะการจัดส่ง (`ShipmentStatus`), ผู้ให้บริการขนส่ง, และระบบ Auto-Complete |
-| [return.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/return.md) | **Return & Exchange** | คำขอคืนสินค้า (`ReturnStatus`), การตรวจรับของคลัง, และเส้นตายการจัดส่ง |
-| [inventory.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/inventory.md) | **Inventory & Stock** | การจองสต็อก (`quantityReserved`), การตัดสต็อก, และ Ledger (`StockChangeType`) |
-| [account.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/account.md) | **Account & Security** | สถานะบัญชี (`AccountStatus`: Active/Suspended/Banned), Guards, และ Auto-Lockout |
-| [security.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/security.md) | **Network & Rate Limiting** | การจัดการ Client IP (`trust proxy`), ป้องกัน IP Spoofing, และ 5-Tier Rate Limiting |
-| [coupon.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/coupon.md) | **Promotions & Coupons** | กลไกคำนวณส่วนลด (`DiscountType`), สิทธิ์การใช้งาน, และโควต้าคูปอง |
+| เอกสาร                                                                            | โมดูล (Domain)              | ขอบเขตและสถานะที่เกี่ยวข้อง                                                            |
+| :-------------------------------------------------------------------------------- | :-------------------------- | :------------------------------------------------------------------------------------- |
+| [order.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/order.md)         | **Order & Cancellation**    | วงจรคำสั่งซื้อ (`OrderStatus`) และการขอยกเลิก (`CancellationRequestStatus`)            |
+| [payment.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/payment.md)     | **Payment & Refund**        | การชำระเงิน (`PaymentStatus`), เกตเวย์ Omise/PromptPay, และการคืนเงิน (`RefundStatus`) |
+| [shipment.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/shipment.md)   | **Logistics & Delivery**    | สถานะการจัดส่ง (`ShipmentStatus`), ผู้ให้บริการขนส่ง, และระบบ Auto-Complete            |
+| [return.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/return.md)       | **Return & Exchange**       | คำขอคืนสินค้า (`ReturnStatus`), การตรวจรับของคลัง, และเส้นตายการจัดส่ง                 |
+| [inventory.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/inventory.md) | **Inventory & Stock**       | การจองสต็อก (`quantityReserved`), การตัดสต็อก, และ Ledger (`StockChangeType`)          |
+| [account.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/account.md)     | **Account & Security**      | สถานะบัญชี (`AccountStatus`: Active/Suspended/Banned), Guards, และ Auto-Lockout        |
+| [security.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/security.md)   | **Network & Rate Limiting** | การจัดการ Client IP (`trust proxy`), ป้องกัน IP Spoofing, และ 5-Tier Rate Limiting     |
+| [coupon.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/coupon.md)       | **Promotions & Coupons**    | กลไกคำนวณส่วนลด (`DiscountType`), สิทธิ์การใช้งาน, และโควต้าคูปอง                      |
 
 ---
 
@@ -25,4 +25,3 @@
 2. **Explicit Enums Only**: ห้ามใช้ Boolean Flag คลุมเครือ (เช่น `isPaid`, `isShipped`) แต่ให้ใช้ Database Enum เป็นแหล่งความจริงเดียว
 3. **Atomic State Synchronization**: เมื่อสถานะหนึ่งเปลี่ยน จะต้องอัปเดตสถานะที่เกี่ยวเนื่องกันแบบ Atomic Transaction เสมอ (เช่น เมื่อ Payment เป็น `CAPTURED` ➔ Order ต้องเปลี่ยนเป็น `PAID` ทันที)
 4. **Side Effects & Compensation**: หากเกิดข้อผิดพลาดระหว่างทาง (เช่น ตัดเงินผ่านแต่สต็อกไม่พอ) ต้องมีกระบวนการชดเชย (Rollback/Refund) อัตโนมัติ
-

@@ -232,7 +232,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Admin logout',
-    description: 'Revoke the active session or specific refresh token and blacklist access token.',
+    description:
+      'Revoke the active session or specific refresh token and blacklist access token.',
   })
   @ApiBody({ type: AdminLogoutDto, required: false })
   @ApiResponse({ status: 200, description: 'Logged out successfully' })

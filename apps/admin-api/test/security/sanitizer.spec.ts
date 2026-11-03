@@ -35,4 +35,3 @@ describe('Admin PI & Sensitive Data Sanitizer', () => {
     expect(sanitized.admin.username).toBe('superadmin');
   });
 });
-

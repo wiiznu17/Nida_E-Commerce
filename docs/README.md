@@ -17,7 +17,8 @@ docs/
 ---
 
 ## 1. 📐 ข้อกำหนดเชิงเทคนิค และวงจรชีวิตสถานะ ([docs/specs/](file:///Users/wiiznu/project/Nida_Project/docs/specs/README.md))
-*เอกสารอ้างอิงหลัก (Single Source of Truth) สำหรับนักพัฒนา ไม่มีรายการ Todo ปน*
+
+_เอกสารอ้างอิงหลัก (Single Source of Truth) สำหรับนักพัฒนา ไม่มีรายการ Todo ปน_
 
 - [order.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/order.md) — วงจรชีวิตคำสั่งซื้อ (`OrderStatus`) และการขอยกเลิก (`CancellationRequestStatus`)
 - [payment.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/payment.md) — สถานะการชำระเงิน (`PaymentStatus`), Omise/PromptPay, และการคืนเงิน (`RefundStatus`)
@@ -31,7 +32,8 @@ docs/
 ---
 
 ## 2. 📋 รายการสิ่งที่ต้องทำและแผนงาน ([docs/todo/](file:///Users/wiiznu/project/Nida_Project/docs/todo/))
-*Checklists สำหรับติดตามความคืบหน้าการพัฒนาฟีเจอร์*
+
+_Checklists สำหรับติดตามความคืบหน้าการพัฒนาฟีเจอร์_
 
 - [store.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/store.md) — แผนงานและสิ่งที่ต้องทำฝั่ง Customer Storefront (`apps/store`)
 - [admin.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/admin.md) — แผนงานและสิ่งที่ต้องทำฝั่ง Back-Office Admin (`apps/admin`)
@@ -50,9 +52,9 @@ docs/
 ---
 
 ## 4. 📦 คลังเอกสารเก่าอ้างอิง ([docs/archive/](file:///Users/wiiznu/project/Nida_Project/docs/archive/))
-*เอกสารแบบร่างและประวัติการออกแบบช่วงเริ่มต้นโครงการ (เก็บบันทึกเป็นประวัติ)*
+
+_เอกสารแบบร่างและประวัติการออกแบบช่วงเริ่มต้นโครงการ (เก็บบันทึกเป็นประวัติ)_
 
 - [order-flow.md](file:///Users/wiiznu/project/Nida_Project/docs/archive/order-flow.md) / [order-lifecycle.md](file:///Users/wiiznu/project/Nida_Project/docs/archive/order-lifecycle.md) / [order-scenarios.md](file:///Users/wiiznu/project/Nida_Project/docs/archive/order-scenarios.md)
 - [admin-auth.md](file:///Users/wiiznu/project/Nida_Project/docs/archive/admin-auth.md)
 - [roadmap.md](file:///Users/wiiznu/project/Nida_Project/docs/archive/roadmap.md)
-

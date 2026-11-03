@@ -64,7 +64,9 @@ describe('CustomerJwtStrategy (Revocation & Blacklist Guard)', () => {
     const user = await strategy.validate(mockReq(), payload);
     expect(user.id).toBe('usr-1');
     expect(user.fullName).toBe('Sirirat W.');
-    expect(redisMock.isTokenBlacklisted).toHaveBeenCalledWith('test-access-token');
+    expect(redisMock.isTokenBlacklisted).toHaveBeenCalledWith(
+      'test-access-token',
+    );
   });
 
   it('rejects with 401 Unauthorized when access token is blacklisted in Redis', async () => {
@@ -120,4 +122,3 @@ describe('CustomerJwtStrategy (Revocation & Blacklist Guard)', () => {
     );
   });
 });
-

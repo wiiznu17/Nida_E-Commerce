@@ -74,4 +74,3 @@ export function formatPasswordResetEmail(resetUrl: string): FormattedEmail {
     html: wrapAdminEmailLayout(contentHtml),
   };
 }
-

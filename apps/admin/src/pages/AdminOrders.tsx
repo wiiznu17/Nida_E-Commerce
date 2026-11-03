@@ -954,7 +954,9 @@ export default function AdminOrders() {
                 </p>
                 <p className="text-gray-500 mt-1">
                   {t('orders.detail.phone')}{' '}
-                  <span className="font-mono">{maskPhone(selectedOrder.shippingAddress?.phone)}</span>
+                  <span className="font-mono">
+                    {maskPhone(selectedOrder.shippingAddress?.phone)}
+                  </span>
                 </p>
               </div>
               <div>

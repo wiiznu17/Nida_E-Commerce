@@ -412,7 +412,9 @@ export class CustomerAuthService {
     // Check account-level lockout from previous failed password attempts
     const isLocked = await this.redis.get(`login:lockout:${cleanEmail}`);
     if (isLocked) {
-      const remainingSeconds = await this.redis.ttl(`login:lockout:${cleanEmail}`);
+      const remainingSeconds = await this.redis.ttl(
+        `login:lockout:${cleanEmail}`,
+      );
       const mins = Math.max(1, Math.ceil(remainingSeconds / 60));
       throw new HttpException(
         `บัญชีนี้ถูกระงับการเข้าสู่ระบบชั่วคราวเนื่องจากกรอกรหัสผ่านผิดเกินกำหนด กรุณารอ ${mins} นาที (Account locked due to too many failed attempts. Please wait ${mins} minutes.)`,

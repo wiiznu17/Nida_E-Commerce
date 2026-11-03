@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Edit3, ShieldAlert, LogOut, KeyRound, Eye, EyeOff } from 'lucide-react';
+import {
+  Edit3,
+  ShieldAlert,
+  LogOut,
+  KeyRound,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Alert } from '@/components/ui';
 import { maskEmail, maskPhone } from '@/utils';
@@ -173,7 +180,9 @@ export function ProfileInfoTab({
                 title={isPiiRevealed ? t('common.hide') : t('common.reveal')}
               >
                 {isPiiRevealed ? <EyeOff size={13} /> : <Eye size={13} />}
-                <span>{isPiiRevealed ? t('common.hide') : t('common.reveal')}</span>
+                <span>
+                  {isPiiRevealed ? t('common.hide') : t('common.reveal')}
+                </span>
               </button>
             </div>
             <div className="grid grid-cols-2 gap-6 pr-16">

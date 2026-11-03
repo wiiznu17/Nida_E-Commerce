@@ -81,7 +81,9 @@ describe('Frontend UI Masking Utilities', () => {
   describe('Card Number Masking (maskCardNumber)', () => {
     it('masks 16-digit card number retaining only last 4 digits', () => {
       expect(uiMaskCardNumber('4242424242424242')).toBe('•••• •••• •••• 4242');
-      expect(uiMaskCardNumber('4242 4242 4242 1234')).toBe('•••• •••• •••• 1234');
+      expect(uiMaskCardNumber('4242 4242 4242 1234')).toBe(
+        '•••• •••• •••• 1234',
+      );
     });
 
     it('formats short last-4 string correctly', () => {
@@ -98,7 +100,9 @@ describe('Frontend UI Masking Utilities', () => {
   describe('Address Line Masking (maskAddressLine)', () => {
     it('masks house or building numbers from address line', () => {
       expect(uiMaskAddressLine('123/45 Sukhumvit 55')).toBe('*** Sukhumvit 55');
-      expect(uiMaskAddressLine('99/101 ซอยทองหล่อ 10')).toBe('*** ซอยทองหล่อ 10');
+      expect(uiMaskAddressLine('99/101 ซอยทองหล่อ 10')).toBe(
+        '*** ซอยทองหล่อ 10',
+      );
     });
 
     it('handles empty or null values', () => {
@@ -108,4 +112,3 @@ describe('Frontend UI Masking Utilities', () => {
     });
   });
 });
-

@@ -6,24 +6,25 @@
 
 ## 1. ตารางเปรียบเทียบมาตรฐาน OWASP API Security Top 10 (2023)
 
-| รหัส OWASP | ภัยคุกคาม / ช่องโหว่ | สถานะปัจจุบัน | แผนการยกระดับและการป้องกัน (Action Item) |
-| :--- | :--- | :---: | :--- |
-| **API1:2023** | **Broken Object Level Authorization (BOLA)** | ✅ ผ่าน | ตรวจสอบความเป็นเจ้าของ Resource (เช่น `userId` บน Order/Address/Cart) เสมอ |
-| **API2:2023** | **Broken Authentication** | 🟢 ปลอดภัย | ติดตั้ง Rate Limiting บน Login/OTP (5 req/min), นโยบาย 5-Strike Lockout (15m), JWT Token Blacklist บน Redis |
-| **API3:2023** | **Broken Object Property Level Authorization** | 🟢 ปลอดภัย | ติดตั้ง PII & Sensitive Data Sanitizer ใน Core Logger และ HttpExceptionFilter (Mask รหัสผ่าน, OTP, บัตร 100%) |
-| **API4:2023** | **Unrestricted Resource Consumption** | 🟢 ปลอดภัย | ติดตั้ง Global & Route RateLimitGuard บน Redis, 1MB Payload Limit, และ Trust Proxy Protection |
-| **API5:2023** | **Broken Function Level Authorization (BFLA)** | ✅ ผ่าน | บังคับใช้ `JwtAuthGuard` และ `PermissionsGuard` ครอบคลุมทุก Endpoint ของ Admin |
-| **API6:2023** | **Unrestricted Access to Sensitive Business Flows** | 🟢 ปลอดภัย | ดักจับ OTP / Email Pumping Attack (จำกัด OTP 3 req/60s, Coupon validation 15 req/60s) |
-| **API7:2023** | **Server-Side Request Forgery (SSRF)** | ✅ ผ่าน | ป้องกันการดึง URL ภายนอกที่ไม่ได้รับอนุญาต และตรวจสอบ Webhook Signature |
-| **API8:2023** | **Security Misconfiguration** | 🟢 ปลอดภัย | ปรับแต่ง Helmet เต็มรูปแบบ (HSTS 1 ปี + Preload, nosniff, Frameguard, ลบ X-Powered-By) และปิด Swagger ใน Production |
-| **API9:2023** | **Improper Inventory Management** | ✅ ผ่าน | ควบคุม API Versioning (`/api/v1`) ชัดเจน และไม่มี Shadow Endpoints |
-| **API10:2023** | **Unsafe Consumption of Third-Party APIs** | ✅ ผ่าน | มี Wrapper ดักจับ Error และ Validation จาก Resend และ Omise ครบถ้วน |
+| รหัส OWASP     | ภัยคุกคาม / ช่องโหว่                                | สถานะปัจจุบัน | แผนการยกระดับและการป้องกัน (Action Item)                                                                            |
+| :------------- | :-------------------------------------------------- | :-----------: | :------------------------------------------------------------------------------------------------------------------ |
+| **API1:2023**  | **Broken Object Level Authorization (BOLA)**        |    ✅ ผ่าน    | ตรวจสอบความเป็นเจ้าของ Resource (เช่น `userId` บน Order/Address/Cart) เสมอ                                          |
+| **API2:2023**  | **Broken Authentication**                           |  🟢 ปลอดภัย   | ติดตั้ง Rate Limiting บน Login/OTP (5 req/min), นโยบาย 5-Strike Lockout (15m), JWT Token Blacklist บน Redis         |
+| **API3:2023**  | **Broken Object Property Level Authorization**      |  🟢 ปลอดภัย   | ติดตั้ง PII & Sensitive Data Sanitizer ใน Core Logger และ HttpExceptionFilter (Mask รหัสผ่าน, OTP, บัตร 100%)       |
+| **API4:2023**  | **Unrestricted Resource Consumption**               |  🟢 ปลอดภัย   | ติดตั้ง Global & Route RateLimitGuard บน Redis, 1MB Payload Limit, และ Trust Proxy Protection                       |
+| **API5:2023**  | **Broken Function Level Authorization (BFLA)**      |    ✅ ผ่าน    | บังคับใช้ `JwtAuthGuard` และ `PermissionsGuard` ครอบคลุมทุก Endpoint ของ Admin                                      |
+| **API6:2023**  | **Unrestricted Access to Sensitive Business Flows** |  🟢 ปลอดภัย   | ดักจับ OTP / Email Pumping Attack (จำกัด OTP 3 req/60s, Coupon validation 15 req/60s)                               |
+| **API7:2023**  | **Server-Side Request Forgery (SSRF)**              |    ✅ ผ่าน    | ป้องกันการดึง URL ภายนอกที่ไม่ได้รับอนุญาต และตรวจสอบ Webhook Signature                                             |
+| **API8:2023**  | **Security Misconfiguration**                       |  🟢 ปลอดภัย   | ปรับแต่ง Helmet เต็มรูปแบบ (HSTS 1 ปี + Preload, nosniff, Frameguard, ลบ X-Powered-By) และปิด Swagger ใน Production |
+| **API9:2023**  | **Improper Inventory Management**                   |    ✅ ผ่าน    | ควบคุม API Versioning (`/api/v1`) ชัดเจน และไม่มี Shadow Endpoints                                                  |
+| **API10:2023** | **Unsafe Consumption of Third-Party APIs**          |    ✅ ผ่าน    | มี Wrapper ดักจับ Error และ Validation จาก Resend และ Omise ครบถ้วน                                                 |
 
 ---
 
 ## 2. รายการแผนงานจำแนกตามเฟส (Phase Breakdown & Checklists)
 
 ### 📌 เฟส 1: การป้องกันการโจมตีและการจำกัดทรัพยากร (Anti-Abuse & Rate Limiting)
+
 > **เป้าหมาย:** อุดช่องโหว่ OWASP API4 & API2 ป้องกันการ Brute-force, สแปม OTP (Email Pumping) และ DDoS
 
 - [x] **1.1 ติดตั้ง Redis-backed Rate Limiter (`RateLimitGuard` & `@RateLimit` Decorator)**
@@ -49,6 +50,7 @@
 ---
 
 ### 📌 เฟส 2: การรักษาความปลอดภัยข้อมูลและสิทธิ์ผู้ใช้ (Data Protection & Authentication)
+
 > **เป้าหมาย:** อุดช่องโหว่ OWASP API2, API3 & API8 ป้องกันข้อมูลรั่วไหลใน Logs และจัดการ Session วงจรปิด
 
 - [x] **2.1 ระบบ JWT Token Revocation & Blacklist บน Redis**
@@ -90,6 +92,7 @@
 ---
 
 ### 📌 เฟส 3: การเพิ่มประสิทธิภาพแคชและฐานข้อมูล (High-Performance Caching & DB Tuning)
+
 > **เป้าหมาย:** ลดความหน่วง (Latency) ของ API ลง 80% และลดภาระงานของ PostgreSQL ในช่วงที่มี Traffic สูง
 
 - [ ] **3.1 ระบบ High-Speed Redis Caching สำหรับ Read-Heavy Endpoints**
@@ -108,6 +111,7 @@
 ---
 
 ### 📌 เฟส 4: ความพร้อมในการดำเนินงานและการตรวจสอบ (Monitoring & Auditability)
+
 > **เป้าหมาย:** ระบบสังเกตการณ์ (Observability) และประวัติการทำธุรกรรมที่โปร่งใส
 
 - [ ] **4.1 ระบบบันทึก Health Status เชิงลึก (Deep Health Checks)**
@@ -123,11 +127,10 @@
 
 ## 3. สรุป KPI ความสำเร็จหลังดำเนินการครบถ้วน
 
-| มิติความปลอดภัยและประสิทธิภาพ | ก่อนปรับปรุง | หลังปรับปรุง (Target) |
-| :--- | :--- | :--- |
+| มิติความปลอดภัยและประสิทธิภาพ          | ก่อนปรับปรุง             | หลังปรับปรุง (Target)              |
+| :------------------------------------- | :----------------------- | :--------------------------------- |
 | **Brute-force / OTP Flood Resistance** | ไม่จำกัด (เสี่ยงโดนสแปม) | ป้องกัน 100% ด้วย 429 Rate Limiter |
-| **Token Invalidation on Logout** | Token ยังใช้ได้จนหมดอายุ | ตัดสิทธิ์ทันทีผ่าน Redis Blacklist |
-| **Sensitive PII in Logs** | มีโอกาสหลุด Plaintext | Mask ข้อมูลอ่อนไหว 100% อัตโนมัติ |
-| **Catalog API Response Latency** | 80ms – 180ms (DB Hit) | `< 15ms` (Redis Cache Hit) |
-| **Security Headers Score** | Grade B | **Grade A+ (SecurityHeaders.com)** |
-
+| **Token Invalidation on Logout**       | Token ยังใช้ได้จนหมดอายุ | ตัดสิทธิ์ทันทีผ่าน Redis Blacklist |
+| **Sensitive PII in Logs**              | มีโอกาสหลุด Plaintext    | Mask ข้อมูลอ่อนไหว 100% อัตโนมัติ  |
+| **Catalog API Response Latency**       | 80ms – 180ms (DB Hit)    | `< 15ms` (Redis Cache Hit)         |
+| **Security Headers Score**             | Grade B                  | **Grade A+ (SecurityHeaders.com)** |

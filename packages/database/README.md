@@ -8,17 +8,17 @@
 
 สามารถรันคำสั่งเหล่านี้จาก root workspace ด้วย flag `-w @repo/database` หรือรันตรงภายในโฟลเดอร์ `packages/database`:
 
-| คำสั่ง                      | การทำงาน                    | จุดประสงค์                                                        |
-| :-------------------------- | :-------------------------- | :---------------------------------------------------------------- |
-| `npm run db:migrate:deploy` | รัน `prisma migrate deploy` | 🚀 รัน Migration SQL ที่ยังค้างอยู่ใน Production/Staging/Supabase |
-| `npm run db:migrate:reset`  | รัน `prisma migrate reset`  | ⚠️ Drop ฐานข้อมูล, Replay Migrations ทั้งหมดจากศูนย์ และรัน Seed  |
-| `npm run db:migrate:status` | รัน `prisma migrate status` | ตรวจสอบสถานะของ Migration เทียบกับฐานข้อมูลจริง                   |
-| `npm run db:seed:prod`      | รัน `tsx src/seed-prod.ts`          | 🛡️ **Production Seed** (ปลอดภัย 100%, Idempotent, ไม่ลบข้อมูล)    |
+| คำสั่ง                      | การทำงาน                            | จุดประสงค์                                                               |
+| :-------------------------- | :---------------------------------- | :----------------------------------------------------------------------- |
+| `npm run db:migrate:deploy` | รัน `prisma migrate deploy`         | 🚀 รัน Migration SQL ที่ยังค้างอยู่ใน Production/Staging/Supabase        |
+| `npm run db:migrate:reset`  | รัน `prisma migrate reset`          | ⚠️ Drop ฐานข้อมูล, Replay Migrations ทั้งหมดจากศูนย์ และรัน Seed         |
+| `npm run db:migrate:status` | รัน `prisma migrate status`         | ตรวจสอบสถานะของ Migration เทียบกับฐานข้อมูลจริง                          |
+| `npm run db:seed:prod`      | รัน `tsx src/seed-prod.ts`          | 🛡️ **Production Seed** (ปลอดภัย 100%, Idempotent, ไม่ลบข้อมูล)           |
 | `npm run db:seed:products`  | รัน `tsx src/seed-products-only.ts` | 👗 **Products Seed** (เพิ่มสินค้า 21 รายการ ไม่ลบข้อมูลเดิม, Idempotent) |
-| `npm run db:seed`           | รัน `tsx src/seed.ts`               | 🧪 **Development Seed** (ล้างตาราง + ข้อมูลจำลองครบวงจร)          |
-| `npm run db:generate`       | รัน `prisma generate`       | สร้าง Prisma Client ไปยัง `src/generated/prisma`                  |
-| `npm run db:studio`         | รัน `prisma studio`         | เปิด GUI สำหรับดูและแก้ไขข้อมูลในตารางผ่าน Web Browser            |
-| `npm run db:push`           | รัน `prisma db push`        | Push Schema เข้า DB ตรงโดยไม่ผ่าน Migration _(เฉพาะ Local Dev)_   |
+| `npm run db:seed`           | รัน `tsx src/seed.ts`               | 🧪 **Development Seed** (ล้างตาราง + ข้อมูลจำลองครบวงจร)                 |
+| `npm run db:generate`       | รัน `prisma generate`               | สร้าง Prisma Client ไปยัง `src/generated/prisma`                         |
+| `npm run db:studio`         | รัน `prisma studio`                 | เปิด GUI สำหรับดูและแก้ไขข้อมูลในตารางผ่าน Web Browser                   |
+| `npm run db:push`           | รัน `prisma db push`                | Push Schema เข้า DB ตรงโดยไม่ผ่าน Migration _(เฉพาะ Local Dev)_          |
 
 ---
 

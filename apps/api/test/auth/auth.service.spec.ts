@@ -95,7 +95,9 @@ describe('CustomerAuthService', () => {
 
     jwtMock = {
       sign: vi.fn().mockReturnValue('mock-jwt-token'),
-      decode: vi.fn().mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 900 }),
+      decode: vi
+        .fn()
+        .mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 900 }),
     };
 
     service = new CustomerAuthService(
@@ -452,7 +454,9 @@ describe('CustomerAuthService', () => {
 
       const res = await service.logout(refreshToken, accessToken);
       expect(res.success).toBe(true);
-      expect(redisMock.deleteCustomerSession).toHaveBeenCalledWith(refreshToken);
+      expect(redisMock.deleteCustomerSession).toHaveBeenCalledWith(
+        refreshToken,
+      );
       expect(redisMock.removeCustomerSession).toHaveBeenCalledWith(
         'usr-1',
         refreshToken,

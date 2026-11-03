@@ -10,20 +10,21 @@
 stateDiagram-v2
     [*] --> PENDING_VERIFICATION: ลงทะเบียน / สร้างบัญชีใหม่
     PENDING_VERIFICATION --> ACTIVE: ยืนยัน OTP / ตั้งรหัสผ่านสำเร็จ
-    
+
     ACTIVE --> SUSPENDED: รหัสผิดเกิน 5 ครั้ง / ตรวจพบพฤติกรรมผิดปกติ
     SUSPENDED --> ACTIVE: ปลดล็อคอัตโนมัติเมื่อครบเวลา / แอดมินตรวจสอบเสร็จ
-    
+
     ACTIVE --> BANNED: ทุจริตชำระเงิน / ทำ Chargeback ปลอม / ละเมิดกฎร้ายแรง
     SUSPENDED --> BANNED: ยืนยันผลการตรวจสอบว่าทุจริตจริง
-    
+
     ACTIVE --> INACTIVE: ผู้ใช้ขอลบบัญชี (PDPA) / แอดมินลาออก
     INACTIVE --> ACTIVE: ลูกค้าขอกลับมาเปิดใช้งานใหม่ (ผ่านการยืนยันตัวตน)
-    
+
     BANNED --> [*]: ตัดสิทธิ์ถาวร (Blacklist)
 ```
 
 ### หลักการสำคัญ (Core Rules):
+
 1. **Fail-Closed Security**: บัญชีที่ไม่ใช่สถานะ `ACTIVE` จะต้อง**ถูกปฏิเสธการทำธุรกรรมหรือเรียกใช้ API หลักทันที** (ยกเว้น Endpoints สำหรับการยืนยันตัวตนหรือชำระส่วนที่ค้าง)
 2. **Immediate Session Eviction**: เมื่อสถานะของบัญชีเปลี่ยนเป็น `SUSPENDED` หรือ `BANNED` ตัว Token ทั้งหมดใน Redis Session / Cache จะต้องถูก Revoke ทันทีภายในเสี้ยววินาที ไม่รอให้ JWT หมดอายุ
 3. **Data Retention & PDPA Compliance**: การเปลี่ยนเป็น `INACTIVE` (ลบบัญชี) จะไม่ทำการ `DELETE` ข้อมูลออกจาก Database (Hard Delete) เพื่อรักษาประวัติคำสั่งซื้อและใบกำกับภาษีตามกฎหมาย แต่จะทำการ Anonymize ข้อมูลส่วนบุคคล (PII) แทน
@@ -32,19 +33,20 @@ stateDiagram-v2
 
 ## 2. นิยามสถานะบัญชี (AccountStatus Enum Specification)
 
-| รหัสสถานะ (Enum Value) | สี Badge (UI) | สิทธิ์การเข้าถึง (Privileges) | เงื่อนไขการเกิดสถานะ (Trigger Condition) |
-| :--- | :---: | :--- | :--- |
-| **`PENDING_VERIFICATION`** | สีฟ้า 🔵 | เข้าได้เฉพาะหน้ายืนยัน OTP / ตั้งรหัสผ่าน | • สมัครสมาชิกใหม่แต่ยังไม่ยืนยันอีเมล<br>• แอดมินถูกเชิญเข้าสู่ระบบรอบแรก |
-| **`ACTIVE`** | สีเขียว 🟢 | ใช้งานได้เต็มสิทธิ์ตามบทบาท (Full Access) | • ยืนยัน OTP สำเร็จ<br>• แอดมินตั้งรหัสผ่านสมบูรณ์<br>• บัญชีได้รับการปลดล็อค |
-| **`SUSPENDED`** | สีส้ม 🟡 | เข้าสู่ระบบไม่ได้ชั่วคราว | • กรอกรหัสผ่านผิดติดต่อกัน 5 ครั้ง (ล็อค 15 นาที)<br>• ฝ่ายตรวจสอบ Fraud สั่งพักการใช้งานชั่วคราว |
-| **`BANNED`** | สีแดง 🔴 | บล็อกถาวร ตัดสิทธิ์ทุกบริการ | • ทุจริตเงิน/บัตรเครดิต<br>• แกล้งสั่งซื้อเพื่อกั๊กสต็อก<br>• ละเมิดข้อกำหนดร้ายแรง |
-| **`INACTIVE`** | สีเทา ⚪ | ปิดการใช้งานถาวร แต่คงประวัติไว้ | • ลูกค้าขอยกเลิกบัญชีตามสิทธิ์ PDPA<br>• พนักงานลาออกจากบริษัท |
+| รหัสสถานะ (Enum Value)     | สี Badge (UI) | สิทธิ์การเข้าถึง (Privileges)             | เงื่อนไขการเกิดสถานะ (Trigger Condition)                                                          |
+| :------------------------- | :-----------: | :---------------------------------------- | :------------------------------------------------------------------------------------------------ |
+| **`PENDING_VERIFICATION`** |   สีฟ้า 🔵    | เข้าได้เฉพาะหน้ายืนยัน OTP / ตั้งรหัสผ่าน | • สมัครสมาชิกใหม่แต่ยังไม่ยืนยันอีเมล<br>• แอดมินถูกเชิญเข้าสู่ระบบรอบแรก                         |
+| **`ACTIVE`**               |  สีเขียว 🟢   | ใช้งานได้เต็มสิทธิ์ตามบทบาท (Full Access) | • ยืนยัน OTP สำเร็จ<br>• แอดมินตั้งรหัสผ่านสมบูรณ์<br>• บัญชีได้รับการปลดล็อค                     |
+| **`SUSPENDED`**            |   สีส้ม 🟡    | เข้าสู่ระบบไม่ได้ชั่วคราว                 | • กรอกรหัสผ่านผิดติดต่อกัน 5 ครั้ง (ล็อค 15 นาที)<br>• ฝ่ายตรวจสอบ Fraud สั่งพักการใช้งานชั่วคราว |
+| **`BANNED`**               |   สีแดง 🔴    | บล็อกถาวร ตัดสิทธิ์ทุกบริการ              | • ทุจริตเงิน/บัตรเครดิต<br>• แกล้งสั่งซื้อเพื่อกั๊กสต็อก<br>• ละเมิดข้อกำหนดร้ายแรง               |
+| **`INACTIVE`**             |   สีเทา ⚪    | ปิดการใช้งานถาวร แต่คงประวัติไว้          | • ลูกค้าขอยกเลิกบัญชีตามสิทธิ์ PDPA<br>• พนักงานลาออกจากบริษัท                                    |
 
 ---
 
 ## 3. การออกแบบ Schema ในระดับฐานข้อมูล (Prisma Schema Spec)
 
 ### 3.1 การประกาศ Enum
+
 ```prisma
 enum AccountStatus {
   ACTIVE
@@ -56,6 +58,7 @@ enum AccountStatus {
 ```
 
 ### 3.2 ฟิลด์ที่ต้องเพิ่มในตาราง `users` (ลูกค้าหน้าร้าน)
+
 ```prisma
 model User {
   // ... fields เดิม ...
@@ -63,7 +66,7 @@ model User {
   statusReason    String?         @map("status_reason") @db.VarChar(255)
   suspendedAt     DateTime?       @map("suspended_at")
   suspendedUntil  DateTime?       @map("suspended_until")
-  
+
   // @@index([status]) เพื่อการค้นหาและกรองที่รวดเร็ว
   @@index([status])
   @@map("users")
@@ -71,6 +74,7 @@ model User {
 ```
 
 ### 3.3 ฟิลด์ที่ต้องปรับในตาราง `admin_users` (ทีมงานหลังบ้าน)
+
 ```prisma
 model AdminUser {
   // ... fields เดิม ...
@@ -92,6 +96,7 @@ model AdminUser {
 เมื่อ Request ถูก `AccountStatusGuard` บล็อก ระบบจะตอบกลับด้วยรูปแบบมาตรฐาน (RFC 7807) เพื่อให้ฝั่ง Frontend (`apps/store` / `apps/admin`) นำ Error Code ไปแสดงผล Modal หรือ Redirect ได้อย่างถูกต้อง:
 
 ### 4.1 กรณีบัญชีถูกระงับชั่วคราว (HTTP 403 Forbidden)
+
 ```json
 {
   "statusCode": 403,
@@ -106,6 +111,7 @@ model AdminUser {
 ```
 
 ### 4.2 กรณีบัญชีถูกแบนถาวร (HTTP 403 Forbidden)
+
 ```json
 {
   "statusCode": 403,
@@ -118,6 +124,7 @@ model AdminUser {
 ```
 
 ### 4.3 กรณีบัญชีรอยืนยัน OTP (HTTP 403 Forbidden)
+
 ```json
 {
   "statusCode": 403,
@@ -134,11 +141,12 @@ model AdminUser {
 ## 5. แผนงานและรายการสิ่งที่ต้องทำ (Implementation Checklist)
 
 ### 📌 เฟส 1: Database & Migration Architecture
+
 - [ ] **1.1 เพิ่ม Enum และฟิลด์ใหม่ใน `packages/database/prisma/schema.prisma`**
   - เพิ่ม `enum AccountStatus`
   - เพิ่มฟิลด์ `status`, `statusReason`, `suspendedAt`, `suspendedUntil` ในโมเดล `User` และ `AdminUser`
 - [ ] **1.2 เขียน Migration File พร้อม Data Backfill Strategy**
-  - แมปข้อมูลเดิมของ `admin_users`: 
+  - แมปข้อมูลเดิมของ `admin_users`:
     - `isActive = true` ➔ `status = 'ACTIVE'`
     - `isActive = false` ➔ `status = 'PENDING_VERIFICATION'` (กรณีเพิ่งเชิญ) หรือ `'INACTIVE'`
   - แมปข้อมูลเดิมของ `users`:
@@ -151,6 +159,7 @@ model AdminUser {
 ---
 
 ### 📌 เฟส 2: Backend Guards & Security Interceptors (การสร้าง Guard ป้องกัน API)
+
 > **เป้าหมาย:** สกัดกั้น Request ที่มาจากบัญชีที่ไม่ใช่ `ACTIVE` ไม่ให้เข้าถึง Business Logic ใดๆ พร้อมส่ง Error Code ที่ชัดเจน
 
 - [ ] **2.1 สร้าง `AccountStatusGuard` กลาง และ Decorators สำหรับควบคุม Endpoint**
@@ -183,6 +192,7 @@ model AdminUser {
 ---
 
 ### 📌 เฟส 3: Back-Office Admin UI Controls
+
 - [ ] **3.1 ปรับปรุงหน้าจัดการสมาชิก ([apps/admin/src/pages/AdminUsers.tsx](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/pages/AdminUsers.tsx))**
   - แสดงสถานะด้วย Component `<StatusBadge />` สีมาตรฐาน (เขียว/ส้ม/แดง/เทา)
   - เพิ่มปุ่ม Action:
@@ -195,10 +205,11 @@ model AdminUser {
 ---
 
 ### 📌 เฟส 4: Customer Storefront Handling
+
 - [ ] **4.1 แสดงข้อความแจ้งเตือนที่เข้าใจง่ายบนหน้า Login หน้าร้าน**
-  - บัญชีติด `PENDING_VERIFICATION`: *"กรุณายืนยันรหัส OTP เพื่อเปิดใช้งานบัญชี"* พร้อมปุ่มส่งรหัสใหม่
-  - บัญชีติด `SUSPENDED`: *"บัญชีของคุณถูกระงับชั่วคราวเนื่องจากความปลอดภัย สามารถลองใหม่ได้ในอีก X นาที"*
-  - บัญชีติด `BANNED`: *"บัญชีนี้ถูกระงับการให้บริการถาวร กรุณาติดต่อฝ่ายบริการลูกค้าที่ support@nida-apparel.com"*
+  - บัญชีติด `PENDING_VERIFICATION`: _"กรุณายืนยันรหัส OTP เพื่อเปิดใช้งานบัญชี"_ พร้อมปุ่มส่งรหัสใหม่
+  - บัญชีติด `SUSPENDED`: _"บัญชีของคุณถูกระงับชั่วคราวเนื่องจากความปลอดภัย สามารถลองใหม่ได้ในอีก X นาที"_
+  - บัญชีติด `BANNED`: _"บัญชีนี้ถูกระงับการให้บริการถาวร กรุณาติดต่อฝ่ายบริการลูกค้าที่ support@nida-apparel.com"_
 
 ---
 
@@ -210,4 +221,3 @@ model AdminUser {
 2. **Transition Matrix**: ต้องมี Guard ตรวจสอบว่าสถานะ A สามารถเปลี่ยนไปเป็นสถานะ B ได้หรือไม่ (ห้ามกระโดดข้ามวงจรชีวิต เช่น จาก `BANNED` จะไม่สามารถเปลี่ยนเป็น `PENDING_VERIFICATION` ได้)
 3. **Reason Tracking**: ทุกสถานะที่เป็น Negative Transition (เช่น `SUSPENDED`, `REJECTED`, `CANCELLED`) ต้องมีฟิลด์ `reason` เสมอ
 4. **Audit Trail**: ทุกการเปลี่ยนสถานะของ Entity สำคัญต้องมี Event ถูกบันทึกลง Audit Log หรือประวัติไทม์ไลน์
-

@@ -26,4 +26,3 @@ describe('Customer Email Templates Formatter', () => {
     expect(formatted.html).toContain('12,500');
   });
 });
-

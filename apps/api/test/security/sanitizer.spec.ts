@@ -65,4 +65,3 @@ describe('PII & Sensitive Data Sanitizer', () => {
     expect(sanitized['self']).toBe('[Circular]');
   });
 });
-

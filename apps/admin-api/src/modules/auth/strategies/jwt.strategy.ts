@@ -38,7 +38,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
     }
 
-    const revokedBefore = await this.redis.getUserRevocationTimestamp(payload.sub);
+    const revokedBefore = await this.redis.getUserRevocationTimestamp(
+      payload.sub,
+    );
     if (revokedBefore && payload.iat && payload.iat < revokedBefore) {
       throw new UnauthorizedException(
         'Session has been revoked on all devices. Please login again.',

@@ -52,7 +52,8 @@ async function bootstrap() {
   // HTTP Security Headers (Strict HSTS, MIME sniffing protection, Referrer policy)
   app.use(
     helmet({
-      hsts: { // ป้องกันการโจมตี Man-in-the-middle โดยบังคับให้ใช้ HTTPS เสมอ
+      hsts: {
+        // ป้องกันการโจมตี Man-in-the-middle โดยบังคับให้ใช้ HTTPS เสมอ
         maxAge: 31536000,
         includeSubDomains: true,
         preload: true,

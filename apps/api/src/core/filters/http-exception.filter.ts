@@ -89,7 +89,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
         exception instanceof Error
           ? { name: exception.name, message: exception.message }
           : exception;
-      this.logger.error('Unhandled exception:', sanitizeData(sanitizedException));
+      this.logger.error(
+        'Unhandled exception:',
+        sanitizeData(sanitizedException),
+      );
       message = 'An unexpected server error occurred';
       if (process.env.NODE_ENV !== 'production') {
         details = sanitizeData({

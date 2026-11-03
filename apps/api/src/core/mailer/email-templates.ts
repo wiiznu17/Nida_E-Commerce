@@ -70,4 +70,3 @@ export function formatOrderConfirmationEmail(
     html: wrapCustomerEmailLayout(contentHtml),
   };
 }
-

@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { MapPin, CreditCard, Mail, Phone, User, Eye, EyeOff } from 'lucide-react';
+import {
+  MapPin,
+  CreditCard,
+  Mail,
+  Phone,
+  User,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatPaymentMethod, maskEmail, maskPhone } from '../../utils';
 import type {

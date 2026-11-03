@@ -23,7 +23,8 @@ export function maskEmail(email: string): string {
   }
   const [local, domain] = email.split('@');
   if (!local || !domain) return email;
-  const visible = local.length > 2 ? local.substring(0, 2) : local.substring(0, 1);
+  const visible =
+    local.length > 2 ? local.substring(0, 2) : local.substring(0, 1);
   return `${visible}***@${domain}`;
 }
 
@@ -38,7 +39,10 @@ export function maskPhone(phone: string): string {
   return `${phone.substring(0, 3)}***${phone.substring(phone.length - 2)}`;
 }
 
-export function sanitizeData<T = unknown>(data: T, seen = new WeakSet<object>()): T {
+export function sanitizeData<T = unknown>(
+  data: T,
+  seen = new WeakSet<object>(),
+): T {
   if (data === null || data === undefined) {
     return data;
   }
@@ -67,7 +71,10 @@ export function sanitizeData<T = unknown>(data: T, seen = new WeakSet<object>())
       result[key] = '***REDACTED***';
     } else if (lowerKey === 'email' && typeof value === 'string') {
       result[key] = maskEmail(value);
-    } else if ((lowerKey === 'phone' || lowerKey === 'phonenumber') && typeof value === 'string') {
+    } else if (
+      (lowerKey === 'phone' || lowerKey === 'phonenumber') &&
+      typeof value === 'string'
+    ) {
       result[key] = maskPhone(value);
     } else if (typeof value === 'object' && value !== null) {
       result[key] = sanitizeData(value, seen);

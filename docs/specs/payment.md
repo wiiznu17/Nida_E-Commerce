@@ -9,16 +9,16 @@
 ```mermaid
 stateDiagram-v2
     [*] --> PENDING: สร้างธุรกรรมชำระเงิน (Charge Created)
-    
+
     PENDING --> AUTHORIZED: บัตรเครดิต Hold วงเงินสำเร็จ (Auth only)
     PENDING --> CAPTURED: ตัดเงินสำเร็จ (PromptPay QR / บัตรเครดิต Auto-capture)
     PENDING --> FAILED: บัตรถูกปฏิเสธ / QR หมดอายุ / ยกเลิก
-    
+
     AUTHORIZED --> CAPTURED: แอดมินหรือระบบกด Capture วงเงิน
     AUTHORIZED --> FAILED: ยกเลิกการ Hold วงเงิน (Void Auth)
-    
+
     CAPTURED --> REFUNDED: คืนเงินสำเร็จเต็มจำนวน
-    
+
     FAILED --> [*]
     REFUNDED --> [*]
 ```
@@ -27,12 +27,12 @@ stateDiagram-v2
 
 ## 2. ช่องทางการชำระเงินที่รองรับ (`PaymentMethod`)
 
-| รหัสช่องทาง (Enum) | ผู้ให้บริการ (Gateway) | พฤติกรรมการประมวลผล (Processing Behavior) |
-| :--- | :--- | :--- |
-| **`CREDIT_CARD`** | Omise Payment Gateway | • ชำระผ่านบัตร Visa, Mastercard, JCB พร้อม 3-D Secure (OTP แบงก์)<br>• รองรับทั้ง Auto-Capture และ Two-step Authorization |
-| **`PROMPTPAY`** | Omise QR PromptPay | • สร้าง Dynamic QR Code ที่ระบุยอดเงินตรงเป๊ะ (หมดอายุใน 15 นาที)<br>• ยืนยันสถานะแบบ Real-time ผ่าน Webhook จากธนาคาร |
-| **`BANK_TRANSFER`** | Manual Bank Slip | • ลูกค้าโอนเงินเข้าบัญชีบริษัทและอัปโหลดสลิป<br>• แอดมินตรวจสอบยอดเงินในบัญชีจริงก่อนกดยืนยัน |
-| **`COD`** | Cash on Delivery (เก็บเงินปลายทาง) | • ไม่ตัดเงินทันที สร้างสถานะ `PENDING`<br>• อัปเดตเป็น `CAPTURED` เมื่อบริษัทขนส่งเก็บเงินและโอนเข้าบัญชี |
+| รหัสช่องทาง (Enum)  | ผู้ให้บริการ (Gateway)             | พฤติกรรมการประมวลผล (Processing Behavior)                                                                                 |
+| :------------------ | :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| **`CREDIT_CARD`**   | Omise Payment Gateway              | • ชำระผ่านบัตร Visa, Mastercard, JCB พร้อม 3-D Secure (OTP แบงก์)<br>• รองรับทั้ง Auto-Capture และ Two-step Authorization |
+| **`PROMPTPAY`**     | Omise QR PromptPay                 | • สร้าง Dynamic QR Code ที่ระบุยอดเงินตรงเป๊ะ (หมดอายุใน 15 นาที)<br>• ยืนยันสถานะแบบ Real-time ผ่าน Webhook จากธนาคาร    |
+| **`BANK_TRANSFER`** | Manual Bank Slip                   | • ลูกค้าโอนเงินเข้าบัญชีบริษัทและอัปโหลดสลิป<br>• แอดมินตรวจสอบยอดเงินในบัญชีจริงก่อนกดยืนยัน                             |
+| **`COD`**           | Cash on Delivery (เก็บเงินปลายทาง) | • ไม่ตัดเงินทันที สร้างสถานะ `PENDING`<br>• อัปเดตเป็น `CAPTURED` เมื่อบริษัทขนส่งเก็บเงินและโอนเข้าบัญชี                 |
 
 ---
 
@@ -59,12 +59,13 @@ flowchart TD
     C -->|สำเร็จ| D["สถานะ Refund: SUCCEEDED"]
     D --> E["Payment เปลี่ยนสถานะเป็น REFUNDED"]
     D --> F["Order เปลี่ยนสถานะเป็น REFUNDED"]
-    
+
     C -->|ล้มเหลว (บัตรหมดอายุ/ข้อผิดพลาดธนาคาร)| G["สถานะ Refund: FAILED"]
     G --> H["แจ้งเตือนแอดมินเพื่อโอนเงินคืนแบบ Manual"]
 ```
 
 ### ฟิลด์ในโมเดล `Refund`:
+
 - `id`: UUID v7
 - `paymentId`: อ้างอิงธุรกรรมเดิม
 - `amount`: ยอดเงินที่คืนจริง
@@ -72,4 +73,3 @@ flowchart TD
 - `status`: `PENDING` | `SUCCEEDED` | `FAILED`
 - `gatewayRefundId`: รหัสอ้างอิงการคืนเงินจาก Omise
 - `processedByAdminId`: แอดมินผู้ดำเนินการ
-

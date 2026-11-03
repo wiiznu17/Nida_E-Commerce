@@ -25,10 +25,7 @@ export class CustomerJwtStrategy extends PassportStrategy(
     });
   }
 
-  async validate(
-    req: Request,
-    payload: CustomerJwtPayload,
-  ): Promise<ApiUser> {
+  async validate(req: Request, payload: CustomerJwtPayload): Promise<ApiUser> {
     if (!payload.sub) {
       throw new UnauthorizedException('Invalid token payload');
     }
@@ -41,7 +38,9 @@ export class CustomerJwtStrategy extends PassportStrategy(
       }
     }
 
-    const revokedBefore = await this.redis.getUserRevocationTimestamp(payload.sub);
+    const revokedBefore = await this.redis.getUserRevocationTimestamp(
+      payload.sub,
+    );
     if (revokedBefore && payload.iat && payload.iat < revokedBefore) {
       throw new UnauthorizedException(
         'Session has been revoked on all devices. Please login again.',

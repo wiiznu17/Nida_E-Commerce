@@ -80,8 +80,11 @@ export function maskCustomerName(name: string | null | undefined): string {
  * e.g., "4242" -> "•••• 4242"
  * e.g., "4242424242424242" -> "•••• •••• •••• 4242"
  */
-export function maskCardNumber(cardNumberOrLast4: string | null | undefined): string {
-  if (!cardNumberOrLast4 || typeof cardNumberOrLast4 !== 'string') return '•••• •••• •••• ••••';
+export function maskCardNumber(
+  cardNumberOrLast4: string | null | undefined,
+): string {
+  if (!cardNumberOrLast4 || typeof cardNumberOrLast4 !== 'string')
+    return '•••• •••• •••• ••••';
   const clean = cardNumberOrLast4.replace(/\s+/g, '');
   if (!clean) return '•••• •••• •••• ••••';
 
@@ -97,11 +100,12 @@ export function maskCardNumber(cardNumberOrLast4: string | null | undefined): st
  * Masks street address while preserving district/province/postal code.
  * e.g., "123/45 ซอยสุขุมวิท 55" -> "*** ซอยสุขุมวิท 55"
  */
-export function maskAddressLine(addressLine: string | null | undefined): string {
+export function maskAddressLine(
+  addressLine: string | null | undefined,
+): string {
   if (!addressLine || typeof addressLine !== 'string') return '-';
   const trimmed = addressLine.trim();
   if (!trimmed) return '-';
 
   return trimmed.replace(/^[\d\w/\\-]+(\s+)?/, '*** ');
 }
-

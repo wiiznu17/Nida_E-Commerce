@@ -82,7 +82,9 @@ describe('AuthService', () => {
 
     jwtMock = {
       signAsync: vi.fn().mockResolvedValue('mock_jwt_access_token'),
-      decode: vi.fn().mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 900 }),
+      decode: vi
+        .fn()
+        .mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 900 }),
     };
 
     mailerMock = {
@@ -247,14 +249,21 @@ describe('AuthService', () => {
       const exp = Math.floor(Date.now() / 1000) + 900;
       jwtMock.decode.mockReturnValueOnce({ exp });
 
-      await service.logout('test-token', 'admin-uuid-1', 'valid-admin-access-token');
+      await service.logout(
+        'test-token',
+        'admin-uuid-1',
+        'valid-admin-access-token',
+      );
 
       expect(redisMock.deleteSession).toHaveBeenCalledWith('test-token');
       expect(redisMock.removeSessionFromUser).toHaveBeenCalledWith(
         'admin-uuid-1',
         'test-token',
       );
-      expect(redisMock.blacklistToken).toHaveBeenCalledWith('valid-admin-access-token', exp);
+      expect(redisMock.blacklistToken).toHaveBeenCalledWith(
+        'valid-admin-access-token',
+        exp,
+      );
     });
 
     it('should revoke all user sessions and invalidate all user tokens on logoutAll', async () => {
