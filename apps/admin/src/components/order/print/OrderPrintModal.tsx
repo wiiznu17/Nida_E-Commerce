@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Printer, X, Tag, FileText } from 'lucide-react';
+import { Printer, X, Tag, FileText, Receipt } from 'lucide-react';
 import type { OrderPrintModalProps, PrintDocumentType } from './printTypes';
 import { OrderShippingLabel } from './OrderShippingLabel';
 import { OrderPackingSlip } from './OrderPackingSlip';
+import { OrderTaxInvoice } from './OrderTaxInvoice';
 import { useLanguage } from '../../../context/LanguageContext';
 import { Button } from '../../ui';
 
@@ -82,6 +83,19 @@ export const OrderPrintModal: React.FC<OrderPrintModalProps> = ({
                 <FileText size={13} />
                 <span>{t('orders.print.packingSlipTab')}</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => setDocType('TAX_INVOICE')}
+                className={`inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer rounded-xs ${
+                  docType === 'TAX_INVOICE'
+                    ? 'bg-[#2B1810] text-[#FAF7F2]'
+                    : 'text-[#2B1810]/70 hover:text-[#2B1810]'
+                }`}
+              >
+                <Receipt size={13} />
+                <span>{t('orders.print.taxInvoiceTab')}</span>
+              </button>
             </div>
 
             <span className="text-[11px] font-mono font-bold text-[#2B1810]/60 hidden sm:inline-block">
@@ -123,8 +137,10 @@ export const OrderPrintModal: React.FC<OrderPrintModalProps> = ({
               >
                 {docType === 'LABEL' ? (
                   <OrderShippingLabel order={order} />
-                ) : (
+                ) : docType === 'PACKING_SLIP' ? (
                   <OrderPackingSlip order={order} />
+                ) : (
+                  <OrderTaxInvoice order={order} />
                 )}
               </div>
             ))}
@@ -136,7 +152,9 @@ export const OrderPrintModal: React.FC<OrderPrintModalProps> = ({
           <span className="font-mono">
             {docType === 'LABEL'
               ? t('orders.print.labelHint')
-              : t('orders.print.slipHint')}
+              : docType === 'PACKING_SLIP'
+                ? t('orders.print.slipHint')
+                : t('orders.print.taxInvoiceHint')}
           </span>
           <Button
             variant="outline"

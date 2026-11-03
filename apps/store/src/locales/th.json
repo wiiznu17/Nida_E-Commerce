@@ -351,7 +351,32 @@
     "colPreviousPrice": "ราคาเดิม",
     "colCurrentPrice": "ราคาใหม่",
     "acceptNewPrices": "ยอมรับราคาใหม่และสั่งซื้อต่อ",
-    "returnToCart": "กลับไปตรวจสอบตะกร้า"
+    "returnToCart": "กลับไปตรวจสอบตะกร้า",
+    "taxInvoice": {
+      "requestTitle": "ขอรับใบเสร็จรับเงิน / ใบกำกับภาษีเต็มรูปแบบ",
+      "requestDesc": "ออกใบกำกับภาษีเต็มรูปตามประมวลรัษฎากร ม.86/4 สำหรับบุคคลธรรมดาหรือนิติบุคคล",
+      "payerTypePersonal": "บุคคลธรรมดา",
+      "payerTypeCompany": "นิติบุคคล / บริษัท",
+      "personalName": "ชื่อ-นามสกุล (ตามบัตรประชาชน)",
+      "personalNamePlaceholder": "ระบุชื่อและนามสกุลจริง",
+      "personalTaxId": "เลขประจำตัวประชาชน (13 หลัก) หรือ Passport",
+      "personalTaxIdPlaceholder": "ระบุเลขประจำตัว 13 หลัก หรือเลขพาสปอร์ต",
+      "companyName": "ชื่อบริษัท / นิติบุคคล",
+      "companyNamePlaceholder": "เช่น บริษัท ตัวอย่าง จำกัด",
+      "companyTaxId": "เลขประจำตัวผู้เสียภาษีอากร (13 หลัก)",
+      "companyTaxIdPlaceholder": "ระบุเลขประจำตัวผู้เสียภาษี 13 หลัก",
+      "branchType": "สาขา",
+      "branchHeadquarters": "สำนักงานใหญ่",
+      "branchSub": "สาขา",
+      "branchCode": "รหัสสาขา (5 หลัก)",
+      "branchCodePlaceholder": "เช่น 00001",
+      "address": "ที่อยู่สำหรับออกใบกำกับภาษี",
+      "addressPlaceholder": "ระบุบ้านเลขที่ อาคาร ถนน ตำบล อำเภอ จังหวัด และรหัสไปรษณีย์",
+      "useShippingAddress": "ใช้ที่อยู่เดียวกันกับที่อยู่จัดส่ง",
+      "viewTaxInvoice": "ดูใบกำกับภาษี",
+      "downloadTaxInvoice": "พิมพ์ / ดาวน์โหลดใบกำกับภาษี (PDF)",
+      "notIssued": "ยังไม่มีการออกใบกำกับภาษีสำหรับคำสั่งซื้อนี้"
+    }
   },
   "guestCheckoutModal": {
     "title": "ยืนยันรูปแบบการสั่งซื้อ",

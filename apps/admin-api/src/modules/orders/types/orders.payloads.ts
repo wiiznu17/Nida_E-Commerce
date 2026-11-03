@@ -29,6 +29,7 @@ export type OrderDetailPayload = Prisma.OrderGetPayload<{
         logs: { orderBy: { logTimestamp: 'desc' } };
       };
     };
+    taxInvoice: true;
   };
 }>;
 

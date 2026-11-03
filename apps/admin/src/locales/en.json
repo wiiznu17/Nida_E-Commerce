@@ -567,12 +567,14 @@
       "modalTitle": "Warehouse Document Printing",
       "shippingLabelTab": "Shipping Label (100x150 mm)",
       "packingSlipTab": "Packing Slip",
+      "taxInvoiceTab": "Tax Invoice & Receipt",
       "printAction": "Print Documents",
       "printButton": "Print Documents",
       "selectedOrders": "orders selected",
       "moreItems": "+ {count} more items in package",
       "labelHint": "Standard 100x150 mm (A6) format optimized for thermal label printers.",
       "slipHint": "Standard A4/A5 document for parcel inclusion and dispatch inspection.",
+      "taxInvoiceHint": "Standard A4 Full Tax Invoice / Receipt complying with Revenue Code Sec. 86/4.",
       "close": "Close"
     },
     "paymentOverride": {

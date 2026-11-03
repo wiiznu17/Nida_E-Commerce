@@ -13,7 +13,57 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
-import { PaymentMethod } from '@repo/types';
+import { PaymentMethod, TaxInvoicePayerType, TaxInvoiceBranchType } from '@repo/types';
+
+export class CustomerTaxInvoiceRequestDto {
+  @ApiProperty({
+    description: 'ประเภทผู้เสียภาษี (PERSONAL = บุคคลธรรมดา, COMPANY = นิติบุคคล)',
+    enum: TaxInvoicePayerType,
+    example: TaxInvoicePayerType.PERSONAL,
+  })
+  @IsEnum(TaxInvoicePayerType)
+  payerType!: TaxInvoicePayerType;
+
+  @ApiProperty({
+    description: 'เลขประจำตัวผู้เสียภาษี 13 หลัก หรือเลขบัตรประชาชน',
+    example: '1100400123456',
+  })
+  @IsString()
+  @IsNotEmpty()
+  taxId!: string;
+
+  @ApiProperty({
+    description: 'ชื่อบุคคลธรรมดา หรือ ชื่อบริษัท/นิติบุคคล',
+    example: 'บริษัท ตัวอย่าง จำกัด',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @ApiPropertyOptional({
+    description: 'ประเภทสาขา (HEADQUARTERS = สำนักงานใหญ่, BRANCH = สาขา)',
+    enum: TaxInvoiceBranchType,
+  })
+  @IsOptional()
+  @IsEnum(TaxInvoiceBranchType)
+  branchType?: TaxInvoiceBranchType;
+
+  @ApiPropertyOptional({
+    description: 'รหัสสาขา 5 หลัก เช่น 00000 หรือ 00001',
+    example: '00000',
+  })
+  @IsOptional()
+  @IsString()
+  branchCode?: string;
+
+  @ApiProperty({
+    description: 'ที่อยู่จดทะเบียน หรือที่อยู่ตามบัตรประชาชน',
+    example: '123/45 ถนนสุขุมวิท 55 แขวงคลองตันเหนือ เขตวัฒนา กรุงเทพฯ 10110',
+  })
+  @IsString()
+  @IsNotEmpty()
+  address!: string;
+}
 
 export class CustomerOrderItemDto {
   @ApiProperty({
@@ -140,4 +190,13 @@ export class CreateCustomerOrderDto {
   @IsOptional()
   @IsString()
   customerEmail?: string;
+
+  @ApiPropertyOptional({
+    description: 'ข้อมูลสำหรับขอใบเสร็จรับเงิน/ใบกำกับภาษีเต็มรูป (ม.86/4)',
+    type: CustomerTaxInvoiceRequestDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CustomerTaxInvoiceRequestDto)
+  taxInvoice?: CustomerTaxInvoiceRequestDto;
 }

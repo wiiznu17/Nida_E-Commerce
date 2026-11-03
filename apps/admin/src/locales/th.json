@@ -567,12 +567,14 @@
       "modalTitle": "พิมพ์เอกสารคลังสินค้า",
       "shippingLabelTab": "ใบปะหน้าพัสดุ (100x150 mm)",
       "packingSlipTab": "ใบจัดส่งสินค้า (Packing Slip)",
+      "taxInvoiceTab": "ใบเสร็จ/ใบกำกับภาษี (Tax Invoice)",
       "printAction": "พิมพ์เอกสาร",
       "printButton": "พิมพ์เอกสาร",
       "selectedOrders": "ออเดอร์ที่เลือก",
       "moreItems": "+ อีก {count} รายการในบรรจุภัณฑ์",
       "labelHint": "ขนาดมาตรฐาน 100x150 มม. (A6) สำหรับเครื่องพิมพ์ความร้อน (Thermal Label Printer)",
       "slipHint": "ขนาดมาตรฐาน A4/A5 สำหรับแนบในกล่องพัสดุและตรวจสอบรายการสินค้า",
+      "taxInvoiceHint": "ขนาดมาตรฐาน A4 ออกตามประมวลรัษฎากร ม.86/4 สำหรับส่งมอบลูกค้า",
       "close": "ปิด"
     },
     "paymentOverride": {

@@ -42,6 +42,8 @@ export default function CheckoutPage() {
     orderError,
     shippingData,
     setShippingData,
+    taxInvoiceData,
+    setTaxInvoiceData,
     savedAddresses,
     selectedAddressId,
     addressMode,
@@ -122,11 +124,13 @@ export default function CheckoutPage() {
               addressMode={addressMode}
               isLoadingAddresses={isLoadingAddresses}
               shippingData={shippingData}
+              taxInvoiceData={taxInvoiceData}
               isAuthenticated={isAuthenticated}
               saveToAddressBook={saveToAddressBook}
               onSelectAddress={handleSelectAddress}
               onSetAddressMode={setAddressMode}
               onSetShippingData={setShippingData}
+              onSetTaxInvoiceData={setTaxInvoiceData}
               onSetSaveToAddressBook={setSaveToAddressBook}
               onOpenNewAddressModal={() => setIsAddressModalOpen(true)}
               onSubmit={handleShippingSubmit}

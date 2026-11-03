@@ -6,3 +6,4 @@ export * from './CheckoutOrderSummary';
 export * from './useCheckoutForm';
 export * from './PriceMismatchModal';
 export * from './GuestCheckoutDrawer';
+export * from './TaxInvoiceFormSection';

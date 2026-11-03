@@ -351,7 +351,32 @@
     "colPreviousPrice": "Previous Price",
     "colCurrentPrice": "New Price",
     "acceptNewPrices": "Accept New Prices & Proceed",
-    "returnToCart": "Return to Shopping Bag"
+    "returnToCart": "Return to Shopping Bag",
+    "taxInvoice": {
+      "requestTitle": "Request Full Tax Invoice & Receipt",
+      "requestDesc": "Issue full tax invoice in accordance with Thai Revenue Code Sec. 86/4",
+      "payerTypePersonal": "Personal (Individual)",
+      "payerTypeCompany": "Corporate (Company)",
+      "personalName": "Full Name (as on ID card)",
+      "personalNamePlaceholder": "Enter your full name",
+      "personalTaxId": "National ID (13 digits) or Passport Number",
+      "personalTaxIdPlaceholder": "Enter 13-digit ID or passport number",
+      "companyName": "Company / Entity Name",
+      "companyNamePlaceholder": "e.g. Sample Co., Ltd.",
+      "companyTaxId": "Tax Identification Number (13 digits)",
+      "companyTaxIdPlaceholder": "Enter 13-digit tax ID",
+      "branchType": "Branch Type",
+      "branchHeadquarters": "Headquarters",
+      "branchSub": "Branch",
+      "branchCode": "Branch Code (5 digits)",
+      "branchCodePlaceholder": "e.g. 00001",
+      "address": "Registered Address",
+      "addressPlaceholder": "Enter complete registered tax address",
+      "useShippingAddress": "Use the same address as shipping address",
+      "viewTaxInvoice": "View Tax Invoice",
+      "downloadTaxInvoice": "Print / Download Tax Invoice (PDF)",
+      "notIssued": "No tax invoice has been issued for this order"
+    }
   },
   "guestCheckoutModal": {
     "title": "Confirm Checkout Option",

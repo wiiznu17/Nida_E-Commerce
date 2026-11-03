@@ -25,8 +25,18 @@ import type {
   AdminCancellationStatusCounts,
   PaginatedReturnsResponse,
   AdminReturnStatusCounts,
+  ApiTaxInvoice,
+  ApiTaxInvoiceRequest,
+  ApiTaxInvoiceItem,
+  ApiTaxInvoiceSeller,
+  ApiAdminUser,
 } from '@repo/types';
-import { AuditActionType, AdminPermission } from '@repo/types';
+import {
+  AuditActionType,
+  AdminPermission,
+  TaxInvoicePayerType,
+  TaxInvoiceBranchType,
+} from '@repo/types';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
 import {
   OrderStatus,
@@ -62,6 +72,15 @@ import {
 
 const STANDARD_SHIPPING_FEE = 50;
 
+export const NIDA_SELLER_TAX_INFO: ApiTaxInvoiceSeller = {
+  companyName: 'บริษัท นิ ดา แบรนด์ จำกัด (NIDA BRAND CO., LTD.)',
+  taxId: '0105566088888',
+  branch: 'สำนักงานใหญ่ (Headquarters / 00000)',
+  address:
+    '888/88 อาคาร นิวานิช ชั้น 18 ถนนสุขุมวิท แขวงคลองตัน เขตคลองเตย กรุงเทพมหานคร 10110',
+  phone: '02-123-4567',
+};
+
 const ORDER_INCLUDE = {
   items: {
     include: {
@@ -88,6 +107,7 @@ const ORDER_INCLUDE = {
       logs: { orderBy: { logTimestamp: 'desc' as const } },
     },
   },
+  taxInvoice: true,
 };
 
 @Injectable()
@@ -556,6 +576,10 @@ export class OrdersService {
             },
           });
         }
+
+        if (existing.taxInvoiceRequest) {
+          await this.issueTaxInvoiceForOrder(tx, existing.id);
+        }
       }
 
       if (status === OrderStatus.COMPLETED && existing.userId) {
@@ -1012,6 +1036,34 @@ export class OrdersService {
         createdAdminId: rf.createdAdminId ?? undefined,
         createdAt: rf.createdAt.toISOString(),
       })),
+      taxInvoiceRequest: order.taxInvoiceRequest
+        ? (order.taxInvoiceRequest as unknown as ApiTaxInvoiceRequest)
+        : null,
+      taxInvoice: order.taxInvoice
+        ? {
+            id: order.taxInvoice.id,
+            orderId: order.taxInvoice.orderId,
+            orderNumber: order.orderNumber,
+            invoiceNumber: order.taxInvoice.invoiceNumber,
+            payerType: order.taxInvoice.payerType as TaxInvoicePayerType,
+            taxId: order.taxInvoice.taxId,
+            name: order.taxInvoice.name,
+            branchType:
+              (order.taxInvoice.branchType as TaxInvoiceBranchType) ?? null,
+            branchCode: order.taxInvoice.branchCode ?? null,
+            address: order.taxInvoice.address,
+            subtotal: Number(order.taxInvoice.subtotal),
+            discount: Number(order.taxInvoice.discount),
+            shippingFee: Number(order.taxInvoice.shippingFee),
+            totalAmount: Number(order.taxInvoice.totalAmount),
+            preVatAmount: Number(order.taxInvoice.preVatAmount),
+            vatAmount: Number(order.taxInvoice.vatAmount),
+            itemsSnapshot:
+              (order.taxInvoice
+                .itemsSnapshot as unknown as ApiTaxInvoiceItem[]) ?? [],
+            issuedAt: order.taxInvoice.issuedAt.toISOString(),
+          }
+        : null,
       placedAt: order.placedAt
         ? order.placedAt.toISOString()
         : new Date().toISOString(),
@@ -1725,6 +1777,192 @@ export class OrdersService {
         location: log.location ?? undefined,
         timestamp: log.logTimestamp.toISOString(),
       })),
+    };
+  }
+
+  calculateVatBreakdown(totalAmount: number): {
+    preVatAmount: number;
+    vatAmount: number;
+  } {
+    const preVatAmount = Math.round((totalAmount / 1.07) * 100) / 100;
+    const vatAmount = Math.round((totalAmount - preVatAmount) * 100) / 100;
+    return { preVatAmount, vatAmount };
+  }
+
+  async generateSequentialInvoiceNumber(
+    tx: Prisma.TransactionClient,
+  ): Promise<string> {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const prefix = `INV-${year}${month}-`;
+
+    const lastInvoice = await tx.taxInvoice.findFirst({
+      where: { invoiceNumber: { startsWith: prefix } },
+      orderBy: { invoiceNumber: 'desc' },
+      select: { invoiceNumber: true },
+    });
+
+    let sequence = 1;
+    if (lastInvoice?.invoiceNumber) {
+      const parts = lastInvoice.invoiceNumber.split('-');
+      const lastSeq = parseInt(parts[parts.length - 1], 10);
+      if (!isNaN(lastSeq)) {
+        sequence = lastSeq + 1;
+      }
+    }
+
+    const seqStr = String(sequence).padStart(5, '0');
+    return `${prefix}${seqStr}`;
+  }
+
+  async issueTaxInvoiceForOrder(
+    tx: Prisma.TransactionClient,
+    orderId: string,
+  ): Promise<Prisma.TaxInvoiceGetPayload<object> | null> {
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      include: { items: true, taxInvoice: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order not found: ${orderId}`);
+    }
+
+    if (order.taxInvoice) {
+      return order.taxInvoice;
+    }
+
+    if (!order.taxInvoiceRequest) {
+      return null;
+    }
+
+    const req = order.taxInvoiceRequest as unknown as ApiTaxInvoiceRequest;
+    const totalAmount = Number(order.totalAmount);
+    const subtotal = Number(order.subtotal);
+    const discount = Number(order.discountTotal);
+    const shippingFee = Number(order.shippingFee);
+
+    const { preVatAmount, vatAmount } = this.calculateVatBreakdown(totalAmount);
+    const invoiceNumber = await this.generateSequentialInvoiceNumber(tx);
+
+    const itemsSnapshot: ApiTaxInvoiceItem[] = order.items.map((item) => ({
+      id: item.id,
+      productName: item.productNameSnapshot,
+      variantInfo: item.variantInfoSnapshot,
+      skuCode: item.skuCodeSnapshot,
+      unitPrice: Number(item.unitPrice),
+      quantity: item.quantity,
+      subtotal: Number(item.subtotal),
+      discountShare: Number(item.discountShare),
+      netPrice: Number(item.netPrice),
+    }));
+
+    return tx.taxInvoice.create({
+      data: {
+        orderId: order.id,
+        invoiceNumber,
+        payerType: req.payerType ?? TaxInvoicePayerType.PERSONAL,
+        taxId: req.taxId,
+        name: req.name,
+        branchType:
+          req.branchType ??
+          (req.payerType === TaxInvoicePayerType.COMPANY
+            ? TaxInvoiceBranchType.HEADQUARTERS
+            : null),
+        branchCode:
+          req.branchCode ??
+          (req.payerType === TaxInvoicePayerType.COMPANY ? '00000' : null),
+        address: req.address,
+        subtotal,
+        discount,
+        shippingFee,
+        totalAmount,
+        preVatAmount,
+        vatAmount,
+        itemsSnapshot: JSON.parse(JSON.stringify(itemsSnapshot)),
+        issuedAt: new Date(),
+      },
+    });
+  }
+
+  async getOrderTaxInvoice(
+    id: string,
+    admin?: ApiAdminUser,
+  ): Promise<ApiTaxInvoice> {
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        id,
+      );
+    const order = await this.prisma.order.findFirst({
+      where: isUuid
+        ? { OR: [{ id }, { orderNumber: id }] }
+        : { orderNumber: id },
+      include: {
+        items: true,
+        taxInvoice: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order "${id}" not found`);
+    }
+
+    let taxInvoice = order.taxInvoice;
+
+    if (
+      !taxInvoice &&
+      order.taxInvoiceRequest &&
+      (order.status === OrderStatus.PAID ||
+        order.status === OrderStatus.COMPLETED ||
+        order.status === OrderStatus.SHIPPED ||
+        order.status === OrderStatus.DELIVERED)
+    ) {
+      taxInvoice = await this.prisma.$transaction(async (tx) => {
+        return this.issueTaxInvoiceForOrder(tx, order.id);
+      });
+    }
+
+    if (!taxInvoice) {
+      throw new NotFoundException(
+        `ใบกำกับภาษียังไม่ได้ออกสำหรับคำสั่งซื้อ #${order.orderNumber} (Tax invoice not found or not requested)`,
+      );
+    }
+
+    void this.auditLog?.recordLog({
+      adminId: admin?.id ?? null,
+      actionType: AuditActionType.READ,
+      targetTable: 'tax_invoices',
+      targetId: taxInvoice.id,
+      permission: AdminPermission.ORDERS_READ,
+      newValuesJson: {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        invoiceNumber: taxInvoice.invoiceNumber,
+      },
+    });
+
+    return {
+      id: taxInvoice.id,
+      orderId: taxInvoice.orderId,
+      orderNumber: order.orderNumber,
+      invoiceNumber: taxInvoice.invoiceNumber,
+      payerType: taxInvoice.payerType as TaxInvoicePayerType,
+      taxId: taxInvoice.taxId,
+      name: taxInvoice.name,
+      branchType: (taxInvoice.branchType as TaxInvoiceBranchType) ?? null,
+      branchCode: taxInvoice.branchCode ?? null,
+      address: taxInvoice.address,
+      subtotal: Number(taxInvoice.subtotal),
+      discount: Number(taxInvoice.discount),
+      shippingFee: Number(taxInvoice.shippingFee),
+      totalAmount: Number(taxInvoice.totalAmount),
+      preVatAmount: Number(taxInvoice.preVatAmount),
+      vatAmount: Number(taxInvoice.vatAmount),
+      itemsSnapshot:
+        (taxInvoice.itemsSnapshot as unknown as ApiTaxInvoiceItem[]) ?? [],
+      sellerSnapshot: NIDA_SELLER_TAX_INFO,
+      issuedAt: taxInvoice.issuedAt.toISOString(),
     };
   }
 }

@@ -35,6 +35,8 @@ export interface ApiOrder {
   cancellationRequests?: ApiOrderCancellationRequest[];
   returnRequests?: ApiReturnRequest[];
   refunds?: ApiRefundSummary[];
+  taxInvoiceRequest?: import('../common/tax-invoice.types.js').ApiTaxInvoiceRequest | null;
+  taxInvoice?: import('../common/tax-invoice.types.js').ApiTaxInvoice | null;
   placedAt: string;
   completedAt?: string | null;
   updatedAt?: string;

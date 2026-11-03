@@ -170,3 +170,18 @@ export const BannerPlacement = {
 } as const;
 export type BannerPlacement =
   (typeof BannerPlacement)[keyof typeof BannerPlacement];
+
+// --- Tax Invoice ---
+export const TaxInvoicePayerType = {
+  PERSONAL: 'PERSONAL',
+  COMPANY: 'COMPANY',
+} as const;
+export type TaxInvoicePayerType =
+  (typeof TaxInvoicePayerType)[keyof typeof TaxInvoicePayerType];
+
+export const TaxInvoiceBranchType = {
+  HEADQUARTERS: 'HEADQUARTERS',
+  BRANCH: 'BRANCH',
+} as const;
+export type TaxInvoiceBranchType =
+  (typeof TaxInvoiceBranchType)[keyof typeof TaxInvoiceBranchType];

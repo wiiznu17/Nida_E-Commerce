@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
-import { Truck, CreditCard } from 'lucide-react';
+import React, { useState } from 'react';
+import { Truck, CreditCard, FileText, Printer } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPaymentMethod, formatPaymentStatus, maskPhone } from '@/utils';
 import type { ApiOrder } from '@repo/types';
+import { CustomerTaxInvoiceModal } from './CustomerTaxInvoiceModal';
 
 interface CustomerOrderSummarySidebarProps {
   order: ApiOrder;
@@ -14,6 +15,7 @@ export function CustomerOrderSummarySidebar({
   order,
 }: CustomerOrderSummarySidebarProps) {
   const { t, language } = useLanguage();
+  const [isTaxInvoiceModalOpen, setIsTaxInvoiceModalOpen] = useState(false);
 
   const originalShippingFee = Number(
     order.originalShippingFee ??
@@ -162,6 +164,57 @@ export function CustomerOrderSummarySidebar({
           </p>
         </div>
       </div>
+
+      {/* Tax Invoice Card */}
+      {order.taxInvoice && (
+        <div className="border border-brand-border bg-[#FAF7F2] rounded-md p-6 shadow-2xs text-xs space-y-3">
+          <h2 className="text-xs font-black uppercase tracking-wider text-brand-brown pb-2 border-b border-brand-border/40 flex items-center justify-between">
+            <span className="flex items-center space-x-1.5">
+              <FileText className="w-3.5 h-3.5 text-brand-brown" />
+              <span>{t('checkout.taxInvoice.requestTitle')}</span>
+            </span>
+            <span className="font-mono text-[11px] text-brand-brown/60">
+              #{order.taxInvoice.invoiceNumber}
+            </span>
+          </h2>
+
+          <div className="text-stone-700 space-y-1.5">
+            <div className="flex justify-between">
+              <span className="text-stone-500">
+                {t('checkout.taxInvoice.personalName')}:
+              </span>
+              <span className="font-semibold text-brand-brown">
+                {order.taxInvoice.name}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-stone-500">
+                {t('checkout.taxInvoice.personalTaxId')}:
+              </span>
+              <span className="font-mono text-brand-brown">
+                {order.taxInvoice.taxId}
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsTaxInvoiceModalOpen(true)}
+            className="w-full mt-2 py-2.5 px-3 bg-brand-brown hover:bg-brand-dark-brown text-white text-xs font-bold uppercase tracking-wider rounded-xs flex items-center justify-center space-x-2 transition-colors cursor-pointer shadow-2xs"
+          >
+            <Printer size={13} />
+            <span>{t('checkout.taxInvoice.downloadTaxInvoice')}</span>
+          </button>
+        </div>
+      )}
+
+      {order.taxInvoice && (
+        <CustomerTaxInvoiceModal
+          isOpen={isTaxInvoiceModalOpen}
+          onClose={() => setIsTaxInvoiceModalOpen(false)}
+          order={order}
+        />
+      )}
     </div>
   );
 }

@@ -129,6 +129,21 @@ export class CustomerOrdersController {
     return this.ordersService.getOrderByNumber(orderNumber, userId);
   }
 
+  @Get(':orderNumber/tax-invoice')
+  @UseGuards(OptionalCustomerJwtGuard)
+  @ApiOperation({
+    summary: 'ดึงข้อมูลใบเสร็จรับเงิน/ใบกำกับภาษีเต็มรูป (Get Full Tax Invoice & Receipt)',
+  })
+  @ApiResponse({ status: 200, description: 'Tax Invoice details' })
+  @ApiResponse({ status: 404, description: 'Tax invoice not found' })
+  async getTaxInvoice(
+    @Param('orderNumber') orderNumber: string,
+    @Request() req: AuthenticatedCustomerRequest,
+  ) {
+    const userId = req.user?.id;
+    return this.ordersService.getTaxInvoice(orderNumber, userId);
+  }
+
   @Get(':orderNumber/omise-status')
   @RateLimit({ limit: 20, windowSeconds: 60, keyPrefix: 'order:omise-status' })
   @UseGuards(OptionalCustomerJwtGuard)

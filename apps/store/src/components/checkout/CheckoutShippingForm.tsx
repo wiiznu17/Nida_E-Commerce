@@ -5,7 +5,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { AddressCard } from '@/components/address';
 import { LoadingSpinner } from '@/components/ui';
 import type { ApiAddress } from '@repo/types';
-import type { ShippingFormData } from './checkoutTypes';
+import type { ShippingFormData, TaxInvoiceFormData } from './checkoutTypes';
+import { TaxInvoiceFormSection } from './TaxInvoiceFormSection';
 
 interface CheckoutShippingFormProps {
   savedAddresses: ApiAddress[];
@@ -13,11 +14,13 @@ interface CheckoutShippingFormProps {
   addressMode: 'saved' | 'new';
   isLoadingAddresses: boolean;
   shippingData: ShippingFormData;
+  taxInvoiceData: TaxInvoiceFormData;
   isAuthenticated: boolean;
   saveToAddressBook: boolean;
   onSelectAddress: (addr: ApiAddress) => void;
   onSetAddressMode: (mode: 'saved' | 'new') => void;
   onSetShippingData: React.Dispatch<React.SetStateAction<ShippingFormData>>;
+  onSetTaxInvoiceData: React.Dispatch<React.SetStateAction<TaxInvoiceFormData>>;
   onSetSaveToAddressBook: (val: boolean) => void;
   onOpenNewAddressModal: () => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -29,11 +32,13 @@ export function CheckoutShippingForm({
   addressMode,
   isLoadingAddresses,
   shippingData,
+  taxInvoiceData,
   isAuthenticated,
   saveToAddressBook,
   onSelectAddress,
   onSetAddressMode,
   onSetShippingData,
+  onSetTaxInvoiceData,
   onSetSaveToAddressBook,
   onOpenNewAddressModal,
   onSubmit,
@@ -124,6 +129,12 @@ export function CheckoutShippingForm({
               {t('checkout.manageAddresses')}
             </Link>
           </div>
+
+          <TaxInvoiceFormSection
+            taxInvoiceData={taxInvoiceData}
+            onChange={onSetTaxInvoiceData}
+            shippingData={shippingData}
+          />
 
           <div className="pt-4">
             <button
@@ -326,6 +337,12 @@ export function CheckoutShippingForm({
               </label>
             </div>
           )}
+
+          <TaxInvoiceFormSection
+            taxInvoiceData={taxInvoiceData}
+            onChange={onSetTaxInvoiceData}
+            shippingData={shippingData}
+          />
 
           <div className="pt-4">
             <button

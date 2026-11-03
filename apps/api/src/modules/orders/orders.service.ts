@@ -11,6 +11,7 @@ import { MailerService } from '../../core/mailer/mailer.service.js';
 import { RedisService } from '../../core/redis/redis.service.js';
 import { OmiseService } from './omise.service.js';
 import { OrderLifecycleProducerService } from '../order-lifecycle/order-lifecycle-producer.service.js';
+import { TaxInvoiceService } from '../tax-invoice/tax-invoice.service.js';
 import { CreateCustomerOrderDto } from './dto/create-customer-order.dto.js';
 import {
   ORDER_TIMEOUT_MS,
@@ -77,6 +78,7 @@ const CUSTOMER_ORDER_INCLUDE = {
   refunds: {
     orderBy: { createdAt: 'desc' as const },
   },
+  taxInvoice: true,
 };
 
 @Injectable()
@@ -89,6 +91,7 @@ export class CustomerOrdersService {
     private readonly omiseService: OmiseService,
     private readonly orderLifecycleProducer: OrderLifecycleProducerService,
     private readonly redisService: RedisService,
+    private readonly taxInvoiceService: TaxInvoiceService,
   ) {}
 
   async createOrder(
@@ -350,6 +353,9 @@ export class CustomerOrdersService {
             shippingAddressSnapshot: JSON.parse(
               JSON.stringify(shippingAddress),
             ),
+            taxInvoiceRequest: dto.taxInvoice
+              ? JSON.parse(JSON.stringify(dto.taxInvoice))
+              : null,
             promoCodeUsed: normalizedCouponCode,
             couponId,
           },
@@ -1158,6 +1164,10 @@ export class CustomerOrdersService {
             where: { id: order.id },
             data: { status: nextStatus },
           });
+
+          if (this.taxInvoiceService) {
+            await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
+          }
         });
 
         await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
@@ -1282,6 +1292,10 @@ export class CustomerOrdersService {
             where: { id: order.id },
             data: { status: nextStatus },
           });
+
+          if (this.taxInvoiceService) {
+            await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
+          }
         });
 
         await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
@@ -1367,6 +1381,8 @@ export class CustomerOrdersService {
         where: { id: order.id },
         data: { status: nextStatus },
       });
+
+      await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
     });
 
     await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
@@ -1417,6 +1433,13 @@ export class CustomerOrdersService {
                 where: { id: order.id },
                 data: { status: nextStatus },
               });
+
+              if (this.taxInvoiceService) {
+                await this.taxInvoiceService.issueTaxInvoiceForOrder(
+                  tx,
+                  order.id,
+                );
+              }
             });
 
             await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
@@ -1509,6 +1532,13 @@ export class CustomerOrdersService {
     };
   }
 
+  async getTaxInvoice(orderNumber: string, userId?: string) {
+    return this.taxInvoiceService.getTaxInvoiceByOrderNumber(
+      orderNumber,
+      userId,
+    );
+  }
+
   private mapOrder(order: {
     id: string;
     orderNumber: string;
@@ -1524,6 +1554,26 @@ export class CustomerOrdersService {
     totalAmount: { toNumber(): number } | number;
     currency: string;
     shippingAddressSnapshot: unknown;
+    taxInvoiceRequest?: unknown;
+    taxInvoice?: {
+      id: string;
+      orderId: string;
+      invoiceNumber: string;
+      payerType: string;
+      taxId: string;
+      name: string;
+      branchType: string | null;
+      branchCode: string | null;
+      address: string;
+      subtotal: { toNumber(): number } | number;
+      discount: { toNumber(): number } | number;
+      shippingFee: { toNumber(): number } | number;
+      totalAmount: { toNumber(): number } | number;
+      preVatAmount: { toNumber(): number } | number;
+      vatAmount: { toNumber(): number } | number;
+      itemsSnapshot: unknown;
+      issuedAt: Date;
+    } | null;
     promoCodeUsed: string | null;
     placedAt: Date;
     completedAt?: Date | null;
@@ -1818,6 +1868,33 @@ export class CustomerOrdersService {
       cancellationRequests,
       returnRequests,
       refunds,
+      taxInvoiceRequest: order.taxInvoiceRequest
+        ? (order.taxInvoiceRequest as unknown as import('@repo/types').ApiTaxInvoiceRequest)
+        : null,
+      taxInvoice: order.taxInvoice
+        ? {
+            id: order.taxInvoice.id,
+            orderId: order.taxInvoice.orderId,
+            orderNumber: order.orderNumber,
+            invoiceNumber: order.taxInvoice.invoiceNumber,
+            payerType: order.taxInvoice.payerType as import('@repo/types').TaxInvoicePayerType,
+            taxId: order.taxInvoice.taxId,
+            name: order.taxInvoice.name,
+            branchType: (order.taxInvoice.branchType as import('@repo/types').TaxInvoiceBranchType) ?? null,
+            branchCode: order.taxInvoice.branchCode ?? null,
+            address: order.taxInvoice.address,
+            subtotal: Number(order.taxInvoice.subtotal),
+            discount: Number(order.taxInvoice.discount),
+            shippingFee: Number(order.taxInvoice.shippingFee),
+            totalAmount: Number(order.taxInvoice.totalAmount),
+            preVatAmount: Number(order.taxInvoice.preVatAmount),
+            vatAmount: Number(order.taxInvoice.vatAmount),
+            itemsSnapshot:
+              (order.taxInvoice.itemsSnapshot as unknown as import('@repo/types').ApiTaxInvoiceItem[]) ??
+              [],
+            issuedAt: order.taxInvoice.issuedAt.toISOString(),
+          }
+        : null,
       placedAt: order.placedAt.toISOString(),
       completedAt: order.completedAt ? order.completedAt.toISOString() : null,
       updatedAt: order.updatedAt?.toISOString(),

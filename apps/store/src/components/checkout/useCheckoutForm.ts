@@ -21,6 +21,7 @@ import type {
   ShippingFormData,
   CheckoutStep,
   PaymentMethodOption,
+  TaxInvoiceFormData,
 } from './checkoutTypes';
 
 export function useCheckoutForm() {
@@ -74,6 +75,17 @@ export function useCheckoutForm() {
     province: '',
     city: '',
     postalCode: '',
+  });
+
+  const [taxInvoiceData, setTaxInvoiceData] = useState<TaxInvoiceFormData>({
+    requestTaxInvoice: false,
+    payerType: 'PERSONAL',
+    taxId: '',
+    name: '',
+    branchType: 'HEADQUARTERS',
+    branchCode: '00000',
+    address: '',
+    useShippingAddress: true,
   });
 
   const [savedAddresses, setSavedAddresses] = useState<ApiAddress[]>([]);
@@ -287,6 +299,22 @@ export function useCheckoutForm() {
         paymentMethod: mappedMethod,
         customerEmail: shippingData.email || user?.email,
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+        taxInvoice: taxInvoiceData.requestTaxInvoice
+          ? {
+              payerType: taxInvoiceData.payerType,
+              taxId: taxInvoiceData.taxId.trim(),
+              name: taxInvoiceData.name.trim(),
+              branchType:
+                taxInvoiceData.payerType === 'COMPANY'
+                  ? taxInvoiceData.branchType
+                  : null,
+              branchCode:
+                taxInvoiceData.payerType === 'COMPANY'
+                  ? taxInvoiceData.branchCode.trim()
+                  : null,
+              address: taxInvoiceData.address.trim(),
+            }
+          : undefined,
       };
 
       const createdOrder = await orderRequester.createOrder(payload, token);
@@ -390,6 +418,8 @@ export function useCheckoutForm() {
     orderError,
     shippingData,
     setShippingData,
+    taxInvoiceData,
+    setTaxInvoiceData,
     savedAddresses,
     selectedAddressId,
     addressMode,

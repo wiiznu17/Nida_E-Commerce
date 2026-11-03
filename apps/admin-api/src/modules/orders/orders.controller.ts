@@ -132,6 +132,23 @@ export class OrdersController {
     return this.ordersService.getOrderByNumber(orderNumber);
   }
 
+  @Get('orders/:id/tax-invoice')
+  @RequirePermissions(AdminPermission.ORDERS_READ)
+  @ApiOperation({
+    summary: 'ดึงข้อมูลใบกำกับภาษีสำหรับพิมพ์ (Get Tax Invoice Document)',
+    description:
+      'ดึงข้อมูลใบเสร็จรับเงิน/ใบกำกับภาษีเต็มรูปตามประมวลรัษฎากร ม.86/4 สำหรับพิมพ์เอกสาร A4',
+  })
+  @ApiParam({ name: 'id', description: 'Order ID หรือ Order Number' })
+  @ApiResponse({ status: 200, description: 'ข้อมูลใบกำกับภาษีเต็มรูป' })
+  @ApiResponse({ status: 404, description: 'ไม่พบใบกำกับภาษีหรือยังไม่ได้ออก' })
+  async getOrderTaxInvoice(
+    @Param('id') id: string,
+    @CurrentAdmin() admin?: ApiAdminUser,
+  ) {
+    return this.ordersService.getOrderTaxInvoice(id, admin);
+  }
+
   @Patch('orders/:id/status')
   @RequirePermissions(AdminPermission.ORDERS_FULFILL)
   @ApiOperation({

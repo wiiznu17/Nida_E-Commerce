@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { taxInvoiceRequestSchema } from './tax-invoice.js';
 
 export const orderItemSchema = z.object({
   variantId: z.string().uuid({ message: 'Invalid variant ID format' }),
@@ -28,6 +29,7 @@ export const createOrderSchema = z.object({
   couponCode: z.string().optional(),
   userId: z.string().uuid().optional(),
   cfTurnstileToken: z.string().optional(),
+  taxInvoice: taxInvoiceRequestSchema.optional().nullable(),
 });
 
 export type OrderItemInput = z.infer<typeof orderItemSchema>;

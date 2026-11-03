@@ -14,6 +14,7 @@ import type {
   PaginatedCancellationsResponse,
   AdminReturnQueryParams,
   PaginatedReturnsResponse,
+  ApiTaxInvoice,
 } from '@repo/types';
 
 export interface FulfillOrderPayload {
@@ -176,6 +177,12 @@ export const orderRequester = {
       payload,
     );
     return data;
+  },
+
+  async getTaxInvoice(id: string): Promise<ApiTaxInvoice> {
+    return apiClient.get<ApiTaxInvoice>(
+      `/orders/${encodeURIComponent(id)}/tax-invoice`,
+    );
   },
 };
 

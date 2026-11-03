@@ -23,3 +23,14 @@ export interface CardFormData {
   expiry: string;
   cvc: string;
 }
+
+export interface TaxInvoiceFormData {
+  requestTaxInvoice: boolean;
+  payerType: 'PERSONAL' | 'COMPANY';
+  taxId: string;
+  name: string;
+  branchType: 'HEADQUARTERS' | 'BRANCH';
+  branchCode: string;
+  address: string;
+  useShippingAddress: boolean;
+}

@@ -7,6 +7,7 @@ import { MailerModule } from '../../core/mailer/mailer.module.js';
 import { CustomerAuthModule } from '../auth/auth.module.js';
 
 import { OrderLifecycleModule } from '../order-lifecycle/index.js';
+import { TaxInvoiceModule } from '../tax-invoice/tax-invoice.module.js';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OrderLifecycleModule } from '../order-lifecycle/index.js';
     MailerModule,
     CustomerAuthModule,
     OrderLifecycleModule,
+    TaxInvoiceModule,
   ],
   controllers: [CustomerOrdersController],
   providers: [CustomerOrdersService, OmiseService],

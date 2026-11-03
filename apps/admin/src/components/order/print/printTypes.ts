@@ -1,6 +1,6 @@
 import type { ApiOrder } from '@repo/types';
 
-export type PrintDocumentType = 'LABEL' | 'PACKING_SLIP';
+export type PrintDocumentType = 'LABEL' | 'PACKING_SLIP' | 'TAX_INVOICE';
 
 export interface OrderPrintModalProps {
   isOpen: boolean;
@@ -14,6 +14,10 @@ export interface OrderShippingLabelProps {
 }
 
 export interface OrderPackingSlipProps {
+  order: ApiOrder;
+}
+
+export interface OrderTaxInvoiceProps {
   order: ApiOrder;
 }
 

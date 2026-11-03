@@ -6,6 +6,8 @@ import type {
   CreateCancellationRequestDto,
   CreateReturnRequestDto,
   SubmitReturnShipmentDto,
+  ApiTaxInvoice,
+  ApiTaxInvoiceRequest,
 } from '@repo/types';
 
 export interface CreateCustomerOrderPayload {
@@ -27,6 +29,7 @@ export interface CreateCustomerOrderPayload {
   paymentMethod: PaymentMethod;
   couponCode?: string;
   customerEmail?: string;
+  taxInvoice?: ApiTaxInvoiceRequest;
 }
 
 export interface PayOrderResult {
@@ -59,6 +62,20 @@ export const orderRequester = {
   trackOrder: async (orderNumber: string): Promise<TrackingResult> => {
     return apiClient.get<TrackingResult>(
       `/orders/track/${encodeURIComponent(orderNumber)}`,
+    );
+  },
+
+  /**
+   * Get full tax invoice document for an order.
+   */
+  getTaxInvoice: async (
+    orderNumber: string,
+    token?: string | null,
+  ): Promise<ApiTaxInvoice> => {
+    return apiClient.get<ApiTaxInvoice>(
+      `/orders/${encodeURIComponent(orderNumber)}/tax-invoice`,
+      undefined,
+      token,
     );
   },
 
