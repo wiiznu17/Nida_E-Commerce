@@ -4,3 +4,4 @@ export * from './api-response.js';
 export * from './taxonomy.js';
 export * from './queue-constants.js';
 export * from './health.types.js';
+export * from './account-status.types.js';

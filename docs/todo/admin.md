@@ -118,16 +118,16 @@ graph TD
 
 > **เป้าหมาย**: ให้ฝ่ายการตลาดจัดการรูปภาพแบนเนอร์และโปรโมชันหน้าร้านได้เองโดยไม่ต้องแก้โค้ด
 
-- [ ] **Backend (`apps/admin-api`)**:
-  - [ ] สร้าง `BannerModule` รองรับตาราง `CmsBanner` ที่มีอยู่ใน Prisma:
+- [x] **Backend (`apps/admin-api`)**:
+  - [x] สร้าง `ContentModule` รองรับตาราง `CmsBanner` ที่มีอยู่ใน Prisma:
     - `placement`: `HERO_HOME`, `COLLECTION_TOP`, `PROMO_BAR`
     - `imageDesktopUrl`, `imageMobileUrl`, `targetUrl`, `startDate`, `endDate`, `sortOrder`, `isActive`
-  - [ ] API CRUD แบนเนอร์ พร้อมระบบจัดลำดับ (Drag & Drop Reordering API)
+  - [x] API CRUD แบนเนอร์ พร้อมระบบจัดลำดับ (`POST /cms/banners/reorder`)
 
-- [ ] **Frontend (`apps/admin`)**:
-  - [ ] สร้างหน้า `AdminBanners.tsx` (`/admin/banners`)
-  - [ ] ฟอร์มอัปโหลดรูปภาพ Desktop และ Mobile พร้อมพรีวิวสด
-  - [ ] ตัวตั้งเวลาเริ่ม/สิ้นสุดแคมเปญแบนเนอร์อัตโนมัติ
+- [x] **Frontend (`apps/admin`)**:
+  - [x] สร้างหน้า `AdminCmsContent.tsx` (`/admin/cms`)
+  - [x] ฟอร์มอัปโหลดรูปภาพ Desktop และ Mobile พร้อมพรีวิวสด
+  - [x] ตัวตั้งเวลาเริ่ม/สิ้นสุดแคมเปญแบนเนอร์อัตโนมัติ
 
 ---
 

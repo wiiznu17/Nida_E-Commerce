@@ -146,6 +146,14 @@ enum BannerPlacement {
   PROMO_BAR
 }
 
+enum AccountStatus {
+  ACTIVE
+  PENDING_VERIFICATION
+  SUSPENDED
+  BANNED
+  INACTIVE
+}
+
 // CUSTOMER, AUTHENTICATION & LOYALTY
 
 model User {
@@ -157,6 +165,10 @@ model User {
   passwordHash String?            @map("password_hash") @db.VarChar(255)
   tier         MembershipTier     @default(REGULAR)
   points       Int                @default(0)
+  status       AccountStatus      @default(PENDING_VERIFICATION)
+  statusReason String?            @map("status_reason") @db.VarChar(255)
+  suspendedAt  DateTime?          @map("suspended_at")
+  suspendedUntil DateTime?        @map("suspended_until")
   isVerified   Boolean            @default(false) @map("is_verified")
   createdAt    DateTime           @default(now()) @map("created_at")
   updatedAt    DateTime           @updatedAt @map("updated_at")
@@ -171,6 +183,7 @@ model User {
   returnRequests    ReturnRequest[]
   cancellationRequests OrderCancellationRequest[]
 
+  @@index([status])
   @@map("users")
 }
 
@@ -696,6 +709,10 @@ model AdminUser {
   passwordHash     String          @map("password_hash") @db.VarChar(255)
   fullName         String          @map("full_name") @db.VarChar(150)
   department       String?         @db.VarChar(100)
+  status           AccountStatus   @default(PENDING_VERIFICATION)
+  statusReason     String?         @map("status_reason") @db.VarChar(255)
+  suspendedAt      DateTime?       @map("suspended_at")
+  suspendedUntil   DateTime?       @map("suspended_until")
   isActive         Boolean         @default(true) @map("is_active")
   lastLoginAt      DateTime?       @map("last_login_at")
   createdAt        DateTime        @default(now()) @map("created_at")
@@ -710,6 +727,7 @@ model AdminUser {
   reviewedReturns  ReturnRequest[]
   reviewedCancellations OrderCancellationRequest[]
 
+  @@index([status])
   @@map("admin_users")
 }
 

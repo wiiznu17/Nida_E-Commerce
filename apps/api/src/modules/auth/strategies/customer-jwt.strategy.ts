@@ -67,6 +67,10 @@ export class CustomerJwtStrategy extends PassportStrategy(
       fullName,
       tier: user.tier,
       points: user.points,
+      status: user.status,
+      statusReason: user.statusReason ?? null,
+      suspendedAt: user.suspendedAt?.toISOString() ?? null,
+      suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
       isVerified: user.isVerified,
       createdAt: user.createdAt.toISOString(),
     };

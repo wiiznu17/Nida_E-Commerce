@@ -23,6 +23,7 @@ import type {
   ApiUser,
   CustomerJwtPayload,
   MembershipTier,
+  AccountStatus,
 } from '@repo/types';
 import type {
   RequestOtpInput,
@@ -251,6 +252,10 @@ export class CustomerAuthService {
       lastName?: string | null;
       tier: MembershipTier;
       points: number;
+      status?: AccountStatus;
+      statusReason?: string | null;
+      suspendedAt?: Date | null;
+      suspendedUntil?: Date | null;
       isVerified: boolean;
       createdAt: Date;
     },
@@ -303,6 +308,10 @@ export class CustomerAuthService {
       fullName,
       tier: user.tier,
       points: user.points,
+      status: user.status ?? (user.isVerified ? 'ACTIVE' : 'PENDING_VERIFICATION'),
+      statusReason: user.statusReason ?? null,
+      suspendedAt: user.suspendedAt?.toISOString() ?? null,
+      suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
       isVerified: user.isVerified,
       createdAt: user.createdAt.toISOString(),
     };
@@ -933,6 +942,10 @@ export class CustomerAuthService {
       fullName,
       tier: user.tier,
       points: user.points,
+      status: user.status,
+      statusReason: user.statusReason ?? null,
+      suspendedAt: user.suspendedAt?.toISOString() ?? null,
+      suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
       isVerified: user.isVerified,
       createdAt: user.createdAt.toISOString(),
     };
@@ -1070,6 +1083,10 @@ export class CustomerAuthService {
       fullName,
       tier: user.tier,
       points: user.points,
+      status: user.status,
+      statusReason: user.statusReason ?? null,
+      suspendedAt: user.suspendedAt?.toISOString() ?? null,
+      suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
       isVerified: user.isVerified,
       createdAt: user.createdAt.toISOString(),
     };
@@ -1112,6 +1129,10 @@ export class CustomerAuthService {
       fullName,
       tier: updatedUser.tier,
       points: updatedUser.points,
+      status: updatedUser.status,
+      statusReason: updatedUser.statusReason ?? null,
+      suspendedAt: updatedUser.suspendedAt?.toISOString() ?? null,
+      suspendedUntil: updatedUser.suspendedUntil?.toISOString() ?? null,
       isVerified: updatedUser.isVerified,
       createdAt: updatedUser.createdAt.toISOString(),
     };

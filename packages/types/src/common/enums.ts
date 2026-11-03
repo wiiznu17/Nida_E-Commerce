@@ -88,6 +88,16 @@ export type StockChangeType =
   (typeof StockChangeType)[keyof typeof StockChangeType];
 export type StockMovementType = StockChangeType;
 
+// --- Account & User Status Lifecycle ---
+export const AccountStatus = {
+  ACTIVE: 'ACTIVE',
+  PENDING_VERIFICATION: 'PENDING_VERIFICATION',
+  SUSPENDED: 'SUSPENDED',
+  BANNED: 'BANNED',
+  INACTIVE: 'INACTIVE',
+} as const;
+export type AccountStatus = (typeof AccountStatus)[keyof typeof AccountStatus];
+
 // --- Customer ---
 export const MembershipTier = {
   REGULAR: 'REGULAR',

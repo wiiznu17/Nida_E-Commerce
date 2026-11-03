@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AccountStatus } from '@repo/types';
 
 /**
  * Admin Login Credentials Schema
@@ -59,3 +60,25 @@ export const inviteAdminSchema = z.object({
 });
 
 export type InviteAdminInput = z.infer<typeof inviteAdminSchema>;
+
+/**
+ * Update Account Status Schema (Suspend, Ban, Reactivate)
+ */
+export const updateAccountStatusSchema = z.object({
+  status: z.enum([
+    AccountStatus.ACTIVE,
+    AccountStatus.PENDING_VERIFICATION,
+    AccountStatus.SUSPENDED,
+    AccountStatus.BANNED,
+    AccountStatus.INACTIVE,
+  ]),
+  statusReason: z
+    .string()
+    .trim()
+    .min(3, 'กรุณาระบุเหตุผลอย่างน้อย 3 ตัวอักษร')
+    .max(255, 'เหตุผลต้องไม่เกิน 255 ตัวอักษร'),
+  durationMinutes: z.number().int().positive().optional(),
+});
+
+export type UpdateAccountStatusInput = z.infer<typeof updateAccountStatusSchema>;
+

@@ -1,5 +1,7 @@
 // @repo/types — Admin Auth & RBAC Types
 
+import type { AccountStatus } from '../common/enums.js';
+
 export enum AdminRoleCode {
   SUPER_ADMIN = 'SUPER_ADMIN',
   INVENTORY_MANAGER = 'INVENTORY_MANAGER',
@@ -149,6 +151,10 @@ export interface ApiAdminUser {
   fullName: string;
   department?: string | null;
   role: ApiAdminRole;
+  status: AccountStatus;
+  statusReason?: string | null;
+  suspendedAt?: string | null;
+  suspendedUntil?: string | null;
   isActive: boolean;
   lastLoginAt?: string | null;
   createdAt: string;

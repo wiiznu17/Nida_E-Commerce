@@ -1,6 +1,6 @@
 // @repo/types — Customer Profile & Address Types
 
-import type { MembershipTier } from '../common/enums.js';
+import type { MembershipTier, AccountStatus } from '../common/enums.js';
 
 export interface ApiUser {
   id: string;
@@ -11,6 +11,10 @@ export interface ApiUser {
   fullName: string;
   tier: MembershipTier;
   points: number;
+  status: AccountStatus;
+  statusReason?: string | null;
+  suspendedAt?: string | null;
+  suspendedUntil?: string | null;
   isVerified: boolean;
   createdAt: string;
 }

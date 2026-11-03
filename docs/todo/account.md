@@ -142,19 +142,20 @@ model AdminUser {
 
 ### 📌 เฟส 1: Database & Migration Architecture
 
-- [ ] **1.1 เพิ่ม Enum และฟิลด์ใหม่ใน `packages/database/prisma/schema.prisma`**
-  - เพิ่ม `enum AccountStatus`
-  - เพิ่มฟิลด์ `status`, `statusReason`, `suspendedAt`, `suspendedUntil` ในโมเดล `User` และ `AdminUser`
-- [ ] **1.2 เขียน Migration File พร้อม Data Backfill Strategy**
+- [x] **1.1 เพิ่ม Enum และฟิลด์ใหม่ใน `packages/database/prisma/schema.prisma`**
+  - เพิ่ม `enum AccountStatus` (`ACTIVE`, `PENDING_VERIFICATION`, `SUSPENDED`, `BANNED`, `INACTIVE`)
+  - เพิ่มฟิลด์ `status`, `statusReason`, `suspendedAt`, `suspendedUntil` ในโมเดล `User` และ `AdminUser` พร้อม Index `@@index([status])`
+- [x] **1.2 เขียน Migration File พร้อม Data Backfill Strategy**
+  - สร้าง migration `20261103201500_add_account_status_lifecycle` และ Deploy ขึ้นฐานข้อมูลจริงสำเร็จ
   - แมปข้อมูลเดิมของ `admin_users`:
     - `isActive = true` ➔ `status = 'ACTIVE'`
-    - `isActive = false` ➔ `status = 'PENDING_VERIFICATION'` (กรณีเพิ่งเชิญ) หรือ `'INACTIVE'`
+    - `isActive = false` ➔ `status = 'INACTIVE'`
   - แมปข้อมูลเดิมของ `users`:
     - `isVerified = true` ➔ `status = 'ACTIVE'`
     - `isVerified = false` ➔ `status = 'PENDING_VERIFICATION'`
-- [ ] **1.3 อัปเดต `@repo/types` และ `@repo/validators`**
-  - ส่งออก `AccountStatus` ใน `@repo/types`
-  - สร้าง Zod Schema สำหรับการเปลี่ยนสถานะผู้ใช้ (เช่น `updateUserStatusSchema`) พร้อมบังคับระบุ `statusReason`
+- [x] **1.3 อัปเดต `@repo/types` และ `@repo/validators`**
+  - ส่งออก `AccountStatus` และสัญญา `AccountStatusErrorResponse` ใน `@repo/types`
+  - สร้าง Zod Schema `updateAccountStatusSchema` และ DTO `UpdateAccountStatusInput` ใน `@repo/validators` พร้อมบังคับระบุ `statusReason`
 
 ---
 
