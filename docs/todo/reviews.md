@@ -11,7 +11,7 @@
 | **Technical Specification** | ✅ พร้อม 100% | อ้างอิงเอกสาร [docs/specs/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/reviews.md) |
 | **Database Schema & Migration** | ✅ เสร็จสมบูรณ์ | ปรับปรุง Model `Review` เพิ่ม `orderId`, `title`, `adminReply`, `deletedAt`, `isVerifiedPurchase` พร้อมสร้าง Migration SQL เรียบร้อย |
 | **Shared Contracts & Validators** | ✅ เสร็จสมบูรณ์ | ประกาศ DTO ใน `@repo/types` และ Zod Schema ใน `@repo/validators` ทั้งฝั่งลูกค้าและแอดมิน เรียบร้อย |
-| **Storefront Backend Engine** | ⏳ รอดำเนินการ | โมดูล `reviews` ใน `apps/api`: คำนวณ Average Rating, สัดส่วนดาว, และ Guard `Verified Buyer` |
+| **Storefront Backend Engine** | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/api`: คำนวณ Average Rating, สัดส่วนดาว, Guard `Verified Buyer`, ลบรีวิว, และ Unit Tests ผ่าน 100% |
 | **Admin Back-Office Backend** | ⏳ รอดำเนินการ | โมดูล `reviews` ใน `apps/admin-api`: ค้นหา, สลับสถานะ Approved/Hidden, ตอบกลับรีวิว, และ Audit Logging |
 | **Storefront UI & Modal** | ⏳ รอดำเนินการ | ส่วนแสดงรีวิวในหน้าสินค้า (`apps/store`), แถบสัดส่วนดาว, และ Modal เขียนรีวิว (`WriteReviewModal`) |
 | **Admin Back-Office UI** | ⏳ รอดำเนินการ | เมนูและหน้าจัดการรีวิว (`apps/admin/src/pages/AdminReviews.tsx`) และ Modal ตอบกลับลูกค้า |
@@ -85,23 +85,23 @@ graph TD
 ### เฟส 3: เครื่องยนต์รีวิวและคำนวณคะแนนฝั่งหน้าร้าน (`apps/api`)
 > **เป้าหมาย**: API สำหรับดึงรีวิวสินค้า คำนวณสถิติดาว และ Guard ตรวจสอบสิทธิ์ผู้ซื้อจริง
 
-- [ ] **โมดูล `apps/api/src/modules/reviews/`**:
-  - [ ] สร้าง `reviews.service.ts`:
+- [x] **โมดูล `apps/api/src/modules/reviews/`**:
+  - [x] สร้าง `reviews.service.ts`:
     - `getProductReviews(productId, page, limit, starFilter)`: ดึงรีวิวที่ `isApproved = true` พร้อมคำนวณ `ApiRatingSummary`
     - `createReview(userId, productId, dto)`:
       - **Verified Buyer Guard**: ตรวจสอบว่า `orderId` เป็นของลูกค้าจริง ออเดอร์มีสถานะ `DELIVERED` หรือ `COMPLETED` และมีสินค้าดังกล่าวอยู่ในออเดอร์
       - ตรวจสอบไม่ให้ส่งรีวิวซ้ำสำหรับสินค้าเดิมในออเดอร์เดียวกัน
       - ล้างแคช Redis ของ Product Detail เมื่อมีรีวิวใหม่
     - `getEligibleItemsForReview(userId)`: ค้นหาสินค้าจากออเดอร์ที่จัดส่งสำเร็จแล้วและยังไม่เคยรีวิว
-  - [ ] สร้าง `reviews.controller.ts`:
+  - [x] สร้าง `reviews.controller.ts`:
     - `GET /api/v1/products/:id/reviews` (Public)
     - `GET /api/v1/customer/reviews/eligible` (Customer JWT Guard)
     - `POST /api/v1/products/:id/reviews` (Customer JWT Guard + Zod Validation)
     - `DELETE /api/v1/customer/reviews/:id` (Customer JWT Guard: สิทธิ์ลบรีวิวของตนเอง + คำนวณคะแนนใหม่)
-  - [ ] ลงทะเบียนโมดูลใน `app.module.ts`
-- [ ] **ปรับปรุง `catalog.service.ts`**:
-  - [ ] คำนวณค่า `rating` เฉลี่ยจริง และนับ `reviewsCount` จากเฉพาะรีวิวที่ `isApproved = true` และ `deletedAt IS NULL`
-  - [ ] ลบตัวเลขหลอก/สมมติทั้งหมด
+  - [x] ลงทะเบียนโมดูลใน `app.module.ts`
+- [x] **ปรับปรุง `catalog.service.ts`**:
+  - [x] คำนวณค่า `rating` เฉลี่ยจริง และนับ `reviewsCount` จากเฉพาะรีวิวที่ `isApproved = true` และ `deletedAt IS NULL`
+  - [x] ลบตัวเลขหลอก/สมมติทั้งหมด
 
 ---
 

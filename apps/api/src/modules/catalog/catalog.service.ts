@@ -217,7 +217,13 @@ export class CustomerCatalogService {
           variants: {
             include: { inventoryItem: true },
           },
-          _count: { select: { reviews: true } },
+          _count: {
+            select: {
+              reviews: {
+                where: { isApproved: true, deletedAt: null },
+              },
+            },
+          },
         },
         orderBy,
         skip,
@@ -320,13 +326,31 @@ export class CustomerCatalogService {
         variants: {
           include: { inventoryItem: true },
         },
-        _count: { select: { reviews: true } },
+        _count: {
+          select: {
+            reviews: {
+              where: { isApproved: true, deletedAt: null },
+            },
+          },
+        },
       },
     });
 
     if (!product || !product.isActive) {
       throw new NotFoundException(`Product "${slugOrId}" not found`);
     }
+
+    const reviewAgg = await this.prisma.review.aggregate({
+      where: {
+        productId: product.id,
+        isApproved: true,
+        deletedAt: null,
+      },
+      _avg: { rating: true },
+    });
+    const avgRating = reviewAgg._avg.rating
+      ? Math.round(reviewAgg._avg.rating * 10) / 10
+      : undefined;
 
     const detail: ApiProductDetail = {
       id: product.id,
@@ -387,6 +411,7 @@ export class CustomerCatalogService {
         };
       }),
       reviewsCount: product._count.reviews,
+      rating: avgRating,
       isPreorder: product.isPreorder,
       preorderReleaseDate: product.preorderReleaseDate?.toISOString(),
       preorderLimit: product.preorderLimit ?? undefined,

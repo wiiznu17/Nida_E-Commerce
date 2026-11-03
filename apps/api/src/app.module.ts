@@ -15,6 +15,7 @@ import { OrderLifecycleModule } from './modules/order-lifecycle/index.js';
 import { WishlistModule } from './modules/wishlist/wishlist.module.js';
 import { CouponsModule } from './modules/coupons/coupons.module.js';
 import { CartModule } from './modules/cart/cart.module.js';
+import { ReviewsModule } from './modules/reviews/reviews.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -68,6 +69,7 @@ import { AppService } from './app.service.js';
     WishlistModule,
     CouponsModule,
     CartModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [
