@@ -39,6 +39,11 @@ export function maskPhone(phone: string): string {
   return `${phone.substring(0, 3)}***${phone.substring(phone.length - 2)}`;
 }
 
+export function maskAddressLine(addressLine: string): string {
+  if (!addressLine || typeof addressLine !== 'string') return addressLine;
+  return addressLine.replace(/^[\d\w/\\-]+(\s+)?/, '*** ');
+}
+
 export function sanitizeData<T = unknown>(
   data: T,
   seen = new WeakSet<object>(),

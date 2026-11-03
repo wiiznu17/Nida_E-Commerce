@@ -50,8 +50,14 @@ export const orderRequester = {
     return data;
   },
 
-  async getByNumber(orderNumber: string): Promise<ApiOrder> {
-    const data = await apiClient.get<ApiOrder>(`/orders/${orderNumber}`);
+  async getByNumber(
+    orderNumber: string,
+    options?: { revealPii?: boolean },
+  ): Promise<ApiOrder> {
+    const query = options?.revealPii ? '?revealPii=true' : '';
+    const data = await apiClient.get<ApiOrder>(
+      `/orders/${encodeURIComponent(orderNumber)}${query}`,
+    );
     return data;
   },
 

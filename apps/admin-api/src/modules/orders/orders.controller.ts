@@ -9,6 +9,7 @@ import {
   Headers,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,6 +19,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { OrdersService } from './orders.service.js';
+import { RoleBasedPiiInterceptor } from '../../core/interceptors/role-based-pii.interceptor.js';
 import {
   CreateOrderDto,
   UpdateOrderStatusDto,
@@ -94,6 +96,7 @@ export class OrdersController {
     status: 200,
     description: 'รายการคำสั่งซื้อและข้อมูลการแบ่งหน้า',
   })
+  @UseInterceptors(RoleBasedPiiInterceptor)
   async getOrders(
     @Query(new ZodValidationPipe(adminOrderQuerySchema))
     query: AdminOrderQueryInput,
@@ -103,18 +106,28 @@ export class OrdersController {
 
   @Get('orders/:orderNumber')
   @RequirePermissions(AdminPermission.ORDERS_READ)
+  @UseInterceptors(RoleBasedPiiInterceptor)
   @ApiOperation({
     summary: 'ดูรายละเอียดคำสั่งซื้อตาม Order Number',
     description:
-      'ดึงข้อมูลสินค้า ที่อยู่จัดส่ง สถานะการชำระเงิน และรายการพัสดุจัดส่ง',
+      'ดึงข้อมูลสินค้า ที่อยู่จัดส่ง สถานะการชำระเงิน และรายการพัสดุจัดส่ง (รองรับ ?revealPii=true)',
   })
   @ApiParam({
     name: 'orderNumber',
     description: 'หมายเลขคำสั่งซื้อ เช่น NIDA-20260920-ABCD',
   })
+  @ApiQuery({
+    name: 'revealPii',
+    required: false,
+    type: Boolean,
+    description: 'ขอเปิดดูข้อมูลส่วนบุคคล (PII) แบบ Unmasked พร้อมบันทึก Audit Log',
+  })
   @ApiResponse({ status: 200, description: 'ข้อมูลคำสั่งซื้อ' })
   @ApiResponse({ status: 404, description: 'ไม่พบคำสั่งซื้อ' })
-  async getOrder(@Param('orderNumber') orderNumber: string) {
+  async getOrder(
+    @Param('orderNumber') orderNumber: string,
+    @Query('revealPii') _revealPii?: string,
+  ) {
     return this.ordersService.getOrderByNumber(orderNumber);
   }
 

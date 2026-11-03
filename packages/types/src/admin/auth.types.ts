@@ -18,6 +18,7 @@ export enum AdminPermission {
   COUPONS_MANAGE = 'COUPONS_MANAGE',
   ADMIN_USERS_MANAGE = 'ADMIN_USERS_MANAGE',
   AUDIT_LOGS_READ = 'AUDIT_LOGS_READ',
+  CUSTOMERS_PII_READ = 'CUSTOMERS_PII_READ',
 }
 
 export const ROLE_DEFAULT_PERMISSIONS: Record<
@@ -35,6 +36,7 @@ export const ROLE_DEFAULT_PERMISSIONS: Record<
     AdminPermission.COUPONS_MANAGE,
     AdminPermission.ADMIN_USERS_MANAGE,
     AdminPermission.AUDIT_LOGS_READ,
+    AdminPermission.CUSTOMERS_PII_READ,
   ],
   [AdminRoleCode.INVENTORY_MANAGER]: [
     AdminPermission.CATALOG_READ,
@@ -123,6 +125,12 @@ export const PERMISSION_DEFINITIONS: PermissionDefinition[] = [
     module: 'SECURITY',
     nameKey: 'permissions.auditLogsReadName',
     descriptionKey: 'permissions.auditLogsReadDesc',
+  },
+  {
+    code: AdminPermission.CUSTOMERS_PII_READ,
+    module: 'SECURITY',
+    nameKey: 'permissions.customersPiiReadName',
+    descriptionKey: 'permissions.customersPiiReadDesc',
   },
 ];
 

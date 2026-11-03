@@ -143,6 +143,8 @@ export const AuditActionType = {
   DELETE: 'DELETE',
   STATUS_CHANGE: 'STATUS_CHANGE',
   REFUND: 'REFUND',
+  READ: 'READ',
+  EXPORT: 'EXPORT',
 } as const;
 export type AuditActionType =
   (typeof AuditActionType)[keyof typeof AuditActionType];

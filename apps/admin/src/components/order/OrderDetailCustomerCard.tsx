@@ -7,8 +7,11 @@ import {
   User,
   Eye,
   EyeOff,
+  Loader2,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useToast } from '../../context/ToastContext';
+import { orderRequester } from '../../api/requester/orderRequester';
 import { formatPaymentMethod, maskEmail, maskPhone } from '../../utils';
 import type {
   ApiOrderAddress,
@@ -17,6 +20,7 @@ import type {
 } from '@repo/types';
 
 export interface OrderDetailCustomerCardProps {
+  orderNumber?: string;
   shippingAddress?: ApiOrderAddress;
   payment?: ApiPaymentSummary;
   status: OrderStatus;
@@ -24,19 +28,76 @@ export interface OrderDetailCustomerCardProps {
 }
 
 export function OrderDetailCustomerCard({
+  orderNumber,
   shippingAddress,
   payment,
   status,
   customerEmail = 'customer@nida.com',
 }: OrderDetailCustomerCardProps) {
   const { t } = useLanguage();
+  const { info, error } = useToast();
   const [isRevealed, setIsRevealed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [revealedData, setRevealedData] = useState<{
+    phone?: string;
+    email?: string;
+    addressLine1?: string;
+  } | null>(null);
+
   const recipientName = shippingAddress?.recipientName ?? 'Valued Customer';
   const phone = shippingAddress?.phone ?? '-';
   const addressLine1 = shippingAddress?.addressLine1 ?? '-';
   const province = shippingAddress?.province ?? '-';
   const postalCode = shippingAddress?.postalCode ?? '-';
   const paymentMethod = formatPaymentMethod(payment?.paymentMethod);
+
+  const handleToggleReveal = async () => {
+    if (isRevealed) {
+      setIsRevealed(false);
+      return;
+    }
+
+    if (orderNumber) {
+      setIsLoading(true);
+      try {
+        const orderData = await orderRequester.getByNumber(orderNumber, {
+          revealPii: true,
+        });
+        if (orderData?.shippingAddress) {
+          const rawOrder = orderData as unknown as {
+            user?: { email?: string };
+            customerEmail?: string;
+          };
+          setRevealedData({
+            phone: orderData.shippingAddress.phone,
+            addressLine1: orderData.shippingAddress.addressLine1,
+            email:
+              rawOrder.user?.email ??
+              rawOrder.customerEmail ??
+              customerEmail,
+          });
+        }
+        setIsRevealed(true);
+        info(t('orders.detail.piiAccessLogged'));
+      } catch {
+        error(t('orders.detail.piiAccessError'));
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setIsRevealed(true);
+    }
+  };
+
+  const displayPhone = isRevealed
+    ? (revealedData?.phone ?? phone)
+    : maskPhone(phone);
+  const displayEmail = isRevealed
+    ? (revealedData?.email ?? customerEmail)
+    : maskEmail(customerEmail);
+  const displayAddress = isRevealed
+    ? (revealedData?.addressLine1 ?? addressLine1)
+    : addressLine1;
 
   return (
     <div
@@ -57,11 +118,18 @@ export function OrderDetailCustomerCard({
           <div className="flex items-center space-x-2">
             <button
               type="button"
-              onClick={() => setIsRevealed((prev) => !prev)}
-              className="inline-flex items-center space-x-1 text-[10px] font-bold text-gray-500 hover:text-brand-brown tracking-wider uppercase transition-colors cursor-pointer"
+              onClick={handleToggleReveal}
+              disabled={isLoading}
+              className="inline-flex items-center space-x-1 text-[10px] font-bold text-gray-500 hover:text-brand-brown tracking-wider uppercase transition-colors cursor-pointer disabled:opacity-50"
               title={isRevealed ? t('common.hide') : t('common.reveal')}
             >
-              {isRevealed ? <EyeOff size={13} /> : <Eye size={13} />}
+              {isLoading ? (
+                <Loader2 size={13} className="animate-spin text-brand-amber" />
+              ) : isRevealed ? (
+                <EyeOff size={13} />
+              ) : (
+                <Eye size={13} />
+              )}
               <span>{isRevealed ? t('common.hide') : t('common.reveal')}</span>
             </button>
             <User size={16} className="text-brand-amber ml-1" />
@@ -89,15 +157,11 @@ export function OrderDetailCustomerCard({
             <div className="pt-2 border-t border-gray-200/80 space-y-1.5 text-gray-600">
               <div className="flex items-center space-x-2">
                 <Mail size={13} className="text-gray-400 flex-shrink-0" />
-                <span className="truncate font-mono">
-                  {isRevealed ? customerEmail : maskEmail(customerEmail)}
-                </span>
+                <span className="truncate font-mono">{displayEmail}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone size={13} className="text-gray-400 flex-shrink-0" />
-                <span className="font-mono">
-                  {isRevealed ? phone : maskPhone(phone)}
-                </span>
+                <span className="font-mono">{displayPhone}</span>
               </div>
             </div>
           </div>
@@ -108,7 +172,7 @@ export function OrderDetailCustomerCard({
               <MapPin size={12} className="mr-1 text-brand-amber" />
               <span>{t('orders.detail.deliveryAddress')}</span>
             </div>
-            <p className="font-bold text-brand-brown">{addressLine1}</p>
+            <p className="font-bold text-brand-brown">{displayAddress}</p>
             <p className="text-gray-600">
               {province} {postalCode}
             </p>

@@ -268,6 +268,7 @@ export default function AdminOrderDetail() {
 
           <div className="lg:col-span-5 flex flex-col">
             <OrderDetailCustomerCard
+              orderNumber={order.orderNumber}
               shippingAddress={order.shippingAddress}
               payment={order.payment}
               status={order.status}

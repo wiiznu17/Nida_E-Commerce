@@ -133,6 +133,8 @@ enum AuditActionType {
   DELETE
   STATUS_CHANGE
   REFUND
+  READ
+  EXPORT
 }
 
 enum BannerPlacement {

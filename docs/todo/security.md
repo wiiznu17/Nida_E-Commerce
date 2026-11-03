@@ -81,13 +81,15 @@
     - **Customer Profile (`/profile`):** ปิดบังเบอร์โทรศัพท์และอีเมลในหน้าดูข้อมูลส่วนตัว
     - **Checkout / Payment Methods:** ตรวจสอบให้แน่ใจว่าแสดงผลบัตรเครดิตเฉพาะ `cardLast4` ตามมาตรฐาน PCI-DSS
   - **ข้อควรระวังสำคัญ:** ในช่องกรอกข้อมูล (Input Fields) ตอนสร้าง/แก้ไขที่อยู่ หรือสั่งซื้อ ต้องรับค่าจริงและส่งค่าจริงเข้า API เสมอ ห้ามเผลอส่งก้อนดอกจัน `***` เข้าฐานข้อมูล
-- [ ] **2.6 ระบบ Role-Based PII Masking ฝั่ง Backend API (Server-Side DTO Sanitization & RBAC)**
+- [x] **2.6 ระบบ Role-Based PII Masking ฝั่ง Backend API (Server-Side DTO Sanitization & RBAC)**
   - แก้ปัญหาข้อมูลดิบรั่วไหลในระดับ Network / F12 DevTools โดย Mask ข้อมูลตั้งแต่ฝั่งเซิร์ฟเวอร์ก่อนส่งให้ Client
   - **การควบคุมสิทธิ์ (RBAC Permission):**
-    - กำหนด Permission พิเศษ `Permission.VIEW_CUSTOMER_PII` หรืออนุญาตเฉพาะ Role ระดับสูง (เช่น `SUPER_ADMIN` หรือหัวหน้าฝ่าย CS/Fulfillment)
-    - สำหรับ Staff ทั่วไปที่ไม่มีสิทธิ์: Interceptor หรือ DTO Mapper จะทำการ Mask ฟิลด์ PII (เช่น `phone`, `email`, `addressLine1`) อัตโนมัติจากเซิร์ฟเวอร์
-  - **Audit Trail สำหรับการขอเปิดดูข้อมูลเต็ม (Unmask Audit Logging):**
-    - เมื่อ Admin ผู้มีสิทธิ์กด Reveal/Unmask เพื่อดูข้อมูลจริง ให้ส่งคำขอไปยัง Endpoint เฉพาะ (เช่น `POST /orders/:id/reveal-pii`) พร้อมบันทึก `AdminAuditLog` (ใคร, ดูข้อมูลของลูกค้าคนไหน, เมื่อไหร่, จาก IP อะไร) ตามข้อกำหนด พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA / GDPR)
+    - กำหนด Permission พิเศษ `AdminPermission.CUSTOMERS_PII_READ` อนุญาตเฉพาะ `SUPER_ADMIN` หรือหัวหน้าฝ่าย CS/Fulfillment
+    - สำหรับ Staff ทั่วไปที่ไม่มีสิทธิ์: Interceptor กลาง (`RoleBasedPiiInterceptor`) ทำการ Mask ฟิลด์ PII (`phone`, `email`, `addressLine1`) อัตโนมัติจากเซิร์ฟเวอร์
+  - **Selective Audit Trail (`READ` & `EXPORT`):**
+    - เพิ่ม `AuditActionType.READ` และ `AuditActionType.EXPORT` ใน Prisma Schema และ Database Migration
+    - เมื่อ Admin ผู้มีสิทธิ์กด Reveal เพื่อดูข้อมูลจริง ให้ส่งคำขอพร้อม `?revealPii=true` บน Route เดิม พร้อมบันทึก `AdminAuditLog` (`actionType: READ`) อัตโนมัติ
+    - เมื่อ Admin กด Export รายงาน CSV ใน `AnalyticsController` บันทึก `AdminAuditLog` (`actionType: EXPORT`) อัตโนมัติ
 
 ---
 

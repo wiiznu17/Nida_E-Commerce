@@ -1,6 +1,18 @@
-import { Controller, Get, Header, Query, StreamableFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Header,
+  Query,
+  StreamableFile,
+  Req,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AdminPermission } from '@repo/types';
+import type { Request } from 'express';
+import {
+  AdminPermission,
+  AuditActionType,
+  type ApiAdminUser,
+} from '@repo/types';
 import {
   analyticsCouponRoiSchema,
   analyticsDeptSchema,
@@ -24,13 +36,17 @@ import {
   type ExportProductsQuery,
 } from '@repo/validators';
 import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
-import { RequirePermissions } from '../auth/decorators/index.js';
+import { RequirePermissions, CurrentAdmin } from '../auth/decorators/index.js';
 import { AnalyticsService } from './analytics.service.js';
+import { AuditLogService } from '../audit-log/audit-log.service.js';
 
 @ApiTags('Analytics & Data Export')
 @Controller(['admin/analytics', 'analytics'])
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(
+    private readonly analyticsService: AnalyticsService,
+    private readonly auditLogService: AuditLogService,
+  ) {}
 
   @Get('overview')
   @RequirePermissions(AdminPermission.ORDERS_READ)
@@ -135,8 +151,23 @@ export class AnalyticsController {
   async exportOrders(
     @Query(new ZodValidationPipe(exportOrdersSchema))
     query: ExportOrdersQuery,
+    @CurrentAdmin() admin?: ApiAdminUser,
+    @Req() req?: Request,
   ): Promise<StreamableFile> {
     const csv = await this.analyticsService.exportOrders(query);
+
+    void this.auditLogService.recordLog({
+      adminId: admin?.id ?? null,
+      actionType: AuditActionType.EXPORT,
+      targetTable: 'orders',
+      targetId: 'csv_export',
+      permission: AdminPermission.ORDERS_READ,
+      performedRole: admin?.role?.roleCode ?? null,
+      ipAddress: req?.ip ?? null,
+      userAgent: req?.headers?.['user-agent'] ?? null,
+      newValuesJson: { exportType: 'orders_csv', ...query },
+    });
+
     return new StreamableFile(Buffer.from(csv, 'utf-8'));
   }
 
@@ -152,8 +183,23 @@ export class AnalyticsController {
   async exportProducts(
     @Query(new ZodValidationPipe(exportProductsSchema))
     query: ExportProductsQuery,
+    @CurrentAdmin() admin?: ApiAdminUser,
+    @Req() req?: Request,
   ): Promise<StreamableFile> {
     const csv = await this.analyticsService.exportProducts(query);
+
+    void this.auditLogService.recordLog({
+      adminId: admin?.id ?? null,
+      actionType: AuditActionType.EXPORT,
+      targetTable: 'products',
+      targetId: 'csv_export',
+      permission: AdminPermission.CATALOG_READ,
+      performedRole: admin?.role?.roleCode ?? null,
+      ipAddress: req?.ip ?? null,
+      userAgent: req?.headers?.['user-agent'] ?? null,
+      newValuesJson: { exportType: 'products_csv', ...query },
+    });
+
     return new StreamableFile(Buffer.from(csv, 'utf-8'));
   }
 
@@ -168,8 +214,23 @@ export class AnalyticsController {
   async exportInventory(
     @Query(new ZodValidationPipe(exportInventorySchema))
     query: ExportInventoryQuery,
+    @CurrentAdmin() admin?: ApiAdminUser,
+    @Req() req?: Request,
   ): Promise<StreamableFile> {
     const csv = await this.analyticsService.exportInventory(query);
+
+    void this.auditLogService.recordLog({
+      adminId: admin?.id ?? null,
+      actionType: AuditActionType.EXPORT,
+      targetTable: 'inventory',
+      targetId: 'csv_export',
+      permission: AdminPermission.INVENTORY_READ,
+      performedRole: admin?.role?.roleCode ?? null,
+      ipAddress: req?.ip ?? null,
+      userAgent: req?.headers?.['user-agent'] ?? null,
+      newValuesJson: { exportType: 'inventory_csv', ...query },
+    });
+
     return new StreamableFile(Buffer.from(csv, 'utf-8'));
   }
 
@@ -185,8 +246,23 @@ export class AnalyticsController {
   async exportAuditLogs(
     @Query(new ZodValidationPipe(exportAuditLogsSchema))
     query: ExportAuditLogsQuery,
+    @CurrentAdmin() admin?: ApiAdminUser,
+    @Req() req?: Request,
   ): Promise<StreamableFile> {
     const csv = await this.analyticsService.exportAuditLogs(query);
+
+    void this.auditLogService.recordLog({
+      adminId: admin?.id ?? null,
+      actionType: AuditActionType.EXPORT,
+      targetTable: 'admin_audit_logs',
+      targetId: 'csv_export',
+      permission: AdminPermission.AUDIT_LOGS_READ,
+      performedRole: admin?.role?.roleCode ?? null,
+      ipAddress: req?.ip ?? null,
+      userAgent: req?.headers?.['user-agent'] ?? null,
+      newValuesJson: { exportType: 'audit_logs_csv', ...query },
+    });
+
     return new StreamableFile(Buffer.from(csv, 'utf-8'));
   }
 }

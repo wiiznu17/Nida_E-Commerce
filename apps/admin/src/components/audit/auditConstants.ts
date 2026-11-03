@@ -32,6 +32,16 @@ export const AUDIT_ACTION_CONFIG: Record<AuditActionType, ActionBadgeConfig> = {
     badgeClass: 'bg-purple-50 text-purple-800 border-purple-200/80',
     dotClass: 'bg-purple-500',
   },
+  [AuditActionType.READ]: {
+    labelKey: 'audit.actionRead',
+    badgeClass: 'bg-indigo-50 text-indigo-800 border-indigo-200/80',
+    dotClass: 'bg-indigo-500',
+  },
+  [AuditActionType.EXPORT]: {
+    labelKey: 'audit.actionExport',
+    badgeClass: 'bg-teal-50 text-teal-800 border-teal-200/80',
+    dotClass: 'bg-teal-500',
+  },
 };
 
 export const TARGET_TABLE_KEYS: Record<string, string> = {
