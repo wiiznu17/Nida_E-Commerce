@@ -235,6 +235,37 @@ async function request<T>(
       ) {
         errorMessage = String(errorObj.message[0]);
       }
+
+      // Detect Account Status restrictions (Suspended, Banned, Deactivated)
+      if (response.status === 401 || response.status === 403) {
+        const rawCode =
+          typeof errorObj.code === 'string'
+            ? errorObj.code
+            : typeof errorObj.errorCode === 'string'
+              ? errorObj.errorCode
+              : '';
+
+        if (
+          rawCode === 'ACCOUNT_SUSPENDED' ||
+          rawCode === 'ACCOUNT_BANNED' ||
+          rawCode === 'ACCOUNT_DEACTIVATED'
+        ) {
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('nida_customer_jwt_token');
+            localStorage.removeItem('nida_customer_refresh_token');
+            localStorage.removeItem('nida_customer_user_cache');
+            window.dispatchEvent(
+              new CustomEvent('nida:auth:account_restricted', {
+                detail: {
+                  code: rawCode,
+                  message: errorMessage,
+                  details: errorObj.details,
+                },
+              }),
+            );
+          }
+        }
+      }
     }
 
     throw new ApiError(errorMessage, response.status, bodyData);

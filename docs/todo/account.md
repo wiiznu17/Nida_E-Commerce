@@ -247,12 +247,20 @@ model AdminUser {
 
 ---
 
-### 📌 เฟส 4: Customer Storefront Handling
+### 📌 เฟส 4: Customer Storefront Handling (การจัดการข้อความแจ้งเตือนและสถานะบัญชีฝั่งหน้าร้านค้า)
 
-- [ ] **4.1 แสดงข้อความแจ้งเตือนที่เข้าใจง่ายบนหน้า Login หน้าร้าน**
-  - บัญชีติด `PENDING_VERIFICATION`: _"กรุณายืนยันรหัส OTP เพื่อเปิดใช้งานบัญชี"_ พร้อมปุ่มส่งรหัสใหม่
-  - บัญชีติด `SUSPENDED`: _"บัญชีของคุณถูกระงับชั่วคราวเนื่องจากความปลอดภัย สามารถลองใหม่ได้ในอีก X นาที"_
-  - บัญชีติด `BANNED`: _"บัญชีนี้ถูกระงับการให้บริการถาวร กรุณาติดต่อฝ่ายบริการลูกค้าที่ support@nida-apparel.com"_
+- [x] **4.1 แสดงข้อความแจ้งเตือนและนาฬิกานับถอยหลังสดบนหน้าต่าง Auth และ Login ([AuthDrawer.tsx](file:///apps/store/src/components/layout/AuthDrawer.tsx))**
+  - พัฒนาคอมโพเนนต์ `<AccountStatusAlert />` แสดงผลตามสถานะบัญชีจริงแบบ Editorial Luxury:
+    - บัญชีติด `SUSPENDED`: แสดงนาฬิกานับถอยหลังสด (Live Countdown Timer `mm:ss`) อิงจาก `retryAfterSeconds` / `suspendedUntil` และแสดงเหตุผลการระงับ เมื่อครบเวลาจะขึ้นข้อความแจ้งให้สามารถลองเข้าสู่ระบบได้ทันที
+    - บัญชีติด `BANNED`: แสดงกล่องแจ้งเตือนสีแดงสุภาพพร้อมเหตุผล และปุ่มติดต่อฝ่ายบริการลูกค้า (`mailto:support@nida-apparel.com`)
+    - บัญชีติด `PENDING_VERIFICATION`: แสดงคำแนะนำให้ยืนยันตัวตนพร้อมปุ่มสลับไปกรอกรหัส OTP หรือขอส่งรหัสใหม่ทันที
+    - บัญชีติด `INACTIVE`: แสดงคำแนะนำกรณีบัญชีถูกปิดการใช้งาน
+- [x] **4.2 Global Mid-Session Interception ([AccountRestrictedModal.tsx](file:///apps/store/src/components/auth/AccountRestrictedModal.tsx) & [StoreLayout.tsx](file:///apps/store/src/components/layout/StoreLayout.tsx))**
+  - ดักจับสัญญาณ HTTP 403 / 401 ใน `api/client.ts` เมื่อมี `code: 'ACCOUNT_SUSPENDED' | 'ACCOUNT_BANNED' | 'ACCOUNT_DEACTIVATED'`
+  - ล้าง Token ออกจาก `localStorage` ทันที และส่ง Custom Event `nida:auth:account_restricted`
+  - ให้ `AuthContext.tsx` รับ Event และเปิดโมดอล `<AccountRestrictedModal />` แจ้งเตือนลูกค้าอย่างชัดเจนและตัดกลับสู่ Guest Mode อย่างปลอดภัย
+- [x] **4.3 ระบบแปลภาษา 2 ภาษา (i18n Localization)**
+  - เพิ่ม Key แปลภาษาใน `locales/th.json` และ `locales/en.json` หมวด `auth.restricted.*` แบบสมมาตร 100% ปราศจาก Emoji
 
 ---
 

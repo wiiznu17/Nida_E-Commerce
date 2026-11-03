@@ -21,8 +21,13 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { authRequester, extractApiError } from '@/api';
-import { OtpInputGrid, DevOtpHintBanner } from '@/components/auth';
+import {
+  OtpInputGrid,
+  DevOtpHintBanner,
+  AccountStatusAlert,
+} from '@/components/auth';
 import { Alert } from '@/components/ui';
+import type { AccountStatusErrorDetails } from '@repo/types';
 
 function AuthDrawerContent() {
   const {
@@ -100,6 +105,11 @@ function AuthDrawerContent() {
   const [errorAction, setErrorAction] = useState<
     'switchToSignUp' | 'switchToSignIn' | null
   >(null);
+  const [accountStatusRestriction, setAccountStatusRestriction] = useState<{
+    code: string;
+    message?: string;
+    details?: AccountStatusErrorDetails;
+  } | null>(null);
   const [loginEmailHint, setLoginEmailHint] = useState<string | null>(null);
   const [registerEmailHint, setRegisterEmailHint] = useState<string | null>(
     null,
@@ -163,6 +173,7 @@ function AuthDrawerContent() {
     setErrorMessage('');
     setInfoMessage('');
     setErrorAction(null);
+    setAccountStatusRestriction(null);
     setLoginEmailHint(null);
     setRegisterEmailHint(null);
   };
@@ -217,6 +228,7 @@ function AuthDrawerContent() {
     setIsLoading(true);
     setErrorMessage('');
     setErrorAction(null);
+    setAccountStatusRestriction(null);
     try {
       const cleanEmail = loginEmail.trim().toLowerCase();
       const res = await authRequester.login({
@@ -238,13 +250,27 @@ function AuthDrawerContent() {
           ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง'
           : 'Invalid email or password. Please try again.',
       );
-      setErrorMessage(extracted.message);
+
       if (
-        extracted.status === 404 ||
-        extracted.message.includes('ไม่พบบัญชี') ||
-        extracted.message.toLowerCase().includes('not found')
+        extracted.code === 'ACCOUNT_SUSPENDED' ||
+        extracted.code === 'ACCOUNT_BANNED' ||
+        extracted.code === 'ACCOUNT_UNVERIFIED' ||
+        extracted.code === 'ACCOUNT_DEACTIVATED'
       ) {
-        setErrorAction('switchToSignUp');
+        setAccountStatusRestriction({
+          code: extracted.code,
+          message: extracted.message,
+          details: extracted.details,
+        });
+      } else {
+        setErrorMessage(extracted.message);
+        if (
+          extracted.status === 404 ||
+          extracted.message.includes('ไม่พบบัญชี') ||
+          extracted.message.toLowerCase().includes('not found')
+        ) {
+          setErrorAction('switchToSignUp');
+        }
       }
     } finally {
       setIsLoading(false);
@@ -587,7 +613,26 @@ function AuthDrawerContent() {
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
-          {errorMessage && (
+          {accountStatusRestriction && (
+            <div className="mb-2">
+              <AccountStatusAlert
+                code={accountStatusRestriction.code}
+                message={accountStatusRestriction.message}
+                details={accountStatusRestriction.details}
+                onVerifyClick={() => {
+                  setActiveEmail(loginEmail.trim().toLowerCase());
+                  setOtpFlow('login');
+                  setStep('otp');
+                  setAccountStatusRestriction(null);
+                }}
+                onRetryClick={() => {
+                  setAccountStatusRestriction(null);
+                }}
+              />
+            </div>
+          )}
+
+          {!accountStatusRestriction && errorMessage && (
             <div className="mb-2">
               <Alert variant="error">
                 <p>{errorMessage}</p>

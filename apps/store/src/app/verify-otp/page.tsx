@@ -6,6 +6,7 @@ import { KeyRound, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import {
   OtpInputGrid,
   DevOtpHintBanner,
+  AccountStatusAlert,
   useVerifyOtp,
 } from '@/components/auth';
 import { Alert, LoadingSpinner } from '@/components/ui';
@@ -18,6 +19,8 @@ function VerifyOTPContent() {
     isLoading,
     isResending,
     errorMessage,
+    errorCode,
+    errorDetails,
     infoMessage,
     devOtpHint,
     inputRefs,
@@ -47,10 +50,22 @@ function VerifyOTPContent() {
 
       <DevOtpHintBanner devOtpHint={devOtpHint} onAutoFill={handleAutoFill} />
 
-      {errorMessage && (
-        <Alert variant="error" className="mb-6">
-          {errorMessage}
-        </Alert>
+      {errorCode &&
+      (errorCode === 'ACCOUNT_SUSPENDED' ||
+        errorCode === 'ACCOUNT_BANNED' ||
+        errorCode === 'ACCOUNT_DEACTIVATED') ? (
+        <AccountStatusAlert
+          code={errorCode}
+          message={errorMessage}
+          details={errorDetails}
+          className="mb-6"
+        />
+      ) : (
+        errorMessage && (
+          <Alert variant="error" className="mb-6">
+            {errorMessage}
+          </Alert>
+        )
       )}
 
       {infoMessage && (

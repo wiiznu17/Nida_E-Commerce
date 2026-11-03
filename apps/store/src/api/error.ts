@@ -1,6 +1,8 @@
 import type {
   ApiError as ApiErrorResponse,
   PriceMismatchItem,
+  AccountStatusErrorDetails,
+  AccountStatusErrorCode,
 } from '@repo/types';
 import { ApiError } from './client';
 
@@ -10,6 +12,7 @@ export interface ExtractedApiError {
   status?: number;
   code?: string;
   mismatches?: PriceMismatchItem[];
+  details?: AccountStatusErrorDetails;
 }
 
 /**
@@ -29,6 +32,7 @@ export function extractApiError(
   let status: number | undefined;
   let code: string | undefined;
   let mismatches: PriceMismatchItem[] | undefined;
+  let details: AccountStatusErrorDetails | undefined;
 
   if (err instanceof ApiError) {
     status = err.status;
@@ -40,11 +44,19 @@ export function extractApiError(
     if (typeof err.data === 'object' && err.data !== null) {
       const payload = err.data as Partial<ApiErrorResponse> & {
         code?: string;
+        errorCode?: string;
         mismatches?: PriceMismatchItem[];
+        details?: AccountStatusErrorDetails;
       };
 
       if (typeof payload.code === 'string') {
         code = payload.code;
+      } else if (typeof payload.errorCode === 'string') {
+        code = payload.errorCode;
+      }
+
+      if (payload.details && typeof payload.details === 'object') {
+        details = payload.details;
       }
 
       if (Array.isArray(payload.mismatches)) {
@@ -76,5 +88,6 @@ export function extractApiError(
     status,
     code,
     mismatches,
+    details,
   };
 }

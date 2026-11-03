@@ -8,7 +8,11 @@ import React, {
   useCallback,
   type ReactNode,
 } from 'react';
-import type { ApiUser } from '@repo/types';
+import type {
+  ApiUser,
+  AccountStatusErrorCode,
+  AccountStatusErrorDetails,
+} from '@repo/types';
 import type { UpdateCustomerProfileInput } from '@repo/validators';
 import { authRequester } from '@/api';
 
@@ -18,12 +22,20 @@ export type User = ApiUser & {
   postalCode?: string;
 };
 
+export interface RestrictedAccountNotice {
+  code: AccountStatusErrorCode;
+  message: string;
+  details?: AccountStatusErrorDetails;
+}
+
 type AuthContextType = {
   user: User | null;
   token: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  restrictedAccount: RestrictedAccountNotice | null;
+  clearRestrictedAccount: () => void;
   setSession: (
     accessToken: string,
     userOrRefreshToken: ApiUser | string,
@@ -49,10 +61,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [restrictedAccount, setRestrictedAccount] =
+    useState<RestrictedAccountNotice | null>(null);
   const [isAuthDrawerOpen, setIsAuthDrawerOpen] = useState(false);
   const [authDrawerTab, setAuthDrawerTab] = useState<'signin' | 'signup'>(
     'signin',
   );
+
+  const clearRestrictedAccount = useCallback(() => {
+    setRestrictedAccount(null);
+  }, []);
 
   const openAuthDrawer = useCallback(
     (tab: 'signin' | 'signup' = 'signin') => {
@@ -135,6 +153,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       window.removeEventListener(
         'nida:auth:session_expired',
         handleSessionExpired,
+      );
+    };
+  }, [clearSession]);
+
+  // Listen to account restricted event from apiClient
+  useEffect(() => {
+    const handleAccountRestricted = (e: Event) => {
+      const customEvent = e as CustomEvent<RestrictedAccountNotice>;
+      clearSession();
+      if (customEvent.detail) {
+        setRestrictedAccount(customEvent.detail);
+      }
+    };
+
+    window.addEventListener(
+      'nida:auth:account_restricted',
+      handleAccountRestricted,
+    );
+    return () => {
+      window.removeEventListener(
+        'nida:auth:account_restricted',
+        handleAccountRestricted,
       );
     };
   }, [clearSession]);
@@ -237,6 +277,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         refreshToken,
         isAuthenticated: Boolean(user && token),
         isLoading,
+        restrictedAccount,
+        clearRestrictedAccount,
         setSession,
         logout,
         logoutAll,

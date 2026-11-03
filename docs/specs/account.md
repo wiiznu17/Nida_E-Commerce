@@ -360,3 +360,47 @@ flowchart TD
 2. **Immediate Eviction:** หากสถานะใหม่ไม่ใช่ `ACTIVE` ระบบจะสั่งทำลาย Session ของบัญชีเป้าหมายใน Redis ทันที (`redis.revokeAllUserSessions(targetId)`) ส่งผลให้แอดมินคนนั้นหลุดจากระบบทุกเครื่องในทันที
 3. **Audit Trail Recording:** ทุกการเปลี่ยนสถานะจะถูกบันทึกลงตาราง `admin_audit_logs` อัตโนมัติ (`actionType = 'STATUS_CHANGE'`, `targetTable = 'admin_users'`) พร้อมแนบ Snapshot ข้อมูลเดิมและข้อมูลใหม่ เพื่อตรวจสอบย้อนหลังได้ 100%
 
+---
+
+## 7. ข้อกำหนดระบบตอบสนองสถานะบัญชีฝั่งลูกค้าร้านค้า (Storefront Customer Handling Specification)
+
+### 7.1 สถาปัตยกรรมสกัดข้อผิดพลาดและส่งสัญญาณเหตุการณ์ (Client Eventing & Error Normalization)
+
+```mermaid
+flowchart TD
+    API["Backend API Response (HTTP 403 / 429 / 401)"] --> Client["Storefront apiClient (client.ts)"]
+    
+    Client --> Detect{"ตรวจสอบ Error Code เป็น<br/>ACCOUNT_SUSPENDED / BANNED?"}
+    
+    Detect -->|ใช่| Evict["1. ลบ Token ทุกตัวใน localStorage ทันที<br/>(jwt_token, refresh_token, user_cache)"]
+    Evict --> Dispatch["2. ยิง Custom Event: nida:auth:account_restricted"]
+    
+    Dispatch --> AuthCtx["AuthContext รับ Event"]
+    AuthCtx --> SetState["เซ็ต restrictedAccount ใน State"]
+    SetState --> OpenModal["แสดงผล AccountRestrictedModal ทันที"]
+    
+    Detect -->|ไม่ใช่| Throw["โยน ApiError ไปยัง Form Caller"]
+    Throw --> FormExtract["extractApiError สกัด details: { reason, retryAfterSeconds }"]
+    FormExtract --> AlertUI["เรนเดอร์คอมโพเนนต์ AccountStatusAlert ใน AuthDrawer"]
+```
+
+### 7.2 คอมโพเนนต์การแสดงผลตามมาตรฐาน Editorial Luxury
+
+1. **`AccountStatusAlert` (`apps/store/src/components/auth/AccountStatusAlert.tsx`):**
+   - **กรณี `ACCOUNT_SUSPENDED`:**
+     - แสดงแถบเตือนสี Warm Amber สุภาพ พร้อมไอคอน `Clock`
+     - คำนวณเวลานับถอยหลังสด (Live Countdown Timer `mm:ss`) อิงจาก `retryAfterSeconds` หรือ `suspendedUntil`
+     - แสดงเหตุผลที่ถูกระงับ (เช่น _"กรอกรหัสผ่านผิดเกินกำหนด (5 ครั้ง)"_)
+     - เมื่อตัวนับเวลาถึง `00:00` ระบบจะเปลี่ยนสถานะเป็น _"ครบกำหนดเวลาระงับแล้ว คุณสามารถลองเข้าสู่ระบบได้ใหม่อีกครั้ง"_ พร้อมปุ่มลองใหม่
+   - **กรณี `ACCOUNT_BANNED`:**
+     - แสดงแถบเตือนสี Crimson/Red พร้อมไอคอน `ShieldX`
+     - แสดงเหตุผลการแบนถาวร
+     - มีปุ่ม Action ติดต่อฝ่ายบริการลูกค้า (`mailto:support@nida-apparel.com`) โดยตรง
+   - **กรณี `ACCOUNT_UNVERIFIED`:**
+     - แสดงข้อความเตือนให้ยืนยันตัวตน พร้อมปุ่มสลับไปกรอกรหัส OTP
+2. **`AccountRestrictedModal` (`apps/store/src/components/auth/AccountRestrictedModal.tsx`):**
+   - ป้องกันสับสนเมื่อลูกค้าถูกตัดสิทธิ์ระหว่างใช้งาน (Mid-session Revocation)
+   - แสดงผลในระดับ Global Shell ผ่าน [`StoreLayout.tsx`](file:///apps/store/src/components/layout/StoreLayout.tsx)
+   - แจ้งเตือนสาเหตุอย่างชัดเจนและตัดกลับสู่สถานะ Guest Mode อย่างปลอดภัย
+
+

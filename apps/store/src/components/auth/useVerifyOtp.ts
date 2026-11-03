@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { authRequester, extractApiError } from '@/api';
+import type { AccountStatusErrorDetails } from '@repo/types';
 
 export function useVerifyOtp() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -12,6 +13,10 @@ export function useVerifyOtp() {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [errorCode, setErrorCode] = useState<string | undefined>(undefined);
+  const [errorDetails, setErrorDetails] = useState<
+    AccountStatusErrorDetails | undefined
+  >(undefined);
   const [infoMessage, setInfoMessage] = useState('');
   const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
 
@@ -117,6 +122,8 @@ export function useVerifyOtp() {
 
     setIsLoading(true);
     setErrorMessage('');
+    setErrorCode(undefined);
+    setErrorDetails(undefined);
     setInfoMessage('');
 
     try {
@@ -137,6 +144,8 @@ export function useVerifyOtp() {
           : 'Invalid or expired OTP. Please try again.',
       );
       setErrorMessage(extracted.message);
+      setErrorCode(extracted.code);
+      setErrorDetails(extracted.details);
     } finally {
       setIsLoading(false);
     }
@@ -149,6 +158,8 @@ export function useVerifyOtp() {
     isLoading,
     isResending,
     errorMessage,
+    errorCode,
+    errorDetails,
     infoMessage,
     devOtpHint,
     inputRefs,
