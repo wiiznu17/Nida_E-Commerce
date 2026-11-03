@@ -194,16 +194,56 @@ model AdminUser {
 
 ---
 
-### 📌 เฟส 3: Back-Office Admin UI Controls
+### 📌 เฟส 3: Back-Office Admin Controls (ระบบจัดการผู้ใช้และลูกค้าฝั่งหลังบ้าน)
 
-- [ ] **3.1 ปรับปรุงหน้าจัดการสมาชิก ([apps/admin/src/pages/AdminUsers.tsx](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/pages/AdminUsers.tsx))**
-  - แสดงสถานะด้วย Component `<StatusBadge />` สีมาตรฐาน (เขียว/ส้ม/แดง/เทา)
-  - เพิ่มปุ่ม Action:
-    - **"Suspend Account"**: เปิด Modal ให้ระบุระยะเวลาและเหตุผล
+#### 🔹 3.1 โมดูลจัดการลูกค้าฝั่ง Store สำหรับระบบหลังบ้าน (Store Customer Management Module)
+
+> **เป้าหมาย:** ให้เจ้าหน้าที่แอดมินสามารถสืบค้น ดูข้อมูล ตรวจสอบประวัติ และควบคุมสถานะบัญชีของลูกค้าหน้าร้าน (`users` table) ได้อย่างปลอดภัยและมีประสิทธิภาพ
+
+- [ ] **3.1.1 Backend API Customer Module (`apps/admin-api/src/modules/customers/`)**
+  - สร้าง `CustomersModule`, `CustomersService`, และ `CustomersController`
+  - **`GET /admin/customers`**:
+    - รองรับ Pagination (`page`, `limit`), Sorting (`createdAt`, `totalSpent`, `points`)
+    - รองรับการค้นหา (Keyword Search: ชื่อ-นามสกุล, อีเมล, เบอร์โทรศัพท์)
+    - รองรับการกรองตามสถานะ (`status`: `ACTIVE`, `PENDING_VERIFICATION`, `SUSPENDED`, `BANNED`, `INACTIVE`) และระดับสมาชิก (`tier`)
+    - กฎ PDPA Masking: ซ่อนข้อมูลอ่อนไหว (PII) หากแอดมินไม่มีสิทธิ์ `CUSTOMERS_PII_READ` หรือไม่ใช่ `SUPER_ADMIN`
+  - **`GET /admin/customers/:id`**:
+    - ดึงข้อมูลเจาะลึกของลูกค้า: ข้อมูลโปรไฟล์, รายการที่อยู่จัดส่ง, ประวัติสถานะบัญชี, แต้มสะสม และสถิติคำสั่งซื้อ (จำนวนออเดอร์, ยอดสั่งซื้อรวม, วันที่สั่งซื้อล่าสุด)
+  - **`PATCH /admin/customers/:id/status`**:
+    - อัปเดตสถานะบัญชีลูกค้าผ่าน Zod schema `updateAccountStatusSchema`
+    - กรณี `SUSPENDED`: รองรับการระบุ `durationMinutes` เพื่อคำนวณ `suspendedUntil` พร้อมบังคับกรอก `statusReason`
+    - กรณี `BANNED`: บล็อกถาวร พร้อมระบุเหตุผล
+    - กรณี `ACTIVE`: ปลดล็อคและล้าง `suspendedUntil` / `statusReason`
+    - **Session Eviction:** สั่งเตะ Session ใน Redis ทันทีเมื่อเปลี่ยนสถานะ (`redis.revokeAllCustomerSessions(customerId)`) บังคับให้ลูกค้ารายนั้นหลุดออกจากระบบในทุกอุปกรณ์ทันที
+    - **Audit Trail:** บันทึกประวัติการเปลี่ยนสถานะลง `admin_audit_logs` อัตโนมัติ (`targetTable = 'users'`)
+  - **Unit Testing:** เขียนชุดทดสอบ `apps/admin-api/test/customers/customers.service.spec.ts` ครอบคลุม Happy Path, Input Validation, Role Guards, Session Eviction, และ Audit Log Recording (100% Pass)
+
+- [ ] **3.1.2 Frontend Admin Customer Page & UI Controls (`apps/admin`)**
+  - **Navigation:** เพิ่มเมนู "Customers" (ลูกค้า) ในแถบเมนูหลัก [`AdminSidebar.tsx`](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/components/layout/AdminSidebar.tsx) พร้อมไอคอน Lucide `Users` และกำหนดสิทธิ์การมองเห็น
+  - **API Requester:** สร้าง `apps/admin/src/api/requester/customerRequester.ts` สำหรับเรียกใช้ API ฝั่งหลังบ้าน
+  - **Page Component:** สร้าง [`AdminCustomers.tsx`](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/pages/AdminCustomers.tsx) รองรับเส้นทาง `/admin/customers`:
+    - ตารางแสดงรายการลูกค้า: Avatar ตัวอักษร, ชื่อ-นามสกุล, อีเมล, ระดับสมาชิก (Tier Pill), ยอดสั่งซื้อสะสม, สถานะบัญชีด้วย `<StatusBadge />`, และวันที่สมัคร
+    - กล่องค้นหาและแถบตัวกรองสถานะบัญชีตามหลัก Editorial Luxury Design
+    - Drawer หรือ Slide-over ดูโปรไฟล์ลูกค้าและประวัติคำสั่งซื้อ
+  - **Action Modals:**
+    - `CustomerSuspendModal`: เลือกจำนวนวันระงับบัญชี (1 วัน, 7 วัน, 30 วัน, หรือกำหนดเอง) พร้อมช่องกรอกเหตุผลที่จำเป็น
+    - `CustomerBanModal`: กล่องยืนยันการแบนถาวรและบันทึกเหตุผล
+    - `CustomerReactivateModal`: กล่องยืนยันการปลดล็อคบัญชีกลับมาใช้งาน
+  - **i18n Localization:** จัดทำ Key แปลภาษาใน `th.json` และ `en.json` ครบถ้วน 100% สอดคล้องตามกฎ Zero Emojis
+
+---
+
+#### 🔹 3.2 ปรับปรุงหน้าจัดการเจ้าหน้าที่หลังบ้าน (Admin Staff Management UI)
+
+- [ ] **3.2.1 ปรับปรุงหน้า [`AdminUsers.tsx`](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/pages/AdminUsers.tsx)**
+  - แทนที่สวิตช์ Toggle เปิด/ปิดเดิม ด้วย `<StatusBadge />` สีมาตรฐาน (เขียว/ส้ม/แดง/เทา)
+  - เพิ่มเมนู Action Dropdown และ Modal สำหรับจัดการสถานะของเจ้าหน้าที่:
+    - **"Suspend Account"**: ระบุระยะเวลาและเหตุผล
     - **"Ban Account"**: ยืนยันการแบนถาวร
     - **"Reactivate Account"**: ปลดล็อคกลับมาใช้งาน
-- [ ] **3.2 บันทึก Audit Trail**
-  - ทุกการเปลี่ยนแปลงสถานะบัญชีต้องบันทึกลง `AdminAuditLog` โดยระบุ `adminId`, `targetUserId`, `previousStatus`, `newStatus`, และ `statusReason`
+  - เชื่อมโยงเข้ากับ Endpoint `PATCH /admin/users/:id/status` ที่สร้างไว้แล้ว
+- [ ] **3.2.2 ความสอดคล้องด้านภาษาและ UI Guidelines**
+  - จัดทำข้อความภาษาไทยและอังกฤษใน `locales/th.json` และ `locales/en.json` หมวด `adminUsers.*` แบบสมมาตร
 
 ---
 

@@ -438,7 +438,17 @@ Form layouts, detail views, and dashboard panels must strive for **horizontal co
     2. **Unconnected External 3rd Parties**: Where commercial accounts or API contracts are not yet finalized (e.g. logistics carrier APIs), mocks must be contained strictly behind a designated Provider/Interface (such as `CarrierMockService`), never leaked into core business entities as silent inline shortcuts.
   - **Immediate Cleanup of Dev Mocks**: As soon as a feature is connected to its actual service, all temporary local-dev mock shortcuts must be deleted immediately.
 
-### 5.5 Mandatory Verification Step
+### 5.5 Mandatory System Specification & Documentation Policy (ต้องอัปเดตเอกสารใน docs/specs เสมอเมื่อแก้หรือเพิ่มฟีเจอร์)
+
+- **Single Source of Technical Truth (ยึดเอกสารเป็นแหล่งความจริงเดียวกับโค้ด)**:
+  - Whenever developing a **new feature**, adding or modifying API endpoints, altering state machine transitions (`OrderStatus`, `AccountStatus`, `PaymentStatus`, etc.), changing inventory/coupon rules, or adjusting security guards, you **MUST** simultaneously create or update the corresponding specification document under `docs/specs/` (e.g. `docs/specs/account.md`, `order.md`, `cart.md`, `content.md`, `payment.md`).
+  - **Zero Stale Documentation (ห้ามปล่อยให้เอกสาร Spec ล้าหลังโค้ดจริงเด็ดขาด)**: A feature or refactoring task is strictly considered incomplete until the technical specification in `docs/specs/` is synchronized 100% with the real code implementation.
+  - When introducing a new domain or architectural capability, create a new specification file under `docs/specs/<domain>.md` and register it in the index table at `docs/specs/README.md`.
+- **Roadmap & Todo Synchronization (`docs/todo/`)**:
+  - Keep task roadmaps in `docs/todo/*.md` (e.g. `docs/todo/store.md`, `docs/todo/account.md`, `docs/todo/admin.md`) accurate and current.
+  - Check off completed tasks (`[x]`), clear out obsolete interim notes, and ensure pending items reflect actual upcoming priorities.
+
+### 5.6 Mandatory Verification Step
 
 Before completing any task or reporting back to the user:
 
@@ -492,4 +502,6 @@ When implementing any feature or refactoring:
 - [ ] **Did you write or update unit tests in a dedicated feature folder (e.g. `apps/admin-api/test/<feature>/` or `apps/api/test/<feature>/`) covering the new feature, guard rails, and state transitions?**
 - [ ] **Did you run unit tests on both APIs (`npm --prefix apps/api run test` and `npm --prefix apps/admin-api run test`) and pass 100% with 0 failures?**
 - [ ] **If the database schema was modified (`schema.prisma`), did you create a timestamped SQL migration file under `packages/database/prisma/migrations/` and run `db:generate`?**
+- [ ] **Did you update or create the technical specification in `docs/specs/<domain>.md` (and index it in `docs/specs/README.md`) reflecting the actual code changes 100%?**
+- [ ] **Did you synchronize the checklist in `docs/todo/*.md` to mark finished tasks as completed?**
 - [ ] Did you run builds across all packages (`packages/types`, `packages/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`) and pass with 0 errors?

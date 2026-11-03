@@ -167,3 +167,14 @@ Guidelines and standards for all AI agents and developers working on the **Nida 
     ```bash
     npm --prefix packages/database run db:generate
     ```
+
+---
+
+## 8. Technical Specification & Documentation Standards (มาตรฐานการอัปเดตเอกสารเชิงเทคนิค docs/specs)
+
+- **Mandatory Specification Maintenance (ต้องอัปเดตเอกสารใน `docs/specs/` ให้ตรงกับโค้ดจริงเสมอ)**:
+  - Whenever developing a **new feature**, adding or modifying API endpoints, altering state machine transitions (`OrderStatus`, `AccountStatus`, `PaymentStatus`, etc.), changing business logic, or adjusting security guards, you **MUST** simultaneously create or update the corresponding specification file under `docs/specs/<domain>.md` (e.g. `docs/specs/account.md`, `order.md`, `cart.md`, `content.md`).
+  - **Zero Stale Documentation (ห้ามปล่อยให้เอกสาร Spec ล้าหลังโค้ดจริงเด็ดขาด)**: A task is strictly considered incomplete if `docs/specs/` is not synchronized with the real codebase. Documentation serves as the Single Source of Truth for the entire team and AI agents.
+  - If a new domain is introduced, create `docs/specs/<domain>.md` and register it in the index table at `docs/specs/README.md`.
+- **Roadmap & Todo Synchronization (`docs/todo/`)**:
+  - Maintain accuracy in `docs/todo/*.md` (e.g. `docs/todo/store.md`, `docs/todo/account.md`, `docs/todo/admin.md`). Check off completed tasks (`[x]`) and remove outdated interim placeholders so roadmap tracking remains clear.

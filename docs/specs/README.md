@@ -16,6 +16,8 @@
 | [account.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/account.md)     | **Account & Security**      | สถานะบัญชี (`AccountStatus`: Active/Suspended/Banned), Guards, และ Auto-Lockout        |
 | [security.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/security.md)   | **Network & Rate Limiting** | การจัดการ Client IP (`trust proxy`), ป้องกัน IP Spoofing, และ 5-Tier Rate Limiting     |
 | [coupon.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/coupon.md)       | **Promotions & Coupons**    | กลไกคำนวณส่วนลด (`DiscountType`), สิทธิ์การใช้งาน, และโควต้าคูปอง                      |
+| [cart.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/cart.md)           | **Cart & Wishlist**         | ตะกร้าสินค้า, การรวมตะกร้า Guest (`Merge Cart`), การเช็คสต็อก, และรายการโปรด (`Wishlist`) |
+| [content.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/content.md)     | **Storefront CMS & Content** | แบนเนอร์หน้าแรก (`CmsBanner`), แถบประกาศ (`StoreSettings`), แคช CDN และ Live Preview  |
 
 ---
 

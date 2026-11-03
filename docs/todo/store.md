@@ -11,14 +11,15 @@
 | **หมวดหมู่สินค้า & เมนู (Category Navigation)**                 |               ✅ Mega Menu สวยงาม / ตัวกรอง 2 ภาษา                |      ✅ เชื่อมต่อ API หมวดหมู่สดจาก DB (`GET /api/v1/catalog/categories`)       | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
 | **แคตตาล็อกสินค้า (Product Browsing)**                          |                      ✅ หน้ารวม & แยกตามแผนก                      |          ✅ เชื่อมต่อ API สินค้าจริง (`GET /api/v1/catalog/products`)           | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
 | **หน้ารายละเอียดสินค้า (PDP)**                                  |                ✅ เลือกสี / ไซส์ / แกลเลอรีรูปภาพ                 | ✅ เชื่อมต่อ SKU Matrix & รูปภาพจริง (`GET /api/v1/catalog/products/:slugOrId`) | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
-| **ตะกร้าสินค้า (Cart Drawer)**                                  |                 ✅ ป๊อปอัปตะกร้า / เพิ่ม-ลดจำนวน                  |                         ❌ เก็บเฉพาะ React State ในแรม                          | **เป้าหมายเฟส 3 (Persistent & Stock Check)**                                                                     |
-| **ระบบสมาชิก & ยืนยัน OTP (Customer Auth)**                     |                  ✅ หน้า Login / Register / OTP                   |                     ⚠️ มี Mock Auth / รอเชื่อม API สมบูรณ์                      | **เป้าหมายเฟส 3 (OTP & JWT Cookie)**                                                                             |
-| **ระบบสั่งซื้อ & เช็คเอาต์ (Checkout)**                         |                ✅ กรอกที่อยู่ / เลือกวิธีชำระเงิน                 |                      ❌ ยังไม่ได้ยิง API สร้าง Order จริง                       | **เป้าหมายเฟส 3 (Real Order & ตัดสต็อก)**                                                                        |
+| **ตะกร้าสินค้า (Cart Drawer & Persistence)**                    |          ✅ ป๊อปอัปตะกร้า / ปรับจำนวน / Merge Guest Cart          |       ✅ เชื่อมต่อ API ตะกร้าจริงและซิงค์ DB (`/api/v1/cart`) + เช็คสต็อก       | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **ระบบสมาชิก & ยืนยัน OTP (Customer Auth)**                     |                  ✅ หน้า Login / Register / OTP                   |      ✅ ระบบ OTP จริง, JWT Cookie, Redis Session, Rate Limit & AccountStatus    | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **ระบบสั่งซื้อ & เช็คเอาต์ (Checkout)**                         |                ✅ กรอกที่อยู่ / เลือกวิธีชำระเงิน                 |      ✅ สร้าง Order จริง (`POST /api/v1/orders`), ตัดสต็อก Atomic, Omise จริง   | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **รายการโปรด (Wishlist Persistence)**                           |           ✅ บันทึกสินค้าโปรด / หน้า `/wishlist` แบบครบวงจร           |       ✅ เชื่อมต่อ API Wishlist สดจาก DB (`GET/POST/DELETE /api/v1/wishlist`)    | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
 | **ติดตามพัสดุ (Track Order)**                                   |                  ✅ หน้าค้นหาเลขพัสดุ & Timeline                  |       ✅ เชื่อมต่อ API พัสดุจริง (`GET /api/v1/orders/:number/tracking`)        | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
 | **รายละเอียดออเดอร์ & ยกเลิกเอง (Order Detail & Self-Cancel)**  | ✅ หน้าจอ Editorial Luxury Grid (`/profile/orders/[orderNumber]`) |                  ✅ เชื่อมต่อ API ยกเลิกออเดอร์และ Audit Trail                  | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
 | **การคืนสินค้าและคืนเงิน (Return & Refund)**                    |         ✅ รองรับครบ 3 เคสทางธุรกิจ พร้อมโมดอลขอคืนสินค้า         |               ✅ เชื่อม Omise Refund API, คืนสต็อก และระบบพิจารณา               | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
-| **วงจรชีวิตคำสั่งซื้อและคิวงาน (Order Lifecycle & Jobs)**       |              ⏳ หน้ารองรับสถานะ CANCELLED / EXPIRED               |                   ⏳ มี Redis พร้อมรองรับ / รอติดตั้ง BullMQ                    | **เป้าหมายเฟส 8 (ดูคู่มือ [ORDER_LIFECYCLE_BUSINESS_LOGIC.md](file:///docs/ORDER_LIFECYCLE_BUSINESS_LOGIC.md))** |
-| **ความปลอดภัย, สต็อก และโปรโมชัน (Security, Auth & Marketing)** |                   ⏳ มี Mock Rate Limit บางส่วน                   |                  ⏳ วางสถาปัตยกรรม Redis Token Bucket & Quota                   | **เป้าหมายเฟส 9 (Security & Marketing Safeguards)**                                                              |
+| **วงจรชีวิตคำสั่งซื้อและคิวงาน (Order Lifecycle & Jobs)**       |        ✅ รองรับสถานะ COMPLETED, CANCELLED, Auto-Complete         |           ✅ ติดตั้ง BullMQ + Redis คิวงานเบื้องหลัง Auto-Cancel / Complete 5 วัน       | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **ความปลอดภัย, สต็อก และโปรโมชัน (Security, Auth & Marketing)** |         ✅ PII Masking, Turnstile Bot Shield, Cooldown 60s        |          ✅ Redis Sliding Window Rate Limit, Token Bucket & Session Revoke      | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
 
 ---
 
@@ -27,14 +28,14 @@
 ```mermaid
 graph TD
     A[✅ เฟส 1: Dynamic Category & Mega Menu สดจาก DB] --> B[✅ เฟส 2: นำสินค้าจริงจากฐานข้อมูลมาแสดงผลทั่วหน้าร้าน]
-    B --> C[เฟส 3: MVP Core - สมาชิก OTP + สั่งซื้อผูกบัญชี + ตัดสต็อกจริง]
-    C --> D[เฟส 4: ระบบคูปองจริง & คำนวณค่าส่งไดนามิก]
-    D --> E[เฟส 5: สมุดที่อยู่จัดส่ง & 1-Click Checkout]
+    B --> C[✅ เฟส 3: MVP Core - สมาชิก OTP + สั่งซื้อผูกบัญชี + ตัดสต็อกจริง]
+    C --> D[✅ เฟส 4: ระบบคูปองจริง & คำนวณค่าส่งไดนามิก]
+    D --> E[✅ เฟส 5: สมุดที่อยู่จัดส่ง & 1-Click Checkout]
     E --> F[✅ เฟส 6: ประวัติคำสั่งซื้อ & ติดตามพัสดุแบบเรียลไทม์]
     F --> F2[✅ เฟส 6.5: ระบบคืนสินค้า & คืนเงินเต็มรูปแบบ Return & Refund Lifecycle]
-    F2 --> G[เฟส 7: Storefront CMS แบนเนอร์ & รีวิวสินค้า & คะแนนสะสม]
-    G --> H[เฟส 8: ควบคุมวงจรชีวิตคำสั่งซื้อ & สถานะ COMPLETED & คิวงานเบื้องหลัง Order Lifecycle & Background Jobs]
-    H --> I[เฟส 9: ความปลอดภัย สิทธิ์ยืนยันตัวตน สต็อก และโปรโมชัน Security, Auth & Inventory/Marketing Safeguards]
+    F2 --> G[✅ เฟส 7: Storefront CMS แบนเนอร์ & รายการโปรด Wishlist]
+    G --> H[✅ เฟส 8: ควบคุมวงจรชีวิตคำสั่งซื้อ & สถานะ COMPLETED & คิวงานเบื้องหลัง Order Lifecycle & Background Jobs]
+    H --> I[✅ เฟส 9: ความปลอดภัย สิทธิ์ยืนยันตัวตน สต็อก และโปรโมชัน Security, Auth & Inventory/Marketing Safeguards]
 ```
 
 ---
@@ -486,11 +487,16 @@ flowchart TD
 
 ### 7.3 ระบบสมาชิกและความภักดีต่อแบรนด์ (Loyalty, Wishlist & Reviews)
 
-- [ ] **รายการสินค้าที่อยากได้ (Wishlist Persistence)**:
-  - [ ] บันทึกรายการโปรดลงตาราง `Wishlist` ในฐานข้อมูลสำหรับสมาชิก
-- [ ] **ระบบสะสมคะแนนและระดับสมาชิก (Loyalty Points & VIP Tiers)**:
-  - [ ] สะสมแต้มอัตโนมัติเมื่อออเดอร์จัดส่งสำเร็จ (เช่น ทุก 100 บาท ได้ 1 แต้ม)
-  - [ ] อัปเกรดระดับสมาชิก (`REGULAR`, `VIP_SILVER`, `VIP_GOLD`) พร้อมส่วนลดพิเศษ
+- [x] **รายการสินค้าที่อยากได้ (Wishlist Persistence)**:
+  - [x] ออกแบบโมเดล `Wishlist` ในฐานข้อมูล PostgreSQL (`userId`, `productId`, `addedAt` พร้อม Index `@@unique([userId, productId])`)
+  - [x] สร้างโมดูล Wishlist ใน `apps/api`: `GET /api/v1/wishlist`, `POST /api/v1/wishlist/:productId`, `DELETE /api/v1/wishlist/:productId`
+  - [x] พัฒนา `WishlistContext.tsx` และ `wishlistRequester.ts` ใน `apps/store` รองรับ Optimistic UI Update และการซิงค์ข้อมูลกับ Database
+  - [x] สร้างหน้า [`/wishlist`](file:///apps/store/src/app/wishlist/page.tsx) แบบ Responsive Editorial Luxury Grid พร้อมตัวกรองหมวดหมู่, ตัวกรองราคา และ Empty State ระดับพรีเมียม
+- [x] **ระบบแต้มสะสมเริ่มต้น (Initial Loyalty Points on Order Completion)**:
+  - [x] คำนวณแจกแต้มสะสม (1 แต้มต่อ 100 บาท) เมื่อออเดอร์เปลี่ยนสถานะเป็น `COMPLETED` ลงตาราง `PointTransaction`
+- [ ] **ระบบระดับสมาชิกและวันหมดอายุแต้ม (VIP Tiers & Points Expiry)**:
+  - [ ] อัปเกรดระดับสมาชิกอัตโนมัติตามยอดการสั่งซื้อสะสม (`REGULAR`, `VIP_SILVER`, `VIP_GOLD`) พร้อมสิทธิประโยชน์ส่วนลดพิเศษ
+  - [ ] ตั้งคิวงาน BullMQ ตัดรอบวันหมดอายุคะแนนสะสมประจำปี
 - [ ] **รีวิวและการให้คะแนนสินค้า (Customer Reviews)**:
   - [ ] ลูกค้าที่สั่งซื้อสินค้าจริงสามารถเขียนรีวิวและให้คะแนน 1-5 ดาวได้
 
