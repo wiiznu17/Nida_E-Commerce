@@ -1,24 +1,38 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@repo/database';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
+import { PrismaClient, Prisma } from '@repo/database';
 
 @Injectable()
 export class PrismaService
-  extends PrismaClient
+  extends PrismaClient<Prisma.PrismaClientOptions, 'query' | 'error' | 'warn'>
   implements OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger(PrismaService.name);
+
   constructor() {
-    const isProd = process.env.NODE_ENV === 'production';
     super({
-      log: isProd
-        ? [{ emit: 'stdout', level: 'error' }]
-        : [
-            { emit: 'stdout', level: 'error' },
-            { emit: 'stdout', level: 'warn' },
-          ],
+      log: [
+        { emit: 'event', level: 'query' },
+        { emit: 'stdout', level: 'error' },
+        { emit: 'stdout', level: 'warn' },
+      ],
     });
   }
 
   async onModuleInit() {
+    this.$on('query', (event: Prisma.QueryEvent) => {
+      const threshold = Number(process.env.SLOW_QUERY_THRESHOLD_MS ?? 200);
+      if (event.duration > threshold) {
+        this.logger.warn(
+          `[Slow Query Detected] Duration: ${event.duration}ms (Threshold: ${threshold}ms) | SQL: ${event.query} | Params: ${event.params}`,
+        );
+      }
+    });
+
     await this.$connect();
   }
 

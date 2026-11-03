@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { StoreContentService } from '../../src/modules/content/content.service.js';
 import { BannerPlacement } from '@repo/types';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
+import type { RedisService } from '../../src/core/redis/redis.service.js';
 
 describe('StoreContentService (Customer Storefront API)', () => {
   let service: StoreContentService;
@@ -12,6 +13,11 @@ describe('StoreContentService (Customer Storefront API)', () => {
     storeSettings: {
       findUnique: ReturnType<typeof vi.fn>;
     };
+  };
+  let redisMock: {
+    get: ReturnType<typeof vi.fn>;
+    set: ReturnType<typeof vi.fn>;
+    del: ReturnType<typeof vi.fn>;
   };
 
   const sampleHeroBanner = {
@@ -111,20 +117,66 @@ describe('StoreContentService (Customer Storefront API)', () => {
       },
     };
 
-    service = new StoreContentService(prismaMock as unknown as PrismaService);
+    redisMock = {
+      get: vi.fn().mockResolvedValue(null),
+      set: vi.fn().mockResolvedValue(undefined),
+      del: vi.fn().mockResolvedValue(undefined),
+    };
+
+    service = new StoreContentService(
+      prismaMock as unknown as PrismaService,
+      redisMock as unknown as RedisService,
+    );
   });
 
   describe('getHomeContent', () => {
-    it('returns active banners grouped into heroBanners, seasonalSpotlights, and promoRibbon', async () => {
+    it('returns cached content directly on cache hit without database query', async () => {
+      const cachedData = {
+        heroBanners: [sampleHeroBanner],
+        seasonalSpotlights: [],
+        promoRibbon: null,
+        storeSettings: {
+          id: 'default-store-settings',
+          announcementActive: true,
+          announcementTextTh: 'แคชทดสอบ',
+          announcementTextEn: 'Cache Test',
+          announcementBadgeTh: 'TEST',
+          announcementBadgeEn: 'TEST',
+          announcementLink: '/test',
+          freeShippingThreshold: 500,
+          returnWindowDays: 7,
+          updatedAt: new Date().toISOString(),
+        },
+      };
+
+      redisMock.get.mockResolvedValueOnce(JSON.stringify(cachedData));
+
+      const result = await service.getHomeContent();
+
+      expect(redisMock.get).toHaveBeenCalledWith('content:home');
+      expect(prismaMock.cmsBanner.findMany).not.toHaveBeenCalled();
+      expect(prismaMock.storeSettings.findUnique).not.toHaveBeenCalled();
+      expect(result.heroBanners).toHaveLength(1);
+      expect(result.storeSettings.announcementTextEn).toBe('Cache Test');
+    });
+
+    it('returns active banners grouped and writes to cache on cache miss (TTL: 900s)', async () => {
       prismaMock.cmsBanner.findMany.mockResolvedValue([
         sampleHeroBanner,
         sampleSpotlight,
         samplePromoRibbon,
       ]);
-      prismaMock.storeSettings.findUnique.mockResolvedValue(null); // tests default settings fallback
+      prismaMock.storeSettings.findUnique.mockResolvedValue(null);
 
       const result = await service.getHomeContent();
 
+      expect(redisMock.get).toHaveBeenCalledWith('content:home');
+      expect(prismaMock.cmsBanner.findMany).toHaveBeenCalled();
+      expect(redisMock.set).toHaveBeenCalledWith(
+        'content:home',
+        expect.any(String),
+        900,
+      );
       expect(result.heroBanners).toHaveLength(1);
       expect(result.heroBanners[0].id).toBe('hero-1');
       expect(result.heroBanners[0].titleEn).toBe('Modern Heritage 2026');
@@ -160,14 +212,66 @@ describe('StoreContentService (Customer Storefront API)', () => {
       expect(result.storeSettings.freeShippingThreshold).toBe(2000);
       expect(result.storeSettings.returnWindowDays).toBe(14);
     });
+
+    it('evicts corrupted cache key and falls back to database when cached home content is invalid JSON', async () => {
+      redisMock.get.mockResolvedValueOnce('invalid-json{{{');
+      prismaMock.cmsBanner.findMany.mockResolvedValue([]);
+      prismaMock.storeSettings.findUnique.mockResolvedValue(null);
+
+      const result = await service.getHomeContent();
+
+      expect(redisMock.del).toHaveBeenCalledWith('content:home');
+      expect(prismaMock.cmsBanner.findMany).toHaveBeenCalled();
+      expect(result.storeSettings.freeShippingThreshold).toBe(1000);
+    });
   });
 
   describe('getStoreSettings', () => {
-    it('returns default settings when database row does not exist', async () => {
+    it('returns cached store settings on cache hit without database query', async () => {
+      const cachedSettings = {
+        id: 'default-store-settings',
+        announcementActive: true,
+        announcementTextTh: 'แคช',
+        announcementTextEn: 'Cached',
+        announcementBadgeTh: 'HOT',
+        announcementBadgeEn: 'HOT',
+        announcementLink: '/sale',
+        freeShippingThreshold: 800,
+        returnWindowDays: 14,
+        updatedAt: new Date().toISOString(),
+      };
+
+      redisMock.get.mockResolvedValueOnce(JSON.stringify(cachedSettings));
+
+      const result = await service.getStoreSettings();
+
+      expect(redisMock.get).toHaveBeenCalledWith('content:settings');
+      expect(prismaMock.storeSettings.findUnique).not.toHaveBeenCalled();
+      expect(result.freeShippingThreshold).toBe(800);
+    });
+
+    it('evicts corrupted cache key and falls back to database when cached store settings is invalid JSON', async () => {
+      redisMock.get.mockResolvedValueOnce('bad-json-payload');
       prismaMock.storeSettings.findUnique.mockResolvedValue(null);
 
       const result = await service.getStoreSettings();
 
+      expect(redisMock.del).toHaveBeenCalledWith('content:settings');
+      expect(prismaMock.storeSettings.findUnique).toHaveBeenCalled();
+      expect(result.freeShippingThreshold).toBe(1000);
+    });
+
+    it('returns default settings when database row does not exist and caches with TTL 3600s', async () => {
+      prismaMock.storeSettings.findUnique.mockResolvedValue(null);
+
+      const result = await service.getStoreSettings();
+
+      expect(prismaMock.storeSettings.findUnique).toHaveBeenCalled();
+      expect(redisMock.set).toHaveBeenCalledWith(
+        'content:settings',
+        expect.any(String),
+        3600,
+      );
       expect(result.freeShippingThreshold).toBe(1000);
       expect(result.returnWindowDays).toBe(7);
       expect(result.announcementBadgeEn).toBe('LIMITED OFFER');

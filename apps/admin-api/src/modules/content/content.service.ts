@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
+import { RedisService } from '../../core/redis/redis.service.js';
 import { AuditActionType, AdminPermission, BannerPlacement } from '@repo/types';
 import type {
   ApiCmsBanner,
@@ -20,7 +21,14 @@ export class ContentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditLogService: AuditLogService,
+    private readonly redis?: RedisService,
   ) {}
+
+  private async invalidateContentCache(): Promise<void> {
+    if (this.redis) {
+      await this.redis.delByPattern('content:*');
+    }
+  }
 
   async getAdminHomeContent(): Promise<ApiHomeContentResponse> {
     const banners = await this.prisma.cmsBanner.findMany({
@@ -118,6 +126,8 @@ export class ContentService {
       newValuesJson: banner as unknown as Record<string, unknown>,
     });
 
+    await this.invalidateContentCache();
+
     return this.mapBanner(banner);
   }
 
@@ -172,6 +182,8 @@ export class ContentService {
       newValuesJson: updated as unknown as Record<string, unknown>,
     });
 
+    await this.invalidateContentCache();
+
     return this.mapBanner(updated);
   }
 
@@ -195,6 +207,8 @@ export class ContentService {
       permission: AdminPermission.COUPONS_MANAGE,
       oldValuesJson: existing as unknown as Record<string, unknown>,
     });
+
+    await this.invalidateContentCache();
 
     return true;
   }
@@ -220,6 +234,8 @@ export class ContentService {
       permission: AdminPermission.COUPONS_MANAGE,
       newValuesJson: { items: dto.items },
     });
+
+    await this.invalidateContentCache();
 
     return true;
   }
@@ -307,6 +323,8 @@ export class ContentService {
       oldValuesJson: existing as unknown as Record<string, unknown>,
       newValuesJson: updated as unknown as Record<string, unknown>,
     });
+
+    await this.invalidateContentCache();
 
     return {
       id: updated.id,

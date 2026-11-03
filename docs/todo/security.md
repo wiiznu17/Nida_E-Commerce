@@ -97,18 +97,18 @@
 
 > **เป้าหมาย:** ลดความหน่วง (Latency) ของ API ลง 80% และลดภาระงานของ PostgreSQL ในช่วงที่มี Traffic สูง
 
-- [ ] **3.1 ระบบ High-Speed Redis Caching สำหรับ Read-Heavy Endpoints**
+- [x] **3.1 ระบบ High-Speed Redis Caching สำหรับ Read-Heavy Endpoints**
   - นำ `RedisService` มาทำ Caching สำหรับ Public Endpoints หน้าร้าน:
-    - `GET /api/v1/catalog/categories` (TTL: 1 ชั่วโมง)
-    - `GET /api/v1/content/home` (TTL: 15 นาที)
-    - `GET /api/v1/content/settings` (TTL: 1 ชั่วโมง)
-  - **Cache Invalidation Automation:** เมื่อแอดมินแก้ไขสินค้า หมวดหมู่ หรือแบนเนอร์ผ่าน `apps/admin-api` ให้ทำการล้าง Redis Cache ที่เกี่ยวข้องทันที (`delByPattern('cache:catalog:*')`)
-- [ ] **3.2 Prisma Slow Query Logger (ตรวจจับคอขวดเชิงรุก)**
-  - ติดตั้ง Prisma Client Extension ตรวจจับเวลาในการ Query ทุกครั้ง
-  - หากคำสั่งใดใช้เวลาเกินเกณฑ์ที่กำหนด (Threshold: `> 200ms`) ให้บันทึก Warning Log พร้อม SQL Statement และ Execution Duration ทันที เพื่อให้ทีมงานรู้จุดที่ต้องเพิ่ม Index ล่วงหน้า
-- [ ] **3.3 Connection Pool & PgBouncer Fine-Tuning**
-  - ปรับแต่ง `connection_limit` ใน Prisma URL ให้เหมาะสมกับ Tier ของ Supabase
-  - ตรวจสอบให้แน่ใจว่า Background Worker (BullMQ) ใช้ Connection ที่แยกจาก HTTP Requests
+    - `GET /api/v1/catalog/categories` (TTL: 1 ชั่วโมง / 3,600s)
+    - `GET /api/v1/content/home` (TTL: 15 นาที / 900s)
+    - `GET /api/v1/content/settings` (TTL: 1 ชั่วโมง / 3,600s)
+  - **Cache Invalidation Automation:** เมื่อแอดมินแก้ไขสินค้า หมวดหมู่ ผ่าน `apps/admin-api` ให้ทำการล้าง Redis Cache สินค้า (`delByPattern('catalog:*')`) และเมื่อแอดมินสร้าง/แก้ไข/ลบ/จัดเรียงแบนเนอร์ หรือแก้ไข Store Settings ให้ทำการล้าง Redis Cache คอนเทนต์ทันที (`delByPattern('content:*')`)
+- [x] **3.2 Prisma Slow Query Logger (ตรวจจับคอขวดเชิงรุก)**
+  - ติดตั้ง Prisma Query Event Listener (`emit: 'event', level: 'query'`) ทั้งใน `apps/api` และ `apps/admin-api`
+  - หากคำสั่ง SQL ใดใช้เวลาเกินเกณฑ์ที่กำหนด (Threshold: `> 200ms` ปรับแต่งผ่าน `SLOW_QUERY_THRESHOLD_MS`) ให้บันทึก Warning Log พร้อม Execution Duration, คำสั่ง SQL และพารามิเตอร์ทันที
+- [x] **3.3 Connection Pool & PgBouncer Fine-Tuning**
+  - กำหนดค่า `connection_limit=10`, `pool_timeout=15`, และ `pgbouncer=true` ใน Connection String Transaction Pooler (Port 6543)
+  - ป้องกัน Worker Connection Exhaustion ด้วยการควบคุม Worker Concurrency (`concurrency: 1`) และ Transaction Boundaries ที่กระชับ
 
 ---
 

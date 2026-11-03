@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@repo/database';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RedisService } from '../../core/redis/redis.service.js';
@@ -26,6 +26,8 @@ type CategoryWithRelations = Prisma.CategoryGetPayload<
 
 @Injectable()
 export class CustomerCatalogService {
+  private readonly logger = new Logger(CustomerCatalogService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis?: RedisService,
@@ -40,8 +42,12 @@ export class CustomerCatalogService {
       if (cached) {
         try {
           return JSON.parse(cached) as PaginatedResponse<ApiProduct>;
-        } catch {
-          // continue to fetch from DB on parse error
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          this.logger.warn(
+            `Failed to parse cached products list (${cacheKey}): ${errMsg}. Evicting corrupted cache.`,
+          );
+          await this.redis.del(cacheKey);
         }
       }
     }
@@ -289,8 +295,12 @@ export class CustomerCatalogService {
       if (cached) {
         try {
           return JSON.parse(cached) as ApiProductDetail;
-        } catch {
-          // continue to fetch from DB on parse error
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          this.logger.warn(
+            `Failed to parse cached product detail (${cacheKey}): ${errMsg}. Evicting corrupted cache.`,
+          );
+          await this.redis.del(cacheKey);
         }
       }
     }
@@ -401,8 +411,12 @@ export class CustomerCatalogService {
       if (cached) {
         try {
           return JSON.parse(cached) as ApiCategory[];
-        } catch {
-          // continue to fetch from DB on parse error
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          this.logger.warn(
+            `Failed to parse cached categories (${cacheKey}): ${errMsg}. Evicting corrupted cache.`,
+          );
+          await this.redis.del(cacheKey);
         }
       }
     }
@@ -429,7 +443,7 @@ export class CustomerCatalogService {
 
     const result = categories.map((c) => this.mapCategory(c));
     if (this.redis) {
-      await this.redis.set(cacheKey, JSON.stringify(result), 600);
+      await this.redis.set(cacheKey, JSON.stringify(result), 3600);
     }
     return result;
   }

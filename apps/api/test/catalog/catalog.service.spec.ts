@@ -270,7 +270,7 @@ describe('CustomerCatalogService', () => {
       expect(prismaMock.category.findMany).not.toHaveBeenCalled();
     });
 
-    it('stores categories in Redis on cache miss with 600s TTL', async () => {
+    it('stores categories in Redis on cache miss with 3600s TTL', async () => {
       redisMock.get.mockResolvedValueOnce(null);
       prismaMock.category.findMany.mockResolvedValueOnce([
         {
@@ -290,8 +290,18 @@ describe('CustomerCatalogService', () => {
       expect(redisMock.set).toHaveBeenCalledWith(
         'catalog:categories:men',
         expect.any(String),
-        600,
+        3600,
       );
+    });
+    it('evicts corrupted cache key and falls back to database when cached categories is invalid JSON', async () => {
+      redisMock.get.mockResolvedValueOnce('invalid-json-categories{{');
+      prismaMock.category.findMany.mockResolvedValueOnce([]);
+
+      const result = await service.getCategories('men');
+
+      expect(redisMock.del).toHaveBeenCalledWith('catalog:categories:men');
+      expect(prismaMock.category.findMany).toHaveBeenCalled();
+      expect(result).toEqual([]);
     });
   });
 });

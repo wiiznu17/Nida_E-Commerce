@@ -4,6 +4,7 @@ import { BannerPlacement, AuditActionType } from '@repo/types';
 import { NotFoundException } from '@nestjs/common';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { AuditLogService } from '../../src/modules/audit-log/audit-log.service.js';
+import type { RedisService } from '../../src/core/redis/redis.service.js';
 
 describe('ContentService (Admin API)', () => {
   let service: ContentService;
@@ -24,6 +25,9 @@ describe('ContentService (Admin API)', () => {
   };
   let auditLogServiceMock: {
     recordLog: ReturnType<typeof vi.fn>;
+  };
+  let redisMock: {
+    delByPattern: ReturnType<typeof vi.fn>;
   };
 
   const sampleBanner = {
@@ -90,9 +94,14 @@ describe('ContentService (Admin API)', () => {
       recordLog: vi.fn().mockResolvedValue(null),
     };
 
+    redisMock = {
+      delByPattern: vi.fn().mockResolvedValue(undefined),
+    };
+
     service = new ContentService(
       prismaMock as unknown as PrismaService,
       auditLogServiceMock as unknown as AuditLogService,
+      redisMock as unknown as RedisService,
     );
   });
 
@@ -174,6 +183,7 @@ describe('ContentService (Admin API)', () => {
           targetTable: 'cms_banners',
         }),
       );
+      expect(redisMock.delByPattern).toHaveBeenCalledWith('content:*');
       expect(result.id).toBe('b-new');
     });
   });
@@ -206,6 +216,7 @@ describe('ContentService (Admin API)', () => {
           targetId: 'b-1',
         }),
       );
+      expect(redisMock.delByPattern).toHaveBeenCalledWith('content:*');
     });
 
     it('throws NotFoundException when updating non-existent banner', async () => {
@@ -244,6 +255,7 @@ describe('ContentService (Admin API)', () => {
           targetId: 'b-1',
         }),
       );
+      expect(redisMock.delByPattern).toHaveBeenCalledWith('content:*');
     });
 
     it('throws NotFoundException when deleting non-existent banner', async () => {
@@ -271,6 +283,7 @@ describe('ContentService (Admin API)', () => {
 
       expect(success).toBe(true);
       expect(prismaMock.$transaction).toHaveBeenCalled();
+      expect(redisMock.delByPattern).toHaveBeenCalledWith('content:*');
     });
   });
 
@@ -296,6 +309,7 @@ describe('ContentService (Admin API)', () => {
           actionType: AuditActionType.UPDATE,
         }),
       );
+      expect(redisMock.delByPattern).toHaveBeenCalledWith('content:*');
     });
   });
 });
