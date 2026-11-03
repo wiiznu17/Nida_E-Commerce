@@ -27,8 +27,11 @@
 ```
 packages/database/src/
 ├── seeds/
+│   ├── data/                         # 📦 ก้อนข้อมูลคงที่ (Static Seed Datasets)
+│   │   └── catalog.data.ts           # รายการหมวดหมู่และสินค้าตัวอย่าง (Categories & Products data)
+│   │
 │   ├── common/                       # 🟢 Master Data พื้นฐาน (Idempotent 100%)
-│   │   ├── seed-rbac.ts              # ซิงค์ Permissions (10 รายการ) และ Roles (4 บทบาท)
+│   │   ├── seed-rbac.ts              # ซิงค์ Permissions (11 รายการ) และ Roles (4 บทบาท)
 │   │   ├── seed-categories.ts        # Upsert หมวดหมู่สินค้าหลักและย่อย (26 รายการ)
 │   │   └── seed-settings.ts          # Upsert ค่าเริ่มต้น StoreSettings (ส่งฟรี ฿1,000, คืน 7 วัน)
 │   │
@@ -44,7 +47,7 @@ packages/database/src/
 │
 ├── seed.ts                           # 🚀 Dev Entrypoint (ล้างข้อมูล + รันทุกโมดูล + ติด Guard ดัก Prod)
 ├── seed-prod.ts                      # 🛡️ Prod Entrypoint (รันเฉพาะ Common + Prod ปลอดภัย 100% ไม่ลบข้อมูล)
-└── catalog-seed.data.ts              # ข้อมูล Array หมวดหมู่และสินค้า
+└── seed-products-only.ts             # 👗 Products-only Entrypoint (เพิ่มสินค้า 21 รายการ ไม่ลบข้อมูลเดิม)
 ```
 
 ---

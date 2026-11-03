@@ -1,5 +1,5 @@
 import { PrismaClient, Department } from '../../generated/prisma/index.js';
-import { CATEGORIES_SEED_DATA } from '../../catalog-seed.data.js';
+import { CATEGORIES_SEED_DATA } from '../data/catalog.data.js';
 
 export async function seedCategories(
   prisma: PrismaClient,

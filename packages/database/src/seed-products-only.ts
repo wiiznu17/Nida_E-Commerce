@@ -3,7 +3,7 @@ import { PrismaClient } from './generated/prisma/index.js';
 import { syncRbac } from './seeds/common/seed-rbac.js';
 import { seedSuperAdmin } from './seeds/prod/seed-superadmin.js';
 import { seedCategories } from './seeds/common/seed-categories.js';
-import { PRODUCTS_SEED_DATA } from './catalog-seed.data.js';
+import { PRODUCTS_SEED_DATA } from './seeds/data/catalog.data.js';
 
 const prisma = new PrismaClient();
 

@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../generated/prisma/index.js';
-import { PRODUCTS_SEED_DATA } from '../../catalog-seed.data.js';
+import { PRODUCTS_SEED_DATA } from '../data/catalog.data.js';
 
 export async function seedCatalog(
   prisma: PrismaClient,
