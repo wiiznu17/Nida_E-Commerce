@@ -116,14 +116,20 @@
 
 > **เป้าหมาย:** ระบบสังเกตการณ์ (Observability) และประวัติการทำธุรกรรมที่โปร่งใส
 
-- [ ] **4.1 ระบบบันทึก Health Status เชิงลึก (Deep Health Checks)**
-  - ปรับปรุง `/health` ให้ตรวจสอบสถานะการเชื่อมต่อของ:
-    - PostgreSQL Database (Ping query)
-    - Redis Cache & BullMQ Queue connection
-    - ผู้ให้บริการภายนอก (Resend API status)
-- [ ] **4.2 ตรวจสอบ Audit Log Immutability**
-  - ตรวจสอบให้แน่ใจว่าตาราง `AdminAuditLog` ไม่มี Endpoint สำหรับ `UPDATE` หรือ `DELETE` (Append-only โดยสมบูรณ์)
-  - บันทึก IP Address และ User Agent ของผู้กระทำทุกครั้ง
+- [x] **4.1 ระบบบันทึก Health Status เชิงลึก (Deep Health Checks)**
+  - ปรับปรุง `/health` ทั้ง `apps/api` และ `apps/admin-api` ให้ส่งคืนโครงสร้าง `ApiHealthCheckResponse` ตามสัญญา `@repo/types`
+  - ตรวจสอบสถานะการเชื่อมต่อเชิงลึก:
+    - PostgreSQL Database (`SELECT 1` พร้อมวัด Latency, หากล้มเหลวจะตอบกลับ HTTP 503 ทันทีเพื่อให้ Cloud Load Balancer / Render ทราบ)
+    - Redis Cache (`PING` คำนวณ Round-Trip Latency และสถานะ Connection)
+    - Cloudinary Media Storage (Ping / Root API status)
+    - Resend Mailer Gateway (API Key / Connection readiness)
+    - Node.js Process Metrics (Memory Heap / RSS Usage, Process Uptime)
+- [x] **4.2 ระบบ Audit Log Immutability & Automatic Context Tracking**
+  - ติดตั้ง PostgreSQL Database Engine Trigger `prevent_audit_log_modification()` บนตาราง `admin_audit_logs` เพื่อบล็อกคำสั่ง `UPDATE` และ `DELETE` ที่ระดับฐานข้อมูลอย่างเด็ดขาด (Append-only 100%)
+  - ใช้ `AsyncLocalStorage` (`AuditContextService` & `AuditContextInterceptor`) บันทึก IP Address (รองรับ `x-forwarded-for` / Cloudflare proxies) และ User-Agent โดยอัตโนมัติสำหรับทุก Mutation Log
+- [x] **4.3 Real-Time Admin Dashboard Health Strip Integration**
+  - นำ `healthRequester.getHealthStatus()` ไปเชื่อมต่อกับหน้า Admin Dashboard (`apps/admin/src/pages/AdminDashboard.tsx`) แบบ Concurrent Data Fetching
+  - ขจัดสถานะจำลอง (Hardcoded `isStoreOnline: true`) และแสดงสถานะสด (Online, Degraded, Offline) พร้อม Hover Tooltip แสดงความพร้อมของ Database, Redis, Cloudinary และ Mailer อย่างครบถ้วน
 
 ---
 

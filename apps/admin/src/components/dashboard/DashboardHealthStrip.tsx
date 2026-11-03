@@ -17,21 +17,64 @@ interface DashboardHealthStripProps {
 export function DashboardHealthStrip({ data }: DashboardHealthStripProps) {
   const { t } = useLanguage();
 
+  const health = data.healthStatus;
+  const status = health ? health.status : data.isStoreOnline ? 'ok' : 'error';
+
+  const isOnline = status === 'ok';
+  const isDegraded = status === 'degraded';
+
+  const dotColor = isOnline
+    ? 'bg-emerald-500'
+    : isDegraded
+      ? 'bg-amber-500'
+      : 'bg-red-500';
+  const pingColor = isOnline
+    ? 'bg-emerald-400'
+    : isDegraded
+      ? 'bg-amber-400'
+      : 'bg-red-400';
+  const badgeClasses = isOnline
+    ? 'text-emerald-800 bg-emerald-50 border-emerald-200'
+    : isDegraded
+      ? 'text-amber-800 bg-amber-50 border-amber-200'
+      : 'text-red-800 bg-red-50 border-red-200';
+  const statusLabel = isOnline
+    ? t('dashboard.health.online')
+    : isDegraded
+      ? t('dashboard.health.degraded')
+      : t('dashboard.health.offline');
+
+  const tooltipDesc = health
+    ? `${t('dashboard.health.db')}: ${health.services.database.status} (${health.services.database.latencyMs ?? 0}ms) | ${t('dashboard.health.redis')}: ${health.services.redis.status} (${health.services.redis.latencyMs ?? 0}ms) | ${t('dashboard.health.mailer')}: ${health.services.mailer?.status ?? 'n/a'} | ${t('dashboard.health.storage')}: ${health.services.storage?.status ?? 'n/a'}`
+    : t('dashboard.health.tooltipDesc');
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2.5">
       {/* Store Status Pill */}
       <div className="bg-white border border-brand-border px-3.5 py-2.5 flex items-center justify-between shadow-2xs min-w-0">
-        <div className="flex items-center space-x-2 min-w-0">
+        <div className="flex items-center space-x-1.5 min-w-0 pr-1">
           <span className="relative flex h-2 w-2 shrink-0">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            <span
+              className={`animate-ping absolute inline-flex h-full w-full rounded-full ${pingColor} opacity-75`}
+            />
+            <span
+              className={`relative inline-flex rounded-full h-2 w-2 ${dotColor}`}
+            />
           </span>
           <span className="text-[11px] font-black uppercase tracking-wider text-brand-brown truncate">
             {t('dashboard.health.storeStatus')}
           </span>
+          <span onClick={(e) => e.stopPropagation()} className="shrink-0">
+            <InfoTooltip
+              title={t('dashboard.health.tooltipTitle')}
+              description={tooltipDesc}
+            />
+          </span>
         </div>
-        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-xs border border-emerald-200 shrink-0">
-          {t('dashboard.health.online')}
+        <span
+          className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-xs border shrink-0 ${badgeClasses}`}
+        >
+          {statusLabel}
         </span>
       </div>
 

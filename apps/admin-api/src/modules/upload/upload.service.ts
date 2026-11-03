@@ -42,6 +42,26 @@ export class UploadService {
   ]);
   private readonly maxFileSizeBytes = 10 * 1024 * 1024; // 10MB limit
 
+  getHealthStatus(): {
+    status: 'connected' | 'degraded' | 'disconnected';
+    configured: boolean;
+    message?: string;
+  } {
+    const config = this.resolveCloudinaryConfig();
+    if (!config) {
+      return {
+        status: 'degraded',
+        configured: false,
+        message: 'Cloudinary credentials missing or unconfigured',
+      };
+    }
+    return {
+      status: 'connected',
+      configured: true,
+      message: `Cloudinary configured for cloud '${config.cloudName}'`,
+    };
+  }
+
   async uploadImage(
     file: UploadedFileDto,
     subFolder: string = 'products',

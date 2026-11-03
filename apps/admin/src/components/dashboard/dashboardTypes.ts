@@ -4,6 +4,7 @@ import type {
   AnalyticsDepartmentShare,
   ExportDataType,
   ExportFileFormat,
+  ApiHealthCheckResponse,
 } from '@repo/types';
 
 export interface DashboardMetricFilter {
@@ -12,6 +13,7 @@ export interface DashboardMetricFilter {
 }
 
 export interface DashboardHealthData {
+  healthStatus?: ApiHealthCheckResponse | null;
   isStoreOnline: boolean;
   pendingShipmentCount: number;
   lowStockCount: number;

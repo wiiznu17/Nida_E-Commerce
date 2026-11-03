@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { RateLimitGuard } from './core/guards/rate-limit.guard.js';
 import { PrismaModule } from './core/prisma/prisma.module.js';
 import { RedisModule } from './core/redis/redis.module.js';
 import { MailerModule } from './core/mailer/mailer.module.js';
+import { AuditContextModule } from './core/audit-context/audit-context.module.js';
+import { AuditContextInterceptor } from './core/interceptors/audit-context.interceptor.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard.js';
 import { PermissionsGuard } from './modules/auth/guards/permissions.guard.js';
@@ -27,6 +29,7 @@ import { AppService } from './app.service.js';
     PrismaModule,
     RedisModule,
     MailerModule,
+    AuditContextModule,
     BullModule.forRootAsync({
       useFactory: () => {
         const redisUrl = process.env.REDIS_URL;
@@ -78,6 +81,10 @@ import { AppService } from './app.service.js';
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditContextInterceptor,
+    },
     {
       provide: APP_GUARD,
       useClass: RateLimitGuard,

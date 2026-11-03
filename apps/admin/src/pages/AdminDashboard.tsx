@@ -11,11 +11,13 @@ import {
 } from '../components/dashboard';
 import { useLanguage } from '../context/LanguageContext';
 import { analyticsRequester } from '../api/requester/analyticsRequester';
+import { healthRequester } from '../api/requester/healthRequester';
 import type {
   AnalyticsTimeframe,
   AnalyticsOverviewDto,
   AnalyticsRevenuePoint,
   AnalyticsDepartmentShare,
+  ApiHealthCheckResponse,
 } from '@repo/types';
 
 export default function AdminDashboard() {
@@ -25,6 +27,8 @@ export default function AdminDashboard() {
 
   // 100% Real-time analytics state (Zero initial state, populated strictly from DB)
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [healthStatus, setHealthStatus] =
+    useState<ApiHealthCheckResponse | null>(null);
   const [overview, setOverview] = useState<AnalyticsOverviewDto>(
     INITIAL_OVERVIEW_METRICS,
   );
@@ -38,11 +42,13 @@ export default function AdminDashboard() {
   const loadData = useCallback(async (selectedTf: AnalyticsTimeframe) => {
     setIsLoading(true);
     try {
-      const [apiOverview, apiPoints, apiDepts] = await Promise.allSettled([
-        analyticsRequester.getOverview(selectedTf),
-        analyticsRequester.getRevenueTrend(selectedTf),
-        analyticsRequester.getDepartmentShare(selectedTf),
-      ]);
+      const [apiOverview, apiPoints, apiDepts, apiHealth] =
+        await Promise.allSettled([
+          analyticsRequester.getOverview(selectedTf),
+          analyticsRequester.getRevenueTrend(selectedTf),
+          analyticsRequester.getDepartmentShare(selectedTf),
+          healthRequester.getHealthStatus(),
+        ]);
 
       if (apiOverview.status === 'fulfilled' && apiOverview.value) {
         setOverview(apiOverview.value);
@@ -52,6 +58,9 @@ export default function AdminDashboard() {
       }
       if (apiDepts.status === 'fulfilled') {
         setDepartmentShares(apiDepts.value ?? []);
+      }
+      if (apiHealth.status === 'fulfilled' && apiHealth.value) {
+        setHealthStatus(apiHealth.value);
       }
     } catch (err: unknown) {
       console.warn('Failed to load dashboard analytics:', err);
@@ -91,7 +100,10 @@ export default function AdminDashboard() {
           {/* Zone 1: Store Health Strip */}
           <DashboardHealthStrip
             data={{
-              isStoreOnline: true,
+              healthStatus,
+              isStoreOnline: healthStatus
+                ? healthStatus.status !== 'error'
+                : true,
               pendingShipmentCount: overview.pendingShipmentCount,
               lowStockCount: overview.lowStockCount,
               conversionRate: overview.conversionRate,

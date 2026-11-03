@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
+import { AuditContextService } from '../../core/audit-context/audit-context.service.js';
 import { AuditLogQueryDto } from './dto/audit-log-query.dto.js';
 import type {
   ApiAuditLog,
@@ -47,13 +48,21 @@ type AuditLogWithAdmin = Prisma.AdminAuditLogGetPayload<{
 export class AuditLogService {
   private readonly logger = new Logger(AuditLogService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditContext?: AuditContextService,
+  ) {}
 
   async recordLog(params: RecordAuditLogParams): Promise<ApiAuditLog | null> {
     try {
+      const ctx = this.auditContext?.get();
+      const adminId = params.adminId ?? ctx?.adminId ?? null;
+      const ipAddress = params.ipAddress ?? ctx?.ipAddress ?? null;
+      const userAgent = params.userAgent ?? ctx?.userAgent ?? null;
+
       const log = await this.prisma.adminAuditLog.create({
         data: {
-          adminId: params.adminId ?? null,
+          adminId,
           actionType: params.actionType,
           targetTable: params.targetTable,
           targetId: params.targetId,
@@ -65,8 +74,8 @@ export class AuditLogService {
           newValuesJson: params.newValuesJson
             ? (params.newValuesJson as Prisma.InputJsonValue)
             : Prisma.JsonNull,
-          ipAddress: params.ipAddress ?? null,
-          userAgent: params.userAgent ?? null,
+          ipAddress,
+          userAgent,
         },
         include: {
           admin: {

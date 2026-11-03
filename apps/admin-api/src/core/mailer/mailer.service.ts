@@ -54,6 +54,26 @@ export class MailerService implements OnModuleInit {
     }
   }
 
+  getHealthStatus(): {
+    status: 'connected' | 'degraded' | 'disconnected';
+    message?: string;
+    configured: boolean;
+  } {
+    const isConfigured = Boolean(process.env.RESEND_API_KEY && this.resend);
+    if (!isConfigured) {
+      return {
+        status: 'degraded',
+        configured: false,
+        message: 'RESEND_API_KEY not configured or client uninitialized',
+      };
+    }
+    return {
+      status: 'connected',
+      configured: true,
+      message: `Active mailer dispatching from ${this.fromAddress}`,
+    };
+  }
+
   async sendAdminInvitation(options: SendInviteEmailOptions): Promise<void> {
     if (!this.resend) {
       this.logger.error(

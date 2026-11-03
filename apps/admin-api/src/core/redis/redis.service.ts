@@ -112,6 +112,43 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  async ping(): Promise<{
+    status: 'connected' | 'fallback_memory' | 'disconnected';
+    latencyMs: number;
+    message?: string;
+  }> {
+    const start = Date.now();
+    if (this.isConnected && this.client) {
+      try {
+        const res = await this.client.ping();
+        const latencyMs = Date.now() - start;
+        if (res === 'PONG') {
+          return { status: 'connected', latencyMs };
+        }
+        return {
+          status: 'fallback_memory',
+          latencyMs,
+          message: `Unexpected ping response: ${res}`,
+        };
+      } catch (err: unknown) {
+        const latencyMs = Date.now() - start;
+        const msg = err instanceof Error ? err.message : String(err);
+        return {
+          status: 'fallback_memory',
+          latencyMs,
+          message: `Redis ping error: ${msg}`,
+        };
+      }
+    }
+
+    return {
+      status: 'fallback_memory',
+      latencyMs: Date.now() - start,
+      message:
+        'Operating in in-memory fallback mode (standalone Redis not connected)',
+    };
+  }
+
   // REFRESH TOKEN SESSION MANAGEMENT
 
   async setSession(
