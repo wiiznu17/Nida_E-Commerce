@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AccountStatus, type ApiUser } from '@repo/types';
 import { AccountStatusGuard } from '../../src/modules/auth/guards/account-status.guard.js';
@@ -65,11 +69,16 @@ describe('AccountStatusGuard', () => {
     };
     const context = createMockContext(user);
 
-    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException,
+    );
     try {
       await guard.canActivate(context);
     } catch (err: unknown) {
-      const resp = (err as ForbiddenException).getResponse() as Record<string, unknown>;
+      const resp = (err as ForbiddenException).getResponse() as Record<
+        string,
+        unknown
+      >;
       expect(resp['errorCode']).toBe('ACCOUNT_SUSPENDED');
       expect(resp['details']).toMatchObject({
         reason: 'Suspicious activities detected',
@@ -117,11 +126,16 @@ describe('AccountStatusGuard', () => {
     };
     const context = createMockContext(user);
 
-    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException,
+    );
     try {
       await guard.canActivate(context);
     } catch (err: unknown) {
-      const resp = (err as ForbiddenException).getResponse() as Record<string, unknown>;
+      const resp = (err as ForbiddenException).getResponse() as Record<
+        string,
+        unknown
+      >;
       expect(resp['errorCode']).toBe('ACCOUNT_BANNED');
       expect(resp['details']).toMatchObject({
         reason: 'Fraudulent transaction history',
@@ -139,11 +153,16 @@ describe('AccountStatusGuard', () => {
     };
     const context = createMockContext(user);
 
-    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException,
+    );
     try {
       await guard.canActivate(context);
     } catch (err: unknown) {
-      const resp = (err as ForbiddenException).getResponse() as Record<string, unknown>;
+      const resp = (err as ForbiddenException).getResponse() as Record<
+        string,
+        unknown
+      >;
       expect(resp['errorCode']).toBe('ACCOUNT_UNVERIFIED');
       expect(resp['details']).toMatchObject({
         verifyUrl: '/verify-otp',
@@ -172,13 +191,17 @@ describe('AccountStatusGuard', () => {
     };
     const context = createMockContext(user);
 
-    await expect(guard.canActivate(context)).rejects.toThrow(UnauthorizedException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      UnauthorizedException,
+    );
     try {
       await guard.canActivate(context);
     } catch (err: unknown) {
-      const resp = (err as UnauthorizedException).getResponse() as Record<string, unknown>;
+      const resp = (err as UnauthorizedException).getResponse() as Record<
+        string,
+        unknown
+      >;
       expect(resp['errorCode']).toBe('ACCOUNT_DEACTIVATED');
     }
   });
 });
-

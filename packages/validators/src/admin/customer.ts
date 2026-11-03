@@ -7,9 +7,10 @@ export const adminCustomerQuerySchema = z.object({
   search: z.string().trim().optional(),
   status: z.nativeEnum(AccountStatus).optional(),
   tier: z.nativeEnum(MembershipTier).optional(),
-  sortBy: z.enum(['createdAt', 'fullName', 'totalSpent', 'ordersCount', 'points']).default('createdAt'),
+  sortBy: z
+    .enum(['createdAt', 'fullName', 'totalSpent', 'ordersCount', 'points'])
+    .default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
 export type AdminCustomerQueryInput = z.infer<typeof adminCustomerQuerySchema>;
-

@@ -1877,10 +1877,14 @@ export class CustomerOrdersService {
             orderId: order.taxInvoice.orderId,
             orderNumber: order.orderNumber,
             invoiceNumber: order.taxInvoice.invoiceNumber,
-            payerType: order.taxInvoice.payerType as import('@repo/types').TaxInvoicePayerType,
+            payerType: order.taxInvoice
+              .payerType as import('@repo/types').TaxInvoicePayerType,
             taxId: order.taxInvoice.taxId,
             name: order.taxInvoice.name,
-            branchType: (order.taxInvoice.branchType as import('@repo/types').TaxInvoiceBranchType) ?? null,
+            branchType:
+              (order.taxInvoice
+                .branchType as import('@repo/types').TaxInvoiceBranchType) ??
+              null,
             branchCode: order.taxInvoice.branchCode ?? null,
             address: order.taxInvoice.address,
             subtotal: Number(order.taxInvoice.subtotal),
@@ -1890,7 +1894,8 @@ export class CustomerOrdersService {
             preVatAmount: Number(order.taxInvoice.preVatAmount),
             vatAmount: Number(order.taxInvoice.vatAmount),
             itemsSnapshot:
-              (order.taxInvoice.itemsSnapshot as unknown as import('@repo/types').ApiTaxInvoiceItem[]) ??
+              (order.taxInvoice
+                .itemsSnapshot as unknown as import('@repo/types').ApiTaxInvoiceItem[]) ??
               [],
             issuedAt: order.taxInvoice.issuedAt.toISOString(),
           }

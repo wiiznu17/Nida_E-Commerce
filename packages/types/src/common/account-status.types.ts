@@ -20,4 +20,3 @@ export interface AccountStatusErrorResponse {
   message: string;
   details?: AccountStatusErrorDetails;
 }
-

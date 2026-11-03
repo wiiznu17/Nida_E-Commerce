@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { Prisma } from '@repo/database';
 import {
@@ -137,8 +133,14 @@ export class TaxInvoiceService {
         payerType: req.payerType ?? TaxInvoicePayerType.PERSONAL,
         taxId: req.taxId,
         name: req.name,
-        branchType: req.branchType ?? (req.payerType === TaxInvoicePayerType.COMPANY ? TaxInvoiceBranchType.HEADQUARTERS : null),
-        branchCode: req.branchCode ?? (req.payerType === TaxInvoicePayerType.COMPANY ? '00000' : null),
+        branchType:
+          req.branchType ??
+          (req.payerType === TaxInvoicePayerType.COMPANY
+            ? TaxInvoiceBranchType.HEADQUARTERS
+            : null),
+        branchCode:
+          req.branchCode ??
+          (req.payerType === TaxInvoicePayerType.COMPANY ? '00000' : null),
         address: req.address,
         subtotal,
         discount,
@@ -228,10 +230,10 @@ export class TaxInvoiceService {
       totalAmount: Number(raw.totalAmount),
       preVatAmount: Number(raw.preVatAmount),
       vatAmount: Number(raw.vatAmount),
-      itemsSnapshot: (raw.itemsSnapshot as unknown as ApiTaxInvoiceItem[]) ?? [],
+      itemsSnapshot:
+        (raw.itemsSnapshot as unknown as ApiTaxInvoiceItem[]) ?? [],
       sellerSnapshot: NIDA_SELLER_TAX_INFO,
       issuedAt: raw.issuedAt.toISOString(),
     };
   }
 }
-

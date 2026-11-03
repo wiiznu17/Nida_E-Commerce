@@ -6,22 +6,22 @@
 
 ## 📊 สถานะปัจจุบันของระบบ (Current System Status)
 
-| โมดูล / ระบบ                    |            Backend (API)            |        Frontend (Admin UI)        | สถานะภาพรวม                   |
-| :------------------------------ | :---------------------------------: | :-------------------------------: | :---------------------------- |
-| **Authentication & Sessions**   |      ✅ Dual-Token (JWT+Redis)      |     ✅ Split-Screen Clean UI      | **พร้อมใช้งาน 100%**          |
-| **Multi-Device & Security**     |    ✅ Redis Session List/Revoke     |        ✅ Session Control         | **พร้อมใช้งาน 100%**          |
-| **Staff & Team Management**     |       ✅ Invite Link / Status       |   ✅ Staff Table & Invite Modal   | **พร้อมใช้งาน 100%**          |
-| **Product & Catalog**           |   ✅ CRUD / Categories / Variant    |    ✅ Matrix Form / Image Crop    | **พร้อมใช้งาน 100%**          |
-| **Inventory Control**           |   ✅ Stock Balance / Adjustments    |   ✅ Inventory Table / Restock    | **พร้อมใช้งาน 100%**          |
-| **Inventory Movements Log**     |      ✅ Stock Movement Log API      |      ✅ Movement Audit Table      | **พร้อมใช้งาน 100%**          |
-| **Orders & Fulfillment**        | ✅ Status Flow / Courier / Tracking |    ✅ Order List & Detail Page    | **พร้อมใช้งานพื้นฐาน**        |
-| **Promotions & Coupons**        |    ✅ Coupon CRUD & Validations     |    ✅ Promotion Manager Modal     | **พร้อมใช้งาน 100%**          |
-| **System Activity Audit Log**   |   ✅ AuditLog API & Interceptors    |   ✅ Audit Table & Diff Viewer    | **พร้อมใช้งาน 100%**          |
-| **Granular RBAC Permissions**   |     ✅ PermissionsGuard & Seed      | ✅ Route Guards & PermissionGates | **พร้อมใช้งาน 100%**          |
-| **CMS Banner Management**       |         ⏳ มี Prisma Model          |          ⏳ ยังไม่ได้ทำ           | **รอดำเนินการ**               |
-| **Analytics & Data Export**     |          ⏳ กำลังพัฒนา API          |   ✅ แดชบอร์ด & โมดอลเสร็จแล้ว    | **กำลังดำเนินการ**            |
-| **Order Item Product Snapshot** |       ⏳ มี Partial Snapshot        |    ⏳ ใช้ Live Query บางฟิลด์     | **รอดำเนินการ (เตรียมพัฒนา)** |
-| **Tax Invoicing & Receipts**    | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | **รอดำเนินการ** |
+| โมดูล / ระบบ                    |                                             Backend (API)                                             |                                          Frontend (Admin UI)                                          | สถานะภาพรวม                   |
+| :------------------------------ | :---------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------: | :---------------------------- |
+| **Authentication & Sessions**   |                                       ✅ Dual-Token (JWT+Redis)                                       |                                       ✅ Split-Screen Clean UI                                        | **พร้อมใช้งาน 100%**          |
+| **Multi-Device & Security**     |                                     ✅ Redis Session List/Revoke                                      |                                          ✅ Session Control                                           | **พร้อมใช้งาน 100%**          |
+| **Staff & Team Management**     |                                        ✅ Invite Link / Status                                        |                                     ✅ Staff Table & Invite Modal                                     | **พร้อมใช้งาน 100%**          |
+| **Product & Catalog**           |                                    ✅ CRUD / Categories / Variant                                     |                                      ✅ Matrix Form / Image Crop                                      | **พร้อมใช้งาน 100%**          |
+| **Inventory Control**           |                                    ✅ Stock Balance / Adjustments                                     |                                     ✅ Inventory Table / Restock                                      | **พร้อมใช้งาน 100%**          |
+| **Inventory Movements Log**     |                                       ✅ Stock Movement Log API                                       |                                        ✅ Movement Audit Table                                        | **พร้อมใช้งาน 100%**          |
+| **Orders & Fulfillment**        |                                  ✅ Status Flow / Courier / Tracking                                  |                                      ✅ Order List & Detail Page                                      | **พร้อมใช้งานพื้นฐาน**        |
+| **Promotions & Coupons**        |                                     ✅ Coupon CRUD & Validations                                      |                                      ✅ Promotion Manager Modal                                       | **พร้อมใช้งาน 100%**          |
+| **System Activity Audit Log**   |                                    ✅ AuditLog API & Interceptors                                     |                                     ✅ Audit Table & Diff Viewer                                      | **พร้อมใช้งาน 100%**          |
+| **Granular RBAC Permissions**   |                                      ✅ PermissionsGuard & Seed                                       |                                   ✅ Route Guards & PermissionGates                                   | **พร้อมใช้งาน 100%**          |
+| **CMS Banner Management**       |                                          ⏳ มี Prisma Model                                           |                                            ⏳ ยังไม่ได้ทำ                                             | **รอดำเนินการ**               |
+| **Analytics & Data Export**     |                                           ⏳ กำลังพัฒนา API                                           |                                     ✅ แดชบอร์ด & โมดอลเสร็จแล้ว                                      | **กำลังดำเนินการ**            |
+| **Order Item Product Snapshot** |                                        ⏳ มี Partial Snapshot                                         |                                      ⏳ ใช้ Live Query บางฟิลด์                                       | **รอดำเนินการ (เตรียมพัฒนา)** |
+| **Tax Invoicing & Receipts**    | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | **รอดำเนินการ**               |
 
 ---
 
@@ -225,7 +225,7 @@ sequenceDiagram
 ### 🧾 ลำดับที่ 7: ระบบออกใบเสร็จรับเงิน / ใบกำกับภาษีเต็มรูปแบบ (Tax Invoicing & Receipts)
 
 > **เป้าหมาย**: รองรับการออกใบกำกับภาษีเต็มรูปแบบตามประมวลรัษฎากร ม.86/4, คำนวณ VAT 7%, ออกเลขรัน `INV-YYYYMM-XXXXX` อัตโนมัติ, และพิมพ์เอกสาร A4
-> 
+>
 > 📄 **แผนงานและเช็กลิสต์ฉบับสมบูรณ์**: ติดตามได้ที่ [docs/todo/tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)
 > 📐 **ข้อกำหนดเชิงเทคนิค (Specs)**: ศึกษาได้ที่ [docs/specs/tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/tax-invoice.md)
 

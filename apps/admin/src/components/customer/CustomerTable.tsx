@@ -84,12 +84,13 @@ export function CustomerTable({
                 MEMBERSHIP_TIER_STYLES[cust.tier] ??
                 MEMBERSHIP_TIER_STYLES.REGULAR;
 
-              const initials = cust.fullName
-                .split(' ')
-                .map((n) => n[0])
-                .slice(0, 2)
-                .join('')
-                .toUpperCase() || 'C';
+              const initials =
+                cust.fullName
+                  .split(' ')
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join('')
+                  .toUpperCase() || 'C';
 
               return (
                 <tr

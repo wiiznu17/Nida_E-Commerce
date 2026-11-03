@@ -54,8 +54,10 @@ export const AdminUsers: React.FC = () => {
   const [hasCopied, setHasCopied] = useState(false);
 
   // Status Action Modal state
-  const [statusActionTarget, setStatusActionTarget] = useState<ApiAdminUser | null>(null);
-  const [statusActionType, setStatusActionType] = useState<AccountStatusAction | null>(null);
+  const [statusActionTarget, setStatusActionTarget] =
+    useState<ApiAdminUser | null>(null);
+  const [statusActionType, setStatusActionType] =
+    useState<AccountStatusAction | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   const fetchData = useCallback(async () => {

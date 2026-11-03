@@ -8,4 +8,3 @@ import { PrismaModule } from '../../core/prisma/prisma.module.js';
   exports: [TaxInvoiceService],
 })
 export class TaxInvoiceModule {}
-

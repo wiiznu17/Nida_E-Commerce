@@ -6,16 +6,16 @@
 
 ## 📊 สถานะภาพรวมของระบบ (System Status)
 
-| ส่วนประกอบ / โมดูล | สถานะการพัฒนา | รายละเอียดความพร้อม |
-| :--- | :---: | :--- |
-| **Technical Specification** | ✅ พร้อม 100% | อ้างอิงเอกสาร [docs/specs/tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/tax-invoice.md) |
-| **Database Schema & Migration** | ✅ เสร็จสมบูรณ์ | เพิ่ม `TaxInvoice` Model, Enums และเชื่อม Relation 1-to-1 กับ `Order` พร้อม Migration SQL |
-| **Shared Contracts & Validators** | ✅ เสร็จสมบูรณ์ | กำหนด DTO ใน `@repo/types` และ Zod Schema ตรวจสอบเลข 13 หลัก Mod 11 ใน `@repo/validators` |
-| **Storefront Checkout Integration** | ✅ เสร็จสมบูรณ์ | แบบฟอร์มขอใบกำกับภาษีในขั้นตอนชำระเงิน (`TaxInvoiceFormSection.tsx`) พร้อมสลับ บุคคล/นิติบุคคล |
-| **Backend Sequential Engine** | ✅ เสร็จสมบูรณ์ | รันเลขเอกสาร `INV-YYYYMM-XXXXX` อัตโนมัติเมื่อออเดอร์ชำระเงินสำเร็จ (`PAID`) ทั้ง Customer และ Admin |
-| **Storefront Document Download** | ✅ เสร็จสมบูรณ์ | หน้าประวัติออเดอร์ให้ลูกค้าเรียกดูและสั่งพิมพ์ A4 PDF ได้ด้วยตนเอง (`CustomerTaxInvoiceModal.tsx`) |
-| **Admin Document Printing** | ✅ เสร็จสมบูรณ์ | แท็บพิมพ์ใบเสร็จ/ใบกำกับภาษี A4 ในหน้า Admin Order Detail (`OrderTaxInvoice.tsx`) พร้อมบันทึก Audit Log |
-| **Unit Tests & Integrity Verification** | ✅ เสร็จสมบูรณ์ | ผ่านการทดสอบ Unit Test 100% (23/23 ใน Store API, 6/6 ใน Admin API) ครอบคลุมคำนวณฐานภาษี VAT 7% |
+| ส่วนประกอบ / โมดูล                      |  สถานะการพัฒนา  | รายละเอียดความพร้อม                                                                                            |
+| :-------------------------------------- | :-------------: | :------------------------------------------------------------------------------------------------------------- |
+| **Technical Specification**             |  ✅ พร้อม 100%  | อ้างอิงเอกสาร [docs/specs/tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/tax-invoice.md) |
+| **Database Schema & Migration**         | ✅ เสร็จสมบูรณ์ | เพิ่ม `TaxInvoice` Model, Enums และเชื่อม Relation 1-to-1 กับ `Order` พร้อม Migration SQL                      |
+| **Shared Contracts & Validators**       | ✅ เสร็จสมบูรณ์ | กำหนด DTO ใน `@repo/types` และ Zod Schema ตรวจสอบเลข 13 หลัก Mod 11 ใน `@repo/validators`                      |
+| **Storefront Checkout Integration**     | ✅ เสร็จสมบูรณ์ | แบบฟอร์มขอใบกำกับภาษีในขั้นตอนชำระเงิน (`TaxInvoiceFormSection.tsx`) พร้อมสลับ บุคคล/นิติบุคคล                 |
+| **Backend Sequential Engine**           | ✅ เสร็จสมบูรณ์ | รันเลขเอกสาร `INV-YYYYMM-XXXXX` อัตโนมัติเมื่อออเดอร์ชำระเงินสำเร็จ (`PAID`) ทั้ง Customer และ Admin           |
+| **Storefront Document Download**        | ✅ เสร็จสมบูรณ์ | หน้าประวัติออเดอร์ให้ลูกค้าเรียกดูและสั่งพิมพ์ A4 PDF ได้ด้วยตนเอง (`CustomerTaxInvoiceModal.tsx`)             |
+| **Admin Document Printing**             | ✅ เสร็จสมบูรณ์ | แท็บพิมพ์ใบเสร็จ/ใบกำกับภาษี A4 ในหน้า Admin Order Detail (`OrderTaxInvoice.tsx`) พร้อมบันทึก Audit Log        |
+| **Unit Tests & Integrity Verification** | ✅ เสร็จสมบูรณ์ | ผ่านการทดสอบ Unit Test 100% (23/23 ใน Store API, 6/6 ใน Admin API) ครอบคลุมคำนวณฐานภาษี VAT 7%                 |
 
 ---
 
@@ -38,6 +38,7 @@ graph TD
 ## 📋 แผนงานสิ่งที่ต้องทำตามลำดับขั้นตอน (Actionable Roadmap)
 
 ### เฟส 1: โครงสร้างฐานข้อมูลและการย้ายข้อมูล (Database Schema & Migration)
+
 > **เป้าหมาย**: สร้างตาราง `TaxInvoice` พร้อม Enum และ Foreign Key ใน `packages/database/prisma/schema.prisma` พร้อมไฟล์ Migration แท้จริง
 
 - [x] **Prisma Enums**:
@@ -69,6 +70,7 @@ graph TD
 ---
 
 ### เฟส 2: กำหนด Contract และ Zod Validators ส่วนกลาง (`@repo/types`, `@repo/validators`)
+
 > **เป้าหมาย**: รักษาความปลอดภัยของข้อมูลตามกฎ Single Source of Truth โดยเขียน Zod Schema ตรวจสอบความถูกต้องของเลขประจำตัวผู้เสียภาษีและข้อมูลสาขา
 
 - [x] **`packages/types`**:
@@ -89,6 +91,7 @@ graph TD
 ---
 
 ### เฟส 3: หน้าร้านค้า — เช็คเอาต์และแบบฟอร์มขอใบกำกับภาษี (`apps/store`)
+
 > **เป้าหมาย**: ให้ลูกค้าหน้าร้านสามารถเลือกขอรับใบกำกับภาษีเต็มรูปได้สะดวกรวดเร็วตามมาตรฐาน Editorial Luxury
 
 - [x] **Component สถาปัตยกรรมย่อยใน `apps/store/src/components/checkout/`**:
@@ -107,6 +110,7 @@ graph TD
 ---
 
 ### เฟส 4: เครื่องยนต์คำนวณภาษีและออกเลขเอกสารอัตโนมัติ (`apps/api`)
+
 > **เป้าหมาย**: ออกเลขเอกสารตามลำดับ (Sequential) ที่ไม่ซ้ำซ้อน และคำนวณฐานภาษี VAT 7% ตามประมวลรัษฎากร ม.86/4
 
 - [x] **Sequential Numbering Generator (`TaxInvoiceService`)**:
@@ -114,8 +118,8 @@ graph TD
   - [x] รับประกันความต่อเนื่องและป้องกัน Race Condition ด้วย Atomic Counter (Redis / Postgres Transaction)
 - [x] **VAT Calculation Engine**:
   - [x] สูตรแยกฐานภาษี:
-    $$\text{Pre-VAT Base} = \text{Total} / 1.07$$
-    $$\text{VAT Amount} = \text{Total} - \text{Pre-VAT Base}$$
+        $$\text{Pre-VAT Base} = \text{Total} / 1.07$$
+        $$\text{VAT Amount} = \text{Total} - \text{Pre-VAT Base}$$
   - [x] ปัดเศษ 2 ตำแหน่งสากล (`Half-Up Rounding`)
 - [x] **Trigger Lifecycle**:
   - [x] เมื่อ Order ถูกเปลี่ยนสถานะเป็น `PAID` (หลังชำระผ่าน Omise / Credit Card / PromptPay สำเร็จ) ➔ หากมีคำขอใบกำกับภาษี ให้ทำการ Generate และบันทึก `TaxInvoice` ทันที
@@ -125,6 +129,7 @@ graph TD
 ---
 
 ### เฟส 5: แสดงผลและพิมพ์เอกสารทั้งหน้าร้านและหลังบ้าน (`apps/store` & `apps/admin`)
+
 > **เป้าหมาย**: เอกสารพิมพ์ A4 ที่จัดเลย์เอาต์ประณีตตามแบบฟอร์มสรรพากร ถูกต้องตามมาตรฐาน Editorial Luxury
 
 - [x] **Storefront Customer Portal (`apps/store`)**:
@@ -147,6 +152,7 @@ graph TD
 ---
 
 ### เฟส 6: การทดสอบและความสมบูรณ์ของระบบ (Testing & Verification)
+
 > **เป้าหมาย**: ครอบคลุม 100% ตามข้อกำหนด Mandatory Feature Unit Testing Policy
 
 - [x] **Unit Tests (`apps/api/test/orders/tax-invoice.spec.ts`)**:
@@ -164,4 +170,3 @@ graph TD
   - [x] `npm --prefix apps/admin run build`
   - [x] `npm --prefix apps/store run build`
   - [x] รันการทดสอบ Unit Tests ทั้งหมดต้องผ่าน 100%
-

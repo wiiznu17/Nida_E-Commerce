@@ -99,6 +99,7 @@ flowchart TD
 เมื่อคำขอถูกสกัดกั้นโดย `AccountStatusGuard` หรือเซอร์วิสตรวจสอบสิทธิ์ ระบบจะส่ง Response ในรูปแบบ JSON มาตรฐาน RFC 7807 โดยมีรหัสข้อผิดพลาด (`code` / `errorCode`) และรายละเอียด (`details`) ชัดเจน:
 
 #### 1) บัญชีถูกระงับชั่วคราว (HTTP 403 Forbidden / HTTP 429 Too Many Requests)
+
 ```json
 {
   "statusCode": 403,
@@ -114,6 +115,7 @@ flowchart TD
 ```
 
 #### 2) บัญชีถูกระงับถาวร (HTTP 403 Forbidden)
+
 ```json
 {
   "statusCode": 403,
@@ -128,6 +130,7 @@ flowchart TD
 ```
 
 #### 3) บัญชีรอยืนยัน OTP (HTTP 403 Forbidden)
+
 ```json
 {
   "statusCode": 403,
@@ -141,6 +144,7 @@ flowchart TD
 ```
 
 #### 4) บัญชีถูกปิดการใช้งาน (HTTP 401 Unauthorized)
+
 ```json
 {
   "statusCode": 401,
@@ -212,7 +216,9 @@ sequenceDiagram
 ---
 
 ### 4.3 การเพิกถอนสิทธิ์เซสชันทันที (Immediate Session Eviction)
+
 เมื่อบัญชีถูกเปลี่ยนสถานะเป็น `SUSPENDED`, `BANNED`, หรือ `INACTIVE` ทางหลังบ้าน:
+
 1. ลบ Refresh Token Session จาก Redis: `customer:refresh:<token>` และ `customer:user_sessions:<userId>`
 2. บันทึก Timestamp การเพิกถอน `jwt:revoked_before:<userId>` ลง Redis เพื่อปฏิเสธ Access Token ทุกใบที่ออกก่อนหน้านั้น
 3. นำ Access Token ปัจจุบันเข้าสู่ Redis Blacklist (`jwt:bl:<hash>`)
@@ -347,6 +353,7 @@ flowchart TD
 - **การตรวจสอบข้อมูลนำเข้า:** ตรวจสอบผ่าน `ZodValidationPipe(updateAccountStatusSchema)`
 
 #### Payload Request Body (`UpdateAccountStatusInput`):
+
 ```typescript
 {
   status: 'SUSPENDED' | 'BANNED' | 'ACTIVE' | 'INACTIVE';
@@ -356,6 +363,7 @@ flowchart TD
 ```
 
 #### กฎความปลอดภัยทางธุรกิจ (Business & Security Guard Rails):
+
 1. **Self-Suspension Protection:** แอดมินไม่สามารถเปลี่ยนสถานะบัญชีของตนเองได้ (Throws 400 Bad Request: `ไม่สามารถเปลี่ยนสถานะบัญชีของตนเองได้`)
 2. **Immediate Eviction:** หากสถานะใหม่ไม่ใช่ `ACTIVE` ระบบจะสั่งทำลาย Session ของบัญชีเป้าหมายใน Redis ทันที (`redis.revokeAllUserSessions(targetId)`) ส่งผลให้แอดมินคนนั้นหลุดจากระบบทุกเครื่องในทันที
 3. **Audit Trail Recording:** ทุกการเปลี่ยนสถานะจะถูกบันทึกลงตาราง `admin_audit_logs` อัตโนมัติ (`actionType = 'STATUS_CHANGE'`, `targetTable = 'admin_users'`) พร้อมแนบ Snapshot ข้อมูลเดิมและข้อมูลใหม่ เพื่อตรวจสอบย้อนหลังได้ 100%
@@ -369,16 +377,16 @@ flowchart TD
 ```mermaid
 flowchart TD
     API["Backend API Response (HTTP 403 / 429 / 401)"] --> Client["Storefront apiClient (client.ts)"]
-    
+
     Client --> Detect{"ตรวจสอบ Error Code เป็น<br/>ACCOUNT_SUSPENDED / BANNED?"}
-    
+
     Detect -->|ใช่| Evict["1. ลบ Token ทุกตัวใน localStorage ทันที<br/>(jwt_token, refresh_token, user_cache)"]
     Evict --> Dispatch["2. ยิง Custom Event: nida:auth:account_restricted"]
-    
+
     Dispatch --> AuthCtx["AuthContext รับ Event"]
     AuthCtx --> SetState["เซ็ต restrictedAccount ใน State"]
     SetState --> OpenModal["แสดงผล AccountRestrictedModal ทันที"]
-    
+
     Detect -->|ไม่ใช่| Throw["โยน ApiError ไปยัง Form Caller"]
     Throw --> FormExtract["extractApiError สกัด details: { reason, retryAfterSeconds }"]
     FormExtract --> AlertUI["เรนเดอร์คอมโพเนนต์ AccountStatusAlert ใน AuthDrawer"]
@@ -413,19 +421,20 @@ flowchart TD
 flowchart TD
     AdminReq["Admin Request (GET / PATCH /admin/customers)"] --> Guard["JwtAuthGuard & PermissionsGuard"]
     Guard --> Interceptor["RoleBasedPiiInterceptor"]
-    
+
     Interceptor --> Controller["CustomersController"]
     Controller --> Service["CustomersService"]
-    
+
     Service --> Prisma["Prisma Client (User & Order Aggregations)"]
     Service --> Redis["Redis (Session Eviction)"]
     Service --> Audit["AuditLogService (Immutable Audit Trail)"]
-    
+
     Redis --> Revoke["1. revokeAllCustomerSessions (Refresh Tokens)<br/>2. revokeAllUserTokens (jwt:revoked_before)"]
     Audit --> AuditDB["admin_audit_logs (targetTable: 'users')"]
 ```
 
 #### รายการ Endpoints มาตรฐาน:
+
 1. **`GET /admin/customers`**:
    - Query Parameters (`adminCustomerQuerySchema`): `page`, `limit`, `search`, `status`, `tier`, `sortBy`, `sortOrder`
    - กรองและค้นหา: ค้นหาคำค้นหาใน `email`, `phone`, `firstName`, `lastName`
@@ -463,6 +472,3 @@ flowchart TD
 4. **ระบบภาษาและมาตรฐานโค้ด (i18n & Clean Architecture):**
    - ข้อความทั้งหมดจัดเก็บใน `th.json` และ `en.json` ในหมวด `customers.*` และ `users.*` อย่างสมมาตร ปราศจาก Emoji 100%
    - หน้า Page ทำหน้าที่เป็น Orchestrator เท่านั้น ปราศจาก Helper หรือ Entity Mapper โดยแยกตรรกะไว้ใน `api/requester/customerRequester.ts` และ `components/customer/` ตามกฎเหล็กของ Nida Project
-
-
-

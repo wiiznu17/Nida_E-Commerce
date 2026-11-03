@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AdminUsersService } from '../../src/modules/admin-users/admin-users.service.js';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { AccountStatus, AdminPermission, AdminRoleCode, AuditActionType } from '@repo/types';
+import {
+  AccountStatus,
+  AdminPermission,
+  AdminRoleCode,
+  AuditActionType,
+} from '@repo/types';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { RedisService } from '../../src/core/redis/redis.service.js';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
@@ -110,7 +115,9 @@ describe('AdminUsersService', () => {
           roleCode: AdminRoleCode.ORDER_MANAGER,
           roleName: 'Order Officer',
           description: null,
-          rolePermissions: [{ permission: { permissionCode: AdminPermission.ORDERS_READ } }],
+          rolePermissions: [
+            { permission: { permissionCode: AdminPermission.ORDERS_READ } },
+          ],
         },
       };
 
@@ -246,4 +253,3 @@ describe('AdminUsersService', () => {
     });
   });
 });
-

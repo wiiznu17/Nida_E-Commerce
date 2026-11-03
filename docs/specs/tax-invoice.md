@@ -46,7 +46,7 @@ sequenceDiagram
     API->>API: รัน Tax Invoice Sequential Generator (INV-YYYYMM-XXXXX)
     API->>API: คำนวณฐานภาษี VAT 7%
     API->>DB: สร้าง Record TaxInvoice (Immutable Snapshot)
-    
+
     par ลูกค้าดูเอกสาร
         Customer->>Store: เปิดดูประวัติคำสั่งซื้อ
         Store->>API: GET /orders/:orderNumber/tax-invoice
@@ -68,6 +68,7 @@ $$\text{Pre-VAT Base} = \frac{\text{Total Net Amount}}{1.07}$$
 $$\text{VAT Amount (7\%)} = \text{Total Net Amount} - \text{Pre-VAT Base}$$
 
 ### กฎการปัดเศษทศนิยม (Rounding Rules):
+
 - ปัดเศษทศนิยม 2 ตำแหน่งตามหลักคณิตศาสตร์สากล (`Half-Up Rounding`)
 - ตัวอย่าง: ยอดชำระสุทธิ `฿2,500.00`
   - มูลค่าสินค้าก่อนภาษี: `2500 / 1.07 = ฿2,336.45`
@@ -93,23 +94,23 @@ model TaxInvoice {
   id               String               @id @default(uuid(7)) @db.Uuid
   orderId          String               @unique @map("order_id") @db.Uuid
   invoiceNumber    String               @unique @map("invoice_number") @db.VarChar(50)
-  
+
   payerType        TaxInvoicePayerType  @default(PERSONAL) @map("payer_type")
   taxId            String               @map("tax_id") @db.VarChar(20)
   name             String               @db.VarChar(255)
-  
+
   branchType       TaxInvoiceBranchType @default(HEADQUARTERS) @map("branch_type")
   branchNumber     String?              @map("branch_number") @db.VarChar(10) // เช่น "00001"
-  
+
   addressSnapshot  Json                 @map("address_snapshot")
-  
+
   subtotal         Decimal              @db.Decimal(10, 2)
   discountTotal    Decimal              @default(0) @map("discount_total") @db.Decimal(10, 2)
   shippingFee      Decimal              @default(0) @map("shipping_fee") @db.Decimal(10, 2)
   preVatAmount     Decimal              @map("pre_vat_amount") @db.Decimal(10, 2)
   vatAmount        Decimal              @map("vat_amount") @db.Decimal(10, 2)
   totalAmount      Decimal              @map("total_amount") @db.Decimal(10, 2)
-  
+
   issuedAt         DateTime             @default(now()) @map("issued_at")
   createdAt        DateTime             @default(now()) @map("created_at")
   updatedAt        DateTime             @updatedAt @map("updated_at")
@@ -141,4 +142,3 @@ model TaxInvoice {
    - ลูกค้าสามารถดูและดาวน์โหลดได้เฉพาะใบกำกับภาษีของคำสั่งซื้อตนเองเท่านั้น
    - เจ้าหน้าที่แอดมินต้องมีสิทธิ์ `ORDERS_READ` ในการเข้าถึง และต้องบันทึกประวัติการเข้าถึงใน `admin_audit_logs` หากมีการเปิดเผยข้อมูลจริง
 3. **Immutability**: เมื่อใบกำกับภาษีถูกสร้างและบันทึกแล้ว จะไม่อนุญาตให้แก้ไขข้อมูล (Immutable Record) เพื่อความโปร่งใสทางบัญชี หากมีการเปลี่ยนแปลงจะต้องออกใบลดหนี้ (Credit Note) หรือยกเลิกตามระเบียบกรมสรรพากร
-

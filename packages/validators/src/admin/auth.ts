@@ -80,5 +80,6 @@ export const updateAccountStatusSchema = z.object({
   durationMinutes: z.number().int().positive().optional(),
 });
 
-export type UpdateAccountStatusInput = z.infer<typeof updateAccountStatusSchema>;
-
+export type UpdateAccountStatusInput = z.infer<
+  typeof updateAccountStatusSchema
+>;

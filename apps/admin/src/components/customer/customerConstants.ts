@@ -35,7 +35,10 @@ export const CUSTOMER_STATUS_OPTIONS = [
   { value: AccountStatus.ACTIVE, labelKey: 'status.active' },
   { value: AccountStatus.SUSPENDED, labelKey: 'status.suspended' },
   { value: AccountStatus.BANNED, labelKey: 'status.banned' },
-  { value: AccountStatus.PENDING_VERIFICATION, labelKey: 'status.pendingVerification' },
+  {
+    value: AccountStatus.PENDING_VERIFICATION,
+    labelKey: 'status.pendingVerification',
+  },
   { value: AccountStatus.INACTIVE, labelKey: 'status.inactive' },
 ];
 
@@ -46,4 +49,3 @@ export const MEMBERSHIP_TIER_OPTIONS = [
   { value: MembershipTier.VIP_GOLD, labelKey: 'VIP Gold' },
   { value: MembershipTier.PLATINUM, labelKey: 'Platinum' },
 ];
-

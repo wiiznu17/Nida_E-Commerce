@@ -127,7 +127,8 @@ describe('Tax Invoicing & Receipts (Customer API)', () => {
         name: 'บริษัท สยามลักชัวรี่ จำกัด',
         taxId: '1100400123450',
         branchType: 'HEADQUARTERS',
-        address: '88 อาคารเอ็มโพเรียม ทาวเวอร์ ชั้น 20 ถนนสุขุมวิท กรุงเทพฯ 10110',
+        address:
+          '88 อาคารเอ็มโพเรียม ทาวเวอร์ ชั้น 20 ถนนสุขุมวิท กรุงเทพฯ 10110',
       };
 
       const result = taxInvoiceRequestSchema.safeParse(validCompany);
@@ -141,7 +142,8 @@ describe('Tax Invoicing & Receipts (Customer API)', () => {
         taxId: '1100400123450',
         branchType: 'BRANCH',
         branchCode: '00001',
-        address: '88 อาคารเอ็มโพเรียม ทาวเวอร์ ชั้น 20 ถนนสุขุมวิท กรุงเทพฯ 10110',
+        address:
+          '88 อาคารเอ็มโพเรียม ทาวเวอร์ ชั้น 20 ถนนสุขุมวิท กรุงเทพฯ 10110',
       };
 
       const result = taxInvoiceRequestSchema.safeParse(validCompanyBranch);
@@ -153,7 +155,8 @@ describe('Tax Invoicing & Receipts (Customer API)', () => {
         payerType: 'COMPANY',
         name: 'บริษัท สยามลักชัวรี่ จำกัด',
         taxId: '1100400123450',
-        address: '88 อาคารเอ็มโพเรียม ทาวเวอร์ ชั้น 20 ถนนสุขุมวิท กรุงเทพฯ 10110',
+        address:
+          '88 อาคารเอ็มโพเรียม ทาวเวอร์ ชั้น 20 ถนนสุขุมวิท กรุงเทพฯ 10110',
       };
 
       const result = taxInvoiceRequestSchema.safeParse(invalidCompany);
@@ -167,7 +170,8 @@ describe('Tax Invoicing & Receipts (Customer API)', () => {
         taxId: '1100400123450',
         branchType: 'BRANCH',
         branchCode: '12', // Not 5 digits
-        address: '88 อาคารเอ็มโพเรียม ทาวเวอร์ ชั้น 20 ถนนสุขุมวิท กรุงเทพฯ 10110',
+        address:
+          '88 อาคารเอ็มโพเรียม ทาวเวอร์ ชั้น 20 ถนนสุขุมวิท กรุงเทพฯ 10110',
       };
 
       const result = taxInvoiceRequestSchema.safeParse(invalidCompany);
@@ -410,4 +414,3 @@ describe('Tax Invoicing & Receipts (Customer API)', () => {
     });
   });
 });
-

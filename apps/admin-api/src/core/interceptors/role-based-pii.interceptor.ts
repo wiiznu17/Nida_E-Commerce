@@ -56,7 +56,9 @@ export class RoleBasedPiiInterceptor implements NestInterceptor {
             request.params?.['id'] ??
             'unknown';
 
-          const targetTable = request.path?.includes('customer') ? 'users' : 'orders';
+          const targetTable = request.path?.includes('customer')
+            ? 'users'
+            : 'orders';
 
           void this.auditLogService.recordLog({
             adminId: user?.id ?? null,

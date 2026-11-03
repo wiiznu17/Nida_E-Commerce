@@ -26,7 +26,8 @@ export function TaxInvoiceFormSection({
 
       if (checked && prev.useShippingAddress && shippingData) {
         if (!initialName && shippingData.firstName) {
-          initialName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
+          initialName =
+            `${shippingData.firstName} ${shippingData.lastName}`.trim();
         }
         if (!initialAddress && shippingData.address) {
           initialAddress = [
@@ -193,7 +194,9 @@ export function TaxInvoiceFormSection({
                   onChange={(e) =>
                     onChange((prev) => ({ ...prev, taxId: e.target.value }))
                   }
-                  placeholder={t('checkout.taxInvoice.personalTaxIdPlaceholder')}
+                  placeholder={t(
+                    'checkout.taxInvoice.personalTaxIdPlaceholder',
+                  )}
                   className="w-full text-xs px-3 py-2 bg-white border border-brand-brown/20 focus:border-brand-brown focus:outline-hidden rounded-xs text-brand-brown placeholder:text-brand-brown/30 font-mono"
                 />
               </div>
@@ -212,7 +215,9 @@ export function TaxInvoiceFormSection({
                     onChange={(e) =>
                       onChange((prev) => ({ ...prev, name: e.target.value }))
                     }
-                    placeholder={t('checkout.taxInvoice.companyNamePlaceholder')}
+                    placeholder={t(
+                      'checkout.taxInvoice.companyNamePlaceholder',
+                    )}
                     className="w-full text-xs px-3 py-2 bg-white border border-brand-brown/20 focus:border-brand-brown focus:outline-hidden rounded-xs text-brand-brown placeholder:text-brand-brown/30"
                   />
                 </div>
@@ -232,7 +237,9 @@ export function TaxInvoiceFormSection({
                         taxId: e.target.value.replace(/\D/g, ''),
                       }))
                     }
-                    placeholder={t('checkout.taxInvoice.companyTaxIdPlaceholder')}
+                    placeholder={t(
+                      'checkout.taxInvoice.companyTaxIdPlaceholder',
+                    )}
                     className="w-full text-xs px-3 py-2 bg-white border border-brand-brown/20 focus:border-brand-brown focus:outline-hidden rounded-xs text-brand-brown placeholder:text-brand-brown/30 font-mono tracking-widest"
                   />
                 </div>
@@ -297,7 +304,9 @@ export function TaxInvoiceFormSection({
                           branchCode: e.target.value.replace(/\D/g, ''),
                         }))
                       }
-                      placeholder={t('checkout.taxInvoice.branchCodePlaceholder')}
+                      placeholder={t(
+                        'checkout.taxInvoice.branchCodePlaceholder',
+                      )}
                       className="w-full text-xs px-3 py-2 bg-white border border-brand-brown/20 focus:border-brand-brown focus:outline-hidden rounded-xs text-brand-brown placeholder:text-brand-brown/30 font-mono tracking-widest"
                     />
                   </div>
@@ -342,4 +351,3 @@ export function TaxInvoiceFormSection({
     </div>
   );
 }
-

@@ -20,10 +20,7 @@ import {
   type AdminCustomerQueryInput,
   type UpdateAccountStatusInput,
 } from '@repo/validators';
-import {
-  RequirePermissions,
-  CurrentAdmin,
-} from '../auth/decorators/index.js';
+import { RequirePermissions, CurrentAdmin } from '../auth/decorators/index.js';
 import {
   AdminPermission,
   type ApiAdminUser,
@@ -120,4 +117,3 @@ export class CustomersController {
     };
   }
 }
-

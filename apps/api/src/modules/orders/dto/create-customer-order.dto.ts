@@ -13,11 +13,16 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
-import { PaymentMethod, TaxInvoicePayerType, TaxInvoiceBranchType } from '@repo/types';
+import {
+  PaymentMethod,
+  TaxInvoicePayerType,
+  TaxInvoiceBranchType,
+} from '@repo/types';
 
 export class CustomerTaxInvoiceRequestDto {
   @ApiProperty({
-    description: 'ประเภทผู้เสียภาษี (PERSONAL = บุคคลธรรมดา, COMPANY = นิติบุคคล)',
+    description:
+      'ประเภทผู้เสียภาษี (PERSONAL = บุคคลธรรมดา, COMPANY = นิติบุคคล)',
     enum: TaxInvoicePayerType,
     example: TaxInvoicePayerType.PERSONAL,
   })

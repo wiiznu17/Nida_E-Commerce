@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RedisService } from '../../core/redis/redis.service.js';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
@@ -64,15 +61,14 @@ export class CustomersService {
       ];
     }
 
-    let orderBy: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[] = {
+    let orderBy:
+      | Prisma.UserOrderByWithRelationInput
+      | Prisma.UserOrderByWithRelationInput[] = {
       createdAt: 'desc',
     };
 
     if (query.sortBy === 'fullName') {
-      orderBy = [
-        { firstName: query.sortOrder },
-        { lastName: query.sortOrder },
-      ];
+      orderBy = [{ firstName: query.sortOrder }, { lastName: query.sortOrder }];
     } else if (query.sortBy === 'points') {
       orderBy = { points: query.sortOrder };
     } else if (query.sortBy === 'createdAt') {
@@ -105,10 +101,9 @@ export class CustomersService {
         (sum, o) => sum + Number(o.totalAmount),
         0,
       );
-      const fullName = [user.firstName, user.lastName]
-        .filter(Boolean)
-        .join(' ')
-        .trim() || 'N/A';
+      const fullName =
+        [user.firstName, user.lastName].filter(Boolean).join(' ').trim() ||
+        'N/A';
 
       return {
         id: user.id,
@@ -216,10 +211,8 @@ export class CustomersService {
       (sum, o) => sum + Number(o.totalAmount),
       0,
     );
-    const fullName = [user.firstName, user.lastName]
-      .filter(Boolean)
-      .join(' ')
-      .trim() || 'N/A';
+    const fullName =
+      [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || 'N/A';
 
     return {
       id: user.id,
@@ -282,9 +275,7 @@ export class CustomersService {
     if (dto.status === AccountStatus.SUSPENDED) {
       suspendedAt = new Date();
       if (dto.durationMinutes && dto.durationMinutes > 0) {
-        suspendedUntil = new Date(
-          Date.now() + dto.durationMinutes * 60 * 1000,
-        );
+        suspendedUntil = new Date(Date.now() + dto.durationMinutes * 60 * 1000);
       }
     } else if (dto.status === AccountStatus.ACTIVE) {
       suspendedAt = null;
@@ -343,10 +334,9 @@ export class CustomersService {
       (sum, o) => sum + Number(o.totalAmount),
       0,
     );
-    const fullName = [updated.firstName, updated.lastName]
-      .filter(Boolean)
-      .join(' ')
-      .trim() || 'N/A';
+    const fullName =
+      [updated.firstName, updated.lastName].filter(Boolean).join(' ').trim() ||
+      'N/A';
 
     return {
       id: updated.id,

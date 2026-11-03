@@ -4,7 +4,11 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import type { Request } from 'express';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import { RedisService } from '../../../core/redis/redis.service.js';
-import { AccountStatus, type AdminJwtPayload, type ApiAdminUser } from '@repo/types';
+import {
+  AccountStatus,
+  type AdminJwtPayload,
+  type ApiAdminUser,
+} from '@repo/types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

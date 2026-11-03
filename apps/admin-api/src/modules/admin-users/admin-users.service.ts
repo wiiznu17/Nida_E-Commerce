@@ -341,9 +341,7 @@ export class AdminUsersService {
     if (dto.status === AccountStatus.SUSPENDED) {
       suspendedAt = new Date();
       if (dto.durationMinutes && dto.durationMinutes > 0) {
-        suspendedUntil = new Date(
-          Date.now() + dto.durationMinutes * 60 * 1000,
-        );
+        suspendedUntil = new Date(Date.now() + dto.durationMinutes * 60 * 1000);
       }
     } else if (dto.status === AccountStatus.ACTIVE) {
       suspendedAt = null;

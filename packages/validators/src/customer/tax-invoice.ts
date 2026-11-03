@@ -59,7 +59,8 @@ export const taxInvoiceRequestSchema = z
       if (!data.branchType) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Branch type (Headquarters or Branch) is required for companies',
+          message:
+            'Branch type (Headquarters or Branch) is required for companies',
           path: ['branchType'],
         });
       }
@@ -88,7 +89,8 @@ export const taxInvoiceRequestSchema = z
       } else if (!/^[A-Za-z0-9]{7,15}$/.test(cleaned)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'National ID must be 13 digits, or a valid Passport number (7-15 alphanumeric characters)',
+          message:
+            'National ID must be 13 digits, or a valid Passport number (7-15 alphanumeric characters)',
           path: ['taxId'],
         });
       }
@@ -96,4 +98,3 @@ export const taxInvoiceRequestSchema = z
   });
 
 export type TaxInvoiceRequestInput = z.infer<typeof taxInvoiceRequestSchema>;
-

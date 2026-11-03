@@ -20,4 +20,3 @@ export interface CustomerStatusModalState {
   customer: ApiAdminCustomerListItem | null;
   action: 'SUSPEND' | 'BAN' | 'REACTIVATE' | null;
 }
-

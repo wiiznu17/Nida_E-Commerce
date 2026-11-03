@@ -1,9 +1,6 @@
 // @repo/types — Tax Invoicing & Receipts Types
 
-import type {
-  TaxInvoiceBranchType,
-  TaxInvoicePayerType,
-} from './enums.js';
+import type { TaxInvoiceBranchType, TaxInvoicePayerType } from './enums.js';
 
 export interface ApiTaxInvoiceItem {
   id: string;
@@ -55,4 +52,3 @@ export interface ApiTaxInvoice {
   sellerSnapshot?: ApiTaxInvoiceSeller;
   issuedAt: string;
 }
-

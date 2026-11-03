@@ -28,10 +28,7 @@ import {
   UpdateCustomerProfileDto,
   CustomerChangePasswordDto,
 } from './dto/index.js';
-import {
-  CustomerJwtGuard,
-  AccountStatusGuard,
-} from './guards/index.js';
+import { CustomerJwtGuard, AccountStatusGuard } from './guards/index.js';
 import { CustomerAuthService } from './auth.service.js';
 import { RateLimit } from '../../core/decorators/rate-limit.decorator.js';
 import type {

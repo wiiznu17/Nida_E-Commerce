@@ -132,7 +132,8 @@ export class CustomerOrdersController {
   @Get(':orderNumber/tax-invoice')
   @UseGuards(OptionalCustomerJwtGuard)
   @ApiOperation({
-    summary: 'ดึงข้อมูลใบเสร็จรับเงิน/ใบกำกับภาษีเต็มรูป (Get Full Tax Invoice & Receipt)',
+    summary:
+      'ดึงข้อมูลใบเสร็จรับเงิน/ใบกำกับภาษีเต็มรูป (Get Full Tax Invoice & Receipt)',
   })
   @ApiResponse({ status: 200, description: 'Tax Invoice details' })
   @ApiResponse({ status: 404, description: 'Tax invoice not found' })

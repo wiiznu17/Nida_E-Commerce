@@ -15,10 +15,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { WishlistService } from './wishlist.service.js';
-import {
-  CustomerJwtGuard,
-  AccountStatusGuard,
-} from '../auth/guards/index.js';
+import { CustomerJwtGuard, AccountStatusGuard } from '../auth/guards/index.js';
 import type { ApiWishlistResponse, ApiUser } from '@repo/types';
 
 interface AuthenticatedCustomerRequest {

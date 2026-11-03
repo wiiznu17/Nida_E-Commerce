@@ -7,6 +7,7 @@
 ## 1. โครงสร้างข้อมูลระดับฐานข้อมูล (Prisma Database Schema)
 
 ### 1.1 โมเดล `CmsBanner`
+
 เก็บบันทึกข้อมูลแบนเนอร์และภาพสไลด์สำหรับตำแหน่งต่างๆ บนหน้าแรกของหน้าร้าน
 
 ```prisma
@@ -41,6 +42,7 @@ model CmsBanner {
 ```
 
 ### 1.2 โมเดล `StoreSettings`
+
 เก็บบันทึกแถบประกาศด้านบนสุด (Top Announcement Bar) และเกณฑ์นโยบายร้านค้า
 
 ```prisma
@@ -62,6 +64,7 @@ model StoreSettings {
 ## 2. ข้อมูลจำเพาะ API การจัดการเนื้อหา (API Specifications)
 
 ### 2.1 Public Storefront Endpoints (`apps/api`)
+
 ออกแบบด้วยนโยบายแคชระดับ Edge / CDN (`Cache-Control`) เพื่อความเร็วระดับพรีเมียม (LCP < 2.0 วินาที)
 
 - **`GET /api/v1/content/home`**:
@@ -71,16 +74,17 @@ model StoreSettings {
   - คืนค่า: แถบประกาศ Top Announcement และเกณฑ์นโยบายร้านค้า (Free Shipping / Return Window)
 
 ### 2.2 Back-Office Admin Endpoints (`apps/admin-api`)
+
 ควบคุมสิทธิ์ด้วย `AdminJwtGuard` พร้อมการตรวจสอบ Payload ด้วย Zod Schema 100%:
 
-| Method   | Endpoint Path                     | คำอธิบาย                                                   | Zod Validation Pipe                |
-| :------- | :-------------------------------- | :--------------------------------------------------------- | :--------------------------------- |
-| `GET`    | `/api/v1/content/home`            | ดึงรายการแบนเนอร์ทั้งหมด (ทั้ง Active และ Inactive)        | -                                  |
-| `POST`   | `/api/v1/content/banners`         | สร้างแบนเนอร์ใหม่                                          | `saveCmsBannerSchema`              |
-| `PUT`    | `/api/v1/content/banners/:id`     | แก้ไขข้อมูลแบนเนอร์                                        | `saveCmsBannerSchema`              |
-| `DELETE` | `/api/v1/content/banners/:id`     | ลบแบนเนอร์                                                 | -                                  |
-| `PATCH`  | `/api/v1/content/banners/reorder` | สลับลำดับการแสดงผลของแบนเนอร์ (`ids: string[]`)            | `reorderBannersSchema`             |
-| `PUT`    | `/api/v1/content/settings`        | อัปเดตแถบประกาศและเกณฑ์นโยบายร้านค้า                       | `updateStoreSettingsSchema`        |
+| Method   | Endpoint Path                     | คำอธิบาย                                            | Zod Validation Pipe         |
+| :------- | :-------------------------------- | :-------------------------------------------------- | :-------------------------- |
+| `GET`    | `/api/v1/content/home`            | ดึงรายการแบนเนอร์ทั้งหมด (ทั้ง Active และ Inactive) | -                           |
+| `POST`   | `/api/v1/content/banners`         | สร้างแบนเนอร์ใหม่                                   | `saveCmsBannerSchema`       |
+| `PUT`    | `/api/v1/content/banners/:id`     | แก้ไขข้อมูลแบนเนอร์                                 | `saveCmsBannerSchema`       |
+| `DELETE` | `/api/v1/content/banners/:id`     | ลบแบนเนอร์                                          | -                           |
+| `PATCH`  | `/api/v1/content/banners/reorder` | สลับลำดับการแสดงผลของแบนเนอร์ (`ids: string[]`)     | `reorderBannersSchema`      |
+| `PUT`    | `/api/v1/content/settings`        | อัปเดตแถบประกาศและเกณฑ์นโยบายร้านค้า                | `updateStoreSettingsSchema` |
 
 ---
 
@@ -95,4 +99,3 @@ model StoreSettings {
    - สลับแสดงผลภาษาไทย (TH) และอังกฤษ (EN) เพื่อให้มั่นใจว่าการจัดวางข้อความไม่ตกหล่นหรือขึ้นบรรทัดใหม่ผิดที่
 3. **Graceful Fallback Policy**:
    - หากยังไม่มีการตั้งค่าแบนเนอร์ในระบบ หรือฐานข้อมูลว่างเปล่า ระบบจะเรนเดอร์ Default Editorial Bento / Fallback Banners เสมอ เพื่อป้องกันไม่ให้หน้าเว็บล่มหรือเกิดช่องว่างสีขาว
-

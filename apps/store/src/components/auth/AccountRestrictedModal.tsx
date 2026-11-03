@@ -74,5 +74,3 @@ export const AccountRestrictedModal: React.FC = () => {
     </AlertModal>
   );
 };
-
-

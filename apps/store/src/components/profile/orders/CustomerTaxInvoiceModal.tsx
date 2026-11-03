@@ -161,8 +161,8 @@ export function CustomerTaxInvoiceModal({
                     บริษัท นิ ดา แบรนด์ จำกัด (NIDA BRAND CO., LTD.)
                   </span>
                   <br />
-                  888/88 อาคาร นิวานิช ชั้น 18 ถนนสุขุมวิท แขวงคลองตัน เขตคลองเตย
-                  กรุงเทพมหานคร 10110
+                  888/88 อาคาร นิวานิช ชั้น 18 ถนนสุขุมวิท แขวงคลองตัน
+                  เขตคลองเตย กรุงเทพมหานคร 10110
                   <br />
                   <span className="font-semibold">
                     เลขประจำตัวผู้เสียภาษีอากร (Tax ID):
@@ -186,7 +186,8 @@ export function CustomerTaxInvoiceModal({
                   <span className="text-sm font-bold">{invoiceNumber}</span>
                 </div>
                 <div className="text-[11px] text-black/80 mt-1">
-                  วันที่ / Date: <span className="font-medium">{issuedDate}</span>
+                  วันที่ / Date:{' '}
+                  <span className="font-medium">{issuedDate}</span>
                 </div>
                 <div className="text-[11px] text-black/60 font-mono mt-0.5">
                   อ้างอิงออเดอร์: #{order.orderNumber}
@@ -251,7 +252,9 @@ export function CustomerTaxInvoiceModal({
                       รหัสสินค้า (SKU)
                     </th>
                     <th className="py-2.5 px-3 w-16 text-center">จำนวน</th>
-                    <th className="py-2.5 px-3 w-24 text-right">ราคาต่อหน่วย</th>
+                    <th className="py-2.5 px-3 w-24 text-right">
+                      ราคาต่อหน่วย
+                    </th>
                     <th className="py-2.5 px-3 w-24 text-right">จำนวนเงิน</th>
                   </tr>
                 </thead>
@@ -312,7 +315,8 @@ export function CustomerTaxInvoiceModal({
                   <p className="leading-relaxed">
                     1. สินค้ารวมภาษีมูลค่าเพิ่ม 7% ตามประมวลรัษฎากรแห่งประเทศไทย
                     <br />
-                    2. เอกสารนี้ถือเป็นใบเสร็จรับเงินเมื่อได้รับการชำระเงินเรียบร้อยแล้ว
+                    2.
+                    เอกสารนี้ถือเป็นใบเสร็จรับเงินเมื่อได้รับการชำระเงินเรียบร้อยแล้ว
                   </p>
                 </div>
                 <div className="mt-4 pt-2 border-t border-black/10 flex justify-between font-mono text-[10px] text-black/50">
@@ -326,7 +330,10 @@ export function CustomerTaxInvoiceModal({
                 <div className="flex justify-between text-black/70">
                   <span>รวมมูลค่าสินค้า (Subtotal):</span>
                   <span>
-                    ฿{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    ฿
+                    {subtotal.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
 
@@ -334,7 +341,10 @@ export function CustomerTaxInvoiceModal({
                   <div className="flex justify-between text-emerald-700">
                     <span>ส่วนลด (Discount):</span>
                     <span>
-                      -฿{discount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      -฿
+                      {discount.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
                 )}
@@ -343,7 +353,10 @@ export function CustomerTaxInvoiceModal({
                   <div className="flex justify-between text-black/70">
                     <span>ค่าจัดส่ง (Shipping Fee):</span>
                     <span>
-                      ฿{shippingFee.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      ฿
+                      {shippingFee.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
                 ) : (
@@ -358,14 +371,20 @@ export function CustomerTaxInvoiceModal({
                 <div className="pt-2 border-t border-black/20 flex justify-between text-black/80 font-bold">
                   <span>มูลค่าก่อนภาษีมูลค่าเพิ่ม (Pre-VAT Base):</span>
                   <span>
-                    ฿{preVatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    ฿
+                    {preVatAmount.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
 
                 <div className="flex justify-between text-black/80 font-bold">
                   <span>ภาษีมูลค่าเพิ่ม 7% (VAT Amount):</span>
                   <span>
-                    ฿{vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    ฿
+                    {vatAmount.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
 
@@ -374,7 +393,10 @@ export function CustomerTaxInvoiceModal({
                     จำนวนเงินรวมทั้งสิ้น (Total Net):
                   </span>
                   <span className="text-base text-black font-serif">
-                    ฿{totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    ฿
+                    {totalAmount.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
               </div>

@@ -124,7 +124,10 @@ describe('Admin Tax Invoicing & Receipts (Admin API)', () => {
         .fn()
         .mockResolvedValue(mockOrderWithTaxInvoice);
 
-      const result = await service.getOrderTaxInvoice('NIDA-20261104-ADM', mockAdmin);
+      const result = await service.getOrderTaxInvoice(
+        'NIDA-20261104-ADM',
+        mockAdmin,
+      );
 
       expect(result.invoiceNumber).toBe('INV-202611-00010');
       expect(result.name).toBe('บริษัท สยามแกลเลอรี จำกัด');
@@ -191,7 +194,10 @@ describe('Admin Tax Invoicing & Receipts (Admin API)', () => {
           id: 'newly-created-inv',
         }));
 
-      const result = await service.getOrderTaxInvoice('NIDA-20261104-AUTO', mockAdmin);
+      const result = await service.getOrderTaxInvoice(
+        'NIDA-20261104-AUTO',
+        mockAdmin,
+      );
 
       expect(result.id).toBe('newly-created-inv');
       expect(result.name).toBe('วิศณุ เรืองทอง');
@@ -228,4 +234,3 @@ describe('Admin Tax Invoicing & Receipts (Admin API)', () => {
     });
   });
 });
-

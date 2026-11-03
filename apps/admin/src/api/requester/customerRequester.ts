@@ -25,9 +25,7 @@ export const customerRequester = {
   },
 
   getCustomerStats: async (): Promise<ApiAdminCustomerStats> => {
-    return apiClient.get<ApiAdminCustomerStats>(
-      '/admin/customers/stats',
-    );
+    return apiClient.get<ApiAdminCustomerStats>('/admin/customers/stats');
   },
 
   getCustomerById: async (

@@ -271,7 +271,9 @@ describe('CustomersService', () => {
 
       expect(result.status).toBe(AccountStatus.SUSPENDED);
       expect(result.statusReason).toBe('Suspected fraud activity');
-      expect(redisMock.revokeAllCustomerSessions).toHaveBeenCalledWith('cust-1');
+      expect(redisMock.revokeAllCustomerSessions).toHaveBeenCalledWith(
+        'cust-1',
+      );
       expect(redisMock.revokeAllUserTokens).toHaveBeenCalledWith('cust-1');
       expect(auditLogMock.recordLog).toHaveBeenCalledWith(
         expect.objectContaining({

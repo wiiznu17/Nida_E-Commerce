@@ -46,7 +46,10 @@ export const AccountStatusAlert: React.FC<AccountStatusAlertProps> = ({
 
   // Calculate initial seconds
   const initialSeconds = (() => {
-    if (typeof details?.retryAfterSeconds === 'number' && details.retryAfterSeconds > 0) {
+    if (
+      typeof details?.retryAfterSeconds === 'number' &&
+      details.retryAfterSeconds > 0
+    ) {
       return details.retryAfterSeconds;
     }
     if (details?.suspendedUntil) {
@@ -58,7 +61,8 @@ export const AccountStatusAlert: React.FC<AccountStatusAlertProps> = ({
     return 0;
   })();
 
-  const [remainingSeconds, setRemainingSeconds] = useState<number>(initialSeconds);
+  const [remainingSeconds, setRemainingSeconds] =
+    useState<number>(initialSeconds);
 
   // Sync state if props change
   useEffect(() => {
@@ -289,4 +293,3 @@ export const AccountStatusAlert: React.FC<AccountStatusAlertProps> = ({
     </div>
   );
 };
-

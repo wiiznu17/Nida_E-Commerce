@@ -38,7 +38,10 @@ export function CustomerDetailDrawer({
       setIsLoading(true);
       setError(null);
       try {
-        const data = await customerRequester.getCustomerById(customerId, reveal);
+        const data = await customerRequester.getCustomerById(
+          customerId,
+          reveal,
+        );
         setCustomer(data);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to load details');
@@ -69,7 +72,7 @@ export function CustomerDetailDrawer({
   if (!isOpen) return null;
 
   const tierStyle = customer
-    ? MEMBERSHIP_TIER_STYLES[customer.tier] ?? MEMBERSHIP_TIER_STYLES.REGULAR
+    ? (MEMBERSHIP_TIER_STYLES[customer.tier] ?? MEMBERSHIP_TIER_STYLES.REGULAR)
     : MEMBERSHIP_TIER_STYLES.REGULAR;
 
   return (
@@ -263,8 +266,9 @@ export function CustomerDetailDrawer({
                           </div>
                           <div className="text-stone-600 text-[11px] leading-relaxed">
                             {addr.addressLine1}
-                            {addr.addressLine2 ? ` ${addr.addressLine2}` : ''},{' '}
-                            {addr.subdistrict}, {addr.district},{' '}
+                            {addr.addressLine2
+                              ? ` ${addr.addressLine2}`
+                              : ''}, {addr.subdistrict}, {addr.district},{' '}
                             {addr.province} {addr.postalCode}
                           </div>
                         </div>
@@ -328,4 +332,3 @@ export function CustomerDetailDrawer({
     </div>
   );
 }
-

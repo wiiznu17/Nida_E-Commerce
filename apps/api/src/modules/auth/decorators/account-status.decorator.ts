@@ -8,4 +8,3 @@ export const RequireAccountStatus = (...statuses: AccountStatus[]) =>
 export const ALLOW_PENDING_VERIFICATION_KEY = 'allow_pending_verification';
 export const AllowPendingVerification = () =>
   SetMetadata(ALLOW_PENDING_VERIFICATION_KEY, true);
-

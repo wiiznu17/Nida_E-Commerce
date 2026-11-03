@@ -21,10 +21,7 @@ import {
 import { CustomerAddressesService } from './addresses.service.js';
 import { CreateAddressDto } from './dto/create-address.dto.js';
 import { UpdateAddressDto } from './dto/update-address.dto.js';
-import {
-  CustomerJwtGuard,
-  AccountStatusGuard,
-} from '../auth/guards/index.js';
+import { CustomerJwtGuard, AccountStatusGuard } from '../auth/guards/index.js';
 import type { ApiAddress } from '@repo/types';
 
 interface AuthenticatedCustomerRequest {

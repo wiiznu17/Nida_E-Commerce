@@ -18,10 +18,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CustomerCartService } from './cart.service.js';
-import {
-  CustomerJwtGuard,
-  AccountStatusGuard,
-} from '../auth/guards/index.js';
+import { CustomerJwtGuard, AccountStatusGuard } from '../auth/guards/index.js';
 import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
 import {
   mergeCartSchema,
