@@ -318,6 +318,9 @@
   "status": {
     "active": "Active",
     "inactive": "Inactive",
+    "suspended": "Suspended",
+    "banned": "Banned",
+    "pendingVerification": "Pending Verification",
     "delivered": "Delivered",
     "completed": "Completed",
     "shipped": "Shipped",
@@ -865,6 +868,9 @@
     "never_logged_in": "Never logged in",
     "deactivate": "Deactivate account",
     "activate": "Activate account",
+    "suspend_admin": "Suspend",
+    "ban_admin": "Ban",
+    "reactivate_admin": "Reactivate",
     "invite_modal_title": "Invite New Staff Member",
     "invite_modal_desc": "A secure one-time link will be sent to the staff member to set their own password.",
     "form_full_name": "Full Name",
@@ -880,6 +886,71 @@
     "copied": "Copied!",
     "open_in_new_tab": "Open setup link in new tab",
     "btn_close": "Close"
+  },
+  "customers": {
+    "title": "Customer Directory",
+    "breadcrumb": "Storefront customer & membership management",
+    "nav": "Customers",
+    "stats": {
+      "total": "Total Customers",
+      "active": "Active",
+      "suspended": "Suspended",
+      "banned": "Banned",
+      "vip": "VIP Members"
+    },
+    "filter": {
+      "searchPlaceholder": "Search by name, email, or phone...",
+      "statusAll": "All Account Statuses",
+      "tierAll": "All Membership Tiers",
+      "searchBtn": "Search",
+      "reset": "Reset Filters"
+    },
+    "table": {
+      "customer": "Customer / Member",
+      "tier": "Tier",
+      "points": "Points",
+      "ordersCount": "Orders",
+      "totalSpent": "Total Spent",
+      "status": "Status",
+      "createdAt": "Joined At",
+      "actions": "Actions",
+      "empty": "No customers match the current filter criteria."
+    },
+    "drawer": {
+      "title": "Customer Details",
+      "profile": "Profile Details",
+      "ordersHistory": "Recent Orders",
+      "addresses": "Saved Delivery Addresses",
+      "revealPii": "Reveal Real PII",
+      "piiRevealedHint": "Showing unmasked PII and recording an audit trail entry.",
+      "noAddresses": "No saved delivery addresses found.",
+      "noOrders": "No orders placed yet.",
+      "defaultBadge": "Default",
+      "close": "Close"
+    },
+    "modals": {
+      "suspendTitle": "Temporarily Suspend Customer Account",
+      "suspendDesc": "The customer will immediately lose access, all active sessions will be terminated, and no new orders can be placed.",
+      "banTitle": "Permanently Ban Customer Account",
+      "banDesc": "This action permanently blocks login and revokes all active authentication tokens immediately.",
+      "reactivateTitle": "Reactivate Customer Account",
+      "reactivateDesc": "The account will be unblocked and the customer will be allowed to log in and shop normally.",
+      "reasonLabel": "Action Reason *",
+      "reasonPlaceholder": "Enter reason (minimum 3 characters)...",
+      "durationLabel": "Suspension Duration",
+      "duration1Hour": "1 Hour",
+      "duration24Hours": "24 Hours (1 Day)",
+      "duration7Days": "7 Days",
+      "duration30Days": "30 Days",
+      "durationCustom": "Custom",
+      "btnSuspend": "Confirm Suspension",
+      "btnBan": "Confirm Ban",
+      "btnReactivate": "Confirm Reactivation",
+      "btnCancel": "Cancel",
+      "successSuspend": "Customer account suspended successfully",
+      "successBan": "Customer account banned successfully",
+      "successReactivate": "Customer account reactivated successfully"
+    }
   },
   "audit": {
     "pageTitle": "System Activity Audit Log",

@@ -39,6 +39,7 @@ export async function seedDemoUsers(prisma: PrismaClient) {
           fullName: user.fullName,
           department: user.department,
           roleId: role.id,
+          status: 'ACTIVE',
         },
         create: {
           username: user.username,
@@ -48,6 +49,7 @@ export async function seedDemoUsers(prisma: PrismaClient) {
           fullName: user.fullName,
           department: user.department,
           roleId: role.id,
+          status: 'ACTIVE',
         },
       });
       console.log(`  • Demo Staff: ${user.email} (${user.roleCode})`);

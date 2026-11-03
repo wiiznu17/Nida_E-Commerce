@@ -19,6 +19,7 @@ import { UploadModule } from './modules/upload/upload.module.js';
 import { BullModule } from '@nestjs/bullmq';
 import { AuditLogModule } from './modules/audit-log/audit-log.module.js';
 import { ContentModule } from './modules/content/content.module.js';
+import { CustomersModule } from './modules/customers/customers.module.js';
 import { OrderLifecycleModule } from './modules/order-lifecycle/index.js';
 import { AnalyticsModule } from './modules/analytics/analytics.module.js';
 import { AppController } from './app.controller.js';
@@ -75,6 +76,7 @@ import { AppService } from './app.service.js';
     UploadModule,
     AuditLogModule,
     ContentModule,
+    CustomersModule,
     OrderLifecycleModule,
     AnalyticsModule,
   ],

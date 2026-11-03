@@ -50,6 +50,32 @@ export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
           bg: 'bg-purple-100 text-purple-900 border-purple-200',
           label: t('status.refunded'),
         };
+      // Account Statuses
+      case 'ACTIVE':
+        return {
+          bg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+          label: t('status.active'),
+        };
+      case 'SUSPENDED':
+        return {
+          bg: 'bg-amber-50 text-amber-900 border-amber-300 font-bold',
+          label: t('status.suspended'),
+        };
+      case 'BANNED':
+        return {
+          bg: 'bg-rose-100 text-rose-900 border-rose-300 font-black',
+          label: t('status.banned'),
+        };
+      case 'PENDING_VERIFICATION':
+        return {
+          bg: 'bg-sky-50 text-sky-800 border-sky-200',
+          label: t('status.pendingVerification'),
+        };
+      case 'INACTIVE':
+        return {
+          bg: 'bg-stone-100 text-stone-700 border-stone-200',
+          label: t('status.inactive'),
+        };
       // Inventory Statuses
       case 'IN_STOCK':
         return {

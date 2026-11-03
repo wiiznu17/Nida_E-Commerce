@@ -56,10 +56,12 @@ export class RoleBasedPiiInterceptor implements NestInterceptor {
             request.params?.['id'] ??
             'unknown';
 
+          const targetTable = request.path?.includes('customer') ? 'users' : 'orders';
+
           void this.auditLogService.recordLog({
             adminId: user?.id ?? null,
             actionType: AuditActionType.READ,
-            targetTable: 'orders',
+            targetTable,
             targetId: String(targetId),
             permission: AdminPermission.CUSTOMERS_PII_READ,
             performedRole: user?.role?.roleCode ?? null,
@@ -107,6 +109,28 @@ export class RoleBasedPiiInterceptor implements NestInterceptor {
 
     if (typeof obj['customerEmail'] === 'string') {
       obj['customerEmail'] = maskEmail(obj['customerEmail']);
+    }
+
+    if (typeof obj['email'] === 'string') {
+      obj['email'] = maskEmail(obj['email']);
+    }
+
+    if (typeof obj['phone'] === 'string') {
+      obj['phone'] = maskPhone(obj['phone']);
+    }
+
+    if (Array.isArray(obj['addresses'])) {
+      obj['addresses'] = obj['addresses'].map((addr) => {
+        if (!addr || typeof addr !== 'object') return addr;
+        const a = { ...(addr as Record<string, unknown>) };
+        if (typeof a['phone'] === 'string') {
+          a['phone'] = maskPhone(a['phone']);
+        }
+        if (typeof a['addressLine1'] === 'string') {
+          a['addressLine1'] = maskAddressLine(a['addressLine1']);
+        }
+        return a;
+      });
     }
 
     if (obj['user'] && typeof obj['user'] === 'object') {

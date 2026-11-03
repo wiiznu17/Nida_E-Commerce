@@ -53,6 +53,7 @@ export async function seedSuperAdmin(prisma: PrismaClient) {
       fullName: 'NIDA Super Administrator',
       department: 'Executive HQ',
       roleId: superAdminRole.id,
+      status: 'ACTIVE',
     },
   });
 

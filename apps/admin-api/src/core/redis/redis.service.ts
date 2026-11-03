@@ -329,6 +329,49 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.memorySets.delete(userSetKey);
   }
 
+  async getCustomerSessions(userId: string): Promise<string[]> {
+    const key = `customer:user_sessions:${userId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        return await this.client.smembers(key);
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis getCustomerSessions failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    const set = this.memorySets.get(key);
+    if (!set) return [];
+    return Array.from(set);
+  }
+
+  async revokeAllCustomerSessions(userId: string): Promise<void> {
+    const tokens = await this.getCustomerSessions(userId);
+    const sessionKeys = tokens.map((t) => `customer:refresh:${t}`);
+    const userSetKey = `customer:user_sessions:${userId}`;
+
+    if (this.isConnected && this.client) {
+      try {
+        const keysToDelete = [...sessionKeys, userSetKey];
+        if (keysToDelete.length > 0) {
+          await this.client.del(...keysToDelete);
+        }
+        return;
+      } catch (err: unknown) {
+        this.logger.warn(
+          `Redis revokeAllCustomerSessions failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+
+    for (const key of sessionKeys) {
+      this.memoryStore.delete(key);
+    }
+    this.memorySets.delete(userSetKey);
+  }
+
   // INVITATION ONE-TIME TOKENS
 
   async setInviteToken(

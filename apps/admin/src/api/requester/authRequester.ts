@@ -89,4 +89,15 @@ export const authRequester = {
   toggleUserStatus: async (userId: string): Promise<ApiAdminUser> => {
     return apiClient.patch<ApiAdminUser>(`/admin/users/${userId}/toggle`);
   },
+
+  updateUserStatus: async (
+    userId: string,
+    dto: {
+      status: string;
+      statusReason: string;
+      durationMinutes?: number;
+    },
+  ): Promise<ApiAdminUser> => {
+    return apiClient.patch<ApiAdminUser>(`/admin/users/${userId}/status`, dto);
+  },
 };

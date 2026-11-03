@@ -63,6 +63,7 @@ const AdminProductEdit = lazyWithRetry(
   () => import('./pages/AdminProductEdit'),
 );
 const AdminOrders = lazyWithRetry(() => import('./pages/AdminOrders'));
+const AdminCustomers = lazyWithRetry(() => import('./pages/AdminCustomers'));
 const AdminOrderDetail = lazyWithRetry(
   () => import('./pages/AdminOrderDetail'),
 );
@@ -146,6 +147,8 @@ const router = createBrowserRouter([
         children: [
           { path: '/orders', element: <AdminOrders /> },
           { path: '/admin/orders', element: <AdminOrders /> },
+          { path: '/customers', element: <AdminCustomers /> },
+          { path: '/admin/customers', element: <AdminCustomers /> },
           { path: '/analytics', element: <AdminAnalytics /> },
           { path: '/admin/analytics', element: <AdminAnalytics /> },
           { path: '/orders/:id', element: <AdminOrderDetail /> },

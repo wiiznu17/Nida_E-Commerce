@@ -4,3 +4,4 @@ export * from './product.js';
 export * from './category.js';
 export * from './content.js';
 export * from './analytics.js';
+export * from './customer.js';

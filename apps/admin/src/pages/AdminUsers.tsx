@@ -4,8 +4,9 @@ import {
   ShieldCheck,
   Check,
   Copy,
-  ToggleLeft,
-  ToggleRight,
+  Clock,
+  Ban,
+  RotateCcw,
   ExternalLink,
   X,
 } from 'lucide-react';
@@ -15,12 +16,17 @@ import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
 import { AdminLayout } from '../components/layout';
 import {
+  StatusBadge,
+  AccountStatusActionModal,
+  type AccountStatusAction,
+} from '../components/common';
+import {
   ApiErrorModal,
   AlertModal,
   InlineError,
   DropdownSelect,
 } from '../components/ui';
-import type { ApiAdminUser, ApiAdminRole } from '@repo/types';
+import type { ApiAdminUser, ApiAdminRole, AccountStatus } from '@repo/types';
 
 export const AdminUsers: React.FC = () => {
   const { admin: currentAdmin } = useAuth();
@@ -46,6 +52,11 @@ export const AdminUsers: React.FC = () => {
     null,
   );
   const [hasCopied, setHasCopied] = useState(false);
+
+  // Status Action Modal state
+  const [statusActionTarget, setStatusActionTarget] = useState<ApiAdminUser | null>(null);
+  const [statusActionType, setStatusActionType] = useState<AccountStatusAction | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -131,14 +142,23 @@ export const AdminUsers: React.FC = () => {
     setTimeout(() => setHasCopied(false), 2500);
   };
 
-  const handleToggleStatus = async (user: ApiAdminUser) => {
-    if (user.id === currentAdmin?.id) return;
+  const handleConfirmStatusAction = async (payload: {
+    status: AccountStatus;
+    statusReason: string;
+    durationMinutes?: number;
+  }) => {
+    if (!statusActionTarget) return;
+    setIsUpdatingStatus(true);
     try {
-      await authRequester.toggleUserStatus(user.id);
+      await authRequester.updateUserStatus(statusActionTarget.id, payload);
+      setStatusActionTarget(null);
+      setStatusActionType(null);
       fetchData();
       toast.success(t('common.success') ?? 'Status updated');
     } catch (err: unknown) {
       setApiError(err instanceof Error ? err.message : 'Error updating status');
+    } finally {
+      setIsUpdatingStatus(false);
     }
   };
 
@@ -247,19 +267,7 @@ export const AdminUsers: React.FC = () => {
 
                         {/* Status */}
                         <td className="py-4 px-6">
-                          {user.status === 'ACTIVE' ? (
-                            <span className="inline-flex items-center space-x-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              <span>{t('users.status_active')}</span>
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center space-x-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                              <span>
-                                {t('users.status_pending_or_inactive')}
-                              </span>
-                            </span>
-                          )}
+                          <StatusBadge status={user.status} />
                         </td>
 
                         {/* Last Login */}
@@ -278,21 +286,49 @@ export const AdminUsers: React.FC = () => {
                         {/* Actions */}
                         <td className="py-4 px-6 text-right">
                           {!isCurrent && (
-                            <button
-                              onClick={() => handleToggleStatus(user)}
-                              title={
-                                user.status === 'ACTIVE'
-                                  ? t('users.deactivate')
-                                  : t('users.activate')
-                              }
-                              className="text-stone-400 hover:text-[#2B1810] transition-colors p-1 cursor-pointer"
-                            >
+                            <div className="flex items-center justify-end space-x-1.5">
                               {user.status === 'ACTIVE' ? (
-                                <ToggleRight className="w-6 h-6 text-emerald-600" />
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setStatusActionTarget(user);
+                                      setStatusActionType('SUSPEND');
+                                    }}
+                                    title={t('users.suspend_admin')}
+                                    className="px-2.5 py-1 text-[11px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md transition-colors cursor-pointer inline-flex items-center space-x-1"
+                                  >
+                                    <Clock className="w-3 h-3 text-amber-600" />
+                                    <span>{t('users.suspend_admin')}</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setStatusActionTarget(user);
+                                      setStatusActionType('BAN');
+                                    }}
+                                    title={t('users.ban_admin')}
+                                    className="px-2.5 py-1 text-[11px] font-bold text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-md transition-colors cursor-pointer inline-flex items-center space-x-1"
+                                  >
+                                    <Ban className="w-3 h-3 text-rose-600" />
+                                    <span>{t('users.ban_admin')}</span>
+                                  </button>
+                                </>
                               ) : (
-                                <ToggleLeft className="w-6 h-6 text-stone-400" />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setStatusActionTarget(user);
+                                    setStatusActionType('REACTIVATE');
+                                  }}
+                                  title={t('users.reactivate_admin')}
+                                  className="px-2.5 py-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-md transition-colors cursor-pointer inline-flex items-center space-x-1"
+                                >
+                                  <RotateCcw className="w-3 h-3 text-emerald-600" />
+                                  <span>{t('users.reactivate_admin')}</span>
+                                </button>
                               )}
-                            </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -488,6 +524,20 @@ export const AdminUsers: React.FC = () => {
           )}
         </AlertModal>
       </div>
+
+      {/* Account Status Action Modal */}
+      <AccountStatusActionModal
+        isOpen={Boolean(statusActionTarget && statusActionType)}
+        onClose={() => {
+          setStatusActionTarget(null);
+          setStatusActionType(null);
+        }}
+        onConfirm={handleConfirmStatusAction}
+        action={statusActionType}
+        targetName={statusActionTarget?.fullName ?? ''}
+        targetEmail={statusActionTarget?.email}
+        isLoading={isUpdatingStatus}
+      />
 
       {/* API Error Modal */}
       <ApiErrorModal

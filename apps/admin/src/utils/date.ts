@@ -10,6 +10,21 @@
  *   th: '14 ต.ค. 2026, 15:30'
  *   en: 'Oct 14, 2026, 15:30'
  */
+export function formatDate(dateStr: string, language = 'th'): string {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
 export function formatOrderDateTime(dateStr: string, language: string): string {
   if (!dateStr) return '-';
   try {

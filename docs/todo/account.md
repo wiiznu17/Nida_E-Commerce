@@ -200,7 +200,7 @@ model AdminUser {
 
 > **เป้าหมาย:** ให้เจ้าหน้าที่แอดมินสามารถสืบค้น ดูข้อมูล ตรวจสอบประวัติ และควบคุมสถานะบัญชีของลูกค้าหน้าร้าน (`users` table) ได้อย่างปลอดภัยและมีประสิทธิภาพ
 
-- [ ] **3.1.1 Backend API Customer Module (`apps/admin-api/src/modules/customers/`)**
+- [x] **3.1.1 Backend API Customer Module (`apps/admin-api/src/modules/customers/`)**
   - สร้าง `CustomersModule`, `CustomersService`, และ `CustomersController`
   - **`GET /admin/customers`**:
     - รองรับ Pagination (`page`, `limit`), Sorting (`createdAt`, `totalSpent`, `points`)
@@ -218,7 +218,7 @@ model AdminUser {
     - **Audit Trail:** บันทึกประวัติการเปลี่ยนสถานะลง `admin_audit_logs` อัตโนมัติ (`targetTable = 'users'`)
   - **Unit Testing:** เขียนชุดทดสอบ `apps/admin-api/test/customers/customers.service.spec.ts` ครอบคลุม Happy Path, Input Validation, Role Guards, Session Eviction, และ Audit Log Recording (100% Pass)
 
-- [ ] **3.1.2 Frontend Admin Customer Page & UI Controls (`apps/admin`)**
+- [x] **3.1.2 Frontend Admin Customer Page & UI Controls (`apps/admin`)**
   - **Navigation:** เพิ่มเมนู "Customers" (ลูกค้า) ในแถบเมนูหลัก [`AdminSidebar.tsx`](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/components/layout/AdminSidebar.tsx) พร้อมไอคอน Lucide `Users` และกำหนดสิทธิ์การมองเห็น
   - **API Requester:** สร้าง `apps/admin/src/api/requester/customerRequester.ts` สำหรับเรียกใช้ API ฝั่งหลังบ้าน
   - **Page Component:** สร้าง [`AdminCustomers.tsx`](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/pages/AdminCustomers.tsx) รองรับเส้นทาง `/admin/customers`:
@@ -235,14 +235,14 @@ model AdminUser {
 
 #### 🔹 3.2 ปรับปรุงหน้าจัดการเจ้าหน้าที่หลังบ้าน (Admin Staff Management UI)
 
-- [ ] **3.2.1 ปรับปรุงหน้า [`AdminUsers.tsx`](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/pages/AdminUsers.tsx)**
+- [x] **3.2.1 ปรับปรุงหน้า [`AdminUsers.tsx`](file:///Users/wiiznu/project/Nida_Project/apps/admin/src/pages/AdminUsers.tsx)**
   - แทนที่สวิตช์ Toggle เปิด/ปิดเดิม ด้วย `<StatusBadge />` สีมาตรฐาน (เขียว/ส้ม/แดง/เทา)
   - เพิ่มเมนู Action Dropdown และ Modal สำหรับจัดการสถานะของเจ้าหน้าที่:
     - **"Suspend Account"**: ระบุระยะเวลาและเหตุผล
     - **"Ban Account"**: ยืนยันการแบนถาวร
     - **"Reactivate Account"**: ปลดล็อคกลับมาใช้งาน
   - เชื่อมโยงเข้ากับ Endpoint `PATCH /admin/users/:id/status` ที่สร้างไว้แล้ว
-- [ ] **3.2.2 ความสอดคล้องด้านภาษาและ UI Guidelines**
+- [x] **3.2.2 ความสอดคล้องด้านภาษาและ UI Guidelines**
   - จัดทำข้อความภาษาไทยและอังกฤษใน `locales/th.json` และ `locales/en.json` หมวด `adminUsers.*` แบบสมมาตร
 
 ---

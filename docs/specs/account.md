@@ -403,4 +403,66 @@ flowchart TD
    - แสดงผลในระดับ Global Shell ผ่าน [`StoreLayout.tsx`](file:///apps/store/src/components/layout/StoreLayout.tsx)
    - แจ้งเตือนสาเหตุอย่างชัดเจนและตัดกลับสู่สถานะ Guest Mode อย่างปลอดภัย
 
+---
+
+## 8. ข้อกำหนดระบบควบคุมและจัดการผู้ใช้ฝั่งหลังบ้าน (Back-Office Admin Controls Specification)
+
+### 8.1 สถาปัตยกรรมโมดูลจัดการลูกค้าหน้าร้าน (Store Customer Management Module — `apps/admin-api`)
+
+```mermaid
+flowchart TD
+    AdminReq["Admin Request (GET / PATCH /admin/customers)"] --> Guard["JwtAuthGuard & PermissionsGuard"]
+    Guard --> Interceptor["RoleBasedPiiInterceptor"]
+    
+    Interceptor --> Controller["CustomersController"]
+    Controller --> Service["CustomersService"]
+    
+    Service --> Prisma["Prisma Client (User & Order Aggregations)"]
+    Service --> Redis["Redis (Session Eviction)"]
+    Service --> Audit["AuditLogService (Immutable Audit Trail)"]
+    
+    Redis --> Revoke["1. revokeAllCustomerSessions (Refresh Tokens)<br/>2. revokeAllUserTokens (jwt:revoked_before)"]
+    Audit --> AuditDB["admin_audit_logs (targetTable: 'users')"]
+```
+
+#### รายการ Endpoints มาตรฐาน:
+1. **`GET /admin/customers`**:
+   - Query Parameters (`adminCustomerQuerySchema`): `page`, `limit`, `search`, `status`, `tier`, `sortBy`, `sortOrder`
+   - กรองและค้นหา: ค้นหาคำค้นหาใน `email`, `phone`, `firstName`, `lastName`
+   - คำนวณสถิติคำสั่งซื้อ: `ordersCount` (ไม่รวม `CANCELLED`) และ `totalSpent`
+   - คุ้มครองข้อมูลส่วนบุคคล (PII Masking): ซ่อนอีเมลและเบอร์โทรศัพท์ผ่าน `RoleBasedPiiInterceptor` อัตโนมัติ เว้นแต่จะมีสิทธิ์ `CUSTOMERS_PII_READ`
+2. **`GET /admin/customers/stats`**:
+   - คืนค่าตัวเลขสถิติภาพรวม: `total`, `active`, `suspended`, `banned`, `vipCount` (ระดับ VIP_GOLD + PLATINUM)
+3. **`GET /admin/customers/:id`**:
+   - คืนค่าข้อมูลโปรไฟล์, รายการที่อยู่จัดส่ง (`UserAddress[]`), และคำสั่งซื้อล่าสุด 5 รายการ
+   - รองรับพารามิเตอร์ `?revealPii=true` โดยบันทึกการเปิดดูข้อมูลลงตาราง `admin_audit_logs`
+4. **`PATCH /admin/customers/:id/status`**:
+   - ปรับสถานะบัญชี (`ACTIVE`, `SUSPENDED`, `BANNED`, `INACTIVE`) ผ่าน `updateAccountStatusSchema`
+   - **Instant Session Eviction:** สั่งเพิกถอน Token ใน Redis ทันที:
+     - `redis.revokeAllCustomerSessions(customerId)` (ลบ Refresh Tokens ในระบบ)
+     - `redis.revokeAllUserTokens(customerId)` (เซ็ตค่าประทับเวลา `jwt:revoked_before:${userId}`)
+   - **Audit Trail:** บันทึกประวัติการเปลี่ยนสถานะลง `admin_audit_logs` อัตโนมัติ (`targetTable: 'users'`, `actionType: STATUS_CHANGE`)
+
+### 8.2 ส่วนประสานผู้ใช้ฝั่งหลังบ้าน (Back-Office Admin UI — `apps/admin`)
+
+1. **หน้ารายชื่อลูกค้า (`AdminCustomers.tsx` — `/admin/customers`):**
+   - การจัดวางแบบ Editorial Luxury: ตัวชี้วัด 5 ตัว (`StatCard`), แถบกรองข้อมูล (`CustomerFilterBar`), ตารางข้อมูลพร้อม Avatar ตัวอักษร (`CustomerTable`), และระบบแบ่งหน้า (`Pagination`)
+   - **URL Query Parameters & Manual Search Submission:** ซิงค์พารามิเตอร์การค้นหา (`search`, `status`, `tier`, `page`, `limit`) ขึ้นบน URL โดยมีปุ่ม **"ค้นหา" (Search Button)** ที่ต้องกดยืนยันหรือกด Enter ก่อนยิง Request กรองข้อมูล เพื่อป้องกันการยิง Request ถี่เกินไปและให้ Bookmark / แชร์ลิงก์หน้าการค้นหาได้ตามมาตรฐานเดียวกับหน้า Orders
+   - หน้าต่างแบบสไลด์ดูข้อมูลเชิงลึก (`CustomerDetailDrawer`):
+     - ดูข้อมูลส่วนตัว, ที่อยู่จัดส่งทั้งหมดพร้อมป้ายค่าเริ่มต้น, และประวัติการสั่งซื้อล่าสุด
+     - ปุ่มควบคุมการเปิดดูข้อมูลจริง (**"Reveal Real PII"**) พร้อมป้ายเตือนการบันทึกประวัติการเข้าถึง
+2. **โมดอลควบคุมสถานะบัญชีแบบ Reusable (`AccountStatusActionModal.tsx`):**
+   - สืบทอดจากคอมโพเนนต์กลาง `<AlertModal />`
+   - รองรับทั้ง 3 แอ็กชัน:
+     - **Suspend:** เลือกช่วงเวลาระงับ (1 ชม., 24 ชม., 7 วัน, 30 วัน) พร้อมบังคับระบุเหตุผล (ขั้นต่ำ 3 ตัวอักษร)
+     - **Ban:** กล่องเตือนสีแดง ยืนยันการแบนถาวรและบันทึกเหตุผล
+     - **Reactivate:** ปลดล็อคและบันทึกเหตุผลการเปิดใช้งานใหม่
+3. **การปรับปรุงหน้าจัดการเจ้าหน้าที่แอดมิน (`AdminUsers.tsx`):**
+   - นำ `<StatusBadge />` สีมาตรฐานมาใช้งานแทนการตรวจสอบ `ACTIVE` แบบเดิม
+   - ติดตั้งปุ่มแอ็กชัน Suspend, Ban, และ Reactivate เชื่อมต่อไปยัง `authRequester.updateUserStatus`
+4. **ระบบภาษาและมาตรฐานโค้ด (i18n & Clean Architecture):**
+   - ข้อความทั้งหมดจัดเก็บใน `th.json` และ `en.json` ในหมวด `customers.*` และ `users.*` อย่างสมมาตร ปราศจาก Emoji 100%
+   - หน้า Page ทำหน้าที่เป็น Orchestrator เท่านั้น ปราศจาก Helper หรือ Entity Mapper โดยแยกตรรกะไว้ใน `api/requester/customerRequester.ts` และ `components/customer/` ตามกฎเหล็กของ Nida Project
+
+
 

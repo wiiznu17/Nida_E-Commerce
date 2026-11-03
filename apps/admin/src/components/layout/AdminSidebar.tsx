@@ -9,6 +9,7 @@ import {
   Tag,
   Sliders,
   Users,
+  UserCheck,
   X,
   ShieldAlert,
   LogOut,
@@ -95,6 +96,14 @@ export function AdminSidebar({
           altPath: '/orders',
           label: t('nav.orders'),
           icon: Package,
+          permission: AdminPermission.ORDERS_READ,
+        },
+        {
+          id: 'customers',
+          path: '/admin/customers',
+          altPath: '/customers',
+          label: t('customers.nav') ?? 'Customers',
+          icon: UserCheck,
           permission: AdminPermission.ORDERS_READ,
         },
         {

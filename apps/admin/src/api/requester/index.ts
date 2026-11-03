@@ -6,3 +6,4 @@ export * from './uploadRequester';
 export * from './contentRequester';
 export * from './analyticsRequester';
 export * from './healthRequester';
+export * from './customerRequester';
