@@ -9,12 +9,16 @@
 1. **สร้างความน่าเชื่อถือด้วย Social Proof ที่แท้จริง (Zero Fake Reviews)**:
    - ป้องกันการปั๊มรีวิว (Review Bombing) หรือการใส่รีวิวปลอม โดยบังคับใช้กฎ **Verified Buyer**: เฉพาะลูกค้าที่สั่งซื้อสินค้านั้นจริง และออเดอร์มีสถานะ `DELIVERED` (ส่งมอบแล้ว) หรือ `COMPLETED` (สำเร็จแล้ว) เท่านั้นจึงจะมีสิทธิ์เขียนรีวิว
    - จำกัด 1 รีวิว ต่อ 1 บัญชีผู้ใช้ ต่อ 1 รายการสั่งซื้อของสินค้านั้น
-2. **ระบบตรวจสอบและควบคุมคุณภาพ (Admin Moderation & Quality Control)**:
+2. **สิทธิ์ในการลบรีวิวตามกฎหมาย PDPA (Right to Erasure & Deletion Policy)**:
+   - **ลูกค้า (Customer)**: มีสิทธิ์ลบความคิดเห็นของตนเองได้ตลอดเวลา (Delete Own Review) เพื่อความเป็นส่วนตัวตามมาตรฐาน PDPA
+   - **แอดมิน (Admin)**: มีสิทธิ์ลบรีวิวที่เป็นสแปม คำหยาบคาย รุนแรง หลอกลวง หรือละเมิดข้อมูลผู้อื่น พร้อมเก็บบันทึกประวัติการลบลงใน Audit Log
+   - **สถาปัตยกรรม Soft Delete**: ใช้ฟิลด์ `deletedAt` เพื่อเก็บประวัติข้อความเดิมไว้สำหรับตรวจสอบย้อนหลังทางกฎหมาย แต่ระบบจะถอนออกจากหน้าร้านและคำนวณคะแนนใหม่ทันที
+3. **ระบบตรวจสอบและควบคุมคุณภาพ (Admin Moderation & Quality Control)**:
    - แอดมินสามารถตรวจสอบความถูกต้อง กรองคำไม่สุภาพ โฆษณาแฝง หรือเนื้อหาที่ไม่เหมาะสม ก่อนหรือหลังการเผยแพร่
    - รองรับการตอบกลับรีวิวอย่างเป็นทางการจากแบรนด์ NIDA (Brand Official Response)
-3. **การปกป้องข้อมูลส่วนบุคคล (Privacy & PII Masking)**:
+4. **การปกป้องข้อมูลส่วนบุคคล (Privacy & PII Masking)**:
    - ไม่เปิดเผยชื่อ-นามสกุลจริง หรืออีเมลของผู้รีวิวบนหน้าร้าน แสดงผลเฉพาะชื่อย่อ เช่น `Kallaya W.` หรือ `Wissanuray P.` เพื่อรักษาความเป็นส่วนตัวตามมาตรฐาน PDPA
-4. **Editorial Luxury Aesthetic**:
+5. **Editorial Luxury Aesthetic**:
    - ไม่ใช้ไอคอนหรือสติ๊กเกอร์ Emoji ฉูดฉาด
    - ใช้วิดเจ็ตแสดงผลระดับพรีเมียม: สรุปคะแนนตัวเลขคมชัด, แถบสัดส่วนคะแนนดาว (Rating Breakdown Bar 1-5 ดาว), และ Badge `Verified Buyer` เรียบหรู
 
@@ -63,13 +67,14 @@ sequenceDiagram
 
 ## 3. สูตรการคำนวณคะแนนเฉลี่ยและสถิติ (Rating Analytics)
 
-การคำนวณคะแนนเฉลี่ย (`rating`) และจำนวนรีวิว (`reviewsCount`) จะคำนวณจากเฉพาะรีวิวที่ **`isApproved = true`** เท่านั้น:
+การคำนวณคะแนนเฉลี่ย (`rating`) และจำนวนรีวิว (`reviewsCount`) จะคำนวณจากเฉพาะรีวิวที่ **`isApproved = true` และ `deletedAt IS NULL`** เท่านั้น:
 
 ### 3.1 สูตรคะแนนเฉลี่ย (Average Rating):
 $$\text{Average Rating} = \frac{\sum_{i=1}^{N} \text{rating}_i}{N}$$
 
 - ปัดเศษทศนิยม 1 ตำแหน่ง (เช่น `4.8`, `4.5`)
-- หากยังไม่มีรีวิว ($N = 0$) ให้ส่งกลับ `rating = null` หรือ `0` และ `reviewsCount = 0` (ห้าม Mock ตัวเลขลอย เช่น 4.9 เด็ดขาด)
+- หากยังไม่มีรีวิว หรือรีวิวทั้งหมดถูกลบ ($N = 0$) ให้ส่งกลับ `rating = null` หรือ `0` และ `reviewsCount = 0` (ห้าม Mock ตัวเลขลอย เช่น 4.9 เด็ดขาด)
+- เมื่อมีการลบรีวิว (ไม่ว่าจะโดยลูกค้าหรือแอดมิน) ระบบจะ Re-calculate คะแนนและจำนวนรีวิวใหม่ทันที พร้อมล้างแคช Redis ของ Product Detail
 
 ### 3.2 สัดส่วนดาว (Star Distribution Breakdown):
 คำนวณจำนวนและร้อยละของแต่ละระดับดาว (1 ถึง 5 ดาว):
@@ -98,14 +103,15 @@ model Review {
   repliedBy          String?   @map("replied_by") @db.Uuid
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
 
   product            Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   order              Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
   repliedByAdmin     AdminUser? @relation(fields: [repliedBy], references: [id], onDelete: SetNull)
 
-  @@index([productId, isApproved, createdAt(sort: Desc)])
-  @@index([userId])
+  @@index([productId, isApproved, deletedAt, createdAt(sort: Desc)])
+  @@index([userId, deletedAt])
   @@index([orderId])
   @@unique([productId, userId, orderId]) // 1 รีวิว ต่อ 1 สินค้า ต่อ 1 ออเดอร์
   @@map("reviews")
@@ -120,9 +126,10 @@ model Review {
 
 | Method | Endpoint | Authentication | คำอธิบาย |
 | :--- | :--- | :---: | :--- |
-| `GET` | `/api/v1/products/:id/reviews` | Public | ดึงรายการรีวิวที่อนุมัติแล้ว + Rating Summary สถิติดาว |
+| `GET` | `/api/v1/products/:id/reviews` | Public | ดึงรายการรีวิวที่อนุมัติแล้วและยังไม่ถูกลบ + Rating Summary สถิติดาว |
 | `GET` | `/api/v1/customer/reviews/eligible` | Customer JWT | ดึงรายการสินค้าที่ลูกค้าซื้อแล้วแต่ยังไม่ได้รีวิว |
 | `POST` | `/api/v1/products/:id/reviews` | Customer JWT | ส่งรีวิวสินค้า (ตรวจ Guard: Verified Buyer) |
+| `DELETE` | `/api/v1/customer/reviews/:id` | Customer JWT | ลูกค้าลบรีวิวของตนเอง (Soft Delete + คำนวณคะแนนใหม่) |
 
 #### Request Payload: `POST /api/v1/products/:id/reviews`
 ```json
@@ -184,7 +191,7 @@ model Review {
 | `GET` | `/api/v1/admin/reviews` | `CATALOG_READ` | รายการรีวิวทั้งหมด พร้อม Search, Status, Star Filters |
 | `PATCH` | `/api/v1/admin/reviews/:id/status` | `CATALOG_WRITE` | อนุมัติ (`isApproved: true`) หรือซ่อน (`isApproved: false`) |
 | `POST` | `/api/v1/admin/reviews/:id/reply` | `CATALOG_WRITE` | แอดมินตอบกลับรีวิวลูกค้า |
-| `DELETE` | `/api/v1/admin/reviews/:id` | `CATALOG_WRITE` | ลบรีวิวสแปม/ผิดกฎ พร้อมบันทึก Audit Log |
+| `DELETE` | `/api/v1/admin/reviews/:id` | `CATALOG_WRITE` | ลบรีวิวสแปม/ผิดกฎ (Soft Delete) พร้อมบันทึก Audit Log |
 
 ---
 
@@ -203,8 +210,10 @@ model Review {
    });
    if (!validOrder) throw new ForbiddenException('Only verified buyers can review delivered products');
    ```
-2. **Duplicate Review Prevention**:
+2. **Review Ownership Guard (Customer Delete)**:
+   - ลูกค้าสามารถสั่งลบได้เฉพาะรีวิวที่ตนเองเป็นเจ้าของ (`userId === customerId`) เท่านั้น หากพยายามลบรีวิวของผู้อื่น ระบบจะปฏิเสธด้วย `NotFoundException` หรือ `ForbiddenException`
+3. **Duplicate Review Prevention**:
    - ป้องกันการส่งรีวิวซ้ำสำหรับสินค้าเดิมในออเดอร์เดียวกันด้วย Unique Constraint และ Service Validation
-3. **Audit Trail**:
-   - ทุกการ Toggle Status, Reply, หรือ Delete ของแอดมิน ต้องบันทึกเข้าสู่ `admin_audit_logs`
+4. **Audit Trail**:
+   - ทุกการ Toggle Status, Reply, หรือ Delete ของแอดมิน ต้องบันทึกเข้าสู่ `admin_audit_logs` พร้อมเก็บ Snapshot ข้อความก่อนลบไว้ใน `oldValuesJson` เพื่อให้ตรวจสอบย้อนหลังได้ 100%
 

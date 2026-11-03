@@ -9,7 +9,7 @@
 | ส่วนประกอบ / โมดูล | สถานะการพัฒนา | รายละเอียดความพร้อม |
 | :--- | :---: | :--- |
 | **Technical Specification** | ✅ พร้อม 100% | อ้างอิงเอกสาร [docs/specs/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/reviews.md) |
-| **Database Schema & Migration** | ⏳ รอดำเนินการ | ปรับปรุง Model `Review` เพิ่ม `orderId`, `title`, `adminReply`, `isVerifiedPurchase` พร้อมสร้าง Migration SQL |
+| **Database Schema & Migration** | ✅ เสร็จสมบูรณ์ | ปรับปรุง Model `Review` เพิ่ม `orderId`, `title`, `adminReply`, `deletedAt`, `isVerifiedPurchase` พร้อมสร้าง Migration SQL เรียบร้อย |
 | **Shared Contracts & Validators** | ⏳ รอดำเนินการ | ประกาศ DTO ใน `@repo/types` และ Zod Schema ตรวจสอบคะแนน 1–5 ดาวใน `@repo/validators` |
 | **Storefront Backend Engine** | ⏳ รอดำเนินการ | โมดูล `reviews` ใน `apps/api`: คำนวณ Average Rating, สัดส่วนดาว, และ Guard `Verified Buyer` |
 | **Admin Back-Office Backend** | ⏳ รอดำเนินการ | โมดูล `reviews` ใน `apps/admin-api`: ค้นหา, สลับสถานะ Approved/Hidden, ตอบกลับรีวิว, และ Audit Logging |
@@ -39,18 +39,20 @@ graph TD
 ### เฟส 1: โครงสร้างฐานข้อมูลและการย้ายข้อมูล (Database Schema & Migration)
 > **เป้าหมาย**: ปรับปรุงโมเดล `Review` ใน `packages/database/prisma/schema.prisma` ให้รองรับ Verified Buyer และการตอบกลับของแอดมิน พร้อมสร้างไฟล์ SQL Migration
 
-- [ ] **Prisma Model `Review` Enhancement**:
-  - [ ] เพิ่ม `orderId`: เชื่อมกับ `Order?` (`@map("order_id") @db.Uuid`)
-  - [ ] เพิ่ม `title`: หัวข้อรีวิว (`@db.VarChar(150)?`)
-  - [ ] เพิ่ม `isVerifiedPurchase`: ยืนยันผู้ซื้อจริง (`@default(false) @map("is_verified_purchase")`)
-  - [ ] เพิ่ม `adminReply`: ข้อความตอบกลับของแอดมิน (`@map("admin_reply") @db.Text?`)
-  - [ ] เพิ่ม `repliedAt`: วันที่ตอบกลับ (`@map("replied_at")`)
-  - [ ] เพิ่ม `repliedBy`: แอดมินผู้ตอบกลับ (`@map("replied_by") @db.Uuid?`)
-  - [ ] ปรับปรุง Index: `@@index([productId, isApproved, createdAt(sort: Desc)])`
-  - [ ] เพิ่ม Unique Constraint: `@@unique([productId, userId, orderId])` ป้องกันลูกค้ารีวิวซ้ำในออเดอร์เดียวกัน
-- [ ] **Migration & Client Generation**:
-  - [ ] สร้างไฟล์ Migration SQL: `packages/database/prisma/migrations/<timestamp>_enhance_review_model/migration.sql`
-  - [ ] รัน `npm --prefix packages/database run db:generate`
+- [x] **Prisma Model `Review` Enhancement**:
+  - [x] เพิ่ม `orderId`: เชื่อมกับ `Order?` (`@map("order_id") @db.Uuid`)
+  - [x] เพิ่ม `title`: หัวข้อรีวิว (`@db.VarChar(150)?`)
+  - [x] เพิ่ม `isVerifiedPurchase`: ยืนยันผู้ซื้อจริง (`@default(false) @map("is_verified_purchase")`)
+  - [x] เพิ่ม `adminReply`: ข้อความตอบกลับของแอดมิน (`@map("admin_reply") @db.Text?`)
+  - [x] เพิ่ม `repliedAt`: วันที่ตอบกลับ (`@map("replied_at")`)
+  - [x] เพิ่ม `repliedBy`: แอดมินผู้ตอบกลับ (`@map("replied_by") @db.Uuid?`)
+  - [x] เพิ่ม `deletedAt`: รองรับ Soft Delete สำหรับ PDPA และ Admin Moderation (`@map("deleted_at")`)
+  - [x] ปรับปรุง Index: `@@index([productId, isApproved, deletedAt, createdAt(sort: Desc)])`
+  - [x] เพิ่ม Index: `@@index([userId, deletedAt])`
+  - [x] เพิ่ม Unique Constraint: `@@unique([productId, userId, orderId])` ป้องกันลูกค้ารีวิวซ้ำในออเดอร์เดียวกัน
+- [x] **Migration & Client Generation**:
+  - [x] สร้างไฟล์ Migration SQL: `packages/database/prisma/migrations/20261104034000_enhance_review_model/migration.sql`
+  - [x] รัน `npm --prefix packages/database run db:generate`
 
 ---
 
@@ -91,22 +93,23 @@ graph TD
     - `GET /api/v1/products/:id/reviews` (Public)
     - `GET /api/v1/customer/reviews/eligible` (Customer JWT Guard)
     - `POST /api/v1/products/:id/reviews` (Customer JWT Guard + Zod Validation)
+    - `DELETE /api/v1/customer/reviews/:id` (Customer JWT Guard: สิทธิ์ลบรีวิวของตนเอง + คำนวณคะแนนใหม่)
   - [ ] ลงทะเบียนโมดูลใน `app.module.ts`
 - [ ] **ปรับปรุง `catalog.service.ts`**:
-  - [ ] คำนวณค่า `rating` เฉลี่ยจริง และนับ `reviewsCount` จากเฉพาะรีวิวที่ `isApproved = true`
+  - [ ] คำนวณค่า `rating` เฉลี่ยจริง และนับ `reviewsCount` จากเฉพาะรีวิวที่ `isApproved = true` และ `deletedAt IS NULL`
   - [ ] ลบตัวเลขหลอก/สมมติทั้งหมด
 
 ---
 
 ### เฟส 4: ระบบจัดการและตรวจสอบรีวิวฝั่งหลังบ้าน (`apps/admin-api`)
-> **เป้าหมาย**: API สำหรับแอดมินในการค้นหา อนุมัติ ซ่อน และตอบกลับรีวิวลูกค้า พร้อมเก็บบันทึก Audit Trail
+> **เป้าหมาย**: API สำหรับแอดมินในการค้นหา อนุมัติ ซ่อน ตอบกลับ และลบรีวิวลูกค้า พร้อมเก็บบันทึก Audit Trail
 
 - [ ] **โมดูล `apps/admin-api/src/modules/reviews/`**:
   - [ ] สร้าง `admin-reviews.service.ts`:
     - `getReviews(query)`: Pagination, Search (ชื่อลูกค้า, สินค้า, ข้อความ), Filter ตามดาว และสถานะ
     - `toggleReviewStatus(id, isApproved, adminId)`: สลับสถานะเปิด/ปิดการแสดงผลรีวิว พร้อมบันทึก `admin_audit_logs`
     - `replyToReview(id, replyText, adminId)`: บันทึกคำตอบกลับในนามแบรนด์ NIDA พร้อมบันทึก `admin_audit_logs`
-    - `deleteReview(id, adminId)`: ลบรีวิวที่เป็นสแปม พร้อมบันทึก `admin_audit_logs`
+    - `deleteReview(id, adminId)`: ลบรีวิวที่เป็นสแปม/ผิดกฎ พร้อมบันทึก `admin_audit_logs` และคำนวณคะแนนสินค้าใหม่
   - [ ] สร้าง `admin-reviews.controller.ts`:
     - `GET /api/v1/admin/reviews` (สิทธิ์ `CATALOG_READ`)
     - `PATCH /api/v1/admin/reviews/:id/status` (สิทธิ์ `CATALOG_WRITE`)
@@ -124,7 +127,7 @@ graph TD
   - [ ] สร้างคอมโพเนนต์ย่อยใน `apps/store/src/components/product/reviews/`:
     - `ProductReviewsSection.tsx`: วางใต้รายละเอียดสินค้า
     - `RatingSummaryCard.tsx`: สรุปตัวเลขคะแนนใหญ่ (เช่น `4.8 / 5.0`), ดาว Lucide, และ Bar สัดส่วนดาว 1-5
-    - `ReviewList.tsx` & `ReviewItemCard.tsx`: แสดงรายการรีวิว, ชื่อแบบ Masked (`Kallaya W.`), Badge `Verified Buyer`, ข้อความรีวิว, และคำตอบกลับแบรนด์
+    - `ReviewList.tsx` & `ReviewItemCard.tsx`: แสดงรายการรีวิว, ชื่อแบบ Masked (`Kallaya W.`), Badge `Verified Buyer`, ข้อความรีวิว, คำตอบกลับแบรนด์, และปุ่มลบรีวิวของตนเอง
     - `WriteReviewModal.tsx`: ฟอร์มให้ดาว 1-5 และกรอกข้อความ
   - [ ] หน้าประวัติคำสั่งซื้อ (`/profile/orders/[orderNumber]`):
     - เพิ่มปุ่ม "เขียนรีวิวสินค้า" ข้างรายการสินค้าที่สถานะเป็น `DELIVERED`/`COMPLETED`
@@ -135,7 +138,7 @@ graph TD
     - ตารางรีวิว: สินค้า, ผู้รีวิว, ดาว, ข้อความ, สถานะ Approved/Hidden
     - ฟิลเตอร์ค้นหาและกรองตามคะแนนดาว
     - Modal ตอบกลับลูกค้า (`AdminReviewReplyModal.tsx`)
-    - สลับสถานะเปิด/ปิดรีวิวได้ทันที
+    - สลับสถานะเปิด/ปิดรีวิวได้ทันที และปุ่มลบรีวิวพร้อม Modal ยืนยัน
   - [ ] รองรับ i18n 2 ภาษาใน `apps/admin/src/locales/`
 
 ---
@@ -147,11 +150,14 @@ graph TD
   - [ ] ทดสอบการคำนวณ Average Rating และ Star Breakdown สัดส่วนดาว 1–5
   - [ ] ทดสอบ Verified Buyer Guard (ปฏิเสธหากไม่มี Order หรือ Order ยังไม่ Delivered)
   - [ ] ทดสอบการป้องกันส่งรีวิวซ้ำในออเดอร์เดิม
+  - [ ] ทดสอบการลบรีวิวของลูกค้า (Customer Delete Own Review Guard: ปฏิเสธหากไม่ใช่เจ้าของ)
+  - [ ] ทดสอบการ Re-calculate คะแนนดาวเมื่อรีวิวถูกลบ
   - [ ] ทดสอบการ Masking ชื่อผู้รีวิว (PDPA Compliance)
 - [ ] **Unit Tests (`apps/admin-api/test/reviews/admin-reviews.service.spec.ts`)**:
   - [ ] ทดสอบการดึงรายการและการกรองสถานะ
   - [ ] ทดสอบการ Toggle Status และบันทึก Audit Log
   - [ ] ทดสอบการตอบกลับรีวิว (Admin Reply)
+  - [ ] ทดสอบการลบรีวิวโดยแอดมิน และการบันทึก Audit Log พร้อม Snapshot ข้อความเดิม
 - [ ] **Monorepo Build Verification**:
   - [ ] คอมไพล์ผ่านทุกแพ็กเกจ: `@repo/types`, `@repo/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`
   - [ ] รัน Unit Tests ทุกชุดผ่าน 100%

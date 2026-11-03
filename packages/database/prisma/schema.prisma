@@ -444,6 +444,7 @@ model Order {
   returnRequests          ReturnRequest[]
   cancellationRequests    OrderCancellationRequest[]
   taxInvoice              TaxInvoice?
+  reviews                 Review[]
 
   @@index([userId, status])
   @@index([hasPreorderItems, status])
@@ -721,18 +722,31 @@ model Wishlist {
 }
 
 model Review {
-  id         String   @id @default(uuid(7)) @db.Uuid
-  productId  String   @map("product_id") @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
-  rating     Int      @db.SmallInt
-  reviewText String?  @map("review_text") @db.Text
-  isApproved Boolean  @default(false) @map("is_approved")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id                 String     @id @default(uuid(7)) @db.Uuid
+  productId          String     @map("product_id") @db.Uuid
+  userId             String     @map("user_id") @db.Uuid
+  orderId            String?    @map("order_id") @db.Uuid
+  rating             Int        @db.SmallInt
+  title              String?    @db.VarChar(150)
+  reviewText         String?    @map("review_text") @db.Text
+  isVerifiedPurchase Boolean    @default(false) @map("is_verified_purchase")
+  isApproved         Boolean    @default(true) @map("is_approved")
+  adminReply         String?    @map("admin_reply") @db.Text
+  repliedAt          DateTime?  @map("replied_at")
+  repliedBy          String?    @map("replied_by") @db.Uuid
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @default(now()) @updatedAt @map("updated_at")
+  deletedAt          DateTime?  @map("deleted_at")
 
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product            Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order              Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  repliedByAdmin     AdminUser? @relation(fields: [repliedBy], references: [id], onDelete: SetNull)
 
-  @@index([productId, isApproved])
+  @@unique([productId, userId, orderId])
+  @@index([productId, isApproved, deletedAt, createdAt(sort: Desc)])
+  @@index([userId, deletedAt])
+  @@index([orderId])
   @@map("reviews")
 }
 
@@ -762,6 +776,7 @@ model AdminUser {
   processedRefunds Refund[]
   reviewedReturns  ReturnRequest[]
   reviewedCancellations OrderCancellationRequest[]
+  repliedReviews        Review[]
 
   @@index([status])
   @@map("admin_users")
