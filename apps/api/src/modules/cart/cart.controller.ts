@@ -18,7 +18,10 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CustomerCartService } from './cart.service.js';
-import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard.js';
+import {
+  CustomerJwtGuard,
+  AccountStatusGuard,
+} from '../auth/guards/index.js';
 import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
 import {
   mergeCartSchema,
@@ -37,7 +40,7 @@ interface AuthenticatedCustomerRequest {
 
 @ApiTags('Storefront Cart')
 @ApiBearerAuth()
-@UseGuards(CustomerJwtGuard)
+@UseGuards(CustomerJwtGuard, AccountStatusGuard)
 @Controller('cart')
 export class CustomerCartController {
   constructor(private readonly cartService: CustomerCartService) {}

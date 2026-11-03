@@ -28,7 +28,10 @@ import {
   UpdateCustomerProfileDto,
   CustomerChangePasswordDto,
 } from './dto/index.js';
-import { CustomerJwtGuard } from './guards/customer-jwt.guard.js';
+import {
+  CustomerJwtGuard,
+  AccountStatusGuard,
+} from './guards/index.js';
 import { CustomerAuthService } from './auth.service.js';
 import { RateLimit } from '../../core/decorators/rate-limit.decorator.js';
 import type {
@@ -289,7 +292,7 @@ export class CustomerAuthController {
   }
 
   @Post('logout-all')
-  @UseGuards(CustomerJwtGuard)
+  @UseGuards(CustomerJwtGuard, AccountStatusGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -306,7 +309,7 @@ export class CustomerAuthController {
   }
 
   @Get('me')
-  @UseGuards(CustomerJwtGuard)
+  @UseGuards(CustomerJwtGuard, AccountStatusGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get current customer profile',
@@ -319,7 +322,7 @@ export class CustomerAuthController {
   }
 
   @Patch('profile')
-  @UseGuards(CustomerJwtGuard)
+  @UseGuards(CustomerJwtGuard, AccountStatusGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update customer personal profile details',
@@ -337,7 +340,7 @@ export class CustomerAuthController {
 
   @Post('change-password')
   @RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'auth:change-pw' })
-  @UseGuards(CustomerJwtGuard)
+  @UseGuards(CustomerJwtGuard, AccountStatusGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

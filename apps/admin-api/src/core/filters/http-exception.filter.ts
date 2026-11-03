@@ -21,6 +21,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let error = 'Internal Server Error';
     let message = 'An unexpected error occurred';
+    let code: string | undefined;
     let issues: string[] = [];
     let details: Record<string, unknown> | undefined;
 
@@ -38,6 +39,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         if (typeof res['error'] === 'string' && res['error'].length > 0) {
           error = res['error'];
+        }
+
+        if (typeof res['code'] === 'string' && res['code'].length > 0) {
+          code = res['code'];
+        } else if (
+          typeof res['errorCode'] === 'string' &&
+          res['errorCode'].length > 0
+        ) {
+          code = res['errorCode'];
         }
 
         if (Array.isArray(res['issues'])) {
@@ -91,6 +101,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode,
       error,
       message,
+      ...(code && { code }),
       ...(issues.length > 0 && { issues }),
       ...(details && { details }),
     };

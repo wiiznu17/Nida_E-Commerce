@@ -15,7 +15,10 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { WishlistService } from './wishlist.service.js';
-import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard.js';
+import {
+  CustomerJwtGuard,
+  AccountStatusGuard,
+} from '../auth/guards/index.js';
 import type { ApiWishlistResponse, ApiUser } from '@repo/types';
 
 interface AuthenticatedCustomerRequest {
@@ -24,7 +27,7 @@ interface AuthenticatedCustomerRequest {
 
 @ApiTags('Storefront Customer Wishlist')
 @Controller('wishlist')
-@UseGuards(CustomerJwtGuard)
+@UseGuards(CustomerJwtGuard, AccountStatusGuard)
 @ApiBearerAuth()
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}

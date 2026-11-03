@@ -36,6 +36,40 @@ stateDiagram-v2
 | **`BANNED`**               |  🔴 สีแดง  | ถูกตัดสิทธิ์ถาวร                          | บล็อกทุกคำขอ (HTTP 403 `ACCOUNT_BANNED`) และขึ้นบัญชีดำ Token บน Redis   |
 | **`INACTIVE`**             |  ⚪ สีเทา  | ปิดการใช้งานถาวร                          | ตัดสิทธิ์ล็อกอิน (HTTP 401 `ACCOUNT_DEACTIVATED`) คงประวัติคำสั่งซื้อไว้ |
 
+### 2.1 โครงสร้างฐานข้อมูลและการขจัดสถานะคลุมเครือ (Database Schema & Split-Brain Elimination)
+
+ระบบ Nida ได้ทำการ **ถอดถอนและลบคอลัมน์ Boolean เดิม (`users.is_verified` และ `admin_users.is_active`) ออกจากฐานข้อมูล 100%** ผ่าน Migration [`20261103205000_remove_is_verified_and_is_active`](file:///Users/wiiznu/project/Nida_Project/packages/database/prisma/migrations/20261103205000_remove_is_verified_and_is_active/migration.sql) เพื่อป้องกันปัญหา Split-Brain State (สภาวะที่แฟล็ก Boolean ขัดแย้งกับค่า Enum):
+
+```prisma
+// โมเดล User (ลูกค้าหน้าร้าน)
+model User {
+  id             String        @id @default(uuid(7)) @db.Uuid
+  email          String        @unique @db.VarChar(255)
+  // ...
+  status         AccountStatus @default(PENDING_VERIFICATION)
+  statusReason   String?       @map("status_reason") @db.VarChar(255)
+  suspendedAt    DateTime?     @map("suspended_at")
+  suspendedUntil DateTime?     @map("suspended_until")
+
+  @@index([status])
+  @@map("users")
+}
+
+// โมเดล AdminUser (เจ้าหน้าที่ระบบ)
+model AdminUser {
+  id             String        @id @default(uuid(7)) @db.Uuid
+  email          String        @unique @db.VarChar(255)
+  // ...
+  status         AccountStatus @default(ACTIVE)
+  statusReason   String?       @map("status_reason") @db.VarChar(255)
+  suspendedAt    DateTime?     @map("suspended_at")
+  suspendedUntil DateTime?     @map("suspended_until")
+
+  @@index([status])
+  @@map("admin_users")
+}
+```
+
 ---
 
 ## 3. สถาปัตยกรรมและการทำงานของ `AccountStatusGuard`
@@ -60,16 +94,128 @@ flowchart TD
     C -->|status == INACTIVE| K["🔴 401 Unauthorized: ACCOUNT_DEACTIVATED"]
 ```
 
+### 3.1 สัญญาข้อความแจ้งเตือนข้อผิดพลาดตามมาตรฐาน RFC 7807 (`AccountStatusErrorResponse`)
+
+เมื่อคำขอถูกสกัดกั้นโดย `AccountStatusGuard` หรือเซอร์วิสตรวจสอบสิทธิ์ ระบบจะส่ง Response ในรูปแบบ JSON มาตรฐาน RFC 7807 โดยมีรหัสข้อผิดพลาด (`code` / `errorCode`) และรายละเอียด (`details`) ชัดเจน:
+
+#### 1) บัญชีถูกระงับชั่วคราว (HTTP 403 Forbidden / HTTP 429 Too Many Requests)
+```json
+{
+  "statusCode": 403,
+  "errorCode": "ACCOUNT_SUSPENDED",
+  "code": "ACCOUNT_SUSPENDED",
+  "message": "บัญชีของคุณถูกระงับการใช้งานชั่วคราว (This account is temporarily suspended)",
+  "details": {
+    "reason": "Failed login attempts exceeded limit (5 consecutive failures)",
+    "suspendedUntil": "2026-11-03T15:15:00.000Z",
+    "retryAfterSeconds": 900
+  }
+}
+```
+
+#### 2) บัญชีถูกระงับถาวร (HTTP 403 Forbidden)
+```json
+{
+  "statusCode": 403,
+  "errorCode": "ACCOUNT_BANNED",
+  "code": "ACCOUNT_BANNED",
+  "message": "บัญชีของคุณถูกระงับการให้บริการถาวร (This account has been permanently banned)",
+  "details": {
+    "reason": "Fraudulent payment activity detected",
+    "supportEmail": "support@nida-apparel.com"
+  }
+}
+```
+
+#### 3) บัญชีรอยืนยัน OTP (HTTP 403 Forbidden)
+```json
+{
+  "statusCode": 403,
+  "errorCode": "ACCOUNT_UNVERIFIED",
+  "code": "ACCOUNT_UNVERIFIED",
+  "message": "กรุณายืนยันรหัส OTP เพื่อเปิดใช้งานบัญชีของคุณก่อนทำรายการ (Please verify your account OTP to proceed)",
+  "details": {
+    "verifyUrl": "/verify-otp"
+  }
+}
+```
+
+#### 4) บัญชีถูกปิดการใช้งาน (HTTP 401 Unauthorized)
+```json
+{
+  "statusCode": 401,
+  "errorCode": "ACCOUNT_DEACTIVATED",
+  "code": "ACCOUNT_DEACTIVATED",
+  "message": "บัญชีนี้ถูกปิดการใช้งาน กรุณาติดต่อฝ่ายบริการลูกค้า (This account has been deactivated)"
+}
+```
+
 ---
 
 ## 4. กลไกความปลอดภัยเบื้องหลัง (Security Mechanisms)
 
-1. **Auto-Lockout Policy (Anti-Brute Force):**
-   - หากผู้ใช้หรือแอดมินกรอกรหัสผ่านผิดติดต่อกันครบ 5 ครั้ง (5-Strike Rule) ระบบจะทำการ Lockout บัญชีทันที 15 นาทีผ่าน Redis key `login:lockout:<email>` พร้อมคืนค่า HTTP 429
-2. **Auto-Healing on Expired Suspension:**
-   - เมื่อผู้ใช้ที่ติดสถานะ `SUSPENDED` เรียกใช้งาน API อีกครั้งหลังจากเลยเวลา `suspendedUntil` แล้ว ตัว Guard จะทำการปลดล็อคสถานะกลับเป็น `ACTIVE` ใน Database ให้อัตโนมัติ โดยไม่ต้องรบกวนแอดมินมากดปลดล็อค
-3. **Immediate Session Eviction (Redis Blacklist):**
-   - เมื่อบัญชีถูกแบนหรือระงับ ระบบจะส่งคำสั่งลบ Refresh Token และบันทึก Token Hash ลง Redis Blacklist พร้อม TTL เท่ากับเวลาหมดอายุของ JWT เพื่อให้ผู้ใช้หลุดออกจากระบบทันที
+### 4.1 ระบบล็อคบัญชีแบบสองชั้น (Dual-Layer Anti-Brute Force Lockout)
+
+เมื่อมีพฤติกรรมพยายามเดารหัสผ่านติดต่อกัน Nida Platform ป้องกันการโจมตีแบบ Brute Force ผ่านสถาปัตยกรรม 2 ชั้น:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Attacker as 🚨 ผู้พยายามบุกรุก
+    participant API as 🖥️ CustomerAuthService
+    participant Redis as ⚡ Redis
+    participant DB as 🗄️ PostgreSQL (users)
+
+    Attacker->>API: POST /auth/login (รหัสผ่านผิดครั้งที่ 1 - 4)
+    API->>Redis: INCR login:fails:<email> (TTL 15 นาที)
+    API-->>Attacker: 401 Unauthorized ("รหัสผ่านไม่ถูกต้อง เหลือโอกาส X ครั้ง")
+
+    Note over Attacker,DB: เมื่อกรอกผิดครั้งที่ 5 (5-Strike Limit Reached)
+    Attacker->>API: POST /auth/login (รหัสผ่านผิดครั้งที่ 5)
+    API->>DB: 1. UPDATE users SET status = 'SUSPENDED', suspended_until = NOW() + 15m, status_reason = 'Failed login attempts...'
+    API->>Redis: 2. revokeAllCustomerSessions(userId) & revokeAllUserTokens(userId)
+    API->>Redis: 3. SET login:lockout:<email> "1" EX 900
+    API->>Redis: 4. DEL login:fails:<email>
+    API-->>Attacker: 429 Too Many Requests (ACCOUNT_SUSPENDED: "ระงับชั่วคราว 15 นาที")
+```
+
+1. **In-Memory Fast Path (Redis):** ตรวจสอบคีย์ `login:lockout:<email>` ทันทีที่เริ่ม Request หากติดล็อคจะส่งผลปฏิเสธทันทีโดยไม่ต้อง Query ตารางใน Database ช่วยลดภาระ CPU/DB ภายใต้สถานการณ์ถูกยิงโจมตี (DDoS/Brute Force)
+2. **Persistent Source of Truth (Database):** อัปเดตคอลัมน์ `status = 'SUSPENDED'` และระบุเวลา `suspendedUntil = now() + 15 นาที` บันทึกลงฐานข้อมูลจริงอย่างถาวร
+3. **Immediate Global Revocation:** สั่งล้าง Active Sessions และขึ้นบัญชีดำ Token ใน Redis ทันที ทำให้ผู้ใช้หลุดออกจากระบบในทุกอุปกรณ์พร้อมกัน
+
+---
+
+### 4.2 กลไกการฟื้นฟูบัญชีอัตโนมัติ (Zero-Admin Auto-Healing Mechanism)
+
+เมื่อระยะเวลาการระงับบัญชีสิ้นสุดลง (`now >= suspendedUntil`) ระบบจะคืนสิทธิ์ให้ผู้ใช้กลับมาใช้งานได้ทันทีอย่างราบรื่นโดยไม่ต้องติดต่อเจ้าหน้าที่ (Zero-Admin Overhead):
+
+1. **Auto-Heal ผ่าน API Gateway / Guard (`AccountStatusGuard`):**
+   - เมื่อมี Request ที่แนบ JWT Token ส่งเข้ามา และพบว่าผู้ใช้มีสถานะ `SUSPENDED` แต่เวลา `now >= suspendedUntil`
+   - ตัว Guard จะเรียกคำสั่งอัปเดตฐานข้อมูลอัตโนมัติ:
+     ```typescript
+     await prisma.user.update({
+       where: { id: user.id },
+       data: {
+         status: AccountStatus.ACTIVE,
+         statusReason: null,
+         suspendedAt: null,
+         suspendedUntil: null,
+       },
+     });
+     user.status = AccountStatus.ACTIVE;
+     return true; // อนุญาตให้ Request ดำเนินการต่อได้ทันที
+     ```
+2. **Auto-Heal ผ่านขั้นตอนเข้าสู่ระบบ (`CustomerAuthService.login`):**
+   - หากผู้ใช้พยายามกรอกรหัสผ่านเพื่อเข้าสู่ระบบใหม่หลังจากพ้นกำหนด 15 นาที
+   - เซอร์วิสจะทำการปลดล็อคสถานะในฐานข้อมูลกลับเป็น `ACTIVE` ก่อนเริ่มกระบวนการตรวจสอบรหัสผ่านและจ่ายรหัส OTP ทำให้ผู้ใช้สามารถกลับเข้าสู่ระบบได้ตามปกติทันที
+
+---
+
+### 4.3 การเพิกถอนสิทธิ์เซสชันทันที (Immediate Session Eviction)
+เมื่อบัญชีถูกเปลี่ยนสถานะเป็น `SUSPENDED`, `BANNED`, หรือ `INACTIVE` ทางหลังบ้าน:
+1. ลบ Refresh Token Session จาก Redis: `customer:refresh:<token>` และ `customer:user_sessions:<userId>`
+2. บันทึก Timestamp การเพิกถอน `jwt:revoked_before:<userId>` ลง Redis เพื่อปฏิเสธ Access Token ทุกใบที่ออกก่อนหน้านั้น
+3. นำ Access Token ปัจจุบันเข้าสู่ Redis Blacklist (`jwt:bl:<hash>`)
 
 ---
 
@@ -189,3 +335,28 @@ flowchart TD
 | **Customer Refresh Session**    | `customer:refresh:<token>`        |     String (JSON)      |    30 วัน (`2,592,000s`)    | `{"userId":"usr-1","email":"..."}` |
 | **Customer User Sessions Set**  | `customer:user_sessions:<userId>` |          Set           | ไม่ระบุ (อัปเดตตาม Session) | `["token-uuid-1", "token-uuid-2"]` |
 | **Admin Refresh Session**       | `admin:session:<token>`           |     String (JSON)      |     7 วัน (`604,800s`)      | `{"adminId":"adm-1","role":"..."}` |
+
+---
+
+## 6. ข้อกำหนด API การจัดการสถานะบัญชีเจ้าหน้าที่หลังบ้าน (Admin Account Status Management API)
+
+### 6.1 ข้อมูลจำเพาะ Endpoint: `PATCH /admin/users/:id/status`
+
+- **วัตถุประสงค์:** เปลี่ยนแปลงสถานะบัญชีเจ้าหน้าที่อย่างเป็นทางการ (`ACTIVE`, `SUSPENDED`, `BANNED`, `INACTIVE`)
+- **สิทธิ์การเข้าถึง (RBAC):** บังคับสิทธิ์ขั้นสูงสุด `SUPER_ADMIN` และ Permission `ADMIN_USERS_MANAGE`
+- **การตรวจสอบข้อมูลนำเข้า:** ตรวจสอบผ่าน `ZodValidationPipe(updateAccountStatusSchema)`
+
+#### Payload Request Body (`UpdateAccountStatusInput`):
+```typescript
+{
+  status: 'SUSPENDED' | 'BANNED' | 'ACTIVE' | 'INACTIVE';
+  statusReason: string; // บังคับระบุเหตุผล ความยาว 3 - 255 ตัวอักษร
+  durationMinutes?: number; // ระบุจำนวนนาทีสำหรับกรณี SUSPENDED (เช่น 60, 1440)
+}
+```
+
+#### กฎความปลอดภัยทางธุรกิจ (Business & Security Guard Rails):
+1. **Self-Suspension Protection:** แอดมินไม่สามารถเปลี่ยนสถานะบัญชีของตนเองได้ (Throws 400 Bad Request: `ไม่สามารถเปลี่ยนสถานะบัญชีของตนเองได้`)
+2. **Immediate Eviction:** หากสถานะใหม่ไม่ใช่ `ACTIVE` ระบบจะสั่งทำลาย Session ของบัญชีเป้าหมายใน Redis ทันที (`redis.revokeAllUserSessions(targetId)`) ส่งผลให้แอดมินคนนั้นหลุดจากระบบทุกเครื่องในทันที
+3. **Audit Trail Recording:** ทุกการเปลี่ยนสถานะจะถูกบันทึกลงตาราง `admin_audit_logs` อัตโนมัติ (`actionType = 'STATUS_CHANGE'`, `targetTable = 'admin_users'`) พร้อมแนบ Snapshot ข้อมูลเดิมและข้อมูลใหม่ เพื่อตรวจสอบย้อนหลังได้ 100%
+

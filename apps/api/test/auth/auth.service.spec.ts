@@ -7,6 +7,7 @@ import {
   UnauthorizedException,
   NotFoundException,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { RedisService } from '../../src/core/redis/redis.service.js';
@@ -682,10 +683,11 @@ describe('CustomerAuthService', () => {
       ).rejects.toThrow(HttpException);
     });
 
-    it('locks account in Redis for 15 minutes when 5th failed password attempt occurs', async () => {
+    it('locks account in DB and Redis for 15 minutes when 5th failed password attempt occurs', async () => {
       prismaMock.user.findUnique.mockResolvedValueOnce({
         id: 'usr-1',
         email: 'user@nida.co',
+        status: AccountStatus.ACTIVE,
         passwordHash: '$2a$10$someotherhash',
       });
       redisMock.get.mockImplementation(async (key: string) => {
@@ -697,12 +699,81 @@ describe('CustomerAuthService', () => {
         service.login({ email: 'user@nida.co', password: 'WrongPassword!' }),
       ).rejects.toThrow(HttpException);
 
+      expect(prismaMock.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'usr-1' },
+          data: expect.objectContaining({
+            status: AccountStatus.SUSPENDED,
+            statusReason:
+              'Failed login attempts exceeded limit (5 consecutive failures)',
+          }),
+        }),
+      );
+      expect(redisMock.revokeAllCustomerSessions).toHaveBeenCalledWith('usr-1');
       expect(redisMock.set).toHaveBeenCalledWith(
         'login:lockout:user@nida.co',
         '1',
         900,
       );
       expect(redisMock.del).toHaveBeenCalledWith('login:fails:user@nida.co');
+    });
+
+    it('rejects login with 403 when account is BANNED', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-banned',
+        email: 'banned@nida.co',
+        status: AccountStatus.BANNED,
+        statusReason: 'Fraud violation',
+        passwordHash: '$2a$10$somehash',
+      });
+
+      await expect(
+        service.login({ email: 'banned@nida.co', password: 'Password123!' }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('rejects login with 429 when account is SUSPENDED and time has not expired', async () => {
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-suspended',
+        email: 'suspended@nida.co',
+        status: AccountStatus.SUSPENDED,
+        statusReason: 'Security lockout',
+        suspendedUntil: new Date(Date.now() + 600_000),
+        passwordHash: '$2a$10$somehash',
+      });
+
+      await expect(
+        service.login({ email: 'suspended@nida.co', password: 'Password123!' }),
+      ).rejects.toThrow(HttpException);
+    });
+
+    it('auto-heals and allows login when account was SUSPENDED but time has expired', async () => {
+      const bcrypt = await import('bcryptjs');
+      const hash = await bcrypt.default.hash('Password123!', 10);
+      prismaMock.user.findUnique.mockResolvedValueOnce({
+        id: 'usr-healed',
+        email: 'healed@nida.co',
+        status: AccountStatus.SUSPENDED,
+        statusReason: 'Expired lockout',
+        suspendedUntil: new Date(Date.now() - 60_000),
+        passwordHash: hash,
+      });
+
+      const res = await service.login({
+        email: 'healed@nida.co',
+        password: 'Password123!',
+      });
+
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { id: 'usr-healed' },
+        data: {
+          status: AccountStatus.ACTIVE,
+          statusReason: null,
+          suspendedAt: null,
+          suspendedUntil: null,
+        },
+      });
+      expect(res.requireOtp).toBe(true);
     });
 
     it('issues OTP challenge when login credentials are valid', async () => {

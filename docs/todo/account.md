@@ -165,7 +165,7 @@ model AdminUser {
 
 > **เป้าหมาย:** สกัดกั้น Request ที่มาจากบัญชีที่ไม่ใช่ `ACTIVE` ไม่ให้เข้าถึง Business Logic ใดๆ พร้อมส่ง Error Code ที่ชัดเจน
 
-- [ ] **2.1 สร้าง `AccountStatusGuard` กลาง และ Decorators สำหรับควบคุม Endpoint**
+- [x] **2.1 สร้าง `AccountStatusGuard` กลาง และ Decorators สำหรับควบคุม Endpoint**
   - **สร้าง Decorator:** `@RequireAccountStatus(...statuses: AccountStatus[])` และ `@AllowPendingVerification()`
   - **สร้าง Guard:** `AccountStatusGuard` (Implement `CanActivate`) สำหรับตรวจสอบสถานะบัญชีหลังผ่าน Passport JWT:
     - **กรณี `ACTIVE`:** อนุญาตให้ผ่าน (`return true`)
@@ -178,19 +178,19 @@ model AdminUser {
       - ถ้า Endpoint มี `@AllowPendingVerification()` (เช่น Route สำหรับยืนยัน OTP `/auth/otp/verify` หรือขอ OTP ซ้ำ) ➔ อนุญาตให้ผ่าน
       - ถ้าเป็น Endpoint อื่นๆ (เช่น กดสั่งซื้อ `/orders`, ดู Wishlist `/wishlist`, เพิ่มสินค้าลงตะกร้า) ➔ โยน `ForbiddenException` (HTTP 403) รหัส `ACCOUNT_UNVERIFIED`
     - **กรณี `INACTIVE`:** โยน `UnauthorizedException` (HTTP 401) รหัส `ACCOUNT_DEACTIVATED`
-- [ ] **2.2 ยกระดับ `CustomerJwtStrategy` (`apps/api`)**
+- [x] **2.2 ยกระดับ `CustomerJwtStrategy` (`apps/api`)**
   - ดึงฟิลด์ `status`, `statusReason`, `suspendedUntil` จาก Prisma ในขั้นตอน Validate Token
   - แนบข้อมูลสถานะเข้าไปใน `req.user` ให้ Guard นำไปตรวจสอบต่อได้โดยไม่ต้อง Query ซ้ำ
-- [ ] **2.3 ยกระดับ `JwtAuthGuard` & Strategy (`apps/admin-api`)**
+- [x] **2.3 ยกระดับ `JwtAuthGuard` & Strategy (`apps/admin-api`)**
   - แทนที่การเช็ค `admin.isActive: boolean` เดิม ด้วยการตรวจสอบ `admin.status === AccountStatus.ACTIVE`
   - อนุญาตให้บัญชีสถานะ `PENDING_VERIFICATION` เข้าถึงได้เฉพาะ Route `/auth/setup-password` เท่านั้น และบล็อกการเข้าถึง Route อื่นๆ ทั้งหมด (เช่น `/orders`, `/products`, `/analytics`)
-- [ ] **2.4 ระบบ Force Logout & Session Revocation ทันทีเมื่อสถานะเปลี่ยน**
+- [x] **2.4 ระบบ Force Logout & Session Revocation ทันทีเมื่อสถานะเปลี่ยน**
   - เมื่อแอดมินกดเปลี่ยนสถานะผู้ใช้คนใดเป็น `SUSPENDED` หรือ `BANNED`:
     - สั่งลบ Redis Session / Refresh Token ของผู้ใช้นั้นทันที
-    - ขึ้นบัญชีดำ Token เดิมใน Redis Blacklist (`redis.setex('bl:token:<jti>', remainingTtl, 'revoked')`)
-- [ ] **2.5 Auto-Lockout Integration (Brute-force Guard)**
+    - ขึ้นบัญชีดำ Token เดิมใน Redis Blacklist ผ่าน `revokeAllUserSessions` และ Token revocation
+- [x] **2.5 Auto-Lockout Integration (Brute-force Guard)**
   - ผูกระบบ Rate Limiter เข้ากับฟิลด์ `status`:
-    - หากรหัสผ่านผิดเกิน 5 ครั้ง ให้เปลี่ยนสถานะเป็น `SUSPENDED` พร้อมตั้ง `suspendedUntil = now() + 15 นาที` บันทึกเหตุผล `Failed login attempts exceeded limit`
+    - หากรหัสผ่านผิดเกิน 5 ครั้ง ให้เปลี่ยนสถานะเป็น `SUSPENDED` พร้อมตั้ง `suspendedUntil = now() + 15 นาที` บันทึกเหตุผล `Failed login attempts exceeded limit` ลงฐานข้อมูลจริง และบังคับ Logout ทุกอุปกรณ์ทันที
 
 ---
 

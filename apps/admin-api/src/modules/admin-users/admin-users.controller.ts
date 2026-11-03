@@ -12,6 +12,11 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { AdminUsersService } from './admin-users.service.js';
 import { InviteAdminUserDto } from './dto/admin-user.dto.js';
+import { ZodValidationPipe } from '../../core/pipes/zod-validation.pipe.js';
+import {
+  updateAccountStatusSchema,
+  type UpdateAccountStatusInput,
+} from '@repo/validators';
 import {
   Roles,
   RequirePermissions,
@@ -111,6 +116,40 @@ export class AdminUsersController {
     const data = await this.adminUsersService.toggleActiveStatus(
       targetId,
       currentAdmin.id,
+      currentAdmin.role?.roleCode,
+    );
+    return {
+      success: true,
+      data,
+    };
+  }
+
+  @Patch(':id/status')
+  @ApiOperation({
+    summary: 'Update admin account status',
+    description:
+      'Explicitly transition admin account status (ACTIVE, SUSPENDED, BANNED, INACTIVE) with mandatory reason and optional duration.',
+  })
+  @ApiParam({ name: 'id', description: 'Admin user UUID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Account status updated successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Cannot change own status or invalid payload',
+  })
+  @ApiResponse({ status: 404, description: 'Admin user not found' })
+  async updateStatus(
+    @Param('id') targetId: string,
+    @Body(new ZodValidationPipe(updateAccountStatusSchema))
+    dto: UpdateAccountStatusInput,
+    @CurrentAdmin() currentAdmin: ApiAdminUser,
+  ): Promise<ApiGenericResponse<ApiAdminUser>> {
+    const data = await this.adminUsersService.updateAccountStatus(
+      currentAdmin.id,
+      targetId,
+      dto,
       currentAdmin.role?.roleCode,
     );
     return {

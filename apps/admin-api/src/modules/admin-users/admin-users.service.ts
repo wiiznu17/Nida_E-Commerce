@@ -9,6 +9,7 @@ import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RedisService } from '../../core/redis/redis.service.js';
 import { MailerService } from '../../core/mailer/mailer.service.js';
 import { InviteAdminUserDto } from './dto/admin-user.dto.js';
+import type { UpdateAccountStatusInput } from '@repo/validators';
 import {
   AuditActionType,
   AdminPermission,
@@ -276,6 +277,120 @@ export class AdminUsersService {
       newValuesJson: {
         status: updated.status,
         statusReason: updated.statusReason ?? null,
+        suspendedAt: updated.suspendedAt?.toISOString() ?? null,
+        suspendedUntil: updated.suspendedUntil?.toISOString() ?? null,
+      },
+    });
+
+    return {
+      id: updated.id,
+      username: updated.username,
+      email: updated.email,
+      fullName: updated.fullName,
+      department: updated.department,
+      role: {
+        id: updated.role.id,
+        roleCode: updated.role.roleCode,
+        roleName: updated.role.roleName,
+        description: updated.role.description,
+        permissions: updated.role.rolePermissions.map(
+          (rp) => rp.permission.permissionCode,
+        ),
+      },
+      status: updated.status,
+      statusReason: updated.statusReason ?? null,
+      suspendedAt: updated.suspendedAt?.toISOString() ?? null,
+      suspendedUntil: updated.suspendedUntil?.toISOString() ?? null,
+      lastLoginAt: updated.lastLoginAt?.toISOString() ?? null,
+      createdAt: updated.createdAt.toISOString(),
+    };
+  }
+
+  async updateAccountStatus(
+    currentAdminId: string,
+    targetId: string,
+    dto: UpdateAccountStatusInput,
+    currentAdminRoleCode?: string | null,
+  ): Promise<ApiAdminUser> {
+    if (currentAdminId === targetId) {
+      throw new BadRequestException('ไม่สามารถเปลี่ยนสถานะบัญชีของตนเองได้');
+    }
+
+    const target = await this.prisma.adminUser.findUnique({
+      where: { id: targetId },
+      include: {
+        role: {
+          include: {
+            rolePermissions: {
+              include: {
+                permission: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!target) {
+      throw new NotFoundException('ไม่พบข้อมูลแอดมิน');
+    }
+
+    let suspendedAt: Date | null = null;
+    let suspendedUntil: Date | null = null;
+
+    if (dto.status === AccountStatus.SUSPENDED) {
+      suspendedAt = new Date();
+      if (dto.durationMinutes && dto.durationMinutes > 0) {
+        suspendedUntil = new Date(
+          Date.now() + dto.durationMinutes * 60 * 1000,
+        );
+      }
+    } else if (dto.status === AccountStatus.ACTIVE) {
+      suspendedAt = null;
+      suspendedUntil = null;
+    }
+
+    const updated = await this.prisma.adminUser.update({
+      where: { id: targetId },
+      data: {
+        status: dto.status,
+        statusReason: dto.statusReason.trim(),
+        suspendedAt,
+        suspendedUntil,
+      },
+      include: {
+        role: {
+          include: {
+            rolePermissions: {
+              include: {
+                permission: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (updated.status !== AccountStatus.ACTIVE) {
+      await this.redis.revokeAllUserSessions(targetId);
+    }
+
+    void this.auditLog.recordLog({
+      adminId: currentAdminId,
+      actionType: AuditActionType.STATUS_CHANGE,
+      targetTable: 'admin_users',
+      targetId: updated.id,
+      permission: AdminPermission.ADMIN_USERS_MANAGE,
+      performedRole: currentAdminRoleCode ?? null,
+      oldValuesJson: {
+        status: target.status,
+        statusReason: target.statusReason ?? null,
+        email: target.email,
+        fullName: target.fullName,
+      },
+      newValuesJson: {
+        status: updated.status,
+        statusReason: updated.statusReason,
         suspendedAt: updated.suspendedAt?.toISOString() ?? null,
         suspendedUntil: updated.suspendedUntil?.toISOString() ?? null,
       },

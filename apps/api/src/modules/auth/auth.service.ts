@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   UnauthorizedException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Logger,
@@ -459,6 +460,67 @@ export class CustomerAuthService {
       );
     }
 
+    if (user.status === AccountStatus.BANNED) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        errorCode: 'ACCOUNT_BANNED',
+        code: 'ACCOUNT_BANNED',
+        message:
+          'บัญชีของคุณถูกระงับการให้บริการถาวร กรุณาติดต่อฝ่ายบริการลูกค้า (This account has been permanently banned)',
+        details: {
+          reason: user.statusReason ?? undefined,
+          supportEmail: 'support@nida-apparel.com',
+        },
+      });
+    }
+
+    if (user.status === AccountStatus.SUSPENDED) {
+      const now = new Date();
+      if (user.suspendedUntil && now < user.suspendedUntil) {
+        const remainingSeconds = Math.max(
+          1,
+          Math.ceil((user.suspendedUntil.getTime() - now.getTime()) / 1000),
+        );
+        const mins = Math.max(1, Math.ceil(remainingSeconds / 60));
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.TOO_MANY_REQUESTS,
+            errorCode: 'ACCOUNT_SUSPENDED',
+            code: 'ACCOUNT_SUSPENDED',
+            message: `บัญชีนี้ถูกระงับการเข้าสู่ระบบชั่วคราวเนื่องจากความปลอดภัย กรุณารอ ${mins} นาที (Account locked due to security suspension. Please wait ${mins} minutes.)`,
+            details: {
+              reason: user.statusReason ?? undefined,
+              suspendedUntil: user.suspendedUntil.toISOString(),
+              retryAfterSeconds: remainingSeconds,
+            },
+          },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+
+      // Auto-Heal / Auto-Reactivate expired suspension
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          status: AccountStatus.ACTIVE,
+          statusReason: null,
+          suspendedAt: null,
+          suspendedUntil: null,
+        },
+      });
+      user.status = AccountStatus.ACTIVE;
+    }
+
+    if (user.status === AccountStatus.INACTIVE) {
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        errorCode: 'ACCOUNT_DEACTIVATED',
+        code: 'ACCOUNT_DEACTIVATED',
+        message:
+          'บัญชีนี้ถูกปิดการใช้งาน กรุณาติดต่อฝ่ายบริการลูกค้า (This account has been deactivated)',
+      });
+    }
+
     if (!user.passwordHash) {
       throw new UnauthorizedException(
         'บัญชีนี้ยังไม่ได้ตั้งรหัสผ่าน กรุณากดลืมรหัสผ่านเพื่อตั้งรหัสผ่านใหม่ (Password not set. Please reset your password.)',
@@ -472,10 +534,35 @@ export class CustomerAuthService {
       await this.redis.set(`login:fails:${cleanEmail}`, String(nextFails), 900);
 
       if (nextFails >= 5) {
+        const suspendedUntil = new Date(Date.now() + 15 * 60 * 1000);
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            status: AccountStatus.SUSPENDED,
+            statusReason:
+              'Failed login attempts exceeded limit (5 consecutive failures)',
+            suspendedAt: new Date(),
+            suspendedUntil,
+          },
+        });
+        await this.redis.revokeAllCustomerSessions(user.id);
+        await this.redis.revokeAllUserTokens(user.id);
         await this.redis.set(`login:lockout:${cleanEmail}`, '1', 900);
         await this.redis.del(`login:fails:${cleanEmail}`);
         throw new HttpException(
-          'คุณกรอกรหัสผ่านผิดติดต่อกัน 5 ครั้ง บัญชีนี้ถูกระงับชั่วคราว 15 นาทีเพื่อความปลอดภัย (Too many failed login attempts. Account locked for 15 minutes.)',
+          {
+            statusCode: HttpStatus.TOO_MANY_REQUESTS,
+            errorCode: 'ACCOUNT_SUSPENDED',
+            code: 'ACCOUNT_SUSPENDED',
+            message:
+              'คุณกรอกรหัสผ่านผิดติดต่อกัน 5 ครั้ง บัญชีนี้ถูกระงับชั่วคราว 15 นาทีเพื่อความปลอดภัย (Too many failed login attempts. Account locked for 15 minutes.)',
+            details: {
+              reason:
+                'Failed login attempts exceeded limit (5 consecutive failures)',
+              suspendedUntil: suspendedUntil.toISOString(),
+              retryAfterSeconds: 900,
+            },
+          },
           HttpStatus.TOO_MANY_REQUESTS,
         );
       }

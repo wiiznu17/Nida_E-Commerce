@@ -44,6 +44,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         if (typeof res['code'] === 'string' && res['code'].length > 0) {
           code = res['code'];
+        } else if (
+          typeof res['errorCode'] === 'string' &&
+          res['errorCode'].length > 0
+        ) {
+          code = res['errorCode'];
         }
 
         if (Array.isArray(res['mismatches'])) {

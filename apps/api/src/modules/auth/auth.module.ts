@@ -7,7 +7,8 @@ import { CustomerJwtStrategy } from './strategies/customer-jwt.strategy.js';
 import {
   CustomerJwtGuard,
   OptionalCustomerJwtGuard,
-} from './guards/customer-jwt.guard.js';
+  AccountStatusGuard,
+} from './guards/index.js';
 import { TurnstileService } from '../../core/security/turnstile.service.js';
 
 @Module({
@@ -26,12 +27,14 @@ import { TurnstileService } from '../../core/security/turnstile.service.js';
     CustomerJwtStrategy,
     CustomerJwtGuard,
     OptionalCustomerJwtGuard,
+    AccountStatusGuard,
     TurnstileService,
   ],
   exports: [
     CustomerAuthService,
     CustomerJwtGuard,
     OptionalCustomerJwtGuard,
+    AccountStatusGuard,
     TurnstileService,
     PassportModule,
     JwtModule,

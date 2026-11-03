@@ -21,7 +21,10 @@ import {
 import { CustomerAddressesService } from './addresses.service.js';
 import { CreateAddressDto } from './dto/create-address.dto.js';
 import { UpdateAddressDto } from './dto/update-address.dto.js';
-import { CustomerJwtGuard } from '../auth/guards/customer-jwt.guard.js';
+import {
+  CustomerJwtGuard,
+  AccountStatusGuard,
+} from '../auth/guards/index.js';
 import type { ApiAddress } from '@repo/types';
 
 interface AuthenticatedCustomerRequest {
@@ -33,7 +36,7 @@ interface AuthenticatedCustomerRequest {
 
 @ApiTags('Storefront Customer Addresses')
 @Controller(['users/addresses', 'store/users/addresses'])
-@UseGuards(CustomerJwtGuard)
+@UseGuards(CustomerJwtGuard, AccountStatusGuard)
 @ApiBearerAuth()
 export class CustomerAddressesController {
   constructor(private readonly addressesService: CustomerAddressesService) {}

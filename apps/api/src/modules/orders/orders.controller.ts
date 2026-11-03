@@ -26,7 +26,8 @@ import {
 import {
   CustomerJwtGuard,
   OptionalCustomerJwtGuard,
-} from '../auth/guards/customer-jwt.guard.js';
+  AccountStatusGuard,
+} from '../auth/guards/index.js';
 import {
   RateLimit,
   SkipRateLimit,
@@ -47,7 +48,7 @@ export class CustomerOrdersController {
 
   @Post()
   @RateLimit({ limit: 10, windowSeconds: 60, keyPrefix: 'order:create' })
-  @UseGuards(OptionalCustomerJwtGuard)
+  @UseGuards(OptionalCustomerJwtGuard, AccountStatusGuard)
   @ApiOperation({
     summary:
       'Create a new storefront customer order with atomic stock deduction',
@@ -66,7 +67,7 @@ export class CustomerOrdersController {
   }
 
   @Get('my-orders')
-  @UseGuards(CustomerJwtGuard)
+  @UseGuards(CustomerJwtGuard, AccountStatusGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get order history for logged-in customer' })
   @ApiResponse({ status: 200, description: 'List of customer orders' })
