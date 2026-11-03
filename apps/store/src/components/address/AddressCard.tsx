@@ -3,6 +3,7 @@
 import React from 'react';
 import { MapPin, Check, Edit3, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { maskPhone } from '@/utils';
 import type { ApiAddress } from '@repo/types';
 
 export interface AddressCardProps {
@@ -94,7 +95,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({
           <span className="font-semibold text-gray-600">
             {t('addressBook.tel')}:
           </span>{' '}
-          {address.phone}
+          <span className="font-mono">{maskPhone(address.phone)}</span>
         </p>
       </div>
 

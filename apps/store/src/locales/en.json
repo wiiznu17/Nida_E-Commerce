@@ -15,6 +15,8 @@
     "error": "An error occurred",
     "switchLangTh": "Switch to Thai",
     "switchLangEn": "Switch to English",
+    "reveal": "Reveal",
+    "hide": "Hide",
     "allRightsReserved": "All Rights Reserved."
   },
   "pagination": {

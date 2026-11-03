@@ -1,6 +1,7 @@
-import { MapPin, CreditCard, Mail, Phone, User } from 'lucide-react';
+import { useState } from 'react';
+import { MapPin, CreditCard, Mail, Phone, User, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { formatPaymentMethod } from '../../utils';
+import { formatPaymentMethod, maskEmail, maskPhone } from '../../utils';
 import type {
   ApiOrderAddress,
   ApiPaymentSummary,
@@ -21,6 +22,7 @@ export function OrderDetailCustomerCard({
   customerEmail = 'customer@nida.com',
 }: OrderDetailCustomerCardProps) {
   const { t } = useLanguage();
+  const [isRevealed, setIsRevealed] = useState(false);
   const recipientName = shippingAddress?.recipientName ?? 'Valued Customer';
   const phone = shippingAddress?.phone ?? '-';
   const addressLine1 = shippingAddress?.addressLine1 ?? '-';
@@ -44,7 +46,18 @@ export function OrderDetailCustomerCard({
               {t('orders.detail.customerSubtitle')}
             </p>
           </div>
-          <User size={16} className="text-brand-amber" />
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setIsRevealed((prev) => !prev)}
+              className="inline-flex items-center space-x-1 text-[10px] font-bold text-gray-500 hover:text-brand-brown tracking-wider uppercase transition-colors cursor-pointer"
+              title={isRevealed ? t('common.hide') : t('common.reveal')}
+            >
+              {isRevealed ? <EyeOff size={13} /> : <Eye size={13} />}
+              <span>{isRevealed ? t('common.hide') : t('common.reveal')}</span>
+            </button>
+            <User size={16} className="text-brand-amber ml-1" />
+          </div>
         </div>
 
         {/* Content */}
@@ -68,11 +81,15 @@ export function OrderDetailCustomerCard({
             <div className="pt-2 border-t border-gray-200/80 space-y-1.5 text-gray-600">
               <div className="flex items-center space-x-2">
                 <Mail size={13} className="text-gray-400 flex-shrink-0" />
-                <span className="truncate">{customerEmail}</span>
+                <span className="truncate font-mono">
+                  {isRevealed ? customerEmail : maskEmail(customerEmail)}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone size={13} className="text-gray-400 flex-shrink-0" />
-                <span className="font-mono">{phone}</span>
+                <span className="font-mono">
+                  {isRevealed ? phone : maskPhone(phone)}
+                </span>
               </div>
             </div>
           </div>

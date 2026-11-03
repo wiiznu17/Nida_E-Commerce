@@ -3,7 +3,7 @@
 import React from 'react';
 import { Truck, CreditCard } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { formatPaymentMethod, formatPaymentStatus } from '@/utils';
+import { formatPaymentMethod, formatPaymentStatus, maskPhone } from '@/utils';
 import type { ApiOrder } from '@repo/types';
 
 interface CustomerOrderSummarySidebarProps {
@@ -149,7 +149,7 @@ export function CustomerOrderSummarySidebar({
             {order.shippingAddress?.recipientName}
           </p>
           <p className="font-mono text-stone-500">
-            {order.shippingAddress?.phone}
+            {maskPhone(order.shippingAddress?.phone)}
           </p>
           <p className="text-stone-600 leading-relaxed">
             {order.shippingAddress?.addressLine1}

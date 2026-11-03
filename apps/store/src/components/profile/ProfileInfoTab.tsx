@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Edit3, ShieldAlert, LogOut, KeyRound } from 'lucide-react';
+import { Edit3, ShieldAlert, LogOut, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Alert } from '@/components/ui';
+import { maskEmail, maskPhone } from '@/utils';
 import type { User } from '@/context/AuthContext';
 import type { ProfileFormData } from './profileTypes';
 import { ChangePasswordModal } from './ChangePasswordModal';
@@ -29,6 +30,7 @@ export function ProfileInfoTab({
 }: ProfileInfoTabProps) {
   const { language, t } = useLanguage();
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isPiiRevealed, setIsPiiRevealed] = useState(false);
 
   return (
     <div>
@@ -162,22 +164,35 @@ export function ProfileInfoTab({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6 bg-brand-warm-cream p-4 border border-brand-border">
-            <div>
-              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
-                {t('auth.emailLabel')}
-              </p>
-              <p className="text-sm font-bold text-brand-brown mt-0.5 truncate">
-                {user.email}
-              </p>
+          <div className="relative bg-brand-warm-cream p-4 border border-brand-border">
+            <div className="absolute top-3.5 right-3.5">
+              <button
+                type="button"
+                onClick={() => setIsPiiRevealed((prev) => !prev)}
+                className="inline-flex items-center space-x-1.5 text-[10px] font-bold text-gray-500 hover:text-brand-brown tracking-wider uppercase transition-colors cursor-pointer"
+                title={isPiiRevealed ? t('common.hide') : t('common.reveal')}
+              >
+                {isPiiRevealed ? <EyeOff size={13} /> : <Eye size={13} />}
+                <span>{isPiiRevealed ? t('common.hide') : t('common.reveal')}</span>
+              </button>
             </div>
-            <div>
-              <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
-                {t('auth.phone')}
-              </p>
-              <p className="text-sm font-bold text-brand-brown mt-0.5">
-                {user.phone ?? '-'}
-              </p>
+            <div className="grid grid-cols-2 gap-6 pr-16">
+              <div>
+                <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                  {t('auth.emailLabel')}
+                </p>
+                <p className="text-sm font-bold text-brand-brown mt-0.5 truncate font-mono">
+                  {isPiiRevealed ? user.email : maskEmail(user.email)}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase font-bold tracking-wider text-gray-500">
+                  {t('auth.phone')}
+                </p>
+                <p className="text-sm font-bold text-brand-brown mt-0.5 font-mono">
+                  {isPiiRevealed ? (user.phone ?? '-') : maskPhone(user.phone)}
+                </p>
+              </div>
             </div>
           </div>
 

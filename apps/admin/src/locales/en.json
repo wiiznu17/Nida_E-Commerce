@@ -26,6 +26,8 @@
     "apiErrorTitle": "Operation Failed",
     "apiErrorDesc": "The system could not process your request. Please review the details and try again.",
     "retry": "Try Again",
+    "reveal": "Reveal",
+    "hide": "Hide",
     "dismiss": "Dismiss"
   },
   "nav": {

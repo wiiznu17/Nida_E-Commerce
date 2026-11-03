@@ -37,6 +37,7 @@ import {
   formatOrderDateTime,
   formatPrice,
   formatPaymentMethod,
+  maskPhone,
 } from '../utils';
 import { STOREFRONT_URL } from '../config';
 import { PermissionGate } from '../components/common';
@@ -953,7 +954,7 @@ export default function AdminOrders() {
                 </p>
                 <p className="text-gray-500 mt-1">
                   {t('orders.detail.phone')}{' '}
-                  {selectedOrder.shippingAddress?.phone ?? '-'}
+                  <span className="font-mono">{maskPhone(selectedOrder.shippingAddress?.phone)}</span>
                 </p>
               </div>
               <div>
