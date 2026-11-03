@@ -10,7 +10,7 @@
 | :--- | :---: | :--- |
 | **Technical Specification** | ✅ พร้อม 100% | อ้างอิงเอกสาร [docs/specs/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/reviews.md) |
 | **Database Schema & Migration** | ✅ เสร็จสมบูรณ์ | ปรับปรุง Model `Review` เพิ่ม `orderId`, `title`, `adminReply`, `deletedAt`, `isVerifiedPurchase` พร้อมสร้าง Migration SQL เรียบร้อย |
-| **Shared Contracts & Validators** | ⏳ รอดำเนินการ | ประกาศ DTO ใน `@repo/types` และ Zod Schema ตรวจสอบคะแนน 1–5 ดาวใน `@repo/validators` |
+| **Shared Contracts & Validators** | ✅ เสร็จสมบูรณ์ | ประกาศ DTO ใน `@repo/types` และ Zod Schema ใน `@repo/validators` ทั้งฝั่งลูกค้าและแอดมิน เรียบร้อย |
 | **Storefront Backend Engine** | ⏳ รอดำเนินการ | โมดูล `reviews` ใน `apps/api`: คำนวณ Average Rating, สัดส่วนดาว, และ Guard `Verified Buyer` |
 | **Admin Back-Office Backend** | ⏳ รอดำเนินการ | โมดูล `reviews` ใน `apps/admin-api`: ค้นหา, สลับสถานะ Approved/Hidden, ตอบกลับรีวิว, และ Audit Logging |
 | **Storefront UI & Modal** | ⏳ รอดำเนินการ | ส่วนแสดงรีวิวในหน้าสินค้า (`apps/store`), แถบสัดส่วนดาว, และ Modal เขียนรีวิว (`WriteReviewModal`) |
@@ -59,22 +59,26 @@ graph TD
 ### เฟส 2: กำหนด Contract และ Zod Validators ส่วนกลาง (`@repo/types`, `@repo/validators`)
 > **เป้าหมาย**: สร้าง Single Source of Truth สำหรับ Review Entities, API Payloads, และการตรวจสอบความถูกต้องของข้อมูล
 
-- [ ] **`packages/types`**:
-  - [ ] สร้าง `packages/types/src/common/review.types.ts`:
+- [x] **`packages/types`**:
+  - [x] สร้าง `packages/types/src/common/review.types.ts`:
     - `ApiReview`: ข้อมูลรีวิว, ผู้รีวิว (`authorName`), คะแนนดาว, ข้อความ, สถานะ Verified Buyer, และคำตอบกลับแอดมิน
     - `ApiRatingSummary`: คะแนนเฉลี่ย (`averageRating`), จำนวนรีวิวรวม (`totalReviews`), สัดส่วนดาว (`breakdown: Record<1|2|3|4|5, number>`)
     - `CreateReviewDto`: Payload สำหรับการส่งรีวิว (`orderId`, `rating`, `title`, `reviewText`)
     - `AdminReviewFilterDto` & `AdminReplyReviewDto`
-  - [ ] Export ผ่าน `packages/types/src/common/index.ts` และรัน `npm --prefix packages/types run build`
-- [ ] **`packages/validators`**:
-  - [ ] สร้าง `packages/validators/src/customer/review.ts`:
+  - [x] Export ผ่าน `packages/types/src/common/index.ts` และรัน `npm --prefix packages/types run build`
+- [x] **`packages/validators`**:
+  - [x] สร้าง `packages/validators/src/customer/review.ts`:
     - `createReviewSchema`:
       - `orderId`: UUID format
       - `rating`: ตัวเลขจำนวนเต็ม 1 ถึง 5 (`z.number().int().min(1).max(5)`)
       - `title`: ตัวอักษรความยาว 2 ถึง 150 ตัวอักษร (Optional)
       - `reviewText`: ตัวอักษรความยาว 10 ถึง 1,000 ตัวอักษร
+    - `reviewQuerySchema`: รองรับ Pagination และ Filter คะแนนดาว
+  - [x] สร้าง `packages/validators/src/admin/review.ts`:
+    - `adminReviewQuerySchema`: รองรับ Pagination, Search, Status ('ALL' | 'APPROVED' | 'HIDDEN'), Rating
+    - `adminUpdateReviewStatusSchema`: `{ isApproved: boolean }`
     - `adminReplyReviewSchema`: ตัวอักษรความยาว 2 ถึง 1,000 ตัวอักษร
-  - [ ] Export ผ่าน `packages/validators/src/customer/index.ts` และรัน `npm --prefix packages/validators run build`
+  - [x] Export ผ่าน `packages/validators/src/customer/index.ts`, `packages/validators/src/admin/index.ts` และรัน `npm --prefix packages/validators run build`
 
 ---
 

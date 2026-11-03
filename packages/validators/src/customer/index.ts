@@ -4,3 +4,4 @@ export * from './catalog.js';
 export * from './coupon.js';
 export * from './cart.js';
 export * from './tax-invoice.js';
+export * from './review.js';
