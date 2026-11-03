@@ -155,7 +155,6 @@ export interface ApiAdminUser {
   statusReason?: string | null;
   suspendedAt?: string | null;
   suspendedUntil?: string | null;
-  isActive: boolean;
   lastLoginAt?: string | null;
   createdAt: string;
 }

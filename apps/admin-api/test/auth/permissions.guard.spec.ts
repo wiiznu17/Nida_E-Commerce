@@ -2,7 +2,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PermissionsGuard } from '../../src/modules/auth/guards/permissions.guard.js';
-import { AdminPermission, AdminRoleCode, type ApiAdminUser } from '@repo/types';
+import {
+  AccountStatus,
+  AdminPermission,
+  AdminRoleCode,
+  type ApiAdminUser,
+} from '@repo/types';
 
 describe('PermissionsGuard', () => {
   let guard: PermissionsGuard;
@@ -73,10 +78,12 @@ describe('PermissionsGuard', () => {
         description: 'Full access',
         permissions: [],
       },
-      isActive: true,
+      status: AccountStatus.ACTIVE,
+      statusReason: null,
+      suspendedAt: null,
+      suspendedUntil: null,
       lastLoginAt: null,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
     const context = createMockContext(superAdminUser);
@@ -109,10 +116,12 @@ describe('PermissionsGuard', () => {
           AdminPermission.ORDERS_READ,
         ],
       },
-      isActive: true,
+      status: AccountStatus.ACTIVE,
+      statusReason: null,
+      suspendedAt: null,
+      suspendedUntil: null,
       lastLoginAt: null,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
     const context = createMockContext(inventoryUser);
@@ -143,10 +152,12 @@ describe('PermissionsGuard', () => {
           AdminPermission.INVENTORY_ADJUST,
         ],
       },
-      isActive: true,
+      status: AccountStatus.ACTIVE,
+      statusReason: null,
+      suspendedAt: null,
+      suspendedUntil: null,
       lastLoginAt: null,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
     const context = createMockContext(inventoryUser);

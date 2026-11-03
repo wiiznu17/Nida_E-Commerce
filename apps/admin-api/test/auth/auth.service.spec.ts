@@ -6,7 +6,7 @@ import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
 import type { RedisService } from '../../src/core/redis/redis.service.js';
 import type { JwtService } from '@nestjs/jwt';
 import type { MailerService } from '../../src/core/mailer/mailer.service.js';
-import type { RedisSessionData } from '@repo/types';
+import { AccountStatus, type RedisSessionData } from '@repo/types';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -110,7 +110,10 @@ describe('AuthService', () => {
         fullName: 'Nida Super Admin',
         department: 'Headquarters',
         passwordHash,
-        isActive: true,
+        status: AccountStatus.ACTIVE,
+        statusReason: null,
+        suspendedAt: null,
+        suspendedUntil: null,
         createdAt: new Date(),
         lastLoginAt: null,
         role: {
@@ -156,7 +159,10 @@ describe('AuthService', () => {
         id: 'admin-uuid-1',
         username: 'superadmin',
         passwordHash,
-        isActive: true,
+        status: AccountStatus.ACTIVE,
+        statusReason: null,
+        suspendedAt: null,
+        suspendedUntil: null,
         role: { rolePermissions: [] },
       });
 
@@ -204,7 +210,10 @@ describe('AuthService', () => {
         id: 'admin-uuid-1',
         username: 'superadmin',
         email: 'admin@nida-apparel.com',
-        isActive: true,
+        status: AccountStatus.ACTIVE,
+        statusReason: null,
+        suspendedAt: null,
+        suspendedUntil: null,
         role: {
           id: 'role-uuid-1',
           roleCode: 'SUPER_ADMIN',
@@ -299,7 +308,7 @@ describe('AuthService', () => {
         where: { id: 'admin-uuid-2' },
         data: {
           passwordHash: expect.any(String),
-          isActive: true,
+          status: AccountStatus.ACTIVE,
         },
       });
       expect(redisMock.deleteInviteToken).toHaveBeenCalledWith(

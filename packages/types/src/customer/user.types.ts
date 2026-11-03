@@ -15,7 +15,6 @@ export interface ApiUser {
   statusReason?: string | null;
   suspendedAt?: string | null;
   suspendedUntil?: string | null;
-  isVerified: boolean;
   createdAt: string;
 }
 

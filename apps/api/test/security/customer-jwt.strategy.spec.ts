@@ -57,7 +57,10 @@ describe('CustomerJwtStrategy (Revocation & Blacklist Guard)', () => {
       lastName: 'W.',
       tier: 'PLATINUM',
       points: 500,
-      isVerified: true,
+      status: 'ACTIVE',
+      statusReason: null,
+      suspendedAt: null,
+      suspendedUntil: null,
       createdAt: new Date('2026-01-01'),
     });
 

@@ -145,7 +145,7 @@ model AdminUser {
 - [x] **1.1 เพิ่ม Enum และฟิลด์ใหม่ใน `packages/database/prisma/schema.prisma`**
   - เพิ่ม `enum AccountStatus` (`ACTIVE`, `PENDING_VERIFICATION`, `SUSPENDED`, `BANNED`, `INACTIVE`)
   - เพิ่มฟิลด์ `status`, `statusReason`, `suspendedAt`, `suspendedUntil` ในโมเดล `User` และ `AdminUser` พร้อม Index `@@index([status])`
-- [x] **1.2 เขียน Migration File พร้อม Data Backfill Strategy**
+- [x] **1.2 เขียน Migration File พร้อม Data Backfill Strategy และ Clean Dropping Redundant Columns**
   - สร้าง migration `20261103201500_add_account_status_lifecycle` และ Deploy ขึ้นฐานข้อมูลจริงสำเร็จ
   - แมปข้อมูลเดิมของ `admin_users`:
     - `isActive = true` ➔ `status = 'ACTIVE'`
@@ -153,9 +153,11 @@ model AdminUser {
   - แมปข้อมูลเดิมของ `users`:
     - `isVerified = true` ➔ `status = 'ACTIVE'`
     - `isVerified = false` ➔ `status = 'PENDING_VERIFICATION'`
+  - สร้าง migration `20261103205000_remove_is_verified_and_is_active` และลบฟิลด์ซ้ำซ้อน `users.is_verified` และ `admin_users.is_active` ออกจาก DB, Schema, Types และ Codebase ทั้งหมด 100% ป้องกัน Split-Brain State เรียบร้อย
 - [x] **1.3 อัปเดต `@repo/types` และ `@repo/validators`**
   - ส่งออก `AccountStatus` และสัญญา `AccountStatusErrorResponse` ใน `@repo/types`
   - สร้าง Zod Schema `updateAccountStatusSchema` และ DTO `UpdateAccountStatusInput` ใน `@repo/validators` พร้อมบังคับระบุ `statusReason`
+  - ปรับปรุง Test Cases และ Types ในทุกโมดูล รองรับ 100% Unit Test Pass & Build ผ่านทุก Workspace
 
 ---
 

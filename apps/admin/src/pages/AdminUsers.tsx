@@ -247,7 +247,7 @@ export const AdminUsers: React.FC = () => {
 
                         {/* Status */}
                         <td className="py-4 px-6">
-                          {user.isActive ? (
+                          {user.status === 'ACTIVE' ? (
                             <span className="inline-flex items-center space-x-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                               <span>{t('users.status_active')}</span>
@@ -281,13 +281,13 @@ export const AdminUsers: React.FC = () => {
                             <button
                               onClick={() => handleToggleStatus(user)}
                               title={
-                                user.isActive
+                                user.status === 'ACTIVE'
                                   ? t('users.deactivate')
                                   : t('users.activate')
                               }
                               className="text-stone-400 hover:text-[#2B1810] transition-colors p-1 cursor-pointer"
                             >
-                              {user.isActive ? (
+                              {user.status === 'ACTIVE' ? (
                                 <ToggleRight className="w-6 h-6 text-emerald-600" />
                               ) : (
                                 <ToggleLeft className="w-6 h-6 text-stone-400" />

@@ -4,7 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import type { Request } from 'express';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import { RedisService } from '../../../core/redis/redis.service.js';
-import type { AdminJwtPayload, ApiAdminUser } from '@repo/types';
+import { AccountStatus, type AdminJwtPayload, type ApiAdminUser } from '@repo/types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -62,7 +62,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       },
     });
 
-    if (!admin || !admin.isActive) {
+    if (!admin || admin.status !== AccountStatus.ACTIVE) {
       throw new UnauthorizedException(
         'Account not found or has been deactivated',
       );
@@ -89,7 +89,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       statusReason: admin.statusReason ?? null,
       suspendedAt: admin.suspendedAt?.toISOString() ?? null,
       suspendedUntil: admin.suspendedUntil?.toISOString() ?? null,
-      isActive: admin.isActive,
       lastLoginAt: admin.lastLoginAt?.toISOString() ?? null,
       createdAt: admin.createdAt.toISOString(),
     };

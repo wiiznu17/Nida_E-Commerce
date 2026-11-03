@@ -13,7 +13,7 @@ import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RedisService } from '../../core/redis/redis.service.js';
 import { MailerService } from '../../core/mailer/mailer.service.js';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
-import { AuditActionType, AdminPermission } from '@repo/types';
+import { AuditActionType, AdminPermission, AccountStatus } from '@repo/types';
 import {
   AdminLoginDto,
   RefreshTokenDto,
@@ -92,7 +92,7 @@ export class AuthService {
       },
     });
 
-    if (!admin || !admin.isActive) {
+    if (!admin || admin.status !== AccountStatus.ACTIVE) {
       throw new UnauthorizedException('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
     }
 
@@ -166,7 +166,6 @@ export class AuthService {
       statusReason: admin.statusReason ?? null,
       suspendedAt: admin.suspendedAt?.toISOString() ?? null,
       suspendedUntil: admin.suspendedUntil?.toISOString() ?? null,
-      isActive: admin.isActive,
       lastLoginAt: admin.lastLoginAt?.toISOString() ?? null,
       createdAt: admin.createdAt.toISOString(),
     };
@@ -210,7 +209,7 @@ export class AuthService {
       },
     });
 
-    if (!admin || !admin.isActive) {
+    if (!admin || admin.status !== AccountStatus.ACTIVE) {
       throw new UnauthorizedException('Admin account deactivated or removed');
     }
 
@@ -324,7 +323,7 @@ export class AuthService {
       where: { id: invite.adminId },
       data: {
         passwordHash,
-        isActive: true,
+        status: AccountStatus.ACTIVE,
       },
     });
 
@@ -339,7 +338,7 @@ export class AuthService {
       newValuesJson: {
         email: invite.email,
         fullName: invite.fullName,
-        isActive: true,
+        status: AccountStatus.ACTIVE,
         action: 'INVITATION_ACTIVATED',
       },
     });
@@ -393,7 +392,7 @@ export class AuthService {
       where: { email: cleanEmail },
     });
 
-    if (admin && admin.isActive) {
+    if (admin && admin.status === AccountStatus.ACTIVE) {
       const resetToken = randomUUID();
       await this.redis.setResetToken(
         resetToken,

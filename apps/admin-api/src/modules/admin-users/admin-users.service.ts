@@ -12,6 +12,7 @@ import { InviteAdminUserDto } from './dto/admin-user.dto.js';
 import {
   AuditActionType,
   AdminPermission,
+  AccountStatus,
   type ApiAdminUser,
   type ApiAdminRole,
   type InviteAdminResponse,
@@ -64,7 +65,6 @@ export class AdminUsersService {
       statusReason: u.statusReason ?? null,
       suspendedAt: u.suspendedAt?.toISOString() ?? null,
       suspendedUntil: u.suspendedUntil?.toISOString() ?? null,
-      isActive: u.isActive,
       lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
       createdAt: u.createdAt.toISOString(),
     }));
@@ -135,7 +135,7 @@ export class AdminUsersService {
         fullName: dto.fullName.trim(),
         department: dto.department?.trim() ?? null,
         roleId: role.id,
-        isActive: false, // inactive until setup password completed
+        status: AccountStatus.PENDING_VERIFICATION,
         passwordHash: 'INVITATION_PENDING',
       },
     });
@@ -182,7 +182,6 @@ export class AdminUsersService {
       statusReason: newAdmin.statusReason ?? null,
       suspendedAt: newAdmin.suspendedAt?.toISOString() ?? null,
       suspendedUntil: newAdmin.suspendedUntil?.toISOString() ?? null,
-      isActive: newAdmin.isActive,
       lastLoginAt: null,
       createdAt: newAdmin.createdAt.toISOString(),
     };
@@ -237,9 +236,14 @@ export class AdminUsersService {
       throw new NotFoundException('ไม่พบข้อมูลแอดมิน');
     }
 
+    const nextStatus =
+      target.status === AccountStatus.ACTIVE
+        ? AccountStatus.INACTIVE
+        : AccountStatus.ACTIVE;
+
     const updated = await this.prisma.adminUser.update({
       where: { id: targetId },
-      data: { isActive: !target.isActive },
+      data: { status: nextStatus },
       include: {
         role: {
           include: {
@@ -253,7 +257,7 @@ export class AdminUsersService {
       },
     });
 
-    if (!updated.isActive) {
+    if (updated.status !== AccountStatus.ACTIVE) {
       await this.redis.revokeAllUserSessions(targetId);
     }
 
@@ -265,16 +269,15 @@ export class AdminUsersService {
       permission: AdminPermission.ADMIN_USERS_MANAGE,
       performedRole: currentAdminRoleCode ?? null,
       oldValuesJson: {
-        isActive: target.isActive,
+        status: target.status,
         email: target.email,
         fullName: target.fullName,
       },
       newValuesJson: {
         status: updated.status,
-      statusReason: updated.statusReason ?? null,
-      suspendedAt: updated.suspendedAt?.toISOString() ?? null,
-      suspendedUntil: updated.suspendedUntil?.toISOString() ?? null,
-      isActive: updated.isActive,
+        statusReason: updated.statusReason ?? null,
+        suspendedAt: updated.suspendedAt?.toISOString() ?? null,
+        suspendedUntil: updated.suspendedUntil?.toISOString() ?? null,
       },
     });
 
@@ -297,7 +300,6 @@ export class AdminUsersService {
       statusReason: updated.statusReason ?? null,
       suspendedAt: updated.suspendedAt?.toISOString() ?? null,
       suspendedUntil: updated.suspendedUntil?.toISOString() ?? null,
-      isActive: updated.isActive,
       lastLoginAt: updated.lastLoginAt?.toISOString() ?? null,
       createdAt: updated.createdAt.toISOString(),
     };

@@ -169,7 +169,6 @@ model User {
   statusReason String?            @map("status_reason") @db.VarChar(255)
   suspendedAt  DateTime?          @map("suspended_at")
   suspendedUntil DateTime?        @map("suspended_until")
-  isVerified   Boolean            @default(false) @map("is_verified")
   createdAt    DateTime           @default(now()) @map("created_at")
   updatedAt    DateTime           @updatedAt @map("updated_at")
 
@@ -713,7 +712,6 @@ model AdminUser {
   statusReason     String?         @map("status_reason") @db.VarChar(255)
   suspendedAt      DateTime?       @map("suspended_at")
   suspendedUntil   DateTime?       @map("suspended_until")
-  isActive         Boolean         @default(true) @map("is_active")
   lastLoginAt      DateTime?       @map("last_login_at")
   createdAt        DateTime        @default(now()) @map("created_at")
   updatedAt        DateTime        @updatedAt @map("updated_at")

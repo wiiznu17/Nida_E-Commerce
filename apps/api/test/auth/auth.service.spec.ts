@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CustomerAuthService } from '../../src/modules/auth/auth.service.js';
+import { AccountStatus } from '@repo/types';
 import {
   BadRequestException,
   HttpException,
@@ -268,7 +269,10 @@ describe('CustomerAuthService', () => {
         phone: null,
         tier: 'REGULAR',
         points: 0,
-        isVerified: true,
+        status: AccountStatus.ACTIVE,
+        statusReason: null,
+        suspendedAt: null,
+        suspendedUntil: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -486,7 +490,10 @@ describe('CustomerAuthService', () => {
         phone: '0899999999',
         tier: 'REGULAR',
         points: 50,
-        isVerified: true,
+        status: AccountStatus.ACTIVE,
+        statusReason: null,
+        suspendedAt: null,
+        suspendedUntil: null,
         createdAt: new Date(),
       });
 
@@ -514,7 +521,7 @@ describe('CustomerAuthService', () => {
       prismaMock.user.findUnique.mockResolvedValueOnce({
         id: 'usr-existing',
         email: 'taken@nida.co',
-        isVerified: true,
+        status: AccountStatus.ACTIVE,
       });
 
       await expect(
@@ -556,7 +563,7 @@ describe('CustomerAuthService', () => {
             firstName: 'Somchai',
             lastName: 'Dee',
             phone: '0812345678',
-            isVerified: false,
+            status: AccountStatus.PENDING_VERIFICATION,
           }),
         }),
       );
@@ -598,7 +605,7 @@ describe('CustomerAuthService', () => {
         email: 'newuser@nida.co',
         firstName: 'Somchai',
         lastName: 'Dee',
-        isVerified: false,
+        status: AccountStatus.PENDING_VERIFICATION,
       });
       prismaMock.user.update.mockResolvedValueOnce({
         id: 'usr-new-1',
@@ -607,7 +614,10 @@ describe('CustomerAuthService', () => {
         lastName: 'Dee',
         tier: 'REGULAR',
         points: 0,
-        isVerified: true,
+        status: AccountStatus.ACTIVE,
+        statusReason: null,
+        suspendedAt: null,
+        suspendedUntil: null,
         createdAt: new Date(),
       });
 
@@ -621,7 +631,7 @@ describe('CustomerAuthService', () => {
       expect(res.user.email).toBe('newuser@nida.co');
       expect(prismaMock.user.update).toHaveBeenCalledWith({
         where: { id: 'usr-new-1' },
-        data: { isVerified: true },
+        data: { status: AccountStatus.ACTIVE },
       });
       expect(redisMock.setCustomerSession).toHaveBeenCalled();
     });
@@ -733,7 +743,10 @@ describe('CustomerAuthService', () => {
         lastName: 'Dee',
         tier: 'REGULAR',
         points: 100,
-        isVerified: true,
+        status: AccountStatus.ACTIVE,
+        statusReason: null,
+        suspendedAt: null,
+        suspendedUntil: null,
         createdAt: new Date(),
       });
 

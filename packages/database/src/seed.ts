@@ -69,7 +69,7 @@ async function main() {
   await prisma.category.deleteMany({});
   await prisma.promotionCoupon.deleteMany({});
   await prisma.cmsBanner.deleteMany({});
-  await prisma.adminAuditLog.deleteMany({});
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE "admin_audit_logs" CASCADE;');
   await prisma.rolePermission.deleteMany({});
   await prisma.permission.deleteMany({});
   await prisma.adminUser.deleteMany({});

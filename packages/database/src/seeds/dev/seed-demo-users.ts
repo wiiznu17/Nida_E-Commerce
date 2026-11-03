@@ -60,14 +60,14 @@ export async function seedDemoUsers(prisma: PrismaClient) {
 
   await prisma.user.upsert({
     where: { email: 'phannida@nida.com' },
-    update: { passwordHash: demoCustomerPasswordHash, isVerified: true },
+    update: { passwordHash: demoCustomerPasswordHash, status: 'ACTIVE' },
     create: {
       email: 'phannida@nida.com',
       firstName: 'Phannida',
       lastName: 'Wissanu',
       phone: '0812345678',
       passwordHash: demoCustomerPasswordHash,
-      isVerified: true,
+      status: 'ACTIVE',
       tier: 'VIP_GOLD',
       points: 1250,
     },
@@ -75,14 +75,14 @@ export async function seedDemoUsers(prisma: PrismaClient) {
 
   await prisma.user.upsert({
     where: { email: 'customer@example.com' },
-    update: { passwordHash: demoCustomerPasswordHash, isVerified: true },
+    update: { passwordHash: demoCustomerPasswordHash, status: 'ACTIVE' },
     create: {
       email: 'customer@example.com',
       firstName: 'Demo',
       lastName: 'Customer',
       phone: '0899999999',
       passwordHash: demoCustomerPasswordHash,
-      isVerified: true,
+      status: 'ACTIVE',
       tier: 'REGULAR',
       points: 200,
     },

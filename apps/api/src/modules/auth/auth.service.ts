@@ -14,6 +14,7 @@ import bcrypt from 'bcryptjs';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RedisService } from '../../core/redis/redis.service.js';
 import { MailerService } from '../../core/mailer/mailer.service.js';
+import { AccountStatus } from '@repo/types';
 import type {
   RequestOtpResponse,
   CustomerOtpChallengeResponse,
@@ -23,7 +24,6 @@ import type {
   ApiUser,
   CustomerJwtPayload,
   MembershipTier,
-  AccountStatus,
 } from '@repo/types';
 import type {
   RequestOtpInput,
@@ -256,7 +256,6 @@ export class CustomerAuthService {
       statusReason?: string | null;
       suspendedAt?: Date | null;
       suspendedUntil?: Date | null;
-      isVerified: boolean;
       createdAt: Date;
     },
     meta: ClientConnectionMeta = {},
@@ -308,11 +307,10 @@ export class CustomerAuthService {
       fullName,
       tier: user.tier,
       points: user.points,
-      status: user.status ?? (user.isVerified ? 'ACTIVE' : 'PENDING_VERIFICATION'),
+      status: user.status ?? AccountStatus.PENDING_VERIFICATION,
       statusReason: user.statusReason ?? null,
       suspendedAt: user.suspendedAt?.toISOString() ?? null,
       suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
-      isVerified: user.isVerified,
       createdAt: user.createdAt.toISOString(),
     };
 
@@ -340,7 +338,7 @@ export class CustomerAuthService {
       where: { email: cleanEmail },
     });
 
-    if (existingUser && existingUser.isVerified) {
+    if (existingUser && existingUser.status === AccountStatus.ACTIVE) {
       throw new ConflictException(
         'อีเมลนี้มีบัญชีผู้ใช้อยู่แล้ว กรุณาเข้าสู่ระบบ (This email is already registered. Please sign in.)',
       );
@@ -366,7 +364,7 @@ export class CustomerAuthService {
           lastName: dto.lastName.trim(),
           phone: dto.phone?.trim() ?? null,
           passwordHash,
-          isVerified: false,
+          status: AccountStatus.PENDING_VERIFICATION,
           tier: 'REGULAR',
           points: 0,
         },
@@ -400,7 +398,7 @@ export class CustomerAuthService {
 
     const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
-      data: { isVerified: true },
+      data: { status: AccountStatus.ACTIVE },
     });
 
     this.logger.log(
@@ -520,10 +518,10 @@ export class CustomerAuthService {
     }
 
     let activeUser = user;
-    if (!user.isVerified) {
+    if (user.status === AccountStatus.PENDING_VERIFICATION) {
       activeUser = await this.prisma.user.update({
         where: { id: user.id },
-        data: { isVerified: true },
+        data: { status: AccountStatus.ACTIVE },
       });
     }
 
@@ -591,7 +589,7 @@ export class CustomerAuthService {
       where: { id: user.id },
       data: {
         passwordHash,
-        isVerified: true,
+        status: AccountStatus.ACTIVE,
       },
     });
 
@@ -863,7 +861,7 @@ export class CustomerAuthService {
       user = await this.prisma.user.create({
         data: {
           email,
-          isVerified: true,
+          status: AccountStatus.ACTIVE,
           tier: 'REGULAR',
           points: 0,
         },
@@ -876,7 +874,7 @@ export class CustomerAuthService {
         user = await this.prisma.user.create({
           data: {
             email,
-            isVerified: true,
+            status: AccountStatus.ACTIVE,
             tier: 'REGULAR',
             points: 0,
           },
@@ -886,10 +884,10 @@ export class CustomerAuthService {
       }
     }
 
-    if (user && user.isVerified === false) {
+    if (user && user.status === AccountStatus.PENDING_VERIFICATION) {
       const updatedUser = await this.prisma.user.update({
         where: { id: user.id },
-        data: { isVerified: true },
+        data: { status: AccountStatus.ACTIVE },
       });
       if (updatedUser) {
         user = updatedUser;
@@ -946,7 +944,6 @@ export class CustomerAuthService {
       statusReason: user.statusReason ?? null,
       suspendedAt: user.suspendedAt?.toISOString() ?? null,
       suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
-      isVerified: user.isVerified,
       createdAt: user.createdAt.toISOString(),
     };
 
@@ -1087,7 +1084,6 @@ export class CustomerAuthService {
       statusReason: user.statusReason ?? null,
       suspendedAt: user.suspendedAt?.toISOString() ?? null,
       suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
-      isVerified: user.isVerified,
       createdAt: user.createdAt.toISOString(),
     };
   }
@@ -1133,7 +1129,6 @@ export class CustomerAuthService {
       statusReason: updatedUser.statusReason ?? null,
       suspendedAt: updatedUser.suspendedAt?.toISOString() ?? null,
       suspendedUntil: updatedUser.suspendedUntil?.toISOString() ?? null,
-      isVerified: updatedUser.isVerified,
       createdAt: updatedUser.createdAt.toISOString(),
     };
   }
