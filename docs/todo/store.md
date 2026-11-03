@@ -20,6 +20,7 @@
 | **การคืนสินค้าและคืนเงิน (Return & Refund)**                    |         ✅ รองรับครบ 3 เคสทางธุรกิจ พร้อมโมดอลขอคืนสินค้า         |               ✅ เชื่อม Omise Refund API, คืนสต็อก และระบบพิจารณา               | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
 | **วงจรชีวิตคำสั่งซื้อและคิวงาน (Order Lifecycle & Jobs)**       |        ✅ รองรับสถานะ COMPLETED, CANCELLED, Auto-Complete         |           ✅ ติดตั้ง BullMQ + Redis คิวงานเบื้องหลัง Auto-Cancel / Complete 5 วัน       | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
 | **ความปลอดภัย, สต็อก และโปรโมชัน (Security, Auth & Marketing)** |         ✅ PII Masking, Turnstile Bot Shield, Cooldown 60s        |          ✅ Redis Sliding Window Rate Limit, Token Bucket & Session Revoke      | **เสร็จสมบูรณ์ (Production Ready)**                                                                              |
+| **ใบเสร็จ/ใบกำกับภาษี (Tax Invoicing & Receipts)**              | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | **รอดำเนินการ (เตรียมพัฒนา)**                                                                                    |
 
 ---
 
@@ -36,6 +37,7 @@ graph TD
     F2 --> G[✅ เฟส 7: Storefront CMS แบนเนอร์ & รายการโปรด Wishlist]
     G --> H[✅ เฟส 8: ควบคุมวงจรชีวิตคำสั่งซื้อ & สถานะ COMPLETED & คิวงานเบื้องหลัง Order Lifecycle & Background Jobs]
     H --> I[✅ เฟส 9: ความปลอดภัย สิทธิ์ยืนยันตัวตน สต็อก และโปรโมชัน Security, Auth & Inventory/Marketing Safeguards]
+    I --> J[⏳ เฟส 10: ระบบออกใบเสร็จรับเงิน / ใบกำกับภาษีเต็มรูป Tax Invoicing & Receipts]
 ```
 
 ---
@@ -640,6 +642,15 @@ flowchart TD
 - [ ] **4. ป้องกันการทุจริตแต้มสะสมและการกำหนดอายุคะแนน (Loyalty Points Anti-Fraud & Expiry)**:
   - [ ] กำหนดอายุคะแนนสะสม (เช่น หมดอายุทุกสิ้นปี หรือ 365 วันหลังได้รับ)
   - [ ] ระงับการใช้แต้มสะสมทันทีหากพบความผิดปกติของบัญชีผู้ใช้ หรือมีอัตราการขอคืนสินค้าเกินเกณฑ์ที่กำหนด
+
+---
+
+## 📂 เฟส 10: ระบบออกใบเสร็จรับเงิน / ใบกำกับภาษีเต็มรูปแบบ (Tax Invoicing & Receipts)
+
+> **เป้าหมาย**: เพิ่มขั้นตอนขอรับใบกำกับภาษีเต็มรูป (ม.86/4) ในหน้า Checkout หน้าร้าน รองรับทั้งบุคคลธรรมดาและนิติบุคคล, ออกเลขรันต่อเนื่อง และเปิดให้ลูกค้าดาวน์โหลด/พิมพ์เอกสาร A4
+> 
+> 📄 **แผนงานและเช็กลิสต์ฉบับสมบูรณ์**: ติดตามได้ที่ [docs/todo/tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)
+> 📐 **ข้อกำหนดเชิงเทคนิค (Specs)**: ศึกษาได้ที่ [docs/specs/tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/tax-invoice.md)
 
 ---
 

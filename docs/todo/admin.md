@@ -21,7 +21,7 @@
 | **CMS Banner Management**       |         ⏳ มี Prisma Model          |          ⏳ ยังไม่ได้ทำ           | **รอดำเนินการ**               |
 | **Analytics & Data Export**     |          ⏳ กำลังพัฒนา API          |   ✅ แดชบอร์ด & โมดอลเสร็จแล้ว    | **กำลังดำเนินการ**            |
 | **Order Item Product Snapshot** |       ⏳ มี Partial Snapshot        |    ⏳ ใช้ Live Query บางฟิลด์     | **รอดำเนินการ (เตรียมพัฒนา)** |
-| **Order Packing & Invoicing**   |           ⏳ ยังไม่ได้ทำ            |          ⏳ ยังไม่ได้ทำ           | **รอดำเนินการ**               |
+| **Tax Invoicing & Receipts**    | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | **รอดำเนินการ** |
 
 ---
 
@@ -219,6 +219,15 @@ sequenceDiagram
     - ใบ Packing Slip [OrderPackingSlip.tsx](file:///apps/admin/src/components/order/print/OrderPackingSlip.tsx) แสดง SKU จาก Snapshot และแปลงค่าเงินเป็นสกุล ฿ (THB) อย่างถูกต้อง
 - [x] **Testing & Verification**:
   - [x] Unit Test (`apps/api/test/orders/product-snapshot.spec.ts` & `apps/admin-api/test/orders/product-snapshot.spec.ts`): ตรวจสอบว่าเมื่อทำการแก้ไขชื่อสินค้า เปลี่ยนรูป หรือปรับราคาใน `Product` ข้อมูลใน `OrderItem` ของออเดอร์เดิมไม่เปลี่ยนแปลง (100% Passing tests)
+
+---
+
+### 🧾 ลำดับที่ 7: ระบบออกใบเสร็จรับเงิน / ใบกำกับภาษีเต็มรูปแบบ (Tax Invoicing & Receipts)
+
+> **เป้าหมาย**: รองรับการออกใบกำกับภาษีเต็มรูปแบบตามประมวลรัษฎากร ม.86/4, คำนวณ VAT 7%, ออกเลขรัน `INV-YYYYMM-XXXXX` อัตโนมัติ, และพิมพ์เอกสาร A4
+> 
+> 📄 **แผนงานและเช็กลิสต์ฉบับสมบูรณ์**: ติดตามได้ที่ [docs/todo/tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)
+> 📐 **ข้อกำหนดเชิงเทคนิค (Specs)**: ศึกษาได้ที่ [docs/specs/tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/tax-invoice.md)
 
 ---
 

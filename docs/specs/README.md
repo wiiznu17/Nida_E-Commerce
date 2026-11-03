@@ -18,6 +18,7 @@
 | [coupon.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/coupon.md)       | **Promotions & Coupons**    | กลไกคำนวณส่วนลด (`DiscountType`), สิทธิ์การใช้งาน, และโควต้าคูปอง                      |
 | [cart.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/cart.md)           | **Cart & Wishlist**         | ตะกร้าสินค้า, การรวมตะกร้า Guest (`Merge Cart`), การเช็คสต็อก, และรายการโปรด (`Wishlist`) |
 | [content.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/content.md)     | **Storefront CMS & Content** | แบนเนอร์หน้าแรก (`CmsBanner`), แถบประกาศ (`StoreSettings`), แคช CDN และ Live Preview  |
+| [tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/tax-invoice.md) | **Tax Invoicing & Receipts** | การขอใบกำกับภาษีเต็มรูป (ม.86/4), การคำนวณ VAT 7%, เลขรันอัตโนมัติ (`INV-YYYYMM-XXXXX`) และเอกสารพิมพ์ A4 |
 
 ---
 
