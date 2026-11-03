@@ -231,6 +231,15 @@ sequenceDiagram
 
 ---
 
+### ⭐ ลำดับที่ 8: ระบบจัดการและตรวจสอบรีวิวสินค้า (Product Reviews & Ratings Moderation)
+
+> **เป้าหมาย**: หน้าจอแอดมินสำหรับตรวจสอบรีวิวสินค้าจากลูกค้า อนุมัติ/ซ่อนรีวิว ตอบกลับลูกค้าในนามทางการ และบันทึก Audit Logs
+>
+> 📄 **แผนงานและเช็กลิสต์ฉบับสมบูรณ์**: ติดตามได้ที่ [docs/todo/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/reviews.md)
+> 📐 **ข้อกำหนดเชิงเทคนิค (Specs)**: ศึกษาได้ที่ [docs/specs/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/reviews.md)
+
+---
+
 ## 🛠️ รายการปรับปรุงเชิงเทคนิคและ Clean Code (Maintenance & DX)
 
 - [ ] อัปเดตและรัน Unit Tests ให้ครอบคลุมทุกโมดูลใหม่เสมอ (`npm --prefix apps/admin-api run test`)

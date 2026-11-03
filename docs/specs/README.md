@@ -19,6 +19,7 @@
 | [cart.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/cart.md)               | **Cart & Wishlist**          | ตะกร้าสินค้า, การรวมตะกร้า Guest (`Merge Cart`), การเช็คสต็อก, และรายการโปรด (`Wishlist`)                 |
 | [content.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/content.md)         | **Storefront CMS & Content** | แบนเนอร์หน้าแรก (`CmsBanner`), แถบประกาศ (`StoreSettings`), แคช CDN และ Live Preview                      |
 | [tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/tax-invoice.md) | **Tax Invoicing & Receipts** | การขอใบกำกับภาษีเต็มรูป (ม.86/4), การคำนวณ VAT 7%, เลขรันอัตโนมัติ (`INV-YYYYMM-XXXXX`) และเอกสารพิมพ์ A4 |
+| [reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/reviews.md)         | **Reviews & Ratings**        | ระบบรีวิวสินค้า, สิทธิ์ Verified Buyer, การคำนวณคะแนนเฉลี่ย, และการดูแลรีวิวหลังบ้าน (Admin Moderation)      |
 
 ---
 

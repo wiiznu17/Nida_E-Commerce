@@ -499,8 +499,10 @@ flowchart TD
 - [ ] **ระบบระดับสมาชิกและวันหมดอายุแต้ม (VIP Tiers & Points Expiry)**:
   - [ ] อัปเกรดระดับสมาชิกอัตโนมัติตามยอดการสั่งซื้อสะสม (`REGULAR`, `VIP_SILVER`, `VIP_GOLD`) พร้อมสิทธิประโยชน์ส่วนลดพิเศษ
   - [ ] ตั้งคิวงาน BullMQ ตัดรอบวันหมดอายุคะแนนสะสมประจำปี
-- [ ] **รีวิวและการให้คะแนนสินค้า (Customer Reviews)**:
-  - [ ] ลูกค้าที่สั่งซื้อสินค้าจริงสามารถเขียนรีวิวและให้คะแนน 1-5 ดาวได้
+- [ ] **รีวิวและการให้คะแนนสินค้า (Customer Reviews & Ratings)**:
+  - [ ] ดูรายละเอียดแผนงาน 6 เฟสและ Actionable Roadmap ที่ [docs/todo/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/reviews.md) และเอกสารสเปก [docs/specs/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/reviews.md)
+  - [ ] ลูกค้าที่สั่งซื้อสินค้าจริง (Verified Buyer) สามารถเขียนรีวิวและให้คะแนน 1-5 ดาวได้ในหน้าสินค้าและหน้าประวัติคำสั่งซื้อ
+  - [ ] คำนวณคะแนนเฉลี่ยจริงและสัดส่วนดาว 1-5 โดยไม่ใช้ Mock Fallback ลอยๆ ใน `ProductInfo.tsx`
 
 ---
 
