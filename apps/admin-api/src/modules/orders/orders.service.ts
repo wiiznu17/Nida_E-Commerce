@@ -2,7 +2,10 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
+  Optional,
 } from '@nestjs/common';
+import { MailerService } from '../../core/mailer/mailer.service.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { CouponsService } from '../coupons/coupons.service.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
@@ -112,6 +115,8 @@ const ORDER_INCLUDE = {
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly couponsService: CouponsService,
@@ -119,7 +124,8 @@ export class OrdersService {
     private readonly logisticsService: LogisticsService,
     private readonly paymentGatewayService: PaymentGatewayService,
     private readonly orderLifecycleProducer: OrderLifecycleProducerService,
-    private readonly auditLog?: AuditLogService,
+    @Optional() private readonly auditLog?: AuditLogService,
+    @Optional() private readonly mailerService?: MailerService,
   ) {}
 
   async createOrder(dto: CreateOrderDto, adminId?: string): Promise<ApiOrder> {
@@ -705,6 +711,7 @@ export class OrdersService {
             : {}),
         },
         include: {
+          user: { select: { email: true, firstName: true, lastName: true } },
           items: {
             include: {
               variant: {
@@ -757,6 +764,25 @@ export class OrdersService {
         overrideReason,
       },
     });
+
+    if (
+      status === OrderStatus.SHIPPED &&
+      (trackingNumber || updated.shipments?.[0]?.trackingNumber)
+    ) {
+      const activeShipment = updated.shipments?.[0];
+      const effectiveCourier =
+        courierName?.trim() || activeShipment?.courierName || 'Standard Express';
+      const effectiveTracking =
+        trackingNumber?.trim() || activeShipment?.trackingNumber || '';
+
+      if (effectiveTracking) {
+        this.dispatchOrderShippedNotification(
+          updated,
+          effectiveCourier,
+          effectiveTracking,
+        );
+      }
+    }
 
     return this.mapOrder(updated as unknown as OrderDetailPayload);
   }
@@ -838,6 +864,7 @@ export class OrdersService {
       where: { id: existing.id },
       data: { status: OrderStatus.SHIPPED },
       include: {
+        user: { select: { email: true, firstName: true, lastName: true } },
         items: {
           include: {
             variant: {
@@ -876,6 +903,13 @@ export class OrdersService {
       },
     });
 
+    this.dispatchOrderShippedNotification(
+      updated,
+      booking.courierName || 'Standard Express',
+      booking.trackingNumber,
+      carrierCode,
+    );
+
     return this.mapOrder(updated as unknown as OrderDetailPayload);
   }
 
@@ -904,6 +938,113 @@ export class OrdersService {
       orderStatus: shipment.order.status as OrderStatus,
       shipment: this.mapShipment(shipment),
     };
+  }
+
+  private dispatchOrderShippedNotification(
+    order: {
+      orderNumber: string;
+      shippingAddressSnapshot: unknown;
+      user?: { email: string | null; firstName?: string | null } | null;
+      items?: Array<{
+        quantity: number;
+        unitPrice: unknown;
+        productSnapshot?: unknown;
+        variant?: {
+          colorName?: string | null;
+          size?: string | null;
+          product?: { name?: string | null } | null;
+        } | null;
+      }>;
+    },
+    courierName: string,
+    trackingNumber: string,
+    carrierCode?: string,
+  ): void {
+    if (!this.mailerService) {
+      return;
+    }
+
+    const address =
+      (order.shippingAddressSnapshot as Record<string, unknown> | null) ?? {};
+    const recipientEmail =
+      order.user?.email ??
+      (address.email ? String(address.email) : null) ??
+      null;
+
+    if (!recipientEmail) {
+      return;
+    }
+
+    const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
+    let trackingUrl = `${storefrontUrl}/track-order?trackingNumber=${encodeURIComponent(trackingNumber)}`;
+
+    const carrierUpper = (carrierCode ?? courierName).toUpperCase();
+    if (carrierUpper.includes('FLASH')) {
+      trackingUrl = `https://www.flashexpress.co.th/tracking/?se=${encodeURIComponent(trackingNumber)}`;
+    } else if (carrierUpper.includes('KERRY')) {
+      trackingUrl = `https://th.kerryexpress.com/th/track/?track=${encodeURIComponent(trackingNumber)}`;
+    } else if (
+      carrierUpper.includes('THAI') ||
+      carrierUpper.includes('POST') ||
+      courierName.includes('ไปรษณีย์')
+    ) {
+      trackingUrl = `https://track.thailandpost.co.th/?trackNumber=${encodeURIComponent(trackingNumber)}`;
+    } else if (carrierUpper.includes('DHL')) {
+      trackingUrl = `https://www.dhl.com/th-th/home/tracking/tracking-express.html?submit=1&tracking-id=${encodeURIComponent(trackingNumber)}`;
+    }
+
+    const addressParts = [
+      address.addressLine1,
+      address.subdistrict,
+      address.district,
+      address.province,
+      address.postalCode,
+    ]
+      .map((p) => (p ? String(p).trim() : ''))
+      .filter(Boolean);
+
+    const itemsSummary = (order.items ?? []).map((it) => {
+      const snap = it.productSnapshot as Record<string, unknown> | null;
+      const color =
+        (snap?.colorName as string | undefined) ??
+        it.variant?.colorName ??
+        undefined;
+      const size =
+        (snap?.size as string | undefined) ?? it.variant?.size ?? undefined;
+      const variantSummary = [color, size].filter(Boolean).join(' / ');
+
+      return {
+        title:
+          (snap?.name as string | undefined) ??
+          it.variant?.product?.name ??
+          'NIDA Product',
+        variantSummary: variantSummary || undefined,
+        quantity: it.quantity,
+        price: Number(it.unitPrice),
+      };
+    });
+
+    this.mailerService
+      .sendOrderShippedEmail({
+        to: recipientEmail,
+        orderNumber: order.orderNumber,
+        recipientName: String(
+          address.recipientName ??
+            order.user?.firstName ??
+            'Customer',
+        ),
+        courierName,
+        trackingNumber,
+        trackingUrl,
+        items: itemsSummary,
+        shippingAddressSummary:
+          addressParts.length > 0 ? addressParts.join(' ') : undefined,
+      })
+      .catch((err: unknown) => {
+        this.logger.error(
+          `Failed to dispatch order shipped notification for #${order.orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      });
   }
 
   private mapOrder(order: OrderDetailPayload): ApiOrder {

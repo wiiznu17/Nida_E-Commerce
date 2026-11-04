@@ -15,6 +15,7 @@ import {
   ShippopLogisticsProvider,
 } from '../../src/modules/orders/logistics/index.js';
 import type { OrderLifecycleProducerService } from '../../src/modules/order-lifecycle/order-lifecycle-producer.service.js';
+import type { MailerService } from '../../src/core/mailer/mailer.service.js';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -538,6 +539,90 @@ describe('OrdersService', () => {
       );
       expect(result.status).toBe(OrderStatus.SHIPPED);
       expect(result.shipments[0]?.courierName).toBe('Flash Express');
+    });
+
+    it('dispatches order shipped email notification when mailer service is configured', async () => {
+      const mockOrder = {
+        id: 'order-mail-123',
+        orderNumber: 'NIDA-MAIL-001',
+        status: OrderStatus.PROCESSING,
+        currency: 'THB',
+        placedAt: new Date(),
+        items: [
+          {
+            quantity: 1,
+            unitPrice: 1500,
+            productSnapshot: { name: 'Silk Shirt', colorName: 'Black', size: 'M' },
+          },
+        ],
+        shippingAddressSnapshot: {
+          recipientName: 'Somying',
+          email: 'somying@example.com',
+          phone: '0899999999',
+          addressLine1: '456 Rama 9',
+          district: 'Huai Khwang',
+          province: 'Bangkok',
+          postalCode: '10310',
+        },
+        payment: null,
+        shipments: [],
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(mockOrder);
+      prismaMock.shipment.create.mockResolvedValue({
+        id: 'ship-mail',
+        orderId: mockOrder.id,
+        courierName: 'Flash Express',
+        trackingNumber: 'TH999888777',
+      });
+      prismaMock.order.update.mockResolvedValue({
+        ...mockOrder,
+        status: OrderStatus.SHIPPED,
+        user: { email: 'somying@example.com', firstName: 'Somying', lastName: 'Jaidee' },
+        shipments: [
+          {
+            id: 'ship-mail',
+            courierName: 'Flash Express',
+            trackingNumber: 'TH999888777',
+            status: ShipmentStatus.LABEL_CREATED,
+            logs: [],
+          },
+        ],
+      });
+
+      const mailerServiceMock = {
+        sendOrderShippedEmail: vi.fn().mockResolvedValue(undefined),
+      };
+
+      const customService = new OrdersService(
+        prismaMock,
+        couponsServiceMock,
+        carrierMockService,
+        logisticsService,
+        paymentGatewayServiceMock,
+        orderLifecycleProducerMock as unknown as OrderLifecycleProducerService,
+        undefined,
+        mailerServiceMock as unknown as MailerService,
+      );
+
+      await customService.fulfillWithCarrier(mockOrder.id, 'FLASH_EXPRESS');
+
+      expect(mailerServiceMock.sendOrderShippedEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'somying@example.com',
+          orderNumber: 'NIDA-MAIL-001',
+          courierName: 'Flash Express',
+          trackingNumber: expect.stringMatching(/^TH/),
+          trackingUrl: expect.stringContaining('flashexpress.co.th'),
+          items: expect.arrayContaining([
+            expect.objectContaining({
+              title: 'Silk Shirt',
+              quantity: 1,
+              price: 1500,
+            }),
+          ]),
+        }),
+      );
     });
   });
 

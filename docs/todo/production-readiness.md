@@ -58,10 +58,11 @@ graph TD
   - [x] สร้างเทมเพลตอีเมล `formatOrderShippedEmail` ใน `apps/api/src/core/mailer/email-templates.ts` และ `apps/admin-api/src/core/mailer/email-templates.ts`
   - [x] แสดงเลขออเดอร์, รายการสินค้าที่จัดส่ง, ผู้ให้บริการขนส่ง (Courier), และเลขพัสดุ (Tracking Number)
   - [x] เพิ่มปุ่ม Call-to-Action ขนาดใหญ่ "ติดตามพัสดุของคุณ (TRACK SHIPMENT)" สไตล์ Editorial Luxury (Zero Emojis)
-- [ ] **Trigger Integration**:
-  - [ ] เชื่อมต่อใน `apps/admin-api/src/modules/orders/orders.service.ts` ในฟังก์ชัน `fulfillOrder()` / `updateTracking()`
-  - [ ] ส่งคำขอผ่าน `MailerService.sendOrderShippedEmail(order, shipment)` เมื่อสถานะเปลี่ยนเป็น `SHIPPED`
-  - [ ] จัดการกรณีขนส่งไม่มีเลขพัสดุ (Self-pickup หรือแมสเซนเจอร์) ให้แสดงข้อความที่เหมาะสม
+- [x] **Trigger Integration**:
+  - [x] เชื่อมต่อใน `apps/admin-api/src/modules/orders/orders.service.ts` ในฟังก์ชัน `fulfillWithCarrier()` และ `updateOrderStatus()`
+  - [x] ส่งคำขอผ่าน `MailerService.sendOrderShippedEmail(order, shipment)` แบบ Non-blocking ทันทีเมื่อสถานะเปลี่ยนเป็น `SHIPPED`
+  - [x] รองรับ Deep Link ติดตามพัสดุทั้งลิงก์ตรงของผู้ให้บริการขนส่ง (Flash, Kerry, Thailand Post, DHL) และหน้าร้าน NIDA
+  - [x] Unit Test ครอบคลุมการส่งอีเมลแจ้งจัดส่งใน `orders.service.spec.ts` (32/32 tests pass)
 
 #### 1.2 อีเมลส่งมอบใบเสร็จรับเงิน / ใบกำกับภาษีอิเล็กทรอนิกส์ (E-Tax Invoice & Receipt Delivery)
 - [x] **Email Template**:
