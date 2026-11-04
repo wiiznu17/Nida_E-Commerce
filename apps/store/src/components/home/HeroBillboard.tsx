@@ -74,10 +74,21 @@ export const HeroBillboard: React.FC = () => {
 
   return (
     <section className="relative w-full min-h-[580px] lg:min-h-[720px] bg-brand-brown flex items-center overflow-hidden">
-      {/* Background Image with subtle zoom and mobile adaptation */}
-      <div className="absolute inset-0">
+      {/* Background Image with responsive adaptation (Mobile vs Desktop) */}
+      <div className="absolute inset-0 hidden md:block">
         <Image
           src={desktopImage}
+          alt={activeBanner?.title || 'Nida Campaign'}
+          fill
+          priority
+          sizes="100vw"
+          quality={85}
+          className="object-cover object-center opacity-65 scale-105 transition-transform duration-1000 ease-out"
+        />
+      </div>
+      <div className="absolute inset-0 block md:hidden">
+        <Image
+          src={mobileImage}
           alt={activeBanner?.title || 'Nida Campaign'}
           fill
           priority

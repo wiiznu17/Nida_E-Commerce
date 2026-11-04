@@ -174,25 +174,25 @@ graph TD
 
 #### 3.1 Live Hero Billboard Carousel (`apps/store`)
 
-- [ ] ปรับปรุง [`HeroBillboard.tsx`](file:///apps/store/src/components/home/HeroBillboard.tsx):
-  - [ ] ดึงข้อมูลแบนเนอร์สดจาก API `GET /api/v1/content/home` หรือ `contentRequester.getHomeContent()`
-  - [ ] กรองเฉพาะแบนเนอร์ที่ `isActive: true` และอยู่ในช่วงวันที่แคมเปญ (`startDate <= now <= endDate`)
-  - [ ] จัดเรียงสไลด์ตามลำดับ `sortOrder`
-  - [ ] รองรับรูปภาพ Responsive ทั้ง Desktop (`imageUrl`) และ Mobile (`mobileImageUrl`)
-  - [ ] เชื่อมต่อปุ่ม Action Link (CTA Button) ให้กดแล้วพาไปยัง URL หรือคอลเลกชันเป้าหมายจริง
+- [x] ปรับปรุง [`HeroBillboard.tsx`](file:///apps/store/src/components/home/HeroBillboard.tsx):
+  - [x] ดึงข้อมูลแบนเนอร์สดจาก API `GET /api/v1/content/home` ผ่าน `StoreContentContext`
+  - [x] กรองเฉพาะแบนเนอร์ที่ `isActive: true` และอยู่ในช่วงวันที่แคมเปญ (`startDate <= now <= endDate`) อัตโนมัติจากฝั่ง Backend
+  - [x] จัดเรียงสไลด์ตามลำดับ `sortOrder` และสลับภาพแบบ Carousel ทุก 6 วินาที
+  - [x] รองรับรูปภาพ Responsive เต็มรูปแบบ (Desktop แสดง `imageDesktopUrl`, Mobile แสดง `imageMobileUrl`)
+  - [x] เชื่อมต่อปุ่ม Action Link (CTA Button) ทั้งปุ่มหลักและปุ่มรองสองภาษา (TH/EN) นำทางไปยังเป้าหมายจริง
 
 #### 3.2 Dynamic Promo Ribbon & Announcement Bar
 
-- [ ] ปรับปรุง [`PromoRibbon.tsx`](file:///apps/store/src/components/home/PromoRibbon.tsx) และแถบประกาศด้านบน Header:
-  - [ ] ดึงข้อความประกาศโปรโมชันจาก `StoreSettings` ในฐานข้อมูล
-  - [ ] รองรับการแสดงผล 2 ภาษา (TH / EN) ตามที่ผู้ดูแลระบบตั้งค่าไว้ในหลังบ้าน
-  - [ ] ซ่อนแถบประกาศอัตโนมัติหากแอดมินปิดการใช้งาน (`promoBarActive: false`)
+- [x] ปรับปรุง [`PromoRibbon.tsx`](file:///apps/store/src/components/home/PromoRibbon.tsx) และแถบประกาศด้านบน Header:
+  - [x] ดึงข้อความประกาศโปรโมชันและแถบริบบิ้นจากฐานข้อมูลจริง (`PROMO_RIBBON` และ `StoreSettings`)
+  - [x] รองรับการแสดงผล 2 ภาษา (TH / EN) พร้อมปุ่มคัดลอกโค้ดคูปอง
+  - [x] ซ่อนแถบประกาศและแถบริบบิ้นอัตโนมัติหากแอดมินปิดการใช้งานหรือไม่มีแคมเปญที่ Active
 
 #### 3.3 Dynamic Category Discovery Tiles
 
-- [ ] ปรับปรุง [`CategoryDiscoveryTiles.tsx`](file:///apps/store/src/components/home/CategoryDiscoveryTiles.tsx):
-  - [ ] เชื่อมต่อภาพแบนเนอร์และชื่อหมวดหมู่กับโมเดล `Category` ในฐานข้อมูลจริง
-  - [ ] กดแล้วนำทางไปยังหน้ารวมสินค้าตามแผนกและหมวดหมู่นั้นๆ ทันที
+- [x] ปรับปรุง [`CategoryDiscoveryTiles.tsx`](file:///apps/store/src/components/home/CategoryDiscoveryTiles.tsx):
+  - [x] เชื่อมต่อภาพหน้าปกจากสินค้าจริงในแต่ละแผนก (`productsList`) ผ่าน `useCatalog()`
+  - [x] กดแล้วนำทางไปยังหน้ารวมสินค้าตามแผนก (`/collections/[department]`) ทันที
 
 ---
 

@@ -11,9 +11,14 @@ export const PromoRibbon: React.FC = () => {
   const { promoRibbon } = useStoreContent();
   const [copiedCode, setCopiedCode] = useState(false);
 
+  // Hide component cleanly if no active promo ribbon banner is scheduled in CMS
+  if (!promoRibbon) {
+    return null;
+  }
+
   const isTh = language === 'th';
 
-  const couponCode = promoRibbon?.couponCode || 'NIDA20';
+  const couponCode = promoRibbon.couponCode || 'NIDA20';
 
   const tag = isTh
     ? promoRibbon?.tagTh || promoRibbon?.tagEn || t('home.promoRibbonTag')
