@@ -46,6 +46,10 @@ describe('CustomerOrdersService', () => {
 
     mailerMock = {
       sendOrderConfirmation: vi.fn().mockResolvedValue(undefined),
+      sendTaxInvoiceReceiptEmail: vi.fn().mockResolvedValue(undefined),
+      sendOrderShippedEmail: vi.fn().mockResolvedValue(undefined),
+      sendOrderCancelledEmail: vi.fn().mockResolvedValue(undefined),
+      sendRefundProcessedEmail: vi.fn().mockResolvedValue(undefined),
     };
 
     const omiseMock = {
@@ -1126,6 +1130,231 @@ describe('CustomerOrdersService', () => {
           cardBrand: 'Visa',
         }),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('Tax Invoice & Receipt Email Dispatch on Payment', () => {
+    it('dispatches tax invoice receipt email when order payment is confirmed', async () => {
+      const mockOrder = {
+        id: 'ord-tax-100',
+        orderNumber: 'NIDA-TAX-001',
+        userId: 'user-tax-1',
+        status: OrderStatus.PENDING,
+        hasPreorderItems: false,
+        totalAmount: 10700,
+        subtotal: 10000,
+        shippingFee: 0,
+        discountTotal: 0,
+        taxAmount: 700,
+        currency: 'THB',
+        placedAt: new Date(),
+        items: [],
+        shippingAddressSnapshot: {
+          recipientName: 'Nida VIP',
+          email: 'vip@nida.co',
+        },
+        payment: {
+          id: 'pay-tax-1',
+          status: 'PENDING',
+        },
+        shipments: [],
+        cancellationRequests: [],
+        returnRequests: [],
+        refunds: [],
+        user: {
+          email: 'vip@nida.co',
+        },
+      };
+
+      const mockTaxInvoice = {
+        id: 'tax-inv-1',
+        orderId: mockOrder.id,
+        orderNumber: mockOrder.orderNumber,
+        invoiceNumber: 'INV-202611-00001',
+        payerType: 'COMPANY' as const,
+        taxId: '0105559000111',
+        name: 'Nida Luxury Holding Co., Ltd.',
+        branchType: 'HEADQUARTERS' as const,
+        branchCode: null,
+        address: '888 Sukhumvit Bangkok',
+        totalAmount: 10700,
+        preVatAmount: 10000,
+        vatAmount: 700,
+        subtotal: 10000,
+        discount: 0,
+        shippingFee: 0,
+        itemsSnapshot: [],
+        issuedAt: new Date('2026-11-04T10:00:00Z'),
+      };
+
+      const taxInvoiceServiceMock = {
+        issueTaxInvoiceForOrder: vi.fn().mockResolvedValue(mockTaxInvoice),
+      };
+
+      const customService = new CustomerOrdersService(
+        prismaMock as unknown as PrismaService,
+        mailerMock as unknown as MailerService,
+        {
+          createPromptPayCharge: vi.fn(),
+          createCreditCardCharge: vi.fn(),
+          checkChargeStatus: vi.fn(),
+        } as unknown as OmiseService,
+        {
+          cancelOrderTimeout: vi.fn().mockResolvedValue(true),
+          scheduleOrderTimeout: vi.fn(),
+        } as unknown as OrderLifecycleProducerService,
+        {
+          checkRateLimit: vi.fn().mockResolvedValue({ allowed: true }),
+        } as unknown as RedisService,
+        taxInvoiceServiceMock as unknown as TaxInvoiceService,
+      );
+
+      const orderFindUnique = (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique;
+
+      orderFindUnique.mockResolvedValueOnce(mockOrder); // in confirmOrderPayment initial find
+      (
+        prismaMock as { $transaction: ReturnType<typeof vi.fn> }
+      ).$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+        cb({
+          payment: { update: vi.fn() },
+          order: { update: vi.fn() },
+        }),
+      );
+      orderFindUnique.mockResolvedValueOnce(mockOrder); // in dispatchTaxInvoiceEmailNotification findUnique
+      orderFindUnique.mockResolvedValueOnce({
+        ...mockOrder,
+        status: OrderStatus.PAID,
+      }); // in getOrderByNumber
+
+      await customService.simulateOmisePay(mockOrder.orderNumber, 'user-tax-1');
+
+      expect(taxInvoiceServiceMock.issueTaxInvoiceForOrder).toHaveBeenCalled();
+      expect(
+        (mailerMock as { sendTaxInvoiceReceiptEmail: ReturnType<typeof vi.fn> })
+          .sendTaxInvoiceReceiptEmail,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'vip@nida.co',
+          orderNumber: 'NIDA-TAX-001',
+          invoiceNumber: 'INV-202611-00001',
+          buyerName: 'Nida Luxury Holding Co., Ltd.',
+          preVatAmount: 10000,
+          vatAmount: 700,
+          totalAmount: 10700,
+        }),
+      );
+    });
+
+    it('dispatches tax invoice email when Omise charge.complete webhook arrives', async () => {
+      const mockOrder = {
+        id: 'ord-hook-100',
+        orderNumber: 'NIDA-HOOK-001',
+        userId: 'user-hook-1',
+        status: OrderStatus.PENDING,
+        hasPreorderItems: false,
+        totalAmount: 3210,
+        currency: 'THB',
+        placedAt: new Date(),
+        shippingAddressSnapshot: {
+          recipientName: 'Anan',
+          email: 'anan@example.com',
+        },
+        payment: {
+          id: 'pay-hook-1',
+          status: 'PENDING',
+        },
+        user: {
+          email: 'anan@example.com',
+        },
+      };
+
+      const mockTaxInvoice = {
+        id: 'tax-inv-2',
+        orderId: mockOrder.id,
+        orderNumber: mockOrder.orderNumber,
+        invoiceNumber: 'INV-202611-00002',
+        payerType: 'PERSONAL' as const,
+        taxId: '1100400123450',
+        name: 'Anan Sukhumvit',
+        branchType: null,
+        branchCode: null,
+        address: '123 Sukhumvit Bangkok',
+        totalAmount: 3210,
+        preVatAmount: 3000,
+        vatAmount: 210,
+        subtotal: 3000,
+        discount: 0,
+        shippingFee: 0,
+        itemsSnapshot: [],
+        issuedAt: new Date('2026-11-04T10:00:00Z'),
+      };
+
+      const taxInvoiceServiceMock = {
+        issueTaxInvoiceForOrder: vi.fn().mockResolvedValue(mockTaxInvoice),
+      };
+
+      const customService = new CustomerOrdersService(
+        prismaMock as unknown as PrismaService,
+        mailerMock as unknown as MailerService,
+        {
+          createPromptPayCharge: vi.fn(),
+          createCreditCardCharge: vi.fn(),
+          checkChargeStatus: vi.fn(),
+        } as unknown as OmiseService,
+        {
+          cancelOrderTimeout: vi.fn().mockResolvedValue(true),
+          scheduleOrderTimeout: vi.fn(),
+        } as unknown as OrderLifecycleProducerService,
+        {
+          checkRateLimit: vi.fn().mockResolvedValue({ allowed: true }),
+        } as unknown as RedisService,
+        taxInvoiceServiceMock as unknown as TaxInvoiceService,
+      );
+
+      const orderFindUnique = (
+        prismaMock as { order: { findUnique: ReturnType<typeof vi.fn> } }
+      ).order.findUnique;
+
+      orderFindUnique.mockResolvedValueOnce(mockOrder); // in handleOmiseWebhook
+      (
+        prismaMock as { $transaction: ReturnType<typeof vi.fn> }
+      ).$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+        cb({
+          payment: { update: vi.fn() },
+          order: { update: vi.fn() },
+        }),
+      );
+      orderFindUnique.mockResolvedValueOnce(mockOrder); // in dispatchTaxInvoiceEmailNotification
+
+      const webhookEvent = {
+        key: 'charge.complete',
+        data: {
+          id: 'chrg_test_hook_1',
+          status: 'successful',
+          metadata: {
+            orderNumber: 'NIDA-HOOK-001',
+          },
+        },
+      };
+
+      const result = await customService.handleOmiseWebhook(webhookEvent);
+
+      expect(result.received).toBe(true);
+      expect(taxInvoiceServiceMock.issueTaxInvoiceForOrder).toHaveBeenCalled();
+      expect(
+        (mailerMock as { sendTaxInvoiceReceiptEmail: ReturnType<typeof vi.fn> })
+          .sendTaxInvoiceReceiptEmail,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'anan@example.com',
+          orderNumber: 'NIDA-HOOK-001',
+          invoiceNumber: 'INV-202611-00002',
+          buyerName: 'Anan Sukhumvit',
+          totalAmount: 3210,
+        }),
+      );
     });
   });
 });

@@ -68,9 +68,10 @@ graph TD
 - [x] **Email Template**:
   - [x] สร้างเทมเพลตอีเมล `formatTaxInvoiceReceiptEmail` ใน `apps/api/src/core/mailer/email-templates.ts`
   - [x] สรุปข้อมูลผู้เสียภาษี (บุคคลธรรมดา/นิติบุคคล, เลข 13 หลัก, ที่อยู่), ฐานภาษี Pre-VAT, ยอด VAT 7%, และยอดสุทธิ พร้อมปุ่ม View Tax Invoice
-- [ ] **Trigger Integration**:
-  - [ ] เชื่อมต่อใน `apps/api/src/modules/orders/orders.service.ts` ในจังหวะที่ได้รับ Webhook การชำระเงินสำเร็จ (`PaymentStatus = PAID`) และออเดอร์มีการร้องขอใบกำกับภาษี (`taxInvoiceReq`)
-  - [ ] ส่งอีเมลพร้อมแจ้งเตือนเลขที่เอกสาร `INV-YYYYMM-XXXXX`
+- [x] **Trigger Integration**:
+  - [x] เชื่อมต่อใน `apps/api/src/modules/orders/orders.service.ts` ในทุกจุดที่ได้รับยืนยันการชำระเงินสำเร็จ (`PaymentStatus.CAPTURED` ทั้ง `processOrderPayment`, `syncPromptPayStatus`, `simulateOmisePay`, และ `handleOmiseWebhook`)
+  - [x] ออกเลขที่เอกสาร `INV-YYYYMM-XXXXX` ผ่าน `taxInvoiceService.issueTaxInvoiceForOrder()` และส่งอีเมลแจ้งลูกค้าอัตโนมัติ
+  - [x] ทำงานแบบ Asynchronous Non-blocking และมี Unit Test รองรับใน `orders.service.spec.ts` (22/22 tests pass)
 
 #### 1.3 อีเมลยืนยันการคืนเงินและการยกเลิกคำสั่งซื้อ (Cancellation & Refund Confirmation)
 - [x] **Email Template**:

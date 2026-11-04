@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   ConflictException,
   Logger,
+  Optional,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { MailerService } from '../../core/mailer/mailer.service.js';
@@ -32,6 +33,7 @@ import {
   CreateCancellationRequestDto,
   CreateReturnRequestDto,
   SubmitReturnShipmentDto,
+  type ApiTaxInvoice,
 } from '@repo/types';
 import {
   OrderStatus,
@@ -91,7 +93,7 @@ export class CustomerOrdersService {
     private readonly omiseService: OmiseService,
     private readonly orderLifecycleProducer: OrderLifecycleProducerService,
     private readonly redisService: RedisService,
-    private readonly taxInvoiceService: TaxInvoiceService,
+    @Optional() private readonly taxInvoiceService?: TaxInvoiceService,
   ) {}
 
   async createOrder(
@@ -1145,6 +1147,7 @@ export class CustomerOrdersService {
           ? OrderStatus.PREORDER_AWAITING_STOCK
           : OrderStatus.PAID;
 
+        let issuedTaxInvoice: ApiTaxInvoice | null = null;
         await this.prisma.$transaction(async (tx) => {
           if (order.payment) {
             await tx.payment.update({
@@ -1166,11 +1169,19 @@ export class CustomerOrdersService {
           });
 
           if (this.taxInvoiceService) {
-            await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
+            issuedTaxInvoice =
+              await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
           }
         });
 
         await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
+
+        if (issuedTaxInvoice) {
+          void this.dispatchTaxInvoiceEmailNotification(
+            order.id,
+            issuedTaxInvoice,
+          );
+        }
 
         const updatedOrder = await this.getOrderByNumber(orderNumber, userId);
         return { order: updatedOrder };
@@ -1273,6 +1284,7 @@ export class CustomerOrdersService {
           ? OrderStatus.PREORDER_AWAITING_STOCK
           : OrderStatus.PAID;
 
+        let issuedTaxInvoice: ApiTaxInvoice | null = null;
         await this.prisma.$transaction(async (tx) => {
           if (order.payment) {
             await tx.payment.update({
@@ -1294,11 +1306,19 @@ export class CustomerOrdersService {
           });
 
           if (this.taxInvoiceService) {
-            await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
+            issuedTaxInvoice =
+              await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
           }
         });
 
         await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
+
+        if (issuedTaxInvoice) {
+          void this.dispatchTaxInvoiceEmailNotification(
+            order.id,
+            issuedTaxInvoice,
+          );
+        }
       } else if (charge.status === 'failed') {
         if (order.payment) {
           await this.prisma.payment.update({
@@ -1366,6 +1386,7 @@ export class CustomerOrdersService {
       ? OrderStatus.PREORDER_AWAITING_STOCK
       : OrderStatus.PAID;
 
+    let issuedTaxInvoice: ApiTaxInvoice | null = null;
     await this.prisma.$transaction(async (tx) => {
       if (order.payment) {
         await tx.payment.update({
@@ -1382,10 +1403,19 @@ export class CustomerOrdersService {
         data: { status: nextStatus },
       });
 
-      await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
+      if (this.taxInvoiceService) {
+        issuedTaxInvoice = await this.taxInvoiceService.issueTaxInvoiceForOrder(
+          tx,
+          order.id,
+        );
+      }
     });
 
     await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
+
+    if (issuedTaxInvoice) {
+      void this.dispatchTaxInvoiceEmailNotification(order.id, issuedTaxInvoice);
+    }
 
     return this.getOrderByNumber(orderNumber, userId);
   }
@@ -1418,6 +1448,7 @@ export class CustomerOrdersService {
               ? OrderStatus.PREORDER_AWAITING_STOCK
               : OrderStatus.PAID;
 
+            let issuedTaxInvoice: ApiTaxInvoice | null = null;
             await this.prisma.$transaction(async (tx) => {
               if (order.payment) {
                 await tx.payment.update({
@@ -1435,14 +1466,22 @@ export class CustomerOrdersService {
               });
 
               if (this.taxInvoiceService) {
-                await this.taxInvoiceService.issueTaxInvoiceForOrder(
-                  tx,
-                  order.id,
-                );
+                issuedTaxInvoice =
+                  await this.taxInvoiceService.issueTaxInvoiceForOrder(
+                    tx,
+                    order.id,
+                  );
               }
             });
 
             await this.orderLifecycleProducer.cancelOrderTimeout(order.id);
+
+            if (issuedTaxInvoice) {
+              void this.dispatchTaxInvoiceEmailNotification(
+                order.id,
+                issuedTaxInvoice,
+              );
+            }
           } else if (status === 'failed' && order.payment) {
             const rawMeta =
               (order.payment.rawWebhookPayload as Record<
@@ -1533,6 +1572,9 @@ export class CustomerOrdersService {
   }
 
   async getTaxInvoice(orderNumber: string, userId?: string) {
+    if (!this.taxInvoiceService) {
+      throw new NotFoundException('Tax invoice service is not available');
+    }
     return this.taxInvoiceService.getTaxInvoiceByOrderNumber(
       orderNumber,
       userId,
@@ -1904,5 +1946,86 @@ export class CustomerOrdersService {
       completedAt: order.completedAt ? order.completedAt.toISOString() : null,
       updatedAt: order.updatedAt?.toISOString(),
     };
+  }
+
+  private async dispatchTaxInvoiceEmailNotification(
+    orderId: string,
+    taxInvoice?: ApiTaxInvoice | null,
+  ): Promise<void> {
+    try {
+      const order = await this.prisma.order.findUnique({
+        where: { id: orderId },
+        include: {
+          user: { select: { email: true } },
+          taxInvoice: true,
+        },
+      });
+      if (!order) return;
+
+      const effectiveInvoice = taxInvoice ?? (order.taxInvoice ? {
+        id: order.taxInvoice.id,
+        orderId: order.taxInvoice.orderId,
+        orderNumber: order.orderNumber,
+        invoiceNumber: order.taxInvoice.invoiceNumber,
+        payerType: order.taxInvoice.payerType as import('@repo/types').TaxInvoicePayerType,
+        taxId: order.taxInvoice.taxId,
+        name: order.taxInvoice.name,
+        branchType: (order.taxInvoice.branchType as import('@repo/types').TaxInvoiceBranchType) ?? null,
+        branchCode: order.taxInvoice.branchCode ?? null,
+        address: order.taxInvoice.address,
+        subtotal: Number(order.taxInvoice.subtotal),
+        discount: Number(order.taxInvoice.discount),
+        shippingFee: Number(order.taxInvoice.shippingFee),
+        totalAmount: Number(order.taxInvoice.totalAmount),
+        preVatAmount: Number(order.taxInvoice.preVatAmount),
+        vatAmount: Number(order.taxInvoice.vatAmount),
+        itemsSnapshot: [],
+        issuedAt: order.taxInvoice.issuedAt.toISOString(),
+      } : null);
+
+      if (!effectiveInvoice) return;
+
+      const address =
+        (order.shippingAddressSnapshot as Record<string, unknown> | null) ?? {};
+      const recipientEmail =
+        order.user?.email ??
+        (address.email ? String(address.email) : null) ??
+        null;
+
+      if (!recipientEmail) return;
+
+      const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
+      const viewUrl = `${storefrontUrl}/profile/orders/${encodeURIComponent(order.orderNumber)}`;
+
+      const branchInfo =
+        effectiveInvoice.branchType === 'BRANCH' && effectiveInvoice.branchCode
+          ? `สาขา ${effectiveInvoice.branchCode}`
+          : effectiveInvoice.branchType === 'HEADQUARTERS'
+            ? 'สำนักงานใหญ่'
+            : undefined;
+
+      await this.mailerService.sendTaxInvoiceReceiptEmail({
+        to: recipientEmail,
+        orderNumber: effectiveInvoice.orderNumber,
+        invoiceNumber: effectiveInvoice.invoiceNumber,
+        issuedAt: new Date(effectiveInvoice.issuedAt).toLocaleDateString('th-TH', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        buyerName: effectiveInvoice.name,
+        buyerTaxId: effectiveInvoice.taxId,
+        buyerBranch: branchInfo,
+        buyerAddress: effectiveInvoice.address,
+        preVatAmount: Number(effectiveInvoice.preVatAmount),
+        vatAmount: Number(effectiveInvoice.vatAmount),
+        totalAmount: Number(effectiveInvoice.totalAmount),
+        viewUrl,
+      });
+    } catch (err: unknown) {
+      this.logger.error(
+        `Failed to dispatch tax invoice email for order ${orderId}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 }
