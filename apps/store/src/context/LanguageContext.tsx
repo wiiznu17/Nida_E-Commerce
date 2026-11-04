@@ -69,25 +69,38 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined,
 );
 
-export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguageState] = useState<Language>('th');
+export const LanguageProvider = ({
+  children,
+  initialLanguage = 'th',
+}: {
+  children: ReactNode;
+  initialLanguage?: Language;
+}) => {
+  const [language, setLanguageState] = useState<Language>(initialLanguage);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem('nida_lang');
       if (saved === 'th' || saved === 'en') {
-        setLanguageState(saved);
+        if (saved !== language) {
+          setLanguageState(saved);
+        }
         return;
       }
       // Check cookie fallback
       const match = document.cookie.match(/(?:^|;\s*)nida_lang=(th|en)/);
       if (match && match[1]) {
-        setLanguageState(match[1] as Language);
+        if (match[1] !== language) {
+          setLanguageState(match[1] as Language);
+        }
+      } else {
+        localStorage.setItem('nida_lang', initialLanguage);
+        document.cookie = `nida_lang=${initialLanguage}; path=/; max-age=31536000; SameSite=Lax`;
       }
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [initialLanguage, language]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);

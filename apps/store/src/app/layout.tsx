@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import {
   Montserrat,
   Inter,
@@ -8,6 +9,7 @@ import {
 import './globals.css';
 import { Providers } from '@/components/Providers';
 import { Layout } from '@/components/layout';
+import type { Language } from '@/context/LanguageContext';
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -46,18 +48,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const rawLang = cookieStore.get('nida_lang')?.value;
+  const initialLanguage: Language = rawLang === 'en' ? 'en' : 'th';
+
   return (
     <html
-      lang="th"
+      lang={initialLanguage}
       className={`${montserrat.variable} ${inter.variable} ${playfair.variable} ${ibmPlexSansThai.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>
+        <Providers initialLanguage={initialLanguage}>
           <Layout>{children}</Layout>
         </Providers>
       </body>
