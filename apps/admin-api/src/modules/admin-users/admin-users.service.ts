@@ -20,7 +20,7 @@ import {
 } from '@repo/types';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
 
-const INVITE_TOKEN_EXPIRATION_SECONDS = 172800; // 48 hours
+const INVITE_TOKEN_EXPIRATION_SECONDS = 86400; // 24 hours
 
 @Injectable()
 export class AdminUsersService {

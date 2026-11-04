@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import {
@@ -9,13 +9,17 @@ import {
 } from '@repo/types';
 import { OrderStatus, PaymentStatus, StockChangeType } from '@repo/database';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
+import { MailerService } from '../../../core/mailer/mailer.service.js';
 
 @Processor(OrderLifecycleQueueName.ORDER_TIMEOUT, DEFAULT_BULLMQ_WORKER_OPTIONS)
 @Injectable()
 export class OrderTimeoutWorker extends WorkerHost {
   private readonly logger = new Logger(OrderTimeoutWorker.name);
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly mailerService?: MailerService,
+  ) {
     super();
   }
 
@@ -29,12 +33,15 @@ export class OrderTimeoutWorker extends WorkerHost {
       `Executing unpaid timeout verification for Order #${orderNumber} (${orderId})`,
     );
 
+    let cancelledRecipientEmail: string | null = null;
+
     await this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({
         where: { id: orderId },
         include: {
           items: true,
           payment: true,
+          user: { select: { email: true } },
         },
       });
 
@@ -51,6 +58,13 @@ export class OrderTimeoutWorker extends WorkerHost {
         );
         return;
       }
+
+      const address =
+        (order.shippingAddressSnapshot as Record<string, unknown> | null) ?? {};
+      cancelledRecipientEmail =
+        order.user?.email ??
+        (address.email ? String(address.email) : null) ??
+        null;
 
       await tx.order.update({
         where: { id: order.id },
@@ -113,5 +127,23 @@ export class OrderTimeoutWorker extends WorkerHost {
         `Successfully auto-cancelled unpaid Order #${orderNumber} and restocked inventory items.`,
       );
     });
+
+    if (this.mailerService && cancelledRecipientEmail) {
+      const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
+      this.mailerService
+        .sendOrderCancelledEmail({
+          to: cancelledRecipientEmail,
+          orderNumber,
+          reason:
+            reason ??
+            'คำสั่งซื้อหมดเวลาชำระเงินตามที่กำหนดในระบบ (15 นาที)',
+          storefrontUrl,
+        })
+        .catch((err: unknown) => {
+          this.logger.error(
+            `Failed to send timeout cancellation email for #${orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
+          );
+        });
+    }
   }
 }

@@ -784,6 +784,33 @@ export class OrdersService {
       }
     }
 
+    if (status === OrderStatus.CANCELLED) {
+      const address =
+        (updated.shippingAddressSnapshot as Record<string, unknown> | null) ?? {};
+      const recipientEmail =
+        updated.user?.email ??
+        (address.email ? String(address.email) : null) ??
+        null;
+
+      if (this.mailerService && recipientEmail) {
+        const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
+        this.mailerService
+          .sendOrderCancelledEmail({
+            to: recipientEmail,
+            orderNumber: updated.orderNumber,
+            reason:
+              overrideReason?.trim() ||
+              'คำสั่งซื้อได้รับการยกเลิกโดยผู้ดูแลระบบ',
+            storefrontUrl,
+          })
+          .catch((err: unknown) => {
+            this.logger.error(
+              `Failed to send order cancelled email for #${updated.orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
+            );
+          });
+      }
+    }
+
     return this.mapOrder(updated as unknown as OrderDetailPayload);
   }
 
@@ -1226,6 +1253,7 @@ export class OrdersService {
         ? { OR: [{ id }, { orderNumber: id }] }
         : { orderNumber: id },
       include: {
+        user: { select: { email: true, firstName: true } },
         payment: true,
         items: {
           include: {
@@ -1288,11 +1316,13 @@ export class OrdersService {
     }
 
     let isFullRefund = false;
+    let issuedRefundNumber = '';
     await this.prisma.$transaction(async (tx) => {
       const refundCount = await tx.refund.count({
         where: { orderId: order.id },
       });
       const refundNumber = `REF-${order.orderNumber}-${refundCount + 1}`;
+      issuedRefundNumber = refundNumber;
 
       await tx.refund.create({
         data: {
@@ -1426,6 +1456,46 @@ export class OrdersService {
       },
     });
 
+    const address =
+      (order.shippingAddressSnapshot as Record<string, unknown> | null) ?? {};
+    const recipientEmail =
+      order.user?.email ??
+      (address.email ? String(address.email) : null) ??
+      null;
+
+    if (this.mailerService && recipientEmail) {
+      const channel =
+        order.payment?.paymentMethod === 'CREDIT_CARD'
+          ? 'บัตรเครดิต (Credit Card via Omise)'
+          : order.payment?.paymentMethod === 'PROMPTPAY'
+            ? 'พร้อมเพย์ (PromptPay)'
+            : String(order.payment?.paymentMethod ?? 'Online Payment');
+
+      const timeline =
+        order.payment?.paymentMethod === 'CREDIT_CARD'
+          ? 'ยอดเงินจะปรับปรุงคืนเข้าบัญชีบัตรเครดิตภายใน 7–14 วันทำการ ขึ้นอยู่กับรอบบิลของธนาคาร'
+          : 'ยอดเงินจะปรับปรุงคืนเข้าบัญชีภายใน 1–3 วันทำการ';
+
+      const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
+
+      this.mailerService
+        .sendRefundProcessedEmail({
+          to: recipientEmail,
+          orderNumber: order.orderNumber,
+          refundNumber: issuedRefundNumber,
+          amount: refundAmount,
+          reason: dto.reason,
+          paymentMethod: channel,
+          estimatedTimeline: timeline,
+          storefrontUrl,
+        })
+        .catch((err: unknown) => {
+          this.logger.error(
+            `Failed to send refund processed email for #${order.orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
+          );
+        });
+    }
+
     return this.getOrderByNumber(order.orderNumber);
   }
 
@@ -1552,7 +1622,10 @@ export class OrdersService {
       where: { id: requestId },
       include: {
         order: {
-          include: { payment: true },
+          include: {
+            payment: true,
+            user: { select: { email: true } },
+          },
         },
       },
     });
@@ -1596,6 +1669,28 @@ export class OrdersService {
           adminNote: dto.adminNote,
         },
       });
+
+      const address =
+        (request.order.shippingAddressSnapshot as Record<string, unknown> | null) ?? {};
+      const recipientEmail =
+        request.order.user?.email ??
+        (address.email ? String(address.email) : null) ??
+        null;
+
+      if (this.mailerService && recipientEmail) {
+        this.mailerService
+          .sendOrderCancelledEmail({
+            to: recipientEmail,
+            orderNumber: request.order.orderNumber,
+            reason: `คำขอยกเลิกคำสั่งซื้อไม่ได้รับการอนุมัติ: ${dto.adminNote || 'เนื่องจากสินค้าอยู่ระหว่างขั้นตอนการจัดส่ง'}`,
+          })
+          .catch((err: unknown) => {
+            this.logger.error(
+              `Failed to send cancellation rejection email for #${request.order.orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
+            );
+          });
+      }
+
       return { success: true, message: 'ปฏิเสธคำขอยกเลิกเรียบร้อย' };
     }
 

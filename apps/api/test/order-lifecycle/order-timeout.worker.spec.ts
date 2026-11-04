@@ -6,6 +6,7 @@ import {
 } from '@repo/types';
 import { OrderStatus, PaymentStatus, StockChangeType } from '@repo/database';
 import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
+import type { MailerService } from '../../src/core/mailer/mailer.service.js';
 import type { Job } from 'bullmq';
 
 describe('OrderTimeoutWorker — BullMQ Unpaid Order Auto-Cancel & Restock', () => {
@@ -194,5 +195,52 @@ describe('OrderTimeoutWorker — BullMQ Unpaid Order Auto-Cancel & Restock', () 
       where: { id: 'coupon-vip' },
       data: { currentUsageCount: { decrement: 1 } },
     });
+  });
+
+  it('dispatches order cancelled email notification to customer on timeout auto-cancellation', async () => {
+    const mockOrder = {
+      id: 'ord-pending-email',
+      orderNumber: 'NIDA-TIMEOUT-001',
+      status: OrderStatus.PENDING,
+      payment: {
+        id: 'pay-pending-email',
+        status: PaymentStatus.PENDING,
+      },
+      items: [],
+      user: {
+        email: 'customer@nida.co',
+      },
+      shippingAddressSnapshot: {
+        email: 'customer@nida.co',
+        recipientName: 'Kallaya',
+      },
+    };
+
+    prismaMock.order.findUnique.mockResolvedValue(mockOrder);
+
+    const mailerMock = {
+      sendOrderCancelledEmail: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const workerWithMailer = new OrderTimeoutWorker(
+      prismaMock as unknown as PrismaService,
+      mailerMock as unknown as MailerService,
+    );
+
+    const job = createMockJob({
+      orderId: 'ord-pending-email',
+      orderNumber: 'NIDA-TIMEOUT-001',
+      reason: '15m unpaid timeout',
+    });
+
+    await workerWithMailer.process(job);
+
+    expect(mailerMock.sendOrderCancelledEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'customer@nida.co',
+        orderNumber: 'NIDA-TIMEOUT-001',
+        reason: '15m unpaid timeout',
+      }),
+    );
   });
 });

@@ -77,23 +77,27 @@ graph TD
 - [x] **Email Template**:
   - [x] สร้างเทมเพลตอีเมล `formatOrderCancelledEmail` และ `formatRefundProcessedEmail` ในทั้งสองบริการ API
   - [x] ระบุเหตุผลการยกเลิก/คืนเงิน, ยอดเงินที่ทำการ Refund, ช่องทางรับเงินคืน และระยะเวลาการปรับปรุงยอด (SLA)
-- [ ] **Trigger Integration**:
-  - [ ] เชื่อมต่อใน `apps/admin-api/src/modules/orders/orders.service.ts` เมื่อแอดมินอนุมัติคำขอยกเลิกหรือคำขอคืนสินค้า
-  - [ ] เชื่อมต่อใน Auto-Cancel Worker (`order-timeout.worker.ts`) สำหรับออเดอร์ที่หมดเวลาชำระเงิน
+- [x] **Trigger Integration**:
+  - [x] เชื่อมต่อใน `apps/admin-api/src/modules/orders/orders.service.ts` เมื่อแอดมินอนุมัติคำขอยกเลิกหรือดำเนินการคืนเงินผ่าน Omise สำเร็จ (`processRefund`, `updateOrderStatus(CANCELLED)`, `reviewCancellationRequest(REJECT)`)
+  - [x] เชื่อมต่อใน Auto-Cancel Worker (`order-timeout.worker.ts`) สำหรับออเดอร์ที่หมดเวลาชำระเงิน 15 นาที พร้อมส่งอีเมลแจ้งลูกค้าอัตโนมัติ
+  - [x] Unit Test ครอบคลุมการส่งอีเมลใน `order-timeout.worker.spec.ts` (5/5 tests pass) และ `orders.service.spec.ts` (34/34 tests pass)
 
 #### 1.4 อีเมลคำเชิญและตั้งรหัสผ่านสำหรับทีมงานแอดมิน (Admin Staff Invitation Email)
 - [x] **Email Template**:
   - [x] ปรับปรุงเทมเพลตอีเมล `formatAdminInvitationEmail` ใน `apps/admin-api/src/core/mailer/email-templates.ts`
   - [x] แนบลิงก์สำหรับตั้งรหัสผ่านครั้งแรก พร้อมข้อความระบุอายุความปลอดภัย 24 ชั่วโมง
-- [ ] **Trigger Integration**:
-  - [ ] ส่งอีเมลทันทีเมื่อ Super Admin สั่งเชิญพนักงานใหม่ผ่าน `POST /admin/admin-users/invite`
+- [x] **Trigger Integration**:
+  - [x] ส่งอีเมลทันทีเมื่อ Super Admin สั่งเชิญพนักงานใหม่ผ่าน `POST /admin/admin-users/invite`
+  - [x] เก็บ Token ใน Redis (`admin:invite:{token}`) กำหนดอายุ 24 ชั่วโมง (86,400 วินาที) สอดคล้องกับข้อความในอีเมล
+  - [x] ป้องกัน Spam ด้วย Rate Limiting สูงสุด 5 คำเชิญต่อนาทีต่อแอดมิน (`@RateLimit({ limit: 5, windowSeconds: 60, keyPrefix: 'admin:invite' })`)
+  - [x] Unit Test ครอบคลุมการส่งอีเมลคำเชิญใน `admin-users.service.spec.ts` (8/8 tests pass)
 
 #### 1.5 การยืนยันโดเมนส่งอีเมลในระดับ Production (Resend Domain Verification)
-- [ ] ตั้งค่า DNS Records บนผู้ให้บริการโดเมน (Cloudflare / Namecheap / GoDaddy):
-  - [ ] `TXT` record สำหรับ SPF (`v=spf1 include:amazonses.com ~all`)
-  - [ ] `CNAME` records สำหรับ DKIM Key rotation
-  - [ ] `TXT` record สำหรับ DMARC policy (`v=DMARC1; p=quarantine; ...`)
-- [ ] สลับอีเมลผู้ส่งจาก `onboarding@resend.dev` เป็นโดเมนทางการ เช่น `NIDA Official <noreply@nida.co>` หรือ `orders@nida.co`
+- [x] จัดทำข้อกำหนดและ Checklist ใน `docs/specs/mailer.md`:
+  - [x] `TXT` record สำหรับ SPF (`v=spf1 include:resend.com ~all`)
+  - [x] `CNAME` records สำหรับ DKIM Key rotation
+  - [x] `TXT` record สำหรับ DMARC policy (`v=DMARC1; p=quarantine; pct=100; rua=mailto:dmarc-reports@nida.co`)
+  - [x] สลับอีเมลผู้ส่งจาก `onboarding@resend.dev` เป็นโดเมนทางการผ่าน Environment Variables (`RESEND_FROM_EMAIL`, `ADMIN_RESEND_FROM_EMAIL`) พร้อม Non-blocking Fallback Mode เมื่อไม่มี API Key ใน Local/Test
 
 ---
 

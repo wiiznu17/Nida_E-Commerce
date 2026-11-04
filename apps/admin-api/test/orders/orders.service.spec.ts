@@ -809,6 +809,62 @@ describe('OrdersService', () => {
         data: { currentUsageCount: { decrement: 1 } },
       });
     });
+
+    it('dispatches order cancelled email notification when mailer service is configured', async () => {
+      const orderToCancel = {
+        id: 'ord-cancel-email',
+        orderNumber: 'NIDA-CANCEL-001',
+        status: OrderStatus.PROCESSING,
+        currency: 'THB',
+        placedAt: new Date(),
+        items: [],
+        shipments: [],
+        user: { email: 'customer@nida.co', firstName: 'Kallaya' },
+        shippingAddressSnapshot: {
+          recipientName: 'Kallaya',
+          email: 'customer@nida.co',
+        },
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(orderToCancel);
+      prismaMock.orderItem.findMany.mockResolvedValue([]);
+      prismaMock.order.update.mockResolvedValue({
+        ...orderToCancel,
+        status: OrderStatus.CANCELLED,
+      });
+
+      const mailerMock = {
+        sendOrderCancelledEmail: vi.fn().mockResolvedValue(undefined),
+      };
+
+      const customService = new OrdersService(
+        prismaMock,
+        couponsServiceMock,
+        carrierMockService,
+        logisticsService,
+        paymentGatewayServiceMock,
+        orderLifecycleProducerMock as unknown as OrderLifecycleProducerService,
+        undefined,
+        mailerMock as unknown as MailerService,
+      );
+
+      await customService.updateOrderStatus(
+        orderToCancel.id,
+        OrderStatus.CANCELLED,
+        undefined,
+        undefined,
+        undefined,
+        'Out of stock cancellation',
+      );
+
+      expect(mailerMock.sendOrderCancelledEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'customer@nida.co',
+          orderNumber: 'NIDA-CANCEL-001',
+          reason: 'Out of stock cancellation',
+        }),
+      );
+    });
   });
 
   describe('processRefund', () => {
@@ -987,6 +1043,57 @@ describe('OrdersService', () => {
       expect(prismaMock.payment.update).not.toHaveBeenCalled();
       expect(prismaMock.order.update).not.toHaveBeenCalled();
       expect(prismaMock.stockMovement.create).not.toHaveBeenCalled();
+    });
+
+    it('dispatches refund processed email to customer when refund is successful', async () => {
+      const orderToRefund = {
+        ...mockOrder,
+        user: { email: 'vip@nida.co', firstName: 'VIP' },
+        shippingAddressSnapshot: {
+          recipientName: 'VIP',
+          email: 'vip@nida.co',
+        },
+      };
+
+      prismaMock.order.findFirst.mockResolvedValue(orderToRefund);
+      prismaMock.order.findUnique.mockResolvedValue(orderToRefund);
+      prismaMock.refund.count.mockResolvedValue(0);
+      prismaMock.refund.create.mockResolvedValue({ id: 'rf-email-1' });
+      prismaMock.inventoryItem.update.mockResolvedValue({
+        id: 'inv-1',
+        quantityAvailable: 11,
+      });
+
+      const mailerMock = {
+        sendRefundProcessedEmail: vi.fn().mockResolvedValue(undefined),
+      };
+
+      const customService = new OrdersService(
+        prismaMock,
+        couponsServiceMock,
+        carrierMockService,
+        logisticsService,
+        paymentGatewayServiceMock,
+        orderLifecycleProducerMock as unknown as OrderLifecycleProducerService,
+        undefined,
+        mailerMock as unknown as MailerService,
+      );
+
+      await customService.processRefund(
+        orderToRefund.id,
+        { reason: 'Customer returned item', restockInventory: true },
+        'admin-001',
+      );
+
+      expect(mailerMock.sendRefundProcessedEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'vip@nida.co',
+          orderNumber: 'NIDA-20261017-001',
+          refundNumber: expect.stringMatching(/^REF-/),
+          amount: 1050,
+          reason: 'Customer returned item',
+        }),
+      );
     });
   });
 
