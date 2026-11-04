@@ -88,7 +88,7 @@ export function WriteReviewModal({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-[#FAF7F2]">
           <div>
-            <h3 className="text-sm font-serif font-black uppercase tracking-wider text-[#2B1810]">
+            <h3 className="text-sm font-black uppercase tracking-wider text-brand-brown">
               {t('product.reviews.modalTitle') ?? 'Write a Review'}
             </h3>
             <p className="text-[11px] text-stone-500 mt-0.5 truncate max-w-xs sm:max-w-md">

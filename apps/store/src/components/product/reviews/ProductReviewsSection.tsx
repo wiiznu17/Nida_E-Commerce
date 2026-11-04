@@ -177,7 +177,7 @@ export function ProductReviewsSection({
               <MessageSquareQuote size={15} />
               <span>{t('product.customerReviews') ?? 'Customer Reviews'}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-serif text-[#2B1810] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black uppercase text-brand-brown tracking-tight">
               {t('product.reviews.title') ?? 'Verified Reviews & Ratings'}
             </h2>
           </div>

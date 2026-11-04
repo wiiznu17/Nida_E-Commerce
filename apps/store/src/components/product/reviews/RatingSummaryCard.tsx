@@ -60,7 +60,7 @@ export function RatingSummaryCard({
             {t('product.reviews.subtitle') ?? 'Verified Customer Rating'}
           </span>
           <div className="flex items-baseline space-x-2 my-1">
-            <span className="text-5xl font-black font-serif text-[#2B1810]">
+            <span className="text-5xl font-black text-brand-brown tracking-tight">
               {averageRating}
             </span>
             <span className="text-sm font-semibold text-stone-400">/ 5.0</span>
