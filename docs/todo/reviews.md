@@ -12,7 +12,7 @@
 | **Database Schema & Migration** | ✅ เสร็จสมบูรณ์ | ปรับปรุง Model `Review` เพิ่ม `orderId`, `title`, `adminReply`, `deletedAt`, `isVerifiedPurchase` พร้อมสร้าง Migration SQL เรียบร้อย |
 | **Shared Contracts & Validators** | ✅ เสร็จสมบูรณ์ | ประกาศ DTO ใน `@repo/types` และ Zod Schema ใน `@repo/validators` ทั้งฝั่งลูกค้าและแอดมิน เรียบร้อย |
 | **Storefront Backend Engine** | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/api`: คำนวณ Average Rating, สัดส่วนดาว, Guard `Verified Buyer`, ลบรีวิว, และ Unit Tests ผ่าน 100% |
-| **Admin Back-Office Backend** | ⏳ รอดำเนินการ | โมดูล `reviews` ใน `apps/admin-api`: ค้นหา, สลับสถานะ Approved/Hidden, ตอบกลับรีวิว, และ Audit Logging |
+| **Admin Back-Office Backend** | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/admin-api`: ค้นหา, สลับสถานะ Approved/Hidden, ตอบกลับรีวิว, ลบรีวิว, และ Audit Logging ผ่าน 100% |
 | **Storefront UI & Modal** | ⏳ รอดำเนินการ | ส่วนแสดงรีวิวในหน้าสินค้า (`apps/store`), แถบสัดส่วนดาว, และ Modal เขียนรีวิว (`WriteReviewModal`) |
 | **Admin Back-Office UI** | ⏳ รอดำเนินการ | เมนูและหน้าจัดการรีวิว (`apps/admin/src/pages/AdminReviews.tsx`) และ Modal ตอบกลับลูกค้า |
 | **Unit Tests & Integrity Verification** | ⏳ รอดำเนินการ | ทดสอบการคำนวณคะแนนเฉลี่ย, ป้องกันการรีวิวซ้ำ, Verified Buyer Guard, และ Admin Moderation 100% |
@@ -108,18 +108,18 @@ graph TD
 ### เฟส 4: ระบบจัดการและตรวจสอบรีวิวฝั่งหลังบ้าน (`apps/admin-api`)
 > **เป้าหมาย**: API สำหรับแอดมินในการค้นหา อนุมัติ ซ่อน ตอบกลับ และลบรีวิวลูกค้า พร้อมเก็บบันทึก Audit Trail
 
-- [ ] **โมดูล `apps/admin-api/src/modules/reviews/`**:
-  - [ ] สร้าง `admin-reviews.service.ts`:
+- [x] **โมดูล `apps/admin-api/src/modules/reviews/`**:
+  - [x] สร้าง `admin-reviews.service.ts`:
     - `getReviews(query)`: Pagination, Search (ชื่อลูกค้า, สินค้า, ข้อความ), Filter ตามดาว และสถานะ
     - `toggleReviewStatus(id, isApproved, adminId)`: สลับสถานะเปิด/ปิดการแสดงผลรีวิว พร้อมบันทึก `admin_audit_logs`
     - `replyToReview(id, replyText, adminId)`: บันทึกคำตอบกลับในนามแบรนด์ NIDA พร้อมบันทึก `admin_audit_logs`
     - `deleteReview(id, adminId)`: ลบรีวิวที่เป็นสแปม/ผิดกฎ พร้อมบันทึก `admin_audit_logs` และคำนวณคะแนนสินค้าใหม่
-  - [ ] สร้าง `admin-reviews.controller.ts`:
+  - [x] สร้าง `admin-reviews.controller.ts`:
     - `GET /api/v1/admin/reviews` (สิทธิ์ `CATALOG_READ`)
     - `PATCH /api/v1/admin/reviews/:id/status` (สิทธิ์ `CATALOG_WRITE`)
     - `POST /api/v1/admin/reviews/:id/reply` (สิทธิ์ `CATALOG_WRITE`)
     - `DELETE /api/v1/admin/reviews/:id` (สิทธิ์ `CATALOG_WRITE`)
-  - [ ] ลงทะเบียนโมดูลใน `apps/admin-api/src/app.module.ts`
+  - [x] ลงทะเบียนโมดูลใน `apps/admin-api/src/app.module.ts`
 
 ---
 
