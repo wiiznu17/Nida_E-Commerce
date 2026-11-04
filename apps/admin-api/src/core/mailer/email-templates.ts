@@ -4,18 +4,80 @@ export interface FormattedEmail {
   html: string;
 }
 
+export interface OrderItemEmailSnippet {
+  title: string;
+  variantSummary?: string;
+  quantity: number;
+  price: number;
+  imageUrl?: string | null;
+}
+
+export interface OrderShippedEmailData {
+  orderNumber: string;
+  recipientName: string;
+  courierName: string;
+  trackingNumber: string;
+  trackingUrl: string;
+  items?: OrderItemEmailSnippet[];
+  shippingAddressSummary?: string;
+}
+
+export interface OrderCancelledEmailData {
+  orderNumber: string;
+  reason?: string;
+  cancelledAt?: string;
+  storefrontUrl?: string;
+}
+
+export interface RefundProcessedEmailData {
+  orderNumber: string;
+  refundNumber: string;
+  amount: number;
+  reason?: string;
+  paymentMethod?: string;
+  estimatedTimeline?: string;
+  storefrontUrl?: string;
+}
+
 function wrapAdminEmailLayout(contentHtml: string): string {
   return `
-    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #FAF7F2; padding: 40px 20px; border: 1px solid #EAE3D9;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #FAF7F2; padding: 40px 20px; border: 1px solid #EAE3D9; color: #2B1810;">
       <div style="text-align: center; margin-bottom: 30px;">
         <h1 style="font-size: 24px; font-weight: 900; letter-spacing: 4px; color: #2B1810; margin: 0; text-transform: uppercase;">N I D A</h1>
-        <p style="font-size: 11px; letter-spacing: 2px; color: #8C7A6B; margin-top: 5px; text-transform: uppercase;">Back-Office Portal</p>
+        <p style="font-size: 11px; letter-spacing: 2px; color: #8C7A6B; margin-top: 6px; text-transform: uppercase;">Back-Office Portal</p>
       </div>
-      <div style="background-color: #FFFFFF; padding: 30px; border: 1px solid #EAE3D9;">
+      <div style="background-color: #FFFFFF; padding: 32px 28px; border: 1px solid #EAE3D9;">
         ${contentHtml}
       </div>
       <div style="text-align: center; margin-top: 25px;">
-        <p style="font-size: 10px; color: #A89F91; letter-spacing: 1px;">&copy; 2026 NIDA APPAREL & LIFESTYLE. ALL RIGHTS RESERVED.</p>
+        <p style="font-size: 10px; color: #A89F91; letter-spacing: 1px; margin: 0; text-transform: uppercase;">
+          &copy; 2026 NIDA APPAREL & LIFESTYLE. ALL RIGHTS RESERVED.
+        </p>
+        <p style="font-size: 10px; color: #A89F91; margin-top: 4px;">
+          CONFIDENTIAL &middot; INTERNAL ADMINISTRATIVE USE ONLY
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function wrapCustomerEmailLayout(contentHtml: string): string {
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #FAF7F2; padding: 40px 20px; border: 1px solid #EAE3D9; color: #2B1810;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="font-size: 24px; font-weight: 900; letter-spacing: 4px; color: #2B1810; margin: 0; text-transform: uppercase;">N I D A</h1>
+        <p style="font-size: 11px; letter-spacing: 2px; color: #8C7A6B; margin-top: 6px; text-transform: uppercase;">Modern Heritage Apparel</p>
+      </div>
+      <div style="background-color: #FFFFFF; padding: 32px 28px; border: 1px solid #EAE3D9;">
+        ${contentHtml}
+      </div>
+      <div style="text-align: center; margin-top: 25px;">
+        <p style="font-size: 10px; color: #A89F91; letter-spacing: 1px; margin: 0; text-transform: uppercase;">
+          &copy; 2026 NIDA APPAREL & LIFESTYLE. ALL RIGHTS RESERVED.
+        </p>
+        <p style="font-size: 10px; color: #A89F91; margin-top: 4px;">
+          BANGKOK &middot; THAILAND
+        </p>
       </div>
     </div>
   `;
@@ -26,21 +88,33 @@ export function formatAdminInvitationEmail(
   setupUrl: string,
 ): FormattedEmail {
   const subject = 'ยินดีต้อนรับสู่ Nida Admin Portal — ตั้งค่ารหัสผ่านของคุณ';
-  const text = `เรียนคุณ ${fullName}\n\nกรุณาคลิกลิงก์ด้านล่างเพื่อตั้งรหัสผ่านและเปิดใช้งานบัญชีของคุณ:\n${setupUrl}`;
+  const text = `เรียนคุณ ${fullName}\n\nกรุณาคลิกลิงก์ด้านล่างเพื่อตั้งรหัสผ่านและเปิดใช้งานบัญชีผู้ดูแลระบบของคุณ (ลิงก์มีอายุ 24 ชั่วโมง):\n${setupUrl}`;
   const contentHtml = `
-    <h2 style="font-size: 16px; font-weight: 700; color: #2B1810; margin-bottom: 15px;">คำเชิญเข้าสู่ระบบแอดมิน</h2>
-    <p style="font-size: 13px; color: #666666; line-height: 1.6; margin-bottom: 25px;">
-      เรียนคุณ <strong>${fullName}</strong>,<br>
-      บัญชีผู้ดูแลระบบของคุณได้รับการสร้างเรียบร้อยแล้ว กรุณากดปุ่มด้านล่างเพื่อตั้งรหัสผ่านและเริ่มใช้งานระบบ
-    </p>
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="${setupUrl}" style="background-color: #2B1810; color: #FFFFFF; text-decoration: none; padding: 12px 30px; font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; display: inline-block;">
-        ตั้งรหัสผ่านบัญชี
-      </a>
+    <div>
+      <span style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #8C7A6B; text-transform: uppercase;">STAFF ONBOARDING</span>
+      <h2 style="font-size: 18px; font-weight: 800; color: #2B1810; margin: 8px 0 16px;">คำเชิญเข้าสู่ระบบจัดการ NIDA Back-Office</h2>
+      <p style="font-size: 13px; color: #666666; line-height: 1.6; margin: 0 0 20px;">
+        เรียนคุณ <strong>${fullName}</strong>,<br>
+        บัญชีผู้ดูแลระบบของคุณได้รับการอนุมัติและสร้างเรียบร้อยแล้ว กรุณากดปุ่มด้านล่างเพื่อตั้งรหัสผ่านสำหรับการเข้าใช้งานระบบ
+      </p>
+
+      <div style="text-align: center; margin: 28px 0;">
+        <a href="${setupUrl}" style="background-color: #2B1810; color: #FFFFFF; text-decoration: none; padding: 14px 28px; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; display: inline-block;">
+          ตั้งรหัสผ่านบัญชี (SET PASSWORD)
+        </a>
+      </div>
+
+      <div style="padding: 14px 18px; background-color: #FAF7F2; border-left: 2px solid #D4C5B9; margin-bottom: 20px;">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #8C7A6B; text-transform: uppercase;">SECURITY NOTICE</div>
+        <p style="font-size: 11px; color: #666666; line-height: 1.5; margin: 4px 0 0;">
+          ลิงก์นี้มีอายุความปลอดภัย 24 ชั่วโมง หากหมดอายุ โปรดติดต่อ Super Administrator เพื่อขอรับคำเชิญใหม่
+        </p>
+      </div>
+
+      <p style="font-size: 11px; color: #999999; word-break: break-all; margin: 0; line-height: 1.5;">
+        หรือคัดลอกลิงก์นี้เปิดบนเว็บเบราว์เซอร์: ${setupUrl}
+      </p>
     </div>
-    <p style="font-size: 11px; color: #999999; word-break: break-all; margin-top: 25px;">
-      หรือคัดลอกลิงก์นี้เปิดบนเบราว์เซอร์: ${setupUrl}
-    </p>
   `;
 
   return {
@@ -54,23 +128,232 @@ export function formatPasswordResetEmail(resetUrl: string): FormattedEmail {
   const subject = 'รีเซ็ตรหัสผ่านบัญชี — Nida Back-Office';
   const text = `คุณได้ทำการร้องขอรีเซ็ตรหัสผ่าน กรุณาคลิกลิงก์ด้านล่างเพื่อตั้งรหัสผ่านใหม่ (ลิงก์มีอายุ 15 นาที):\n${resetUrl}`;
   const contentHtml = `
-    <h2 style="font-size: 16px; font-weight: 700; color: #2B1810; margin-bottom: 15px;">คำขอรีเซ็ตรหัสผ่าน</h2>
-    <p style="font-size: 13px; color: #666666; line-height: 1.6; margin-bottom: 25px;">
-      คุณได้ส่งคำขอรีเซ็ตรหัสผ่านสำหรับเข้าใช้งานระบบ Nida Back-Office กรุณากดปุ่มด้านล่างเพื่อตั้งรหัสผ่านใหม่ ลิงก์นี้มีอายุ 15 นาที
-    </p>
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="${resetUrl}" style="background-color: #2B1810; color: #FFFFFF; text-decoration: none; padding: 12px 30px; font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; display: inline-block;">
-        รีเซ็ตรหัสผ่าน
-      </a>
+    <div>
+      <span style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #8C7A6B; text-transform: uppercase;">ACCOUNT SECURITY</span>
+      <h2 style="font-size: 18px; font-weight: 800; color: #2B1810; margin: 8px 0 16px;">คำขอรีเซ็ตรหัสผ่าน</h2>
+      <p style="font-size: 13px; color: #666666; line-height: 1.6; margin: 0 0 24px;">
+        คุณได้ส่งคำขอรีเซ็ตรหัสผ่านสำหรับเข้าใช้งานระบบ Nida Back-Office กรุณากดปุ่มด้านล่างเพื่อตั้งรหัสผ่านใหม่ ลิงก์นี้มีอายุความปลอดภัย 15 นาที
+      </p>
+
+      <div style="text-align: center; margin: 28px 0;">
+        <a href="${resetUrl}" style="background-color: #2B1810; color: #FFFFFF; text-decoration: none; padding: 14px 28px; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; display: inline-block;">
+          รีเซ็ตรหัสผ่าน (RESET PASSWORD)
+        </a>
+      </div>
+
+      <p style="font-size: 11px; color: #999999; word-break: break-all; margin: 0;">
+        หากคุณไม่ได้ส่งคำขอนี้ โปรดติดต่อผู้ดูแลระบบสูงสุดทันที
+      </p>
     </div>
-    <p style="font-size: 11px; color: #999999; word-break: break-all;">
-      หากคุณไม่ได้ส่งคำขอนี้ โปรดติดต่อผู้ดูแลระบบสูงสุดทันที
-    </p>
   `;
 
   return {
     subject,
     text,
     html: wrapAdminEmailLayout(contentHtml),
+  };
+}
+
+export function formatOrderShippedEmail(
+  data: OrderShippedEmailData,
+): FormattedEmail {
+  const subject = `คำสั่งซื้อ #${data.orderNumber} ของคุณถูกจัดส่งแล้ว — NIDA Official`;
+  const text = `คำสั่งซื้อ #${data.orderNumber} ได้รับการจัดส่งเรียบร้อยแล้ว โดย ${data.courierName} หมายเลขพัสดุ: ${data.trackingNumber} ตรวจสอบสถานะ: ${data.trackingUrl}`;
+
+  const itemsHtml =
+    data.items && data.items.length > 0
+      ? `
+      <div style="margin-top: 24px; border-top: 1px solid #EAE3D9; padding-top: 20px;">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #8C7A6B; text-transform: uppercase; margin-bottom: 12px;">ITEMS IN SHIPMENT</div>
+        <table style="width: 100%; border-collapse: collapse;">
+          ${data.items
+            .map(
+              (item) => `
+            <tr>
+              <td style="padding: 10px 0; border-bottom: 1px solid #F5F1EB; vertical-align: top;">
+                <div style="font-size: 13px; font-weight: 700; color: #2B1810;">${item.title}</div>
+                ${item.variantSummary ? `<div style="font-size: 11px; color: #8C7A6B; margin-top: 2px;">${item.variantSummary}</div>` : ''}
+              </td>
+              <td style="padding: 10px 0; border-bottom: 1px solid #F5F1EB; text-align: right; vertical-align: top; white-space: nowrap;">
+                <div style="font-size: 12px; color: #666666;">x${item.quantity}</div>
+                <div style="font-size: 12px; font-weight: 700; color: #2B1810; margin-top: 2px;">฿${(item.price * item.quantity).toLocaleString()}</div>
+              </td>
+            </tr>
+          `,
+            )
+            .join('')}
+        </table>
+      </div>
+    `
+      : '';
+
+  const addressHtml = data.shippingAddressSummary
+    ? `
+      <div style="margin-top: 20px; padding: 14px 18px; background-color: #FAF7F2; border-left: 2px solid #D4C5B9;">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #8C7A6B; text-transform: uppercase;">DESTINATION</div>
+        <div style="font-size: 12px; color: #2B1810; line-height: 1.5; margin-top: 4px;">
+          <strong>${data.recipientName}</strong> &middot; ${data.shippingAddressSummary}
+        </div>
+      </div>
+    `
+    : '';
+
+  const contentHtml = `
+    <div>
+      <span style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #8C7A6B; text-transform: uppercase;">SHIPMENT DISPATCHED</span>
+      <h2 style="font-size: 18px; font-weight: 800; color: #2B1810; margin: 8px 0 16px;">พัสดุของคุณอยู่ระหว่างการจัดส่ง</h2>
+      <p style="font-size: 13px; color: #666666; line-height: 1.6; margin: 0 0 24px;">
+        เรียนคุณ <strong>${data.recipientName}</strong>, สินค้าในคำสั่งซื้อหมายเลข <strong>#${data.orderNumber}</strong> ได้รับการบรรจุและส่งมอบให้แก่ผู้ให้บริการขนส่งเรียบร้อยแล้ว
+      </p>
+
+      <div style="background-color: #FAF7F2; border: 1px solid #EAE3D9; padding: 20px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding-bottom: 12px;">
+              <span style="font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #8C7A6B; text-transform: uppercase;">COURIER</span>
+              <div style="font-size: 14px; font-weight: 700; color: #2B1810; margin-top: 2px;">${data.courierName}</div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span style="font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #8C7A6B; text-transform: uppercase;">TRACKING NUMBER</span>
+              <div style="font-size: 18px; font-family: 'Courier New', Courier, monospace; font-weight: 900; color: #2B1810; letter-spacing: 2px; margin-top: 2px;">${data.trackingNumber}</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin: 28px 0;">
+        <a href="${data.trackingUrl}" style="background-color: #2B1810; color: #FFFFFF; text-decoration: none; padding: 14px 28px; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; display: inline-block;">
+          ติดตามพัสดุของคุณ (TRACK SHIPMENT)
+        </a>
+      </div>
+
+      ${addressHtml}
+      ${itemsHtml}
+
+      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #EAE3D9;">
+        <p style="font-size: 11px; color: #8C7A6B; line-height: 1.5; margin: 0;">
+          หมายเหตุ: ข้อมูลสถานะการจัดส่งอาจใช้เวลา 2–6 ชั่วโมงในการปรับปรุงบนระบบของผู้ให้บริการขนส่ง
+        </p>
+      </div>
+    </div>
+  `;
+
+  return {
+    subject,
+    text,
+    html: wrapCustomerEmailLayout(contentHtml),
+  };
+}
+
+export function formatOrderCancelledEmail(
+  data: OrderCancelledEmailData,
+): FormattedEmail {
+  const subject = `แจ้งยกเลิกคำสั่งซื้อ #${data.orderNumber} — NIDA Official`;
+  const text = `คำสั่งซื้อ #${data.orderNumber} ได้รับการยกเลิกเรียบร้อยแล้ว${data.reason ? ` เนื่องจาก: ${data.reason}` : ''} หากท่านต้องการสั่งซื้อสินค้า สามารถเข้าชมสินค้าได้ที่ร้านค้าออนไลน์ NIDA`;
+
+  const contentHtml = `
+    <div>
+      <span style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #8C7A6B; text-transform: uppercase;">ORDER CANCELLATION</span>
+      <h2 style="font-size: 18px; font-weight: 800; color: #2B1810; margin: 8px 0 16px;">แจ้งยกเลิกคำสั่งซื้อ</h2>
+      <p style="font-size: 13px; color: #666666; line-height: 1.6; margin: 0 0 20px;">
+        คำสั่งซื้อหมายเลข <strong>#${data.orderNumber}</strong> ได้รับการยกเลิกในระบบเรียบร้อยแล้ว
+      </p>
+
+      <div style="background-color: #FAF7F2; border-left: 3px solid #8C7A6B; padding: 16px; margin-bottom: 24px;">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #8C7A6B; text-transform: uppercase;">REASON / รายละเอียด</div>
+        <div style="font-size: 13px; color: #2B1810; margin-top: 6px; line-height: 1.5;">
+          ${data.reason ?? 'คำสั่งซื้อได้รับการยกเลิกโดยผู้ดูแลระบบ'}
+        </div>
+      </div>
+
+      <p style="font-size: 12px; color: #666666; line-height: 1.6; margin: 0 0 24px;">
+        หากรายการดังกล่าวถูกหักชำระเงินไปแล้ว หรือท่านมีข้อสงสัยเกี่ยวกับคำสั่งซื้อ สามารถติดต่อฝ่ายบริการลูกค้าของ NIDA เพื่อตรวจสอบข้อมูลเพิ่มเติมได้ทันที
+      </p>
+
+      ${
+        data.storefrontUrl
+          ? `
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${data.storefrontUrl}" style="background-color: #2B1810; color: #FFFFFF; text-decoration: none; padding: 12px 24px; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; display: inline-block;">
+            กลับสู่หน้าหลักร้านค้า (VISIT STORE)
+          </a>
+        </div>
+      `
+          : ''
+      }
+    </div>
+  `;
+
+  return {
+    subject,
+    text,
+    html: wrapCustomerEmailLayout(contentHtml),
+  };
+}
+
+export function formatRefundProcessedEmail(
+  data: RefundProcessedEmailData,
+): FormattedEmail {
+  const subject = `ยืนยันการคืนเงินสำหรับคำสั่งซื้อ #${data.orderNumber} — NIDA Official`;
+  const text = `การคืนเงินสำหรับคำสั่งซื้อ #${data.orderNumber} (เลขที่คืนเงิน: ${data.refundNumber}) จำนวน ฿${data.amount.toLocaleString()} ได้รับการดำเนินการเรียบร้อยแล้ว${data.reason ? ` เหตุผล: ${data.reason}` : ''}`;
+
+  const timelineNote =
+    data.estimatedTimeline ??
+    'สำหรับบัตรเครดิตยอดเงินจะปรับปรุงเข้าบัญชีภายใน 7–14 วันทำการขึ้นอยู่กับรอบบิลธนาคารผู้ถือบัตร';
+
+  const contentHtml = `
+    <div>
+      <span style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #8C7A6B; text-transform: uppercase;">REFUND NOTIFICATION</span>
+      <h2 style="font-size: 18px; font-weight: 800; color: #2B1810; margin: 8px 0 16px;">ยืนยันการคืนเงินเรียบร้อยแล้ว</h2>
+      <p style="font-size: 13px; color: #666666; line-height: 1.6; margin: 0 0 20px;">
+        คำร้องขอคืนเงินสำหรับคำสั่งซื้อหมายเลข <strong>#${data.orderNumber}</strong> ได้รับการดำเนินการผ่านระบบรับชำระเงินเรียบร้อยแล้ว
+      </p>
+
+      <div style="background-color: #FAF7F2; border: 1px solid #EAE3D9; padding: 20px; margin-bottom: 24px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+          <tr>
+            <td style="padding-bottom: 8px; color: #8C7A6B; text-transform: uppercase; font-size: 10px; font-weight: 700; letter-spacing: 1px;">REFUND NUMBER</td>
+            <td style="padding-bottom: 8px; text-align: right; font-weight: 700; color: #2B1810; font-family: monospace;">${data.refundNumber}</td>
+          </tr>
+          <tr>
+            <td style="padding-bottom: 8px; color: #8C7A6B; text-transform: uppercase; font-size: 10px; font-weight: 700; letter-spacing: 1px;">ORDER NUMBER</td>
+            <td style="padding-bottom: 8px; text-align: right; font-weight: 600; color: #2B1810;">#${data.orderNumber}</td>
+          </tr>
+          ${
+            data.paymentMethod
+              ? `
+            <tr>
+              <td style="padding-bottom: 8px; color: #8C7A6B; text-transform: uppercase; font-size: 10px; font-weight: 700; letter-spacing: 1px;">CHANNEL</td>
+              <td style="padding-bottom: 8px; text-align: right; font-weight: 600; color: #2B1810;">${data.paymentMethod}</td>
+            </tr>
+          `
+              : ''
+          }
+          <tr style="border-top: 2px solid #2B1810;">
+            <td style="padding-top: 10px; font-weight: 800; font-size: 13px; color: #2B1810; text-transform: uppercase;">REFUND AMOUNT</td>
+            <td style="padding-top: 10px; text-align: right; font-weight: 900; font-size: 18px; color: #2B1810;">฿${data.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="padding: 14px 18px; background-color: #FAF7F2; border-left: 2px solid #8C7A6B; margin-bottom: 24px;">
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #8C7A6B; text-transform: uppercase;">PROCESSING TIMELINE</div>
+        <div style="font-size: 12px; color: #2B1810; line-height: 1.5; margin-top: 4px;">
+          ${timelineNote}
+        </div>
+      </div>
+
+      <p style="font-size: 11px; color: #8C7A6B; line-height: 1.5; margin: 0; text-align: center;">
+        หากมีข้อสงสัยเกี่ยวกับยอดเงินคืน สามารถติดต่อ NIDA Concierge ได้ทาง support@nida.co
+      </p>
+    </div>
+  `;
+
+  return {
+    subject,
+    text,
+    html: wrapCustomerEmailLayout(contentHtml),
   };
 }

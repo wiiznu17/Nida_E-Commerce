@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MailerService } from '../../src/core/mailer/mailer.service.js';
-import { Resend } from 'resend';
 import { InternalServerErrorException } from '@nestjs/common';
 
 vi.mock('resend', () => {
@@ -157,5 +156,65 @@ describe('Admin MailerService (Resend Direct API)', () => {
         resetUrl: 'https://admin.nida.co/reset-password?token=abc',
       }),
     ).rejects.toThrow(InternalServerErrorException);
+  });
+
+  it('sends order shipped, cancelled, and refund emails via admin mailer', async () => {
+    process.env.RESEND_API_KEY = 're_admin_test_123';
+    service.onModuleInit();
+
+    const resendInstance = (
+      service as unknown as {
+        resend: { emails: { send: ReturnType<typeof vi.fn> } };
+      }
+    ).resend;
+    const sendMock = vi.fn().mockResolvedValue({
+      data: { id: 'email_shipped_admin' },
+      error: null,
+    });
+    resendInstance.emails.send = sendMock;
+
+    await service.sendOrderShippedEmail({
+      to: 'customer@nida.co',
+      orderNumber: 'ORD-999',
+      recipientName: 'Kittisak',
+      courierName: 'Kerry Express',
+      trackingNumber: 'KEX12345678',
+      trackingUrl: 'https://kerryexpress.com/track/KEX12345678',
+    });
+
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'customer@nida.co',
+        subject: expect.stringContaining('ORD-999'),
+      }),
+    );
+
+    await service.sendRefundProcessedEmail({
+      to: 'customer@nida.co',
+      orderNumber: 'ORD-999',
+      refundNumber: 'REF-ORD-999-1',
+      amount: 3200,
+      reason: 'Damaged item return',
+    });
+
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'customer@nida.co',
+        subject: expect.stringContaining('ORD-999'),
+      }),
+    );
+
+    await service.sendOrderCancelledEmail({
+      to: 'customer@nida.co',
+      orderNumber: 'ORD-999',
+      reason: 'Cancelled by admin request',
+    });
+
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'customer@nida.co',
+        subject: expect.stringContaining('ORD-999'),
+      }),
+    );
   });
 });

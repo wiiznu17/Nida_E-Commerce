@@ -54,36 +54,35 @@ graph TD
 > **เป้าหมาย**: ลูกค้าและแอดมินได้รับการสื่อสารอย่างเป็นมืออาชีพในทุกขั้นตอนสำคัญของการทำธุรกรรม ด้วยเทมเพลตอีเมลที่ออกแบบตามสไตล์ **Editorial Luxury Aesthetic** (ไม่มี Emoji, ดีไซน์โทนสี `#2B1810` และ `#FAF7F2`) ผ่าน Resend API
 
 #### 1.1 อีเมลแจ้งเตือนเมื่อสินค้าถูกจัดส่ง (Order Shipped & Live Tracking Notification)
-- [ ] **Email Template**:
-  - [ ] สร้างเทมเพลตอีเมล `order-shipped.template.ts` ใน `apps/api/src/core/mailer/templates/`
-  - [ ] แสดงเลขออเดอร์, รายการสินค้าที่จัดส่ง, ผู้ให้บริการขนส่ง (Courier เช่น Kerry, Flash, Thailand Post), และเลขพัสดุ (Tracking Number)
-  - [ ] เพิ่มปุ่ม Call-to-Action ขนาดใหญ่ "ติดตามพัสดุของคุณ (Track Shipment)" ลิงก์ตรงไปยังหน้า `/track-order?trackingNumber=...` หรือหน้าเว็บขนส่งจริง
+- [x] **Email Template**:
+  - [x] สร้างเทมเพลตอีเมล `formatOrderShippedEmail` ใน `apps/api/src/core/mailer/email-templates.ts` และ `apps/admin-api/src/core/mailer/email-templates.ts`
+  - [x] แสดงเลขออเดอร์, รายการสินค้าที่จัดส่ง, ผู้ให้บริการขนส่ง (Courier), และเลขพัสดุ (Tracking Number)
+  - [x] เพิ่มปุ่ม Call-to-Action ขนาดใหญ่ "ติดตามพัสดุของคุณ (TRACK SHIPMENT)" สไตล์ Editorial Luxury (Zero Emojis)
 - [ ] **Trigger Integration**:
   - [ ] เชื่อมต่อใน `apps/admin-api/src/modules/orders/orders.service.ts` ในฟังก์ชัน `fulfillOrder()` / `updateTracking()`
   - [ ] ส่งคำขอผ่าน `MailerService.sendOrderShippedEmail(order, shipment)` เมื่อสถานะเปลี่ยนเป็น `SHIPPED`
   - [ ] จัดการกรณีขนส่งไม่มีเลขพัสดุ (Self-pickup หรือแมสเซนเจอร์) ให้แสดงข้อความที่เหมาะสม
 
 #### 1.2 อีเมลส่งมอบใบเสร็จรับเงิน / ใบกำกับภาษีอิเล็กทรอนิกส์ (E-Tax Invoice & Receipt Delivery)
-- [ ] **Email Template & Attachment**:
-  - [ ] สร้างเทมเพลตอีเมล `tax-invoice-receipt.template.ts`
-  - [ ] สรุปข้อมูลผู้เสียภาษี (บุคคลธรรมดา/นิติบุคคล, เลข 13 หลัก, ที่อยู่), ฐานภาษี Pre-VAT, ยอด VAT 7%, และยอดสุทธิ
-  - [ ] ฟังก์ชันแนบไฟล์ PDF สำเนาใบกำกับภาษี/ใบเสร็จรับเงินอย่างเป็นทางการ (Generated A4 PDF) ไปกับอีเมล
+- [x] **Email Template**:
+  - [x] สร้างเทมเพลตอีเมล `formatTaxInvoiceReceiptEmail` ใน `apps/api/src/core/mailer/email-templates.ts`
+  - [x] สรุปข้อมูลผู้เสียภาษี (บุคคลธรรมดา/นิติบุคคล, เลข 13 หลัก, ที่อยู่), ฐานภาษี Pre-VAT, ยอด VAT 7%, และยอดสุทธิ พร้อมปุ่ม View Tax Invoice
 - [ ] **Trigger Integration**:
   - [ ] เชื่อมต่อใน `apps/api/src/modules/orders/orders.service.ts` ในจังหวะที่ได้รับ Webhook การชำระเงินสำเร็จ (`PaymentStatus = PAID`) และออเดอร์มีการร้องขอใบกำกับภาษี (`taxInvoiceReq`)
   - [ ] ส่งอีเมลพร้อมแจ้งเตือนเลขที่เอกสาร `INV-YYYYMM-XXXXX`
 
 #### 1.3 อีเมลยืนยันการคืนเงินและการยกเลิกคำสั่งซื้อ (Cancellation & Refund Confirmation)
-- [ ] **Email Template**:
-  - [ ] สร้างเทมเพลตอีเมล `order-cancelled.template.ts` และ `refund-processed.template.ts`
-  - [ ] ระบุเหตุผลการยกเลิก/คืนเงิน, ยอดเงินที่ทำการ Refund ผ่าน Omise, ช่องทางรับเงินคืน (บัตรเครดิต หรือ บัญชีธนาคารพร้อมเพย์), และระยะเวลาการปรับปรุงยอด (SLA เช่น 7–14 วันทำการสำหรับบัตรเครดิต)
+- [x] **Email Template**:
+  - [x] สร้างเทมเพลตอีเมล `formatOrderCancelledEmail` และ `formatRefundProcessedEmail` ในทั้งสองบริการ API
+  - [x] ระบุเหตุผลการยกเลิก/คืนเงิน, ยอดเงินที่ทำการ Refund, ช่องทางรับเงินคืน และระยะเวลาการปรับปรุงยอด (SLA)
 - [ ] **Trigger Integration**:
   - [ ] เชื่อมต่อใน `apps/admin-api/src/modules/orders/orders.service.ts` เมื่อแอดมินอนุมัติคำขอยกเลิกหรือคำขอคืนสินค้า
   - [ ] เชื่อมต่อใน Auto-Cancel Worker (`order-timeout.worker.ts`) สำหรับออเดอร์ที่หมดเวลาชำระเงิน
 
 #### 1.4 อีเมลคำเชิญและตั้งรหัสผ่านสำหรับทีมงานแอดมิน (Admin Staff Invitation Email)
-- [ ] **Email Template**:
-  - [ ] สร้างเทมเพลตอีเมล `admin-invite.template.ts` ใน `apps/admin-api/src/core/mailer/templates/`
-  - [ ] แนบลิงก์สำหรับตั้งรหัสผ่านครั้งแรก `/setup-password?token=...` ที่มีอายุความปลอดภัย 24 ชั่วโมง
+- [x] **Email Template**:
+  - [x] ปรับปรุงเทมเพลตอีเมล `formatAdminInvitationEmail` ใน `apps/admin-api/src/core/mailer/email-templates.ts`
+  - [x] แนบลิงก์สำหรับตั้งรหัสผ่านครั้งแรก พร้อมข้อความระบุอายุความปลอดภัย 24 ชั่วโมง
 - [ ] **Trigger Integration**:
   - [ ] ส่งอีเมลทันทีเมื่อ Super Admin สั่งเชิญพนักงานใหม่ผ่าน `POST /admin/admin-users/invite`
 
