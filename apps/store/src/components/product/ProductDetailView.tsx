@@ -8,6 +8,7 @@ import {
   ProductActions,
   ProductAccordions,
   ProductRecommendations,
+  ProductReviewsSection,
   useProductDetail,
 } from '@/components/product';
 import type { ApiProductDetail } from '@repo/types';
@@ -131,6 +132,11 @@ export function ProductDetailView({
           />
         </div>
       </div>
+
+      <ProductReviewsSection
+        productId={product.id}
+        productName={title}
+      />
 
       <ProductRecommendations products={relatedProducts} />
     </div>

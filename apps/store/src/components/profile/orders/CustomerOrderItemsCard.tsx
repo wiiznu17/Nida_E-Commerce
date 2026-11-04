@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Package, RotateCcw, FileText } from 'lucide-react';
+import Link from 'next/link';
+import { Package, RotateCcw, FileText, Star } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { CustomerOrderItemSnapshotModal } from './CustomerOrderItemSnapshotModal';
-import type { ApiOrderItem, ApiOrder } from '@repo/types';
+import { OrderStatus, type ApiOrderItem, type ApiOrder } from '@repo/types';
 
 interface CustomerOrderItemsCardProps {
   order: ApiOrder;
@@ -15,6 +16,10 @@ export function CustomerOrderItemsCard({ order }: CustomerOrderItemsCardProps) {
   const { t } = useLanguage();
   const [selectedSnapshotItem, setSelectedSnapshotItem] =
     useState<ApiOrderItem | null>(null);
+
+  const isDelivered =
+    order.status === OrderStatus.DELIVERED ||
+    order.status === OrderStatus.COMPLETED;
 
   return (
     <div className="space-y-6 font-sans">
@@ -64,7 +69,7 @@ export function CustomerOrderItemsCard({ order }: CustomerOrderItemsCardProps) {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-3 mt-1.5">
+                    <div className="flex flex-wrap items-center gap-3 mt-1.5">
                       <p className="text-[11px] font-mono text-stone-500">
                         ฿{Number(item.unitPrice).toLocaleString()} x{' '}
                         {item.quantity}
@@ -77,6 +82,15 @@ export function CustomerOrderItemsCard({ order }: CustomerOrderItemsCardProps) {
                         <FileText size={11} className="text-brand-brown" />
                         <span>{t('orderDetail.viewSnapshotBtn')}</span>
                       </button>
+                      {isDelivered && (item.productSnapshot?.slug || item.productSnapshot?.productId) && (
+                        <Link
+                          href={`/products/${item.productSnapshot.slug ?? item.productSnapshot.productId}#product-reviews`}
+                          className="inline-flex items-center space-x-1 text-[11px] font-bold text-amber-700 hover:text-amber-800 underline underline-offset-2 transition-colors"
+                        >
+                          <Star size={11} className="fill-amber-400 text-amber-500" />
+                          <span>{t('orderDetail.writeReviewBtn') ?? 'Review Product'}</span>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>

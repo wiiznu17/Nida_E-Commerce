@@ -55,6 +55,7 @@ const AdminResetPassword = lazyWithRetry(() =>
 // Protected Admin Pages (Lazy-loaded)
 const AdminDashboard = lazyWithRetry(() => import('./pages/AdminDashboard'));
 const AdminProducts = lazyWithRetry(() => import('./pages/AdminProducts'));
+const AdminReviews = lazyWithRetry(() => import('./pages/AdminReviews'));
 const AdminCategories = lazyWithRetry(() => import('./pages/AdminCategories'));
 const AdminProductCreate = lazyWithRetry(
   () => import('./pages/AdminProductCreate'),
@@ -121,6 +122,8 @@ const router = createBrowserRouter([
         children: [
           { path: '/products', element: <AdminProducts /> },
           { path: '/admin/products', element: <AdminProducts /> },
+          { path: '/reviews', element: <AdminReviews /> },
+          { path: '/admin/reviews', element: <AdminReviews /> },
           { path: '/categories', element: <AdminCategories /> },
           { path: '/admin/categories', element: <AdminCategories /> },
         ],

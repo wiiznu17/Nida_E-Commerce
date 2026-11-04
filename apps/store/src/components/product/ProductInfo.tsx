@@ -57,18 +57,32 @@ export function ProductInfo({
 
         {/* Rating Stars */}
         <div className="flex items-center space-x-2 mt-2">
-          <div className="flex text-amber-500">
-            {[...Array(5)].map((_, i) => (
+          <div className="flex text-amber-400">
+            {[1, 2, 3, 4, 5].map((star) => (
               <Star
-                key={i}
+                key={star}
                 size={14}
-                className="fill-amber-400 text-amber-400"
+                className={
+                  product.rating && product.rating >= star
+                    ? 'fill-amber-400 text-amber-400'
+                    : product.rating && product.rating >= star - 0.5
+                      ? 'fill-amber-400/50 text-amber-400'
+                      : 'text-stone-300'
+                }
               />
             ))}
           </div>
-          <span className="text-xs font-bold text-gray-600">
-            {product.rating || 4.9} ({product.reviewsCount || 128}{' '}
-            {isTh ? 'รีวิว' : 'reviews'})
+          <span className="text-xs font-bold text-stone-600">
+            {product.reviewsCount && product.reviewsCount > 0 ? (
+              <>
+                {product.rating?.toFixed(1) ?? '0.0'} ({product.reviewsCount}{' '}
+                {isTh ? 'รีวิว' : 'reviews'})
+              </>
+            ) : (
+              <span className="text-stone-400 font-normal">
+                {isTh ? 'ยังไม่มีรีวิว' : 'No reviews yet'}
+              </span>
+            )}
           </span>
         </div>
       </div>

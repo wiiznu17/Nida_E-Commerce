@@ -7,3 +7,4 @@ export * from './ProductAccordions';
 export * from './ProductRecommendations';
 export * from './ProductDetailView';
 export * from './useProductDetail';
+export * from './reviews';

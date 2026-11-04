@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   ShoppingBag,
   FolderTree,
+  MessageSquareQuote,
   Package,
   Boxes,
   Tag,
@@ -75,6 +76,14 @@ export function AdminSidebar({
           altPath: '/categories',
           label: t('nav.categories'),
           icon: FolderTree,
+          permission: AdminPermission.CATALOG_READ,
+        },
+        {
+          id: 'reviews',
+          path: '/admin/reviews',
+          altPath: '/reviews',
+          label: t('nav.reviews'),
+          icon: MessageSquareQuote,
           permission: AdminPermission.CATALOG_READ,
         },
         {

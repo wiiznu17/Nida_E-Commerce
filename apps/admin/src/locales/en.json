@@ -39,6 +39,7 @@
     "staffManagement": "Staff & Team",
     "dashboard": "Dashboard",
     "products": "Products",
+    "reviews": "Reviews & Ratings",
     "categories": "Categories",
     "inventory": "Inventory & Stock",
     "inventoryAudit": "Stock Audit Log",
@@ -1572,6 +1573,73 @@
       "downloading": "Generating...",
       "success": "Export completed successfully",
       "fail": "Failed to generate CSV export. Please try again."
+    }
+  },
+  "reviews": {
+    "title": "Product Reviews & Ratings",
+    "subtitle": "Moderate customer product ratings, respond to feedback, and manage storefront visibility.",
+    "stats": {
+      "total": "Total Reviews",
+      "approved": "Approved in View",
+      "hidden": "Hidden in View",
+      "avgRating": "Avg Rating in View"
+    },
+    "filter": {
+      "searchPlaceholder": "Search reviews, product, or customer...",
+      "allStatus": "All Visibility Statuses",
+      "approvedOnly": "Approved Only",
+      "hiddenOnly": "Hidden Only",
+      "allRatings": "All Star Ratings"
+    },
+    "table": {
+      "product": "Product",
+      "customer": "Customer / Order",
+      "ratingReview": "Rating & Review",
+      "status": "Status",
+      "date": "Date Submitted",
+      "actions": "Actions",
+      "verifiedBuyer": "Verified Buyer",
+      "unverified": "Unverified Purchase",
+      "approved": "Published",
+      "hidden": "Hidden",
+      "adminReply": "Brand Official Response",
+      "reply": "Reply",
+      "editReply": "Edit Reply",
+      "approve": "Approve",
+      "hide": "Hide",
+      "delete": "Delete Review"
+    },
+    "replyModal": {
+      "title": "Official Brand Response",
+      "productLabel": "Product:",
+      "customerLabel": "Customer:",
+      "ratingLabel": "Rating:",
+      "reviewLabel": "Customer Review:",
+      "textareaLabel": "Brand Response Message",
+      "textareaPlaceholder": "Type official response from the brand (max 1,000 characters)...",
+      "cancel": "Cancel",
+      "submit": "Save & Publish Response",
+      "submitting": "Saving..."
+    },
+    "deleteModal": {
+      "title": "Confirm Review Deletion",
+      "message": "Are you sure you want to delete this review? This action soft-deletes the review and immediately recalculates the product average score.",
+      "productLabel": "Product:",
+      "customerLabel": "Customer:",
+      "ratingLabel": "Rating:",
+      "confirm": "Confirm Deletion",
+      "deleting": "Deleting...",
+      "cancel": "Cancel"
+    },
+    "empty": {
+      "title": "No Reviews Found",
+      "desc": "There are no customer reviews matching your search criteria."
+    },
+    "toast": {
+      "approved": "Review approved and published to storefront.",
+      "hidden": "Review hidden from storefront.",
+      "replied": "Official response posted successfully.",
+      "deleted": "Review removed successfully."
     }
   }
 }

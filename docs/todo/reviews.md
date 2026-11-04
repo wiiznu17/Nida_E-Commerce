@@ -13,9 +13,9 @@
 | **Shared Contracts & Validators** | ✅ เสร็จสมบูรณ์ | ประกาศ DTO ใน `@repo/types` และ Zod Schema ใน `@repo/validators` ทั้งฝั่งลูกค้าและแอดมิน เรียบร้อย |
 | **Storefront Backend Engine** | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/api`: คำนวณ Average Rating, สัดส่วนดาว, Guard `Verified Buyer`, ลบรีวิว, และ Unit Tests ผ่าน 100% |
 | **Admin Back-Office Backend** | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/admin-api`: ค้นหา, สลับสถานะ Approved/Hidden, ตอบกลับรีวิว, ลบรีวิว, และ Audit Logging ผ่าน 100% |
-| **Storefront UI & Modal** | ⏳ รอดำเนินการ | ส่วนแสดงรีวิวในหน้าสินค้า (`apps/store`), แถบสัดส่วนดาว, และ Modal เขียนรีวิว (`WriteReviewModal`) |
-| **Admin Back-Office UI** | ⏳ รอดำเนินการ | เมนูและหน้าจัดการรีวิว (`apps/admin/src/pages/AdminReviews.tsx`) และ Modal ตอบกลับลูกค้า |
-| **Unit Tests & Integrity Verification** | ⏳ รอดำเนินการ | ทดสอบการคำนวณคะแนนเฉลี่ย, ป้องกันการรีวิวซ้ำ, Verified Buyer Guard, และ Admin Moderation 100% |
+| **Storefront UI & Modal** | ✅ เสร็จสมบูรณ์ | ส่วนแสดงรีวิวในหน้าสินค้า (`apps/store`), แถบสัดส่วนดาว, และ Modal เขียนรีวิว (`WriteReviewModal`) |
+| **Admin Back-Office UI** | ✅ เสร็จสมบูรณ์ | เมนูและหน้าจัดการรีวิว (`apps/admin/src/pages/AdminReviews.tsx`) และ Modal ตอบกลับลูกค้า |
+| **Unit Tests & Integrity Verification** | ✅ เสร็จสมบูรณ์ | ทดสอบการคำนวณคะแนนเฉลี่ย, ป้องกันการรีวิวซ้ำ, Verified Buyer Guard, และ Admin Moderation 100% |
 
 ---
 
@@ -126,43 +126,44 @@ graph TD
 ### เฟส 5: พัฒนาหน้าจอผู้ใช้ทั้งหน้าร้านและหลังบ้าน (`apps/store` & `apps/admin`)
 > **เป้าหมาย**: สร้าง UI ประณีตมาตรฐาน Editorial Luxury โดยไม่มี Emoji ใน UI
 
-- [ ] **หน้าร้าน (`apps/store`)**:
-  - [ ] แก้ไข `ProductInfo.tsx`: ลบ Fallback `|| 4.9` และ `|| 128` ออก แสดงคะแนนจริงหรือข้อความ "ยังไม่มีรีวิว"
-  - [ ] สร้างคอมโพเนนต์ย่อยใน `apps/store/src/components/product/reviews/`:
+- [x] **หน้าร้าน (`apps/store`)**:
+  - [x] แก้ไข `ProductInfo.tsx`: ลบ Fallback `|| 4.9` และ `|| 128` ออก แสดงคะแนนจริงหรือข้อความ "ยังไม่มีรีวิว"
+  - [x] สร้างคอมโพเนนต์ย่อยใน `apps/store/src/components/product/reviews/`:
     - `ProductReviewsSection.tsx`: วางใต้รายละเอียดสินค้า
     - `RatingSummaryCard.tsx`: สรุปตัวเลขคะแนนใหญ่ (เช่น `4.8 / 5.0`), ดาว Lucide, และ Bar สัดส่วนดาว 1-5
-    - `ReviewList.tsx` & `ReviewItemCard.tsx`: แสดงรายการรีวิว, ชื่อแบบ Masked (`Kallaya W.`), Badge `Verified Buyer`, ข้อความรีวิว, คำตอบกลับแบรนด์, และปุ่มลบรีวิวของตนเอง
+    - `ReviewItemCard.tsx`: แสดงรายการรีวิว, ชื่อแบบ Masked (`Kallaya W.`), Badge `Verified Buyer`, ข้อความรีวิว, คำตอบกลับแบรนด์, และปุ่มลบรีวิวของตนเอง
     - `WriteReviewModal.tsx`: ฟอร์มให้ดาว 1-5 และกรอกข้อความ
-  - [ ] หน้าประวัติคำสั่งซื้อ (`/profile/orders/[orderNumber]`):
-    - เพิ่มปุ่ม "เขียนรีวิวสินค้า" ข้างรายการสินค้าที่สถานะเป็น `DELIVERED`/`COMPLETED`
-  - [ ] รองรับ i18n 2 ภาษา (`th.json`, `en.json`) ใต้คีย์ `product.reviews.*`
-- [ ] **หลังบ้าน (`apps/admin`)**:
-  - [ ] เพิ่มเมนู **Product Reviews** ใน `AdminSidebar.tsx` (ใต้หมวด `nav.catalogInventory`)
-  - [ ] สร้างหน้า `apps/admin/src/pages/AdminReviews.tsx`:
+    - `DeleteReviewConfirmModal.tsx`: Modal ยืนยันการลบรีวิวของลูกค้า
+  - [x] หน้าประวัติคำสั่งซื้อ (`/profile/orders/[orderNumber]`):
+    - เพิ่มปุ่ม "รีวิวสินค้า" ข้างรายการสินค้าที่สถานะเป็น `DELIVERED`/`COMPLETED`
+  - [x] รองรับ i18n 2 ภาษา (`th.json`, `en.json`) ใต้คีย์ `product.reviews.*`
+- [x] **หลังบ้าน (`apps/admin`)**:
+  - [x] เพิ่มเมนู **Product Reviews** ใน `AdminSidebar.tsx` (ใต้หมวด `nav.catalogInventory`)
+  - [x] สร้างหน้า `apps/admin/src/pages/AdminReviews.tsx`:
     - ตารางรีวิว: สินค้า, ผู้รีวิว, ดาว, ข้อความ, สถานะ Approved/Hidden
-    - ฟิลเตอร์ค้นหาและกรองตามคะแนนดาว
+    - ฟิลเตอร์ค้นหา (Search Button Trigger) และกรองตามคะแนนดาว
     - Modal ตอบกลับลูกค้า (`AdminReviewReplyModal.tsx`)
-    - สลับสถานะเปิด/ปิดรีวิวได้ทันที และปุ่มลบรีวิวพร้อม Modal ยืนยัน
-  - [ ] รองรับ i18n 2 ภาษาใน `apps/admin/src/locales/`
+    - สลับสถานะเปิด/ปิดรีวิวได้ทันที และปุ่มลบรีวิวพร้อม Modal ยืนยัน (`AdminReviewDeleteModal.tsx`)
+  - [x] รองรับ i18n 2 ภาษาใน `apps/admin/src/locales/`
 
 ---
 
 ### เฟส 6: การทดสอบและความสมบูรณ์ของระบบ (Testing & Verification)
 > **เป้าหมาย**: ครอบคลุม 100% ตาม Mandatory Feature Unit Testing Policy
 
-- [ ] **Unit Tests (`apps/api/test/reviews/reviews.service.spec.ts`)**:
-  - [ ] ทดสอบการคำนวณ Average Rating และ Star Breakdown สัดส่วนดาว 1–5
-  - [ ] ทดสอบ Verified Buyer Guard (ปฏิเสธหากไม่มี Order หรือ Order ยังไม่ Delivered)
-  - [ ] ทดสอบการป้องกันส่งรีวิวซ้ำในออเดอร์เดิม
-  - [ ] ทดสอบการลบรีวิวของลูกค้า (Customer Delete Own Review Guard: ปฏิเสธหากไม่ใช่เจ้าของ)
-  - [ ] ทดสอบการ Re-calculate คะแนนดาวเมื่อรีวิวถูกลบ
-  - [ ] ทดสอบการ Masking ชื่อผู้รีวิว (PDPA Compliance)
-- [ ] **Unit Tests (`apps/admin-api/test/reviews/admin-reviews.service.spec.ts`)**:
-  - [ ] ทดสอบการดึงรายการและการกรองสถานะ
-  - [ ] ทดสอบการ Toggle Status และบันทึก Audit Log
-  - [ ] ทดสอบการตอบกลับรีวิว (Admin Reply)
-  - [ ] ทดสอบการลบรีวิวโดยแอดมิน และการบันทึก Audit Log พร้อม Snapshot ข้อความเดิม
-- [ ] **Monorepo Build Verification**:
-  - [ ] คอมไพล์ผ่านทุกแพ็กเกจ: `@repo/types`, `@repo/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`
-  - [ ] รัน Unit Tests ทุกชุดผ่าน 100%
+- [x] **Unit Tests (`apps/api/test/reviews/reviews.service.spec.ts`)**:
+  - [x] ทดสอบการคำนวณ Average Rating และ Star Breakdown สัดส่วนดาว 1–5
+  - [x] ทดสอบ Verified Buyer Guard (ปฏิเสธหากไม่มี Order หรือ Order ยังไม่ Delivered)
+  - [x] ทดสอบการป้องกันส่งรีวิวซ้ำในออเดอร์เดิม
+  - [x] ทดสอบการลบรีวิวของลูกค้า (Customer Delete Own Review Guard: ปฏิเสธหากไม่ใช่เจ้าของ)
+  - [x] ทดสอบการ Re-calculate คะแนนดาวเมื่อรีวิวถูกลบ
+  - [x] ทดสอบการ Masking ชื่อผู้รีวิว (PDPA Compliance)
+- [x] **Unit Tests (`apps/admin-api/test/reviews/admin-reviews.service.spec.ts`)**:
+  - [x] ทดสอบการดึงรายการและการกรองสถานะ
+  - [x] ทดสอบการ Toggle Status และบันทึก Audit Log
+  - [x] ทดสอบการตอบกลับรีวิว (Admin Reply)
+  - [x] ทดสอบการลบรีวิวโดยแอดมิน และการบันทึก Audit Log พร้อม Snapshot ข้อความเดิม
+- [x] **Monorepo Build Verification**:
+  - [x] คอมไพล์ผ่านทุกแพ็กเกจ: `@repo/types`, `@repo/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`
+  - [x] รัน Unit Tests ทุกชุดผ่าน 100%
 
