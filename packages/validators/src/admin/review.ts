@@ -26,4 +26,3 @@ export type AdminUpdateReviewStatusInput = z.infer<
   typeof adminUpdateReviewStatusSchema
 >;
 export type AdminReplyReviewInput = z.infer<typeof adminReplyReviewSchema>;
-

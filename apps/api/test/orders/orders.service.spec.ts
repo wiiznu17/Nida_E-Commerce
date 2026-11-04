@@ -1216,11 +1216,12 @@ describe('CustomerOrdersService', () => {
       orderFindUnique.mockResolvedValueOnce(mockOrder); // in confirmOrderPayment initial find
       (
         prismaMock as { $transaction: ReturnType<typeof vi.fn> }
-      ).$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
-        cb({
-          payment: { update: vi.fn() },
-          order: { update: vi.fn() },
-        }),
+      ).$transaction.mockImplementation(
+        async (cb: (tx: unknown) => Promise<unknown>) =>
+          cb({
+            payment: { update: vi.fn() },
+            order: { update: vi.fn() },
+          }),
       );
       orderFindUnique.mockResolvedValueOnce(mockOrder); // in dispatchTaxInvoiceEmailNotification findUnique
       orderFindUnique.mockResolvedValueOnce({
@@ -1320,11 +1321,12 @@ describe('CustomerOrdersService', () => {
       orderFindUnique.mockResolvedValueOnce(mockOrder); // in handleOmiseWebhook
       (
         prismaMock as { $transaction: ReturnType<typeof vi.fn> }
-      ).$transaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
-        cb({
-          payment: { update: vi.fn() },
-          order: { update: vi.fn() },
-        }),
+      ).$transaction.mockImplementation(
+        async (cb: (tx: unknown) => Promise<unknown>) =>
+          cb({
+            payment: { update: vi.fn() },
+            order: { update: vi.fn() },
+          }),
       );
       orderFindUnique.mockResolvedValueOnce(mockOrder); // in dispatchTaxInvoiceEmailNotification
 

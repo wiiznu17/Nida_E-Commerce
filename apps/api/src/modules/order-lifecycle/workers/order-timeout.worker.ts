@@ -135,8 +135,7 @@ export class OrderTimeoutWorker extends WorkerHost {
           to: cancelledRecipientEmail,
           orderNumber,
           reason:
-            reason ??
-            'คำสั่งซื้อหมดเวลาชำระเงินตามที่กำหนดในระบบ (15 นาที)',
+            reason ?? 'คำสั่งซื้อหมดเวลาชำระเงินตามที่กำหนดในระบบ (15 นาที)',
           storefrontUrl,
         })
         .catch((err: unknown) => {

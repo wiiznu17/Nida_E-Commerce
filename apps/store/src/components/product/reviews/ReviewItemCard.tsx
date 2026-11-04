@@ -40,7 +40,9 @@ export function ReviewItemCard({ review, onDelete }: ReviewItemCardProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-stone-100">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center font-bold text-xs text-[#2B1810]">
-            {review.authorName ? review.authorName.charAt(0).toUpperCase() : 'U'}
+            {review.authorName
+              ? review.authorName.charAt(0).toUpperCase()
+              : 'U'}
           </div>
           <div>
             <div className="flex items-center space-x-2">
@@ -50,7 +52,9 @@ export function ReviewItemCard({ review, onDelete }: ReviewItemCardProps) {
               {review.isVerifiedPurchase && (
                 <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <CheckCircle2 size={10} />
-                  <span>{t('product.reviews.verifiedBuyer') ?? 'Verified Buyer'}</span>
+                  <span>
+                    {t('product.reviews.verifiedBuyer') ?? 'Verified Buyer'}
+                  </span>
                 </span>
               )}
             </div>

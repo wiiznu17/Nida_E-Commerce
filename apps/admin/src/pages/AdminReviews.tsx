@@ -23,7 +23,8 @@ export default function AdminReviews() {
 
   // Read search & filter params from URL
   const urlSearch = searchParams.get('search') ?? '';
-  const urlStatus = (searchParams.get('status') as ReviewFilterState['status']) || 'ALL';
+  const urlStatus =
+    (searchParams.get('status') as ReviewFilterState['status']) || 'ALL';
   const urlRatingParam = searchParams.get('rating');
   const urlRating = urlRatingParam ? Number(urlRatingParam) : '';
   const currentPage = parseInt(searchParams.get('page') ?? '1', 10) || 1;
@@ -52,8 +53,10 @@ export default function AdminReviews() {
   const [totalItems, setTotalItems] = useState(0);
 
   // Modal states
-  const [selectedReviewForReply, setSelectedReviewForReply] = useState<ApiReview | null>(null);
-  const [selectedReviewForDelete, setSelectedReviewForDelete] = useState<ApiReview | null>(null);
+  const [selectedReviewForReply, setSelectedReviewForReply] =
+    useState<ApiReview | null>(null);
+  const [selectedReviewForDelete, setSelectedReviewForDelete] =
+    useState<ApiReview | null>(null);
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const [isSubmittingDelete, setIsSubmittingDelete] = useState(false);
 
@@ -73,7 +76,8 @@ export default function AdminReviews() {
       setTotalPages(res.pagination.totalPages || 1);
       setTotalItems(res.pagination.total || 0);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to fetch reviews';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to fetch reviews';
       setApiError(msg);
     } finally {
       setIsLoading(false);
@@ -111,7 +115,9 @@ export default function AdminReviews() {
       status: 'ALL',
       rating: '',
     });
-    setSearchParams(new URLSearchParams({ page: '1', limit: String(pageSize) }));
+    setSearchParams(
+      new URLSearchParams({ page: '1', limit: String(pageSize) }),
+    );
   };
 
   // Handle Page Change
@@ -129,11 +135,12 @@ export default function AdminReviews() {
       toast.success(
         nextStatus
           ? (t('reviews.toast.approved') ?? 'Review approved and published.')
-          : (t('reviews.toast.hidden') ?? 'Review hidden from storefront.')
+          : (t('reviews.toast.hidden') ?? 'Review hidden from storefront.'),
       );
       fetchReviews();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to update review status';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to update review status';
       toast.error(msg);
     }
   };
@@ -144,7 +151,9 @@ export default function AdminReviews() {
     setIsSubmittingReply(true);
     try {
       await reviewRequester.replyToReview(selectedReviewForReply.id, replyText);
-      toast.success(t('reviews.toast.replied') ?? 'Official reply posted successfully.');
+      toast.success(
+        t('reviews.toast.replied') ?? 'Official reply posted successfully.',
+      );
       setSelectedReviewForReply(null);
       fetchReviews();
     } catch (err) {
@@ -161,11 +170,14 @@ export default function AdminReviews() {
     setIsSubmittingDelete(true);
     try {
       await reviewRequester.deleteReview(selectedReviewForDelete.id);
-      toast.success(t('reviews.toast.deleted') ?? 'Review removed successfully.');
+      toast.success(
+        t('reviews.toast.deleted') ?? 'Review removed successfully.',
+      );
       setSelectedReviewForDelete(null);
       fetchReviews();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to delete review';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to delete review';
       toast.error(msg);
     } finally {
       setIsSubmittingDelete(false);
@@ -177,7 +189,9 @@ export default function AdminReviews() {
   const hiddenCount = reviews.filter((r) => !r.isApproved).length;
   const avgRating =
     reviews.length > 0
-      ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
+      ? (
+          reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
+        ).toFixed(1)
       : '0.0';
 
   return (
@@ -210,7 +224,9 @@ export default function AdminReviews() {
         {/* Filter Bar */}
         <ReviewFilterBar
           filters={draftFilters}
-          onChange={(patch) => setDraftFilters((prev) => ({ ...prev, ...patch }))}
+          onChange={(patch) =>
+            setDraftFilters((prev) => ({ ...prev, ...patch }))
+          }
           onSubmit={handleFilterSubmit}
           onReset={handleFilterReset}
         />

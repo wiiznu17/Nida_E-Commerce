@@ -35,7 +35,8 @@ export function AdminReviewDeleteModal({
                 {t('reviews.delete.modalTitle') ?? 'Delete Review'}
               </h3>
               <p className="text-[11px] text-red-700">
-                {t('reviews.delete.subTitle') ?? 'Action will be logged in Admin Audit Trail'}
+                {t('reviews.delete.subTitle') ??
+                  'Action will be logged in Admin Audit Trail'}
               </p>
             </div>
           </div>
@@ -84,11 +85,14 @@ export function AdminReviewDeleteModal({
             className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xs text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-2xs flex items-center space-x-1.5"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>{isLoading ? (t('common.deleting') ?? 'Deleting...') : (t('reviews.delete.confirmBtn') ?? 'Delete Review')}</span>
+            <span>
+              {isLoading
+                ? (t('common.deleting') ?? 'Deleting...')
+                : (t('reviews.delete.confirmBtn') ?? 'Delete Review')}
+            </span>
           </button>
         </div>
       </div>
     </div>
   );
 }
-

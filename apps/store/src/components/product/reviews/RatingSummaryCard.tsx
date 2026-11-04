@@ -23,7 +23,11 @@ export function RatingSummaryCard({
   const totalReviews = summary.totalReviews;
   const averageRating = summary.averageRating.toFixed(1);
 
-  const starLevels: Array<{ star: 5 | 4 | 3 | 2 | 1; count: number; pct: number }> = [
+  const starLevels: Array<{
+    star: 5 | 4 | 3 | 2 | 1;
+    count: number;
+    pct: number;
+  }> = [
     {
       star: 5,
       count: summary.breakdown[5],
@@ -109,7 +113,9 @@ export function RatingSummaryCard({
                 type="button"
                 onClick={() => onSelectRating(isSelected ? null : star)}
                 className={`group flex items-center space-x-3 text-xs w-full text-left p-1.5 rounded-xs transition-colors cursor-pointer ${
-                  isSelected ? 'bg-amber-100/60 font-bold' : 'hover:bg-[#EAE3D9]/40'
+                  isSelected
+                    ? 'bg-amber-100/60 font-bold'
+                    : 'hover:bg-[#EAE3D9]/40'
                 }`}
               >
                 <div className="flex items-center space-x-1 w-16 text-stone-700 shrink-0">
@@ -123,7 +129,9 @@ export function RatingSummaryCard({
                 <div className="flex-1 h-2 bg-stone-200/80 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      isSelected ? 'bg-amber-500' : 'bg-[#2B1810] group-hover:bg-amber-500'
+                      isSelected
+                        ? 'bg-amber-500'
+                        : 'bg-[#2B1810] group-hover:bg-amber-500'
                     }`}
                     style={{ width: `${pct}%` }}
                   />

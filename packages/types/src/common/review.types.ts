@@ -79,4 +79,3 @@ export interface AdminUpdateReviewStatusDto {
 export interface AdminReplyReviewDto {
   adminReply: string;
 }
-

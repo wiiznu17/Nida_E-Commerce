@@ -50,7 +50,10 @@ export function DeleteReviewConfirmModal({
         {/* Content */}
         <div className="p-6 space-y-4">
           <div className="flex items-start space-x-3 text-stone-600 text-xs leading-relaxed">
-            <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+            <AlertTriangle
+              size={18}
+              className="text-amber-600 shrink-0 mt-0.5"
+            />
             <p>
               {t('product.reviews.deleteMessage') ??
                 'Are you sure you want to delete your review? Once removed, it will no longer appear on the storefront.'}

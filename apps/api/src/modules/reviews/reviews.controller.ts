@@ -102,7 +102,8 @@ export class ReviewsController {
   @ApiResponse({ status: 201, description: 'Review submitted successfully' })
   @ApiResponse({
     status: 403,
-    description: 'Forbidden: Only verified buyers can review delivered products',
+    description:
+      'Forbidden: Only verified buyers can review delivered products',
   })
   @ApiResponse({
     status: 409,

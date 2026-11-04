@@ -50,15 +50,24 @@ export function WriteReviewModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedOrderId) {
-      setError(t('product.reviews.orderRequired') ?? 'Please select an eligible order.');
+      setError(
+        t('product.reviews.orderRequired') ??
+          'Please select an eligible order.',
+      );
       return;
     }
     if (!rating || rating < 1 || rating > 5) {
-      setError(t('product.reviews.ratingRequired') ?? 'Please select a star rating between 1 and 5.');
+      setError(
+        t('product.reviews.ratingRequired') ??
+          'Please select a star rating between 1 and 5.',
+      );
       return;
     }
     if (!reviewText.trim()) {
-      setError(t('product.reviews.reviewRequired') ?? 'Please write your review feedback.');
+      setError(
+        t('product.reviews.reviewRequired') ??
+          'Please write your review feedback.',
+      );
       return;
     }
 
@@ -75,7 +84,8 @@ export function WriteReviewModal({
       setReviewText('');
       setRating(5);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to submit review';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to submit review';
       setError(msg);
     }
   };

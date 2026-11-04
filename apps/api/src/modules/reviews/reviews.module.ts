@@ -12,4 +12,3 @@ import { CustomerAuthModule } from '../auth/auth.module.js';
   exports: [ReviewsService],
 })
 export class ReviewsModule {}
-

@@ -35,11 +35,15 @@ export function AdminReviewReplyModal({
     e.preventDefault();
     const trimmed = replyText.trim();
     if (trimmed.length < 2) {
-      setError(t('reviews.reply.minLenError') ?? 'Reply must be at least 2 characters');
+      setError(
+        t('reviews.reply.minLenError') ?? 'Reply must be at least 2 characters',
+      );
       return;
     }
     if (trimmed.length > 1000) {
-      setError(t('reviews.reply.maxLenError') ?? 'Reply cannot exceed 1000 characters');
+      setError(
+        t('reviews.reply.maxLenError') ?? 'Reply cannot exceed 1000 characters',
+      );
       return;
     }
 
@@ -150,4 +154,3 @@ export function AdminReviewReplyModal({
     </div>
   );
 }
-

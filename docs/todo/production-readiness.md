@@ -6,12 +6,12 @@
 
 ## 📊 ตารางสถานะความพร้อมสู่ Production (Go-Live Readiness Matrix)
 
-| เสาหลักความพร้อม (Pillar) | สถานะความพร้อม | รายละเอียดสิ่งที่ต้องดำเนินการ |
-| :--- | :---: | :--- |
-| **1. Transactional Email & Notifications** | ⏳ รอดำเนินการ | เชื่อมต่อเทมเพลตอีเมลแจ้งสถานะจัดส่งพัสดุ (Tracking), ใบเสร็จ/ใบกำกับภาษี PDF, และการคืนเงินผ่าน Resend |
-| **2. Production Deployment & CI/CD** | ⏳ รอดำเนินการ | Multi-stage Dockerfile ทั้ง 4 แอป, Docker Compose Production, Nginx Reverse Proxy + SSL, และ Environment Checklist |
-| **3. Storefront Live CMS Integration** | ⏳ รอดำเนินการ | เชื่อมต่อ Hero Billboard, Promo Bar, และ Collection Tiles หน้าร้าน ให้ดึงแบนเนอร์จริงจาก DB 100% |
-| **4. E2E Production Smoke Test** | ⏳ รอดำเนินการ | ซิมูเลชันการสั่งซื้อและ Fulfillment ครบวงจร (Customer Checkout ➔ Omise ➔ Tax Invoice ➔ Courier ➔ Review) |
+| เสาหลักความพร้อม (Pillar)                  | สถานะความพร้อม | รายละเอียดสิ่งที่ต้องดำเนินการ                                                                                     |
+| :----------------------------------------- | :------------: | :----------------------------------------------------------------------------------------------------------------- |
+| **1. Transactional Email & Notifications** | ⏳ รอดำเนินการ | เชื่อมต่อเทมเพลตอีเมลแจ้งสถานะจัดส่งพัสดุ (Tracking), ใบเสร็จ/ใบกำกับภาษี PDF, และการคืนเงินผ่าน Resend            |
+| **2. Production Deployment & CI/CD**       | ⏳ รอดำเนินการ | Multi-stage Dockerfile ทั้ง 4 แอป, Docker Compose Production, Nginx Reverse Proxy + SSL, และ Environment Checklist |
+| **3. Storefront Live CMS Integration**     | ⏳ รอดำเนินการ | เชื่อมต่อ Hero Billboard, Promo Bar, และ Collection Tiles หน้าร้าน ให้ดึงแบนเนอร์จริงจาก DB 100%                   |
+| **4. E2E Production Smoke Test**           | ⏳ รอดำเนินการ | ซิมูเลชันการสั่งซื้อและ Fulfillment ครบวงจร (Customer Checkout ➔ Omise ➔ Tax Invoice ➔ Courier ➔ Review)           |
 
 ---
 
@@ -54,6 +54,7 @@ graph TD
 > **เป้าหมาย**: ลูกค้าและแอดมินได้รับการสื่อสารอย่างเป็นมืออาชีพในทุกขั้นตอนสำคัญของการทำธุรกรรม ด้วยเทมเพลตอีเมลที่ออกแบบตามสไตล์ **Editorial Luxury Aesthetic** (ไม่มี Emoji, ดีไซน์โทนสี `#2B1810` และ `#FAF7F2`) ผ่าน Resend API
 
 #### 1.1 อีเมลแจ้งเตือนเมื่อสินค้าถูกจัดส่ง (Order Shipped & Live Tracking Notification)
+
 - [x] **Email Template**:
   - [x] สร้างเทมเพลตอีเมล `formatOrderShippedEmail` ใน `apps/api/src/core/mailer/email-templates.ts` และ `apps/admin-api/src/core/mailer/email-templates.ts`
   - [x] แสดงเลขออเดอร์, รายการสินค้าที่จัดส่ง, ผู้ให้บริการขนส่ง (Courier), และเลขพัสดุ (Tracking Number)
@@ -65,6 +66,7 @@ graph TD
   - [x] Unit Test ครอบคลุมการส่งอีเมลแจ้งจัดส่งใน `orders.service.spec.ts` (32/32 tests pass)
 
 #### 1.2 อีเมลส่งมอบใบเสร็จรับเงิน / ใบกำกับภาษีอิเล็กทรอนิกส์ (E-Tax Invoice & Receipt Delivery)
+
 - [x] **Email Template**:
   - [x] สร้างเทมเพลตอีเมล `formatTaxInvoiceReceiptEmail` ใน `apps/api/src/core/mailer/email-templates.ts`
   - [x] สรุปข้อมูลผู้เสียภาษี (บุคคลธรรมดา/นิติบุคคล, เลข 13 หลัก, ที่อยู่), ฐานภาษี Pre-VAT, ยอด VAT 7%, และยอดสุทธิ พร้อมปุ่ม View Tax Invoice
@@ -74,6 +76,7 @@ graph TD
   - [x] ทำงานแบบ Asynchronous Non-blocking และมี Unit Test รองรับใน `orders.service.spec.ts` (22/22 tests pass)
 
 #### 1.3 อีเมลยืนยันการคืนเงินและการยกเลิกคำสั่งซื้อ (Cancellation & Refund Confirmation)
+
 - [x] **Email Template**:
   - [x] สร้างเทมเพลตอีเมล `formatOrderCancelledEmail` และ `formatRefundProcessedEmail` ในทั้งสองบริการ API
   - [x] ระบุเหตุผลการยกเลิก/คืนเงิน, ยอดเงินที่ทำการ Refund, ช่องทางรับเงินคืน และระยะเวลาการปรับปรุงยอด (SLA)
@@ -83,6 +86,7 @@ graph TD
   - [x] Unit Test ครอบคลุมการส่งอีเมลใน `order-timeout.worker.spec.ts` (5/5 tests pass) และ `orders.service.spec.ts` (34/34 tests pass)
 
 #### 1.4 อีเมลคำเชิญและตั้งรหัสผ่านสำหรับทีมงานแอดมิน (Admin Staff Invitation Email)
+
 - [x] **Email Template**:
   - [x] ปรับปรุงเทมเพลตอีเมล `formatAdminInvitationEmail` ใน `apps/admin-api/src/core/mailer/email-templates.ts`
   - [x] แนบลิงก์สำหรับตั้งรหัสผ่านครั้งแรก พร้อมข้อความระบุอายุความปลอดภัย 24 ชั่วโมง
@@ -93,6 +97,7 @@ graph TD
   - [x] Unit Test ครอบคลุมการส่งอีเมลคำเชิญใน `admin-users.service.spec.ts` (8/8 tests pass)
 
 #### 1.5 การยืนยันโดเมนส่งอีเมลในระดับ Production (Resend Domain Verification)
+
 - [x] จัดทำข้อกำหนดและ Checklist ใน `docs/specs/mailer.md`:
   - [x] `TXT` record สำหรับ SPF (`v=spf1 include:resend.com ~all`)
   - [x] `CNAME` records สำหรับ DKIM Key rotation
@@ -106,6 +111,7 @@ graph TD
 > **เป้าหมาย**: สร้างสภาพแวดล้อม Production ที่สามารถรันได้อย่างเสถียร รองรับการสเกล และปลอดภัยตามมาตรฐานสากล ด้วย Docker Containerization และ Reverse Proxy
 
 #### 2.1 Multi-Stage Production Dockerfiles
+
 - [ ] **Backend APIs Dockerfiles**:
   - [ ] สร้าง `apps/api/Dockerfile.prod` (Node.js Alpine, Standalone bundle, non-root user `node`)
   - [ ] สร้าง `apps/admin-api/Dockerfile.prod`
@@ -115,6 +121,7 @@ graph TD
   - [ ] สร้าง `apps/admin/Dockerfile.prod` (Vite production build ➔ Nginx Alpine static serving)
 
 #### 2.2 Orchestration & Reverse Proxy Configuration
+
 - [ ] สร้าง `docker-compose.prod.yml`:
   - [ ] Services: `api` (port 4000), `admin-api` (port 4001), `admin-ui` (port 8080), `store-ui` (port 3000), `redis` (persistent volume)
   - [ ] Network Isolation: Internal network สำหรับ APIs และ Redis, External network สำหรับ Web Traffic
@@ -131,6 +138,7 @@ graph TD
   - [ ] กำหนดความปลอดภัย: `client_max_body_size 10M;`, ซ่อน Nginx Server Version Header
 
 #### 2.3 Production Environment Variables & Secrets Checklist
+
 - [ ] จัดทำเอกสาร `.env.production.example` ที่ระบุตัวแปรที่จำเป็นครบถ้วน:
   - [ ] **Database**: `DATABASE_URL` และ `DIRECT_URL` (พร้อม Connection Pooler เช่น PgBouncer / Supabase Pooler port 6543)
   - [ ] **Redis**: `REDIS_URL` หรือ `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` (รองรับ TLS `rediss://`)
@@ -150,6 +158,7 @@ graph TD
     - กำหนดเฉพาะโดเมนทางการ เช่น `https://nida.co,https://admin.nida.co` (ห้ามใช้ `*` ใน Production)
 
 #### 2.4 กลยุทธ์การอัปเดต Database อัตโนมัติ (Database Migration Pipeline)
+
 - [ ] กำหนดคำสั่งรัน Migration ก่อนเริ่ม Container:
   ```bash
   npx prisma migrate deploy --schema=packages/database/prisma/schema.prisma
@@ -164,6 +173,7 @@ graph TD
 > **เป้าหมาย**: หน้าร้านค้าสะท้อนข้อมูลแคมเปญ แบนเนอร์ภาพสไลด์ และแถบประกาศโปรโมชันจากฐานข้อมูลจริง 100% โดยที่ฝ่ายการตลาดสามารถอัปเดตผ่าน Admin Back-Office ได้ตลอดเวลาโดยไม่ต้องแก้โค้ด
 
 #### 3.1 Live Hero Billboard Carousel (`apps/store`)
+
 - [ ] ปรับปรุง [`HeroBillboard.tsx`](file:///apps/store/src/components/home/HeroBillboard.tsx):
   - [ ] ดึงข้อมูลแบนเนอร์สดจาก API `GET /api/v1/content/home` หรือ `contentRequester.getHomeContent()`
   - [ ] กรองเฉพาะแบนเนอร์ที่ `isActive: true` และอยู่ในช่วงวันที่แคมเปญ (`startDate <= now <= endDate`)
@@ -172,12 +182,14 @@ graph TD
   - [ ] เชื่อมต่อปุ่ม Action Link (CTA Button) ให้กดแล้วพาไปยัง URL หรือคอลเลกชันเป้าหมายจริง
 
 #### 3.2 Dynamic Promo Ribbon & Announcement Bar
+
 - [ ] ปรับปรุง [`PromoRibbon.tsx`](file:///apps/store/src/components/home/PromoRibbon.tsx) และแถบประกาศด้านบน Header:
   - [ ] ดึงข้อความประกาศโปรโมชันจาก `StoreSettings` ในฐานข้อมูล
   - [ ] รองรับการแสดงผล 2 ภาษา (TH / EN) ตามที่ผู้ดูแลระบบตั้งค่าไว้ในหลังบ้าน
   - [ ] ซ่อนแถบประกาศอัตโนมัติหากแอดมินปิดการใช้งาน (`promoBarActive: false`)
 
 #### 3.3 Dynamic Category Discovery Tiles
+
 - [ ] ปรับปรุง [`CategoryDiscoveryTiles.tsx`](file:///apps/store/src/components/home/CategoryDiscoveryTiles.tsx):
   - [ ] เชื่อมต่อภาพแบนเนอร์และชื่อหมวดหมู่กับโมเดล `Category` ในฐานข้อมูลจริง
   - [ ] กดแล้วนำทางไปยังหน้ารวมสินค้าตามแผนกและหมวดหมู่นั้นๆ ทันที
@@ -189,6 +201,7 @@ graph TD
 > **เป้าหมาย**: ตรวจสอบการทำงานของทุกระบบร่วมกันตั้งแต่ต้นน้ำจนถึงปลายน้ำ ด้วยข้อมูลธุรกรรมจริงในโหมด Sandbox / Production Staging ก่อนเปิดตัวสู่สาธารณะ
 
 #### 4.1 จำลองกระบวนการสั่งซื้อและชำระเงินของลูกค้า (Customer Checkout E2E)
+
 - [ ] **Flow 1: สมาชิกสั่งซื้อผ่านบัตรเครดิต**:
   - [ ] สมัครสมาชิกใหม่ ➔ รับ OTP ทางอีเมล ➔ ยืนยันตัวตนสำเร็จ
   - [ ] เลือกสินค้า (ระบุ สี และ ไซส์) ➔ ตรวจสอบสต็อก ➔ เพิ่มลงตะกร้า
@@ -202,6 +215,7 @@ graph TD
   - [ ] ทดสอบปล่อยให้ออเดอร์หมดเวลา 15 นาที ➔ BullMQ Worker ทำการยกเลิกออเดอร์อัตโนมัติ (`CANCELLED`) และคืนสต็อกกลับเข้าคลัง
 
 #### 4.2 จำลองกระบวนการจัดการคำสั่งซื้อและจัดส่งของแอดมิน (Admin Fulfillment E2E)
+
 - [ ] แอดมินล็อกอินเข้าสู่ระบบ Back-Office (`apps/admin`)
 - [ ] ตรวจสอบรายการคำสั่งซื้อใหม่ในหน้า Admin Orders
 - [ ] พิมพ์เอกสารสำหรับจัดเตรียมสินค้า:
@@ -213,6 +227,7 @@ graph TD
   - [ ] ระบบส่งอีเมลแจ้งลูกค้าพร้อมลิงก์ติดตามพัสดุโดยอัตโนมัติ
 
 #### 4.3 จำลองกระบวนการรับสินค้าและเขียนรีวิว (Post-Purchase & Reviews E2E)
+
 - [ ] จำลองสินค้าส่งถึงปลายทาง (สถานะ `DELIVERED`)
 - [ ] ลูกค้าล็อกอินเข้าสู่หน้า Order Detail บน Storefront
 - [ ] กดยืนยันการรับสินค้า ➔ ระบบเปลี่ยนสถานะเป็น `COMPLETED`
@@ -226,6 +241,7 @@ graph TD
   - [ ] คำตอบของแอดมินปรากฏในหน้าร้านทันที
 
 #### 4.4 การตรวจสอบความปลอดภัยขั้นสุดท้าย (Security & Compliance Checklist)
+
 - [ ] ตรวจสอบว่าไม่มี API Key หรือ Secret หลุดเข้าไปใน Git Commit History
 - [ ] ทดสอบ Rate Limiting (ลองยิงรหัสผ่านผิด 5 ครั้ง ➔ บัญชีถูกล็อค 15 นาที)
 - [ ] ทดสอบ PII Masking (เบอร์โทร, อีเมล, เลขบัตรประชาชน ไม่แสดงเต็มในหน้าจอและ Log)
@@ -241,4 +257,3 @@ graph TD
 สัปดาห์ที่ 3: เสาหลักที่ 2 (จัดเตรียม Dockerfile, Nginx Reverse Proxy, และ Production Config)
 สัปดาห์ที่ 4: เสาหลักที่ 4 (รัน E2E Smoke Test จำลองสถานการณ์จริง และเปิดตัวสู่ Production)
 ```
-

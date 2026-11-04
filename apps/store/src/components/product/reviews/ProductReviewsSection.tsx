@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { MessageSquareQuote, Star, AlertCircle, CheckCircle2 } from 'lucide-react';
+import {
+  MessageSquareQuote,
+  Star,
+  AlertCircle,
+  CheckCircle2,
+} from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { reviewRequester } from '@/api';
@@ -36,7 +41,9 @@ export function ProductReviewsSection({
 
   // Modals & action states
   const [isWriteModalOpen, setIsWriteModalOpen] = useState<boolean>(false);
-  const [eligibleItems, setEligibleItems] = useState<ApiEligibleReviewItem[]>([]);
+  const [eligibleItems, setEligibleItems] = useState<ApiEligibleReviewItem[]>(
+    [],
+  );
   const [selectedReviewForDelete, setSelectedReviewForDelete] =
     useState<ApiReview | null>(null);
   const [isSubmittingReview, setIsSubmittingReview] = useState<boolean>(false);
@@ -103,7 +110,8 @@ export function ProductReviewsSection({
       setEligibleItems(productEligible);
       setIsWriteModalOpen(true);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to check eligibility';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to check eligibility';
       setNotice({ type: 'error', message: msg });
     }
   };
@@ -138,7 +146,8 @@ export function ProductReviewsSection({
       });
       fetchReviews();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to submit review';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to submit review';
       throw new Error(msg);
     } finally {
       setIsSubmittingReview(false);
@@ -160,7 +169,8 @@ export function ProductReviewsSection({
       });
       fetchReviews();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to delete review';
+      const msg =
+        err instanceof Error ? err.message : 'Failed to delete review';
       setNotice({ type: 'error', message: msg });
     } finally {
       setIsDeletingReview(false);
@@ -195,7 +205,10 @@ export function ProductReviewsSection({
             }`}
           >
             {notice.type === 'success' ? (
-              <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-600" />
+              <CheckCircle2
+                size={16}
+                className="shrink-0 mt-0.5 text-emerald-600"
+              />
             ) : (
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
             )}
@@ -244,7 +257,9 @@ export function ProductReviewsSection({
                 onClick={handleOpenWriteReview}
                 className="inline-flex items-center space-x-1.5 text-xs font-bold uppercase tracking-wider text-[#2B1810] hover:underline cursor-pointer"
               >
-                <span>{t('product.reviews.writeReview') ?? 'Write a Review'}</span>
+                <span>
+                  {t('product.reviews.writeReview') ?? 'Write a Review'}
+                </span>
               </button>
             </div>
           ) : (

@@ -82,15 +82,23 @@ export function CustomerOrderItemsCard({ order }: CustomerOrderItemsCardProps) {
                         <FileText size={11} className="text-brand-brown" />
                         <span>{t('orderDetail.viewSnapshotBtn')}</span>
                       </button>
-                      {isDelivered && (item.productSnapshot?.slug || item.productSnapshot?.productId) && (
-                        <Link
-                          href={`/products/${item.productSnapshot.slug ?? item.productSnapshot.productId}#product-reviews`}
-                          className="inline-flex items-center space-x-1 text-[11px] font-bold text-amber-700 hover:text-amber-800 underline underline-offset-2 transition-colors"
-                        >
-                          <Star size={11} className="fill-amber-400 text-amber-500" />
-                          <span>{t('orderDetail.writeReviewBtn') ?? 'Review Product'}</span>
-                        </Link>
-                      )}
+                      {isDelivered &&
+                        (item.productSnapshot?.slug ||
+                          item.productSnapshot?.productId) && (
+                          <Link
+                            href={`/products/${item.productSnapshot.slug ?? item.productSnapshot.productId}#product-reviews`}
+                            className="inline-flex items-center space-x-1 text-[11px] font-bold text-amber-700 hover:text-amber-800 underline underline-offset-2 transition-colors"
+                          >
+                            <Star
+                              size={11}
+                              className="fill-amber-400 text-amber-500"
+                            />
+                            <span>
+                              {t('orderDetail.writeReviewBtn') ??
+                                'Review Product'}
+                            </span>
+                          </Link>
+                        )}
                     </div>
                   </div>
                 </div>

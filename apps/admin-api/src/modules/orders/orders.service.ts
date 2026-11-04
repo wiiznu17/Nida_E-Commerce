@@ -771,7 +771,9 @@ export class OrdersService {
     ) {
       const activeShipment = updated.shipments?.[0];
       const effectiveCourier =
-        courierName?.trim() || activeShipment?.courierName || 'Standard Express';
+        courierName?.trim() ||
+        activeShipment?.courierName ||
+        'Standard Express';
       const effectiveTracking =
         trackingNumber?.trim() || activeShipment?.trackingNumber || '';
 
@@ -786,7 +788,8 @@ export class OrdersService {
 
     if (status === OrderStatus.CANCELLED) {
       const address =
-        (updated.shippingAddressSnapshot as Record<string, unknown> | null) ?? {};
+        (updated.shippingAddressSnapshot as Record<string, unknown> | null) ??
+        {};
       const recipientEmail =
         updated.user?.email ??
         (address.email ? String(address.email) : null) ??
@@ -1056,9 +1059,7 @@ export class OrdersService {
         to: recipientEmail,
         orderNumber: order.orderNumber,
         recipientName: String(
-          address.recipientName ??
-            order.user?.firstName ??
-            'Customer',
+          address.recipientName ?? order.user?.firstName ?? 'Customer',
         ),
         courierName,
         trackingNumber,
@@ -1671,7 +1672,10 @@ export class OrdersService {
       });
 
       const address =
-        (request.order.shippingAddressSnapshot as Record<string, unknown> | null) ?? {};
+        (request.order.shippingAddressSnapshot as Record<
+          string,
+          unknown
+        > | null) ?? {};
       const recipientEmail =
         request.order.user?.email ??
         (address.email ? String(address.email) : null) ??

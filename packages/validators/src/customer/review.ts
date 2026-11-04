@@ -30,4 +30,3 @@ export const reviewQuerySchema = z.object({
 
 export type CreateReviewInput = z.infer<typeof createReviewSchema>;
 export type ReviewQueryInput = z.infer<typeof reviewQuerySchema>;
-

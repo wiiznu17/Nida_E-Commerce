@@ -70,6 +70,7 @@ sequenceDiagram
 การคำนวณคะแนนเฉลี่ย (`rating`) และจำนวนรีวิว (`reviewsCount`) จะคำนวณจากเฉพาะรีวิวที่ **`isApproved = true` และ `deletedAt IS NULL`** เท่านั้น:
 
 ### 3.1 สูตรคะแนนเฉลี่ย (Average Rating):
+
 $$\text{Average Rating} = \frac{\sum_{i=1}^{N} \text{rating}_i}{N}$$
 
 - ปัดเศษทศนิยม 1 ตำแหน่ง (เช่น `4.8`, `4.5`)
@@ -77,6 +78,7 @@ $$\text{Average Rating} = \frac{\sum_{i=1}^{N} \text{rating}_i}{N}$$
 - เมื่อมีการลบรีวิว (ไม่ว่าจะโดยลูกค้าหรือแอดมิน) ระบบจะ Re-calculate คะแนนและจำนวนรีวิวใหม่ทันที พร้อมล้างแคช Redis ของ Product Detail
 
 ### 3.2 สัดส่วนดาว (Star Distribution Breakdown):
+
 คำนวณจำนวนและร้อยละของแต่ละระดับดาว (1 ถึง 5 ดาว):
 
 $$\text{Percentage}_k = \left( \frac{\text{Count}_k}{N} \right) \times 100 \quad (k \in \{1, 2, 3, 4, 5\})$$
@@ -124,14 +126,15 @@ model Review {
 
 ### 5.1 Storefront Customer Endpoints (`apps/api`)
 
-| Method | Endpoint | Authentication | คำอธิบาย |
-| :--- | :--- | :---: | :--- |
-| `GET` | `/api/v1/products/:id/reviews` | Public | ดึงรายการรีวิวที่อนุมัติแล้วและยังไม่ถูกลบ + Rating Summary สถิติดาว |
-| `GET` | `/api/v1/customer/reviews/eligible` | Customer JWT | ดึงรายการสินค้าที่ลูกค้าซื้อแล้วแต่ยังไม่ได้รีวิว |
-| `POST` | `/api/v1/products/:id/reviews` | Customer JWT | ส่งรีวิวสินค้า (ตรวจ Guard: Verified Buyer) |
-| `DELETE` | `/api/v1/customer/reviews/:id` | Customer JWT | ลูกค้าลบรีวิวของตนเอง (Soft Delete + คำนวณคะแนนใหม่) |
+| Method   | Endpoint                            | Authentication | คำอธิบาย                                                             |
+| :------- | :---------------------------------- | :------------: | :------------------------------------------------------------------- |
+| `GET`    | `/api/v1/products/:id/reviews`      |     Public     | ดึงรายการรีวิวที่อนุมัติแล้วและยังไม่ถูกลบ + Rating Summary สถิติดาว |
+| `GET`    | `/api/v1/customer/reviews/eligible` |  Customer JWT  | ดึงรายการสินค้าที่ลูกค้าซื้อแล้วแต่ยังไม่ได้รีวิว                    |
+| `POST`   | `/api/v1/products/:id/reviews`      |  Customer JWT  | ส่งรีวิวสินค้า (ตรวจ Guard: Verified Buyer)                          |
+| `DELETE` | `/api/v1/customer/reviews/:id`      |  Customer JWT  | ลูกค้าลบรีวิวของตนเอง (Soft Delete + คำนวณคะแนนใหม่)                 |
 
 #### Request Payload: `POST /api/v1/products/:id/reviews`
+
 ```json
 {
   "orderId": "0194c502-3904-7a1a-8c34-8e100c451234",
@@ -142,6 +145,7 @@ model Review {
 ```
 
 #### Response Structure: `GET /api/v1/products/:id/reviews`
+
 ```json
 {
   "success": true,
@@ -186,12 +190,12 @@ model Review {
 
 ### 5.2 Admin Back-Office Endpoints (`apps/admin-api`)
 
-| Method | Endpoint | Permission | คำอธิบาย |
-| :--- | :--- | :---: | :--- |
-| `GET` | `/api/v1/admin/reviews` | `CATALOG_READ` | รายการรีวิวทั้งหมด พร้อม Search, Status, Star Filters |
-| `PATCH` | `/api/v1/admin/reviews/:id/status` | `CATALOG_WRITE` | อนุมัติ (`isApproved: true`) หรือซ่อน (`isApproved: false`) |
-| `POST` | `/api/v1/admin/reviews/:id/reply` | `CATALOG_WRITE` | แอดมินตอบกลับรีวิวลูกค้า |
-| `DELETE` | `/api/v1/admin/reviews/:id` | `CATALOG_WRITE` | ลบรีวิวสแปม/ผิดกฎ (Soft Delete) พร้อมบันทึก Audit Log |
+| Method   | Endpoint                           |   Permission    | คำอธิบาย                                                    |
+| :------- | :--------------------------------- | :-------------: | :---------------------------------------------------------- |
+| `GET`    | `/api/v1/admin/reviews`            | `CATALOG_READ`  | รายการรีวิวทั้งหมด พร้อม Search, Status, Star Filters       |
+| `PATCH`  | `/api/v1/admin/reviews/:id/status` | `CATALOG_WRITE` | อนุมัติ (`isApproved: true`) หรือซ่อน (`isApproved: false`) |
+| `POST`   | `/api/v1/admin/reviews/:id/reply`  | `CATALOG_WRITE` | แอดมินตอบกลับรีวิวลูกค้า                                    |
+| `DELETE` | `/api/v1/admin/reviews/:id`        | `CATALOG_WRITE` | ลบรีวิวสแปม/ผิดกฎ (Soft Delete) พร้อมบันทึก Audit Log       |
 
 ---
 
@@ -208,7 +212,10 @@ model Review {
        items: { some: { variant: { productId } } },
      },
    });
-   if (!validOrder) throw new ForbiddenException('Only verified buyers can review delivered products');
+   if (!validOrder)
+     throw new ForbiddenException(
+       'Only verified buyers can review delivered products',
+     );
    ```
 2. **Review Ownership Guard (Customer Delete)**:
    - ลูกค้าสามารถสั่งลบได้เฉพาะรีวิวที่ตนเองเป็นเจ้าของ (`userId === customerId`) เท่านั้น หากพยายามลบรีวิวของผู้อื่น ระบบจะปฏิเสธด้วย `NotFoundException` หรือ `ForbiddenException`
@@ -216,4 +223,3 @@ model Review {
    - ป้องกันการส่งรีวิวซ้ำสำหรับสินค้าเดิมในออเดอร์เดียวกันด้วย Unique Constraint และ Service Validation
 4. **Audit Trail**:
    - ทุกการ Toggle Status, Reply, หรือ Delete ของแอดมิน ต้องบันทึกเข้าสู่ `admin_audit_logs` พร้อมเก็บ Snapshot ข้อความก่อนลบไว้ใน `oldValuesJson` เพื่อให้ตรวจสอบย้อนหลังได้ 100%
-

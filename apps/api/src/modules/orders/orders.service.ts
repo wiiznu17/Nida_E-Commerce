@@ -1170,7 +1170,10 @@ export class CustomerOrdersService {
 
           if (this.taxInvoiceService) {
             issuedTaxInvoice =
-              await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
+              await this.taxInvoiceService.issueTaxInvoiceForOrder(
+                tx,
+                order.id,
+              );
           }
         });
 
@@ -1307,7 +1310,10 @@ export class CustomerOrdersService {
 
           if (this.taxInvoiceService) {
             issuedTaxInvoice =
-              await this.taxInvoiceService.issueTaxInvoiceForOrder(tx, order.id);
+              await this.taxInvoiceService.issueTaxInvoiceForOrder(
+                tx,
+                order.id,
+              );
           }
         });
 
@@ -1962,26 +1968,34 @@ export class CustomerOrdersService {
       });
       if (!order) return;
 
-      const effectiveInvoice = taxInvoice ?? (order.taxInvoice ? {
-        id: order.taxInvoice.id,
-        orderId: order.taxInvoice.orderId,
-        orderNumber: order.orderNumber,
-        invoiceNumber: order.taxInvoice.invoiceNumber,
-        payerType: order.taxInvoice.payerType as import('@repo/types').TaxInvoicePayerType,
-        taxId: order.taxInvoice.taxId,
-        name: order.taxInvoice.name,
-        branchType: (order.taxInvoice.branchType as import('@repo/types').TaxInvoiceBranchType) ?? null,
-        branchCode: order.taxInvoice.branchCode ?? null,
-        address: order.taxInvoice.address,
-        subtotal: Number(order.taxInvoice.subtotal),
-        discount: Number(order.taxInvoice.discount),
-        shippingFee: Number(order.taxInvoice.shippingFee),
-        totalAmount: Number(order.taxInvoice.totalAmount),
-        preVatAmount: Number(order.taxInvoice.preVatAmount),
-        vatAmount: Number(order.taxInvoice.vatAmount),
-        itemsSnapshot: [],
-        issuedAt: order.taxInvoice.issuedAt.toISOString(),
-      } : null);
+      const effectiveInvoice =
+        taxInvoice ??
+        (order.taxInvoice
+          ? {
+              id: order.taxInvoice.id,
+              orderId: order.taxInvoice.orderId,
+              orderNumber: order.orderNumber,
+              invoiceNumber: order.taxInvoice.invoiceNumber,
+              payerType: order.taxInvoice
+                .payerType as import('@repo/types').TaxInvoicePayerType,
+              taxId: order.taxInvoice.taxId,
+              name: order.taxInvoice.name,
+              branchType:
+                (order.taxInvoice
+                  .branchType as import('@repo/types').TaxInvoiceBranchType) ??
+                null,
+              branchCode: order.taxInvoice.branchCode ?? null,
+              address: order.taxInvoice.address,
+              subtotal: Number(order.taxInvoice.subtotal),
+              discount: Number(order.taxInvoice.discount),
+              shippingFee: Number(order.taxInvoice.shippingFee),
+              totalAmount: Number(order.taxInvoice.totalAmount),
+              preVatAmount: Number(order.taxInvoice.preVatAmount),
+              vatAmount: Number(order.taxInvoice.vatAmount),
+              itemsSnapshot: [],
+              issuedAt: order.taxInvoice.issuedAt.toISOString(),
+            }
+          : null);
 
       if (!effectiveInvoice) return;
 
@@ -2008,11 +2022,14 @@ export class CustomerOrdersService {
         to: recipientEmail,
         orderNumber: effectiveInvoice.orderNumber,
         invoiceNumber: effectiveInvoice.invoiceNumber,
-        issuedAt: new Date(effectiveInvoice.issuedAt).toLocaleDateString('th-TH', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
+        issuedAt: new Date(effectiveInvoice.issuedAt).toLocaleDateString(
+          'th-TH',
+          {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          },
+        ),
         buyerName: effectiveInvoice.name,
         buyerTaxId: effectiveInvoice.taxId,
         buyerBranch: branchInfo,

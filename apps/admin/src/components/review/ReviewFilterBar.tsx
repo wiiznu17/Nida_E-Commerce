@@ -47,7 +47,10 @@ export function ReviewFilterBar({
               value={filters.search}
               onChange={(val) => onChange({ search: val })}
               onClear={() => onChange({ search: '' })}
-              placeholder={t('reviews.filter.searchPlaceholder') ?? 'Search reviews, product, or customer...'}
+              placeholder={
+                t('reviews.filter.searchPlaceholder') ??
+                'Search reviews, product, or customer...'
+              }
             />
           </div>
 
@@ -105,4 +108,3 @@ export function ReviewFilterBar({
     </div>
   );
 }
-

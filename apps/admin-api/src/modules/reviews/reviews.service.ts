@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { AuditLogService } from '../audit-log/audit-log.service.js';
 import {
@@ -219,7 +215,8 @@ export class AdminReviewsService {
         ? {
             comment: updated.adminReply,
             repliedAt:
-              updated.repliedAt?.toISOString() ?? updated.createdAt.toISOString(),
+              updated.repliedAt?.toISOString() ??
+              updated.createdAt.toISOString(),
           }
         : undefined,
     };
@@ -269,11 +266,16 @@ export class AdminReviewsService {
         targetId: id,
         permission: AdminPermission.CATALOG_WRITE,
         oldValuesJson: { adminReply: review.adminReply },
-        newValuesJson: { adminReply: dto.adminReply.trim(), repliedBy: adminId },
+        newValuesJson: {
+          adminReply: dto.adminReply.trim(),
+          repliedBy: adminId,
+        },
       });
     }
 
-    this.logger.log(`Official reply added to review #${id} by Admin ${adminId}`);
+    this.logger.log(
+      `Official reply added to review #${id} by Admin ${adminId}`,
+    );
 
     return {
       id: updated.id,
@@ -345,4 +347,3 @@ export class AdminReviewsService {
     };
   }
 }
-

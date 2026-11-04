@@ -12,4 +12,3 @@ export const REVIEW_RATING_OPTIONS = [
   { value: '2', labelKey: '2 Stars' },
   { value: '1', labelKey: '1 Star' },
 ] as const;
-

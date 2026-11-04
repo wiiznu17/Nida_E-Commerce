@@ -14,10 +14,7 @@ import type {
   ApiProductReviewsResponse,
   ApiEligibleReviewItem,
 } from '@repo/types';
-import type {
-  CreateReviewInput,
-  ReviewQueryInput,
-} from '@repo/validators';
+import type { CreateReviewInput, ReviewQueryInput } from '@repo/validators';
 
 @Injectable()
 export class ReviewsService {
@@ -89,9 +86,7 @@ export class ReviewsService {
     }
 
     const averageRating =
-      totalReviews > 0
-        ? Math.round((ratingSum / totalReviews) * 10) / 10
-        : 0;
+      totalReviews > 0 ? Math.round((ratingSum / totalReviews) * 10) / 10 : 0;
 
     const summary: ApiRatingSummary = {
       averageRating,
@@ -328,9 +323,7 @@ export class ReviewsService {
     const eligibleItems: ApiEligibleReviewItem[] = [];
 
     for (const order of deliveredOrders) {
-      const reviewedProductIds = new Set(
-        order.reviews.map((r) => r.productId),
-      );
+      const reviewedProductIds = new Set(order.reviews.map((r) => r.productId));
 
       for (const item of order.items) {
         const prod = item.variant?.product;
@@ -371,4 +364,3 @@ export class ReviewsService {
     }
   }
 }
-

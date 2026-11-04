@@ -133,10 +133,7 @@ export function ProductDetailView({
         </div>
       </div>
 
-      <ProductReviewsSection
-        productId={product.id}
-        productName={title}
-      />
+      <ProductReviewsSection productId={product.id} productName={title} />
 
       <ProductRecommendations products={relatedProducts} />
     </div>

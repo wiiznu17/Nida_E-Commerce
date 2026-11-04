@@ -6,16 +6,16 @@
 
 ## 📊 สถานะภาพรวมของระบบ (System Status)
 
-| ส่วนประกอบ / โมดูล | สถานะการพัฒนา | รายละเอียดความพร้อม |
-| :--- | :---: | :--- |
-| **Technical Specification** | ✅ พร้อม 100% | อ้างอิงเอกสาร [docs/specs/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/reviews.md) |
-| **Database Schema & Migration** | ✅ เสร็จสมบูรณ์ | ปรับปรุง Model `Review` เพิ่ม `orderId`, `title`, `adminReply`, `deletedAt`, `isVerifiedPurchase` พร้อมสร้าง Migration SQL เรียบร้อย |
-| **Shared Contracts & Validators** | ✅ เสร็จสมบูรณ์ | ประกาศ DTO ใน `@repo/types` และ Zod Schema ใน `@repo/validators` ทั้งฝั่งลูกค้าและแอดมิน เรียบร้อย |
-| **Storefront Backend Engine** | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/api`: คำนวณ Average Rating, สัดส่วนดาว, Guard `Verified Buyer`, ลบรีวิว, และ Unit Tests ผ่าน 100% |
-| **Admin Back-Office Backend** | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/admin-api`: ค้นหา, สลับสถานะ Approved/Hidden, ตอบกลับรีวิว, ลบรีวิว, และ Audit Logging ผ่าน 100% |
-| **Storefront UI & Modal** | ✅ เสร็จสมบูรณ์ | ส่วนแสดงรีวิวในหน้าสินค้า (`apps/store`), แถบสัดส่วนดาว, และ Modal เขียนรีวิว (`WriteReviewModal`) |
-| **Admin Back-Office UI** | ✅ เสร็จสมบูรณ์ | เมนูและหน้าจัดการรีวิว (`apps/admin/src/pages/AdminReviews.tsx`) และ Modal ตอบกลับลูกค้า |
-| **Unit Tests & Integrity Verification** | ✅ เสร็จสมบูรณ์ | ทดสอบการคำนวณคะแนนเฉลี่ย, ป้องกันการรีวิวซ้ำ, Verified Buyer Guard, และ Admin Moderation 100% |
+| ส่วนประกอบ / โมดูล                      |  สถานะการพัฒนา  | รายละเอียดความพร้อม                                                                                                                  |
+| :-------------------------------------- | :-------------: | :----------------------------------------------------------------------------------------------------------------------------------- |
+| **Technical Specification**             |  ✅ พร้อม 100%  | อ้างอิงเอกสาร [docs/specs/reviews.md](file:///Users/wiiznu/project/Nida_Project/docs/specs/reviews.md)                               |
+| **Database Schema & Migration**         | ✅ เสร็จสมบูรณ์ | ปรับปรุง Model `Review` เพิ่ม `orderId`, `title`, `adminReply`, `deletedAt`, `isVerifiedPurchase` พร้อมสร้าง Migration SQL เรียบร้อย |
+| **Shared Contracts & Validators**       | ✅ เสร็จสมบูรณ์ | ประกาศ DTO ใน `@repo/types` และ Zod Schema ใน `@repo/validators` ทั้งฝั่งลูกค้าและแอดมิน เรียบร้อย                                   |
+| **Storefront Backend Engine**           | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/api`: คำนวณ Average Rating, สัดส่วนดาว, Guard `Verified Buyer`, ลบรีวิว, และ Unit Tests ผ่าน 100%           |
+| **Admin Back-Office Backend**           | ✅ เสร็จสมบูรณ์ | โมดูล `reviews` ใน `apps/admin-api`: ค้นหา, สลับสถานะ Approved/Hidden, ตอบกลับรีวิว, ลบรีวิว, และ Audit Logging ผ่าน 100%            |
+| **Storefront UI & Modal**               | ✅ เสร็จสมบูรณ์ | ส่วนแสดงรีวิวในหน้าสินค้า (`apps/store`), แถบสัดส่วนดาว, และ Modal เขียนรีวิว (`WriteReviewModal`)                                   |
+| **Admin Back-Office UI**                | ✅ เสร็จสมบูรณ์ | เมนูและหน้าจัดการรีวิว (`apps/admin/src/pages/AdminReviews.tsx`) และ Modal ตอบกลับลูกค้า                                             |
+| **Unit Tests & Integrity Verification** | ✅ เสร็จสมบูรณ์ | ทดสอบการคำนวณคะแนนเฉลี่ย, ป้องกันการรีวิวซ้ำ, Verified Buyer Guard, และ Admin Moderation 100%                                        |
 
 ---
 
@@ -37,6 +37,7 @@ graph TD
 ## 📋 แผนงานสิ่งที่ต้องทำตามลำดับขั้นตอน (Actionable Roadmap)
 
 ### เฟส 1: โครงสร้างฐานข้อมูลและการย้ายข้อมูล (Database Schema & Migration)
+
 > **เป้าหมาย**: ปรับปรุงโมเดล `Review` ใน `packages/database/prisma/schema.prisma` ให้รองรับ Verified Buyer และการตอบกลับของแอดมิน พร้อมสร้างไฟล์ SQL Migration
 
 - [x] **Prisma Model `Review` Enhancement**:
@@ -57,6 +58,7 @@ graph TD
 ---
 
 ### เฟส 2: กำหนด Contract และ Zod Validators ส่วนกลาง (`@repo/types`, `@repo/validators`)
+
 > **เป้าหมาย**: สร้าง Single Source of Truth สำหรับ Review Entities, API Payloads, และการตรวจสอบความถูกต้องของข้อมูล
 
 - [x] **`packages/types`**:
@@ -83,6 +85,7 @@ graph TD
 ---
 
 ### เฟส 3: เครื่องยนต์รีวิวและคำนวณคะแนนฝั่งหน้าร้าน (`apps/api`)
+
 > **เป้าหมาย**: API สำหรับดึงรีวิวสินค้า คำนวณสถิติดาว และ Guard ตรวจสอบสิทธิ์ผู้ซื้อจริง
 
 - [x] **โมดูล `apps/api/src/modules/reviews/`**:
@@ -106,6 +109,7 @@ graph TD
 ---
 
 ### เฟส 4: ระบบจัดการและตรวจสอบรีวิวฝั่งหลังบ้าน (`apps/admin-api`)
+
 > **เป้าหมาย**: API สำหรับแอดมินในการค้นหา อนุมัติ ซ่อน ตอบกลับ และลบรีวิวลูกค้า พร้อมเก็บบันทึก Audit Trail
 
 - [x] **โมดูล `apps/admin-api/src/modules/reviews/`**:
@@ -124,6 +128,7 @@ graph TD
 ---
 
 ### เฟส 5: พัฒนาหน้าจอผู้ใช้ทั้งหน้าร้านและหลังบ้าน (`apps/store` & `apps/admin`)
+
 > **เป้าหมาย**: สร้าง UI ประณีตมาตรฐาน Editorial Luxury โดยไม่มี Emoji ใน UI
 
 - [x] **หน้าร้าน (`apps/store`)**:
@@ -149,6 +154,7 @@ graph TD
 ---
 
 ### เฟส 6: การทดสอบและความสมบูรณ์ของระบบ (Testing & Verification)
+
 > **เป้าหมาย**: ครอบคลุม 100% ตาม Mandatory Feature Unit Testing Policy
 
 - [x] **Unit Tests (`apps/api/test/reviews/reviews.service.spec.ts`)**:
@@ -166,4 +172,3 @@ graph TD
 - [x] **Monorepo Build Verification**:
   - [x] คอมไพล์ผ่านทุกแพ็กเกจ: `@repo/types`, `@repo/validators`, `apps/api`, `apps/admin-api`, `apps/admin`, `apps/store`
   - [x] รัน Unit Tests ทุกชุดผ่าน 100%
-

@@ -11,4 +11,3 @@ import { AuditLogModule } from '../audit-log/audit-log.module.js';
   exports: [AdminReviewsService],
 })
 export class AdminReviewsModule {}
-

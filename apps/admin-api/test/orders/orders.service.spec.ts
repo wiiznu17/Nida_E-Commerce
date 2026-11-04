@@ -552,7 +552,11 @@ describe('OrdersService', () => {
           {
             quantity: 1,
             unitPrice: 1500,
-            productSnapshot: { name: 'Silk Shirt', colorName: 'Black', size: 'M' },
+            productSnapshot: {
+              name: 'Silk Shirt',
+              colorName: 'Black',
+              size: 'M',
+            },
           },
         ],
         shippingAddressSnapshot: {
@@ -578,7 +582,11 @@ describe('OrdersService', () => {
       prismaMock.order.update.mockResolvedValue({
         ...mockOrder,
         status: OrderStatus.SHIPPED,
-        user: { email: 'somying@example.com', firstName: 'Somying', lastName: 'Jaidee' },
+        user: {
+          email: 'somying@example.com',
+          firstName: 'Somying',
+          lastName: 'Jaidee',
+        },
         shipments: [
           {
             id: 'ship-mail',
