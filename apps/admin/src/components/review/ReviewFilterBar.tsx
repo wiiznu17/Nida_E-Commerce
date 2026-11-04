@@ -25,12 +25,12 @@ export function ReviewFilterBar({
 
   const statusOptions = REVIEW_STATUS_OPTIONS.map((opt) => ({
     value: opt.value,
-    label: t(opt.labelKey) ?? opt.value,
+    label: t(opt.labelKey, opt.value),
   }));
 
   const ratingOptions = REVIEW_RATING_OPTIONS.map((opt) => ({
     value: opt.value,
-    label: opt.value ? opt.labelKey : (t(opt.labelKey) ?? 'All Ratings'),
+    label: opt.value ? opt.labelKey : t(opt.labelKey, 'All Ratings'),
   }));
 
   const hasActiveFilters = Boolean(
@@ -84,13 +84,13 @@ export function ReviewFilterBar({
               className="flex-1 inline-flex items-center justify-center space-x-1.5 bg-brand-brown hover:bg-stone-800 text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider rounded-xs transition-colors shadow-2xs cursor-pointer"
             >
               <Search className="w-3.5 h-3.5" />
-              <span>{t('reviews.filter.searchBtn') ?? 'SEARCH'}</span>
+              <span>{t('reviews.filter.searchBtn', 'Search')}</span>
             </button>
             <button
               type="button"
               onClick={onReset}
               disabled={!hasActiveFilters}
-              title={t('reviews.filter.reset') ?? 'Reset filters'}
+              title={t('reviews.filter.reset', 'Reset filters')}
               className={`p-2.5 rounded-xs border text-xs transition-colors flex items-center justify-center shrink-0 cursor-pointer ${
                 hasActiveFilters
                   ? 'border-stone-300 text-stone-700 hover:bg-stone-100 hover:border-stone-400'

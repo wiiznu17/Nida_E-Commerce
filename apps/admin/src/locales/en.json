@@ -1586,14 +1586,23 @@
     },
     "filter": {
       "searchPlaceholder": "Search reviews, product, or customer...",
+      "searchBtn": "Search",
+      "reset": "Reset filters",
       "allStatus": "All Visibility Statuses",
+      "statusAll": "All Statuses",
+      "statusApproved": "Approved Only",
+      "statusHidden": "Hidden Only",
       "approvedOnly": "Approved Only",
       "hiddenOnly": "Hidden Only",
-      "allRatings": "All Star Ratings"
+      "allRatings": "All Star Ratings",
+      "ratingAll": "All Star Ratings"
     },
     "table": {
       "product": "Product",
       "customer": "Customer / Order",
+      "rating": "Rating",
+      "review": "Review Content",
+      "reply": "Brand Reply",
       "ratingReview": "Rating & Review",
       "status": "Status",
       "date": "Date Submitted",
@@ -1602,12 +1611,37 @@
       "unverified": "Unverified Purchase",
       "approved": "Published",
       "hidden": "Hidden",
-      "adminReply": "Brand Official Response",
-      "reply": "Reply",
-      "editReply": "Edit Reply",
-      "approve": "Approve",
-      "hide": "Hide",
+      "adminReply": "Brand Official Response"
+    },
+    "badge": {
+      "verified": "Verified Buyer",
+      "unverified": "Unverified Purchase"
+    },
+    "status": {
+      "approved": "Published",
+      "hidden": "Hidden"
+    },
+    "action": {
+      "approve": "Approve Review",
+      "hide": "Hide Review",
+      "reply": "Official Reply",
       "delete": "Delete Review"
+    },
+    "reply": {
+      "modalTitle": "Official Brand Reply",
+      "label": "Reply from NIDA Official",
+      "placeholder": "Type official response from the brand (max 1,000 characters)...",
+      "saveBtn": "Save Official Reply",
+      "statusReplied": "Replied",
+      "statusNoReply": "No reply",
+      "minLenError": "Reply must be at least 2 characters",
+      "maxLenError": "Reply cannot exceed 1000 characters"
+    },
+    "delete": {
+      "modalTitle": "Delete Review",
+      "subTitle": "Action will be logged in Admin Audit Trail",
+      "confirmMessage": "Are you sure you want to delete this review? This action soft-deletes the review and immediately recalculates the product average score.",
+      "confirmBtn": "Delete Review"
     },
     "replyModal": {
       "title": "Official Brand Response",

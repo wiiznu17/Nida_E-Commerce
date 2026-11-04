@@ -181,20 +181,8 @@ export default function AdminReviews() {
       : '0.0';
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-serif text-[#2B1810] tracking-wide">
-              {t('reviews.title') ?? 'Product Reviews & Ratings'}
-            </h1>
-            <p className="text-xs text-stone-500 mt-1">
-              {t('reviews.subtitle') ?? 'Moderate customer product ratings, respond to feedback, and manage visibility.'}
-            </p>
-          </div>
-        </div>
-
+    <AdminLayout title={t('reviews.title', 'Product Reviews & Ratings')}>
+      <div className="space-y-5">
         {/* Metric Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard
