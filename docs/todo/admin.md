@@ -18,10 +18,12 @@
 | **Promotions & Coupons**        |                                     ✅ Coupon CRUD & Validations                                      |                                      ✅ Promotion Manager Modal                                       | **พร้อมใช้งาน 100%**          |
 | **System Activity Audit Log**   |                                    ✅ AuditLog API & Interceptors                                     |                                     ✅ Audit Table & Diff Viewer                                      | **พร้อมใช้งาน 100%**          |
 | **Granular RBAC Permissions**   |                                      ✅ PermissionsGuard & Seed                                       |                                   ✅ Route Guards & PermissionGates                                   | **พร้อมใช้งาน 100%**          |
-| **CMS Banner Management**       |                                          ⏳ มี Prisma Model                                           |                                            ⏳ ยังไม่ได้ทำ                                             | **รอดำเนินการ**               |
-| **Analytics & Data Export**     |                                           ⏳ กำลังพัฒนา API                                           |                                     ✅ แดชบอร์ด & โมดอลเสร็จแล้ว                                      | **กำลังดำเนินการ**            |
-| **Order Item Product Snapshot** |                                        ⏳ มี Partial Snapshot                                         |                                      ⏳ ใช้ Live Query บางฟิลด์                                       | **รอดำเนินการ (เตรียมพัฒนา)** |
-| **Tax Invoicing & Receipts**    | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | **รอดำเนินการ**               |
+| **CMS Banner Management**       |                                    ✅ CmsBanner API & Revalidation                                    |                                      ✅ AdminCmsContent Form & Table                                  | **พร้อมใช้งาน 100%**          |
+| **Analytics & Data Export**     |                                    ✅ Analytics Dashboard & CSV Exports                               |                                     ✅ แดชบอร์ด & โมดอลส่งออก CSV ครบวงจร                              | **พร้อมใช้งาน 100%**          |
+| **Order Item Product Snapshot** |                                    ✅ Immutable Snapshot Schema & API                                 |                                      ✅ พรีวิว Snapshot ใน Order Detail & Slip                         | **พร้อมใช้งาน 100%**          |
+| **Tax Invoicing & Receipts**    |                                    ✅ Auto-Sequential Engine (ม.86/4)                                 |                                      ✅ พิมพ์ใบกำกับภาษีเต็มรูป A4 ใน Order Detail                     | **พร้อมใช้งาน 100%**          |
+| **Product Reviews Moderation**  |                                    ✅ Search, Toggle Visibility, Official Reply                       |                                      ✅ ตารางจัดการรีวิว & Modals ตอบกลับ/ลบ                            | **พร้อมใช้งาน 100%**          |
+| **Production Go-Live Readiness**| ⏳ รอดำเนินการ ([production-readiness.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/production-readiness.md)) | ⏳ รอดำเนินการ ([production-readiness.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/production-readiness.md)) | **รอดำเนินการ (เตรียมพร้อมเปิดตัว)** |
 
 ---
 
@@ -31,9 +33,12 @@
 graph TD
     A[เฟส 1: System Audit Log ระบบประวัติการทำงาน ✅] --> B[เฟส 2: Granular RBAC สิทธิ์การเข้าถึงระดับฟังก์ชัน ✅]
     B --> C[เฟส 3: Order Fulfillment พิมพ์ใบปะหน้า & จัดส่ง ✅]
-    C --> D[เฟส 4: Analytics & Export แดชบอร์ดวิเคราะห์ & ส่งออกข้อมูล 🔄]
-    D --> E[เฟส 5: CMS Banner จัดการแบนเนอร์หน้าร้าน]
-    E --> F[เฟส 6: Full Product Snapshot ระบบบันทึกประวัติสินค้าฉบับเต็มในออเดอร์]
+    C --> D[เฟส 4: Analytics & Export แดชบอร์ดวิเคราะห์ & ส่งออกข้อมูล ✅]
+    D --> E[เฟส 5: CMS Banner จัดการแบนเนอร์หน้าร้าน ✅]
+    E --> F[เฟส 6: Full Product Snapshot ระบบบันทึกประวัติสินค้าฉบับเต็มในออเดอร์ ✅]
+    F --> G[เฟส 7: Tax Invoicing & Receipts ออกใบกำกับภาษีเต็มรูป A4 ✅]
+    G --> H[เฟส 8: Product Reviews & Ratings Moderation ดูแลรีวิวลูกค้า ✅]
+    H --> I[⏳ เฟส 9: Production Go-Live Readiness เตรียมความพร้อมสู่การใช้งานจริง]
 ```
 
 ---

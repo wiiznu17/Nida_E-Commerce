@@ -20,7 +20,9 @@
 | **การคืนสินค้าและคืนเงิน (Return & Refund)**                    |                           ✅ รองรับครบ 3 เคสทางธุรกิจ พร้อมโมดอลขอคืนสินค้า                           |                          ✅ เชื่อม Omise Refund API, คืนสต็อก และระบบพิจารณา                          | **เสร็จสมบูรณ์ (Production Ready)** |
 | **วงจรชีวิตคำสั่งซื้อและคิวงาน (Order Lifecycle & Jobs)**       |                          ✅ รองรับสถานะ COMPLETED, CANCELLED, Auto-Complete                           |                ✅ ติดตั้ง BullMQ + Redis คิวงานเบื้องหลัง Auto-Cancel / Complete 5 วัน                | **เสร็จสมบูรณ์ (Production Ready)** |
 | **ความปลอดภัย, สต็อก และโปรโมชัน (Security, Auth & Marketing)** |                          ✅ PII Masking, Turnstile Bot Shield, Cooldown 60s                           |                   ✅ Redis Sliding Window Rate Limit, Token Bucket & Session Revoke                   | **เสร็จสมบูรณ์ (Production Ready)** |
-| **ใบเสร็จ/ใบกำกับภาษี (Tax Invoicing & Receipts)**              | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | ⏳ รอดำเนินการ ([tax-invoice.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/tax-invoice.md)) | **รอดำเนินการ (เตรียมพัฒนา)**       |
+| **ใบเสร็จ/ใบกำกับภาษี (Tax Invoicing & Receipts)**              |                                   ✅ ขอใบกำกับภาษีใน Checkout & พิมพ์ A4 PDF                                    |                       ✅ คำนวณ VAT 7% & ออกเลขรัน `INV-YYYYMM-XXXXX` อัตโนมัติ                       | **เสร็จสมบูรณ์ (Production Ready)** |
+| **รีวิวและคะแนนสินค้า (Product Reviews & Ratings)**             |                                   ✅ สรุปคะแนนดาว & Modal เขียนรีวิว Verified Buyer                                    |                       ✅ สิทธิ์ซื้อจริง 1 รีวิว/ออเดอร์, Soft Delete, & คำนวณคะแนนสด                         | **เสร็จสมบูรณ์ (Production Ready)** |
+| **ความพร้อมเปิดร้านจริง (Production Go-Live Readiness)**        | ⏳ รอดำเนินการ ([production-readiness.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/production-readiness.md)) | ⏳ รอดำเนินการ ([production-readiness.md](file:///Users/wiiznu/project/Nida_Project/docs/todo/production-readiness.md)) | **รอดำเนินการ (เตรียมพร้อมเปิดตัว)** |
 
 ---
 
@@ -37,7 +39,9 @@ graph TD
     F2 --> G[✅ เฟส 7: Storefront CMS แบนเนอร์ & รายการโปรด Wishlist]
     G --> H[✅ เฟส 8: ควบคุมวงจรชีวิตคำสั่งซื้อ & สถานะ COMPLETED & คิวงานเบื้องหลัง Order Lifecycle & Background Jobs]
     H --> I[✅ เฟส 9: ความปลอดภัย สิทธิ์ยืนยันตัวตน สต็อก และโปรโมชัน Security, Auth & Inventory/Marketing Safeguards]
-    I --> J[⏳ เฟส 10: ระบบออกใบเสร็จรับเงิน / ใบกำกับภาษีเต็มรูป Tax Invoicing & Receipts]
+    I --> J[✅ เฟส 10: ระบบออกใบเสร็จรับเงิน / ใบกำกับภาษีเต็มรูป Tax Invoicing & Receipts]
+    J --> K[✅ เฟส 11: ระบบรีวิวและคะแนนสินค้า Product Reviews & Ratings]
+    K --> L[⏳ เฟส 12: เตรียมความพร้อมสู่การใช้งานจริง Production Go-Live Readiness]
 ```
 
 ---
