@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { Test } from '@nestjs/testing';
 import { ReviewsService } from '../../src/modules/reviews/reviews.service.js';
-import type { PrismaService } from '../../src/core/prisma/prisma.service.js';
-import type { RedisService } from '../../src/core/redis/redis.service.js';
+import { ReviewsModule } from '../../src/modules/reviews/reviews.module.js';
+import { ReviewsController } from '../../src/modules/reviews/reviews.controller.js';
+import { PrismaService } from '../../src/core/prisma/prisma.service.js';
+import { RedisService } from '../../src/core/redis/redis.service.js';
+import { MailerModule } from '../../src/core/mailer/mailer.module.js';
 import {
   NotFoundException,
   ForbiddenException,
@@ -299,6 +303,22 @@ describe('ReviewsService (Customer Storefront Domain)', () => {
       expect(eligible[0].productId).toBe('prod-2');
       expect(eligible[0].productName).toBe('Wool Blazer');
       expect(eligible[0].orderNumber).toBe('NIDA-202611-0001');
+    });
+  });
+
+  describe('ReviewsModule Dependency Injection Bootstrap', () => {
+    it('resolves ReviewsController and guards without UnknownDependenciesException', async () => {
+      const moduleRef = await Test.createTestingModule({
+        imports: [MailerModule, ReviewsModule],
+      })
+        .overrideProvider(PrismaService)
+        .useValue(prismaMock)
+        .overrideProvider(RedisService)
+        .useValue(redisMock)
+        .compile();
+
+      const controller = moduleRef.get<ReviewsController>(ReviewsController);
+      expect(controller).toBeDefined();
     });
   });
 });
