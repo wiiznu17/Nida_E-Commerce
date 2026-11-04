@@ -2008,7 +2008,13 @@ export class CustomerOrdersService {
 
       if (!recipientEmail) return;
 
-      const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
+      const storefrontUrl = process.env.STOREFRONT_URL;
+      if (!storefrontUrl) {
+        this.logger.error(
+          'Cannot dispatch Tax Invoice email: STOREFRONT_URL environment variable is missing',
+        );
+        return;
+      }
       const viewUrl = `${storefrontUrl}/profile/orders/${encodeURIComponent(order.orderNumber)}`;
 
       const branchInfo =

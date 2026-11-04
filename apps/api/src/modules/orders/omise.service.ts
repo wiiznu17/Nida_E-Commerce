@@ -1,4 +1,9 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 export interface OmisePromptPayChargeResult {
   chargeId: string;
@@ -52,7 +57,13 @@ export class OmiseService {
   }
 
   private get frontendUrl(): string {
-    return process.env.STORE_FRONTEND_URL || 'http://localhost:3000';
+    const url = process.env.STOREFRONT_URL;
+    if (!url) {
+      throw new InternalServerErrorException(
+        'STOREFRONT_URL is not configured in environment variables',
+      );
+    }
+    return url;
   }
 
   private get authHeader(): string {

@@ -129,7 +129,13 @@ export class OrderTimeoutWorker extends WorkerHost {
     });
 
     if (this.mailerService && cancelledRecipientEmail) {
-      const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
+      const storefrontUrl = process.env.STOREFRONT_URL;
+      if (!storefrontUrl) {
+        this.logger.error(
+          'Cannot dispatch timeout cancellation email: STOREFRONT_URL environment variable is missing',
+        );
+        return;
+      }
       this.mailerService
         .sendOrderCancelledEmail({
           to: cancelledRecipientEmail,

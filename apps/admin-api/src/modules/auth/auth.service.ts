@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  InternalServerErrorException,
   HttpException,
   HttpStatus,
   Logger,
@@ -403,7 +404,12 @@ export class AuthService {
         RESET_TOKEN_EXPIRATION_SECONDS,
       );
 
-      const portalUrl = process.env.ADMIN_PORTAL_URL ?? 'http://localhost:5173';
+      const portalUrl = process.env.ADMIN_PORTAL_URL;
+      if (!portalUrl) {
+        throw new InternalServerErrorException(
+          'ADMIN_PORTAL_URL is not configured in environment variables',
+        );
+      }
       const resetUrl = `${portalUrl}/admin/reset-password?token=${resetToken}`;
 
       await this.mailer.sendPasswordReset({

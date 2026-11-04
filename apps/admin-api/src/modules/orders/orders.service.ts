@@ -796,21 +796,27 @@ export class OrdersService {
         null;
 
       if (this.mailerService && recipientEmail) {
-        const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
-        this.mailerService
-          .sendOrderCancelledEmail({
-            to: recipientEmail,
-            orderNumber: updated.orderNumber,
-            reason:
-              overrideReason?.trim() ||
-              'คำสั่งซื้อได้รับการยกเลิกโดยผู้ดูแลระบบ',
-            storefrontUrl,
-          })
-          .catch((err: unknown) => {
-            this.logger.error(
-              `Failed to send order cancelled email for #${updated.orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
-            );
-          });
+        const storefrontUrl = process.env.STOREFRONT_URL;
+        if (!storefrontUrl) {
+          this.logger.error(
+            'Cannot dispatch Order Cancelled email: STOREFRONT_URL environment variable is missing',
+          );
+        } else {
+          this.mailerService
+            .sendOrderCancelledEmail({
+              to: recipientEmail,
+              orderNumber: updated.orderNumber,
+              reason:
+                overrideReason?.trim() ||
+                'คำสั่งซื้อได้รับการยกเลิกโดยผู้ดูแลระบบ',
+              storefrontUrl,
+            })
+            .catch((err: unknown) => {
+              this.logger.error(
+                `Failed to send order cancelled email for #${updated.orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
+              );
+            });
+        }
       }
     }
 
@@ -1005,7 +1011,13 @@ export class OrdersService {
       return;
     }
 
-    const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
+    const storefrontUrl = process.env.STOREFRONT_URL;
+    if (!storefrontUrl) {
+      this.logger.error(
+        'Cannot dispatch Order Shipped email: STOREFRONT_URL environment variable is missing',
+      );
+      return;
+    }
     let trackingUrl = `${storefrontUrl}/track-order?trackingNumber=${encodeURIComponent(trackingNumber)}`;
 
     const carrierUpper = (carrierCode ?? courierName).toUpperCase();
@@ -1477,24 +1489,29 @@ export class OrdersService {
           ? 'ยอดเงินจะปรับปรุงคืนเข้าบัญชีบัตรเครดิตภายใน 7–14 วันทำการ ขึ้นอยู่กับรอบบิลของธนาคาร'
           : 'ยอดเงินจะปรับปรุงคืนเข้าบัญชีภายใน 1–3 วันทำการ';
 
-      const storefrontUrl = process.env.STOREFRONT_URL || 'https://nida.co';
-
-      this.mailerService
-        .sendRefundProcessedEmail({
-          to: recipientEmail,
-          orderNumber: order.orderNumber,
-          refundNumber: issuedRefundNumber,
-          amount: refundAmount,
-          reason: dto.reason,
-          paymentMethod: channel,
-          estimatedTimeline: timeline,
-          storefrontUrl,
-        })
-        .catch((err: unknown) => {
-          this.logger.error(
-            `Failed to send refund processed email for #${order.orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
-          );
-        });
+      const storefrontUrl = process.env.STOREFRONT_URL;
+      if (!storefrontUrl) {
+        this.logger.error(
+          'Cannot dispatch Refund email: STOREFRONT_URL environment variable is missing',
+        );
+      } else {
+        this.mailerService
+          .sendRefundProcessedEmail({
+            to: recipientEmail,
+            orderNumber: order.orderNumber,
+            refundNumber: issuedRefundNumber,
+            amount: refundAmount,
+            reason: dto.reason,
+            paymentMethod: channel,
+            estimatedTimeline: timeline,
+            storefrontUrl,
+          })
+          .catch((err: unknown) => {
+            this.logger.error(
+              `Failed to send refund processed email for #${order.orderNumber}: ${err instanceof Error ? err.message : String(err)}`,
+            );
+          });
+      }
     }
 
     return this.getOrderByNumber(order.orderNumber);

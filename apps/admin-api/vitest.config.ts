@@ -9,5 +9,9 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.spec.ts'],
+    env: {
+      STOREFRONT_URL: 'http://localhost:3000',
+      ADMIN_PORTAL_URL: 'http://localhost:5173',
+    },
   },
 });

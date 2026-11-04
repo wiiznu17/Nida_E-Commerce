@@ -3,6 +3,7 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
@@ -154,7 +155,12 @@ export class AdminUsersService {
       INVITE_TOKEN_EXPIRATION_SECONDS,
     );
 
-    const portalUrl = process.env.ADMIN_PORTAL_URL ?? 'http://localhost:5173';
+    const portalUrl = process.env.ADMIN_PORTAL_URL;
+    if (!portalUrl) {
+      throw new InternalServerErrorException(
+        'ADMIN_PORTAL_URL is not configured in environment variables',
+      );
+    }
     const setupUrl = `${portalUrl}/admin/setup-password?token=${inviteToken}`;
 
     await this.mailer.sendAdminInvitation({
